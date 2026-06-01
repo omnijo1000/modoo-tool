@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>연차 계산기 2026 - 연차일수 자동 계산</title>
+<meta name="description" content="2026년 연차 계산기. 입사일 입력으로 법정 연차일수, 남은 연차, 연차수당을 자동 계산합니다. 근로기준법 기준 무료 연차 계산기.">
+<meta name="keywords" content="연차 계산기, 연차일수 계산, 연차수당 계산, 법정연차, 연차 개수">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0a0a0f; --surface:#11111a; --surface2:#181825; --border:#22223a;
+    --accent:#a5b4fc; --accent2:#818cf8; --accent-dim:rgba(165,180,252,0.08);
+    --text:#f0f0ff; --text-muted:#7878a8; --text-dim:#3a3a5a;
+    --green:#4ade80; --red:#f87171; --yellow:#facc15;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:'Noto Sans KR',sans-serif; min-height:100vh; }
+  header { border-bottom:1px solid var(--border); padding:20px 24px; display:flex; align-items:center; gap:12px; }
+  .dot { width:8px; height:8px; border-radius:50%; background:var(--accent2); }
+  .header-label { font-size:13px; color:var(--text-muted); letter-spacing:0.1em; font-family:'DM Mono',monospace; }
+  .back-link { margin-left:auto; font-size:13px; color:var(--text-muted); text-decoration:none; }
+  .back-link:hover { color:var(--accent2); }
+  main { max-width:600px; margin:0 auto; padding:48px 24px; }
+  h1 { font-size:clamp(24px,5vw,36px); font-weight:900; line-height:1.1; margin-bottom:12px; }
+  h1 span { color:var(--accent2); }
+  .subtitle { color:var(--text-muted); font-size:14px; margin-bottom:32px; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:20px 24px; margin-bottom:14px; transition:border-color 0.2s; }
+  .card:focus-within { border-color:var(--accent2); }
+  .card-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  label { font-size:12px; color:var(--text-muted); letter-spacing:0.08em; display:block; margin-bottom:10px; }
+  input[type=date],input[type=number] { width:100%; background:transparent; border:none; outline:none; font-size:22px; font-weight:700; color:var(--text); font-family:'DM Mono',monospace; }
+  input[type=date]::-webkit-calendar-picker-indicator { filter:invert(0.5); }
+  input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
+  .unit { color:var(--text-dim); font-size:13px; margin-top:4px; }
+
+  .result-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px; display:none; }
+  .result-grid.show { display:grid; }
+  .res-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px 20px; }
+  .res-card.accent { background:var(--accent-dim); border-color:var(--accent2); }
+  .res-label { font-size:11px; color:var(--text-muted); letter-spacing:0.08em; margin-bottom:8px; }
+  .res-value { font-family:'DM Mono',monospace; font-size:28px; font-weight:700; color:var(--text); }
+  .res-value.accent { color:var(--accent); }
+  .res-sub { font-size:12px; color:var(--text-dim); margin-top:3px; }
+
+  .detail-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px 22px; margin-bottom:14px; display:none; }
+  .detail-card.show { display:block; }
+  .detail-title { font-size:12px; color:var(--text-muted); letter-spacing:0.08em; margin-bottom:12px; }
+  .detail-row { display:flex; justify-content:space-between; font-size:13px; padding:5px 0; border-bottom:1px solid var(--border); }
+  .detail-row:last-child { border-bottom:none; }
+  .detail-label { color:var(--text-dim); }
+  .detail-value { font-family:'DM Mono',monospace; color:var(--text-muted); }
+
+  .year-list { display:flex; flex-direction:column; gap:6px; }
+  .year-item { display:flex; justify-content:space-between; font-size:13px; padding:8px 0; border-bottom:1px solid var(--border); }
+  .year-item:last-child { border-bottom:none; }
+  .year-label { color:var(--text-muted); }
+  .year-days { font-family:'DM Mono',monospace; color:var(--accent); font-weight:700; }
+
+  .seo { border-top:1px solid var(--border); padding-top:32px; }
+  .seo h2 { font-size:16px; font-weight:700; margin-bottom:12px; }
+  .seo p { font-size:13px; color:var(--text-muted); line-height:1.8; margin-bottom:24px; }
+  footer { text-align:center; font-size:12px; color:var(--text-dim); margin-top:48px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="dot"></div>
+  <span class="header-label">ANNUAL LEAVE CALCULATOR</span>
+  <a href="index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>연차<br><span>계산기</span></h1>
+  <p class="subtitle">근로기준법 기준 법정 연차일수 자동 계산</p>
+
+  <div class="card">
+    <label>입사일</label>
+    <input type="date" id="joinDate" oninput="calc()">
+  </div>
+
+  <div class="card-row">
+    <div class="card">
+      <label>사용한 연차</label>
+      <input type="number" id="usedLeave" placeholder="0" value="0" min="0" oninput="calc()">
+      <div class="unit">일</div>
+    </div>
+    <div class="card">
+      <label>일 통상임금 (연차수당)</label>
+      <input type="number" id="dailyWage" placeholder="100000" oninput="calc()">
+      <div class="unit">원</div>
+    </div>
+  </div>
+
+  <div class="result-grid" id="resultGrid">
+    <div class="res-card accent">
+      <div class="res-label">올해 연차 일수</div>
+      <div class="res-value accent" id="totalLeave"></div>
+      <div class="res-sub">일</div>
+    </div>
+    <div class="res-card">
+      <div class="res-label">남은 연차</div>
+      <div class="res-value" id="remainLeave"></div>
+      <div class="res-sub">일</div>
+    </div>
+    <div class="res-card">
+      <div class="res-label">근속기간</div>
+      <div class="res-value" id="workPeriod" style="font-size:18px"></div>
+      <div class="res-sub" id="workDays"></div>
+    </div>
+    <div class="res-card">
+      <div class="res-label">연차수당 (미사용)</div>
+      <div class="res-value" id="leaveWage" style="font-size:18px;color:var(--yellow)"></div>
+      <div class="res-sub">일 통상임금 기준</div>
+    </div>
+  </div>
+
+  <div class="detail-card" id="detailCard">
+    <div class="detail-title">연차 발생 이력</div>
+    <div class="year-list" id="yearList"></div>
+  </div>
+
+  <div class="detail-card" id="infoCard" style="display:none">
+    <div class="detail-title">연차 정보</div>
+    <div class="detail-row"><span class="detail-label">입사 1년 미만</span><span class="detail-value">매월 개근 시 1일 발생 (최대 11일)</span></div>
+    <div class="detail-row"><span class="detail-label">1년 이상</span><span class="detail-value">15일 기본 + 2년마다 1일 추가</span></div>
+    <div class="detail-row"><span class="detail-label">최대 연차</span><span class="detail-value">25일</span></div>
+    <div class="detail-row"><span class="detail-label">소멸 시효</span><span class="detail-value">1년 (미사용 시 연차수당 청구 가능)</span></div>
+  </div>
+
+  <div class="seo">
+    <h2>연차 계산 방법</h2>
+    <p>입사 1년 미만: 1개월 개근 시 유급휴가 1일 발생(최대 11일). 1년 이상: 15일 기본, 이후 2년마다 1일 추가(최대 25일). 미사용 연차는 1년 후 소멸되며 연차수당으로 청구할 수 있습니다.</p>
+  </div>
+  <footer>근로기준법 제60조 기준 · 회사 규정에 따라 다를 수 있습니다</footer>
+</main>
+<script>
+function fmt(n) { return Math.round(n).toLocaleString('ko-KR') + '원'; }
+
+function calcAnnualLeave(joinDate, baseDate) {
+  const join = new Date(joinDate);
+  const base = new Date(baseDate);
+  const totalDays = Math.floor((base - join) / (1000*60*60*24));
+  const years = Math.floor(totalDays / 365);
+
+  if (years < 1) {
+    const months = Math.floor(totalDays / 30);
+    return Math.min(months, 11);
+  }
+  const extra = Math.floor((years - 1) / 2);
+  return Math.min(15 + extra, 25);
+}
+
+function calc() {
+  const joinVal = document.getElementById('joinDate').value;
+  const used = parseInt(document.getElementById('usedLeave').value) || 0;
+  const dailyWage = parseFloat(document.getElementById('dailyWage').value) || 0;
+
+  const gridEl = document.getElementById('resultGrid');
+  const detailEl = document.getElementById('detailCard');
+  const infoEl = document.getElementById('infoCard');
+
+  if (!joinVal) { gridEl.classList.remove('show'); detailEl.style.display = 'none'; infoEl.style.display = 'none'; return; }
+
+  const join = new Date(joinVal);
+  const today = new Date(); today.setHours(0,0,0,0);
+  const totalDays = Math.floor((today - join) / (1000*60*60*24));
+  const years = Math.floor(totalDays / 365);
+  const months = Math.floor((totalDays % 365) / 30);
+
+  const totalLeave = calcAnnualLeave(joinVal, today);
+  const remain = Math.max(0, totalLeave - used);
+  const wageAmt = dailyWage ? remain * dailyWage : null;
+
+  gridEl.classList.add('show');
+  detailEl.style.display = 'block';
+  infoEl.style.display = 'block';
+
+  document.getElementById('totalLeave').textContent = totalLeave;
+  document.getElementById('remainLeave').textContent = remain;
+  document.getElementById('workPeriod').textContent = `${years}년 ${months}개월`;
+  document.getElementById('workDays').textContent = `${totalDays.toLocaleString()}일째`;
+  document.getElementById('leaveWage').textContent = wageAmt ? fmt(wageAmt) : '임금 미입력';
+
+  // 연도별 이력
+  const rows = [];
+  for (let y = 0; y <= Math.min(years, 10); y++) {
+    const checkDate = new Date(join);
+    checkDate.setFullYear(join.getFullYear() + y + 1);
+    if (checkDate > today) break;
+    const days = calcAnnualLeave(joinVal, checkDate);
+    const yearLabel = y === 0 ? '입사 1년차 (월 발생)' : `입사 ${y+1}년차`;
+    rows.push(`<div class="year-item"><span class="year-label">${yearLabel}</span><span class="year-days">${days}일</span></div>`);
+  }
+  document.getElementById('yearList').innerHTML = rows.join('') || '<div style="color:var(--text-dim);font-size:13px">아직 연차 발생 이력 없음</div>';
+}
+</script>
+</body>
+</html>
