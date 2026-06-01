@@ -3,303 +3,142 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>주휴수당 계산기 - 2026년 기준 정확한 계산</title>
-<meta name="description" content="2026년 최신 기준 주휴수당 자동 계산기. 시급, 근무시간 입력만으로 주휴수당을 즉시 계산하세요. 알바생, 파트타임 근로자를 위한 무료 계산기.">
-<meta name="keywords" content="주휴수당 계산기, 주휴수당, 알바 주휴수당, 시급 계산, 주휴수당 조건">
+<title>모두의 툴 - 누구나 쓰는 무료 온라인 도구 모음</title>
+<meta name="description" content="직장인, 알바생, 프리랜서, 개발자 모두를 위한 무료 온라인 툴 모음. 주휴수당 계산기, 프리랜서 세금 계산기, Cron 표현식 생성기 등 다양한 도구를 무료로 사용하세요.">
+<meta name="keywords" content="모두의툴, 무료 온라인 툴, 계산기 모음, 주휴수당 계산기, 프리랜서 세금 계산기, cron 표현식 생성기">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0f0f0f;
-    --surface: #1a1a1a;
-    --border: #2e2e2e;
-    --accent: #00e5a0;
-    --accent2: #00b37a;
+    --bg: #0a0a0a;
+    --surface: #141414;
+    --border: #222;
     --text: #f0f0f0;
-    --text-muted: #888;
-    --text-dim: #555;
-    --error: #ff6b6b;
+    --text-muted: #777;
+    --text-dim: #444;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Noto Sans KR', sans-serif;
-    min-height: 100vh;
-  }
-  .mono { font-family: 'DM Mono', monospace; }
+  body { background: var(--bg); color: var(--text); font-family: 'Noto Sans KR', sans-serif; min-height: 100vh; }
 
-  header {
-    border-bottom: 1px solid var(--border);
-    padding: 20px 24px;
+  header { border-bottom: 1px solid var(--border); padding: 20px 24px; display: flex; align-items: center; gap: 12px; }
+  .dots { display: flex; gap: 6px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .d1 { background: #00e5a0; }
+  .d2 { background: #4f8ef7; }
+  .d3 { background: #a78bfa; }
+  .header-label { font-size: 13px; color: var(--text-muted); letter-spacing: 0.1em; font-family: 'DM Mono', monospace; }
+
+  main { max-width: 680px; margin: 0 auto; padding: 64px 24px; }
+
+  .hero { margin-bottom: 64px; text-align: center; }
+  .hero h1 { font-size: clamp(36px, 8vw, 58px); font-weight: 900; line-height: 1.1; margin-bottom: 16px; }
+  .hero h1 span { 
+    background: linear-gradient(90deg, #00e5a0, #4f8ef7, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .hero p { font-size: 15px; color: var(--text-muted); line-height: 1.8; }
+
+  .category-label { font-size: 11px; color: var(--text-dim); letter-spacing: 0.12em; text-transform: uppercase; font-family: 'DM Mono', monospace; margin-bottom: 12px; }
+
+  .tools { display: flex; flex-direction: column; gap: 16px; margin-bottom: 48px; }
+
+  .tool-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 32px;
+    text-decoration: none;
+    color: var(--text);
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 24px;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
   }
-  .dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--accent);
+  .tool-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--card-color);
+    opacity: 0;
+    transition: opacity 0.2s;
   }
-  .header-label {
-    font-size: 13px;
-    color: var(--text-muted);
-    letter-spacing: 0.1em;
-    font-family: 'DM Mono', monospace;
-  }
+  .tool-card:hover { border-color: var(--card-color); transform: translateX(4px); }
+  .tool-card:hover::before { opacity: 1; }
 
-  main {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 48px 24px;
-  }
+  .tool-icon { font-size: 32px; flex-shrink: 0; width: 56px; text-align: center; }
+  .tool-info { flex: 1; }
+  .tool-name { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+  .tool-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+  .tool-tag { display: inline-block; margin-top: 8px; font-size: 11px; font-family: 'DM Mono', monospace; padding: 3px 8px; border-radius: 4px; background: rgba(255,255,255,0.05); color: var(--text-dim); }
+  .tool-arrow { color: var(--text-dim); font-size: 18px; flex-shrink: 0; transition: color 0.2s; }
+  .tool-card:hover .tool-arrow { color: var(--card-color); }
 
-  .title-block { margin-bottom: 48px; }
-  h1 { font-size: clamp(28px, 6vw, 42px); font-weight: 900; line-height: 1.1; margin-bottom: 12px; }
-  h1 span { color: var(--accent); }
-  .subtitle { color: var(--text-muted); font-size: 14px; line-height: 1.7; }
-  .subtitle b { color: var(--accent); font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 400; }
+  .c1 { --card-color: #00e5a0; }
+  .c2 { --card-color: #4f8ef7; }
+  .c3 { --card-color: #a78bfa; }
 
-  .inputs { display: flex; flex-direction: column; gap: 16px; margin-bottom: 32px; }
-
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 20px 24px;
-    transition: border-color 0.2s;
-  }
-  .card:focus-within { border-color: var(--accent2); }
-
-  .card-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
-  label {
-    font-size: 12px;
-    color: var(--text-muted);
-    letter-spacing: 0.08em;
-    display: block;
-    margin-bottom: 10px;
-  }
-  .input-wrap { display: flex; align-items: center; gap: 8px; }
-  input[type=number] {
-    flex: 1;
-    background: transparent;
-    border: none;
-    outline: none;
-    font-size: 28px;
-    font-weight: 700;
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    width: 100%;
-    min-width: 0;
-  }
-  input[type=number]::-webkit-inner-spin-button,
-  input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
-  .unit { color: var(--text-dim); font-size: 14px; white-space: nowrap; }
-
-  .warn { margin-top: 8px; font-size: 12px; color: var(--error); }
-
-  /* Result */
-  .result {
-    border-radius: 16px;
-    padding: 28px;
-    margin-bottom: 32px;
-    display: none;
-  }
-  .result.show { display: block; }
-  .result.eligible {
-    background: rgba(0,229,160,0.06);
-    border: 1px solid var(--accent2);
-  }
-  .result.ineligible {
-    background: rgba(255,107,107,0.06);
-    border: 1px solid var(--error);
-  }
-
-  .result-tag {
-    font-size: 12px;
-    letter-spacing: 0.1em;
-    margin-bottom: 20px;
-  }
-  .result-tag.ok { color: var(--accent); }
-  .result-tag.no { color: var(--error); }
-
-  .result-rows { display: flex; flex-direction: column; gap: 14px; }
-  .result-row { display: flex; justify-content: space-between; align-items: baseline; }
-  .result-label { color: var(--text-muted); font-size: 14px; }
-  .result-value { font-family: 'DM Mono', monospace; font-weight: 700; }
-  .result-value.main { font-size: 24px; color: var(--accent); }
-  .result-value.sub { font-size: 18px; color: var(--text); }
-  .result-value.dim { font-size: 18px; color: var(--text-muted); font-weight: 500; }
-  .divider { height: 1px; background: var(--border); }
-
-  .ineligible-msg { color: var(--text-muted); font-size: 14px; margin-bottom: 8px; }
-  .ineligible-hint { font-size: 13px; color: var(--text-dim); }
-
-  /* Info box */
-  .info-box {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 20px 24px;
-    margin-bottom: 48px;
-  }
-  .info-title { font-size: 12px; color: var(--text-muted); letter-spacing: 0.08em; margin-bottom: 14px; }
-  .info-rows { display: flex; flex-direction: column; gap: 8px; }
-  .info-row { display: flex; justify-content: space-between; font-size: 13px; }
-  .info-key { color: var(--text-dim); }
-  .info-val { color: var(--text-muted); }
-
-  /* SEO text */
-  .seo { border-top: 1px solid var(--border); padding-top: 32px; }
-  .seo h2 { font-size: 16px; font-weight: 700; margin-bottom: 12px; }
-  .seo p { font-size: 13px; color: var(--text-muted); line-height: 1.8; margin-bottom: 24px; }
-
-  footer { text-align: center; font-size: 12px; color: var(--text-dim); margin-top: 48px; }
+  .footer-text { text-align: center; font-size: 12px; color: var(--text-dim); margin-top: 80px; }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="dot"></div>
-  <span class="header-label">WEEKLY HOLIDAY PAY CALCULATOR</span>
+  <div class="dots">
+    <div class="dot d1"></div>
+    <div class="dot d2"></div>
+    <div class="dot d3"></div>
+  </div>
+  <span class="header-label">MODOO TOOL</span>
 </header>
 
 <main>
-  <div class="title-block">
-    <h1>주휴수당<br><span>계산기</span></h1>
-    <p class="subtitle">2026년 최저임금 <b>10,030원/h</b> 기준</p>
+  <div class="hero">
+    <h1><span>모두의 툴</span></h1>
+    <p>직장인, 알바생, 프리랜서, 개발자<br>누구나 쓸 수 있는 무료 온라인 도구 모음</p>
   </div>
 
-  <div class="inputs">
-    <div class="card">
-      <label>시급 (원)</label>
-      <div class="input-wrap">
-        <input type="number" id="wage" placeholder="10030" min="0" oninput="calc()">
-        <span class="unit">원</span>
+  <div class="category-label">근로 · 세금</div>
+  <div class="tools">
+    <a href="weekly-holiday.html" class="tool-card c1">
+      <div class="tool-icon">📅</div>
+      <div class="tool-info">
+        <div class="tool-name">주휴수당 계산기</div>
+        <div class="tool-desc">시급과 근무시간 입력만으로 주휴수당, 월 추가 수령액을 즉시 계산합니다.</div>
+        <span class="tool-tag">알바 · 파트타임 · 정규직</span>
       </div>
-      <div class="warn" id="wageWarn"></div>
-    </div>
+      <div class="tool-arrow">→</div>
+    </a>
 
-    <div class="card-row">
-      <div class="card">
-        <label>하루 근무시간</label>
-        <div class="input-wrap">
-          <input type="number" id="hours" placeholder="8" min="1" max="24" oninput="calc()">
-          <span class="unit">시간</span>
-        </div>
+    <a href="freelancer-tax.html" class="tool-card c2">
+      <div class="tool-icon">🧾</div>
+      <div class="tool-info">
+        <div class="tool-name">프리랜서 세금 계산기</div>
+        <div class="tool-desc">3.3% 원천징수 실수령액과 소득세, 지방소득세를 한번에 계산합니다.</div>
+        <span class="tool-tag">프리랜서 · 사업소득 · 원천징수</span>
       </div>
-      <div class="card">
-        <label>주 근무일수</label>
-        <div class="input-wrap">
-          <input type="number" id="days" placeholder="5" min="1" max="7" oninput="calc()">
-          <span class="unit">일</span>
-        </div>
-      </div>
-    </div>
+      <div class="tool-arrow">→</div>
+    </a>
   </div>
 
-  <!-- Result: eligible -->
-  <div class="result eligible" id="resultOk">
-    <div class="result-tag ok" id="eligibleTag"></div>
-    <div class="result-rows">
-      <div class="result-row">
-        <span class="result-label">주휴수당</span>
-        <span class="result-value main" id="holidayPay"></span>
+  <div class="category-label">개발자</div>
+  <div class="tools">
+    <a href="cron-generator.html" class="tool-card c3">
+      <div class="tool-icon">⏱️</div>
+      <div class="tool-info">
+        <div class="tool-name">Cron 표현식 생성기</div>
+        <div class="tool-desc">클릭만으로 cron 표현식을 만들고 다음 실행 시간을 확인합니다. Spring @Scheduled 지원.</div>
+        <span class="tool-tag">개발자 · 스케줄러 · Spring</span>
       </div>
-      <div class="divider"></div>
-      <div class="result-row">
-        <span class="result-label">월 추가 수령 (×4.345주)</span>
-        <span class="result-value sub" id="monthlyExtra"></span>
-      </div>
-      <div class="result-row">
-        <span class="result-label">이번 주 총 급여</span>
-        <span class="result-value dim" id="totalWeekly"></span>
-      </div>
-    </div>
+      <div class="tool-arrow">→</div>
+    </a>
   </div>
 
-  <!-- Result: ineligible -->
-  <div class="result ineligible" id="resultNo">
-    <div class="result-tag no">✗ 주휴수당 미발생</div>
-    <div class="ineligible-msg" id="ineligibleMsg"></div>
-    <div class="ineligible-hint" id="ineligibleHint"></div>
-  </div>
-
-  <div class="info-box">
-    <div class="info-title">주휴수당 지급 조건</div>
-    <div class="info-rows">
-      <div class="info-row"><span class="info-key">주 소정근로시간</span><span class="info-val">15시간 이상</span></div>
-      <div class="info-row"><span class="info-key">계약 형태</span><span class="info-val">알바·파트타임·정규직 모두 해당</span></div>
-      <div class="info-row"><span class="info-key">계산식</span><span class="info-val">시급 × (주 근로시간 ÷ 5)</span></div>
-    </div>
-  </div>
-
-  <div class="seo">
-    <h2>주휴수당이란?</h2>
-    <p>주휴수당은 1주일에 15시간 이상 근무한 근로자에게 유급 휴일(주휴일)에 지급하는 수당입니다. 근로기준법 제55조에 따라 알바생, 파트타임, 정규직 구분 없이 모두 적용됩니다.</p>
-    <h2>주휴수당 계산 방법</h2>
-    <p>주휴수당 = 시급 × (1주 소정근로시간 ÷ 5일)<br>
-    예) 시급 10,030원, 주 5일 8시간 근무 시: 10,030 × (40 ÷ 5) = 80,240원</p>
-  </div>
-
-  <footer>2026년 최저임금 기준 · 실제 지급액은 사업장에 따라 다를 수 있습니다</footer>
+  <div class="footer-text">무료 · 광고 없음 · 개인정보 수집 없음</div>
 </main>
-
-<script>
-  const MIN_WAGE = 10030;
-
-  function fmt(n) {
-    return n.toLocaleString('ko-KR') + '원';
-  }
-
-  function calc() {
-    const wage = parseFloat(document.getElementById('wage').value);
-    const hours = parseFloat(document.getElementById('hours').value);
-    const days = parseFloat(document.getElementById('days').value);
-
-    // 최저임금 경고
-    const warnEl = document.getElementById('wageWarn');
-    if (wage > 0 && wage < MIN_WAGE) {
-      warnEl.textContent = `⚠ 2026년 최저임금(${fmt(MIN_WAGE)}) 미만입니다`;
-    } else {
-      warnEl.textContent = '';
-    }
-
-    const okEl = document.getElementById('resultOk');
-    const noEl = document.getElementById('resultNo');
-
-    if (!wage || !hours || !days) {
-      okEl.classList.remove('show');
-      noEl.classList.remove('show');
-      return;
-    }
-
-    const weeklyHours = hours * days;
-    const eligible = weeklyHours >= 15;
-
-    if (!eligible) {
-      okEl.classList.remove('show');
-      noEl.classList.add('show');
-      document.getElementById('ineligibleMsg').textContent = '주 15시간 미만은 주휴수당이 발생하지 않습니다.';
-      document.getElementById('ineligibleHint').textContent = `현재 주 ${weeklyHours}시간 → 15시간 이상이어야 주휴수당 발생`;
-      return;
-    }
-
-    const holidayHours = weeklyHours / 5;
-    const holidayPay = Math.floor(wage * holidayHours);
-    const weeklyBase = Math.floor(wage * weeklyHours);
-    const monthlyExtra = Math.floor(holidayPay * 4.345);
-    const totalWeekly = weeklyBase + holidayPay;
-
-    noEl.classList.remove('show');
-    okEl.classList.add('show');
-    document.getElementById('eligibleTag').textContent = `✓ 주휴수당 발생 조건 충족 (주 ${weeklyHours}시간)`;
-    document.getElementById('holidayPay').textContent = fmt(holidayPay);
-    document.getElementById('monthlyExtra').textContent = fmt(monthlyExtra);
-    document.getElementById('totalWeekly').textContent = fmt(totalWeekly);
-  }
-</script>
 
 </body>
 </html>
