@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>프리랜서 세금 계산기 - 3.3% 원천징수 실수령액 계산</title>
+<meta name="description" content="프리랜서 3.3% 원천징수 세금 계산기. 계약금액 입력만으로 소득세, 지방소득세, 실수령액을 즉시 계산하세요. 사업소득 원천징수 무료 계산기.">
+<meta name="keywords" content="프리랜서 세금 계산기, 3.3% 계산기, 원천징수 계산기, 사업소득세, 프리랜서 실수령액">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0f1e;
+    --surface: #111827;
+    --surface2: #1a2234;
+    --border: #1e2d45;
+    --accent: #4f8ef7;
+    --accent2: #3b7de8;
+    --accent-dim: rgba(79,142,247,0.12);
+    --text: #e8edf5;
+    --text-muted: #7a8ba8;
+    --text-dim: #3d4f6b;
+    --success: #34d399;
+    --warning: #fbbf24;
+    --error: #f87171;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Noto Sans KR', sans-serif; min-height: 100vh; }
+
+  header { border-bottom: 1px solid var(--border); padding: 20px 24px; display: flex; align-items: center; gap: 12px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+  .header-label { font-size: 13px; color: var(--text-muted); letter-spacing: 0.1em; font-family: 'DM Mono', monospace; }
+
+  main { max-width: 600px; margin: 0 auto; padding: 48px 24px; }
+
+  .title-block { margin-bottom: 48px; }
+  h1 { font-size: clamp(28px, 6vw, 42px); font-weight: 900; line-height: 1.1; margin-bottom: 12px; }
+  h1 span { color: var(--accent); }
+  .subtitle { color: var(--text-muted); font-size: 14px; line-height: 1.7; }
+  .subtitle b { color: var(--accent); font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 400; }
+
+  .inputs { display: flex; flex-direction: column; gap: 16px; margin-bottom: 32px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; transition: border-color 0.2s; }
+  .card:focus-within { border-color: var(--accent2); }
+
+  label { font-size: 12px; color: var(--text-muted); letter-spacing: 0.08em; display: block; margin-bottom: 10px; }
+  .input-wrap { display: flex; align-items: center; gap: 8px; }
+  input[type=number] { flex: 1; background: transparent; border: none; outline: none; font-size: 28px; font-weight: 700; color: var(--text); font-family: 'DM Mono', monospace; width: 100%; min-width: 0; }
+  input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+  .unit { color: var(--text-dim); font-size: 14px; white-space: nowrap; }
+
+  /* 빠른 입력 버튼 */
+  .quick-btns { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .qbtn { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 5px 12px; font-size: 12px; color: var(--text-muted); cursor: pointer; font-family: 'DM Mono', monospace; transition: all 0.15s; }
+  .qbtn:hover { border-color: var(--accent2); color: var(--accent); }
+
+  /* 결과 */
+  .result { border-radius: 16px; padding: 28px; margin-bottom: 32px; display: none; background: var(--accent-dim); border: 1px solid var(--accent2); }
+  .result.show { display: block; }
+
+  .result-tag { font-size: 12px; color: var(--accent); letter-spacing: 0.1em; margin-bottom: 20px; }
+
+  .result-rows { display: flex; flex-direction: column; gap: 14px; }
+  .result-row { display: flex; justify-content: space-between; align-items: baseline; }
+  .result-label { color: var(--text-muted); font-size: 14px; }
+  .result-value { font-family: 'DM Mono', monospace; font-weight: 700; }
+  .result-value.main { font-size: 26px; color: var(--success); }
+  .result-value.sub { font-size: 18px; color: var(--text); }
+  .result-value.tax { font-size: 18px; color: var(--error); }
+  .result-value.dim { font-size: 15px; color: var(--text-muted); font-weight: 500; }
+  .divider { height: 1px; background: var(--border); }
+
+  /* 세금 분해 */
+  .tax-breakdown { background: var(--surface2); border-radius: 8px; padding: 14px 16px; margin-top: 4px; }
+  .tax-row { display: flex; justify-content: space-between; font-size: 13px; padding: 3px 0; }
+  .tax-key { color: var(--text-dim); }
+  .tax-val { color: var(--text-muted); font-family: 'DM Mono', monospace; }
+
+  /* 연간 환산 */
+  .annual { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; margin-bottom: 32px; display: none; }
+  .annual.show { display: block; }
+  .annual-title { font-size: 12px; color: var(--text-muted); letter-spacing: 0.08em; margin-bottom: 14px; }
+  .annual-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .annual-item { }
+  .annual-label { font-size: 12px; color: var(--text-dim); margin-bottom: 4px; }
+  .annual-value { font-size: 16px; font-weight: 700; font-family: 'DM Mono', monospace; color: var(--text); }
+
+  /* 정보 박스 */
+  .info-box { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; margin-bottom: 48px; }
+  .info-title { font-size: 12px; color: var(--text-muted); letter-spacing: 0.08em; margin-bottom: 14px; }
+  .info-rows { display: flex; flex-direction: column; gap: 8px; }
+  .info-row { display: flex; justify-content: space-between; font-size: 13px; }
+  .info-key { color: var(--text-dim); }
+  .info-val { color: var(--text-muted); }
+
+  .seo { border-top: 1px solid var(--border); padding-top: 32px; }
+  .seo h2 { font-size: 16px; font-weight: 700; margin-bottom: 12px; }
+  .seo p { font-size: 13px; color: var(--text-muted); line-height: 1.8; margin-bottom: 24px; }
+
+  footer { text-align: center; font-size: 12px; color: var(--text-dim); margin-top: 48px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="dot"></div>
+  <span class="header-label">FREELANCER TAX CALCULATOR</span>
+</header>
+
+<main>
+  <div class="title-block">
+    <h1>프리랜서<br><span>세금 계산기</span></h1>
+    <p class="subtitle">3.3% 원천징수 <b>(소득세 3% + 지방소득세 0.3%)</b> 실수령액 계산</p>
+  </div>
+
+  <div class="inputs">
+    <div class="card">
+      <label>계약 금액 (원천징수 전)</label>
+      <div class="input-wrap">
+        <input type="number" id="amount" placeholder="1000000" min="0" oninput="calc()">
+        <span class="unit">원</span>
+      </div>
+      <div class="quick-btns">
+        <button class="qbtn" onclick="setAmount(500000)">50만</button>
+        <button class="qbtn" onclick="setAmount(1000000)">100만</button>
+        <button class="qbtn" onclick="setAmount(2000000)">200만</button>
+        <button class="qbtn" onclick="setAmount(3000000)">300만</button>
+        <button class="qbtn" onclick="setAmount(5000000)">500만</button>
+        <button class="qbtn" onclick="setAmount(10000000)">1000만</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 결과 -->
+  <div class="result" id="result">
+    <div class="result-tag">✓ 원천징수 계산 결과</div>
+    <div class="result-rows">
+      <div class="result-row">
+        <span class="result-label">실수령액</span>
+        <span class="result-value main" id="netAmount"></span>
+      </div>
+      <div class="divider"></div>
+      <div class="result-row">
+        <span class="result-label">원천징수 세액 (3.3%)</span>
+        <span class="result-value tax" id="totalTax"></span>
+      </div>
+      <div class="tax-breakdown">
+        <div class="tax-row"><span class="tax-key">소득세 (3%)</span><span class="tax-val" id="incomeTax"></span></div>
+        <div class="tax-row"><span class="tax-key">지방소득세 (0.3%)</span><span class="tax-val" id="localTax"></span></div>
+      </div>
+      <div class="divider"></div>
+      <div class="result-row">
+        <span class="result-label">계약 금액</span>
+        <span class="result-value dim" id="grossAmount"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 연간 환산 -->
+  <div class="annual" id="annual">
+    <div class="annual-title">연간 환산 (월 동일 수입 기준)</div>
+    <div class="annual-grid">
+      <div class="annual-item">
+        <div class="annual-label">연 계약 총액</div>
+        <div class="annual-value" id="annualGross"></div>
+      </div>
+      <div class="annual-item">
+        <div class="annual-label">연 실수령액</div>
+        <div class="annual-value" id="annualNet"></div>
+      </div>
+      <div class="annual-item">
+        <div class="annual-label">연 납부 세금</div>
+        <div class="annual-value" id="annualTax" style="color: var(--error);"></div>
+      </div>
+      <div class="annual-item">
+        <div class="annual-label">실효세율</div>
+        <div class="annual-value" style="color: var(--warning);">3.3%</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-box">
+    <div class="info-title">원천징수 구성</div>
+    <div class="info-rows">
+      <div class="info-row"><span class="info-key">소득세</span><span class="info-val">계약금액 × 3%</span></div>
+      <div class="info-row"><span class="info-key">지방소득세</span><span class="info-val">소득세 × 10% (= 계약금액 × 0.3%)</span></div>
+      <div class="info-row"><span class="info-key">합계</span><span class="info-val">계약금액 × 3.3%</span></div>
+      <div class="info-row"><span class="info-key">납부 주체</span><span class="info-val">발주사가 대신 납부</span></div>
+      <div class="info-row"><span class="info-key">환급 가능</span><span class="info-val">5월 종합소득세 신고 시</span></div>
+    </div>
+  </div>
+
+  <div class="seo">
+    <h2>프리랜서 3.3% 원천징수란?</h2>
+    <p>프리랜서(사업소득자)에게 대금을 지급할 때 발주사(클라이언트)가 소득세 3%와 지방소득세 0.3%를 합한 3.3%를 미리 떼고 지급하는 제도입니다. 원천징수된 세금은 발주사가 세무서에 납부합니다.</p>
+    <h2>종합소득세 환급</h2>
+    <p>매년 5월 종합소득세 신고 시 실제 소득과 비용을 신고하면, 원천징수로 낸 세금보다 실제 내야 할 세금이 적을 경우 차액을 환급받을 수 있습니다. 경비 처리가 많을수록 환급액이 커집니다.</p>
+  </div>
+
+  <footer>세금 계산은 참고용입니다 · 정확한 세무 처리는 세무사와 상담하세요</footer>
+</main>
+
+<script>
+function fmt(n) { return Math.round(n).toLocaleString('ko-KR') + '원'; }
+function fmtShort(n) {
+  if (n >= 100000000) return (n / 100000000).toFixed(1) + '억원';
+  if (n >= 10000) return Math.round(n / 10000) + '만원';
+  return Math.round(n).toLocaleString('ko-KR') + '원';
+}
+
+function setAmount(v) {
+  document.getElementById('amount').value = v;
+  calc();
+}
+
+function calc() {
+  const amount = parseFloat(document.getElementById('amount').value);
+  const resultEl = document.getElementById('result');
+  const annualEl = document.getElementById('annual');
+
+  if (!amount || amount <= 0) {
+    resultEl.classList.remove('show');
+    annualEl.classList.remove('show');
+    return;
+  }
+
+  const incomeTax = Math.round(amount * 0.03);
+  const localTax = Math.round(amount * 0.003);
+  const totalTax = incomeTax + localTax;
+  const net = amount - totalTax;
+
+  resultEl.classList.add('show');
+  annualEl.classList.add('show');
+
+  document.getElementById('netAmount').textContent = fmt(net);
+  document.getElementById('totalTax').textContent = fmt(totalTax);
+  document.getElementById('incomeTax').textContent = fmt(incomeTax);
+  document.getElementById('localTax').textContent = fmt(localTax);
+  document.getElementById('grossAmount').textContent = fmt(amount);
+
+  document.getElementById('annualGross').textContent = fmtShort(amount * 12);
+  document.getElementById('annualNet').textContent = fmtShort(net * 12);
+  document.getElementById('annualTax').textContent = fmtShort(totalTax * 12);
+}
+</script>
+</body>
+</html>
