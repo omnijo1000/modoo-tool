@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cron 표현식 생성기 - cron expression generator</title>
+<meta name="description" content="cron 표현식 생성기. 클릭만으로 cron 표현식을 쉽게 만들고 검증하세요. 스케줄러 설정, 배치 작업, Spring @Scheduled 등에 바로 사용 가능한 무료 cron 생성기.">
+<meta name="keywords" content="cron 표현식, cron expression, 크론 표현식, cron 생성기, spring scheduled, cron 뜻, cron 작성법">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0d;
+    --surface: #161616;
+    --surface2: #1f1f1f;
+    --border: #2a2a2a;
+    --accent: #a78bfa;
+    --accent2: #7c3aed;
+    --accent-dim: rgba(167,139,250,0.1);
+    --text: #f0f0f0;
+    --text-muted: #888;
+    --text-dim: #444;
+    --green: #4ade80;
+    --yellow: #facc15;
+    --red: #f87171;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Noto Sans KR', sans-serif; min-height: 100vh; }
+
+  header { border-bottom: 1px solid var(--border); padding: 20px 24px; display: flex; align-items: center; gap: 12px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+  .header-label { font-size: 13px; color: var(--text-muted); letter-spacing: 0.1em; font-family: 'DM Mono', monospace; }
+
+  main { max-width: 680px; margin: 0 auto; padding: 48px 24px; }
+
+  .title-block { margin-bottom: 40px; }
+  h1 { font-size: clamp(26px, 5vw, 38px); font-weight: 900; line-height: 1.1; margin-bottom: 12px; }
+  h1 span { color: var(--accent); }
+  .subtitle { color: var(--text-muted); font-size: 14px; line-height: 1.7; }
+
+  /* cron 표시 */
+  .cron-display { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; }
+  .cron-label { font-size: 11px; color: var(--text-muted); letter-spacing: 0.1em; margin-bottom: 12px; text-transform: uppercase; }
+  .cron-expr { font-family: 'DM Mono', monospace; font-size: 28px; font-weight: 500; color: var(--accent); letter-spacing: 0.05em; word-break: break-all; margin-bottom: 12px; cursor: pointer; }
+  .cron-expr:hover { opacity: 0.8; }
+  .cron-parts { display: flex; gap: 6px; flex-wrap: wrap; }
+  .cron-part { font-family: 'DM Mono', monospace; font-size: 11px; padding: 3px 8px; border-radius: 4px; background: var(--surface2); border: 1px solid var(--border); }
+  .cron-part span { color: var(--text-dim); margin-right: 4px; }
+  .cron-desc { margin-top: 14px; font-size: 14px; color: var(--green); font-weight: 500; }
+  .copy-btn { margin-top: 12px; background: var(--accent-dim); border: 1px solid var(--accent2); border-radius: 6px; padding: 6px 16px; font-size: 12px; color: var(--accent); cursor: pointer; font-family: 'DM Mono', monospace; transition: all 0.15s; }
+  .copy-btn:hover { background: var(--accent2); color: #fff; }
+
+  /* 프리셋 */
+  .presets { margin-bottom: 28px; }
+  .section-title { font-size: 12px; color: var(--text-muted); letter-spacing: 0.08em; margin-bottom: 12px; text-transform: uppercase; }
+  .preset-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; }
+  .preset-btn { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; cursor: pointer; text-align: left; transition: all 0.15s; }
+  .preset-btn:hover { border-color: var(--accent2); background: var(--accent-dim); }
+  .preset-name { font-size: 13px; color: var(--text); display: block; margin-bottom: 3px; }
+  .preset-expr { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--accent); }
+
+  /* 빌더 */
+  .builder { display: flex; flex-direction: column; gap: 12px; margin-bottom: 28px; }
+  .field { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; }
+  .field-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .field-name { font-size: 13px; font-weight: 700; color: var(--text); }
+  .field-input { font-family: 'DM Mono', monospace; font-size: 18px; color: var(--accent); background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 6px 12px; width: 100px; outline: none; text-align: center; }
+  .field-input:focus { border-color: var(--accent2); }
+  .field-desc { font-size: 12px; color: var(--text-dim); margin-bottom: 10px; }
+  .option-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+  .opt-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 5px; padding: 4px 10px; font-size: 12px; color: var(--text-muted); cursor: pointer; font-family: 'DM Mono', monospace; transition: all 0.15s; }
+  .opt-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .opt-btn.active { background: var(--accent-dim); border-color: var(--accent2); color: var(--accent); }
+
+  /* 직접 입력 */
+  .manual-input { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; margin-bottom: 28px; }
+  .manual-row { display: flex; gap: 8px; align-items: center; }
+  .manual-field { flex: 1; font-family: 'DM Mono', monospace; font-size: 20px; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; color: var(--accent); outline: none; }
+  .manual-field:focus { border-color: var(--accent2); }
+  .validate-btn { background: var(--accent2); border: none; border-radius: 6px; padding: 8px 16px; font-size: 13px; color: #fff; cursor: pointer; white-space: nowrap; }
+
+  /* 다음 실행 시간 */
+  .next-runs { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; margin-bottom: 40px; }
+  .next-list { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+  .next-item { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--text-muted); padding: 6px 0; border-bottom: 1px solid var(--border); display: flex; gap: 12px; }
+  .next-item:last-child { border-bottom: none; }
+  .next-num { color: var(--text-dim); min-width: 20px; }
+
+  /* 참고 */
+  .reference { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; margin-bottom: 40px; }
+  .ref-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+  .ref-item { font-size: 12px; padding: 6px 0; border-bottom: 1px solid var(--border); }
+  .ref-expr { font-family: 'DM Mono', monospace; color: var(--accent); font-size: 12px; }
+  .ref-desc { color: var(--text-muted); font-size: 11px; margin-top: 2px; }
+
+  .seo { border-top: 1px solid var(--border); padding-top: 32px; }
+  .seo h2 { font-size: 16px; font-weight: 700; margin-bottom: 12px; }
+  .seo p { font-size: 13px; color: var(--text-muted); line-height: 1.8; margin-bottom: 24px; }
+
+  footer { text-align: center; font-size: 12px; color: var(--text-dim); margin-top: 48px; }
+
+  .copied { color: var(--green) !important; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="dot"></div>
+  <span class="header-label">CRON EXPRESSION GENERATOR</span>
+</header>
+
+<main>
+  <div class="title-block">
+    <h1>Cron 표현식<br><span>생성기</span></h1>
+    <p class="subtitle">클릭만으로 cron 표현식을 생성하고 다음 실행 시간을 확인하세요</p>
+  </div>
+
+  <!-- 결과 표시 -->
+  <div class="cron-display">
+    <div class="cron-label">생성된 Cron 표현식</div>
+    <div class="cron-expr" id="cronExpr" onclick="copyExpr()">0 0 * * *</div>
+    <div class="cron-parts" id="cronParts"></div>
+    <div class="cron-desc" id="cronDesc"></div>
+    <button class="copy-btn" id="copyBtn" onclick="copyExpr()">복사하기</button>
+  </div>
+
+  <!-- 프리셋 -->
+  <div class="presets">
+    <div class="section-title">자주 쓰는 표현식</div>
+    <div class="preset-grid">
+      <button class="preset-btn" onclick="applyPreset('0 * * * *','매 시간 정각')">
+        <span class="preset-name">매 시간 정각</span>
+        <span class="preset-expr">0 * * * *</span>
+      </button>
+      <button class="preset-btn" onclick="applyPreset('0 0 * * *','매일 자정')">
+        <span class="preset-name">매일 자정</span>
+        <span class="preset-expr">0 0 * * *</span>
+      </button>
+      <button class="preset-btn" onclick="applyPreset('0 9 * * *','매일 오전 9시')">
+        <span class="preset-name">매일 오전 9시</span>
+        <span class="preset-expr">0 9 * * *</span>
+      </button>
+      <button class="preset-btn" onclick="applyPreset('0 9 * * 1-5','평일 오전 9시')">
+        <span class="preset-name">평일 오전 9시</span>
+        <span class="preset-expr">0 9 * * 1-5</span>
+      </button>
+      <button class="preset-btn" onclick="applyPreset('0 0 1 * *','매월 1일 자정')">
+        <span class="preset-name">매월 1일</span>
+        <span class="preset-expr">0 0 1 * *</span>
+      </button>
+      <button class="preset-btn" onclick="applyPreset('*/5 * * * *','5분마다')">
+        <span class="preset-name">5분마다</span>
+        <span class="preset-expr">*/5 * * * *</span>
+      </button>
+      <button class="preset-btn" onclick="applyPreset('*/30 * * * *','30분마다')">
+        <span class="preset-name">30분마다</span>
+        <span class="preset-expr">*/30 * * * *</span>
+      </button>
+      <button class="preset-btn" onclick="applyPreset('0 0 * * 0','매주 일요일 자정')">
+        <span class="preset-name">매주 일요일</span>
+        <span class="preset-expr">0 0 * * 0</span>
+      </button>
+      <button class="preset-btn" onclick="applyPreset('0 0 * * 1','매주 월요일 자정')">
+        <span class="preset-name">매주 월요일</span>
+        <span class="preset-expr">0 0 * * 1</span>
+      </button>
+      <button class="preset-btn" onclick="applyPreset('0 18 * * 1-5','평일 오후 6시')">
+        <span class="preset-name">평일 오후 6시</span>
+        <span class="preset-expr">0 18 * * 1-5</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 빌더 -->
+  <div class="section-title" style="margin-bottom:12px;">직접 만들기</div>
+  <div class="builder">
+    <div class="field">
+      <div class="field-header">
+        <span class="field-name">분 (Minute)</span>
+        <input type="text" class="field-input" id="f-min" value="0" oninput="buildCron()">
+      </div>
+      <div class="field-desc">0–59 · * (매분) · */5 (5분마다) · 0,30 (0분과 30분)</div>
+      <div class="option-btns">
+        <button class="opt-btn" onclick="setField('f-min','*')">매분 *</button>
+        <button class="opt-btn" onclick="setField('f-min','0')">정각 0</button>
+        <button class="opt-btn" onclick="setField('f-min','*/5')">5분마다</button>
+        <button class="opt-btn" onclick="setField('f-min','*/10')">10분마다</button>
+        <button class="opt-btn" onclick="setField('f-min','*/15')">15분마다</button>
+        <button class="opt-btn" onclick="setField('f-min','*/30')">30분마다</button>
+      </div>
+    </div>
+    <div class="field">
+      <div class="field-header">
+        <span class="field-name">시 (Hour)</span>
+        <input type="text" class="field-input" id="f-hour" value="0" oninput="buildCron()">
+      </div>
+      <div class="field-desc">0–23 · * (매시) · 9-18 (9시~18시)</div>
+      <div class="option-btns">
+        <button class="opt-btn" onclick="setField('f-hour','*')">매시 *</button>
+        <button class="opt-btn" onclick="setField('f-hour','0')">자정 0</button>
+        <button class="opt-btn" onclick="setField('f-hour','9')">오전 9</button>
+        <button class="opt-btn" onclick="setField('f-hour','12')">정오 12</button>
+        <button class="opt-btn" onclick="setField('f-hour','18')">오후 6</button>
+        <button class="opt-btn" onclick="setField('f-hour','*/6')">6시간마다</button>
+      </div>
+    </div>
+    <div class="field">
+      <div class="field-header">
+        <span class="field-name">일 (Day of Month)</span>
+        <input type="text" class="field-input" id="f-dom" value="*" oninput="buildCron()">
+      </div>
+      <div class="field-desc">1–31 · * (매일) · 1,15 (1일과 15일)</div>
+      <div class="option-btns">
+        <button class="opt-btn" onclick="setField('f-dom','*')">매일 *</button>
+        <button class="opt-btn" onclick="setField('f-dom','1')">1일</button>
+        <button class="opt-btn" onclick="setField('f-dom','15')">15일</button>
+        <button class="opt-btn" onclick="setField('f-dom','1,15')">1일,15일</button>
+        <button class="opt-btn" onclick="setField('f-dom','L')">말일 L</button>
+      </div>
+    </div>
+    <div class="field">
+      <div class="field-header">
+        <span class="field-name">월 (Month)</span>
+        <input type="text" class="field-input" id="f-mon" value="*" oninput="buildCron()">
+      </div>
+      <div class="field-desc">1–12 · * (매월) · 1,7 (1월과 7월)</div>
+      <div class="option-btns">
+        <button class="opt-btn" onclick="setField('f-mon','*')">매월 *</button>
+        <button class="opt-btn" onclick="setField('f-mon','1')">1월</button>
+        <button class="opt-btn" onclick="setField('f-mon','*/3')">분기마다</button>
+        <button class="opt-btn" onclick="setField('f-mon','*/6')">반기마다</button>
+      </div>
+    </div>
+    <div class="field">
+      <div class="field-header">
+        <span class="field-name">요일 (Day of Week)</span>
+        <input type="text" class="field-input" id="f-dow" value="*" oninput="buildCron()">
+      </div>
+      <div class="field-desc">0=일 1=월 2=화 3=수 4=목 5=금 6=토 · * (매일)</div>
+      <div class="option-btns">
+        <button class="opt-btn" onclick="setField('f-dow','*')">매일 *</button>
+        <button class="opt-btn" onclick="setField('f-dow','1-5')">평일</button>
+        <button class="opt-btn" onclick="setField('f-dow','0,6')">주말</button>
+        <button class="opt-btn" onclick="setField('f-dow','1')">월요일</button>
+        <button class="opt-btn" onclick="setField('f-dow','5')">금요일</button>
+        <button class="opt-btn" onclick="setField('f-dow','0')">일요일</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 직접 입력 검증 -->
+  <div class="manual-input">
+    <div class="section-title" style="margin-bottom:10px;">직접 입력 & 검증</div>
+    <div class="manual-row">
+      <input type="text" class="manual-field" id="manualExpr" placeholder="* * * * *" oninput="validateManual()">
+    </div>
+    <div style="font-size:12px; color:var(--text-dim); margin-top:8px;">표현식을 직접 입력하면 자동으로 빌더에 반영됩니다</div>
+  </div>
+
+  <!-- 다음 실행 시간 -->
+  <div class="next-runs">
+    <div class="section-title">다음 실행 예정 시간</div>
+    <div class="next-list" id="nextRuns"></div>
+  </div>
+
+  <!-- 참조 -->
+  <div class="reference">
+    <div class="section-title">특수 문자 참고</div>
+    <div class="ref-grid">
+      <div class="ref-item"><div class="ref-expr">*</div><div class="ref-desc">모든 값 (매분, 매시 등)</div></div>
+      <div class="ref-item"><div class="ref-expr">,</div><div class="ref-desc">여러 값 (1,3,5)</div></div>
+      <div class="ref-item"><div class="ref-expr">-</div><div class="ref-desc">범위 (1-5, 월~금)</div></div>
+      <div class="ref-item"><div class="ref-expr">/</div><div class="ref-desc">간격 (*/5, 5마다)</div></div>
+      <div class="ref-item"><div class="ref-expr">L</div><div class="ref-desc">마지막 (일의 말일)</div></div>
+      <div class="ref-item"><div class="ref-expr">?</div><div class="ref-desc">미지정 (Spring용)</div></div>
+    </div>
+  </div>
+
+  <div class="seo">
+    <h2>Cron 표현식이란?</h2>
+    <p>Cron은 Unix 계열 시스템에서 특정 시간에 자동으로 작업을 실행하는 스케줄러입니다. Cron 표현식은 "분 시 일 월 요일" 5개 필드로 구성되며, Spring @Scheduled, Jenkins, GitHub Actions, Linux crontab 등에서 사용합니다.</p>
+    <h2>Spring @Scheduled 사용법</h2>
+    <p>Spring Boot에서는 @Scheduled(cron = "0 0 9 * * MON-FRI") 형태로 사용합니다. Spring은 초(second) 필드가 추가되어 6개 필드를 사용하므로 맨 앞에 초(0)를 추가해야 합니다.</p>
+  </div>
+
+  <footer>표준 cron(5필드) 기준 · Spring @Scheduled는 앞에 초(0~59) 필드 추가 필요</footer>
+</main>
+
+<script>
+const DAYS_KO = ['일','월','화','수','목','금','토'];
+const MONTHS_KO = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+
+function getFields() {
+  return {
+    min: document.getElementById('f-min').value.trim() || '*',
+    hour: document.getElementById('f-hour').value.trim() || '*',
+    dom: document.getElementById('f-dom').value.trim() || '*',
+    mon: document.getElementById('f-mon').value.trim() || '*',
+    dow: document.getElementById('f-dow').value.trim() || '*',
+  };
+}
+
+function buildCron() {
+  const f = getFields();
+  const expr = `${f.min} ${f.hour} ${f.dom} ${f.mon} ${f.dow}`;
+  document.getElementById('cronExpr').textContent = expr;
+  document.getElementById('manualExpr').value = expr;
+  updateParts(f);
+  updateDesc(f);
+  updateNextRuns(expr);
+}
+
+function setField(id, val) {
+  document.getElementById(id).value = val;
+  buildCron();
+}
+
+function applyPreset(expr, desc) {
+  const parts = expr.split(' ');
+  if (parts.length !== 5) return;
+  document.getElementById('f-min').value = parts[0];
+  document.getElementById('f-hour').value = parts[1];
+  document.getElementById('f-dom').value = parts[2];
+  document.getElementById('f-mon').value = parts[3];
+  document.getElementById('f-dow').value = parts[4];
+  document.getElementById('cronExpr').textContent = expr;
+  document.getElementById('manualExpr').value = expr;
+  document.getElementById('cronDesc').textContent = '→ ' + desc;
+  updateParts({ min: parts[0], hour: parts[1], dom: parts[2], mon: parts[3], dow: parts[4] });
+  updateNextRuns(expr);
+}
+
+function validateManual() {
+  const val = document.getElementById('manualExpr').value.trim();
+  const parts = val.split(/\s+/);
+  if (parts.length !== 5) return;
+  document.getElementById('f-min').value = parts[0];
+  document.getElementById('f-hour').value = parts[1];
+  document.getElementById('f-dom').value = parts[2];
+  document.getElementById('f-mon').value = parts[3];
+  document.getElementById('f-dow').value = parts[4];
+  document.getElementById('cronExpr').textContent = val;
+  updateParts({ min: parts[0], hour: parts[1], dom: parts[2], mon: parts[3], dow: parts[4] });
+  updateDesc({ min: parts[0], hour: parts[1], dom: parts[2], mon: parts[3], dow: parts[4] });
+  updateNextRuns(val);
+}
+
+function updateParts(f) {
+  const labels = ['분','시','일','월','요일'];
+  const vals = [f.min, f.hour, f.dom, f.mon, f.dow];
+  document.getElementById('cronParts').innerHTML = vals.map((v, i) =>
+    `<div class="cron-part"><span>${labels[i]}</span>${v}</div>`
+  ).join('');
+}
+
+function updateDesc(f) {
+  let parts = [];
+  if (f.dow !== '*') {
+    const dowMap = { '1-5': '평일', '0,6': '주말', '0': '일요일', '1': '월요일', '2': '화요일', '3': '수요일', '4': '목요일', '5': '금요일', '6': '토요일' };
+    parts.push(dowMap[f.dow] || `요일(${f.dow})`);
+  }
+  if (f.dom !== '*' && f.dom !== '?') parts.push(`${f.dom}일`);
+  if (f.mon !== '*') parts.push(`${f.mon}월`);
+
+  let timeDesc = '';
+  if (f.min.startsWith('*/') && f.hour === '*') {
+    timeDesc = `${f.min.slice(2)}분마다`;
+  } else if (f.hour.startsWith('*/')) {
+    timeDesc = `${f.hour.slice(2)}시간마다`;
+  } else if (f.hour === '*') {
+    timeDesc = f.min === '*' ? '매분' : `매시 ${f.min}분`;
+  } else {
+    const h = parseInt(f.hour);
+    const m = f.min === '*' ? '00' : f.min.padStart(2, '0');
+    timeDesc = `${h >= 12 ? '오후' : '오전'} ${h > 12 ? h - 12 : h}시 ${m}분`;
+  }
+
+  const desc = [...parts, timeDesc].join(' ') + ' 실행';
+  document.getElementById('cronDesc').textContent = '→ ' + desc;
+}
+
+function updateNextRuns(expr) {
+  const parts = expr.split(/\s+/);
+  if (parts.length !== 5) return;
+  const runs = calcNextRuns(parts, 5);
+  const el = document.getElementById('nextRuns');
+  el.innerHTML = runs.map((d, i) =>
+    `<div class="next-item"><span class="next-num">${i + 1}</span>${formatDate(d)}</div>`
+  ).join('');
+}
+
+function calcNextRuns(parts, count) {
+  const [minP, hourP, domP, monP, dowP] = parts;
+  const results = [];
+  let d = new Date();
+  d.setSeconds(0, 0);
+  d.setMinutes(d.getMinutes() + 1);
+
+  let tries = 0;
+  while (results.length < count && tries < 100000) {
+    tries++;
+    if (matchField(d.getMonth() + 1, monP, 1, 12) &&
+        matchField(d.getDate(), domP, 1, 31) &&
+        matchDow(d.getDay(), dowP) &&
+        matchField(d.getHours(), hourP, 0, 23) &&
+        matchField(d.getMinutes(), minP, 0, 59)) {
+      results.push(new Date(d));
+    }
+    d.setMinutes(d.getMinutes() + 1);
+  }
+  return results;
+}
+
+function matchField(val, expr, min, max) {
+  if (expr === '*' || expr === '?') return true;
+  if (expr === 'L') return true;
+  if (expr.startsWith('*/')) {
+    const step = parseInt(expr.slice(2));
+    return val % step === 0;
+  }
+  if (expr.includes(',')) return expr.split(',').some(p => matchField(val, p.trim(), min, max));
+  if (expr.includes('-')) {
+    const [a, b] = expr.split('-').map(Number);
+    return val >= a && val <= b;
+  }
+  return parseInt(expr) === val;
+}
+
+function matchDow(day, expr) {
+  if (expr === '*' || expr === '?') return true;
+  if (expr.includes(',')) return expr.split(',').some(p => matchDow(day, p.trim()));
+  if (expr.includes('-')) {
+    const [a, b] = expr.split('-').map(Number);
+    return day >= a && day <= b;
+  }
+  return parseInt(expr) === day;
+}
+
+function formatDate(d) {
+  const days = ['일','월','화','수','목','금','토'];
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}.${pad(d.getMonth()+1)}.${pad(d.getDate())} (${days[d.getDay()]}) ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function copyExpr() {
+  const expr = document.getElementById('cronExpr').textContent;
+  navigator.clipboard.writeText(expr).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = '복사됨 ✓';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '복사하기'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// 초기 실행
+buildCron();
+</script>
+</body>
+</html>
