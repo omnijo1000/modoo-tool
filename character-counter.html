@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>글자수 세기 - 공백 포함/제외, 바이트 수 계산 | 모두의 툴</title>
+<meta name="description" content="글자수 세기 무료 온라인 도구. 공백 포함/제외 글자수, 바이트 수, 단어 수, 줄 수 실시간 계산. 자소서, 이력서 작성 시 유용한 글자 수 카운터.">
+<link rel="canonical" href="https://modoohub.com/character-counter.html">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://modoohub.com/character-counter.html">
+<meta property="og:site_name" content="모두의 툴">
+<meta property="og:title" content="글자수 세기 - 공백 포함/제외, 바이트 수 계산">
+<meta property="og:description" content="글자수 세기 무료 온라인 도구. 공백 포함/제외 글자수, 바이트 수, 단어 수, 줄 수 실시간 계산.">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<meta property="og:locale" content="ko_KR">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="글자수 세기 - 공백 포함/제외, 바이트 수 계산">
+<meta name="twitter:description" content="글자수 세기 무료 온라인 도구. 공백 포함/제외 글자수, 바이트 수, 단어 수, 줄 수 실시간 계산.">
+<meta name="twitter:image" content="https://modoohub.com/og-image.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root { --bg:#0a0a0a; --surface:#141414; --border:#222; --text:#f0f0f0; --text-muted:#777; --text-dim:#444; --accent:#4ade80; }
+* { box-sizing:border-box; margin:0; padding:0; }
+body { background:var(--bg); color:var(--text); font-family:'Noto Sans KR',sans-serif; min-height:100vh; }
+
+header { border-bottom:1px solid var(--border); padding:20px 24px; display:flex; align-items:center; gap:12px; }
+.dots { display:flex; gap:5px; }
+.dot { width:7px; height:7px; border-radius:50%; }
+.d1{background:#4ade80}.d2{background:#4f8ef7}.d3{background:#c084fc}.d4{background:#fb923c}.d5{background:#2dd4bf}.d6{background:#fcd34d}
+.header-label { font-size:13px; color:var(--text-muted); letter-spacing:0.1em; font-family:'DM Mono',monospace; }
+.back-btn { margin-left:auto; font-size:12px; color:var(--text-muted); text-decoration:none; padding:4px 12px; border:1px solid var(--border); border-radius:6px; font-family:'DM Mono',monospace; transition:all 0.15s; }
+.back-btn:hover { border-color:var(--accent); color:var(--accent); }
+
+main { max-width:720px; margin:0 auto; padding:48px 24px; }
+h1 { font-size:28px; font-weight:900; margin-bottom:8px; }
+h1 span { background:linear-gradient(90deg,#4ade80,#86efac); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.subtitle { font-size:13px; color:var(--text-muted); margin-bottom:32px; }
+
+/* 글자 제한 설정 */
+.limit-bar { display:flex; align-items:center; gap:10px; margin-bottom:12px; flex-wrap:wrap; }
+.limit-label { font-size:12px; color:var(--text-muted); font-family:'DM Mono',monospace; }
+.limit-input { background:var(--surface); border:1px solid var(--border); border-radius:6px; color:var(--text); font-size:13px; font-family:'DM Mono',monospace; padding:4px 10px; width:90px; outline:none; transition:border-color 0.15s; }
+.limit-input:focus { border-color:var(--accent); }
+.limit-toggle { font-size:12px; color:var(--text-muted); cursor:pointer; padding:4px 10px; border:1px solid var(--border); border-radius:6px; transition:all 0.15s; user-select:none; }
+.limit-toggle.active { border-color:var(--accent); color:var(--accent); }
+
+/* 텍스트에어리어 */
+.textarea-wrap { position:relative; margin-bottom:16px; }
+textarea {
+  width:100%; min-height:240px; background:var(--surface); border:1px solid var(--border);
+  border-radius:12px; color:var(--text); font-size:15px; font-family:'Noto Sans KR',sans-serif;
+  padding:18px; resize:vertical; outline:none; line-height:1.8; transition:border-color 0.15s;
+}
+textarea:focus { border-color:var(--accent); }
+textarea.over-limit { border-color:#ef4444; }
+.clear-btn {
+  position:absolute; top:12px; right:12px; background:none; border:none;
+  color:var(--text-dim); cursor:pointer; font-size:18px; line-height:1;
+  padding:4px; border-radius:4px; transition:color 0.15s;
+}
+.clear-btn:hover { color:var(--text-muted); }
+
+/* 진행 바 */
+.progress-wrap { margin-bottom:20px; }
+.progress-bg { background:var(--border); border-radius:99px; height:4px; overflow:hidden; }
+.progress-fill { height:100%; border-radius:99px; background:var(--accent); transition:width 0.15s, background 0.15s; width:0%; }
+.progress-fill.warn { background:#fcd34d; }
+.progress-fill.over { background:#ef4444; }
+.progress-label { font-size:11px; color:var(--text-dim); font-family:'DM Mono',monospace; margin-top:6px; text-align:right; }
+
+/* 스탯 그리드 */
+.stats { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:24px; }
+@media(max-width:500px) { .stats { grid-template-columns:repeat(2,1fr); } }
+.stat-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px; text-align:center; transition:border-color 0.2s; }
+.stat-card.highlight { border-color:var(--accent); }
+.stat-num { font-size:28px; font-weight:900; font-family:'DM Mono',monospace; color:var(--accent); line-height:1; margin-bottom:4px; }
+.stat-num.warn { color:#fcd34d; }
+.stat-num.over { color:#ef4444; }
+.stat-label { font-size:11px; color:var(--text-muted); }
+
+/* 바이트 카드 */
+.byte-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px; margin-bottom:16px; }
+.byte-title { font-size:12px; color:var(--text-dim); letter-spacing:0.1em; font-family:'DM Mono',monospace; margin-bottom:14px; }
+.byte-row { display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid var(--border); }
+.byte-row:last-child { border-bottom:none; }
+.byte-name { font-size:13px; color:var(--text-muted); }
+.byte-val { font-size:14px; font-weight:700; font-family:'DM Mono',monospace; color:var(--text); }
+
+/* 자소서 프리셋 */
+.preset-title { font-size:12px; color:var(--text-dim); letter-spacing:0.1em; font-family:'DM Mono',monospace; margin-bottom:10px; }
+.presets { display:flex; gap:8px; flex-wrap:wrap; }
+.preset-btn { font-size:12px; color:var(--text-muted); cursor:pointer; padding:5px 12px; border:1px solid var(--border); border-radius:20px; transition:all 0.15s; background:none; font-family:'Noto Sans KR',sans-serif; }
+.preset-btn:hover, .preset-btn.active { border-color:var(--accent); color:var(--accent); }
+
+footer { text-align:center; font-size:12px; color:var(--text-dim); margin-top:48px; }
+</style>
+<!-- Google tag -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+</head>
+<body>
+<header>
+  <div class="dots"><div class="dot d1"></div><div class="dot d2"></div><div class="dot d3"></div><div class="dot d4"></div><div class="dot d5"></div><div class="dot d6"></div></div>
+  <span class="header-label">MODOO HUB</span>
+  <a href="index.html" class="back-btn">← 홈</a>
+</header>
+
+<main>
+  <h1>✍️ <span>글자수 세기</span></h1>
+  <p class="subtitle">공백 포함/제외 글자수, 바이트 수, 단어 수 실시간 계산</p>
+
+  <!-- 글자 제한 설정 -->
+  <div class="limit-bar">
+    <span class="limit-label">글자 제한</span>
+    <input type="number" class="limit-input" id="limitInput" placeholder="0 = 무제한" min="0" value="">
+    <div class="limit-toggle" id="limitModeBtn" onclick="toggleLimitMode()">공백 포함</div>
+    <div class="preset-btn" onclick="setPreset(500)">500자</div>
+    <div class="preset-btn" onclick="setPreset(800)">800자</div>
+    <div class="preset-btn" onclick="setPreset(1000)">1000자</div>
+    <div class="preset-btn" onclick="setPreset(1500)">1500자</div>
+  </div>
+
+  <!-- 텍스트에어리어 -->
+  <div class="textarea-wrap">
+    <textarea id="inputText" placeholder="여기에 텍스트를 입력하거나 붙여넣으세요...&#10;자소서, 이력서, 기획서, SNS 게시글 등 글자 수를 확인할 수 있습니다."></textarea>
+    <button class="clear-btn" onclick="clearText()" title="지우기">✕</button>
+  </div>
+
+  <!-- 진행 바 (제한 설정 시) -->
+  <div class="progress-wrap" id="progressWrap" style="display:none">
+    <div class="progress-bg"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-label" id="progressLabel"></div>
+  </div>
+
+  <!-- 주요 스탯 -->
+  <div class="stats">
+    <div class="stat-card highlight" id="cardWithSpace">
+      <div class="stat-num" id="numWithSpace">0</div>
+      <div class="stat-label">글자수 (공백 포함)</div>
+    </div>
+    <div class="stat-card" id="cardNoSpace">
+      <div class="stat-num" id="numNoSpace">0</div>
+      <div class="stat-label">글자수 (공백 제외)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="numWords">0</div>
+      <div class="stat-label">단어 수</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="numLines">0</div>
+      <div class="stat-label">줄 수</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="numSentences">0</div>
+      <div class="stat-label">문장 수</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="numParagraphs">0</div>
+      <div class="stat-label">문단 수</div>
+    </div>
+  </div>
+
+  <!-- 바이트 정보 -->
+  <div class="byte-card">
+    <div class="byte-title">BYTE INFO</div>
+    <div class="byte-row">
+      <span class="byte-name">UTF-8 바이트</span>
+      <span class="byte-val" id="byteUtf8">0 B</span>
+    </div>
+    <div class="byte-row">
+      <span class="byte-name">EUC-KR 추정 바이트</span>
+      <span class="byte-val" id="byteEuckr">0 B</span>
+    </div>
+    <div class="byte-row">
+      <span class="byte-name">ASCII (영문/숫자)</span>
+      <span class="byte-val" id="byteAscii">0</span>
+    </div>
+    <div class="byte-row">
+      <span class="byte-name">한글 글자 수</span>
+      <span class="byte-val" id="byteKorean">0</span>
+    </div>
+  </div>
+</main>
+
+<footer>모두의 툴 · 무료 · 광고 없음 · <a href="index.html" style="color:var(--text-dim);text-decoration:none;">← 도구 목록</a></footer>
+
+<script>
+const textarea = document.getElementById('inputText');
+const limitInput = document.getElementById('limitInput');
+let limitMode = 'include'; // 'include' = 공백포함, 'exclude' = 공백제외
+
+// 저장된 값 복원
+const saved = localStorage.getItem('cc_text');
+if (saved) textarea.value = saved;
+
+function toggleLimitMode() {
+  limitMode = limitMode === 'include' ? 'exclude' : 'include';
+  document.getElementById('limitModeBtn').textContent = limitMode === 'include' ? '공백 포함' : '공백 제외';
+  update();
+}
+
+function setPreset(n) {
+  limitInput.value = n;
+  update();
+}
+
+function clearText() {
+  textarea.value = '';
+  localStorage.removeItem('cc_text');
+  update();
+}
+
+function formatBytes(n) {
+  if (n < 1024) return n + ' B';
+  if (n < 1024*1024) return (n/1024).toFixed(1) + ' KB';
+  return (n/1024/1024).toFixed(2) + ' MB';
+}
+
+function getUtf8Bytes(str) {
+  return new TextEncoder().encode(str).length;
+}
+
+function getEuckrEstimate(str) {
+  let bytes = 0;
+  for (const ch of str) {
+    const code = ch.charCodeAt(0);
+    if (code <= 0x7f) bytes += 1;        // ASCII
+    else if (code >= 0xAC00 && code <= 0xD7A3) bytes += 2; // 한글 완성형
+    else if (code >= 0x3131 && code <= 0x314E) bytes += 2; // 자음
+    else if (code >= 0x314F && code <= 0x3163) bytes += 2; // 모음
+    else bytes += 2; // 기타 CJK
+  }
+  return bytes;
+}
+
+function update() {
+  const text = textarea.value;
+  const withSpace = text.length;
+  const noSpace = text.replace(/\s/g, '').length;
+  const words = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
+  const lines = text === '' ? 0 : text.split('\n').length;
+  const sentences = text === '' ? 0 : (text.match(/[.!?。！？]+/g) || []).length;
+  const paragraphs = text === '' ? 0 : text.split(/\n\s*\n/).filter(p => p.trim()).length || (text.trim() ? 1 : 0);
+
+  const korean = (text.match(/[가-힣]/g) || []).length;
+  const ascii = (text.match(/[a-zA-Z0-9]/g) || []).length;
+  const utf8Bytes = getUtf8Bytes(text);
+  const euckrBytes = getEuckrEstimate(text);
+
+  // 제한 처리
+  const limit = parseInt(limitInput.value) || 0;
+  const countForLimit = limitMode === 'include' ? withSpace : noSpace;
+  const isOver = limit > 0 && countForLimit > limit;
+  const isWarn = limit > 0 && countForLimit >= limit * 0.9;
+
+  // 주요 수치 표시
+  const numWithSpaceEl = document.getElementById('numWithSpace');
+  const numNoSpaceEl = document.getElementById('numNoSpace');
+  numWithSpaceEl.textContent = withSpace.toLocaleString();
+  numNoSpaceEl.textContent = noSpace.toLocaleString();
+  document.getElementById('numWords').textContent = words.toLocaleString();
+  document.getElementById('numLines').textContent = lines.toLocaleString();
+  document.getElementById('numSentences').textContent = sentences.toLocaleString();
+  document.getElementById('numParagraphs').textContent = paragraphs.toLocaleString();
+
+  // 색상 처리
+  const activeEl = limitMode === 'include' ? numWithSpaceEl : numNoSpaceEl;
+  [numWithSpaceEl, numNoSpaceEl].forEach(el => el.className = 'stat-num');
+  if (isOver) activeEl.classList.add('over');
+  else if (isWarn) activeEl.classList.add('warn');
+  textarea.className = isOver ? 'over-limit' : '';
+
+  // 진행바
+  if (limit > 0) {
+    const pct = Math.min((countForLimit / limit) * 100, 100);
+    document.getElementById('progressWrap').style.display = '';
+    const fill = document.getElementById('progressFill');
+    fill.style.width = pct + '%';
+    fill.className = 'progress-fill' + (isOver ? ' over' : isWarn ? ' warn' : '');
+    document.getElementById('progressLabel').textContent =
+      `${countForLimit.toLocaleString()} / ${limit.toLocaleString()} (${pct.toFixed(1)}%)`;
+  } else {
+    document.getElementById('progressWrap').style.display = 'none';
+  }
+
+  // 바이트
+  document.getElementById('byteUtf8').textContent = formatBytes(utf8Bytes);
+  document.getElementById('byteEuckr').textContent = formatBytes(euckrBytes);
+  document.getElementById('byteAscii').textContent = ascii.toLocaleString() + '자';
+  document.getElementById('byteKorean').textContent = korean.toLocaleString() + '자';
+
+  // 로컬 저장
+  localStorage.setItem('cc_text', text);
+}
+
+textarea.addEventListener('input', update);
+limitInput.addEventListener('input', update);
+update();
+</script>
+</body>
+</html>
