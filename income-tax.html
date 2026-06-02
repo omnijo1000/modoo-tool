@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>종합소득세 계산기 | 2024년 기준 | MODOO HUB</title>
+<meta name="description" content="2024년 기준 종합소득세 계산기. 근로소득, 사업소득, 기타소득 입력 시 세율 자동 적용, 소득공제·세액공제 반영한 정확한 세금 계산.">
+<meta property="og:title" content="종합소득세 계산기 | MODOO HUB">
+<meta property="og:description" content="2024년 기준 종합소득세 자동 계산기. 과세표준별 세율 적용 및 공제 반영.">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<meta property="og:url" content="https://modoohub.com/income-tax.html">
+<link rel="canonical" href="https://modoohub.com/income-tax.html">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0a;
+  --surface: #141414;
+  --surface2: #1c1c1c;
+  --border: #2a2a2a;
+  --text: #f0f0f0;
+  --text2: #999;
+  --text3: #555;
+  --green: #4ade80;
+  --blue: #4f8ef7;
+  --purple: #c084fc;
+  --orange: #fb923c;
+  --teal: #2dd4bf;
+  --yellow: #fcd34d;
+  --radius: 16px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font-family: 'Noto Sans KR', sans-serif; min-height: 100vh; }
+
+/* NAV */
+nav { border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; gap: 16px; height: 56px; }
+.logo { font-family: 'DM Mono', monospace; font-size: 15px; color: var(--text); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+.logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+.nav-back { font-size: 13px; color: var(--text2); text-decoration: none; display: flex; align-items: center; gap: 4px; }
+.nav-back:hover { color: var(--text); }
+
+/* LAYOUT */
+.container { max-width: 960px; margin: 0 auto; padding: 40px 24px 80px; }
+.page-title { font-size: 28px; font-weight: 700; margin-bottom: 6px; }
+.page-title span { color: var(--green); }
+.page-sub { font-size: 14px; color: var(--text2); margin-bottom: 32px; }
+.badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; background: #4ade8020; color: var(--green); border: 1px solid #4ade8040; margin-right: 6px; }
+
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+@media (max-width: 700px) { .grid { grid-template-columns: 1fr; } }
+
+/* CARD */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; }
+.card-title { font-size: 13px; font-weight: 500; color: var(--text2); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+.card-title::before { content: ''; width: 3px; height: 14px; background: var(--green); border-radius: 2px; display: inline-block; }
+
+/* FORM */
+.field { margin-bottom: 18px; }
+.label { font-size: 13px; color: var(--text2); margin-bottom: 8px; display: flex; justify-content: space-between; }
+.label span { color: var(--text3); font-size: 12px; }
+.input-wrap { position: relative; }
+.input-wrap input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 48px 12px 16px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 15px; outline: none; transition: border-color 0.2s; }
+.input-wrap input:focus { border-color: var(--green); }
+.input-wrap .unit { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 13px; color: var(--text3); pointer-events: none; }
+select { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; color: var(--text); font-family: 'Noto Sans KR', sans-serif; font-size: 14px; outline: none; cursor: pointer; }
+select:focus { border-color: var(--green); }
+
+/* TOGGLE */
+.toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.toggle-row:last-child { border-bottom: none; }
+.toggle-label { font-size: 14px; }
+.toggle-sub { font-size: 12px; color: var(--text3); }
+.toggle { width: 42px; height: 24px; background: var(--border); border-radius: 12px; position: relative; cursor: pointer; transition: background 0.2s; border: none; flex-shrink: 0; }
+.toggle.on { background: var(--green); }
+.toggle::after { content: ''; width: 18px; height: 18px; background: white; border-radius: 50%; position: absolute; top: 3px; left: 3px; transition: left 0.2s; }
+.toggle.on::after { left: 21px; }
+
+/* RESULT */
+.result-card { background: linear-gradient(135deg, #141414, #1a1a1a); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; position: sticky; top: 24px; }
+.result-main { text-align: center; padding: 24px 0 20px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+.result-label { font-size: 13px; color: var(--text2); margin-bottom: 8px; }
+.result-amount { font-family: 'DM Mono', monospace; font-size: 36px; font-weight: 500; color: var(--green); }
+.result-sub { font-size: 12px; color: var(--text3); margin-top: 6px; }
+
+.result-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #1a1a1a; }
+.result-row:last-child { border-bottom: none; }
+.result-row .rk { font-size: 13px; color: var(--text2); }
+.result-row .rv { font-family: 'DM Mono', monospace; font-size: 14px; color: var(--text); }
+.result-row .rv.accent { color: var(--green); }
+.result-row .rv.red { color: #f87171; }
+
+.tax-bracket { background: var(--surface2); border-radius: 10px; padding: 14px; margin-top: 16px; }
+.tb-title { font-size: 12px; color: var(--text3); margin-bottom: 10px; }
+.tb-row { display: flex; justify-content: space-between; font-size: 12px; padding: 4px 0; }
+.tb-row .tr { color: var(--text2); }
+.tb-row .ta { font-family: 'DM Mono', monospace; color: var(--text); }
+.tb-row.active { color: var(--green); }
+.tb-row.active .tr { color: var(--green); }
+.tb-row.active .ta { color: var(--green); }
+
+.calc-btn { width: 100%; padding: 14px; background: var(--green); color: #0a0a0a; font-family: 'Noto Sans KR', sans-serif; font-weight: 700; font-size: 15px; border: none; border-radius: 12px; cursor: pointer; margin-top: 20px; transition: opacity 0.2s; }
+.calc-btn:hover { opacity: 0.85; }
+
+/* INFO */
+.info-box { background: var(--surface2); border-radius: 10px; padding: 16px; margin-top: 24px; font-size: 13px; color: var(--text2); line-height: 1.7; }
+.info-box strong { color: var(--text); }
+
+/* SECTION */
+.section-gap { margin-top: 32px; }
+.section-title { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.section-title .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="logo"><span class="logo-dot"></span>MODOO HUB</a>
+  <a href="/" class="nav-back">← 홈으로</a>
+</nav>
+
+<div class="container">
+  <div class="page-title"><span>종합소득세</span> 계산기</div>
+  <div class="page-sub">
+    <span class="badge">2024년 기준</span>
+    <span class="badge" style="background:#4f8ef720;color:var(--blue);border-color:#4f8ef740">근로·사업·기타소득</span>
+    소득공제·세액공제 자동 반영
+  </div>
+
+  <div class="grid">
+    <!-- 좌측: 입력 -->
+    <div>
+      <div class="card">
+        <div class="card-title">소득 정보</div>
+        <div class="field">
+          <div class="label">총 소득 (연간) <span>근로+사업+기타 합산</span></div>
+          <div class="input-wrap">
+            <input type="number" id="totalIncome" placeholder="0" oninput="calculate()" value="">
+            <span class="unit">만원</span>
+          </div>
+        </div>
+        <div class="field">
+          <div class="label">소득 유형</div>
+          <select id="incomeType" onchange="calculate()">
+            <option value="earn">근로소득 (직장인)</option>
+            <option value="biz">사업소득 (자영업·프리랜서)</option>
+            <option value="other">기타소득</option>
+          </select>
+        </div>
+        <div class="field">
+          <div class="label">부양가족 수 <span>본인 포함</span></div>
+          <select id="dependents" onchange="calculate()">
+            <option value="1">1명 (본인만)</option>
+            <option value="2">2명</option>
+            <option value="3">3명</option>
+            <option value="4">4명</option>
+            <option value="5">5명 이상</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card section-gap">
+        <div class="card-title">주요 공제 항목</div>
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-label">국민연금 공제</div>
+            <div class="toggle-sub">소득의 4.5% (근로자 부담분)</div>
+          </div>
+          <button class="toggle on" id="t_pension" onclick="toggleBtn(this)"></button>
+        </div>
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-label">건강보험 공제</div>
+            <div class="toggle-sub">소득의 3.545% + 장기요양보험</div>
+          </div>
+          <button class="toggle on" id="t_health" onclick="toggleBtn(this)"></button>
+        </div>
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-label">신용카드 공제</div>
+            <div class="toggle-sub">연간 사용액 기준 최대 300만원</div>
+          </div>
+          <button class="toggle" id="t_card" onclick="toggleBtn(this)"></button>
+        </div>
+        <div class="field" id="cardField" style="display:none; margin-top:12px;">
+          <div class="label">연간 신용카드 사용액 <span>만원</span></div>
+          <div class="input-wrap">
+            <input type="number" id="cardAmount" placeholder="0" oninput="calculate()">
+            <span class="unit">만원</span>
+          </div>
+        </div>
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-label">의료비 공제</div>
+            <div class="toggle-sub">총급여 3% 초과분의 15%</div>
+          </div>
+          <button class="toggle" id="t_medical" onclick="toggleBtn(this)"></button>
+        </div>
+        <div class="field" id="medField" style="display:none; margin-top:12px;">
+          <div class="label">연간 의료비 지출 <span>만원</span></div>
+          <div class="input-wrap">
+            <input type="number" id="medAmount" placeholder="0" oninput="calculate()">
+            <span class="unit">만원</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-box section-gap">
+        <strong>계산 기준 안내</strong><br>
+        2024년 소득세법 기준. 근로소득공제, 인적공제(150만원/인) 자동 적용. 세액공제(근로소득세액공제) 포함. 지방소득세(소득세의 10%) 별도 표시. 실제 신고 시 세무사 확인 권장.
+      </div>
+    </div>
+
+    <!-- 우측: 결과 -->
+    <div>
+      <div class="result-card">
+        <div class="card-title" style="color:var(--green);">계산 결과</div>
+        <div class="result-main">
+          <div class="result-label">예상 종합소득세</div>
+          <div class="result-amount" id="finalTax">—</div>
+          <div class="result-sub" id="finalSub">소득을 입력하면 자동 계산됩니다</div>
+        </div>
+
+        <div class="result-row">
+          <span class="rk">총 소득</span>
+          <span class="rv" id="r_income">—</span>
+        </div>
+        <div class="result-row">
+          <span class="rk">근로소득공제</span>
+          <span class="rv red" id="r_earnDeduct">—</span>
+        </div>
+        <div class="result-row">
+          <span class="rk">소득공제 합계</span>
+          <span class="rv red" id="r_deduct">—</span>
+        </div>
+        <div class="result-row">
+          <span class="rk">과세표준</span>
+          <span class="rv" id="r_taxBase">—</span>
+        </div>
+        <div class="result-row">
+          <span class="rk">산출세액</span>
+          <span class="rv" id="r_rawTax">—</span>
+        </div>
+        <div class="result-row">
+          <span class="rk">세액공제</span>
+          <span class="rv red" id="r_taxCredit">—</span>
+        </div>
+        <div class="result-row">
+          <span class="rk">결정세액 (소득세)</span>
+          <span class="rv accent" id="r_incomeTax">—</span>
+        </div>
+        <div class="result-row">
+          <span class="rk">지방소득세 (10%)</span>
+          <span class="rv" id="r_localTax">—</span>
+        </div>
+        <div class="result-row" style="border-top: 1px solid var(--border); padding-top:14px; margin-top:4px;">
+          <span class="rk" style="font-weight:600; color:var(--text)">합계 납부세액</span>
+          <span class="rv accent" style="font-size:16px;" id="r_total">—</span>
+        </div>
+
+        <div class="tax-bracket" id="bracketBox" style="display:none">
+          <div class="tb-title">과세표준 구간 (2024년)</div>
+          <div class="tb-row" id="br1"><span class="tr">1,400만원 이하</span><span class="ta">6%</span></div>
+          <div class="tb-row" id="br2"><span class="tr">1,400만~5,000만원</span><span class="ta">15%</span></div>
+          <div class="tb-row" id="br3"><span class="tr">5,000만~8,800만원</span><span class="ta">24%</span></div>
+          <div class="tb-row" id="br4"><span class="tr">8,800만~1.5억원</span><span class="ta">35%</span></div>
+          <div class="tb-row" id="br5"><span class="tr">1.5억~3억원</span><span class="ta">38%</span></div>
+          <div class="tb-row" id="br6"><span class="tr">3억~5억원</span><span class="ta">40%</span></div>
+          <div class="tb-row" id="br7"><span class="tr">5억원 초과</span><span class="ta">45%</span></div>
+        </div>
+
+        <div style="margin-top:20px; padding-top:16px; border-top: 1px solid var(--border);">
+          <div class="result-row">
+            <span class="rk">실효세율</span>
+            <span class="rv accent" id="r_effRate">—</span>
+          </div>
+          <div class="result-row">
+            <span class="rk">월 평균 세금</span>
+            <span class="rv" id="r_monthly">—</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function fmt(n) { return Math.round(n).toLocaleString('ko-KR'); }
+function fmtW(n) { return fmt(n) + '만원'; }
+
+function toggleBtn(btn) {
+  btn.classList.toggle('on');
+  const id = btn.id;
+  if (id === 't_card') document.getElementById('cardField').style.display = btn.classList.contains('on') ? 'block' : 'none';
+  if (id === 't_medical') document.getElementById('medField').style.display = btn.classList.contains('on') ? 'block' : 'none';
+  calculate();
+}
+
+// 근로소득공제 계산 (만원 단위 입출력)
+function earnDeduction(income) {
+  if (income <= 500) return income * 0.7;
+  if (income <= 1500) return 350 + (income - 500) * 0.4;
+  if (income <= 4500) return 750 + (income - 1500) * 0.15;
+  if (income <= 10000) return 1200 + (income - 4500) * 0.05;
+  return 1475; // 상한
+}
+
+// 산출세액 계산 (만원 단위)
+function calcRawTax(taxBase) {
+  if (taxBase <= 1400) return taxBase * 0.06;
+  if (taxBase <= 5000) return 84 + (taxBase - 1400) * 0.15;
+  if (taxBase <= 8800) return 624 + (taxBase - 5000) * 0.24;
+  if (taxBase <= 15000) return 1536 + (taxBase - 8800) * 0.35;
+  if (taxBase <= 30000) return 3726 + (taxBase - 15000) * 0.38;
+  if (taxBase <= 50000) return 9426 + (taxBase - 30000) * 0.40;
+  return 17426 + (taxBase - 50000) * 0.45;
+}
+
+function getBracket(taxBase) {
+  if (taxBase <= 1400) return 0;
+  if (taxBase <= 5000) return 1;
+  if (taxBase <= 8800) return 2;
+  if (taxBase <= 15000) return 3;
+  if (taxBase <= 30000) return 4;
+  if (taxBase <= 50000) return 5;
+  return 6;
+}
+
+function calculate() {
+  const income = parseFloat(document.getElementById('totalIncome').value) || 0;
+  if (income <= 0) { reset(); return; }
+
+  const type = document.getElementById('incomeType').value;
+  const deps = parseInt(document.getElementById('dependents').value) || 1;
+  const usePension = document.getElementById('t_pension').classList.contains('on');
+  const useHealth = document.getElementById('t_health').classList.contains('on');
+  const useCard = document.getElementById('t_card').classList.contains('on');
+  const useMedical = document.getElementById('t_medical').classList.contains('on');
+
+  // 근로소득공제 (근로소득만)
+  let earnDeduct = 0;
+  if (type === 'earn') earnDeduct = earnDeduction(income);
+
+  // 사회보험료 공제
+  let socialDeduct = 0;
+  if (usePension) socialDeduct += income * 0.045;
+  if (useHealth) socialDeduct += income * 0.03545;
+
+  // 인적공제 (150만원/인)
+  const personalDeduct = deps * 150;
+
+  // 신용카드 공제 (근로소득만, 총급여의 25% 초과분의 15%, 최대 300만원)
+  let cardDeduct = 0;
+  if (useCard && type === 'earn') {
+    const cardAmt = parseFloat(document.getElementById('cardAmount').value) || 0;
+    const threshold = income * 0.25;
+    if (cardAmt > threshold) cardDeduct = Math.min((cardAmt - threshold) * 0.15, 300);
+  }
+
+  // 의료비 공제 (총급여 3% 초과분의 15%)
+  let medDeduct = 0;
+  if (useMedical && type === 'earn') {
+    const medAmt = parseFloat(document.getElementById('medAmount').value) || 0;
+    const threshold = income * 0.03;
+    if (medAmt > threshold) medDeduct = (medAmt - threshold) * 0.15;
+  }
+
+  const totalDeduct = earnDeduct + socialDeduct + personalDeduct + cardDeduct + medDeduct;
+  const taxBase = Math.max(0, income - totalDeduct);
+  let rawTax = calcRawTax(taxBase);
+
+  // 근로소득세액공제 (근로소득만)
+  let taxCredit = 0;
+  if (type === 'earn') {
+    if (rawTax <= 130) taxCredit = rawTax * 0.55;
+    else taxCredit = 71.5 + (rawTax - 130) * 0.30;
+    // 총급여 구간별 한도
+    if (income <= 3300) taxCredit = Math.min(taxCredit, 74);
+    else if (income <= 7000) taxCredit = Math.min(taxCredit, Math.max(74 - (income - 3300) * 0.008, 66));
+    else taxCredit = Math.min(taxCredit, Math.max(66 - (income - 7000) * 0.005, 50));
+  }
+
+  const incomeTax = Math.max(0, rawTax - taxCredit);
+  const localTax = incomeTax * 0.1;
+  const total = incomeTax + localTax;
+
+  // DOM 업데이트
+  document.getElementById('finalTax').textContent = fmtW(total);
+  document.getElementById('finalSub').textContent = `소득세 ${fmtW(incomeTax)} + 지방소득세 ${fmtW(localTax)}`;
+  document.getElementById('r_income').textContent = fmtW(income);
+  document.getElementById('r_earnDeduct').textContent = earnDeduct > 0 ? '-' + fmtW(earnDeduct) : '해당없음';
+  document.getElementById('r_deduct').textContent = '-' + fmtW(totalDeduct);
+  document.getElementById('r_taxBase').textContent = fmtW(taxBase);
+  document.getElementById('r_rawTax').textContent = fmtW(rawTax);
+  document.getElementById('r_taxCredit').textContent = taxCredit > 0 ? '-' + fmtW(taxCredit) : '해당없음';
+  document.getElementById('r_incomeTax').textContent = fmtW(incomeTax);
+  document.getElementById('r_localTax').textContent = fmtW(localTax);
+  document.getElementById('r_total').textContent = fmtW(total);
+  document.getElementById('r_effRate').textContent = income > 0 ? (total / income * 100).toFixed(2) + '%' : '—';
+  document.getElementById('r_monthly').textContent = fmtW(total / 12) + '/월';
+
+  // 구간 하이라이트
+  document.getElementById('bracketBox').style.display = 'block';
+  const bracket = getBracket(taxBase);
+  for (let i = 1; i <= 7; i++) {
+    const el = document.getElementById('br' + i);
+    if (i - 1 === bracket) el.classList.add('active');
+    else el.classList.remove('active');
+  }
+}
+
+function reset() {
+  ['finalTax','r_income','r_earnDeduct','r_deduct','r_taxBase','r_rawTax','r_taxCredit','r_incomeTax','r_localTax','r_total','r_effRate','r_monthly'].forEach(id => {
+    document.getElementById(id).textContent = '—';
+  });
+  document.getElementById('finalSub').textContent = '소득을 입력하면 자동 계산됩니다';
+  document.getElementById('bracketBox').style.display = 'none';
+}
+</script>
+</body>
+</html>

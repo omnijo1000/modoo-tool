@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>상속세 계산기 | 2024년 기준 | MODOO HUB</title>
+<meta name="description" content="2024년 기준 상속세 계산기. 일괄공제 5억, 배우자공제 최대 30억 자동 적용. 상속재산 입력 시 예상 상속세 즉시 계산.">
+<meta property="og:title" content="상속세 계산기 | MODOO HUB">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<link rel="canonical" href="https://modoohub.com/inheritance-tax.html">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1c1c1c;--border:#2a2a2a;--text:#f0f0f0;--text2:#999;--text3:#555;--accent:#fcd34d;--radius:16px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+nav{border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:16px;height:56px;}
+.logo{font-family:'DM Mono',monospace;font-size:15px;color:var(--text);text-decoration:none;display:flex;align-items:center;gap:8px;}
+.logo-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);}
+.nav-back{font-size:13px;color:var(--text2);text-decoration:none;}
+.nav-back:hover{color:var(--text);}
+.container{max-width:960px;margin:0 auto;padding:40px 24px 80px;}
+.page-title{font-size:28px;font-weight:700;margin-bottom:6px;}
+.page-title span{color:var(--accent);}
+.page-sub{font-size:14px;color:var(--text2);margin-bottom:32px;}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;margin-right:6px;background:#fcd34d20;color:var(--accent);border:1px solid #fcd34d40;}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+@media(max-width:700px){.grid{grid-template-columns:1fr;}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px;}
+.card-title{font-size:13px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:20px;display:flex;align-items:center;gap:8px;}
+.card-title::before{content:'';width:3px;height:14px;background:var(--accent);border-radius:2px;display:inline-block;}
+.field{margin-bottom:18px;}
+.label{font-size:13px;color:var(--text2);margin-bottom:8px;display:flex;justify-content:space-between;}
+.label span{color:var(--text3);font-size:12px;}
+.input-wrap{position:relative;}
+.input-wrap input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 48px 12px 16px;color:var(--text);font-family:'DM Mono',monospace;font-size:15px;outline:none;transition:border-color .2s;}
+.input-wrap input:focus{border-color:var(--accent);}
+.input-wrap .unit{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--text3);pointer-events:none;}
+select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;outline:none;cursor:pointer;}
+select:focus{border-color:var(--accent);}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);}
+.toggle-row:last-child{border-bottom:none;}
+.toggle{width:42px;height:24px;background:var(--border);border-radius:12px;position:relative;cursor:pointer;transition:background .2s;border:none;flex-shrink:0;}
+.toggle.on{background:var(--accent);}
+.toggle::after{content:'';width:18px;height:18px;background:white;border-radius:50%;position:absolute;top:3px;left:3px;transition:left .2s;}
+.toggle.on::after{left:21px;}
+.result-card{background:linear-gradient(135deg,#141414,#1a1a1a);border:1px solid var(--border);border-radius:var(--radius);padding:28px;position:sticky;top:24px;}
+.result-main{text-align:center;padding:24px 0 20px;border-bottom:1px solid var(--border);margin-bottom:20px;}
+.result-label{font-size:13px;color:var(--text2);margin-bottom:8px;}
+.result-amount{font-family:'DM Mono',monospace;font-size:36px;font-weight:500;color:var(--accent);}
+.result-sub{font-size:12px;color:var(--text3);margin-top:6px;}
+.result-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #1a1a1a;}
+.result-row:last-child{border-bottom:none;}
+.rk{font-size:13px;color:var(--text2);}
+.rv{font-family:'DM Mono',monospace;font-size:14px;color:var(--text);}
+.rv.accent{color:var(--accent);}
+.rv.red{color:#f87171;}
+.info-box{background:var(--surface2);border-radius:10px;padding:16px;margin-top:16px;font-size:13px;color:var(--text2);line-height:1.7;}
+.info-box strong{color:var(--text);}
+.bracket-box{background:var(--surface2);border-radius:10px;padding:14px;margin-top:16px;}
+.br-title{font-size:12px;color:var(--text3);margin-bottom:10px;}
+.br-row{display:flex;justify-content:space-between;font-size:12px;padding:5px 0;}
+.br-row .br{color:var(--text2);}
+.br-row .bt{font-family:'DM Mono',monospace;color:var(--text);}
+.br-row.active .br,.br-row.active .bt{color:var(--accent);}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="logo"><span class="logo-dot"></span>MODOO HUB</a>
+  <a href="/" class="nav-back">← 홈으로</a>
+</nav>
+<div class="container">
+  <div class="page-title"><span>상속세</span> 계산기</div>
+  <div class="page-sub">
+    <span class="badge">2024년 기준</span>
+    일괄공제 5억 · 배우자공제 자동 반영
+  </div>
+  <div class="grid">
+    <div>
+      <div class="card">
+        <div class="card-title">상속재산 현황</div>
+        <div class="field">
+          <div class="label">총 상속재산 <span>부동산+금융+기타</span></div>
+          <div class="input-wrap">
+            <input type="number" id="totalAsset" placeholder="0" oninput="calculate()">
+            <span class="unit">만원</span>
+          </div>
+        </div>
+        <div class="field">
+          <div class="label">피상속인 채무 <span>부채 있는 경우</span></div>
+          <div class="input-wrap">
+            <input type="number" id="debt" placeholder="0" oninput="calculate()">
+            <span class="unit">만원</span>
+          </div>
+        </div>
+        <div class="field">
+          <div class="label">장례비용 <span>최대 1500만원 공제</span></div>
+          <div class="input-wrap">
+            <input type="number" id="funeral" placeholder="0" oninput="calculate()">
+            <span class="unit">만원</span>
+          </div>
+        </div>
+        <div class="field">
+          <div class="label">사전증여재산 <span>10년내 상속인 / 5년내 제3자</span></div>
+          <div class="input-wrap">
+            <input type="number" id="preGift" placeholder="0" oninput="calculate()">
+            <span class="unit">만원</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">공제 항목</div>
+        <div class="toggle-row">
+          <div>
+            <div style="font-size:14px;">배우자 있음</div>
+            <div style="font-size:12px;color:var(--text3)">배우자 상속공제 (법정상속지분 또는 최대 30억)</div>
+          </div>
+          <button class="toggle" id="t_spouse" onclick="this.classList.toggle('on');calculate()"></button>
+        </div>
+        <div class="field" id="spouseField" style="display:none; margin-top:12px;">
+          <div class="label">배우자 실제 상속받는 금액</div>
+          <div class="input-wrap">
+            <input type="number" id="spouseAmt" placeholder="0" oninput="calculate()">
+            <span class="unit">만원</span>
+          </div>
+        </div>
+        <div class="toggle-row">
+          <div>
+            <div style="font-size:14px;">금융재산 포함</div>
+            <div style="font-size:12px;color:var(--text3)">금융재산 상속공제 (순금융재산의 20%, 최대 2억)</div>
+          </div>
+          <button class="toggle" id="t_fin" onclick="toggleFin(this)"></button>
+        </div>
+        <div class="field" id="finField" style="display:none; margin-top:12px;">
+          <div class="label">순 금융재산 (금융자산 - 금융부채)</div>
+          <div class="input-wrap">
+            <input type="number" id="finAmt" placeholder="0" oninput="calculate()">
+            <span class="unit">만원</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-box">
+        <strong>주요 공제 요약</strong><br>
+        일괄공제 5억원 (기본공제 2억+인적공제 3억 중 큰 것).<br>
+        배우자공제: 실제 상속받은 금액과 법정지분 중 작은 금액, 최대 30억, 최소 5억.<br>
+        금융재산공제: 2천만원 초과 시 순금융재산의 20% (최대 2억).
+      </div>
+    </div>
+
+    <div>
+      <div class="result-card">
+        <div class="card-title" style="color:var(--accent)">계산 결과</div>
+        <div class="result-main">
+          <div class="result-label">예상 상속세</div>
+          <div class="result-amount" id="finalTax">—</div>
+          <div class="result-sub" id="finalSub">상속재산을 입력하면 자동 계산됩니다</div>
+        </div>
+        <div class="result-row"><span class="rk">총 상속재산</span><span class="rv" id="r_asset">—</span></div>
+        <div class="result-row"><span class="rk">채무·장례비 차감</span><span class="rv red" id="r_minus">—</span></div>
+        <div class="result-row"><span class="rk">사전증여 합산</span><span class="rv" id="r_pregift">—</span></div>
+        <div class="result-row"><span class="rk">상속세 과세가액</span><span class="rv" id="r_taxableAsset">—</span></div>
+        <div class="result-row"><span class="rk">일괄공제</span><span class="rv red">-5억원</span></div>
+        <div class="result-row"><span class="rk">배우자공제</span><span class="rv red" id="r_spouseDeduct">—</span></div>
+        <div class="result-row"><span class="rk">금융재산공제</span><span class="rv red" id="r_finDeduct">—</span></div>
+        <div class="result-row"><span class="rk">과세표준</span><span class="rv" id="r_taxBase">—</span></div>
+        <div class="result-row"><span class="rk">산출세액</span><span class="rv" id="r_rawTax">—</span></div>
+        <div class="result-row"><span class="rk">신고세액공제 (3%)</span><span class="rv red" id="r_credit">—</span></div>
+        <div class="result-row" style="border-top:1px solid var(--border);padding-top:14px;margin-top:4px;">
+          <span class="rk" style="font-weight:600;color:var(--text)">최종 납부세액</span>
+          <span class="rv accent" style="font-size:16px;" id="r_final">—</span>
+        </div>
+
+        <div class="bracket-box">
+          <div class="br-title">상속세 과세표준 구간</div>
+          <div class="br-row" id="ib1"><span class="br">1억원 이하</span><span class="bt">10%</span></div>
+          <div class="br-row" id="ib2"><span class="br">1억~5억원</span><span class="bt">20%</span></div>
+          <div class="br-row" id="ib3"><span class="br">5억~10억원</span><span class="bt">30%</span></div>
+          <div class="br-row" id="ib4"><span class="br">10억~30억원</span><span class="bt">40%</span></div>
+          <div class="br-row" id="ib5"><span class="br">30억원 초과</span><span class="bt">50%</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+function fmt(n){return Math.round(n).toLocaleString('ko-KR');}
+function fmtW(n){return fmt(n)+'만원';}
+
+document.getElementById('t_spouse').addEventListener('click',function(){
+  document.getElementById('spouseField').style.display = this.classList.contains('on') ? 'block' : 'none';
+  calculate();
+});
+function toggleFin(btn){
+  btn.classList.toggle('on');
+  document.getElementById('finField').style.display = btn.classList.contains('on') ? 'block' : 'none';
+  calculate();
+}
+
+function calcTax(base){
+  if(base<=10000) return base*0.10;
+  if(base<=50000) return 1000+(base-10000)*0.20;
+  if(base<=100000) return 9000+(base-50000)*0.30;
+  if(base<=300000) return 24000+(base-100000)*0.40;
+  return 104000+(base-300000)*0.50;
+}
+function getBracket(base){
+  if(base<=10000) return 0;
+  if(base<=50000) return 1;
+  if(base<=100000) return 2;
+  if(base<=300000) return 3;
+  return 4;
+}
+
+function calculate(){
+  const asset = parseFloat(document.getElementById('totalAsset').value)||0;
+  if(asset<=0){reset();return;}
+  const debt = parseFloat(document.getElementById('debt').value)||0;
+  const funeral = Math.min(parseFloat(document.getElementById('funeral').value)||500, 1500);
+  const preGift = parseFloat(document.getElementById('preGift').value)||0;
+  const hasSpouse = document.getElementById('t_spouse').classList.contains('on');
+  const spouseAmt = parseFloat(document.getElementById('spouseAmt').value)||0;
+  const hasFin = document.getElementById('t_fin').classList.contains('on');
+  const finAmt = parseFloat(document.getElementById('finAmt').value)||0;
+
+  // 과세가액
+  const taxableAsset = Math.max(0, asset - debt - funeral + preGift);
+  
+  // 일괄공제 5억
+  const lumpSum = 50000;
+  // 배우자공제
+  let spouseDeduct = 0;
+  if(hasSpouse){
+    spouseDeduct = Math.max(50000, Math.min(spouseAmt||50000, 300000));
+    spouseDeduct = Math.min(spouseDeduct, taxableAsset);
+  }
+  // 금융재산공제
+  let finDeduct = 0;
+  if(hasFin && finAmt > 2000){
+    finDeduct = Math.min(finAmt * 0.20, 20000);
+  }
+
+  const taxBase = Math.max(0, taxableAsset - lumpSum - spouseDeduct - finDeduct);
+  const rawTax = calcTax(taxBase);
+  const credit = rawTax * 0.03;
+  const final = Math.max(0, rawTax - credit);
+
+  document.getElementById('finalTax').textContent = fmtW(final);
+  document.getElementById('finalSub').textContent = `기한내 신고 3% 공제 적용`;
+  document.getElementById('r_asset').textContent = fmtW(asset);
+  document.getElementById('r_minus').textContent = '-'+fmtW(debt+funeral);
+  document.getElementById('r_pregift').textContent = preGift > 0 ? '+'+fmtW(preGift) : '해당없음';
+  document.getElementById('r_taxableAsset').textContent = fmtW(taxableAsset);
+  document.getElementById('r_spouseDeduct').textContent = hasSpouse ? '-'+fmtW(spouseDeduct) : '해당없음';
+  document.getElementById('r_finDeduct').textContent = finDeduct > 0 ? '-'+fmtW(finDeduct) : '해당없음';
+  document.getElementById('r_taxBase').textContent = fmtW(taxBase);
+  document.getElementById('r_rawTax').textContent = fmtW(rawTax);
+  document.getElementById('r_credit').textContent = '-'+fmtW(credit);
+  document.getElementById('r_final').textContent = fmtW(final);
+
+  const br = getBracket(taxBase);
+  for(let i=1;i<=5;i++){
+    const el=document.getElementById('ib'+i);
+    if(i-1===br) el.classList.add('active'); else el.classList.remove('active');
+  }
+}
+function reset(){
+  ['finalTax','r_asset','r_minus','r_pregift','r_taxableAsset','r_spouseDeduct','r_finDeduct','r_taxBase','r_rawTax','r_credit','r_final'].forEach(id=>{
+    document.getElementById(id).textContent='—';
+  });
+  document.getElementById('finalSub').textContent='상속재산을 입력하면 자동 계산됩니다';
+}
+</script>
+</body>
+</html>

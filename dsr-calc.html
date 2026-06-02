@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DSR 계산기 | 총부채원리금상환비율 | MODOO HUB</title>
+<meta name="description" content="DSR(총부채원리금상환비율) 계산기. 연소득 대비 주담대·신용대출·카드론 등 모든 대출 원리금 합산. 1금융권 40%, 2금융권 50% 기준 즉시 확인.">
+<meta property="og:title" content="DSR 계산기 | MODOO HUB">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<link rel="canonical" href="https://modoohub.com/dsr-calc.html">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1c1c1c;--border:#2a2a2a;--text:#f0f0f0;--text2:#999;--text3:#555;--accent:#4f8ef7;--green:#4ade80;--red:#f87171;--orange:#fb923c;--radius:16px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+nav{border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:16px;height:56px;}
+.logo{font-family:'DM Mono',monospace;font-size:15px;color:var(--text);text-decoration:none;display:flex;align-items:center;gap:8px;}
+.logo-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);}
+.nav-back{font-size:13px;color:var(--text2);text-decoration:none;}
+.nav-back:hover{color:var(--text);}
+.container{max-width:960px;margin:0 auto;padding:40px 24px 80px;}
+.page-title{font-size:28px;font-weight:700;margin-bottom:6px;}
+.page-title span{color:var(--accent);}
+.page-sub{font-size:14px;color:var(--text2);margin-bottom:32px;}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;margin-right:6px;background:#4f8ef720;color:var(--accent);border:1px solid #4f8ef740;}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+@media(max-width:700px){.grid{grid-template-columns:1fr;}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px;}
+.card-title{font-size:13px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:20px;display:flex;align-items:center;gap:8px;}
+.card-title::before{content:'';width:3px;height:14px;background:var(--accent);border-radius:2px;display:inline-block;}
+.field{margin-bottom:18px;}
+.label{font-size:13px;color:var(--text2);margin-bottom:8px;display:flex;justify-content:space-between;}
+.label span{color:var(--text3);font-size:12px;}
+.input-wrap{position:relative;}
+.input-wrap input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 50px 12px 16px;color:var(--text);font-family:'DM Mono',monospace;font-size:15px;outline:none;transition:border-color .2s;}
+.input-wrap input:focus{border-color:var(--accent);}
+.input-wrap .unit{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--text3);pointer-events:none;}
+select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;outline:none;cursor:pointer;}
+select:focus{border-color:var(--accent);}
+
+/* 대출 항목 */
+.loan-item{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;}
+.loan-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.loan-type{font-size:14px;font-weight:500;}
+.loan-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;line-height:1;padding:0;}
+.loan-del:hover{color:var(--red);}
+.loan-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.loan-row .mini-label{font-size:12px;color:var(--text3);margin-bottom:4px;}
+.loan-row input,.loan-row select{font-size:13px;padding:8px 10px;}
+.add-btn{width:100%;padding:12px;border:1px dashed var(--border);border-radius:10px;background:none;color:var(--text2);cursor:pointer;font-family:'Noto Sans KR',sans-serif;font-size:14px;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.add-btn:hover{border-color:var(--accent);color:var(--accent);background:#4f8ef710;}
+
+/* 결과 */
+.result-card{background:linear-gradient(135deg,#141414,#1a1a1a);border:1px solid var(--border);border-radius:var(--radius);padding:28px;position:sticky;top:24px;}
+.dsr-display{text-align:center;padding:24px 0 20px;}
+.dsr-circle{width:140px;height:140px;border-radius:50%;margin:0 auto 16px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:3px solid var(--border);position:relative;}
+.dsr-circle svg{position:absolute;top:0;left:0;width:100%;height:100%;}
+.dsr-num{font-family:'DM Mono',monospace;font-size:36px;font-weight:500;position:relative;z-index:1;}
+.dsr-label{font-size:12px;color:var(--text2);position:relative;z-index:1;}
+.status-badge{display:inline-block;padding:6px 16px;border-radius:20px;font-size:13px;font-weight:500;margin-top:8px;}
+.status-ok{background:#4ade8020;color:var(--green);border:1px solid #4ade8040;}
+.status-warn{background:#fb923c20;color:var(--orange);border:1px solid #fb923c40;}
+.status-fail{background:#f8717120;color:var(--red);border:1px solid #f8717140;}
+.result-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #1a1a1a;}
+.result-row:last-child{border-bottom:none;}
+.rk{font-size:13px;color:var(--text2);}
+.rv{font-family:'DM Mono',monospace;font-size:14px;color:var(--text);}
+.rv.accent{color:var(--accent);}
+.rv.green{color:var(--green);}
+.rv.red{color:var(--red);}
+.rv.orange{color:var(--orange);}
+
+/* 기준선 */
+.std-box{background:var(--surface2);border-radius:10px;padding:14px;margin-top:16px;}
+.std-title{font-size:12px;color:var(--text3);margin-bottom:10px;}
+.std-row{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border);}
+.std-row:last-child{border-bottom:none;}
+.std-row .sk{color:var(--text2);}
+.std-row .sv{font-family:'DM Mono',monospace;}
+
+/* 한도 계산 */
+.limit-box{background:var(--surface2);border-radius:10px;padding:14px;margin-top:16px;}
+.info-box{background:var(--surface2);border-radius:10px;padding:16px;margin-top:16px;font-size:13px;color:var(--text2);line-height:1.7;}
+.info-box strong{color:var(--text);}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="logo"><span class="logo-dot"></span>MODOO HUB</a>
+  <a href="/" class="nav-back">← 홈으로</a>
+</nav>
+<div class="container">
+  <div class="page-title"><span>DSR</span> 계산기</div>
+  <div class="page-sub">
+    <span class="badge">총부채원리금상환비율</span>
+    <span class="badge" style="background:#4ade8020;color:#4ade80;border-color:#4ade8040">1금융 40% / 2금융 50%</span>
+    추가 대출 가능 여부 즉시 확인
+  </div>
+  <div class="grid">
+    <div>
+      <div class="card">
+        <div class="card-title">소득 정보</div>
+        <div class="field">
+          <div class="label">연 소득 (세전) <span>인정소득 기준</span></div>
+          <div class="input-wrap">
+            <input type="number" id="annualIncome" placeholder="0" oninput="calculate()">
+            <span class="unit">만원/년</span>
+          </div>
+        </div>
+        <div class="field">
+          <div class="label">금융기관 유형 <span>신규 대출 기준</span></div>
+          <select id="lenderType" onchange="calculate()">
+            <option value="1">1금융권 (은행) — DSR 40%</option>
+            <option value="2">2금융권 (저축은행·보험·카드) — DSR 50%</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">기존 대출 현황</div>
+        <div id="loanList"></div>
+        <button class="add-btn" onclick="addLoan()">+ 대출 항목 추가</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">신규 대출 (희망)</div>
+        <div class="field">
+          <div class="label">희망 대출금액</div>
+          <div class="input-wrap">
+            <input type="number" id="newLoanAmt" placeholder="0" oninput="calculate()">
+            <span class="unit">만원</span>
+          </div>
+        </div>
+        <div class="field">
+          <div class="label">대출 금리</div>
+          <div class="input-wrap">
+            <input type="number" id="newLoanRate" placeholder="4.5" step="0.1" oninput="calculate()">
+            <span class="unit">%/년</span>
+          </div>
+        </div>
+        <div class="field">
+          <div class="label">대출 기간</div>
+          <select id="newLoanTerm" onchange="calculate()">
+            <option value="10">10년</option>
+            <option value="15">15년</option>
+            <option value="20">20년</option>
+            <option value="25">25년</option>
+            <option value="30" selected>30년</option>
+            <option value="35">35년</option>
+            <option value="40">40년</option>
+          </select>
+        </div>
+        <div class="field">
+          <div class="label">상환 방식</div>
+          <select id="newLoanType" onchange="calculate()">
+            <option value="equal_principal">원리금균등</option>
+            <option value="equal_payment">원금균등</option>
+            <option value="bullet">만기일시</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="info-box">
+        <strong>DSR 계산 방식</strong><br>
+        DSR = (연간 원리금상환액 합계 / 연 소득) × 100<br>
+        주담대: 전체 기간 원리금, 신용대출: 10년 분할 적용. 카드론은 일부 포함. 중도상환 시 잔여분으로 계산.
+      </div>
+    </div>
+
+    <div>
+      <div class="result-card">
+        <div class="card-title" style="color:var(--accent)">DSR 계산 결과</div>
+        <div class="dsr-display">
+          <div class="dsr-circle" id="dsrCircle">
+            <svg viewBox="0 0 140 140">
+              <circle cx="70" cy="70" r="60" fill="none" stroke="#2a2a2a" stroke-width="8"/>
+              <circle id="dsrArc" cx="70" cy="70" r="60" fill="none" stroke="#4f8ef7" stroke-width="8"
+                stroke-dasharray="0 377" stroke-dashoffset="94" stroke-linecap="round"
+                style="transition:stroke-dasharray .6s ease,stroke .3s"/>
+            </svg>
+            <div class="dsr-num" id="dsrNum">—</div>
+            <div class="dsr-label">DSR</div>
+          </div>
+          <div id="statusBadge" class="status-badge status-ok" style="display:none"></div>
+        </div>
+
+        <div class="result-row"><span class="rk">연 소득</span><span class="rv" id="r_income">—</span></div>
+        <div class="result-row"><span class="rk">기존 대출 연 원리금</span><span class="rv" id="r_existing">—</span></div>
+        <div class="result-row"><span class="rk">신규 대출 연 원리금</span><span class="rv accent" id="r_new">—</span></div>
+        <div class="result-row"><span class="rk">총 연 원리금</span><span class="rv" id="r_total">—</span></div>
+        <div class="result-row" style="border-top:1px solid var(--border);padding-top:14px;margin-top:4px;">
+          <span class="rk" style="font-weight:600;color:var(--text)">DSR</span>
+          <span class="rv accent" style="font-size:18px;" id="r_dsr">—</span>
+        </div>
+
+        <div class="std-box">
+          <div class="std-title">DSR 한도 기준</div>
+          <div class="std-row"><span class="sk">1금융권 (은행)</span><span class="sv" style="color:var(--green)">40% 이하</span></div>
+          <div class="std-row"><span class="sk">2금융권</span><span class="sv" style="color:var(--orange)">50% 이하</span></div>
+          <div class="std-row"><span class="sk">서민금융·소액</span><span class="sv" style="color:var(--text2)">일부 예외</span></div>
+        </div>
+
+        <div class="limit-box">
+          <div class="std-title">추가 가능 연 원리금 한도</div>
+          <div class="result-row" style="padding:8px 0;"><span class="rk">1금융권 기준 (40%)</span><span class="rv green" id="r_limit1">—</span></div>
+          <div class="result-row" style="padding:8px 0;"><span class="rk">2금융권 기준 (50%)</span><span class="rv" id="r_limit2">—</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+function fmt(n){return Math.round(n).toLocaleString('ko-KR');}
+function fmtW(n){return fmt(n)+'만원';}
+
+let loans = [];
+let loanId = 0;
+
+function calcMonthlyPayment(principal, annualRate, months, type) {
+  if(principal <= 0) return 0;
+  const r = annualRate / 100 / 12;
+  if(type === 'bullet') return principal * r; // 이자만
+  if(type === 'equal_principal') {
+    // 원금균등: 첫달 기준
+    return principal / months + principal * r;
+  }
+  // 원리금균등
+  if(r === 0) return principal / months;
+  return principal * r * Math.pow(1+r, months) / (Math.pow(1+r, months) - 1);
+}
+
+function addLoan(type='주택담보대출') {
+  const id = ++loanId;
+  loans.push({id});
+  const div = document.createElement('div');
+  div.className = 'loan-item';
+  div.id = 'loan_'+id;
+  div.innerHTML = `
+    <div class="loan-header">
+      <div class="loan-type">대출 ${loans.length}</div>
+      <button class="loan-del" onclick="removeLoan(${id})">×</button>
+    </div>
+    <div class="loan-row">
+      <div>
+        <div class="mini-label">대출종류</div>
+        <select id="lt_${id}" onchange="calculate()">
+          <option value="mortgage">주택담보대출</option>
+          <option value="credit">신용대출</option>
+          <option value="lease">전세자금대출</option>
+          <option value="card">카드론</option>
+        </select>
+      </div>
+      <div>
+        <div class="mini-label">잔액 (만원)</div>
+        <input type="number" id="la_${id}" placeholder="0" oninput="calculate()">
+      </div>
+      <div>
+        <div class="mini-label">금리 (%)</div>
+        <input type="number" id="lr_${id}" placeholder="4.5" step="0.1" oninput="calculate()">
+      </div>
+    </div>
+    <div class="loan-row" style="margin-top:8px;">
+      <div>
+        <div class="mini-label">잔여기간 (년)</div>
+        <input type="number" id="lm_${id}" placeholder="20" oninput="calculate()">
+      </div>
+      <div>
+        <div class="mini-label">상환방식</div>
+        <select id="lp_${id}" onchange="calculate()">
+          <option value="equal_principal">원리금균등</option>
+          <option value="equal_payment">원금균등</option>
+          <option value="bullet">만기일시</option>
+        </select>
+      </div>
+      <div></div>
+    </div>
+  `;
+  document.getElementById('loanList').appendChild(div);
+}
+
+function removeLoan(id) {
+  loans = loans.filter(l=>l.id!==id);
+  const el = document.getElementById('loan_'+id);
+  if(el) el.remove();
+  calculate();
+}
+
+function calculate() {
+  const income = parseFloat(document.getElementById('annualIncome').value)||0;
+  if(income<=0){ resetResult(); return; }
+
+  // 기존 대출 원리금 합산
+  let existingAnnual = 0;
+  loans.forEach(l=>{
+    const amt = parseFloat(document.getElementById('la_'+l.id)?.value)||0;
+    const rate = parseFloat(document.getElementById('lr_'+l.id)?.value)||4.5;
+    const years = parseFloat(document.getElementById('lm_'+l.id)?.value)||20;
+    const type = document.getElementById('lp_'+l.id)?.value||'equal_principal';
+    const ltype = document.getElementById('lt_'+l.id)?.value||'mortgage';
+    
+    let effectiveYears = years;
+    // 신용대출: DSR 상 10년 분할 적용
+    if(ltype==='credit') effectiveYears = Math.min(years, 10);
+    
+    const monthly = calcMonthlyPayment(amt, rate, effectiveYears*12, type);
+    existingAnnual += monthly * 12;
+  });
+
+  // 신규 대출 원리금
+  const newAmt = parseFloat(document.getElementById('newLoanAmt').value)||0;
+  const newRate = parseFloat(document.getElementById('newLoanRate').value)||4.5;
+  const newTerm = parseInt(document.getElementById('newLoanTerm').value)||30;
+  const newType = document.getElementById('newLoanType').value;
+  const newMonthly = calcMonthlyPayment(newAmt, newRate, newTerm*12, newType);
+  const newAnnual = newMonthly * 12;
+
+  const totalAnnual = existingAnnual + newAnnual;
+  const dsr = income > 0 ? (totalAnnual / income * 100) : 0;
+
+  const lenderType = parseInt(document.getElementById('lenderType').value);
+  const limit = lenderType === 1 ? 40 : 50;
+
+  // DSR 원형 표시
+  const circumference = 2 * Math.PI * 60; // 377
+  const progress = Math.min(dsr / 100, 1);
+  const dashArr = (progress * circumference).toFixed(1) + ' ' + circumference;
+  const arc = document.getElementById('dsrArc');
+  arc.setAttribute('stroke-dasharray', dashArr);
+
+  let color = '#4ade80';
+  let statusClass = 'status-ok';
+  let statusText = '✅ 대출 가능 (DSR 기준 충족)';
+  if(dsr >= limit) {
+    color = '#f87171'; statusClass = 'status-fail'; statusText = '❌ 대출 불가 (DSR 초과)';
+  } else if(dsr >= limit * 0.85) {
+    color = '#fb923c'; statusClass = 'status-warn'; statusText = '⚠️ 주의 (DSR 한도 근접)';
+  }
+  arc.setAttribute('stroke', color);
+  document.getElementById('dsrNum').textContent = dsr.toFixed(1)+'%';
+  document.getElementById('dsrNum').style.color = color;
+  const badge = document.getElementById('statusBadge');
+  badge.className = 'status-badge '+statusClass;
+  badge.textContent = statusText;
+  badge.style.display = 'inline-block';
+
+  document.getElementById('r_income').textContent = fmtW(income)+'/년';
+  document.getElementById('r_existing').textContent = fmtW(existingAnnual)+'/년';
+  document.getElementById('r_new').textContent = newAmt > 0 ? fmtW(newAnnual)+'/년' : '—';
+  document.getElementById('r_total').textContent = fmtW(totalAnnual)+'/년';
+  document.getElementById('r_dsr').textContent = dsr.toFixed(2)+'%';
+
+  const limit1Remain = Math.max(0, income*0.40 - existingAnnual);
+  const limit2Remain = Math.max(0, income*0.50 - existingAnnual);
+  document.getElementById('r_limit1').textContent = fmtW(limit1Remain)+'/년';
+  document.getElementById('r_limit2').textContent = fmtW(limit2Remain)+'/년';
+}
+
+function resetResult(){
+  document.getElementById('dsrNum').textContent='—';
+  document.getElementById('statusBadge').style.display='none';
+  ['r_income','r_existing','r_new','r_total','r_dsr','r_limit1','r_limit2'].forEach(id=>document.getElementById(id).textContent='—');
+}
+// 기본 대출 1개 추가
+addLoan();
+</script>
+</body>
+</html>

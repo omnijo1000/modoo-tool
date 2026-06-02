@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>실업급여 계산기 | 2024년 기준 | MODOO HUB</title>
+<meta name="description" content="2024년 기준 실업급여(구직급여) 계산기. 이직 전 평균임금 60%, 수급일수 자동 계산. 상한액 66,000원/일, 하한액 자동 적용.">
+<meta property="og:title" content="실업급여 계산기 | MODOO HUB">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<link rel="canonical" href="https://modoohub.com/unemployment-benefit.html">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1c1c1c;--border:#2a2a2a;--text:#f0f0f0;--text2:#999;--text3:#555;--accent:#c084fc;--green:#4ade80;--radius:16px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+nav{border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:16px;height:56px;}
+.logo{font-family:'DM Mono',monospace;font-size:15px;color:var(--text);text-decoration:none;display:flex;align-items:center;gap:8px;}
+.logo-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);}
+.nav-back{font-size:13px;color:var(--text2);text-decoration:none;}
+.nav-back:hover{color:var(--text);}
+.container{max-width:960px;margin:0 auto;padding:40px 24px 80px;}
+.page-title{font-size:28px;font-weight:700;margin-bottom:6px;}
+.page-title span{color:var(--accent);}
+.page-sub{font-size:14px;color:var(--text2);margin-bottom:32px;}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;margin-right:6px;background:#c084fc20;color:var(--accent);border:1px solid #c084fc40;}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+@media(max-width:700px){.grid{grid-template-columns:1fr;}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px;}
+.card-title{font-size:13px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:20px;display:flex;align-items:center;gap:8px;}
+.card-title::before{content:'';width:3px;height:14px;background:var(--accent);border-radius:2px;display:inline-block;}
+.field{margin-bottom:18px;}
+.label{font-size:13px;color:var(--text2);margin-bottom:8px;display:flex;justify-content:space-between;}
+.label span{color:var(--text3);font-size:12px;}
+.input-wrap{position:relative;}
+.input-wrap input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 50px 12px 16px;color:var(--text);font-family:'DM Mono',monospace;font-size:15px;outline:none;transition:border-color .2s;}
+.input-wrap input:focus{border-color:var(--accent);}
+.input-wrap .unit{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--text3);pointer-events:none;}
+select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;outline:none;cursor:pointer;}
+select:focus{border-color:var(--accent);}
+.radio-group{display:flex;gap:8px;flex-wrap:wrap;}
+.radio-btn{flex:1;min-width:80px;padding:10px 6px;border:1px solid var(--border);border-radius:10px;text-align:center;font-size:13px;cursor:pointer;color:var(--text2);background:var(--surface2);transition:all .2s;}
+.radio-btn.active{border-color:var(--accent);color:var(--accent);background:#c084fc15;}
+
+/* 결과 */
+.result-card{background:linear-gradient(135deg,#141414,#1a1a1a);border:1px solid var(--border);border-radius:var(--radius);padding:28px;position:sticky;top:24px;}
+.result-main{text-align:center;padding:24px 0 20px;border-bottom:1px solid var(--border);margin-bottom:20px;}
+.result-label{font-size:13px;color:var(--text2);margin-bottom:8px;}
+.result-amount{font-family:'DM Mono',monospace;font-size:36px;font-weight:500;color:var(--accent);}
+.result-sub{font-size:12px;color:var(--text3);margin-top:6px;}
+.result-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #1a1a1a;}
+.result-row:last-child{border-bottom:none;}
+.rk{font-size:13px;color:var(--text2);}
+.rv{font-family:'DM Mono',monospace;font-size:14px;color:var(--text);}
+.rv.accent{color:var(--accent);}
+
+/* 수급일수 표 */
+.days-table{background:var(--surface2);border-radius:10px;padding:14px;margin-top:16px;}
+.dt-title{font-size:12px;color:var(--text3);margin-bottom:10px;}
+.dt-row{display:grid;grid-template-columns:auto 1fr auto;gap:8px;font-size:12px;padding:5px 0;border-bottom:1px solid var(--border);align-items:center;}
+.dt-row:last-child{border-bottom:none;}
+.dt-row .da{color:var(--text2);}
+.dt-row .db{background:var(--border);border-radius:3px;height:6px;}
+.dt-row .db-fill{height:6px;border-radius:3px;background:var(--accent);}
+.dt-row .dc{font-family:'DM Mono',monospace;color:var(--text);text-align:right;}
+.dt-row.active .da,.dt-row.active .dc{color:var(--accent);}
+
+.checklist{background:var(--surface2);border-radius:10px;padding:16px;margin-top:16px;}
+.cl-title{font-size:13px;font-weight:500;margin-bottom:12px;color:var(--text);}
+.cl-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--text2);line-height:1.5;}
+.cl-item:last-child{border-bottom:none;}
+.cl-check{width:18px;height:18px;border-radius:50%;border:1.5px solid;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;margin-top:1px;}
+.cl-check.ok{border-color:var(--green);color:var(--green);}
+.cl-check.req{border-color:var(--border);}
+.info-box{background:var(--surface2);border-radius:10px;padding:16px;margin-top:16px;font-size:13px;color:var(--text2);line-height:1.7;}
+.info-box strong{color:var(--text);}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="logo"><span class="logo-dot"></span>MODOO HUB</a>
+  <a href="/" class="nav-back">← 홈으로</a>
+</nav>
+<div class="container">
+  <div class="page-title"><span>실업급여</span> 계산기</div>
+  <div class="page-sub">
+    <span class="badge">2024년 기준</span>
+    상한 66,000원/일 · 하한 최저임금 80%
+  </div>
+  <div class="grid">
+    <div>
+      <div class="card">
+        <div class="card-title">기본 정보</div>
+        <div class="field">
+          <div class="label">이직 전 3개월 평균 월 급여 <span>세전</span></div>
+          <div class="input-wrap">
+            <input type="number" id="salary" placeholder="0" oninput="calculate()">
+            <span class="unit">만원/월</span>
+          </div>
+        </div>
+        <div class="field">
+          <div class="label">나이</div>
+          <div class="radio-group" id="ageGroup">
+            <div class="radio-btn active" onclick="selectRadio(this,'ageGroup')">29세 이하</div>
+            <div class="radio-btn" onclick="selectRadio(this,'ageGroup')">30~49세</div>
+            <div class="radio-btn" onclick="selectRadio(this,'ageGroup')">50세 이상·장애인</div>
+          </div>
+        </div>
+        <div class="field">
+          <div class="label">고용보험 가입 기간 <span>이직 전 18개월 이내</span></div>
+          <select id="insuredPeriod" onchange="calculate()">
+            <option value="0">180일 미만 (수급 불가)</option>
+            <option value="180">180일 이상 ~ 1년 미만</option>
+            <option value="365">1년 이상 ~ 3년 미만</option>
+            <option value="1095">3년 이상 ~ 5년 미만</option>
+            <option value="1825">5년 이상 ~ 10년 미만</option>
+            <option value="3650">10년 이상</option>
+          </select>
+        </div>
+        <div class="field">
+          <div class="label">이직 사유</div>
+          <select id="quitReason" onchange="calculate()">
+            <option value="involuntary">비자발적 이직 (권고사직·계약만료·회사귀책)</option>
+            <option value="voluntary_ok">자발적이나 인정사유 (임금체불·직장내괴롭힘 등)</option>
+            <option value="voluntary">자발적 이직 (개인사유 퇴사)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="checklist">
+        <div class="cl-title">수급 자격 요건 체크</div>
+        <div class="cl-item">
+          <div class="cl-check ok">✓</div>
+          <div>고용보험 피보험자격 취득 후 <strong>180일 이상</strong> 근무</div>
+        </div>
+        <div class="cl-item">
+          <div class="cl-check ok">✓</div>
+          <div><strong>비자발적 이직</strong> (권고사직·계약만료·회사사정 등)<br>자발적이어도 정당한 사유(임금체불 3개월, 최저임금 위반 등) 인정 가능</div>
+        </div>
+        <div class="cl-item">
+          <div class="cl-check ok">✓</div>
+          <div>재취업 의사·능력 있고 <strong>적극적 구직활동</strong> 중이어야 함</div>
+        </div>
+        <div class="cl-item">
+          <div class="cl-check ok">✓</div>
+          <div>이직일 다음날부터 <strong>12개월 이내</strong> 신청 (경과 시 소멸)</div>
+        </div>
+      </div>
+
+      <div class="info-box">
+        <strong>2024년 주요 기준</strong><br>
+        일 상한액: 66,000원. 일 하한액: 최저시급(9,860원)×8시간×80% = 63,104원. 수급기간 중 취업 시 취업촉진수당 지급. 조기취업수당: 잔여일수 50% 이상 남은 경우 지급.
+      </div>
+    </div>
+
+    <div>
+      <div class="result-card">
+        <div class="card-title" style="color:var(--accent)">계산 결과</div>
+        <div id="ineligibleAlert" style="display:none;background:#f8717115;border:1px solid #f8717130;color:#f87171;border-radius:10px;padding:14px;margin-bottom:16px;font-size:13px;line-height:1.6;">
+          ❌ <strong>수급 자격 미해당</strong><br>자발적 이직은 원칙적으로 실업급여를 받을 수 없습니다. 임금체불·직장 내 괴롭힘 등 정당한 사유가 있는 경우 예외 인정.
+        </div>
+        <div class="result-main">
+          <div class="result-label">예상 총 수령액</div>
+          <div class="result-amount" id="finalTotal">—</div>
+          <div class="result-sub" id="finalSub">급여 정보를 입력하면 자동 계산됩니다</div>
+        </div>
+        <div class="result-row"><span class="rk">이직 전 평균 일급</span><span class="rv" id="r_daily">—</span></div>
+        <div class="result-row"><span class="rk">구직급여 일액 (60%)</span><span class="rv" id="r_benefit_rate">—</span></div>
+        <div class="result-row"><span class="rk">상한·하한 적용 후</span><span class="rv accent" id="r_benefit">—</span></div>
+        <div class="result-row"><span class="rk">수급 가능 일수</span><span class="rv" id="r_days">—</span></div>
+        <div class="result-row"><span class="rk">예상 수급 기간</span><span class="rv" id="r_period">—</span></div>
+        <div class="result-row" style="border-top:1px solid var(--border);padding-top:14px;margin-top:4px;">
+          <span class="rk" style="font-weight:600;color:var(--text)">총 수령 예상액</span>
+          <span class="rv accent" style="font-size:16px;" id="r_total">—</span>
+        </div>
+        <div class="result-row">
+          <span class="rk">월 수령 예상액</span>
+          <span class="rv" id="r_monthly">—</span>
+        </div>
+
+        <div class="days-table">
+          <div class="dt-title">연령·고용보험 기간별 수급일수</div>
+          <div class="dt-row"><span class="da" style="min-width:70px">180일~1년</span><div class="db"><div class="db-fill" style="width:30%"></div></div><span class="dc">120일</span></div>
+          <div class="dt-row"><span class="da" style="min-width:70px">1년~3년</span><div class="db"><div class="db-fill" style="width:40%"></div></div><span class="dc">150일</span></div>
+          <div class="dt-row" id="dt3"><span class="da" style="min-width:70px">3년~5년</span><div class="db"><div class="db-fill" style="width:55%"></div></div><span class="dc">180일</span></div>
+          <div class="dt-row" id="dt4"><span class="da" style="min-width:70px">5년~10년</span><div class="db"><div class="db-fill" style="width:70%"></div></div><span class="dc">210/240일</span></div>
+          <div class="dt-row" id="dt5"><span class="da" style="min-width:70px">10년 이상</span><div class="db"><div class="db-fill" style="width:100%"></div></div><span class="dc">240/270일</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+function fmt(n){return Math.round(n).toLocaleString('ko-KR');}
+function fmtW(n){return fmt(n)+'만원';}
+
+function selectRadio(el,groupId){
+  document.querySelectorAll('#'+groupId+' .radio-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  calculate();
+}
+function getRadio(groupId){
+  const a=document.querySelector('#'+groupId+' .radio-btn.active');
+  return a ? a.textContent.trim() : '';
+}
+
+// 수급일수 결정 (나이, 고용보험기간)
+function getBenefitDays(insuredDays, ageStr) {
+  const over50 = ageStr.includes('50') || ageStr.includes('장애');
+  if(insuredDays < 180) return 0;
+  if(insuredDays < 365) return 120;
+  if(insuredDays < 1095) return 150;
+  if(insuredDays < 1825) return over50 ? 210 : 180;
+  if(insuredDays < 3650) return over50 ? 240 : 210;
+  return over50 ? 270 : 240;
+}
+
+function calculate(){
+  const salary = parseFloat(document.getElementById('salary').value)||0;
+  const reason = document.getElementById('quitReason').value;
+  const ineligible = reason === 'voluntary';
+  const insuredDays = parseInt(document.getElementById('insuredPeriod').value)||0;
+  const ageStr = getRadio('ageGroup');
+
+  document.getElementById('ineligibleAlert').style.display = ineligible ? 'block' : 'none';
+  
+  if(salary<=0||ineligible||insuredDays<180){
+    if(salary>0&&insuredDays<180){
+      document.getElementById('finalTotal').textContent='수급 불가';
+      document.getElementById('finalSub').textContent='180일 이상 고용보험 가입이 필요합니다';
+    }
+    else if(!ineligible) reset();
+    return;
+  }
+
+  // 일급 = 월급 / 30
+  const dailySalary = salary * 10000 / 30;
+  // 구직급여 일액 = 일급 × 60%
+  let benefit = dailySalary * 0.60;
+  // 상한·하한
+  const upper = 66000;
+  const lower = 9860 * 8 * 0.80; // 63104
+  benefit = Math.max(lower, Math.min(upper, benefit));
+
+  const days = getBenefitDays(insuredDays, ageStr);
+  const total = benefit * days;
+  const months = days / 30;
+
+  document.getElementById('finalTotal').textContent = fmtW(total/10000);
+  document.getElementById('finalSub').textContent = `일 ${fmt(benefit)}원 × ${days}일`;
+  document.getElementById('r_daily').textContent = fmt(dailySalary)+'원/일';
+  document.getElementById('r_benefit_rate').textContent = fmt(dailySalary*0.6)+'원/일';
+  const capNote = benefit >= upper ? ' (상한 적용)' : benefit <= lower ? ' (하한 적용)' : '';
+  document.getElementById('r_benefit').textContent = fmt(benefit)+'원/일'+capNote;
+  document.getElementById('r_days').textContent = days+'일';
+  document.getElementById('r_period').textContent = '약 '+months.toFixed(1)+'개월';
+  document.getElementById('r_total').textContent = fmtW(total/10000);
+  document.getElementById('r_monthly').textContent = fmtW(total/10000/months)+'/월';
+}
+
+function reset(){
+  ['finalTotal','r_daily','r_benefit_rate','r_benefit','r_days','r_period','r_total','r_monthly'].forEach(id=>{
+    document.getElementById(id).textContent='—';
+  });
+  document.getElementById('finalSub').textContent='급여 정보를 입력하면 자동 계산됩니다';
+}
+</script>
+</body>
+</html>
