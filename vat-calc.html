@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>부가세 계산기 - VAT 계산기 (공급가액 ↔ 부가세 포함가)</title>
+<meta name="description" content="부가세(VAT) 계산기. 공급가액에서 부가세 계산, 부가세 포함가에서 공급가액 역산, 사업자 세금계산서 발행 시 필요한 부가세를 즉시 계산하세요.">
+<meta name="keywords" content="부가세 계산기, VAT 계산기, 부가가치세, 공급가액, 세금계산서, 부가세 역산">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0f0a00; --surface:#1a1400; --surface2:#231c00; --border:#2e2600;
+    --accent:#fcd34d; --accent2:#f59e0b; --accent-dim:rgba(252,211,77,0.08);
+    --text:#fffaf0; --text-muted:#a89060; --text-dim:#4a3800;
+    --green:#4ade80; --red:#f87171; --blue:#60a5fa;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:'Noto Sans KR',sans-serif; min-height:100vh; }
+  header { border-bottom:1px solid var(--border); padding:20px 24px; display:flex; align-items:center; gap:12px; }
+  .dot { width:8px; height:8px; border-radius:50%; background:var(--accent2); }
+  .header-label { font-size:13px; color:var(--text-muted); letter-spacing:0.1em; font-family:'DM Mono',monospace; }
+  .back-link { margin-left:auto; font-size:13px; color:var(--text-muted); text-decoration:none; }
+  .back-link:hover { color:var(--accent2); }
+  main { max-width:580px; margin:0 auto; padding:48px 24px; }
+  h1 { font-size:clamp(26px,5vw,38px); font-weight:900; line-height:1.1; margin-bottom:12px; }
+  h1 span { color:var(--accent2); }
+  .subtitle { color:var(--text-muted); font-size:14px; margin-bottom:32px; }
+
+  .tabs { display:flex; gap:8px; margin-bottom:20px; }
+  .tab { flex:1; padding:11px; text-align:center; border:1px solid var(--border); border-radius:10px; cursor:pointer; font-size:14px; font-weight:700; color:var(--text-muted); background:var(--surface); transition:all 0.15s; }
+  .tab.active { border-color:var(--accent2); color:var(--accent); background:var(--accent-dim); }
+
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:20px 24px; margin-bottom:14px; transition:border-color 0.2s; }
+  .card:focus-within { border-color:var(--accent2); }
+  label { font-size:12px; color:var(--text-muted); letter-spacing:0.08em; display:block; margin-bottom:10px; }
+  .input-wrap { display:flex; align-items:center; gap:8px; }
+  input[type=number] { flex:1; background:transparent; border:none; outline:none; font-size:28px; font-weight:700; color:var(--text); font-family:'DM Mono',monospace; width:100%; min-width:0; }
+  input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
+  .unit { color:var(--text-dim); font-size:14px; }
+  .quick-btns { display:flex; gap:6px; margin-top:10px; flex-wrap:wrap; }
+  .qbtn { background:var(--surface2); border:1px solid var(--border); border-radius:5px; padding:4px 10px; font-size:11px; color:var(--text-muted); cursor:pointer; font-family:'DM Mono',monospace; }
+  .qbtn:hover { border-color:var(--accent2); color:var(--accent); }
+
+  /* 세율 선택 */
+  .rate-btns { display:flex; gap:8px; margin-bottom:14px; }
+  .rate-btn { flex:1; padding:10px; text-align:center; border:1px solid var(--border); border-radius:8px; cursor:pointer; font-size:14px; font-weight:700; color:var(--text-muted); background:var(--surface); transition:all 0.15s; font-family:'DM Mono',monospace; }
+  .rate-btn.active { border-color:var(--accent2); color:var(--accent); background:var(--accent-dim); }
+
+  .result { border-radius:16px; padding:28px; margin-bottom:24px; display:none; background:var(--accent-dim); border:1px solid var(--accent2); }
+  .result.show { display:block; }
+  .result-tag { font-size:12px; color:var(--accent); letter-spacing:0.1em; margin-bottom:20px; }
+
+  .result-rows { display:flex; flex-direction:column; gap:0; }
+  .result-row { display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--border); }
+  .result-row:last-child { border-bottom:none; }
+  .result-row.main { padding:16px 0; }
+  .result-label { font-size:14px; color:var(--text-muted); }
+  .result-value { font-family:'DM Mono',monospace; font-weight:700; }
+  .result-value.big { font-size:26px; color:var(--accent); }
+  .result-value.mid { font-size:18px; color:var(--text); }
+  .result-value.tax { font-size:18px; color:var(--red); }
+
+  /* 빠른 계산 표 */
+  .quick-table { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:20px 24px; margin-bottom:40px; }
+  .quick-table-title { font-size:12px; color:var(--text-muted); letter-spacing:0.08em; margin-bottom:14px; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th { color:var(--text-dim); font-weight:500; padding:6px 0; text-align:right; border-bottom:1px solid var(--border); }
+  th:first-child { text-align:left; }
+  td { padding:7px 0; border-bottom:1px solid var(--border); color:var(--text-muted); text-align:right; font-family:'DM Mono',monospace; }
+  td:first-child { text-align:left; color:var(--text-dim); }
+  tr:last-child td { border-bottom:none; }
+
+  .seo { border-top:1px solid var(--border); padding-top:32px; }
+  .seo h2 { font-size:16px; font-weight:700; margin-bottom:12px; }
+  .seo p { font-size:13px; color:var(--text-muted); line-height:1.8; margin-bottom:24px; }
+  footer { text-align:center; font-size:12px; color:var(--text-dim); margin-top:48px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="dot"></div>
+  <span class="header-label">VAT CALCULATOR</span>
+  <a href="index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>부가세<br><span>계산기</span></h1>
+  <p class="subtitle">공급가액 → 부가세 계산 · 부가세 포함가 → 공급가액 역산</p>
+
+  <div class="tabs">
+    <div class="tab active" data-mode="add" onclick="switchMode('add')">부가세 더하기</div>
+    <div class="tab" data-mode="extract" onclick="switchMode('extract')">부가세 빼기 (역산)</div>
+  </div>
+
+  <div class="rate-btns">
+    <div class="rate-btn active" data-rate="10" onclick="selectRate(10)">10% (일반)</div>
+    <div class="rate-btn" data-rate="0" onclick="selectRate(0)">0% (영세율)</div>
+  </div>
+
+  <div class="card" id="inputCard">
+    <label id="inputLabel">공급가액 (부가세 제외)</label>
+    <div class="input-wrap">
+      <input type="number" id="amount" placeholder="1000000" oninput="calc()">
+      <span class="unit">원</span>
+    </div>
+    <div class="quick-btns">
+      <button class="qbtn" onclick="setAmt(100000)">10만</button>
+      <button class="qbtn" onclick="setAmt(500000)">50만</button>
+      <button class="qbtn" onclick="setAmt(1000000)">100만</button>
+      <button class="qbtn" onclick="setAmt(5000000)">500만</button>
+      <button class="qbtn" onclick="setAmt(10000000)">1000만</button>
+      <button class="qbtn" onclick="setAmt(100000000)">1억</button>
+    </div>
+  </div>
+
+  <div class="result" id="result">
+    <div class="result-tag" id="resultTag">✓ 부가세 계산 결과</div>
+    <div class="result-rows">
+      <div class="result-row">
+        <span class="result-label" id="r1Label">공급가액</span>
+        <span class="result-value mid" id="r1Value"></span>
+      </div>
+      <div class="result-row main">
+        <span class="result-label">부가세 (10%)</span>
+        <span class="result-value big" id="vatValue"></span>
+      </div>
+      <div class="result-row">
+        <span class="result-label" id="r2Label">합계 (부가세 포함)</span>
+        <span class="result-value mid" id="r2Value"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 빠른 참고표 -->
+  <div class="quick-table">
+    <div class="quick-table-title">자주 쓰는 금액 부가세 참고표</div>
+    <table>
+      <thead>
+        <tr><th>공급가액</th><th>부가세</th><th>합계</th></tr>
+      </thead>
+      <tbody id="refTable"></tbody>
+    </table>
+  </div>
+
+  <div class="seo">
+    <h2>부가세(VAT)란?</h2>
+    <p>부가가치세(VAT)는 상품·서비스 거래에 부과되는 세금으로 일반적으로 공급가액의 10%입니다. 사업자가 세금계산서를 발행할 때 공급가액과 부가세를 구분해야 합니다.</p>
+    <h2>부가세 역산 방법</h2>
+    <p>부가세 포함 금액에서 공급가액을 구하려면: 공급가액 = 부가세포함금액 ÷ 1.1, 부가세 = 부가세포함금액 - 공급가액입니다.</p>
+  </div>
+  <footer>부가가치세법 기준 · 실제 세금은 세무사와 상담하세요</footer>
+</main>
+<script>
+function fmt(n) { return Math.round(n).toLocaleString('ko-KR') + '원'; }
+function fmtShort(n) {
+  if(n>=100000000) return (n/100000000).toFixed(1)+'억원';
+  if(n>=10000) return Math.round(n/10000)+'만원';
+  return fmt(n);
+}
+
+let mode = 'add';
+let vatRate = 10;
+
+function setAmt(v) { document.getElementById('amount').value = v; calc(); }
+
+function switchMode(m) {
+  mode = m;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.mode === m));
+  document.getElementById('inputLabel').textContent = m === 'add' ? '공급가액 (부가세 제외)' : '부가세 포함 금액';
+  document.getElementById('amount').placeholder = m === 'add' ? '1000000' : '1100000';
+  calc();
+}
+
+function selectRate(r) {
+  vatRate = r;
+  document.querySelectorAll('.rate-btn').forEach(b => b.classList.toggle('active', parseInt(b.dataset.rate) === r));
+  calc();
+}
+
+function calc() {
+  const amt = parseFloat(document.getElementById('amount').value) || 0;
+  const resultEl = document.getElementById('result');
+  if (!amt) { resultEl.classList.remove('show'); return; }
+
+  let supply, vat, total;
+  if (mode === 'add') {
+    supply = amt;
+    vat = Math.round(amt * vatRate / 100);
+    total = supply + vat;
+  } else {
+    total = amt;
+    supply = Math.round(amt / (1 + vatRate/100));
+    vat = total - supply;
+  }
+
+  resultEl.classList.add('show');
+  document.getElementById('resultTag').textContent = mode==='add' ? '✓ 부가세 계산 결과' : '✓ 부가세 역산 결과';
+  document.getElementById('r1Label').textContent = '공급가액';
+  document.getElementById('r1Value').textContent = fmt(supply);
+  document.getElementById('vatValue').textContent = fmt(vat);
+  document.getElementById('r2Label').textContent = '합계 (부가세 포함)';
+  document.getElementById('r2Value').textContent = fmt(total);
+
+  // 참고표
+  const refs = [100000,500000,1000000,3000000,5000000,10000000,30000000,100000000];
+  document.getElementById('refTable').innerHTML = refs.map(v => {
+    const t = Math.round(v * vatRate / 100);
+    return `<tr><td>${fmtShort(v)}</td><td>${fmtShort(t)}</td><td>${fmtShort(v+t)}</td></tr>`;
+  }).join('');
+}
+
+// 초기 참고표
+calc();
+document.getElementById('refTable').innerHTML = [100000,500000,1000000,3000000,5000000,10000000,30000000,100000000].map(v => {
+  const t = Math.round(v * 10 / 100);
+  return `<tr><td>${fmtShort(v)}</td><td>${fmtShort(t)}</td><td>${fmtShort(v+t)}</td></tr>`;
+}).join('');
+</script>
+</body>
+</html>
