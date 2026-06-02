@@ -3,9 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>모두의 툴 - 누구나 쓰는 무료 온라인 도구 모음</title>
-<meta name="description" content="직장인, 알바생, 프리랜서, 개발자 모두를 위한 무료 온라인 툴 모음. 주휴수당, 연봉, 퇴직금, 연차, 중개수수료, 취득세, 만나이, 디데이, JSON, JWT, 정규식 등 15가지 무료 도구.">
-<meta name="keywords" content="모두의툴, 무료 온라인 툴, 주휴수당, 연봉실수령액, 퇴직금, 연차계산기, 중개수수료, 취득세, 만나이, 디데이, json포맷터, jwt디코더, 정규식테스터, cron">
+<title id="pageTitle">모두의 툴 - 누구나 쓰는 무료 온라인 도구 모음</title>
+<meta name="description" content="Free online tools for everyone. JSON formatter, JWT decoder, regex tester, cron generator, and Korean calculators. All tools run in your browser.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -17,6 +16,8 @@
   .dot { width:7px; height:7px; border-radius:50%; }
   .d1{background:#4ade80}.d2{background:#4f8ef7}.d3{background:#c084fc}.d4{background:#fb923c}.d5{background:#2dd4bf}.d6{background:#fcd34d}
   .header-label { font-size:13px; color:var(--text-muted); letter-spacing:0.1em; font-family:'DM Mono',monospace; }
+  .lang-toggle { margin-left:auto; font-size:12px; color:var(--text-muted); cursor:pointer; padding:4px 12px; border:1px solid var(--border); border-radius:6px; font-family:'DM Mono',monospace; transition:all 0.15s; }
+  .lang-toggle:hover { border-color:#4ade80; color:#4ade80; }
   main { max-width:700px; margin:0 auto; padding:56px 24px; }
   .hero { margin-bottom:52px; text-align:center; }
   .hero h1 { font-size:clamp(36px,8vw,56px); font-weight:900; line-height:1.1; margin-bottom:14px; }
@@ -32,11 +33,12 @@
   .tool-card:hover::before { opacity:1; }
   .tool-icon { font-size:22px; flex-shrink:0; width:36px; text-align:center; }
   .tool-info { flex:1; min-width:0; }
-  .tool-name { font-size:14px; font-weight:700; margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .tool-name { font-size:14px; font-weight:700; margin-bottom:2px; }
   .tool-desc { font-size:11px; color:var(--text-muted); line-height:1.4; }
   .tool-arrow { color:var(--text-dim); font-size:14px; flex-shrink:0; transition:color 0.2s; }
   .tool-card:hover .tool-arrow { color:var(--card-color); }
   .c1{--card-color:#4ade80}.c2{--card-color:#86efac}.c3{--card-color:#4f8ef7}.c4{--card-color:#c084fc}.c5{--card-color:#fb923c}.c6{--card-color:#2dd4bf}.c7{--card-color:#fcd34d}.c8{--card-color:#f87171}.c9{--card-color:#818cf8}.c10{--card-color:#34d399}
+  .ko-only { } .en-only { display:none; }
   footer { text-align:center; font-size:12px; color:var(--text-dim); margin-top:56px; }
 </style>
 </head>
@@ -45,15 +47,17 @@
   <div class="dots">
     <div class="dot d1"></div><div class="dot d2"></div><div class="dot d3"></div><div class="dot d4"></div><div class="dot d5"></div><div class="dot d6"></div>
   </div>
-  <span class="header-label">MODOO TOOL</span>
+  <span class="header-label">MODOO HUB</span>
+  <div class="lang-toggle" onclick="toggleLang()" id="langBtn">🌐 EN</div>
 </header>
 <main>
   <div class="hero">
-    <h1><span>모두의 툴</span></h1>
-    <p>직장인, 알바생, 프리랜서, 개발자<br>누구나 쓸 수 있는 무료 온라인 도구 모음</p>
+    <h1 id="heroTitle"><span>모두의 툴</span></h1>
+    <p id="heroSub">직장인, 알바생, 프리랜서, 개발자<br>누구나 쓸 수 있는 무료 온라인 도구 모음</p>
   </div>
 
-  <div class="section">
+  <!-- 근로·세금 (한국어만) -->
+  <div class="section ko-only" id="secWork">
     <div class="category-label">근로 · 세금</div>
     <div class="tools">
       <a href="weekly-holiday.html" class="tool-card c1"><div class="tool-icon">📅</div><div class="tool-info"><div class="tool-name">주휴수당 계산기</div><div class="tool-desc">시급·근무시간으로 주휴수당 계산</div></div><div class="tool-arrow">→</div></a>
@@ -64,7 +68,8 @@
     </div>
   </div>
 
-  <div class="section">
+  <!-- 부동산 (한국어만) -->
+  <div class="section ko-only" id="secReal">
     <div class="category-label">부동산</div>
     <div class="tools">
       <a href="realestate-fee.html" class="tool-card c10"><div class="tool-icon">🏠</div><div class="tool-info"><div class="tool-name">중개수수료 계산기</div><div class="tool-desc">매매·전세·월세 복비 계산</div></div><div class="tool-arrow">→</div></a>
@@ -73,7 +78,8 @@
     </div>
   </div>
 
-  <div class="section">
+  <!-- 일상 생활 (한국어만) -->
+  <div class="section ko-only" id="secLife">
     <div class="category-label">일상 생활</div>
     <div class="tools">
       <a href="korean-age.html" class="tool-card c5"><div class="tool-icon">🎂</div><div class="tool-info"><div class="tool-name">만나이 계산기</div><div class="tool-desc">만나이·한국나이·생일 카운트다운</div></div><div class="tool-arrow">→</div></a>
@@ -82,17 +88,81 @@
     </div>
   </div>
 
-  <div class="section">
-    <div class="category-label">개발자</div>
+  <!-- 개발자 (공통) -->
+  <div class="section" id="secDev">
+    <div class="category-label" id="labelDev">개발자</div>
     <div class="tools">
-      <a href="cron-generator.html" class="tool-card c9"><div class="tool-icon">⏱️</div><div class="tool-info"><div class="tool-name">Cron 표현식 생성기</div><div class="tool-desc">cron 생성·검증·다음 실행시간</div></div><div class="tool-arrow">→</div></a>
-      <a href="json-formatter.html" class="tool-card c7"><div class="tool-icon">{ }</div><div class="tool-info"><div class="tool-name">JSON 포맷터</div><div class="tool-desc">JSON 정렬·압축·검증</div></div><div class="tool-arrow">→</div></a>
-      <a href="jwt-decoder.html" class="tool-card c3"><div class="tool-icon">🔑</div><div class="tool-info"><div class="tool-name">JWT 디코더</div><div class="tool-desc">JWT 토큰 분석·만료시간 확인</div></div><div class="tool-arrow">→</div></a>
-      <a href="regex-tester.html" class="tool-card c4"><div class="tool-icon">.*</div><div class="tool-info"><div class="tool-name">정규식 테스터</div><div class="tool-desc">Regex 실시간 테스트·하이라이트</div></div><div class="tool-arrow">→</div></a>
+      <a href="cron-generator.html" class="tool-card c9"><div class="tool-icon">⏱️</div><div class="tool-info"><div class="tool-name" id="toolCronName">Cron 표현식 생성기</div><div class="tool-desc" id="toolCronDesc">cron 생성·검증·다음 실행시간</div></div><div class="tool-arrow">→</div></a>
+      <a href="json-formatter.html" class="tool-card c7"><div class="tool-icon">{ }</div><div class="tool-info"><div class="tool-name" id="toolJsonName">JSON 포맷터</div><div class="tool-desc" id="toolJsonDesc">JSON 정렬·압축·검증</div></div><div class="tool-arrow">→</div></a>
+      <a href="jwt-decoder.html" class="tool-card c3"><div class="tool-icon">🔑</div><div class="tool-info"><div class="tool-name" id="toolJwtName">JWT 디코더</div><div class="tool-desc" id="toolJwtDesc">JWT 토큰 분석·만료시간 확인</div></div><div class="tool-arrow">→</div></a>
+      <a href="regex-tester.html" class="tool-card c4"><div class="tool-icon">.*</div><div class="tool-info"><div class="tool-name" id="toolRegexName">정규식 테스터</div><div class="tool-desc" id="toolRegexDesc">Regex 실시간 테스트·하이라이트</div></div><div class="tool-arrow">→</div></a>
     </div>
   </div>
 
-  <footer>무료 · 광고 없음 · 개인정보 수집 없음 · 총 15가지 도구</footer>
+  <footer id="footerText">무료 · 광고 없음 · 개인정보 수집 없음</footer>
 </main>
+<script>
+const i18n = {
+  ko: {
+    pageTitle:'모두의 툴 - 누구나 쓰는 무료 온라인 도구 모음',
+    heroTitle:'<span>모두의 툴</span>',
+    heroSub:'직장인, 알바생, 프리랜서, 개발자<br>누구나 쓸 수 있는 무료 온라인 도구 모음',
+    langBtn:'🌐 EN', labelDev:'개발자',
+    toolCronName:'Cron 표현식 생성기', toolCronDesc:'cron 생성·검증·다음 실행시간',
+    toolJsonName:'JSON 포맷터', toolJsonDesc:'JSON 정렬·압축·검증',
+    toolJwtName:'JWT 디코더', toolJwtDesc:'JWT 토큰 분석·만료시간 확인',
+    toolRegexName:'정규식 테스터', toolRegexDesc:'Regex 실시간 테스트·하이라이트',
+    footer:'무료 · 광고 없음 · 개인정보 수집 없음',
+    showKo: true,
+  },
+  en: {
+    pageTitle:'Modoo Hub - Free Online Developer Tools',
+    heroTitle:'<span>Modoo Hub</span>',
+    heroSub:'Free online tools for developers and everyone.<br>All tools run in your browser, no data sent to servers.',
+    langBtn:'🌐 KO', labelDev:'Developer Tools',
+    toolCronName:'Cron Generator', toolCronDesc:'Build cron expressions & preview next runs',
+    toolJsonName:'JSON Formatter', toolJsonDesc:'Format, validate and minify JSON',
+    toolJwtName:'JWT Decoder', toolJwtDesc:'Decode JWT tokens & inspect claims',
+    toolRegexName:'Regex Tester', toolRegexDesc:'Test regex with real-time highlighting',
+    footer:'Free · No ads · No data collection',
+    showKo: false,
+  }
+};
+
+let lang = localStorage.getItem('lang') || (navigator.language.startsWith('ko') ? 'ko' : 'en');
+
+function applyLang() {
+  const t = i18n[lang];
+  document.documentElement.lang = lang;
+  document.title = t.pageTitle;
+  document.getElementById('pageTitle').textContent = t.pageTitle;
+  document.getElementById('heroTitle').innerHTML = t.heroTitle;
+  document.getElementById('heroSub').innerHTML = t.heroSub;
+  document.getElementById('langBtn').textContent = t.langBtn;
+  document.getElementById('labelDev').textContent = t.labelDev;
+  document.getElementById('toolCronName').textContent = t.toolCronName;
+  document.getElementById('toolCronDesc').textContent = t.toolCronDesc;
+  document.getElementById('toolJsonName').textContent = t.toolJsonName;
+  document.getElementById('toolJsonDesc').textContent = t.toolJsonDesc;
+  document.getElementById('toolJwtName').textContent = t.toolJwtName;
+  document.getElementById('toolJwtDesc').textContent = t.toolJwtDesc;
+  document.getElementById('toolRegexName').textContent = t.toolRegexName;
+  document.getElementById('toolRegexDesc').textContent = t.toolRegexDesc;
+  document.getElementById('footerText').textContent = t.footer;
+
+  // 한국어 전용 섹션 표시/숨김
+  ['secWork','secReal','secLife'].forEach(id => {
+    document.getElementById(id).style.display = t.showKo ? '' : 'none';
+  });
+}
+
+function toggleLang() {
+  lang = lang === 'ko' ? 'en' : 'ko';
+  localStorage.setItem('lang', lang);
+  applyLang();
+}
+
+applyLang();
+</script>
 </body>
 </html>
