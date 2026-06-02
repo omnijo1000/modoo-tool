@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>색상 변환기 - HEX RGB HSL 색상 코드 변환</title>
+<meta name="description" content="Color converter. Convert between HEX, RGB, HSL, and RGBA color formats instantly. Color picker included. Free online color code converter.">
+<meta name="keywords" content="색상 변환기, hex rgb 변환, color converter, HEX to RGB, RGB to HSL, 색상코드 변환">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#f472b6;--accent2:#ec4899;--accent-dim:rgba(244,114,182,0.08);--text:#fff0f8;--text-muted:#a87898;--text-dim:#4a2838;--green:#4ade80;--red:#f87171;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+  header{border-bottom:1px solid var(--border);padding:20px 24px;display:flex;align-items:center;gap:12px;}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--accent2);}
+  .header-label{font-size:13px;color:var(--text-muted);letter-spacing:0.1em;font-family:'DM Mono',monospace;}
+  .back-link{margin-left:auto;font-size:13px;color:var(--text-muted);text-decoration:none;}
+  .back-link:hover{color:var(--accent2);}
+  .lang-toggle{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 10px;border:1px solid var(--border);border-radius:6px;font-family:'DM Mono',monospace;margin-left:8px;}
+  .lang-toggle:hover{border-color:var(--accent2);color:var(--accent2);}
+  main{max-width:680px;margin:0 auto;padding:48px 24px;}
+  h1{font-size:clamp(24px,5vw,36px);font-weight:900;line-height:1.1;margin-bottom:12px;}
+  h1 span{color:var(--accent2);}
+  .subtitle{color:var(--text-muted);font-size:14px;margin-bottom:32px;}
+
+  /* 컬러 피커 */
+  .picker-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:24px;}
+  .color-preview{width:100%;height:120px;border-radius:10px;margin-bottom:16px;transition:background 0.2s;cursor:pointer;position:relative;display:flex;align-items:center;justify-content:center;}
+  .color-preview-text{font-family:'DM Mono',monospace;font-size:24px;font-weight:700;mix-blend-mode:difference;color:#fff;}
+  input[type=color]{position:absolute;opacity:0;width:100%;height:100%;cursor:pointer;}
+  .picker-hint{font-size:12px;color:var(--text-dim);text-align:center;margin-bottom:16px;}
+
+  /* 입력 그리드 */
+  .input-grid{display:flex;flex-direction:column;gap:12px;}
+  .input-row{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:12px;transition:border-color 0.2s;}
+  .input-row:focus-within{border-color:var(--accent2);}
+  .input-type{font-family:'DM Mono',monospace;font-size:12px;color:var(--text-dim);min-width:48px;letter-spacing:0.08em;}
+  .color-input{flex:1;background:transparent;border:none;outline:none;font-family:'DM Mono',monospace;font-size:18px;font-weight:700;color:var(--text);}
+  .copy-sm{font-size:11px;color:var(--text-dim);cursor:pointer;padding:3px 8px;border:1px solid var(--border);border-radius:4px;white-space:nowrap;}
+  .copy-sm:hover{color:var(--accent2);border-color:var(--accent2);}
+
+  /* 색상 팔레트 */
+  .palette{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:24px;}
+  .palette-title{font-size:12px;color:var(--text-muted);letter-spacing:0.08em;margin-bottom:14px;text-transform:uppercase;}
+  .palette-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(40px,1fr));gap:8px;}
+  .swatch{width:100%;aspect-ratio:1;border-radius:8px;cursor:pointer;border:2px solid transparent;transition:all 0.15s;}
+  .swatch:hover{transform:scale(1.1);border-color:var(--text-muted);}
+
+  /* 명도 바 */
+  .shade-bar{display:flex;gap:4px;margin-top:12px;}
+  .shade{flex:1;height:32px;border-radius:6px;cursor:pointer;transition:transform 0.15s;}
+  .shade:hover{transform:scaleY(1.1);}
+
+  .seo{border-top:1px solid var(--border);padding-top:32px;margin-top:32px;}
+  .seo h2{font-size:16px;font-weight:700;margin-bottom:12px;}
+  .seo p{font-size:13px;color:var(--text-muted);line-height:1.8;margin-bottom:24px;}
+  footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:48px;}
+</style>
+</head>
+<body>
+<header>
+  <div class="dot"></div>
+  <span class="header-label">COLOR CONVERTER</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <div class="lang-toggle" onclick="toggleLang()" id="langBtn">🌐 EN</div>
+</header>
+<main>
+  <h1 id="h1Title">색상<br><span>변환기</span></h1>
+  <p class="subtitle" id="h1Sub">HEX, RGB, HSL 색상 코드를 즉시 변환합니다</p>
+
+  <div class="picker-box">
+    <div class="color-preview" id="preview">
+      <input type="color" id="colorPicker" value="#ec4899" oninput="fromPicker()">
+      <span class="color-preview-text" id="previewText">#ec4899</span>
+    </div>
+    <div class="picker-hint" id="pickerHint">클릭해서 색상 선택</div>
+
+    <div class="input-grid">
+      <div class="input-row">
+        <span class="input-type">HEX</span>
+        <input type="text" class="color-input" id="hexInput" placeholder="#ec4899" oninput="fromHex()">
+        <span class="copy-sm" onclick="copyColor('hex')" id="copyHex">복사</span>
+      </div>
+      <div class="input-row">
+        <span class="input-type">RGB</span>
+        <input type="text" class="color-input" id="rgbInput" placeholder="rgb(236, 72, 153)" oninput="fromRgb()">
+        <span class="copy-sm" onclick="copyColor('rgb')" id="copyRgb">복사</span>
+      </div>
+      <div class="input-row">
+        <span class="input-type">HSL</span>
+        <input type="text" class="color-input" id="hslInput" placeholder="hsl(322, 81%, 60%)" oninput="fromHsl()">
+        <span class="copy-sm" onclick="copyColor('hsl')" id="copyHsl">복사</span>
+      </div>
+      <div class="input-row">
+        <span class="input-type">RGBA</span>
+        <input type="text" class="color-input" id="rgbaInput" placeholder="rgba(236, 72, 153, 1)" oninput="fromRgba()">
+        <span class="copy-sm" onclick="copyColor('rgba')" id="copyRgba">복사</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="palette">
+    <div class="palette-title" id="paletteTitle">자주 쓰는 색상</div>
+    <div class="palette-grid" id="paletteGrid"></div>
+    <div class="shade-bar" id="shadeBar"></div>
+  </div>
+
+  <div class="seo">
+    <h2 id="seoT1">색상 코드 변환이란?</h2>
+    <p id="seoB1">HEX(#RRGGBB), RGB(red, green, blue), HSL(hue, saturation, lightness)은 동일한 색상을 다른 방식으로 표현합니다. CSS, 디자인 툴, 개발 환경에 따라 다른 형식을 요구하기 때문에 변환이 필요합니다.</p>
+  </div>
+  <footer id="footerText">모든 변환은 브라우저에서 처리됩니다</footer>
+</main>
+<script>
+const i18n={
+  ko:{pageTitle:'색상 변환기 - HEX RGB HSL 변환',h1:'색상<br><span>변환기</span>',sub:'HEX, RGB, HSL 색상 코드를 즉시 변환합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',pickerHint:'클릭해서 색상 선택',paletteTitle:'자주 쓰는 색상',copyBtn:'복사',seoT1:'색상 코드 변환이란?',seoB1:'HEX, RGB, HSL은 동일한 색상을 다른 방식으로 표현합니다. CSS, 디자인 툴마다 다른 형식을 요구하므로 변환이 필요합니다.',footer:'모든 변환은 브라우저에서 처리됩니다'},
+  en:{pageTitle:'Color Converter - HEX RGB HSL Color Code Converter',h1:'Color<br><span>Converter</span>',sub:'Convert between HEX, RGB, HSL and RGBA color formats',backLink:'← Modoo Hub',langBtn:'🌐 KO',pickerHint:'Click to pick a color',paletteTitle:'Common colors',copyBtn:'Copy',seoT1:'What is color code conversion?',seoB1:'HEX (#RRGGBB), RGB, and HSL represent the same color in different ways. Different CSS properties, design tools, and development environments require different formats.',footer:'All conversions are processed in your browser'}
+};
+let lang=localStorage.getItem('lang')||(navigator.language.startsWith('ko')?'ko':'en');
+let currentR=236,currentG=72,currentB=153;
+
+const PALETTE=['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#8b5cf6','#ec4899','#14b8a6','#f59e0b','#10b981','#6366f1','#84cc16','#ffffff','#d1d5db','#6b7280','#374151','#1f2937','#000000','#fef3c7','#dbeafe'];
+
+function applyLang(){
+  const t=i18n[lang];
+  document.documentElement.lang=lang;document.title=t.pageTitle;
+  document.getElementById('h1Title').innerHTML=t.h1;
+  document.getElementById('h1Sub').textContent=t.sub;
+  document.getElementById('backLink').textContent=t.backLink;
+  document.getElementById('langBtn').textContent=t.langBtn;
+  document.getElementById('pickerHint').textContent=t.pickerHint;
+  document.getElementById('paletteTitle').textContent=t.paletteTitle;
+  ['copyHex','copyRgb','copyHsl','copyRgba'].forEach(id=>document.getElementById(id).textContent=t.copyBtn);
+  document.getElementById('seoT1').textContent=t.seoT1;
+  document.getElementById('seoB1').textContent=t.seoB1;
+  document.getElementById('footerText').textContent=t.footer;
+  renderPalette();
+}
+function toggleLang(){lang=lang==='ko'?'en':'ko';localStorage.setItem('lang',lang);applyLang();}
+
+function renderPalette(){
+  document.getElementById('paletteGrid').innerHTML=PALETTE.map(c=>`<div class="swatch" style="background:${c}" title="${c}" onclick="setFromHex('${c}')"></div>`).join('');
+  renderShades();
+}
+
+function renderShades(){
+  const hex=rgbToHex(currentR,currentG,currentB);
+  const shades=[];
+  for(let i=0;i<=10;i++){
+    const f=i/10;
+    const r=Math.round(currentR*(1-f)+255*f);
+    const g=Math.round(currentG*(1-f)+255*f);
+    const b=Math.round(currentB*(1-f)+255*f);
+    shades.push(`<div class="shade" style="background:rgb(${r},${g},${b})" title="rgb(${r},${g},${b})" onclick="setFromRgbVal(${r},${g},${b})"></div>`);
+  }
+  document.getElementById('shadeBar').innerHTML=shades.join('');
+}
+
+function hexToRgb(hex){
+  hex=hex.replace('#','');
+  if(hex.length===3)hex=hex.split('').map(c=>c+c).join('');
+  const r=parseInt(hex.slice(0,2),16),g=parseInt(hex.slice(2,4),16),b=parseInt(hex.slice(4,6),16);
+  return{r,g,b};
+}
+function rgbToHex(r,g,b){return'#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('');}
+function rgbToHsl(r,g,b){
+  r/=255;g/=255;b/=255;
+  const max=Math.max(r,g,b),min=Math.min(r,g,b);
+  let h,s,l=(max+min)/2;
+  if(max===min){h=s=0;}else{
+    const d=max-min;s=l>0.5?d/(2-max-min):d/(max+min);
+    switch(max){case r:h=(g-b)/d+(g<b?6:0);break;case g:h=(b-r)/d+2;break;case b:h=(r-g)/d+4;break;}
+    h/=6;
+  }
+  return{h:Math.round(h*360),s:Math.round(s*100),l:Math.round(l*100)};
+}
+
+function updateAll(r,g,b,skip=''){
+  currentR=r;currentG=g;currentB=b;
+  const hex=rgbToHex(r,g,b);
+  const{h,s,l}=rgbToHsl(r,g,b);
+  const preview=document.getElementById('preview');
+  preview.style.background=hex;
+  document.getElementById('previewText').textContent=hex;
+  document.getElementById('colorPicker').value=hex;
+  if(skip!=='hex')document.getElementById('hexInput').value=hex;
+  if(skip!=='rgb')document.getElementById('rgbInput').value=`rgb(${r}, ${g}, ${b})`;
+  if(skip!=='hsl')document.getElementById('hslInput').value=`hsl(${h}, ${s}%, ${l}%)`;
+  if(skip!=='rgba')document.getElementById('rgbaInput').value=`rgba(${r}, ${g}, ${b}, 1)`;
+  renderShades();
+}
+
+function fromPicker(){const v=document.getElementById('colorPicker').value;setFromHex(v);}
+function setFromHex(hex){const{r,g,b}=hexToRgb(hex);updateAll(r,g,b);}
+function setFromRgbVal(r,g,b){updateAll(r,g,b);}
+
+function fromHex(){
+  let v=document.getElementById('hexInput').value.trim();
+  if(!v.startsWith('#'))v='#'+v;
+  if(!/^#[0-9a-fA-F]{3}(?:[0-9a-fA-F]{3})?$/.test(v))return;
+  const{r,g,b}=hexToRgb(v);updateAll(r,g,b,'hex');
+}
+function fromRgb(){
+  const m=document.getElementById('rgbInput').value.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+  if(!m)return;updateAll(+m[1],+m[2],+m[3],'rgb');
+}
+function fromRgba(){
+  const m=document.getElementById('rgbaInput').value.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+  if(!m)return;updateAll(+m[1],+m[2],+m[3],'rgba');
+}
+function fromHsl(){
+  const m=document.getElementById('hslInput').value.match(/hsl\((\d+),\s*(\d+)%?,\s*(\d+)%?\)/);
+  if(!m)return;
+  const h=+m[1]/360,s=+m[2]/100,l=+m[3]/100;
+  let r,g,b;
+  if(s===0){r=g=b=l;}else{
+    const hue2rgb=(p,q,t)=>{if(t<0)t+=1;if(t>1)t-=1;if(t<1/6)return p+(q-p)*6*t;if(t<1/2)return q;if(t<2/3)return p+(q-p)*(2/3-t)*6;return p;};
+    const q=l<0.5?l*(1+s):l+s-l*s,p=2*l-q;
+    r=hue2rgb(p,q,h+1/3);g=hue2rgb(p,q,h);b=hue2rgb(p,q,h-1/3);
+  }
+  updateAll(Math.round(r*255),Math.round(g*255),Math.round(b*255),'hsl');
+}
+
+function copyColor(type){
+  const ids={hex:'hexInput',rgb:'rgbInput',hsl:'hslInput',rgba:'rgbaInput'};
+  const val=document.getElementById(ids[type]).value;
+  if(!val)return;
+  navigator.clipboard.writeText(val);
+  const btnIds={hex:'copyHex',rgb:'copyRgb',hsl:'copyHsl',rgba:'copyRgba'};
+  const btn=document.getElementById(btnIds[type]);
+  btn.textContent=lang==='ko'?'복사됨':'Copied';
+  btn.style.color='var(--green)';
+  setTimeout(()=>{btn.textContent=i18n[lang].copyBtn;btn.style.color='';},2000);
+}
+
+lang=localStorage.getItem('lang')||(navigator.language.startsWith('ko')?'ko':'en');
+applyLang();
+updateAll(236,72,153);
+</script>
+</body>
+</html>

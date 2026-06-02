@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Timestamp 변환기 - Unix Timestamp Converter</title>
+<meta name="description" content="Unix timestamp converter. Convert between Unix timestamp and human-readable date/time instantly. Supports milliseconds and seconds. Free online tool.">
+<meta name="keywords" content="timestamp 변환기, unix timestamp, epoch converter, timestamp to date, 유닉스 타임스탬프">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0a0a0f;--surface:#11111a;--surface2:#181828;--border:#202035;--accent:#a78bfa;--accent2:#7c3aed;--accent-dim:rgba(167,139,250,0.08);--text:#f0f0ff;--text-muted:#7878a8;--text-dim:#3a3a5a;--green:#4ade80;--red:#f87171;--yellow:#facc15;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+  header{border-bottom:1px solid var(--border);padding:20px 24px;display:flex;align-items:center;gap:12px;}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);}
+  .header-label{font-size:13px;color:var(--text-muted);letter-spacing:0.1em;font-family:'DM Mono',monospace;}
+  .back-link{margin-left:auto;font-size:13px;color:var(--text-muted);text-decoration:none;}
+  .back-link:hover{color:var(--accent);}
+  .lang-toggle{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 10px;border:1px solid var(--border);border-radius:6px;font-family:'DM Mono',monospace;transition:all 0.15s;margin-left:8px;}
+  .lang-toggle:hover{border-color:var(--accent);color:var(--accent);}
+  main{max-width:640px;margin:0 auto;padding:48px 24px;}
+  h1{font-size:clamp(24px,5vw,36px);font-weight:900;line-height:1.1;margin-bottom:12px;}
+  h1 span{color:var(--accent);}
+  .subtitle{color:var(--text-muted);font-size:14px;margin-bottom:32px;}
+
+  /* 현재 시간 */
+  .now-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
+  .now-label{font-size:12px;color:var(--text-muted);margin-bottom:4px;}
+  .now-value{font-family:'DM Mono',monospace;font-size:22px;font-weight:700;color:var(--accent);}
+  .now-date{font-family:'DM Mono',monospace;font-size:14px;color:var(--text-muted);margin-top:4px;}
+  .copy-btn-sm{font-size:11px;color:var(--text-dim);cursor:pointer;padding:4px 10px;border:1px solid var(--border);border-radius:5px;}
+  .copy-btn-sm:hover{color:var(--accent);border-color:var(--accent);}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:14px;transition:border-color 0.2s;}
+  .card:focus-within{border-color:var(--accent2);}
+  label{font-size:12px;color:var(--text-muted);letter-spacing:0.08em;display:block;margin-bottom:10px;}
+  .input-row{display:flex;align-items:center;gap:8px;}
+  input[type=text],input[type=number]{flex:1;background:transparent;border:none;outline:none;font-size:22px;font-weight:700;color:var(--text);font-family:'DM Mono',monospace;width:100%;min-width:0;}
+  input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;}
+  .unit{color:var(--text-dim);font-size:13px;white-space:nowrap;}
+  .helper{font-size:11px;color:var(--text-dim);margin-top:6px;}
+
+  .unit-btns{display:flex;gap:6px;margin-top:10px;}
+  .unit-btn{background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:4px 10px;font-size:12px;color:var(--text-muted);cursor:pointer;font-family:'DM Mono',monospace;}
+  .unit-btn.active{background:var(--accent-dim);border-color:var(--accent2);color:var(--accent);}
+
+  .result{background:var(--accent-dim);border:1px solid var(--accent2);border-radius:12px;padding:22px 24px;margin-bottom:24px;display:none;}
+  .result.show{display:block;}
+  .result-rows{display:flex;flex-direction:column;gap:10px;}
+  .result-row{display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:1px solid var(--border);}
+  .result-row:last-child{border-bottom:none;}
+  .result-label{font-size:13px;color:var(--text-muted);}
+  .result-value{font-family:'DM Mono',monospace;font-size:14px;color:var(--text);}
+  .result-value.main{font-size:20px;color:var(--accent);font-weight:700;}
+
+  .datetime-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:24px;}
+  .datetime-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px;}
+  .dt-input{background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:8px 10px;}
+  .dt-label{font-size:10px;color:var(--text-dim);margin-bottom:4px;}
+  .dt-input input{background:transparent;border:none;outline:none;font-family:'DM Mono',monospace;font-size:16px;color:var(--text);width:100%;}
+  .convert-btn{width:100%;margin-top:12px;background:var(--accent2);border:none;border-radius:8px;padding:10px;font-size:14px;color:#fff;cursor:pointer;font-family:'Noto Sans KR',sans-serif;font-weight:700;}
+
+  .seo{border-top:1px solid var(--border);padding-top:32px;}
+  .seo h2{font-size:16px;font-weight:700;margin-bottom:12px;}
+  .seo p{font-size:13px;color:var(--text-muted);line-height:1.8;margin-bottom:24px;}
+  footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:48px;}
+</style>
+</head>
+<body>
+<header>
+  <div class="dot"></div>
+  <span class="header-label">TIMESTAMP CONVERTER</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <div class="lang-toggle" onclick="toggleLang()" id="langBtn">🌐 EN</div>
+</header>
+<main>
+  <h1 id="h1Title">Timestamp<br><span>변환기</span></h1>
+  <p class="subtitle" id="h1Sub">Unix Timestamp ↔ 날짜/시간 변환</p>
+
+  <!-- 현재 시간 -->
+  <div class="now-box">
+    <div>
+      <div class="now-label" id="nowLabel">현재 Unix Timestamp</div>
+      <div class="now-value" id="nowTs"></div>
+      <div class="now-date" id="nowDate"></div>
+    </div>
+    <span class="copy-btn-sm" onclick="copyNow()" id="copyNowBtn">복사</span>
+  </div>
+
+  <!-- Timestamp → 날짜 -->
+  <div class="card">
+    <label id="label1">Timestamp → 날짜 변환</label>
+    <div class="input-row">
+      <input type="number" id="tsInput" placeholder="1716239022" oninput="tsToDate()">
+    </div>
+    <div class="unit-btns">
+      <div class="unit-btn active" data-unit="s" onclick="selectUnit('s')" id="unitS">초 (s)</div>
+      <div class="unit-btn" data-unit="ms" onclick="selectUnit('ms')" id="unitMs">밀리초 (ms)</div>
+    </div>
+  </div>
+
+  <div class="result" id="result1">
+    <div class="result-rows">
+      <div class="result-row"><span class="result-label" id="rLocal">로컬 시간</span><span class="result-value main" id="r1Local"></span></div>
+      <div class="result-row"><span class="result-label">UTC</span><span class="result-value" id="r1Utc"></span></div>
+      <div class="result-row"><span class="result-label">ISO 8601</span><span class="result-value" id="r1Iso"></span></div>
+      <div class="result-row"><span class="result-label" id="rAgo">경과 시간</span><span class="result-value" id="r1Ago"></span></div>
+    </div>
+  </div>
+
+  <!-- 날짜 → Timestamp -->
+  <div class="datetime-card">
+    <label id="label2">날짜/시간 → Timestamp 변환</label>
+    <div class="datetime-grid">
+      <div class="dt-input"><div class="dt-label" id="dtYear">년</div><input type="number" id="dtY" placeholder="2026" min="1970" max="2100"></div>
+      <div class="dt-input"><div class="dt-label" id="dtMonth">월</div><input type="number" id="dtM" placeholder="1" min="1" max="12"></div>
+      <div class="dt-input"><div class="dt-label" id="dtDay">일</div><input type="number" id="dtD" placeholder="1" min="1" max="31"></div>
+      <div class="dt-input"><div class="dt-label" id="dtHour">시</div><input type="number" id="dtH" placeholder="0" min="0" max="23"></div>
+      <div class="dt-input"><div class="dt-label" id="dtMin">분</div><input type="number" id="dtMi" placeholder="0" min="0" max="59"></div>
+      <div class="dt-input"><div class="dt-label" id="dtSec">초</div><input type="number" id="dtS" placeholder="0" min="0" max="59"></div>
+    </div>
+    <button class="convert-btn" id="convertBtn" onclick="dateToTs()">변환하기</button>
+  </div>
+
+  <div class="result" id="result2">
+    <div class="result-rows">
+      <div class="result-row"><span class="result-label" id="rTs">Timestamp (초)</span><span class="result-value main" id="r2Ts"></span></div>
+      <div class="result-row"><span class="result-label" id="rTsMs">Timestamp (밀리초)</span><span class="result-value" id="r2TsMs"></span></div>
+    </div>
+  </div>
+
+  <div class="seo">
+    <h2 id="seoT1">Unix Timestamp란?</h2>
+    <p id="seoB1">Unix Timestamp는 1970년 1월 1일 00:00:00 UTC(Unix Epoch)부터 경과한 초(또는 밀리초)를 나타내는 숫자입니다. 서버 로그, 데이터베이스, API 응답에서 자주 사용됩니다.</p>
+  </div>
+  <footer id="footerText">모든 변환은 브라우저에서 처리됩니다</footer>
+</main>
+<script>
+const i18n={
+  ko:{pageTitle:'Timestamp 변환기 - Unix Timestamp Converter',h1:'Timestamp<br><span>변환기</span>',sub:'Unix Timestamp ↔ 날짜/시간 변환',backLink:'← 모두의 툴',langBtn:'🌐 EN',nowLabel:'현재 Unix Timestamp',copyNowBtn:'복사',label1:'Timestamp → 날짜 변환',label2:'날짜/시간 → Timestamp 변환',unitS:'초 (s)',unitMs:'밀리초 (ms)',rLocal:'로컬 시간',rAgo:'경과 시간',rTs:'Timestamp (초)',rTsMs:'Timestamp (밀리초)',dtYear:'년',dtMonth:'월',dtDay:'일',dtHour:'시',dtMin:'분',dtSec:'초',convertBtn:'변환하기',seoT1:'Unix Timestamp란?',seoB1:'Unix Timestamp는 1970년 1월 1일 UTC부터 경과한 초를 나타내는 숫자입니다. 서버 로그, API 응답에서 자주 사용됩니다.',footer:'모든 변환은 브라우저에서 처리됩니다'},
+  en:{pageTitle:'Timestamp Converter - Unix Epoch Converter',h1:'Timestamp<br><span>Converter</span>',sub:'Convert Unix Timestamp ↔ Human-readable date/time',backLink:'← Modoo Hub',langBtn:'🌐 KO',nowLabel:'Current Unix Timestamp',copyNowBtn:'Copy',label1:'Timestamp → Date conversion',label2:'Date/Time → Timestamp conversion',unitS:'Seconds (s)',unitMs:'Milliseconds (ms)',rLocal:'Local time',rAgo:'Time elapsed',rTs:'Timestamp (seconds)',rTsMs:'Timestamp (milliseconds)',dtYear:'Year',dtMonth:'Month',dtDay:'Day',dtHour:'Hour',dtMin:'Min',dtSec:'Sec',convertBtn:'Convert',seoT1:'What is Unix Timestamp?',seoB1:'A Unix timestamp is the number of seconds elapsed since January 1, 1970 00:00:00 UTC (Unix Epoch). Commonly used in server logs, databases, and API responses.',footer:'All conversions are processed in your browser'}
+};
+let lang=localStorage.getItem('lang')||(navigator.language.startsWith('ko')?'ko':'en');
+let unit='s';
+
+function applyLang(){
+  const t=i18n[lang];
+  document.documentElement.lang=lang;document.title=t.pageTitle;
+  document.getElementById('h1Title').innerHTML=t.h1;
+  document.getElementById('h1Sub').textContent=t.sub;
+  document.getElementById('backLink').textContent=t.backLink;
+  document.getElementById('langBtn').textContent=t.langBtn;
+  document.getElementById('nowLabel').textContent=t.nowLabel;
+  document.getElementById('copyNowBtn').textContent=t.copyNowBtn;
+  document.getElementById('label1').textContent=t.label1;
+  document.getElementById('label2').textContent=t.label2;
+  document.getElementById('unitS').textContent=t.unitS;
+  document.getElementById('unitMs').textContent=t.unitMs;
+  document.getElementById('rLocal').textContent=t.rLocal;
+  document.getElementById('rAgo').textContent=t.rAgo;
+  document.getElementById('rTs').textContent=t.rTs;
+  document.getElementById('rTsMs').textContent=t.rTsMs;
+  document.getElementById('dtYear').textContent=t.dtYear;
+  document.getElementById('dtMonth').textContent=t.dtMonth;
+  document.getElementById('dtDay').textContent=t.dtDay;
+  document.getElementById('dtHour').textContent=t.dtHour;
+  document.getElementById('dtMin').textContent=t.dtMin;
+  document.getElementById('dtSec').textContent=t.dtSec;
+  document.getElementById('convertBtn').textContent=t.convertBtn;
+  document.getElementById('seoT1').textContent=t.seoT1;
+  document.getElementById('seoB1').textContent=t.seoB1;
+  document.getElementById('footerText').textContent=t.footer;
+}
+function toggleLang(){lang=lang==='ko'?'en':'ko';localStorage.setItem('lang',lang);applyLang();}
+function selectUnit(u){unit=u;document.querySelectorAll('.unit-btn').forEach(b=>b.classList.toggle('active',b.dataset.unit===u));tsToDate();}
+
+function updateNow(){
+  const now=Date.now();
+  document.getElementById('nowTs').textContent=Math.floor(now/1000).toLocaleString();
+  document.getElementById('nowDate').textContent=new Date(now).toLocaleString(lang==='ko'?'ko-KR':'en-US');
+}
+
+function copyNow(){
+  navigator.clipboard.writeText(Math.floor(Date.now()/1000).toString());
+  const btn=document.getElementById('copyNowBtn');
+  btn.textContent=lang==='ko'?'복사됨':'Copied';
+  setTimeout(()=>btn.textContent=i18n[lang].copyNowBtn,2000);
+}
+
+function timeAgo(ms){
+  const diff=Date.now()-ms;
+  const abs=Math.abs(diff);
+  const future=diff<0;
+  const s=Math.floor(abs/1000),m=Math.floor(s/60),h=Math.floor(m/60),d=Math.floor(h/24),y=Math.floor(d/365);
+  let str='';
+  if(lang==='ko'){
+    if(y>0)str=`${y}년 전`;else if(d>0)str=`${d}일 전`;else if(h>0)str=`${h}시간 전`;else if(m>0)str=`${m}분 전`;else str=`${s}초 전`;
+    if(future)str=str.replace('전','후');
+  }else{
+    if(y>0)str=`${y} year${y>1?'s':''} ago`;else if(d>0)str=`${d} day${d>1?'s':''} ago`;else if(h>0)str=`${h} hour${h>1?'s':''} ago`;else if(m>0)str=`${m} min ago`;else str=`${s} sec ago`;
+    if(future)str=str.replace('ago','from now');
+  }
+  return str;
+}
+
+function tsToDate(){
+  const val=parseFloat(document.getElementById('tsInput').value);
+  const r1=document.getElementById('result1');
+  if(!val){r1.classList.remove('show');return;}
+  const ms=unit==='s'?val*1000:val;
+  const d=new Date(ms);
+  if(isNaN(d.getTime())){r1.classList.remove('show');return;}
+  r1.classList.add('show');
+  document.getElementById('r1Local').textContent=d.toLocaleString(lang==='ko'?'ko-KR':'en-US');
+  document.getElementById('r1Utc').textContent=d.toUTCString();
+  document.getElementById('r1Iso').textContent=d.toISOString();
+  document.getElementById('r1Ago').textContent=timeAgo(ms);
+}
+
+function dateToTs(){
+  const y=parseInt(document.getElementById('dtY').value)||new Date().getFullYear();
+  const mo=parseInt(document.getElementById('dtM').value)||1;
+  const d=parseInt(document.getElementById('dtD').value)||1;
+  const h=parseInt(document.getElementById('dtH').value)||0;
+  const mi=parseInt(document.getElementById('dtMi').value)||0;
+  const s=parseInt(document.getElementById('dtS').value)||0;
+  const date=new Date(y,mo-1,d,h,mi,s);
+  const ts=Math.floor(date.getTime()/1000);
+  document.getElementById('result2').classList.add('show');
+  document.getElementById('r2Ts').textContent=ts.toLocaleString();
+  document.getElementById('r2TsMs').textContent=(ts*1000).toLocaleString();
+}
+
+// 오늘 날짜 기본값
+const now=new Date();
+document.getElementById('dtY').value=now.getFullYear();
+document.getElementById('dtM').value=now.getMonth()+1;
+document.getElementById('dtD').value=now.getDate();
+
+lang=localStorage.getItem('lang')||(navigator.language.startsWith('ko')?'ko':'en');
+applyLang();
+updateNow();
+setInterval(updateNow,1000);
+</script>
+</body>
+</html>

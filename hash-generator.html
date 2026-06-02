@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hash 생성기 - MD5 SHA1 SHA256 SHA512 Generator</title>
+<meta name="description" content="Online hash generator. Generate MD5, SHA-1, SHA-256, SHA-512 hashes from any text instantly in your browser. Free hash calculator tool.">
+<meta name="keywords" content="hash 생성기, SHA256, MD5, SHA1, SHA512, 해시 생성기, hash generator, checksum">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0a0f0a;--surface:#111811;--surface2:#182018;--border:#1e2e1e;--accent:#86efac;--accent2:#4ade80;--accent-dim:rgba(134,239,172,0.08);--text:#f0fff0;--text-muted:#7a9a7a;--text-dim:#3a5a3a;--green:#4ade80;--red:#f87171;--yellow:#facc15;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+  header{border-bottom:1px solid var(--border);padding:20px 24px;display:flex;align-items:center;gap:12px;}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--accent2);}
+  .header-label{font-size:13px;color:var(--text-muted);letter-spacing:0.1em;font-family:'DM Mono',monospace;}
+  .back-link{margin-left:auto;font-size:13px;color:var(--text-muted);text-decoration:none;}
+  .back-link:hover{color:var(--accent2);}
+  .lang-toggle{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 10px;border:1px solid var(--border);border-radius:6px;font-family:'DM Mono',monospace;margin-left:8px;}
+  .lang-toggle:hover{border-color:var(--accent2);color:var(--accent2);}
+  main{max-width:760px;margin:0 auto;padding:48px 24px;}
+  h1{font-size:clamp(24px,5vw,36px);font-weight:900;line-height:1.1;margin-bottom:12px;}
+  h1 span{color:var(--accent2);}
+  .subtitle{color:var(--text-muted);font-size:14px;margin-bottom:32px;}
+
+  .input-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:20px;}
+  label{font-size:12px;color:var(--text-muted);letter-spacing:0.08em;display:block;margin-bottom:10px;}
+  textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px;font-family:'DM Mono',monospace;font-size:14px;color:var(--text);outline:none;resize:vertical;min-height:100px;line-height:1.6;}
+  textarea:focus{border-color:var(--accent2);}
+  .input-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+  .btn{background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:7px 14px;font-size:13px;color:var(--text-muted);cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all 0.15s;}
+  .btn:hover{border-color:var(--accent2);color:var(--accent2);}
+  .btn.primary{background:var(--accent2);border-color:var(--accent2);color:#000;font-weight:700;}
+  .btn.primary:hover{opacity:0.85;color:#000;}
+
+  /* 해시 결과 */
+  .hash-list{display:flex;flex-direction:column;gap:12px;margin-bottom:32px;}
+  .hash-item{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 20px;transition:border-color 0.2s;}
+  .hash-item.loading{opacity:0.5;}
+  .hash-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+  .hash-name{font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:var(--accent2);}
+  .hash-bits{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;}
+  .copy-sm{font-size:11px;color:var(--text-dim);cursor:pointer;padding:3px 8px;border:1px solid var(--border);border-radius:4px;}
+  .copy-sm:hover{color:var(--accent2);border-color:var(--accent2);}
+  .hash-value{font-family:'DM Mono',monospace;font-size:13px;color:var(--text-muted);word-break:break-all;line-height:1.6;}
+  .hash-value.empty{color:var(--text-dim);font-size:12px;}
+
+  /* 비교 */
+  .compare-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:32px;}
+  .compare-title{font-size:12px;color:var(--text-muted);letter-spacing:0.08em;margin-bottom:12px;text-transform:uppercase;}
+  .compare-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-family:'DM Mono',monospace;font-size:13px;color:var(--text);outline:none;}
+  .compare-input:focus{border-color:var(--accent2);}
+  .compare-result{margin-top:10px;font-size:13px;padding:8px 12px;border-radius:6px;display:none;}
+  .compare-result.match{background:rgba(74,222,128,0.1);color:var(--green);display:block;}
+  .compare-result.no-match{background:rgba(248,113,113,0.1);color:var(--red);display:block;}
+
+  .seo{border-top:1px solid var(--border);padding-top:32px;}
+  .seo h2{font-size:16px;font-weight:700;margin-bottom:12px;}
+  .seo p{font-size:13px;color:var(--text-muted);line-height:1.8;margin-bottom:24px;}
+  footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:48px;}
+</style>
+</head>
+<body>
+<header>
+  <div class="dot"></div>
+  <span class="header-label">HASH GENERATOR</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <div class="lang-toggle" onclick="toggleLang()" id="langBtn">🌐 EN</div>
+</header>
+<main>
+  <h1 id="h1Title">Hash<br><span>생성기</span></h1>
+  <p class="subtitle" id="h1Sub">텍스트에서 MD5, SHA-1, SHA-256, SHA-512 해시를 즉시 생성합니다</p>
+
+  <div class="input-card">
+    <label id="inputLabel">입력 텍스트</label>
+    <textarea id="textInput" placeholder="해시를 생성할 텍스트를 입력하세요..." oninput="generateHashes()"></textarea>
+    <div class="input-actions">
+      <button class="btn" id="btnPaste" onclick="pasteText()">붙여넣기</button>
+      <button class="btn" id="btnClear" onclick="clearInput()">지우기</button>
+      <button class="btn primary" id="btnGenerate" onclick="generateHashes()">해시 생성</button>
+    </div>
+  </div>
+
+  <div class="hash-list">
+    <div class="hash-item" id="item-MD5">
+      <div class="hash-header"><span class="hash-name">MD5</span><span class="hash-bits">128 bit</span><span class="copy-sm" onclick="copyHash('MD5')" id="copy-MD5">복사</span></div>
+      <div class="hash-value empty" id="hash-MD5">-</div>
+    </div>
+    <div class="hash-item" id="item-SHA1">
+      <div class="hash-header"><span class="hash-name">SHA-1</span><span class="hash-bits">160 bit</span><span class="copy-sm" onclick="copyHash('SHA1')" id="copy-SHA1">복사</span></div>
+      <div class="hash-value empty" id="hash-SHA1">-</div>
+    </div>
+    <div class="hash-item" id="item-SHA256">
+      <div class="hash-header"><span class="hash-name">SHA-256</span><span class="hash-bits">256 bit</span><span class="copy-sm" onclick="copyHash('SHA256')" id="copy-SHA256">복사</span></div>
+      <div class="hash-value empty" id="hash-SHA256">-</div>
+    </div>
+    <div class="hash-item" id="item-SHA512">
+      <div class="hash-header"><span class="hash-name">SHA-512</span><span class="hash-bits">512 bit</span><span class="copy-sm" onclick="copyHash('SHA512')" id="copy-SHA512">복사</span></div>
+      <div class="hash-value empty" id="hash-SHA512">-</div>
+    </div>
+  </div>
+
+  <div class="compare-card">
+    <div class="compare-title" id="compareTitle">해시 비교 (검증)</div>
+    <input type="text" class="compare-input" id="compareInput" placeholder="비교할 해시값 입력..." oninput="compareHash()">
+    <div class="compare-result" id="compareResult"></div>
+  </div>
+
+  <div class="seo">
+    <h2 id="seoT1">해시(Hash)란?</h2>
+    <p id="seoB1">해시 함수는 임의의 데이터를 고정된 길이의 문자열로 변환합니다. SHA-256은 비밀번호 저장, 파일 무결성 검증, 블록체인 등에 사용됩니다. 동일한 입력은 항상 동일한 해시값을 생성하며, 역방향 복원은 불가능합니다.</p>
+    <h2 id="seoT2">MD5 vs SHA-256</h2>
+    <p id="seoB2">MD5는 빠르지만 보안에 취약해 파일 체크섬 확인 정도에만 사용합니다. 보안이 필요한 경우 SHA-256 또는 SHA-512를 사용하세요.</p>
+  </div>
+  <footer id="footerText">모든 해시는 브라우저에서 처리됩니다 · 서버로 전송되지 않습니다</footer>
+</main>
+<script>
+const i18n={
+  ko:{pageTitle:'Hash 생성기 - MD5 SHA256 SHA512',h1:'Hash<br><span>생성기</span>',sub:'텍스트에서 MD5, SHA-1, SHA-256, SHA-512 해시를 즉시 생성합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',inputLabel:'입력 텍스트',placeholder:'해시를 생성할 텍스트를 입력하세요...',btnPaste:'붙여넣기',btnClear:'지우기',btnGenerate:'해시 생성',copyBtn:'복사',compareTitle:'해시 비교 (검증)',comparePlaceholder:'비교할 해시값 입력...',matchMsg:'✓ 일치합니다',noMatchMsg:'✗ 일치하지 않습니다',emptyMsg:'-',seoT1:'해시(Hash)란?',seoB1:'해시 함수는 임의의 데이터를 고정된 길이의 문자열로 변환합니다. SHA-256은 비밀번호 저장, 파일 무결성 검증 등에 사용됩니다.',seoT2:'MD5 vs SHA-256',seoB2:'MD5는 빠르지만 보안에 취약합니다. 보안이 필요한 경우 SHA-256 또는 SHA-512를 사용하세요.',footer:'모든 해시는 브라우저에서 처리됩니다 · 서버로 전송되지 않습니다'},
+  en:{pageTitle:'Hash Generator - MD5 SHA1 SHA256 SHA512 Online',h1:'Hash<br><span>Generator</span>',sub:'Generate MD5, SHA-1, SHA-256, SHA-512 hashes from any text instantly',backLink:'← Modoo Hub',langBtn:'🌐 KO',inputLabel:'Input text',placeholder:'Enter text to hash...',btnPaste:'Paste',btnClear:'Clear',btnGenerate:'Generate',copyBtn:'Copy',compareTitle:'Hash comparison (verify)',comparePlaceholder:'Enter hash to compare...',matchMsg:'✓ Match!',noMatchMsg:'✗ No match',emptyMsg:'-',seoT1:'What is a Hash?',seoB1:'A hash function converts arbitrary data into a fixed-length string. SHA-256 is widely used for password storage, file integrity verification, and blockchain.',seoT2:'MD5 vs SHA-256',seoB2:'MD5 is fast but cryptographically broken. Use SHA-256 or SHA-512 for security-sensitive applications.',footer:'All hashes are computed in your browser · No data sent to any server'}
+};
+let lang=localStorage.getItem('lang')||(navigator.language.startsWith('ko')?'ko':'en');
+const hashes={MD5:null,SHA1:null,SHA256:null,SHA512:null};
+
+function applyLang(){
+  const t=i18n[lang];
+  document.documentElement.lang=lang;document.title=t.pageTitle;
+  document.getElementById('h1Title').innerHTML=t.h1;
+  document.getElementById('h1Sub').textContent=t.sub;
+  document.getElementById('backLink').textContent=t.backLink;
+  document.getElementById('langBtn').textContent=t.langBtn;
+  document.getElementById('inputLabel').textContent=t.inputLabel;
+  document.getElementById('textInput').placeholder=t.placeholder;
+  document.getElementById('btnPaste').textContent=t.btnPaste;
+  document.getElementById('btnClear').textContent=t.btnClear;
+  document.getElementById('btnGenerate').textContent=t.btnGenerate;
+  ['MD5','SHA1','SHA256','SHA512'].forEach(n=>document.getElementById('copy-'+n).textContent=t.copyBtn);
+  document.getElementById('compareTitle').textContent=t.compareTitle;
+  document.getElementById('compareInput').placeholder=t.comparePlaceholder;
+  document.getElementById('seoT1').textContent=t.seoT1;
+  document.getElementById('seoB1').textContent=t.seoB1;
+  document.getElementById('seoT2').textContent=t.seoT2;
+  document.getElementById('seoB2').textContent=t.seoB2;
+  document.getElementById('footerText').textContent=t.footer;
+}
+function toggleLang(){lang=lang==='ko'?'en':'ko';localStorage.setItem('lang',lang);applyLang();}
+
+async function sha(algorithm,text){
+  const enc=new TextEncoder();
+  const data=enc.encode(text);
+  const hashBuf=await crypto.subtle.digest(algorithm,data);
+  return Array.from(new Uint8Array(hashBuf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+// MD5 순수 JS 구현
+function md5(str){
+  function safeAdd(x,y){const lsw=(x&0xffff)+(y&0xffff);const msw=(x>>16)+(y>>16)+(lsw>>16);return(msw<<16)|(lsw&0xffff);}
+  function bitRotateLeft(num,cnt){return(num<<cnt)|(num>>>(32-cnt));}
+  function md5cmn(q,a,b,x,s,t){return safeAdd(bitRotateLeft(safeAdd(safeAdd(a,q),safeAdd(x,t)),s),b);}
+  function md5ff(a,b,c,d,x,s,t){return md5cmn((b&c)|((~b)&d),a,b,x,s,t);}
+  function md5gg(a,b,c,d,x,s,t){return md5cmn((b&d)|(c&(~d)),a,b,x,s,t);}
+  function md5hh(a,b,c,d,x,s,t){return md5cmn(b^c^d,a,b,x,s,t);}
+  function md5ii(a,b,c,d,x,s,t){return md5cmn(c^(b|(~d)),a,b,x,s,t);}
+  const strBytes=[];for(let i=0;i<str.length;i++){const c=str.charCodeAt(i);if(c<128)strBytes.push(c);else if(c<2048)strBytes.push(192|(c>>6),128|(c&63));else strBytes.push(224|(c>>12),128|((c>>6)&63),128|(c&63));}
+  const wordArray=[];for(let i=0;i<strBytes.length;i+=4)wordArray.push((strBytes[i]||0)|((strBytes[i+1]||0)<<8)|((strBytes[i+2]||0)<<16)|((strBytes[i+3]||0)<<24));
+  const len8=strBytes.length;wordArray[len8>>2]|=0x80<<(8*(len8%4));wordArray[((len8+72)>>6<<4)+14]=len8*8;
+  let[a0,b0,c0,d0]=[1732584193,-271733879,-1732584194,271733878];
+  for(let i=0;i<wordArray.length;i+=16){
+    let[a,b,c,d]=[a0,b0,c0,d0];
+    a=md5ff(a,b,c,d,wordArray[i],7,-680876936);d=md5ff(d,a,b,c,wordArray[i+1],12,-389564586);c=md5ff(c,d,a,b,wordArray[i+2],17,606105819);b=md5ff(b,c,d,a,wordArray[i+3],22,-1044525330);
+    a=md5ff(a,b,c,d,wordArray[i+4],7,-176418897);d=md5ff(d,a,b,c,wordArray[i+5],12,1200080426);c=md5ff(c,d,a,b,wordArray[i+6],17,-1473231341);b=md5ff(b,c,d,a,wordArray[i+7],22,-45705983);
+    a=md5ff(a,b,c,d,wordArray[i+8],7,1770035416);d=md5ff(d,a,b,c,wordArray[i+9],12,-1958414417);c=md5ff(c,d,a,b,wordArray[i+10],17,-42063);b=md5ff(b,c,d,a,wordArray[i+11],22,-1990404162);
+    a=md5ff(a,b,c,d,wordArray[i+12],7,1804603682);d=md5ff(d,a,b,c,wordArray[i+13],12,-40341101);c=md5ff(c,d,a,b,wordArray[i+14],17,-1502002290);b=md5ff(b,c,d,a,wordArray[i+15],22,1236535329);
+    a=md5gg(a,b,c,d,wordArray[i+1],5,-165796510);d=md5gg(d,a,b,c,wordArray[i+6],9,-1069501632);c=md5gg(c,d,a,b,wordArray[i+11],14,643717713);b=md5gg(b,c,d,a,wordArray[i],20,-373897302);
+    a=md5gg(a,b,c,d,wordArray[i+5],5,-701558691);d=md5gg(d,a,b,c,wordArray[i+10],9,38016083);c=md5gg(c,d,a,b,wordArray[i+15],14,-660478335);b=md5gg(b,c,d,a,wordArray[i+4],20,-405537848);
+    a=md5gg(a,b,c,d,wordArray[i+9],5,568446438);d=md5gg(d,a,b,c,wordArray[i+14],9,-1019803690);c=md5gg(c,d,a,b,wordArray[i+3],14,-187363961);b=md5gg(b,c,d,a,wordArray[i+8],20,1163531501);
+    a=md5gg(a,b,c,d,wordArray[i+13],5,-1444681467);d=md5gg(d,a,b,c,wordArray[i+2],9,-51403784);c=md5gg(c,d,a,b,wordArray[i+7],14,1735328473);b=md5gg(b,c,d,a,wordArray[i+12],20,-1926607734);
+    a=md5hh(a,b,c,d,wordArray[i+5],4,-378558);d=md5hh(d,a,b,c,wordArray[i+8],11,-2022574463);c=md5hh(c,d,a,b,wordArray[i+11],16,1839030562);b=md5hh(b,c,d,a,wordArray[i+14],23,-35309556);
+    a=md5hh(a,b,c,d,wordArray[i+1],4,-1530992060);d=md5hh(d,a,b,c,wordArray[i+4],11,1272893353);c=md5hh(c,d,a,b,wordArray[i+7],16,-155497632);b=md5hh(b,c,d,a,wordArray[i+10],23,-1094730640);
+    a=md5hh(a,b,c,d,wordArray[i+13],4,681279174);d=md5hh(d,a,b,c,wordArray[i],11,-358537222);c=md5hh(c,d,a,b,wordArray[i+3],16,-722521979);b=md5hh(b,c,d,a,wordArray[i+6],23,76029189);
+    a=md5hh(a,b,c,d,wordArray[i+9],4,-640364487);d=md5hh(d,a,b,c,wordArray[i+12],11,-421815835);c=md5hh(c,d,a,b,wordArray[i+15],16,530742520);b=md5hh(b,c,d,a,wordArray[i+2],23,-995338651);
+    a=md5ii(a,b,c,d,wordArray[i],6,-198630844);d=md5ii(d,a,b,c,wordArray[i+7],10,1126891415);c=md5ii(c,d,a,b,wordArray[i+14],15,-1416354905);b=md5ii(b,c,d,a,wordArray[i+5],21,-57434055);
+    a=md5ii(a,b,c,d,wordArray[i+12],6,1700485571);d=md5ii(d,a,b,c,wordArray[i+3],10,-1894986606);c=md5ii(c,d,a,b,wordArray[i+10],15,-1051523);b=md5ii(b,c,d,a,wordArray[i+1],21,-2054922799);
+    a=md5ii(a,b,c,d,wordArray[i+8],6,1873313359);d=md5ii(d,a,b,c,wordArray[i+15],10,-30611744);c=md5ii(c,d,a,b,wordArray[i+6],15,-1560198380);b=md5ii(b,c,d,a,wordArray[i+13],21,1309151649);
+    a=md5ii(a,b,c,d,wordArray[i+4],6,-145523070);d=md5ii(d,a,b,c,wordArray[i+11],10,-1120210379);c=md5ii(c,d,a,b,wordArray[i+2],15,718787259);b=md5ii(b,c,d,a,wordArray[i+9],21,-343485551);
+    a0=safeAdd(a0,a);b0=safeAdd(b0,b);c0=safeAdd(c0,c);d0=safeAdd(d0,d);
+  }
+  return[a0,b0,c0,d0].map(n=>{let h='';for(let i=0;i<4;i++)h+=((n>>(i*8))&0xff).toString(16).padStart(2,'0');return h;}).join('');
+}
+
+async function generateHashes(){
+  const text=document.getElementById('textInput').value;
+  if(!text){
+    ['MD5','SHA1','SHA256','SHA512'].forEach(n=>{
+      const el=document.getElementById('hash-'+n);
+      el.textContent=i18n[lang].emptyMsg;
+      el.className='hash-value empty';
+      hashes[n]=null;
+    });
+    return;
+  }
+  hashes.MD5=md5(text);
+  document.getElementById('hash-MD5').textContent=hashes.MD5;
+  document.getElementById('hash-MD5').className='hash-value';
+  hashes.SHA1=await sha('SHA-1',text);
+  document.getElementById('hash-SHA1').textContent=hashes.SHA1;
+  document.getElementById('hash-SHA1').className='hash-value';
+  hashes.SHA256=await sha('SHA-256',text);
+  document.getElementById('hash-SHA256').textContent=hashes.SHA256;
+  document.getElementById('hash-SHA256').className='hash-value';
+  hashes.SHA512=await sha('SHA-512',text);
+  document.getElementById('hash-SHA512').textContent=hashes.SHA512;
+  document.getElementById('hash-SHA512').className='hash-value';
+  compareHash();
+}
+
+function copyHash(name){
+  if(!hashes[name])return;
+  navigator.clipboard.writeText(hashes[name]);
+  const btn=document.getElementById('copy-'+name);
+  btn.textContent=lang==='ko'?'복사됨':'Copied';
+  btn.style.color='var(--green)';
+  setTimeout(()=>{btn.textContent=i18n[lang].copyBtn;btn.style.color='';},2000);
+}
+
+function compareHash(){
+  const compare=document.getElementById('compareInput').value.trim().toLowerCase();
+  const resultEl=document.getElementById('compareResult');
+  if(!compare){resultEl.className='compare-result';return;}
+  const allHashes=Object.values(hashes).filter(Boolean).map(h=>h.toLowerCase());
+  const match=allHashes.includes(compare);
+  resultEl.textContent=match?i18n[lang].matchMsg:i18n[lang].noMatchMsg;
+  resultEl.className='compare-result '+(match?'match':'no-match');
+}
+
+async function pasteText(){
+  try{const t=await navigator.clipboard.readText();document.getElementById('textInput').value=t;generateHashes();}catch(e){}
+}
+function clearInput(){document.getElementById('textInput').value='';generateHashes();}
+
+lang=localStorage.getItem('lang')||(navigator.language.startsWith('ko')?'ko':'en');
+applyLang();
+</script>
+</body>
+</html>
