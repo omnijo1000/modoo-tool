@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JWT 디코더 - JWT 토큰 분석 및 검증</title>
-<meta name="description" content="JWT 토큰을 붙여넣으면 Header, Payload, Signature를 즉시 디코딩합니다. 만료시간, 발급시간 등 클레임 정보를 한눈에 확인하세요. 무료 온라인 JWT 디코더.">
-<meta name="keywords" content="JWT 디코더, JWT decoder, JWT 토큰, JWT 분석, JSON Web Token, JWT 만료시간">
+<meta name="description" content="JWT decoder and inspector. Paste your JWT token to decode Header, Payload and Signature instantly. Check expiration time and claims. Free online tool.">
+<meta name="keywords" content="JWT 디코더, JWT decoder, JWT token, JSON Web Token, JWT inspector, JWT validator">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -13,7 +13,7 @@
     --bg:#0a0a0f; --surface:#11111a; --surface2:#191928; --border:#252535;
     --accent:#67e8f9; --accent2:#22d3ee; --accent-dim:rgba(103,232,249,0.08);
     --text:#f0f5ff; --text-muted:#7888a8; --text-dim:#3a4060;
-    --green:#4ade80; --red:#f87171; --yellow:#facc15; --purple:#c084fc; --orange:#fb923c;
+    --green:#4ade80; --red:#f87171; --yellow:#facc15; --purple:#c084fc;
   }
   * { box-sizing:border-box; margin:0; padding:0; }
   body { background:var(--bg); color:var(--text); font-family:'Noto Sans KR',sans-serif; min-height:100vh; }
@@ -22,35 +22,29 @@
   .header-label { font-size:13px; color:var(--text-muted); letter-spacing:0.1em; font-family:'DM Mono',monospace; }
   .back-link { margin-left:auto; font-size:13px; color:var(--text-muted); text-decoration:none; }
   .back-link:hover { color:var(--accent2); }
+  .lang-toggle { font-size:12px; color:var(--text-muted); cursor:pointer; padding:4px 10px; border:1px solid var(--border); border-radius:6px; font-family:'DM Mono',monospace; transition:all 0.15s; margin-left:8px; }
+  .lang-toggle:hover { border-color:var(--accent2); color:var(--accent2); }
   main { max-width:800px; margin:0 auto; padding:48px 24px; }
   h1 { font-size:clamp(26px,5vw,38px); font-weight:900; line-height:1.1; margin-bottom:12px; }
   h1 span { color:var(--accent2); }
   .subtitle { color:var(--text-muted); font-size:14px; margin-bottom:32px; }
-
   .input-area { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:20px; margin-bottom:16px; }
   .input-label { font-size:11px; color:var(--text-muted); letter-spacing:0.08em; margin-bottom:10px; display:flex; justify-content:space-between; }
   textarea { width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:14px; font-family:'DM Mono',monospace; font-size:13px; color:var(--text); outline:none; resize:vertical; min-height:100px; line-height:1.5; }
   textarea:focus { border-color:var(--accent2); }
   .paste-btn { font-size:11px; color:var(--text-dim); cursor:pointer; padding:3px 8px; border:1px solid var(--border); border-radius:4px; }
   .paste-btn:hover { color:var(--accent2); border-color:var(--accent2); }
-
-  /* JWT 색상 표시 */
   .jwt-colored { font-family:'DM Mono',monospace; font-size:13px; word-break:break-all; line-height:1.7; padding:14px; background:var(--surface2); border-radius:8px; margin-top:10px; display:none; }
   .jwt-colored.show { display:block; }
   .part-header { color:var(--red); }
   .part-payload { color:var(--purple); }
   .part-sig { color:var(--green); }
   .part-dot { color:var(--text-dim); }
-
-  /* 상태 */
   .status { display:flex; align-items:center; gap:8px; padding:10px 16px; border-radius:8px; font-size:13px; margin-bottom:20px; }
-  .status.idle { background:var(--surface); border:1px solid var(--border); color:var(--text-muted); display:none; }
   .status.ok { background:rgba(74,222,128,0.08); border:1px solid rgba(74,222,128,0.3); color:var(--green); }
   .status.err { background:rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.3); color:var(--red); }
   .status.warn { background:rgba(250,204,21,0.08); border:1px solid rgba(250,204,21,0.3); color:var(--yellow); }
   .status-dot { width:7px; height:7px; border-radius:50%; background:currentColor; flex-shrink:0; }
-
-  /* 섹션 */
   .sections { display:flex; flex-direction:column; gap:16px; margin-bottom:32px; }
   .section { background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
   .section-header { padding:14px 20px; display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--border); }
@@ -63,19 +57,14 @@
   pre { font-family:'DM Mono',monospace; font-size:13px; color:var(--text); white-space:pre-wrap; word-break:break-all; line-height:1.6; }
   .copy-btn { margin-left:auto; font-size:11px; color:var(--text-dim); cursor:pointer; padding:3px 8px; border:1px solid var(--border); border-radius:4px; }
   .copy-btn:hover { color:var(--accent2); border-color:var(--accent2); }
-
-  /* 클레임 테이블 */
   .claims { display:flex; flex-direction:column; gap:6px; margin-top:12px; padding-top:12px; border-top:1px solid var(--border); }
   .claim-row { display:flex; gap:12px; font-size:12px; align-items:flex-start; }
   .claim-key { color:var(--text-dim); min-width:80px; font-family:'DM Mono',monospace; padding-top:2px; }
   .claim-val { color:var(--text-muted); }
-  .claim-val.highlight { color:var(--yellow); font-weight:700; }
   .claim-val.expired { color:var(--red); font-weight:700; }
   .claim-val.valid { color:var(--green); font-weight:700; }
-
   .example-btn { background:var(--surface2); border:1px solid var(--border); border-radius:7px; padding:8px 14px; font-size:12px; color:var(--text-muted); cursor:pointer; font-family:'DM Mono',monospace; transition:all 0.15s; margin-bottom:20px; }
   .example-btn:hover { border-color:var(--accent2); color:var(--accent2); }
-
   .seo { border-top:1px solid var(--border); padding-top:32px; }
   .seo h2 { font-size:16px; font-weight:700; margin-bottom:12px; }
   .seo p { font-size:13px; color:var(--text-muted); line-height:1.8; margin-bottom:24px; }
@@ -86,24 +75,25 @@
 <header>
   <div class="dot"></div>
   <span class="header-label">JWT DECODER</span>
-  <a href="index.html" class="back-link">← 모두의 툴</a>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <div class="lang-toggle" onclick="toggleLang()" id="langBtn">🌐 EN</div>
 </header>
 <main>
-  <h1>JWT<br><span>디코더</span></h1>
-  <p class="subtitle">JWT 토큰을 붙여넣으면 Header, Payload, Signature를 즉시 분석합니다</p>
+  <h1 id="h1Title">JWT<br><span>디코더</span></h1>
+  <p class="subtitle" id="h1Sub">JWT 토큰을 붙여넣으면 Header, Payload, Signature를 즉시 분석합니다</p>
 
-  <button class="example-btn" onclick="loadExample()">예시 토큰 불러오기</button>
+  <button class="example-btn" id="exampleBtn" onclick="loadExample()">예시 토큰 불러오기</button>
 
   <div class="input-area">
     <div class="input-label">
       <span>JWT TOKEN</span>
-      <span class="paste-btn" onclick="pasteToken()">붙여넣기</span>
+      <span class="paste-btn" id="pasteBtn" onclick="pasteToken()">붙여넣기</span>
     </div>
     <textarea id="jwtInput" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." oninput="decode()"></textarea>
     <div class="jwt-colored" id="jwtColored"></div>
   </div>
 
-  <div class="status" id="status">
+  <div class="status" id="status" style="display:none">
     <div class="status-dot"></div>
     <span id="statusText"></span>
   </div>
@@ -112,67 +102,115 @@
     <div class="section">
       <div class="section-header">
         <span class="section-badge badge-header">HEADER</span>
-        <span class="section-title">헤더</span>
-        <span class="copy-btn" onclick="copySection('header')">복사</span>
+        <span class="section-title" id="labelHeader">헤더</span>
+        <span class="copy-btn" id="copyHeaderBtn" onclick="copySection('header')">복사</span>
       </div>
-      <div class="section-body">
-        <pre id="headerPre"></pre>
-      </div>
+      <div class="section-body"><pre id="headerPre"></pre></div>
     </div>
     <div class="section">
       <div class="section-header">
         <span class="section-badge badge-payload">PAYLOAD</span>
-        <span class="section-title">페이로드</span>
-        <span class="copy-btn" onclick="copySection('payload')">복사</span>
+        <span class="section-title" id="labelPayload">페이로드</span>
+        <span class="copy-btn" id="copyPayloadBtn" onclick="copySection('payload')">복사</span>
       </div>
-      <div class="section-body">
-        <pre id="payloadPre"></pre>
-        <div class="claims" id="claims"></div>
-      </div>
+      <div class="section-body"><pre id="payloadPre"></pre><div class="claims" id="claims"></div></div>
     </div>
     <div class="section">
       <div class="section-header">
         <span class="section-badge badge-sig">SIGNATURE</span>
-        <span class="section-title">서명</span>
+        <span class="section-title" id="labelSig">서명</span>
       </div>
-      <div class="section-body">
-        <pre id="sigPre" style="color:var(--text-dim)"></pre>
-      </div>
+      <div class="section-body"><pre id="sigPre" style="color:var(--text-dim)"></pre></div>
     </div>
   </div>
 
   <div class="seo">
-    <h2>JWT란?</h2>
-    <p>JWT(JSON Web Token)는 당사자 간 정보를 안전하게 전달하기 위한 토큰 형식입니다. Header.Payload.Signature 세 부분이 점(.)으로 구분되며, 각 부분은 Base64URL로 인코딩됩니다.</p>
-    <h2>JWT 디코더 사용 시 주의사항</h2>
-    <p>이 디코더는 클라이언트 측(브라우저)에서만 동작하며 서버로 데이터를 전송하지 않습니다. 단, JWT는 Base64로 인코딩되어 있을 뿐 암호화가 아니므로, 실제 서비스에서는 민감한 정보를 Payload에 담지 마세요.</p>
+    <h2 id="seoTitle1">JWT란?</h2>
+    <p id="seoBody1">JWT(JSON Web Token)는 당사자 간 정보를 안전하게 전달하기 위한 토큰 형식입니다. Header.Payload.Signature 세 부분이 점(.)으로 구분되며, 각 부분은 Base64URL로 인코딩됩니다.</p>
+    <h2 id="seoTitle2">보안 주의사항</h2>
+    <p id="seoBody2">이 디코더는 브라우저에서만 동작하며 서버로 데이터를 전송하지 않습니다. JWT는 암호화가 아닌 인코딩이므로 민감한 정보를 Payload에 담지 마세요.</p>
   </div>
-  <footer>모든 디코딩은 브라우저에서만 처리됩니다 · 서버로 전송되지 않습니다</footer>
+  <footer id="footerText">모든 디코딩은 브라우저에서만 처리됩니다 · 서버로 전송되지 않습니다</footer>
 </main>
 <script>
+const i18n = {
+  ko: {
+    pageTitle: 'JWT 디코더 - JWT 토큰 분석 및 검증',
+    h1: 'JWT<br><span>디코더</span>',
+    sub: 'JWT 토큰을 붙여넣으면 Header, Payload, Signature를 즉시 분석합니다',
+    backLink: '← 모두의 툴', langBtn: '🌐 EN',
+    exampleBtn: '예시 토큰 불러오기', pasteBtn: '붙여넣기',
+    labelHeader: '헤더', labelPayload: '페이로드', labelSig: '서명', copyBtn: '복사',
+    seoTitle1: 'JWT란?',
+    seoBody1: 'JWT(JSON Web Token)는 당사자 간 정보를 안전하게 전달하기 위한 토큰 형식입니다. Header.Payload.Signature 세 부분이 점(.)으로 구분됩니다.',
+    seoTitle2: '보안 주의사항',
+    seoBody2: '이 디코더는 브라우저에서만 동작하며 서버로 데이터를 전송하지 않습니다.',
+    footer: '모든 디코딩은 브라우저에서만 처리됩니다 · 서버로 전송되지 않습니다',
+    expired: '만료됨', valid: '유효',
+  },
+  en: {
+    pageTitle: 'JWT Decoder - Decode and Inspect JWT Tokens',
+    h1: 'JWT<br><span>Decoder</span>',
+    sub: 'Paste your JWT token to instantly decode Header, Payload and Signature',
+    backLink: '← Modoo Hub', langBtn: '🌐 KO',
+    exampleBtn: 'Load example token', pasteBtn: 'Paste',
+    labelHeader: 'Header', labelPayload: 'Payload', labelSig: 'Signature', copyBtn: 'Copy',
+    seoTitle1: 'What is JWT?',
+    seoBody1: 'JWT (JSON Web Token) is an open standard for securely transmitting information between parties. It consists of three parts: Header, Payload, and Signature, separated by dots.',
+    seoTitle2: 'Security Notice',
+    seoBody2: 'This decoder runs entirely in your browser and never sends data to any server. Note that JWT is encoded, not encrypted — never store sensitive data in the payload.',
+    footer: 'All decoding is done in your browser · No data is sent to any server',
+    expired: 'Expired', valid: 'Valid',
+  }
+};
+
+let lang = localStorage.getItem('lang') || (navigator.language.startsWith('ko') ? 'ko' : 'en');
+
+function applyLang() {
+  const t = i18n[lang];
+  document.documentElement.lang = lang;
+  document.title = t.pageTitle;
+  document.getElementById('h1Title').innerHTML = t.h1;
+  document.getElementById('h1Sub').textContent = t.sub;
+  document.getElementById('backLink').textContent = t.backLink;
+  document.getElementById('langBtn').textContent = t.langBtn;
+  document.getElementById('exampleBtn').textContent = t.exampleBtn;
+  document.getElementById('pasteBtn').textContent = t.pasteBtn;
+  document.getElementById('labelHeader').textContent = t.labelHeader;
+  document.getElementById('labelPayload').textContent = t.labelPayload;
+  document.getElementById('labelSig').textContent = t.labelSig;
+  document.getElementById('copyHeaderBtn').textContent = t.copyBtn;
+  document.getElementById('copyPayloadBtn').textContent = t.copyBtn;
+  document.getElementById('seoTitle1').textContent = t.seoTitle1;
+  document.getElementById('seoBody1').textContent = t.seoBody1;
+  document.getElementById('seoTitle2').textContent = t.seoTitle2;
+  document.getElementById('seoBody2').textContent = t.seoBody2;
+  document.getElementById('footerText').textContent = t.footer;
+}
+
+function toggleLang() {
+  lang = lang === 'ko' ? 'en' : 'ko';
+  localStorage.setItem('lang', lang);
+  applyLang();
+}
+
 const EXAMPLE_JWT = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6Iu2Zjeq4uOuPmSIsImlhdCI6MTcxNjIzOTAyMiwiZXhwIjoxNzE2MjQyNjIyLCJyb2xlIjoiVVNFUiIsImVtYWlsIjoidXNlckBleGFtcGxlLmNvbSJ9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
 
 function b64decode(str) {
-  str = str.replace(/-/g, '+').replace(/_/g, '/');
-  while (str.length % 4) str += '=';
+  str = str.replace(/-/g,'+').replace(/_/g,'/');
+  while(str.length%4) str+='=';
   return atob(str);
 }
 
-function loadExample() {
-  document.getElementById('jwtInput').value = EXAMPLE_JWT;
-  decode();
-}
+function loadExample() { document.getElementById('jwtInput').value = EXAMPLE_JWT; decode(); }
 
 async function pasteToken() {
-  try {
-    const text = await navigator.clipboard.readText();
-    document.getElementById('jwtInput').value = text.trim();
-    decode();
-  } catch(e) {}
+  try { const t = await navigator.clipboard.readText(); document.getElementById('jwtInput').value=t.trim(); decode(); } catch(e) {}
 }
 
 function setStatus(type, msg) {
   const el = document.getElementById('status');
+  el.style.display = 'flex';
   el.className = 'status ' + type;
   document.getElementById('statusText').textContent = msg;
 }
@@ -181,68 +219,40 @@ function decode() {
   const raw = document.getElementById('jwtInput').value.trim();
   const sectionsEl = document.getElementById('sections');
   const coloredEl = document.getElementById('jwtColored');
-
-  if (!raw) { sectionsEl.style.display = 'none'; coloredEl.classList.remove('show'); document.getElementById('status').className = 'status'; return; }
-
+  if (!raw) { sectionsEl.style.display='none'; coloredEl.classList.remove('show'); document.getElementById('status').style.display='none'; return; }
   const parts = raw.split('.');
-  if (parts.length !== 3) { setStatus('err', '✗ 올바른 JWT 형식이 아닙니다 (header.payload.signature)'); sectionsEl.style.display = 'none'; return; }
-
+  if (parts.length !== 3) { setStatus('err', lang==='ko'?'✗ 올바른 JWT 형식이 아닙니다':'✗ Invalid JWT format'); sectionsEl.style.display='none'; return; }
   try {
     const header = JSON.parse(b64decode(parts[0]));
     const payload = JSON.parse(b64decode(parts[1]));
-
-    // 컬러 표시
     coloredEl.classList.add('show');
     coloredEl.innerHTML = `<span class="part-header">${parts[0]}</span><span class="part-dot">.</span><span class="part-payload">${parts[1]}</span><span class="part-dot">.</span><span class="part-sig">${parts[2]}</span>`;
-
     sectionsEl.style.display = 'flex';
-    document.getElementById('headerPre').textContent = JSON.stringify(header, null, 2);
-    document.getElementById('payloadPre').textContent = JSON.stringify(payload, null, 2);
+    document.getElementById('headerPre').textContent = JSON.stringify(header,null,2);
+    document.getElementById('payloadPre').textContent = JSON.stringify(payload,null,2);
     document.getElementById('sigPre').textContent = parts[2];
-
-    // 만료 확인
-    const now = Math.floor(Date.now() / 1000);
+    const now = Math.floor(Date.now()/1000);
     const exp = payload.exp;
-    const iat = payload.iat;
-    const nbf = payload.nbf;
-
-    if (exp && exp < now) {
-      setStatus('warn', `⚠ 만료된 토큰입니다 (${new Date(exp*1000).toLocaleString('ko-KR')}에 만료)`);
-    } else if (exp) {
-      setStatus('ok', `✓ 유효한 토큰 · ${new Date(exp*1000).toLocaleString('ko-KR')}까지 유효`);
-    } else {
-      setStatus('ok', '✓ 디코딩 성공 (만료시간 없음)');
-    }
-
-    // 클레임 정보
-    const claimDefs = { sub:'Subject (주체)', iss:'Issuer (발급자)', aud:'Audience (대상)', exp:'Expiration (만료)', iat:'Issued At (발급시간)', nbf:'Not Before (시작시간)', jti:'JWT ID', name:'이름', email:'이메일', role:'권한', roles:'권한목록' };
-    const claimsEl = document.getElementById('claims');
-    const rows = [];
-    for (const [k, v] of Object.entries(payload)) {
+    if (exp && exp < now) setStatus('warn', (lang==='ko'?'⚠ 만료된 토큰 · ':'⚠ Expired token · ')+new Date(exp*1000).toLocaleString());
+    else if (exp) setStatus('ok', (lang==='ko'?'✓ 유효한 토큰 · ':'✓ Valid token · ')+new Date(exp*1000).toLocaleString());
+    else setStatus('ok', lang==='ko'?'✓ 디코딩 성공':'✓ Decoded successfully');
+    const claimDefs = {sub:'Subject',iss:'Issuer',aud:'Audience',exp:'Expiration',iat:'Issued At',nbf:'Not Before',jti:'JWT ID',name:lang==='ko'?'이름':'Name',email:lang==='ko'?'이메일':'Email',role:lang==='ko'?'권한':'Role'};
+    document.getElementById('claims').innerHTML = Object.entries(payload).map(([k,v])=>{
       let display = String(v);
       let cls = '';
-      if (k === 'exp' || k === 'iat' || k === 'nbf') {
-        const d = new Date(v * 1000);
-        display = d.toLocaleString('ko-KR');
-        if (k === 'exp') cls = v < now ? 'expired' : 'valid';
-      }
-      const label = claimDefs[k] || k;
-      rows.push(`<div class="claim-row"><span class="claim-key">${k}</span><span class="claim-val ${cls}">${display}<br><span style="color:var(--text-dim);font-size:11px">${label}</span></span></div>`);
-    }
-    claimsEl.innerHTML = rows.join('');
-
-    window._decoded = { header, payload, sig: parts[2] };
-  } catch(e) {
-    setStatus('err', '✗ 디코딩 실패: ' + e.message);
-    sectionsEl.style.display = 'none';
-  }
+      if(['exp','iat','nbf'].includes(k)){display=new Date(v*1000).toLocaleString();if(k==='exp')cls=v<now?'expired':'valid';}
+      return `<div class="claim-row"><span class="claim-key">${k}</span><span class="claim-val ${cls}">${display}<br><span style="color:var(--text-dim);font-size:11px">${claimDefs[k]||k}</span></span></div>`;
+    }).join('');
+    window._decoded = {header,payload,sig:parts[2]};
+  } catch(e) { setStatus('err','✗ '+e.message); sectionsEl.style.display='none'; }
 }
 
 function copySection(part) {
-  if (!window._decoded) return;
-  const text = JSON.stringify(window._decoded[part === 'header' ? 'header' : part === 'payload' ? 'payload' : 'sig'], null, 2);
-  navigator.clipboard.writeText(text);
+  if(!window._decoded) return;
+  navigator.clipboard.writeText(JSON.stringify(window._decoded[part],null,2));
 }
+
+applyLang();
 </script>
 </body>
 </html>
