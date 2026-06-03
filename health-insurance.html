@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>건강보험료 계산기 2026 - 직장·지역 건보료 계산</title>
+<meta name="description" content="2026년 기준 건강보험료 계산기. 직장가입자·지역가입자 구분, 장기요양보험료 포함 월 보험료 자동 계산.">
+<meta property="og:title" content="건강보험료 계산기 | MODOO HUB">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<link rel="canonical" href="https://modoohub.com/health-insurance.html">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0f0a;--surface:#111811;--surface2:#182018;--border:#1e2e1e;--accent:#86efac;--accent2:#4ade80;--accent3:#16a34a;--accent-dim:rgba(134,239,172,0.08);--text:#f0f5f0;--text-muted:#7a9a7a;--text-dim:#3a5a3a;--red:#f87171;--yellow:#facc15;--blue:#60a5fa;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:20px 24px;display:flex;align-items:center;gap:12px;}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--accent2);}
+.header-label{font-size:13px;color:var(--text-muted);letter-spacing:.1em;font-family:'DM Mono',monospace;}
+.back-link{margin-left:auto;font-size:13px;color:var(--text-muted);text-decoration:none;}
+.back-link:hover{color:var(--accent2);}
+main{max-width:620px;margin:0 auto;padding:48px 24px;}
+h1{font-size:clamp(26px,5vw,38px);font-weight:900;line-height:1.1;margin-bottom:12px;}
+h1 span{color:var(--accent2);}
+.subtitle{color:var(--text-muted);font-size:14px;line-height:1.7;margin-bottom:40px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:14px;transition:border-color .2s;}
+.card:focus-within{border-color:var(--accent3);}
+label{font-size:12px;color:var(--text-muted);letter-spacing:.08em;display:block;margin-bottom:10px;}
+.input-wrap{display:flex;align-items:center;gap:8px;}
+input[type=number]{flex:1;background:transparent;border:none;outline:none;font-size:28px;font-weight:700;color:var(--text);font-family:'DM Mono',monospace;width:100%;min-width:0;}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;}
+.unit{color:var(--text-dim);font-size:14px;}
+.radio-row{display:flex;gap:8px;margin-top:8px;}
+.rbtn{flex:1;padding:9px;border:1px solid var(--border);border-radius:8px;text-align:center;font-size:13px;cursor:pointer;color:var(--text-muted);background:var(--surface2);transition:all .2s;}
+.rbtn.on{border-color:var(--accent3);color:var(--accent2);background:var(--accent-dim);}
+.result{border-radius:16px;padding:28px;margin-bottom:20px;display:none;background:var(--accent-dim);border:1px solid var(--accent3);}
+.result.show{display:block;}
+.big-num{font-family:'DM Mono',monospace;font-size:36px;font-weight:700;color:var(--accent2);margin-bottom:6px;}
+.big-label{font-size:13px;color:var(--text-muted);margin-bottom:20px;}
+.divider{height:1px;background:var(--border);margin:16px 0;}
+.row{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;}
+.lk{color:var(--text-muted);}
+.lv{font-family:'DM Mono',monospace;color:var(--text);}
+.lv.red{color:var(--red);}
+.lv.green{color:var(--accent2);}
+.tab-box{display:flex;gap:2px;background:var(--surface2);border-radius:10px;padding:4px;margin-bottom:20px;}
+.tab{flex:1;padding:10px;text-align:center;border-radius:8px;cursor:pointer;font-size:14px;color:var(--text-muted);transition:all .2s;}
+.tab.on{background:var(--accent3);color:#000;font-weight:600;}
+.info{background:var(--surface2);border-radius:10px;padding:16px;font-size:13px;color:var(--text-muted);line-height:1.7;margin-top:20px;}
+.info strong{color:var(--text);}
+</style>
+</head>
+<body>
+<header>
+  <div class="dot"></div>
+  <span class="header-label">MODOO HUB</span>
+  <a href="/" class="back-link">← 홈으로</a>
+</header>
+<main>
+  <h1><span>건강보험료</span><br>계산기</h1>
+  <p class="subtitle">2026년 기준 · 직장·지역가입자 구분 · 장기요양보험료 포함</p>
+
+  <div class="tab-box">
+    <div class="tab on" id="tab_work" onclick="switchTab('work')">직장가입자</div>
+    <div class="tab" id="tab_region" onclick="switchTab('region')">지역가입자</div>
+  </div>
+
+  <!-- 직장가입자 -->
+  <div id="section_work">
+    <div class="card">
+      <label>월 보수월액 (세전 월급)</label>
+      <div class="input-wrap">
+        <input type="number" id="w_salary" placeholder="0" oninput="calcWork()">
+        <span class="unit">만원</span>
+      </div>
+    </div>
+    <div class="card">
+      <label>부양가족 수 (본인 포함)</label>
+      <div class="radio-row" id="w_dep">
+        <div class="rbtn on" onclick="sel(this,'w_dep');calcWork()">1명</div>
+        <div class="rbtn" onclick="sel(this,'w_dep');calcWork()">2명</div>
+        <div class="rbtn" onclick="sel(this,'w_dep');calcWork()">3명</div>
+        <div class="rbtn" onclick="sel(this,'w_dep');calcWork()">4명+</div>
+      </div>
+    </div>
+    <div class="result show" id="r_work" style="display:none">
+      <div class="big-num" id="rw_total">—</div>
+      <div class="big-label">월 납부액 (근로자 부담분)</div>
+      <div class="divider"></div>
+      <div class="row"><span class="lk">보수월액</span><span class="lv" id="rw_sal">—</span></div>
+      <div class="row"><span class="lk">건강보험료율</span><span class="lv">7.09% (근로자 3.545%)</span></div>
+      <div class="row"><span class="lk">건강보험료 (근로자)</span><span class="lv red" id="rw_hi">—</span></div>
+      <div class="row"><span class="lk">장기요양보험료율</span><span class="lv">건강보험료의 12.95%</span></div>
+      <div class="row"><span class="lk">장기요양보험료 (근로자)</span><span class="lv red" id="rw_lt">—</span></div>
+      <div class="divider"></div>
+      <div class="row"><span class="lk" style="font-weight:600;color:var(--text)">근로자 부담 합계</span><span class="lv green" id="rw_sum">—</span></div>
+      <div class="row"><span class="lk">사업주 부담 합계</span><span class="lv" id="rw_emp">—</span></div>
+      <div class="row"><span class="lk">총 보험료 (근로자+사업주)</span><span class="lv" id="rw_all">—</span></div>
+    </div>
+  </div>
+
+  <!-- 지역가입자 -->
+  <div id="section_region" style="display:none">
+    <div class="card">
+      <label>연 소득 (사업·금융·임대 등)</label>
+      <div class="input-wrap">
+        <input type="number" id="g_income" placeholder="0" oninput="calcRegion()">
+        <span class="unit">만원/년</span>
+      </div>
+    </div>
+    <div class="card">
+      <label>재산 점수 (재산·자동차 등 점수표 기준)</label>
+      <div class="input-wrap">
+        <input type="number" id="g_prop" placeholder="0" oninput="calcRegion()">
+        <span class="unit">점</span>
+      </div>
+    </div>
+    <div class="result" id="r_region" style="display:none">
+      <div class="big-num" id="rg_total">—</div>
+      <div class="big-label">월 납부액</div>
+      <div class="divider"></div>
+      <div class="row"><span class="lk">소득 부과점수</span><span class="lv" id="rg_inc_pt">—</span></div>
+      <div class="row"><span class="lk">재산 부과점수</span><span class="lv" id="rg_prop_pt">—</span></div>
+      <div class="row"><span class="lk">총 부과점수</span><span class="lv" id="rg_total_pt">—</span></div>
+      <div class="row"><span class="lk">점수당 금액 (2026)</span><span class="lv">208.4원</span></div>
+      <div class="row"><span class="lk">건강보험료</span><span class="lv red" id="rg_hi">—</span></div>
+      <div class="row"><span class="lk">장기요양보험료 (12.95%)</span><span class="lv red" id="rg_lt">—</span></div>
+      <div class="divider"></div>
+      <div class="row"><span class="lk" style="font-weight:600;color:var(--text)">월 납부 합계</span><span class="lv green" id="rg_sum">—</span></div>
+    </div>
+  </div>
+
+  <div class="info">
+    <strong>2026년 요율</strong><br>
+    건강보험료율: 7.09% (근로자 3.545%, 사업주 3.545%)<br>
+    장기요양보험료율: 건강보험료의 12.95%<br>
+    지역가입자 점수당 금액: 208.4원 (2026년 기준)
+  </div>
+</main>
+<script>
+function fmt(n){return Math.round(n).toLocaleString('ko-KR');}
+function fmtW(n){return fmt(n)+'만원';}
+function sel(el,g){document.querySelectorAll('#'+g+' .rbtn').forEach(b=>b.classList.remove('on'));el.classList.add('on');}
+
+function switchTab(t){
+  document.getElementById('tab_work').classList.toggle('on',t==='work');
+  document.getElementById('tab_region').classList.toggle('on',t==='region');
+  document.getElementById('section_work').style.display=t==='work'?'block':'none';
+  document.getElementById('section_region').style.display=t==='region'?'block':'none';
+}
+
+function calcWork(){
+  const sal=parseFloat(document.getElementById('w_salary').value)||0;
+  if(sal<=0){document.getElementById('r_work').style.display='none';return;}
+  const hi=sal*0.03545;
+  const lt=hi*0.1295;
+  const workerSum=hi+lt;
+  const empSum=hi+lt; // 사업주도 동일
+  const all=workerSum+empSum;
+  document.getElementById('r_work').style.display='block';
+  document.getElementById('rw_sal').textContent=fmtW(sal)+'/월';
+  document.getElementById('rw_hi').textContent='-'+fmtW(hi)+'만원';
+  document.getElementById('rw_lt').textContent='-'+fmtW(lt)+'만원';
+  document.getElementById('rw_sum').textContent=fmtW(workerSum)+'만원';
+  document.getElementById('rw_emp').textContent=fmtW(empSum)+'만원';
+  document.getElementById('rw_all').textContent=fmtW(all)+'만원';
+  document.getElementById('rw_total').textContent=fmtW(workerSum)+'만원';
+}
+
+function calcRegion(){
+  const income=parseFloat(document.getElementById('g_income').value)||0;
+  const propPt=parseFloat(document.getElementById('g_prop').value)||0;
+  if(income<=0&&propPt<=0){document.getElementById('r_region').style.display='none';return;}
+  // 소득 부과점수: 연소득 100만원당 약 95점 (2026 간이)
+  const incPt=Math.round((income*10000)/1000000*95);
+  const totalPt=incPt+propPt;
+  const hi=totalPt*208.4/10000; // 만원
+  const lt=hi*0.1295;
+  const sum=hi+lt;
+  document.getElementById('r_region').style.display='block';
+  document.getElementById('rg_inc_pt').textContent=fmt(incPt)+'점';
+  document.getElementById('rg_prop_pt').textContent=fmt(propPt)+'점';
+  document.getElementById('rg_total_pt').textContent=fmt(totalPt)+'점';
+  document.getElementById('rg_hi').textContent='-'+fmtW(hi);
+  document.getElementById('rg_lt').textContent='-'+fmtW(lt);
+  document.getElementById('rg_sum').textContent=fmtW(sum);
+  document.getElementById('rg_total').textContent=fmtW(sum);
+}
+</script>
+</body>
+</html>

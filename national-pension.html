@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>국민연금 수령액 계산기 2026 - 예상 연금 월 수령액</title>
+<meta name="description" content="국민연금 예상 수령액 계산기. 가입기간·평균소득·납입액으로 노령연금 월 수령액 추정. 조기·연기 수령 비교.">
+<meta property="og:title" content="국민연금 수령액 계산기 | MODOO HUB">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<link rel="canonical" href="https://modoohub.com/national-pension.html">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0f0a;--surface:#111811;--surface2:#182018;--border:#1e2e1e;--accent:#86efac;--accent2:#4ade80;--accent3:#16a34a;--accent-dim:rgba(134,239,172,0.08);--text:#f0f5f0;--text-muted:#7a9a7a;--text-dim:#3a5a3a;--red:#f87171;--yellow:#facc15;--blue:#60a5fa;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:20px 24px;display:flex;align-items:center;gap:12px;}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--accent2);}
+.header-label{font-size:13px;color:var(--text-muted);letter-spacing:.1em;font-family:'DM Mono',monospace;}
+.back-link{margin-left:auto;font-size:13px;color:var(--text-muted);text-decoration:none;}
+.back-link:hover{color:var(--accent2);}
+main{max-width:620px;margin:0 auto;padding:48px 24px;}
+h1{font-size:clamp(26px,5vw,38px);font-weight:900;line-height:1.1;margin-bottom:12px;}
+h1 span{color:var(--accent2);}
+.subtitle{color:var(--text-muted);font-size:14px;line-height:1.7;margin-bottom:40px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:14px;transition:border-color .2s;}
+.card:focus-within{border-color:var(--accent3);}
+label{font-size:12px;color:var(--text-muted);letter-spacing:.08em;display:block;margin-bottom:10px;}
+.input-wrap{display:flex;align-items:center;gap:8px;}
+input[type=number]{flex:1;background:transparent;border:none;outline:none;font-size:28px;font-weight:700;color:var(--text);font-family:'DM Mono',monospace;width:100%;min-width:0;}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;}
+.unit{color:var(--text-dim);font-size:14px;}
+.radio-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+.rbtn{flex:1;min-width:70px;padding:9px 6px;border:1px solid var(--border);border-radius:8px;text-align:center;font-size:13px;cursor:pointer;color:var(--text-muted);background:var(--surface2);transition:all .2s;}
+.rbtn.on{border-color:var(--accent3);color:var(--accent2);background:var(--accent-dim);}
+.result{border-radius:16px;padding:28px;margin-bottom:20px;display:none;background:var(--accent-dim);border:1px solid var(--accent3);}
+.result.show{display:block;}
+.big-num{font-family:'DM Mono',monospace;font-size:36px;font-weight:700;color:var(--accent2);margin-bottom:4px;}
+.big-label{font-size:13px;color:var(--text-muted);margin-bottom:20px;}
+.divider{height:1px;background:var(--border);margin:16px 0;}
+.row{display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:1px solid var(--border);}
+.row:last-child{border-bottom:none;}
+.lk{color:var(--text-muted);}
+.lv{font-family:'DM Mono',monospace;color:var(--text);}
+.lv.green{color:var(--accent2);}
+.lv.yellow{color:var(--yellow);}
+.lv.red{color:var(--red);}
+.compare-box{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:16px;}
+.cmp-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;}
+.cmp-label{font-size:11px;color:var(--text-dim);margin-bottom:6px;}
+.cmp-val{font-family:'DM Mono',monospace;font-size:18px;font-weight:700;}
+.cmp-val.green{color:var(--accent2);}
+.cmp-val.yellow{color:var(--yellow);}
+.cmp-val.blue{color:var(--blue);}
+.cmp-sub{font-size:11px;color:var(--text-muted);margin-top:4px;}
+.info{background:var(--surface2);border-radius:10px;padding:16px;font-size:13px;color:var(--text-muted);line-height:1.7;margin-top:20px;}
+.info strong{color:var(--text);}
+</style>
+</head>
+<body>
+<header>
+  <div class="dot"></div>
+  <span class="header-label">MODOO HUB</span>
+  <a href="/" class="back-link">← 홈으로</a>
+</header>
+<main>
+  <h1><span>국민연금</span><br>수령액 계산기</h1>
+  <p class="subtitle">가입기간·평균소득 기준 예상 노령연금 계산 · 조기·연기 수령 비교</p>
+
+  <div class="card">
+    <label>국민연금 가입 기간 (예상 포함)</label>
+    <div class="input-wrap">
+      <input type="number" id="years" placeholder="0" oninput="calc()">
+      <span class="unit">년</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <label>가입 기간 평균 월 소득 (A값 기준)</label>
+    <div class="input-wrap">
+      <input type="number" id="avgIncome" placeholder="0" oninput="calc()">
+      <span class="unit">만원</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <label>수령 시작 시점</label>
+    <div class="radio-row" id="receiveType">
+      <div class="rbtn" onclick="sel(this,'receiveType');calc()">조기 (60세)</div>
+      <div class="rbtn on" onclick="sel(this,'receiveType');calc()">정상 (63세~)</div>
+      <div class="rbtn" onclick="sel(this,'receiveType');calc()">연기 (68세)</div>
+    </div>
+  </div>
+
+  <div class="result" id="result">
+    <div class="big-num" id="r_monthly">—</div>
+    <div class="big-label">예상 월 수령액</div>
+    <div class="divider"></div>
+    <div class="row"><span class="lk">가입 기간</span><span class="lv" id="r_years">—</span></div>
+    <div class="row"><span class="lk">평균 소득 (B값)</span><span class="lv" id="r_income">—</span></div>
+    <div class="row"><span class="lk">국민연금 A값 (2026)</span><span class="lv">286만원/월</span></div>
+    <div class="row"><span class="lk">기본연금액 (산식)</span><span class="lv" id="r_base">—</span></div>
+    <div class="row"><span class="lk">수령 조정률</span><span class="lv" id="r_adjust">—</span></div>
+    <div class="divider"></div>
+    <div class="row"><span class="lk" style="font-weight:600;color:var(--text)">예상 월 수령액</span><span class="lv green" style="font-size:15px" id="r_final">—</span></div>
+    <div class="row"><span class="lk">연간 수령액</span><span class="lv" id="r_annual">—</span></div>
+    <div class="row"><span class="lk">총 납부 보험료 추정</span><span class="lv red" id="r_paid">—</span></div>
+    <div class="row"><span class="lk">원금 회수 시점 추정</span><span class="lv yellow" id="r_breakeven">—</span></div>
+
+    <div class="compare-box">
+      <div class="cmp-card">
+        <div class="cmp-label">조기 수령 (60세)</div>
+        <div class="cmp-val yellow" id="cmp_early">—</div>
+        <div class="cmp-sub">30% 감액</div>
+      </div>
+      <div class="cmp-card">
+        <div class="cmp-label">정상 수령 (63세~)</div>
+        <div class="cmp-val green" id="cmp_normal">—</div>
+        <div class="cmp-sub">기본</div>
+      </div>
+      <div class="cmp-card">
+        <div class="cmp-label">연기 수령 (68세)</div>
+        <div class="cmp-val blue" id="cmp_late">—</div>
+        <div class="cmp-sub">36% 증액</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="info">
+    <strong>국민연금 산식 (간이)</strong><br>
+    기본연금액 = 1.2 × (A+B) × (1+0.05n/12)<br>
+    A: 전체 가입자 평균소득 (2026년 약 286만원), B: 본인 평균소득, n: 20년 초과 가입월수.<br>
+    조기수령: 1년 앞당길수록 6% 감액 (최대 5년 30%). 연기수령: 1년 늦출수록 7.2% 증액 (최대 5년 36%).
+  </div>
+</main>
+<script>
+function fmt(n){return Math.round(n).toLocaleString('ko-KR');}
+function fmtW(n){return fmt(n)+'만원';}
+function sel(el,g){document.querySelectorAll('#'+g+' .rbtn').forEach(b=>b.classList.remove('on'));el.classList.add('on');}
+function getVal(g){return document.querySelector('#'+g+' .rbtn.on')?.textContent.trim()||'';}
+
+function calcBase(years,avgIncome){
+  const A=286; // 2026 A값 (만원)
+  const B=avgIncome;
+  const n=Math.max(0,(years-20)*12);
+  return 1.2*(A+B)*(1+0.05*n/12);
+}
+
+function calc(){
+  const years=parseFloat(document.getElementById('years').value)||0;
+  const avg=parseFloat(document.getElementById('avgIncome').value)||0;
+  if(years<10||avg<=0){document.getElementById('result').style.display='none';return;}
+
+  const base=calcBase(years,avg);
+  const rtype=getVal('receiveType');
+  let adjust=1,adjustLabel='100% (정상)';
+  if(rtype.includes('조기')){adjust=0.70;adjustLabel='70% (5년 조기, -30%)';}
+  else if(rtype.includes('연기')){adjust=1.36;adjustLabel='136% (5년 연기, +36%)';}
+
+  const monthly=base*adjust;
+  const annual=monthly*12;
+
+  // 총 납부 추정 (평균소득×9%×가입월수)
+  const paid=avg*0.09*years*12;
+  const breakeven=Math.ceil(paid/monthly);
+
+  // 비교
+  const early=base*0.70;
+  const normal=base;
+  const late=base*1.36;
+
+  document.getElementById('result').style.display='block';
+  document.getElementById('r_years').textContent=years+'년 ('+years*12+'개월)';
+  document.getElementById('r_income').textContent=fmtW(avg)+'/월';
+  document.getElementById('r_base').textContent=fmtW(base)+'/월';
+  document.getElementById('r_adjust').textContent=adjustLabel;
+  document.getElementById('r_final').textContent=fmtW(monthly)+'/월';
+  document.getElementById('r_monthly').textContent=fmtW(monthly)+'/월';
+  document.getElementById('r_annual').textContent=fmtW(annual)+'/년';
+  document.getElementById('r_paid').textContent='-'+fmtW(paid)+' (추정)';
+  document.getElementById('r_breakeven').textContent=breakeven+'개월 ('+Math.ceil(breakeven/12)+'년)';
+  document.getElementById('cmp_early').textContent=fmtW(early);
+  document.getElementById('cmp_normal').textContent=fmtW(normal);
+  document.getElementById('cmp_late').textContent=fmtW(late);
+}
+</script>
+</body>
+</html>

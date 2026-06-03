@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BMI 계산기 - 체질량지수·표준체중·칼로리 계산</title>
+<meta name="description" content="BMI(체질량지수) 계산기. 키·몸무게 입력 시 BMI, 비만도, 표준체중, 기초대사량(BMR), 일일 권장 칼로리 자동 계산.">
+<meta property="og:title" content="BMI 계산기 | MODOO HUB">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<link rel="canonical" href="https://modoohub.com/bmi-calc.html">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0f0a;--surface:#111811;--surface2:#182018;--border:#1e2e1e;--accent:#86efac;--accent2:#4ade80;--accent3:#16a34a;--accent-dim:rgba(134,239,172,0.08);--text:#f0f5f0;--text-muted:#7a9a7a;--text-dim:#3a5a3a;--red:#f87171;--yellow:#facc15;--blue:#60a5fa;--orange:#fb923c;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:20px 24px;display:flex;align-items:center;gap:12px;}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--accent2);}
+.header-label{font-size:13px;color:var(--text-muted);letter-spacing:.1em;font-family:'DM Mono',monospace;}
+.back-link{margin-left:auto;font-size:13px;color:var(--text-muted);text-decoration:none;}
+.back-link:hover{color:var(--accent2);}
+main{max-width:620px;margin:0 auto;padding:48px 24px;}
+h1{font-size:clamp(26px,5vw,38px);font-weight:900;line-height:1.1;margin-bottom:12px;}
+h1 span{color:var(--accent2);}
+.subtitle{color:var(--text-muted);font-size:14px;line-height:1.7;margin-bottom:40px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:14px;transition:border-color .2s;}
+.card:focus-within{border-color:var(--accent3);}
+label{font-size:12px;color:var(--text-muted);letter-spacing:.08em;display:block;margin-bottom:10px;}
+.input-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.input-wrap{display:flex;align-items:center;gap:8px;}
+input[type=number]{flex:1;background:transparent;border:none;outline:none;font-size:28px;font-weight:700;color:var(--text);font-family:'DM Mono',monospace;width:100%;min-width:0;}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;}
+.unit{color:var(--text-dim);font-size:14px;}
+.radio-row{display:flex;gap:8px;margin-top:8px;}
+.rbtn{flex:1;padding:9px;border:1px solid var(--border);border-radius:8px;text-align:center;font-size:13px;cursor:pointer;color:var(--text-muted);background:var(--surface2);transition:all .2s;}
+.rbtn.on{border-color:var(--accent3);color:var(--accent2);background:var(--accent-dim);}
+.result{border-radius:16px;padding:28px;margin-bottom:20px;display:none;background:var(--accent-dim);border:1px solid var(--accent3);}
+.result.show{display:block;}
+.bmi-display{text-align:center;padding:20px 0;}
+.bmi-num{font-family:'DM Mono',monospace;font-size:56px;font-weight:900;line-height:1;}
+.bmi-status{font-size:18px;font-weight:700;margin-top:8px;}
+.bmi-bar{height:14px;border-radius:7px;background:linear-gradient(90deg,#60a5fa,#4ade80,#facc15,#fb923c,#f87171);margin:20px 0 6px;position:relative;}
+.bmi-marker{position:absolute;top:-4px;width:22px;height:22px;border-radius:50%;background:white;border:3px solid #000;transform:translateX(-50%);transition:left .5s;}
+.bmi-scale{display:flex;justify-content:space-between;font-size:10px;color:var(--text-dim);}
+.divider{height:1px;background:var(--border);margin:16px 0;}
+.row{display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:1px solid var(--border);}
+.row:last-child{border-bottom:none;}
+.lk{color:var(--text-muted);}
+.lv{font-family:'DM Mono',monospace;color:var(--text);}
+.lv.green{color:var(--accent2);}
+.lv.yellow{color:var(--yellow);}
+.calorie-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;}
+.cal-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;}
+.cal-label{font-size:11px;color:var(--text-dim);margin-bottom:6px;}
+.cal-val{font-family:'DM Mono',monospace;font-size:20px;font-weight:700;color:var(--accent2);}
+.cal-sub{font-size:11px;color:var(--text-muted);margin-top:3px;}
+</style>
+</head>
+<body>
+<header>
+  <div class="dot"></div>
+  <span class="header-label">MODOO HUB</span>
+  <a href="/" class="back-link">← 홈으로</a>
+</header>
+<main>
+  <h1><span>BMI</span> 계산기</h1>
+  <p class="subtitle">체질량지수·비만도·표준체중·기초대사량·권장칼로리 자동 계산</p>
+
+  <div class="card">
+    <label>신체 정보</label>
+    <div class="input-row">
+      <div>
+        <div style="font-size:11px;color:var(--text-dim);margin-bottom:6px;">키</div>
+        <div class="input-wrap">
+          <input type="number" id="height" placeholder="170" oninput="calc()">
+          <span class="unit">cm</span>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--text-dim);margin-bottom:6px;">몸무게</div>
+        <div class="input-wrap">
+          <input type="number" id="weight" placeholder="70" oninput="calc()">
+          <span class="unit">kg</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <label>나이</label>
+    <div class="input-wrap">
+      <input type="number" id="age" placeholder="30" oninput="calc()">
+      <span class="unit">세</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <label>성별</label>
+    <div class="radio-row" id="gender">
+      <div class="rbtn on" onclick="sel(this,'gender');calc()">남성</div>
+      <div class="rbtn" onclick="sel(this,'gender');calc()">여성</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <label>활동 수준</label>
+    <div class="radio-row" id="activity" style="flex-wrap:wrap;">
+      <div class="rbtn" onclick="sel(this,'activity');calc()">거의 안 함</div>
+      <div class="rbtn on" onclick="sel(this,'activity');calc()">가벼운 운동</div>
+      <div class="rbtn" onclick="sel(this,'activity');calc()">보통 운동</div>
+      <div class="rbtn" onclick="sel(this,'activity');calc()">격렬한 운동</div>
+    </div>
+  </div>
+
+  <div class="result" id="result">
+    <div class="bmi-display">
+      <div class="bmi-num" id="r_bmi">—</div>
+      <div class="bmi-status" id="r_status">—</div>
+    </div>
+    <div class="bmi-bar">
+      <div class="bmi-marker" id="bmi_marker" style="left:50%"></div>
+    </div>
+    <div class="bmi-scale">
+      <span>18.5</span><span>23</span><span>25</span><span>30</span>
+    </div>
+    <div class="divider"></div>
+    <div class="row"><span class="lk">현재 체중</span><span class="lv" id="r_weight">—</span></div>
+    <div class="row"><span class="lk">표준체중</span><span class="lv green" id="r_std">—</span></div>
+    <div class="row"><span class="lk">정상 범위 체중</span><span class="lv" id="r_range">—</span></div>
+    <div class="row"><span class="lk">체중 조절 필요</span><span class="lv yellow" id="r_diff">—</span></div>
+    <div class="divider"></div>
+    <div class="row"><span class="lk">기초대사량 (BMR)</span><span class="lv" id="r_bmr">—</span></div>
+    <div class="row"><span class="lk">일일 권장칼로리 (TDEE)</span><span class="lv green" id="r_tdee">—</span></div>
+
+    <div class="calorie-grid">
+      <div class="cal-card">
+        <div class="cal-label">체중 감량 (-0.5kg/주)</div>
+        <div class="cal-val" id="c_lose">—</div>
+        <div class="cal-sub">kcal/일</div>
+      </div>
+      <div class="cal-card">
+        <div class="cal-label">체중 증량 (+0.5kg/주)</div>
+        <div class="cal-val" id="c_gain">—</div>
+        <div class="cal-sub">kcal/일</div>
+      </div>
+    </div>
+  </div>
+</main>
+<script>
+function sel(el,g){document.querySelectorAll('#'+g+' .rbtn').forEach(b=>b.classList.remove('on'));el.classList.add('on');}
+function getVal(g){return document.querySelector('#'+g+' .rbtn.on')?.textContent.trim()||'';}
+function fmt(n){return Math.round(n).toLocaleString('ko-KR');}
+
+function calc(){
+  const h=parseFloat(document.getElementById('height').value)||0;
+  const w=parseFloat(document.getElementById('weight').value)||0;
+  const age=parseFloat(document.getElementById('age').value)||30;
+  if(h<=0||w<=0){document.getElementById('result').style.display='none';return;}
+
+  const hm=h/100;
+  const bmi=w/(hm*hm);
+  const gender=getVal('gender');
+  const act=getVal('activity');
+
+  // 비만도 판정 (아시아 기준)
+  let status='',color='';
+  if(bmi<18.5){status='저체중';color='var(--blue)';}
+  else if(bmi<23){status='정상';color='var(--accent2)';}
+  else if(bmi<25){status='과체중';color='var(--yellow)';}
+  else if(bmi<30){status='비만';color='var(--orange)';}
+  else{status='고도비만';color='var(--red)';}
+
+  // 표준체중 (Broca 변형)
+  const stdW=hm*hm*22;
+  const normalMin=hm*hm*18.5;
+  const normalMax=hm*hm*22.9;
+
+  // BMR (Mifflin-St Jeor)
+  let bmr=gender==='남성'
+    ?(10*w)+(6.25*h)-(5*age)+5
+    :(10*w)+(6.25*h)-(5*age)-161;
+
+  const actMult=act==='거의 안 함'?1.2:act==='보통 운동'?1.55:act==='격렬한 운동'?1.725:1.375;
+  const tdee=bmr*actMult;
+
+  // 바 위치 (BMI 15~35 범위)
+  const pct=Math.min(100,Math.max(0,(bmi-15)/(35-15)*100));
+
+  document.getElementById('result').style.display='block';
+  document.getElementById('r_bmi').textContent=bmi.toFixed(1);
+  document.getElementById('r_bmi').style.color=color;
+  document.getElementById('r_status').textContent=status;
+  document.getElementById('r_status').style.color=color;
+  document.getElementById('bmi_marker').style.left=pct+'%';
+  document.getElementById('r_weight').textContent=w+'kg';
+  document.getElementById('r_std').textContent=stdW.toFixed(1)+'kg';
+  document.getElementById('r_range').textContent=normalMin.toFixed(1)+'~'+normalMax.toFixed(1)+'kg';
+  const diff=w-stdW;
+  document.getElementById('r_diff').textContent=diff>0?'+'+diff.toFixed(1)+'kg 감량 권장':diff<-1?Math.abs(diff).toFixed(1)+'kg 증량 권장':'적정';
+  document.getElementById('r_bmr').textContent=fmt(bmr)+' kcal/일';
+  document.getElementById('r_tdee').textContent=fmt(tdee)+' kcal/일';
+  document.getElementById('c_lose').textContent=fmt(tdee-500);
+  document.getElementById('c_gain').textContent=fmt(tdee+500);
+}
+</script>
+</body>
+</html>

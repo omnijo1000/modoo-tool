@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>연장·야간·휴일수당 계산기 2026 - 시간외수당 자동 계산</title>
+<meta name="description" content="2026년 기준 연장근로·야간근로·휴일근로 수당 계산기. 통상임금 기준 가산율 자동 적용, 포괄임금제 비교 가능.">
+<meta property="og:title" content="시간외수당 계산기 | MODOO HUB">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<link rel="canonical" href="https://modoohub.com/overtime-pay.html">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0f0a;--surface:#111811;--surface2:#182018;--border:#1e2e1e;--accent:#86efac;--accent2:#4ade80;--accent3:#16a34a;--accent-dim:rgba(134,239,172,0.08);--text:#f0f5f0;--text-muted:#7a9a7a;--text-dim:#3a5a3a;--red:#f87171;--yellow:#facc15;--blue:#60a5fa;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:20px 24px;display:flex;align-items:center;gap:12px;}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--accent2);}
+.header-label{font-size:13px;color:var(--text-muted);letter-spacing:.1em;font-family:'DM Mono',monospace;}
+.back-link{margin-left:auto;font-size:13px;color:var(--text-muted);text-decoration:none;}
+.back-link:hover{color:var(--accent2);}
+main{max-width:620px;margin:0 auto;padding:48px 24px;}
+h1{font-size:clamp(26px,5vw,38px);font-weight:900;line-height:1.1;margin-bottom:12px;}
+h1 span{color:var(--accent2);}
+.subtitle{color:var(--text-muted);font-size:14px;line-height:1.7;margin-bottom:40px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:14px;transition:border-color .2s;}
+.card:focus-within{border-color:var(--accent3);}
+label{font-size:12px;color:var(--text-muted);letter-spacing:.08em;display:block;margin-bottom:10px;}
+.input-wrap{display:flex;align-items:center;gap:8px;}
+input[type=number]{flex:1;background:transparent;border:none;outline:none;font-size:24px;font-weight:700;color:var(--text);font-family:'DM Mono',monospace;width:100%;min-width:0;}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;}
+.unit{color:var(--text-dim);font-size:14px;white-space:nowrap;}
+.ot-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.ot-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;}
+.ot-card label{font-size:11px;margin-bottom:8px;}
+.result{border-radius:16px;padding:28px;margin-bottom:20px;display:none;background:var(--accent-dim);border:1px solid var(--accent3);}
+.result.show{display:block;}
+.big-num{font-family:'DM Mono',monospace;font-size:36px;font-weight:700;color:var(--accent2);margin-bottom:4px;}
+.big-label{font-size:13px;color:var(--text-muted);margin-bottom:20px;}
+.divider{height:1px;background:var(--border);margin:16px 0;}
+.row{display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:1px solid var(--border);}
+.row:last-child{border-bottom:none;}
+.lk{color:var(--text-muted);}
+.lv{font-family:'DM Mono',monospace;color:var(--text);}
+.lv.green{color:var(--accent2);}
+.lv.yellow{color:var(--yellow);}
+.rate-box{background:var(--surface2);border-radius:10px;padding:14px;margin-top:16px;}
+.rate-title{font-size:11px;color:var(--text-dim);letter-spacing:.08em;margin-bottom:10px;}
+.rate-row{display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:1px solid var(--border);}
+.rate-row:last-child{border-bottom:none;}
+.rk{color:var(--text-muted);}
+.rv{font-family:'DM Mono',monospace;color:var(--yellow);}
+</style>
+</head>
+<body>
+<header>
+  <div class="dot"></div>
+  <span class="header-label">MODOO HUB</span>
+  <a href="/" class="back-link">← 홈으로</a>
+</header>
+<main>
+  <h1><span>시간외수당</span><br>계산기</h1>
+  <p class="subtitle">연장·야간·휴일근로수당 · 통상임금 기준 · 가산율 자동 적용</p>
+
+  <div class="card">
+    <label>월 통상임금 (기본급+고정수당)</label>
+    <div class="input-wrap">
+      <input type="number" id="baseWage" placeholder="0" oninput="calc()">
+      <span class="unit">만원/월</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <label>월 소정근로시간</label>
+    <div class="input-wrap">
+      <input type="number" id="baseHours" placeholder="209" oninput="calc()">
+      <span class="unit">시간</span>
+    </div>
+  </div>
+
+  <div class="ot-grid">
+    <div class="ot-card">
+      <label>연장근로 시간 (월)</label>
+      <div class="input-wrap">
+        <input type="number" id="extHours" placeholder="0" oninput="calc()">
+        <span class="unit">시간</span>
+      </div>
+    </div>
+    <div class="ot-card">
+      <label>야간근로 시간 (월)</label>
+      <div class="input-wrap">
+        <input type="number" id="nightHours" placeholder="0" oninput="calc()">
+        <span class="unit">시간</span>
+      </div>
+    </div>
+    <div class="ot-card">
+      <label>휴일근로 8h 이하</label>
+      <div class="input-wrap">
+        <input type="number" id="holHours1" placeholder="0" oninput="calc()">
+        <span class="unit">시간</span>
+      </div>
+    </div>
+    <div class="ot-card">
+      <label>휴일근로 8h 초과분</label>
+      <div class="input-wrap">
+        <input type="number" id="holHours2" placeholder="0" oninput="calc()">
+        <span class="unit">시간</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="result" id="result">
+    <div class="big-num" id="r_total">—</div>
+    <div class="big-label">이번 달 추가 수당 합계</div>
+    <div class="divider"></div>
+    <div class="row"><span class="lk">통상 시간급</span><span class="lv" id="r_hourly">—</span></div>
+    <div class="row"><span class="lk">연장근로수당 (×1.5)</span><span class="lv green" id="r_ext">—</span></div>
+    <div class="row"><span class="lk">야간근로수당 (×0.5 가산)</span><span class="lv green" id="r_night">—</span></div>
+    <div class="row"><span class="lk">휴일근로 8h 이하 (×1.5)</span><span class="lv green" id="r_hol1">—</span></div>
+    <div class="row"><span class="lk">휴일근로 8h 초과 (×2.0)</span><span class="lv green" id="r_hol2">—</span></div>
+    <div class="divider"></div>
+    <div class="row"><span class="lk" style="font-weight:600;color:var(--text)">추가수당 합계</span><span class="lv green" style="font-size:15px" id="r_sum">—</span></div>
+    <div class="row"><span class="lk">이번 달 총 급여 예상</span><span class="lv" id="r_gross">—</span></div>
+
+    <div class="rate-box">
+      <div class="rate-title">근로기준법 가산율 기준</div>
+      <div class="rate-row"><span class="rk">연장근로</span><span class="rv">통상임금 × 1.5배</span></div>
+      <div class="rate-row"><span class="rk">야간근로 (22시~06시)</span><span class="rv">통상임금 × 0.5 가산</span></div>
+      <div class="rate-row"><span class="rk">휴일근로 8시간 이하</span><span class="rv">통상임금 × 1.5배</span></div>
+      <div class="rate-row"><span class="rk">휴일근로 8시간 초과</span><span class="rv">통상임금 × 2.0배</span></div>
+      <div class="rate-row"><span class="rk">5인 미만 사업장</span><span class="rv">가산수당 미적용</span></div>
+    </div>
+  </div>
+</main>
+<script>
+function fmt(n){return Math.round(n).toLocaleString('ko-KR');}
+function fmtW(n){return fmt(n)+'만원';}
+
+function calc(){
+  const base=parseFloat(document.getElementById('baseWage').value)||0;
+  const baseH=parseFloat(document.getElementById('baseHours').value)||209;
+  if(base<=0){document.getElementById('result').style.display='none';return;}
+
+  const hourly=base/baseH; // 만원/시간
+  const ext=parseFloat(document.getElementById('extHours').value)||0;
+  const night=parseFloat(document.getElementById('nightHours').value)||0;
+  const hol1=parseFloat(document.getElementById('holHours1').value)||0;
+  const hol2=parseFloat(document.getElementById('holHours2').value)||0;
+
+  const extPay=hourly*1.5*ext;
+  const nightPay=hourly*0.5*night;
+  const holPay1=hourly*1.5*hol1;
+  const holPay2=hourly*2.0*hol2;
+  const sum=extPay+nightPay+holPay1+holPay2;
+  const gross=base+sum;
+
+  document.getElementById('result').style.display='block';
+  document.getElementById('r_hourly').textContent=fmt(hourly*10000)+'원/시간';
+  document.getElementById('r_ext').textContent=ext>0?'+'+fmtW(extPay):'해당없음';
+  document.getElementById('r_night').textContent=night>0?'+'+fmtW(nightPay):'해당없음';
+  document.getElementById('r_hol1').textContent=hol1>0?'+'+fmtW(holPay1):'해당없음';
+  document.getElementById('r_hol2').textContent=hol2>0?'+'+fmtW(holPay2):'해당없음';
+  document.getElementById('r_sum').textContent='+'+fmtW(sum);
+  document.getElementById('r_total').textContent='+'+fmtW(sum);
+  document.getElementById('r_gross').textContent=fmtW(gross);
+}
+</script>
+</body>
+</html>

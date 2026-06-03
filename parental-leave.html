@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>육아휴직급여 계산기 2026 - 통상임금의 80% 계산</title>
+<meta name="description" content="2026년 기준 육아휴직급여 계산기. 통상임금 80%, 상한 150만원·하한 70만원 자동 적용. 6+6 부모 육아휴직제 반영.">
+<meta property="og:title" content="육아휴직급여 계산기 | MODOO HUB">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<link rel="canonical" href="https://modoohub.com/parental-leave.html">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0f0a;--surface:#111811;--surface2:#182018;--border:#1e2e1e;--accent:#86efac;--accent2:#4ade80;--accent3:#16a34a;--accent-dim:rgba(134,239,172,0.08);--text:#f0f5f0;--text-muted:#7a9a7a;--text-dim:#3a5a3a;--red:#f87171;--yellow:#facc15;--blue:#60a5fa;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:20px 24px;display:flex;align-items:center;gap:12px;}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--accent2);}
+.header-label{font-size:13px;color:var(--text-muted);letter-spacing:.1em;font-family:'DM Mono',monospace;}
+.back-link{margin-left:auto;font-size:13px;color:var(--text-muted);text-decoration:none;}
+.back-link:hover{color:var(--accent2);}
+main{max-width:620px;margin:0 auto;padding:48px 24px;}
+h1{font-size:clamp(26px,5vw,38px);font-weight:900;line-height:1.1;margin-bottom:12px;}
+h1 span{color:var(--accent2);}
+.subtitle{color:var(--text-muted);font-size:14px;line-height:1.7;margin-bottom:40px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:14px;transition:border-color .2s;}
+.card:focus-within{border-color:var(--accent3);}
+label{font-size:12px;color:var(--text-muted);letter-spacing:.08em;display:block;margin-bottom:10px;}
+.input-wrap{display:flex;align-items:center;gap:8px;}
+input[type=number]{flex:1;background:transparent;border:none;outline:none;font-size:28px;font-weight:700;color:var(--text);font-family:'DM Mono',monospace;width:100%;min-width:0;}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;}
+.unit{color:var(--text-dim);font-size:14px;}
+.radio-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+.rbtn{flex:1;min-width:80px;padding:9px 6px;border:1px solid var(--border);border-radius:8px;text-align:center;font-size:13px;cursor:pointer;color:var(--text-muted);background:var(--surface2);transition:all .2s;}
+.rbtn.on{border-color:var(--accent3);color:var(--accent2);background:var(--accent-dim);}
+.result{border-radius:16px;padding:28px;margin-bottom:20px;display:none;background:var(--accent-dim);border:1px solid var(--accent3);}
+.result.show{display:block;}
+.big-num{font-family:'DM Mono',monospace;font-size:36px;font-weight:700;color:var(--accent2);margin-bottom:4px;}
+.big-label{font-size:13px;color:var(--text-muted);margin-bottom:20px;}
+.divider{height:1px;background:var(--border);margin:16px 0;}
+.row{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;}
+.lk{color:var(--text-muted);}
+.lv{font-family:'DM Mono',monospace;color:var(--text);}
+.lv.green{color:var(--accent2);}
+.lv.yellow{color:var(--yellow);}
+.phase-box{background:var(--surface2);border-radius:10px;padding:16px;margin-top:16px;}
+.phase-title{font-size:11px;color:var(--text-dim);letter-spacing:.08em;margin-bottom:12px;}
+.phase-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.phase-row:last-child{border-bottom:none;}
+.info{background:var(--surface2);border-radius:10px;padding:16px;font-size:13px;color:var(--text-muted);line-height:1.7;margin-top:20px;}
+.info strong{color:var(--text);}
+</style>
+</head>
+<body>
+<header>
+  <div class="dot"></div>
+  <span class="header-label">MODOO HUB</span>
+  <a href="/" class="back-link">← 홈으로</a>
+</header>
+<main>
+  <h1><span>육아휴직급여</span><br>계산기</h1>
+  <p class="subtitle">2026년 기준 · 통상임금 80% · 6+6 부모 육아휴직제 반영</p>
+
+  <div class="card">
+    <label>월 통상임금 (세전)</label>
+    <div class="input-wrap">
+      <input type="number" id="salary" placeholder="0" oninput="calc()">
+      <span class="unit">만원</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <label>육아휴직 유형</label>
+    <div class="radio-row" id="leaveType">
+      <div class="rbtn on" onclick="sel(this,'leaveType');calc()">일반 육아휴직</div>
+      <div class="rbtn" onclick="sel(this,'leaveType');calc()">6+6 부모 (첫 번째)</div>
+      <div class="rbtn" onclick="sel(this,'leaveType');calc()">6+6 부모 (두 번째)</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <label>휴직 기간</label>
+    <div class="radio-row" id="period">
+      <div class="rbtn on" onclick="sel(this,'period');calc()">1개월</div>
+      <div class="rbtn" onclick="sel(this,'period');calc()">3개월</div>
+      <div class="rbtn" onclick="sel(this,'period');calc()">6개월</div>
+      <div class="rbtn" onclick="sel(this,'period');calc()">12개월</div>
+    </div>
+  </div>
+
+  <div class="result" id="result">
+    <div class="big-num" id="r_monthly">—</div>
+    <div class="big-label">월 수령액 (실수령)</div>
+    <div class="divider"></div>
+    <div class="row"><span class="lk">월 통상임금</span><span class="lv" id="r_sal">—</span></div>
+    <div class="row"><span class="lk">지급률</span><span class="lv" id="r_rate">—</span></div>
+    <div class="row"><span class="lk">산출 급여</span><span class="lv" id="r_calc">—</span></div>
+    <div class="row"><span class="lk">상한액 적용</span><span class="lv" id="r_upper">—</span></div>
+    <div class="row"><span class="lk">하한액 적용</span><span class="lv" id="r_lower">—</span></div>
+    <div class="row"><span class="lk">최종 월 수령액</span><span class="lv green" id="r_final">—</span></div>
+    <div class="divider"></div>
+    <div class="row"><span class="lk">총 수령 예상액</span><span class="lv green" style="font-size:16px" id="r_total">—</span></div>
+
+    <div class="phase-box">
+      <div class="phase-title">일반 육아휴직 구간별 지급</div>
+      <div class="phase-row"><span class="lk">1~6개월</span><span class="lv yellow">통상임금 80% (상한 150만원)</span></div>
+      <div class="phase-row"><span class="lk">7~12개월</span><span class="lv">통상임금 50% (상한 120만원)</span></div>
+      <div class="phase-row"><span class="lk">하한액</span><span class="lv">70만원</span></div>
+    </div>
+  </div>
+
+  <div class="info">
+    <strong>6+6 부모 육아휴직제 (2024년~)</strong><br>
+    부모가 순차적으로 육아휴직 시 각각 첫 6개월간 통상임금 100% 지급.<br>
+    상한: 1개월 200만원, 2개월 250만원, 3개월 300만원, 4개월 350만원, 5개월 380만원, 6개월 450만원.<br>
+    고용보험 가입 180일 이상, 자녀 생후 18개월 이내 신청.
+  </div>
+</main>
+<script>
+function fmt(n){return Math.round(n).toLocaleString('ko-KR');}
+function fmtW(n){return fmt(n)+'만원';}
+function sel(el,g){document.querySelectorAll('#'+g+' .rbtn').forEach(b=>b.classList.remove('on'));el.classList.add('on');}
+function getVal(g){return document.querySelector('#'+g+' .rbtn.on')?.textContent.trim()||'';}
+
+// 6+6 월별 상한
+const cap66=[200,250,300,350,380,450];
+
+function calc(){
+  const sal=parseFloat(document.getElementById('salary').value)||0;
+  if(sal<=0){document.getElementById('result').style.display='none';return;}
+  const ltype=getVal('leaveType');
+  const pstr=getVal('period');
+  const months=pstr==='12개월'?12:pstr==='6개월'?6:pstr==='3개월'?3:1;
+
+  let monthly=0,rate='',upper='',lower='';
+
+  if(ltype.includes('6+6')){
+    const isFirst=ltype.includes('첫');
+    // 6+6은 첫 6개월 100%, 이후는 일반
+    const m=Math.min(months,6);
+    let totalGiven=0;
+    for(let i=1;i<=m;i++){
+      const raw=sal;
+      const capAmt=isFirst?cap66[i-1]:cap66[i-1]; // 둘 다 동일 상한
+      totalGiven+=Math.max(70,Math.min(raw,capAmt));
+    }
+    monthly=totalGiven/m;
+    rate='통상임금 100% (6+6 특례)';
+    upper='월별 상이 (200~450만원)';
+    lower='70만원';
+  } else {
+    // 일반: 1~6개월 80%/150만, 7~12개월 50%/120만
+    const m1=Math.min(months,6);
+    const m2=Math.max(0,months-6);
+    const pay1=Math.max(70,Math.min(sal*0.8,150));
+    const pay2=Math.max(70,Math.min(sal*0.5,120));
+    const total=pay1*m1+pay2*m2;
+    monthly=total/months;
+    rate=months<=6?'통상임금 80% (1~6개월)':'구간 혼합';
+    upper=months<=6?'150만원':'1~6개월 150만 / 7~12개월 120만';
+    lower='70만원';
+  }
+
+  const total=monthly*months;
+  document.getElementById('result').style.display='block';
+  document.getElementById('r_sal').textContent=fmtW(sal)+'/월';
+  document.getElementById('r_rate').textContent=rate;
+  document.getElementById('r_calc').textContent=ltype.includes('6+6')?fmtW(sal)+'/월':fmtW(sal*(months<=6?0.8:0.5))+'/월';
+  document.getElementById('r_upper').textContent=upper;
+  document.getElementById('r_lower').textContent=lower;
+  document.getElementById('r_final').textContent=fmtW(monthly)+'/월';
+  document.getElementById('r_monthly').textContent=fmtW(monthly)+'/월';
+  document.getElementById('r_total').textContent=fmtW(total)+' ('+months+'개월)';
+}
+</script>
+</body>
+</html>

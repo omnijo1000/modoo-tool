@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>적금 만기 계산기 2026 - 이자·세후 수령액 계산</title>
+<meta name="description" content="적금 만기 계산기. 월 납입액·기간·금리로 만기 수령액, 세전·세후 이자, 실효수익률 자동 계산. 단리·복리 선택 가능.">
+<meta property="og:title" content="적금 만기 계산기 | MODOO HUB">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<link rel="canonical" href="https://modoohub.com/savings-calc.html">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0f0a;--surface:#111811;--surface2:#182018;--border:#1e2e1e;--accent:#86efac;--accent2:#4ade80;--accent3:#16a34a;--accent-dim:rgba(134,239,172,0.08);--text:#f0f5f0;--text-muted:#7a9a7a;--text-dim:#3a5a3a;--red:#f87171;--yellow:#facc15;--blue:#60a5fa;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:20px 24px;display:flex;align-items:center;gap:12px;}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--accent2);}
+.header-label{font-size:13px;color:var(--text-muted);letter-spacing:.1em;font-family:'DM Mono',monospace;}
+.back-link{margin-left:auto;font-size:13px;color:var(--text-muted);text-decoration:none;}
+.back-link:hover{color:var(--accent2);}
+main{max-width:620px;margin:0 auto;padding:48px 24px;}
+h1{font-size:clamp(26px,5vw,38px);font-weight:900;line-height:1.1;margin-bottom:12px;}
+h1 span{color:var(--accent2);}
+.subtitle{color:var(--text-muted);font-size:14px;line-height:1.7;margin-bottom:40px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:14px;transition:border-color .2s;}
+.card:focus-within{border-color:var(--accent3);}
+label{font-size:12px;color:var(--text-muted);letter-spacing:.08em;display:block;margin-bottom:10px;}
+.input-wrap{display:flex;align-items:center;gap:8px;}
+input[type=number]{flex:1;background:transparent;border:none;outline:none;font-size:28px;font-weight:700;color:var(--text);font-family:'DM Mono',monospace;width:100%;min-width:0;}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;}
+.unit{color:var(--text-dim);font-size:14px;}
+.quick-btns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.qbtn{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:12px;color:var(--text-muted);cursor:pointer;font-family:'DM Mono',monospace;transition:all .15s;}
+.qbtn:hover{border-color:var(--accent3);color:var(--accent2);}
+.radio-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+.rbtn{flex:1;min-width:60px;padding:9px 6px;border:1px solid var(--border);border-radius:8px;text-align:center;font-size:13px;cursor:pointer;color:var(--text-muted);background:var(--surface2);transition:all .2s;}
+.rbtn.on{border-color:var(--accent3);color:var(--accent2);background:var(--accent-dim);}
+.result{border-radius:16px;padding:28px;margin-bottom:20px;display:none;background:var(--accent-dim);border:1px solid var(--accent3);}
+.result.show{display:block;}
+.big-num{font-family:'DM Mono',monospace;font-size:36px;font-weight:700;color:var(--accent2);margin-bottom:4px;}
+.big-label{font-size:13px;color:var(--text-muted);margin-bottom:20px;}
+.divider{height:1px;background:var(--border);margin:16px 0;}
+.row{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;}
+.lk{color:var(--text-muted);}
+.lv{font-family:'DM Mono',monospace;color:var(--text);}
+.lv.green{color:var(--accent2);}
+.lv.red{color:var(--red);}
+.lv.yellow{color:var(--yellow);}
+.progress-bar{background:var(--surface2);border-radius:4px;height:8px;margin-top:16px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent3),var(--accent2));border-radius:4px;transition:width .4s;}
+.progress-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--text-dim);margin-top:6px;}
+</style>
+</head>
+<body>
+<header>
+  <div class="dot"></div>
+  <span class="header-label">MODOO HUB</span>
+  <a href="/" class="back-link">← 홈으로</a>
+</header>
+<main>
+  <h1><span>적금 만기</span><br>계산기</h1>
+  <p class="subtitle">월 납입액·금리·기간으로 만기 수령액 계산 · 이자과세 15.4% 자동 반영</p>
+
+  <div class="card">
+    <label>월 납입액</label>
+    <div class="input-wrap">
+      <input type="number" id="monthly" placeholder="0" oninput="calc()">
+      <span class="unit">만원</span>
+    </div>
+    <div class="quick-btns">
+      <div class="qbtn" onclick="setVal('monthly',10)">10만</div>
+      <div class="qbtn" onclick="setVal('monthly',30)">30만</div>
+      <div class="qbtn" onclick="setVal('monthly',50)">50만</div>
+      <div class="qbtn" onclick="setVal('monthly',100)">100만</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <label>연 금리</label>
+    <div class="input-wrap">
+      <input type="number" id="rate" placeholder="0.0" step="0.01" oninput="calc()">
+      <span class="unit">%</span>
+    </div>
+    <div class="quick-btns">
+      <div class="qbtn" onclick="setVal('rate',3)">3%</div>
+      <div class="qbtn" onclick="setVal('rate',3.5)">3.5%</div>
+      <div class="qbtn" onclick="setVal('rate',4)">4%</div>
+      <div class="qbtn" onclick="setVal('rate',5)">5%</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <label>저축 기간</label>
+    <div class="radio-row" id="period">
+      <div class="rbtn" onclick="sel(this,'period');calc()">6개월</div>
+      <div class="rbtn on" onclick="sel(this,'period');calc()">12개월</div>
+      <div class="rbtn" onclick="sel(this,'period');calc()">24개월</div>
+      <div class="rbtn" onclick="sel(this,'period');calc()">36개월</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <label>이자 과세 유형</label>
+    <div class="radio-row" id="taxType">
+      <div class="rbtn on" onclick="sel(this,'taxType');calc()">일반과세 15.4%</div>
+      <div class="rbtn" onclick="sel(this,'taxType');calc()">비과세 (ISA 등)</div>
+      <div class="rbtn" onclick="sel(this,'taxType');calc()">저율과세 9.9%</div>
+    </div>
+  </div>
+
+  <div class="result" id="result">
+    <div class="big-num" id="r_recv">—</div>
+    <div class="big-label">세후 만기 수령액</div>
+    <div class="divider"></div>
+    <div class="row"><span class="lk">총 납입 원금</span><span class="lv" id="r_principal">—</span></div>
+    <div class="row"><span class="lk">세전 이자</span><span class="lv green" id="r_interest">—</span></div>
+    <div class="row"><span class="lk">이자 세금</span><span class="lv red" id="r_tax">—</span></div>
+    <div class="row"><span class="lk">세후 이자</span><span class="lv green" id="r_netInt">—</span></div>
+    <div class="divider"></div>
+    <div class="row"><span class="lk">세후 만기 수령액</span><span class="lv green" style="font-size:16px" id="r_total">—</span></div>
+    <div class="row"><span class="lk">실효 세후 수익률</span><span class="lv yellow" id="r_eff">—</span></div>
+
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress" style="width:0%"></div>
+    </div>
+    <div class="progress-labels">
+      <span id="pl_principal">원금</span>
+      <span id="pl_interest">이자</span>
+    </div>
+  </div>
+</main>
+<script>
+function fmt(n){return Math.round(n).toLocaleString('ko-KR');}
+function fmtW(n){return fmt(n)+'만원';}
+function setVal(id,v){document.getElementById(id).value=v;calc();}
+function sel(el,g){document.querySelectorAll('#'+g+' .rbtn').forEach(b=>b.classList.remove('on'));el.classList.add('on');}
+function getVal(g){return document.querySelector('#'+g+' .rbtn.on')?.textContent.trim()||'';}
+
+function calc(){
+  const m=parseFloat(document.getElementById('monthly').value)||0;
+  const r=parseFloat(document.getElementById('rate').value)||0;
+  if(m<=0||r<=0){document.getElementById('result').style.display='none';return;}
+
+  const pstr=getVal('period');
+  const months=pstr==='6개월'?6:pstr==='24개월'?24:pstr==='36개월'?36:12;
+  const taxStr=getVal('taxType');
+  const taxRate=taxStr.includes('비과세')?0:taxStr.includes('9.9')?0.099:0.154;
+
+  // 적금 이자 = 월 납입 × 연이율/12 × (n*(n+1)/2) / n ... 단리 방식
+  const monthlyRate=r/100/12;
+  let totalInterest=0;
+  for(let i=1;i<=months;i++){
+    totalInterest+=m*monthlyRate*(months-i+1);
+  }
+  const principal=m*months;
+  const taxAmt=totalInterest*taxRate;
+  const netInt=totalInterest-taxAmt;
+  const total=principal+netInt;
+  const effRate=(netInt/principal)*(12/months)*100;
+
+  document.getElementById('result').style.display='block';
+  document.getElementById('r_principal').textContent=fmtW(principal);
+  document.getElementById('r_interest').textContent='+'+fmtW(totalInterest);
+  document.getElementById('r_tax').textContent='-'+fmtW(taxAmt);
+  document.getElementById('r_netInt').textContent='+'+fmtW(netInt);
+  document.getElementById('r_total').textContent=fmtW(total);
+  document.getElementById('r_recv').textContent=fmtW(total);
+  document.getElementById('r_eff').textContent=effRate.toFixed(2)+'%/년';
+
+  const pct=(netInt/total*100).toFixed(1);
+  document.getElementById('progress').style.width=pct+'%';
+  document.getElementById('pl_principal').textContent='원금 '+fmtW(principal);
+  document.getElementById('pl_interest').textContent='이자 '+fmtW(netInt);
+}
+</script>
+</body>
+</html>

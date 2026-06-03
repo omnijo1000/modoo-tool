@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>복리 계산기 - 원금·이율·기간으로 미래가치 계산</title>
+<meta name="description" content="복리 계산기. 원금, 연이율, 투자기간 입력 시 복리 효과·미래가치 자동 계산. 단리 비교, 연간 수익 추이 확인.">
+<meta property="og:title" content="복리 계산기 | MODOO HUB">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<link rel="canonical" href="https://modoohub.com/compound-interest.html">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0f0a;--surface:#111811;--surface2:#182018;--border:#1e2e1e;--accent:#86efac;--accent2:#4ade80;--accent3:#16a34a;--accent-dim:rgba(134,239,172,0.08);--text:#f0f5f0;--text-muted:#7a9a7a;--text-dim:#3a5a3a;--red:#f87171;--yellow:#facc15;--blue:#60a5fa;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:20px 24px;display:flex;align-items:center;gap:12px;}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--accent2);}
+.header-label{font-size:13px;color:var(--text-muted);letter-spacing:.1em;font-family:'DM Mono',monospace;}
+.back-link{margin-left:auto;font-size:13px;color:var(--text-muted);text-decoration:none;}
+.back-link:hover{color:var(--accent2);}
+main{max-width:620px;margin:0 auto;padding:48px 24px;}
+h1{font-size:clamp(26px,5vw,38px);font-weight:900;line-height:1.1;margin-bottom:12px;}
+h1 span{color:var(--accent2);}
+.subtitle{color:var(--text-muted);font-size:14px;line-height:1.7;margin-bottom:40px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:14px;transition:border-color .2s;}
+.card:focus-within{border-color:var(--accent3);}
+label{font-size:12px;color:var(--text-muted);letter-spacing:.08em;display:block;margin-bottom:10px;}
+.input-wrap{display:flex;align-items:center;gap:8px;}
+input[type=number]{flex:1;background:transparent;border:none;outline:none;font-size:28px;font-weight:700;color:var(--text);font-family:'DM Mono',monospace;width:100%;min-width:0;}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;}
+.unit{color:var(--text-dim);font-size:14px;}
+.quick-btns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.qbtn{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:12px;color:var(--text-muted);cursor:pointer;font-family:'DM Mono',monospace;transition:all .15s;}
+.qbtn:hover{border-color:var(--accent3);color:var(--accent2);}
+.radio-row{display:flex;gap:8px;margin-top:8px;}
+.rbtn{flex:1;padding:9px;border:1px solid var(--border);border-radius:8px;text-align:center;font-size:13px;cursor:pointer;color:var(--text-muted);background:var(--surface2);transition:all .2s;}
+.rbtn.on{border-color:var(--accent3);color:var(--accent2);background:var(--accent-dim);}
+.result{border-radius:16px;padding:28px;margin-bottom:20px;display:none;background:var(--accent-dim);border:1px solid var(--accent3);}
+.result.show{display:block;}
+.big-num{font-family:'DM Mono',monospace;font-size:36px;font-weight:700;color:var(--accent2);margin-bottom:4px;}
+.big-label{font-size:13px;color:var(--text-muted);margin-bottom:20px;}
+.divider{height:1px;background:var(--border);margin:16px 0;}
+.row{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;}
+.lk{color:var(--text-muted);}
+.lv{font-family:'DM Mono',monospace;color:var(--text);}
+.lv.green{color:var(--accent2);}
+.lv.yellow{color:var(--yellow);}
+.lv.red{color:var(--red);}
+.table-box{background:var(--surface2);border-radius:10px;overflow:hidden;margin-top:16px;}
+.table-head{display:grid;grid-template-columns:2fr 3fr 3fr 3fr;padding:10px 14px;font-size:11px;color:var(--text-dim);letter-spacing:.06em;border-bottom:1px solid var(--border);}
+.table-row{display:grid;grid-template-columns:2fr 3fr 3fr 3fr;padding:9px 14px;font-size:12px;border-bottom:1px solid var(--border);}
+.table-row:last-child{border-bottom:none;}
+.table-row .tc{font-family:'DM Mono',monospace;color:var(--text-muted);}
+.table-row .tc:first-child{color:var(--text-dim);}
+.table-row.highlight .tc{color:var(--accent2);}
+</style>
+</head>
+<body>
+<header>
+  <div class="dot"></div>
+  <span class="header-label">MODOO HUB</span>
+  <a href="/" class="back-link">← 홈으로</a>
+</header>
+<main>
+  <h1><span>복리</span> 계산기</h1>
+  <p class="subtitle">원금·이율·기간으로 복리 미래가치 계산 · 단리 비교 · 연도별 수익 추이</p>
+
+  <div class="card">
+    <label>원금 (초기 투자금)</label>
+    <div class="input-wrap">
+      <input type="number" id="principal" placeholder="0" oninput="calc()">
+      <span class="unit">만원</span>
+    </div>
+    <div class="quick-btns">
+      <div class="qbtn" onclick="setVal('principal',1000)">1,000</div>
+      <div class="qbtn" onclick="setVal('principal',3000)">3,000</div>
+      <div class="qbtn" onclick="setVal('principal',5000)">5,000</div>
+      <div class="qbtn" onclick="setVal('principal',10000)">1억</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <label>연 이율 / 수익률</label>
+    <div class="input-wrap">
+      <input type="number" id="rate" placeholder="0.0" step="0.1" oninput="calc()">
+      <span class="unit">%</span>
+    </div>
+    <div class="quick-btns">
+      <div class="qbtn" onclick="setVal('rate',3)">3%</div>
+      <div class="qbtn" onclick="setVal('rate',5)">5%</div>
+      <div class="qbtn" onclick="setVal('rate',7)">7%</div>
+      <div class="qbtn" onclick="setVal('rate',10)">10%</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <label>투자 기간</label>
+    <div class="input-wrap">
+      <input type="number" id="years" placeholder="0" oninput="calc()">
+      <span class="unit">년</span>
+    </div>
+    <div class="quick-btns">
+      <div class="qbtn" onclick="setVal('years',5)">5년</div>
+      <div class="qbtn" onclick="setVal('years',10)">10년</div>
+      <div class="qbtn" onclick="setVal('years',20)">20년</div>
+      <div class="qbtn" onclick="setVal('years',30)">30년</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <label>복리 계산 주기</label>
+    <div class="radio-row" id="compFreq">
+      <div class="rbtn on" onclick="sel(this,'compFreq');calc()">연복리</div>
+      <div class="rbtn" onclick="sel(this,'compFreq');calc()">월복리</div>
+      <div class="rbtn" onclick="sel(this,'compFreq');calc()">일복리</div>
+    </div>
+  </div>
+
+  <div class="result" id="result">
+    <div class="big-num" id="r_future">—</div>
+    <div class="big-label">복리 미래가치</div>
+    <div class="divider"></div>
+    <div class="row"><span class="lk">원금</span><span class="lv" id="r_p">—</span></div>
+    <div class="row"><span class="lk">복리 총 이자</span><span class="lv green" id="r_ci">—</span></div>
+    <div class="row"><span class="lk">단리 미래가치 (비교)</span><span class="lv yellow" id="r_simple">—</span></div>
+    <div class="row"><span class="lk">복리 vs 단리 차이</span><span class="lv green" id="r_diff">—</span></div>
+    <div class="row"><span class="lk">실효 연평균 수익률</span><span class="lv" id="r_cagr">—</span></div>
+    <div class="row"><span class="lk">원금 2배 시점 (72법칙)</span><span class="lv" id="r_double">—</span></div>
+    <div class="divider"></div>
+
+    <div class="table-box">
+      <div class="table-head"><span>연도</span><span>원금</span><span>이자 누계</span><span>미래가치</span></div>
+      <div id="table_body"></div>
+    </div>
+  </div>
+</main>
+<script>
+function fmt(n){return Math.round(n).toLocaleString('ko-KR');}
+function fmtW(n){return fmt(n)+'만원';}
+function setVal(id,v){document.getElementById(id).value=v;calc();}
+function sel(el,g){document.querySelectorAll('#'+g+' .rbtn').forEach(b=>b.classList.remove('on'));el.classList.add('on');}
+function getVal(g){return document.querySelector('#'+g+' .rbtn.on')?.textContent.trim()||'';}
+
+function calc(){
+  const p=parseFloat(document.getElementById('principal').value)||0;
+  const r=parseFloat(document.getElementById('rate').value)||0;
+  const y=parseInt(document.getElementById('years').value)||0;
+  if(p<=0||r<=0||y<=0){document.getElementById('result').style.display='none';return;}
+
+  const freq=getVal('compFreq');
+  const n=freq==='월복리'?12:freq==='일복리'?365:1;
+  const future=p*Math.pow(1+r/100/n,n*y);
+  const simple=p*(1+r/100*y);
+  const ci=future-p;
+  const cagr=r; // 연복리와 동일 전제
+
+  document.getElementById('result').style.display='block';
+  document.getElementById('r_future').textContent=fmtW(future);
+  document.getElementById('r_p').textContent=fmtW(p);
+  document.getElementById('r_ci').textContent='+'+fmtW(ci);
+  document.getElementById('r_simple').textContent=fmtW(simple);
+  document.getElementById('r_diff').textContent='+'+fmtW(future-simple);
+  document.getElementById('r_cagr').textContent=r.toFixed(2)+'%';
+  const double=(72/r).toFixed(1);
+  document.getElementById('r_double').textContent=double+'년';
+
+  // 연도별 테이블 (최대 30행)
+  const maxRows=Math.min(y,30);
+  const step=y<=30?1:Math.ceil(y/30);
+  let rows='';
+  for(let i=step;i<=y;i+=step){
+    const fv=p*Math.pow(1+r/100/n,n*i);
+    const isLast=i>=y;
+    rows+=`<div class="table-row${isLast?' highlight':''}">
+      <span class="tc">${i}년</span>
+      <span class="tc">${fmt(p)}</span>
+      <span class="tc">+${fmt(fv-p)}</span>
+      <span class="tc">${fmt(fv)}</span>
+    </div>`;
+  }
+  document.getElementById('table_body').innerHTML=rows;
+}
+</script>
+</body>
+</html>

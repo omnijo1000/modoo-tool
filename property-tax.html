@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>종합부동산세 계산기 2026 - 종부세 자동 계산</title>
+<meta name="description" content="2026년 기준 종합부동산세(종부세) 계산기. 주택·토지 공시가격 합산, 공제금액 자동 적용, 세율 구간별 정확한 계산.">
+<meta property="og:title" content="종합부동산세 계산기 | MODOO HUB">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<link rel="canonical" href="https://modoohub.com/property-tax.html">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0f0a;--surface:#111811;--surface2:#182018;--border:#1e2e1e;--accent:#86efac;--accent2:#4ade80;--accent3:#16a34a;--accent-dim:rgba(134,239,172,0.08);--text:#f0f5f0;--text-muted:#7a9a7a;--text-dim:#3a5a3a;--red:#f87171;--yellow:#facc15;--blue:#60a5fa;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:20px 24px;display:flex;align-items:center;gap:12px;}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--accent2);}
+.header-label{font-size:13px;color:var(--text-muted);letter-spacing:.1em;font-family:'DM Mono',monospace;}
+.back-link{margin-left:auto;font-size:13px;color:var(--text-muted);text-decoration:none;}
+.back-link:hover{color:var(--accent2);}
+main{max-width:620px;margin:0 auto;padding:48px 24px;}
+.title-block{margin-bottom:40px;}
+h1{font-size:clamp(26px,5vw,38px);font-weight:900;line-height:1.1;margin-bottom:12px;}
+h1 span{color:var(--accent2);}
+.subtitle{color:var(--text-muted);font-size:14px;line-height:1.7;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:14px;transition:border-color .2s;}
+.card:focus-within{border-color:var(--accent3);}
+label{font-size:12px;color:var(--text-muted);letter-spacing:.08em;display:block;margin-bottom:10px;}
+.input-wrap{display:flex;align-items:center;gap:8px;}
+input[type=number]{flex:1;background:transparent;border:none;outline:none;font-size:28px;font-weight:700;color:var(--text);font-family:'DM Mono',monospace;width:100%;min-width:0;}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;}
+.unit{color:var(--text-dim);font-size:14px;}
+select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;outline:none;cursor:pointer;margin-top:4px;}
+select:focus{border-color:var(--accent3);}
+.radio-row{display:flex;gap:8px;margin-top:8px;}
+.rbtn{flex:1;padding:9px;border:1px solid var(--border);border-radius:8px;text-align:center;font-size:13px;cursor:pointer;color:var(--text-muted);background:var(--surface2);transition:all .2s;}
+.rbtn.on{border-color:var(--accent3);color:var(--accent2);background:var(--accent-dim);}
+.result{border-radius:16px;padding:28px;margin-bottom:20px;display:none;background:var(--accent-dim);border:1px solid var(--accent3);}
+.result.show{display:block;}
+.result-main{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:20px;}
+.result-main-label{font-size:14px;color:var(--text-muted);}
+.result-main-value{font-family:'DM Mono',monospace;font-size:30px;font-weight:700;color:var(--accent2);}
+.divider{height:1px;background:var(--border);margin:16px 0;}
+.row{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;}
+.row .lk{color:var(--text-muted);}
+.row .lv{font-family:'DM Mono',monospace;color:var(--text);}
+.row .lv.red{color:var(--red);}
+.row .lv.green{color:var(--accent2);}
+.info{background:var(--surface2);border-radius:10px;padding:16px;font-size:13px;color:var(--text-muted);line-height:1.7;margin-top:20px;}
+.info strong{color:var(--text);}
+.bracket-box{background:var(--surface2);border-radius:10px;padding:14px;margin-top:12px;}
+.br-title{font-size:11px;color:var(--text-dim);letter-spacing:.08em;margin-bottom:10px;}
+.br-row{display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:1px solid var(--border);}
+.br-row:last-child{border-bottom:none;}
+.br-row .bk{color:var(--text-muted);}
+.br-row .bv{font-family:'DM Mono',monospace;color:var(--text);}
+.br-row.active .bk,.br-row.active .bv{color:var(--accent2);}
+</style>
+</head>
+<body>
+<header>
+  <div class="dot"></div>
+  <span class="header-label">MODOO HUB</span>
+  <a href="/" class="back-link">← 홈으로</a>
+</header>
+<main>
+  <div class="title-block">
+    <h1><span>종합부동산세</span><br>계산기</h1>
+    <p class="subtitle">2026년 기준 · 주택 공시가격 합산 · 공제금액 자동 적용<br>1세대1주택 단독 명의 특별공제 반영</p>
+  </div>
+
+  <div class="card">
+    <label>주택 유형</label>
+    <div class="radio-row" id="houseType">
+      <div class="rbtn on" onclick="sel(this,'houseType')">일반 주택</div>
+      <div class="rbtn" onclick="sel(this,'houseType')">조정대상지역 2주택</div>
+      <div class="rbtn" onclick="sel(this,'houseType')">3주택 이상</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <label>보유 주택 공시가격 합산액</label>
+    <div class="input-wrap">
+      <input type="number" id="pubPrice" placeholder="0" oninput="calc()">
+      <span class="unit">만원</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <label>1세대 1주택 단독 명의 여부</label>
+    <div class="radio-row" id="single">
+      <div class="rbtn on" onclick="sel(this,'single')">해당 없음</div>
+      <div class="rbtn" onclick="sel(this,'single')">1세대1주택 단독명의</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <label>공정시장가액비율</label>
+    <select id="ratio" onchange="calc()">
+      <option value="0.60">60% (2026년 기준)</option>
+      <option value="0.80">80%</option>
+      <option value="1.00">100%</option>
+    </select>
+  </div>
+
+  <div class="result" id="result">
+    <div class="result-main">
+      <span class="result-main-label">예상 종합부동산세</span>
+      <span class="result-main-value" id="r_final">—</span>
+    </div>
+    <div class="row"><span class="lk">공시가격 합산</span><span class="lv" id="r_pub">—</span></div>
+    <div class="row"><span class="lk">기본공제</span><span class="lv red" id="r_deduct">—</span></div>
+    <div class="row"><span class="lk">공정시장가액 적용</span><span class="lv" id="r_base">—</span></div>
+    <div class="row"><span class="lk">적용 세율</span><span class="lv green" id="r_rate">—</span></div>
+    <div class="row"><span class="lk">산출세액</span><span class="lv" id="r_raw">—</span></div>
+    <div class="row"><span class="lk">재산세 공제</span><span class="lv red" id="r_ptax">—</span></div>
+    <div class="divider"></div>
+    <div class="row"><span class="lk" style="font-weight:600;color:var(--text)">종부세</span><span class="lv green" id="r_jongbu">—</span></div>
+    <div class="row"><span class="lk">농어촌특별세 (20%)</span><span class="lv" id="r_agri">—</span></div>
+    <div class="row"><span class="lk" style="font-weight:600;color:var(--text)">합계 납부세액</span><span class="lv green" style="font-size:16px" id="r_total">—</span></div>
+
+    <div class="bracket-box">
+      <div class="br-title">주택 종부세율 구간 (일반)</div>
+      <div class="br-row" id="b1"><span class="bk">3억 이하</span><span class="bv">0.5%</span></div>
+      <div class="br-row" id="b2"><span class="bk">3억~6억</span><span class="bv">0.7%</span></div>
+      <div class="br-row" id="b3"><span class="bk">6억~12억</span><span class="bv">1.0%</span></div>
+      <div class="br-row" id="b4"><span class="bk">12억~25억</span><span class="bv">1.3%</span></div>
+      <div class="br-row" id="b5"><span class="bk">25억~50억</span><span class="bv">1.5%</span></div>
+      <div class="br-row" id="b6"><span class="bk">50억~94억</span><span class="bv">2.0%</span></div>
+      <div class="br-row" id="b7"><span class="bk">94억 초과</span><span class="bv">2.7%</span></div>
+    </div>
+  </div>
+
+  <div class="info">
+    <strong>계산 기준</strong><br>
+    기본공제: 일반 9억원, 1세대1주택 단독명의 12억원. 공정시장가액비율 60% 적용(2026년). 재산세 이중과세 공제 포함. 농어촌특별세(종부세의 20%) 별도 부과. 법인·다주택 중과세율은 별도 적용.
+  </div>
+</main>
+<script>
+function fmt(n){return Math.round(n).toLocaleString('ko-KR');}
+function fmtW(n){return fmt(n)+'만원';}
+function sel(el,g){document.querySelectorAll('#'+g+' .rbtn').forEach(b=>b.classList.remove('on'));el.classList.add('on');calc();}
+function getVal(g){return document.querySelector('#'+g+' .rbtn.on')?.textContent.trim()||'';}
+
+// 일반 주택 종부세 누진 계산 (과세표준, 만원)
+function calcNormal(base){
+  const brackets=[
+    [30000,0.005],[60000,0.007],[120000,0.010],
+    [250000,0.013],[500000,0.015],[940000,0.020],[Infinity,0.027]
+  ];
+  let prev=0,tax=0;
+  for(const[limit,rate]of brackets){
+    if(base<=prev)break;
+    tax+=(Math.min(base,limit)-prev)*rate;
+    prev=limit;
+    if(base<=limit)break;
+  }
+  return tax;
+}
+function calcHeavy(base){
+  const brackets=[
+    [30000,0.012],[60000,0.016],[120000,0.022],
+    [250000,0.036],[500000,0.050],[940000,0.060],[Infinity,0.060]
+  ];
+  let prev=0,tax=0;
+  for(const[limit,rate]of brackets){
+    if(base<=prev)break;
+    tax+=(Math.min(base,limit)-prev)*rate;
+    prev=limit;
+    if(base<=limit)break;
+  }
+  return tax;
+}
+function getBracket(base){
+  const limits=[30000,60000,120000,250000,500000,940000,Infinity];
+  for(let i=0;i<limits.length;i++){if(base<=limits[i])return i;}
+  return 6;
+}
+// 재산세 추정 (공시가격 기준 간이)
+function estPropTax(pub){
+  // 주택 재산세: 공시가격×60%×세율(0.1~0.4%)
+  const base=pub*0.6;
+  if(base<=6000)return base*0.001;
+  if(base<=15000)return 6+(base-6000)*0.0015;
+  if(base<=30000)return 19.5+(base-15000)*0.0025;
+  return 57+(base-30000)*0.004;
+}
+
+function calc(){
+  const pub=parseFloat(document.getElementById('pubPrice').value)||0;
+  if(pub<=0){document.getElementById('result').classList.remove('show');return;}
+  const htype=getVal('houseType');
+  const isSingle=getVal('single')==='1세대1주택 단독명의';
+  const ratio=parseFloat(document.getElementById('ratio').value)||0.6;
+
+  const deduct=isSingle?120000:90000; // 12억 또는 9억
+  if(pub<=deduct){
+    document.getElementById('result').classList.remove('show');
+    alert('공시가격이 공제금액 이하로 종부세가 없습니다.');
+    return;
+  }
+
+  const taxable=(pub-deduct)*ratio;
+  let rawTax=0;
+  if(htype==='3주택 이상'||htype==='조정대상지역 2주택') rawTax=calcHeavy(taxable);
+  else rawTax=calcNormal(taxable);
+
+  const ptax=estPropTax(pub);
+  const jongbu=Math.max(0,rawTax-ptax);
+  const agri=jongbu*0.20;
+  const total=jongbu+agri;
+
+  document.getElementById('result').classList.add('show');
+  document.getElementById('r_pub').textContent=fmtW(pub);
+  document.getElementById('r_deduct').textContent='-'+fmtW(deduct);
+  document.getElementById('r_base').textContent=fmtW(taxable);
+  const br=getBracket(taxable);
+  const rates=['0.5%','0.7%','1.0%','1.3%','1.5%','2.0%','2.7%'];
+  document.getElementById('r_rate').textContent=rates[br]+(htype!=='일반 주택'?' (중과)':'');
+  document.getElementById('r_raw').textContent=fmtW(rawTax);
+  document.getElementById('r_ptax').textContent='-'+fmtW(ptax);
+  document.getElementById('r_jongbu').textContent=fmtW(jongbu);
+  document.getElementById('r_agri').textContent=fmtW(agri);
+  document.getElementById('r_total').textContent=fmtW(total);
+  document.getElementById('r_final').textContent=fmtW(total);
+  for(let i=1;i<=7;i++)document.getElementById('b'+i).classList.toggle('active',i-1===br);
+}
+</script>
+</body>
+</html>
