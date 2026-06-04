@@ -121,18 +121,18 @@ footer { text-align:center; font-size:12px; color:var(--text-dim); margin-top:48
 
   <!-- 글자 제한 설정 -->
   <div class="limit-bar">
-    <span class="limit-label">글자 제한</span>
+    <span class="limit-label" data-i18n="limitLabel">글자 제한</span>
     <input type="number" class="limit-input" id="limitInput" placeholder="0 = 무제한" min="0" value="">
     <div class="limit-toggle" id="limitModeBtn" onclick="toggleLimitMode()">공백 포함</div>
-    <div class="preset-btn" onclick="setPreset(500)">500자</div>
-    <div class="preset-btn" onclick="setPreset(800)">800자</div>
-    <div class="preset-btn" onclick="setPreset(1000)">1000자</div>
-    <div class="preset-btn" onclick="setPreset(1500)">1500자</div>
+    <div class="preset-btn" onclick="setPreset(500)" data-i18n="preset500">500자</div>
+    <div class="preset-btn" onclick="setPreset(800)" data-i18n="preset800">800자</div>
+    <div class="preset-btn" onclick="setPreset(1000)" data-i18n="preset1000">1000자</div>
+    <div class="preset-btn" onclick="setPreset(1500)" data-i18n="preset1500">1500자</div>
   </div>
 
   <!-- 텍스트에어리어 -->
   <div class="textarea-wrap">
-    <textarea id="inputText" placeholder="여기에 텍스트를 입력하거나 붙여넣으세요...&#10;자소서, 이력서, 기획서, SNS 게시글 등 글자 수를 확인할 수 있습니다."></textarea>
+    <textarea id="inputText" placeholder="여기에 텍스트를 입력하거나 붙여넣으세요..."></textarea>
     <button class="clear-btn" onclick="clearText()" title="지우기">✕</button>
   </div>
 
@@ -146,27 +146,27 @@ footer { text-align:center; font-size:12px; color:var(--text-dim); margin-top:48
   <div class="stats">
     <div class="stat-card highlight" id="cardWithSpace">
       <div class="stat-num" id="numWithSpace">0</div>
-      <div class="stat-label">글자수 (공백 포함)</div>
+      <div class="stat-label" data-i18n="statWithSpace">글자수 (공백 포함)</div>
     </div>
     <div class="stat-card" id="cardNoSpace">
       <div class="stat-num" id="numNoSpace">0</div>
-      <div class="stat-label">글자수 (공백 제외)</div>
+      <div class="stat-label" data-i18n="statNoSpace">글자수 (공백 제외)</div>
     </div>
     <div class="stat-card">
       <div class="stat-num" id="numWords">0</div>
-      <div class="stat-label">단어 수</div>
+      <div class="stat-label" data-i18n="statWords">단어 수</div>
     </div>
     <div class="stat-card">
       <div class="stat-num" id="numLines">0</div>
-      <div class="stat-label">줄 수</div>
+      <div class="stat-label" data-i18n="statLines">줄 수</div>
     </div>
     <div class="stat-card">
       <div class="stat-num" id="numSentences">0</div>
-      <div class="stat-label">문장 수</div>
+      <div class="stat-label" data-i18n="statSentences">문장 수</div>
     </div>
     <div class="stat-card">
       <div class="stat-num" id="numParagraphs">0</div>
-      <div class="stat-label">문단 수</div>
+      <div class="stat-label" data-i18n="statParagraphs">문단 수</div>
     </div>
   </div>
 
@@ -174,11 +174,11 @@ footer { text-align:center; font-size:12px; color:var(--text-dim); margin-top:48
   <div class="byte-card">
     <div class="byte-title">BYTE INFO</div>
     <div class="byte-row">
-      <span class="byte-name">UTF-8 바이트</span>
+      <span class="byte-name" data-i18n="byteUtf8Label">UTF-8 바이트</span>
       <span class="byte-val" id="byteUtf8">0 B</span>
     </div>
     <div class="byte-row">
-      <span class="byte-name">EUC-KR 추정 바이트</span>
+      <span class="byte-name" data-i18n="byteEuckrLabel">EUC-KR 추정 바이트</span>
       <span class="byte-val" id="byteEuckr">0 B</span>
     </div>
     <div class="byte-row">
@@ -186,7 +186,7 @@ footer { text-align:center; font-size:12px; color:var(--text-dim); margin-top:48
       <span class="byte-val" id="byteAscii">0</span>
     </div>
     <div class="byte-row">
-      <span class="byte-name">한글 글자 수</span>
+      <span class="byte-name" data-i18n="byteKoreanLabel">한글 글자 수</span>
       <span class="byte-val" id="byteKorean">0</span>
     </div>
   </div>
@@ -205,7 +205,8 @@ if (saved) textarea.value = saved;
 
 function toggleLimitMode() {
   limitMode = limitMode === 'include' ? 'exclude' : 'include';
-  document.getElementById('limitModeBtn').textContent = limitMode === 'include' ? '공백 포함' : '공백 제외';
+  const t=_i18n[_lang];
+  document.getElementById('limitModeBtn').textContent = limitMode === 'include' ? t.limitInclude : t.limitExclude;
   update();
 }
 
@@ -311,9 +312,30 @@ update();
 <script>
 /* ===== i18n multilingual ===== */
 const _i18n = {
-  ko: { lang:'ko', title:'글자수 세기 - 공백 포함/제외, 바이트 수 계산', h1:'글자수 세기', sub:'공백 포함/제외 글자수, 바이트 수, 단어 수 실시간 계산.', btn:'🌐 EN' },
-  en: { lang:'en', title:'Character Counter - Count Chars, Words & Bytes | Free', h1:'Character Counter', sub:'Real-time count of characters (with/without spaces), bytes and words.', btn:'🌐 中文' },
-  zh: { lang:'zh', title:'字符计数器 - 字符·字节·单词数统计 | 免费', h1:'字符计数器', sub:'实时统计字符数（含/不含空格）、字节数和单词数。', btn:'🌐 한국어' }
+  ko: { lang:'ko', title:'글자수 세기 - 공백 포함/제외, 바이트 수 계산', h1:'글자수 세기', sub:'공백 포함/제외 글자수, 바이트 수, 단어 수 실시간 계산.', btn:'🌐 EN',
+    limitLabel:'글자 제한', limitInclude:'공백 포함', limitExclude:'공백 제외',
+    preset500:'500자', preset800:'800자', preset1000:'1000자', preset1500:'1500자',
+    placeholder:'여기에 텍스트를 입력하거나 붙여넣으세요...',
+    statWithSpace:'글자수 (공백 포함)', statNoSpace:'글자수 (공백 제외)',
+    statWords:'단어 수', statLines:'줄 수', statSentences:'문장 수', statParagraphs:'문단 수',
+    byteUtf8Label:'UTF-8 바이트', byteEuckrLabel:'EUC-KR 추정 바이트', byteKoreanLabel:'한글 글자 수',
+  },
+  en: { lang:'en', title:'Character Counter - Count Chars, Words & Bytes | Free', h1:'Character Counter', sub:'Real-time count of characters (with/without spaces), bytes and words.', btn:'🌐 中文',
+    limitLabel:'Char limit', limitInclude:'incl. spaces', limitExclude:'excl. spaces',
+    preset500:'500 chars', preset800:'800 chars', preset1000:'1000 chars', preset1500:'1500 chars',
+    placeholder:'Type or paste your text here...',
+    statWithSpace:'Chars (incl. spaces)', statNoSpace:'Chars (excl. spaces)',
+    statWords:'Words', statLines:'Lines', statSentences:'Sentences', statParagraphs:'Paragraphs',
+    byteUtf8Label:'UTF-8 bytes', byteEuckrLabel:'EUC-KR est. bytes', byteKoreanLabel:'Korean chars',
+  },
+  zh: { lang:'zh', title:'字符计数器 - 字符·字节·单词数统计 | 免费', h1:'字符计数器', sub:'实时统计字符数（含/不含空格）、字节数和单词数。', btn:'🌐 한국어',
+    limitLabel:'字符限制', limitInclude:'含空格', limitExclude:'不含空格',
+    preset500:'500字', preset800:'800字', preset1000:'1000字', preset1500:'1500字',
+    placeholder:'在此输入或粘贴文本...',
+    statWithSpace:'字符数（含空格）', statNoSpace:'字符数（不含空格）',
+    statWords:'单词数', statLines:'行数', statSentences:'句子数', statParagraphs:'段落数',
+    byteUtf8Label:'UTF-8 字节', byteEuckrLabel:'EUC-KR 估算字节', byteKoreanLabel:'韩文字数',
+  }
 };
 function _detectLang() {
   const u = new URLSearchParams(location.search).get('lang');
@@ -342,6 +364,10 @@ function _applyLang() {
   });
   const back = document.querySelector('.back-link');
   if (back) back.textContent = (_lang === 'ko') ? '← 모두의 툴' : (_lang === 'zh') ? '← 首页' : '← Home';
+  const ta = document.getElementById('inputText');
+  if (ta && t.placeholder) ta.placeholder = t.placeholder;
+  const limitModeBtn = document.getElementById('limitModeBtn');
+  if (limitModeBtn) limitModeBtn.textContent = limitMode === 'include' ? t.limitInclude : t.limitExclude;
 }
 const _langOrder = ['ko','en','zh'];
 function cycleLang() {

@@ -97,7 +97,7 @@
 <header>
   <div class="dot"></div>
   <span class="header-label">MODOO HUB</span>
-  <a href="index.html" class="back-link">← 모두의 툴</a>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
   <div class="lang-toggle" onclick="toggleLang()" id="langBtn">🌐 EN</div>
 </header>
 <main>
@@ -167,13 +167,10 @@
   </div>
 
   <div class="seo">
-    <h2>Base64란?</h2>
-    <p>Base64는 바이너리 데이터를 ASCII 문자열로 변환하는 인코딩 방식입니다. JWT 토큰, 이메일 첨부파일, 이미지 데이터 URI 등에서 사용됩니다.</p>
-    <h2>자주 묻는 질문</h2>
-    <p><strong>Q. Base64와 URL-safe Base64의 차이는?</strong><br>A. URL-safe Base64는 표준 Base64의 +를 -, /를 _로 대체합니다. URL에 포함해도 특수문자 문제가 발생하지 않습니다.</p>
-    <p><strong>Q. URL 인코딩은 왜 필요한가요?</strong><br>A. URL에는 영문자, 숫자, 일부 특수문자만 사용할 수 있습니다. 한글, 공백, 특수문자는 %XX 형식으로 인코딩해야 합니다.</p>
-    <p><strong>Q. Base64로 인코딩하면 보안이 되나요?</strong><br>A. 아니요. Base64는 암호화가 아닌 인코딩입니다. 누구든지 디코딩할 수 있으므로 보안 목적으로 사용하면 안 됩니다.</p>
-    <p><strong>Q. 한글도 Base64 인코딩이 되나요?</strong><br>A. 네. 이 도구는 UTF-8 기반으로 한글을 포함한 모든 유니코드 문자를 처리합니다.</p>
+    <h2 id="seoTitle1">Base64란?</h2>
+    <p id="seoBody1">Base64는 바이너리 데이터를 ASCII 문자열로 변환하는 인코딩 방식입니다. JWT 토큰, 이메일 첨부파일, 이미지 데이터 URI 등에서 사용됩니다.</p>
+    <h2 id="seoTitle2">URL 인코딩이란?</h2>
+    <p id="seoBody2">URL 인코딩(Percent Encoding)은 URL에서 사용할 수 없는 문자를 %XX 형식으로 변환합니다. 한글, 공백, 특수문자는 반드시 인코딩해야 합니다.</p>
   </div>
   <footer id="footerText">모든 처리는 브라우저에서만 이루어집니다 · 서버로 전송되지 않습니다</footer>
 </main>
@@ -197,6 +194,7 @@ const i18n = {
     footer:'모든 처리는 브라우저에서만 이루어집니다 · 서버로 전송되지 않습니다',
     inputPlaceholder:'인코딩할 텍스트 입력...',
     outputPlaceholder:'결과가 여기 표시됩니다',
+    encodeOk:'✓ 인코딩 완료', decodeOk:'✓ 디코딩 완료', decodeFail:'✗ 디코딩 실패: 올바른 형식이 아닙니다', charUnit:'자',
   },
   en: {
     pageTitle:'Base64 & URL Encoder/Decoder - Free Online Tool',
@@ -216,39 +214,29 @@ const i18n = {
     footer:'All processing is done in your browser · No data sent to any server',
     inputPlaceholder:'Enter text to encode...',
     outputPlaceholder:'Result will appear here',
+    encodeOk:'✓ Encoded', decodeOk:'✓ Decoded', decodeFail:'✗ Decode failed: invalid format', charUnit:'chars',
+  },
+  zh: {
+    pageTitle:'Base64 与 URL 编解码工具 - 免费在线工具',
+    h1:'Base64 & URL<br><span>编解码</span>',
+    sub:'快速在 Base64 与 URL 编码之间相互转换',
+    backLink:'← 首页', langBtn:'🌐 한국어',
+    tabBase64:'Base64', tabUrl:'URL 编码',
+    optLabel:'模式:', optStandard:'Standard', optUrlSafe:'URL-safe',
+    btnEncode:'编码 →', btnDecode:'← 解码', btnSwap:'↕ 交换', btnPaste:'粘贴', btnClear:'清空',
+    labelInput:'输入 (原文)', labelOutput:'输出 (结果)', copyBtn:'复制',
+    statusIdle:'请输入文本，然后点击编码或解码',
+    refTitle:'常用 URL 编码参考',
+    seoTitle1:'什么是 Base64？',
+    seoBody1:'Base64 是将二进制数据转换为 ASCII 字符串的编码方式，常用于 JWT 令牌、图片 Data URI 等场景。URL-safe Base64 将 + 替换为 -，/ 替换为 _，可安全嵌入 URL。',
+    seoTitle2:'什么是 URL 编码？',
+    seoBody2:'URL 编码（Percent Encoding）将 URL 中无法直接使用的字符转换为 %XX 格式，中文、空格及特殊字符均需编码。',
+    footer:'所有处理均在浏览器本地完成 · 不会上传到服务器',
+    inputPlaceholder:'请输入要编码的文本...',
+    outputPlaceholder:'结果将在此显示',
+    encodeOk:'✓ 编码完成', decodeOk:'✓ 解码完成', decodeFail:'✗ 解码失败：格式不正确', charUnit:'字符',
   }
 };
-
-if (!i18n.zh) {
-  i18n.zh = { ...i18n.en };
-}
-Object.assign(i18n.zh, {
-  pageTitle: 'Base64 与 URL 编解码工具',
-  h1: 'Base64 / URL <span>编解码</span>',
-  sub: '在 Base64 与 URL 编码之间快速转换',
-  backLink: '← 首页',
-  langBtn: '🌐 한국어',
-  tabBase64: 'Base64',
-  tabUrl: 'URL',
-  optLabel: '选项',
-  btnEncode: '编码',
-  btnDecode: '解码',
-  btnSwap: '交换',
-  btnPaste: '粘贴',
-  btnClear: '清空',
-  labelInput: '输入',
-  labelOutput: '输出',
-  copyBtn: '复制',
-  statusIdle: '等待输入',
-  refTitle: '说明',
-  seoTitle1: '什么时候使用 Base64？',
-  seoBody1: '常用于二进制文本化传输，例如 JWT、Data URI 等。',
-  seoTitle2: 'URL 编码是什么？',
-  seoBody2: 'URL 编码可安全传递特殊字符，避免请求参数出错。',
-  footer: '所有处理均在浏览器本地完成',
-  inputPlaceholder: '请输入文本...',
-  outputPlaceholder: '输出结果...',
-});
 
 let lang = localStorage.getItem('lang');
 if (!lang || !i18n[lang]) {
@@ -339,7 +327,7 @@ function encode() {
     }
     document.getElementById('output').value = result;
     document.getElementById('output').className = 'success';
-    setStatus('ok', lang==='ko' ? `✓ 인코딩 완료 · ${result.length}자` : `✓ Encoded · ${result.length} chars`);
+    setStatus('ok', `${i18n[lang].encodeOk} · ${result.length} ${i18n[lang].charUnit}`);
   } catch(e) {
     setStatus('err', '✗ ' + e.message);
   }
@@ -359,10 +347,10 @@ function decode() {
     }
     document.getElementById('output').value = result;
     document.getElementById('output').className = 'success';
-    setStatus('ok', lang==='ko' ? `✓ 디코딩 완료 · ${result.length}자` : `✓ Decoded · ${result.length} chars`);
+    setStatus('ok', `${i18n[lang].decodeOk} · ${result.length} ${i18n[lang].charUnit}`);
   } catch(e) {
     document.getElementById('output').className = 'error';
-    setStatus('err', lang==='ko' ? '✗ 디코딩 실패: 올바른 형식이 아닙니다' : '✗ Decode failed: invalid format');
+    setStatus('err', i18n[lang].decodeFail);
   }
 }
 
@@ -386,7 +374,7 @@ function copyText(which) {
   if (!el.value) return;
   navigator.clipboard.writeText(el.value).then(() => {
     const btn = document.getElementById(which==='input'?'copyInputBtn':'copyOutputBtn');
-    btn.textContent = lang==='ko'?'복사됨 ✓':'Copied ✓';
+    btn.textContent = {ko:'복사됨 ✓', en:'Copied ✓', zh:'已复制 ✓'}[lang] || 'Copied ✓';
     btn.style.color = 'var(--green)';
     setTimeout(()=>{ btn.textContent=i18n[lang].copyBtn; btn.style.color=''; }, 2000);
   });

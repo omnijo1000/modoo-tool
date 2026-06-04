@@ -62,7 +62,7 @@ footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:48px;pa
 <header>
   <div class="dot"></div>
   <span class="header-label">MODOO HUB</span>
-  <a href="index.html" class="back-link">← 모두의 툴</a>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
   <div class="lang-toggle" onclick="cycleLang()" id="langBtn">🌐 EN</div>
 </header>
 <main>
@@ -70,32 +70,32 @@ footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:48px;pa
   <p class="subtitle">2진수·8진수·10진수·16진수를 실시간으로 상호 변환합니다.<br>어느 칸에 입력해도 나머지가 자동으로 바뀝니다.</p>
 
   <div class="card">
-    <div class="card-title">진수 변환</div>
+    <div class="card-title" id="cardTitle">진수 변환</div>
     <div class="base-grid">
       <div class="base-field">
-        <label><span class="base-badge b2">BIN</span> 2진수</label>
+        <label><span class="base-badge b2">BIN</span> <span id="labelBin">2진수</span></label>
         <input type="text" id="bin" placeholder="1010" oninput="fromBase(this,2)">
-        <button class="copy-btn" onclick="copyVal('bin')">Copy</button>
+        <button class="copy-btn" id="copyBin" onclick="copyVal('bin')">복사</button>
       </div>
       <div class="base-field">
-        <label><span class="base-badge b8">OCT</span> 8진수</label>
+        <label><span class="base-badge b8">OCT</span> <span id="labelOct">8진수</span></label>
         <input type="text" id="oct" placeholder="12" oninput="fromBase(this,8)">
-        <button class="copy-btn" onclick="copyVal('oct')">Copy</button>
+        <button class="copy-btn" id="copyOct" onclick="copyVal('oct')">복사</button>
       </div>
       <div class="base-field">
-        <label><span class="base-badge b10">DEC</span> 10진수</label>
+        <label><span class="base-badge b10">DEC</span> <span id="labelDec">10진수</span></label>
         <input type="text" id="dec" placeholder="10" oninput="fromBase(this,10)">
-        <button class="copy-btn" onclick="copyVal('dec')">Copy</button>
+        <button class="copy-btn" id="copyDec" onclick="copyVal('dec')">복사</button>
       </div>
       <div class="base-field">
-        <label><span class="base-badge b16">HEX</span> 16진수</label>
+        <label><span class="base-badge b16">HEX</span> <span id="labelHex">16진수</span></label>
         <input type="text" id="hex" placeholder="A" oninput="fromBase(this,16)">
-        <button class="copy-btn" onclick="copyVal('hex')">Copy</button>
+        <button class="copy-btn" id="copyHex" onclick="copyVal('hex')">복사</button>
       </div>
     </div>
 
     <div class="bit-display" id="bitDisplay">
-      <div class="bit-title">32bit 이진 표현</div>
+      <div class="bit-title" id="bitTitle">32bit 이진 표현</div>
       <div class="bit-grid" id="bitGrid"></div>
     </div>
 
@@ -152,8 +152,8 @@ function copyVal(id){
   const val=document.getElementById(id).value;
   if(!val) return;
   navigator.clipboard.writeText(val).then(()=>{
-    const btn=document.querySelector(`#${id}~.copy-btn`)||document.querySelectorAll('.copy-btn')[['bin','oct','dec','hex'].indexOf(id)];
-    if(btn){btn.textContent='Copied!';btn.classList.add('copied');setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied');},1500);}
+    const btn=document.getElementById('copy'+id.charAt(0).toUpperCase()+id.slice(1));
+    if(btn){btn.textContent=_i18n[_lang].copyDone;btn.classList.add('copied');setTimeout(()=>{btn.textContent=_i18n[_lang].copyBtn;btn.classList.remove('copied');},1500);}
   });
 }
 // init
@@ -163,9 +163,9 @@ const d=document.getElementById('dec');d.value='255';fromBase(d,10);
 <script>
 /* ===== i18n multilingual ===== */
 const _i18n = {
-  ko: { lang:'ko', title:'진수 변환기 - 2진수8진수10진수16진수 변환', h1:'진수 변환기', sub:'2진수8진수10진수16진수를 실시간으로 상호 변환합니다.', btn:'🌐 EN', seoTitle1:'진수 변환 방법', seoP1:'10진수 255 = 16진수 FF = 2진수 11111111 = 8진수 377. 개발에서 자주 쓰이는 값: 0xFF = 255, 0x80 = 128, 0x7F = 127, 0x00 = 0.', seoP2:'<strong>Q. 16진수는 왜 쓰나요?</strong><br>A. 1개의 16진수 자리가 정확히 4비트를 표현하므로, 바이트 단위 데이터를 간결하게 나타낼 수 있습니다. 색상 코드(#FF5733), 메모리 주소, 비트마스크 등에 사용됩니다.', seoP3:'<strong>Q. 음수는 어떻게 표현하나요?</strong><br>A. 2의 보수(Two\'s Complement) 방식을 사용합니다. 32비트에서 최상위 비트가 1이면 음수로 해석합니다(Signed 32bit). 예: 0xFFFFFFFF = -1.' },
-  en: { lang:'en', title:'Number Base Converter - Binary, Octal, Decimal & Hex', h1:'Number Base Converter', sub:'Convert between binary, octal, decimal and hexadecimal in real time.', btn:'🌐 中文', seoTitle1:'How Number Base Conversion Works', seoP1:'Decimal 255 = Hex FF = Binary 11111111 = Octal 377. Common development values: 0xFF = 255, 0x80 = 128, 0x7F = 127, 0x00 = 0.', seoP2:'<strong>Q. Why use hexadecimal?</strong><br>A. One hex digit maps exactly to 4 bits, so byte-level values are compact and readable. It is widely used in color codes (#FF5733), memory addresses, and bitmasks.', seoP3:'<strong>Q. How are negative numbers represented?</strong><br>A. Computers use Two\'s Complement. In 32-bit signed integers, if the highest bit is 1, the value is interpreted as negative. Example: 0xFFFFFFFF = -1.' },
-  zh: { lang:'zh', title:'进制转换器 - 二八十十六进制实时转换', h1:'进制转换器', sub:'实时转换二进制、八进制、十进制和十六进制。', btn:'🌐 한국어', seoTitle1:'进制转换说明', seoP1:'十进制 255 = 十六进制 FF = 二进制 11111111 = 八进制 377。常见开发数值：0xFF = 255，0x80 = 128，0x7F = 127，0x00 = 0。', seoP2:'<strong>问：为什么要用十六进制？</strong><br>答：1 个十六进制位正好对应 4 个比特，表示字节数据更紧凑。常用于颜色代码（#FF5733）、内存地址和位掩码。', seoP3:'<strong>问：负数如何表示？</strong><br>答：通常使用二进制补码（Two\'s Complement）。在 32 位有符号整数中，最高位为 1 时表示负数。例如：0xFFFFFFFF = -1。' }
+  ko: { lang:'ko', title:'진수 변환기 - 2진수8진수10진수16진수 변환', h1:'진수 변환기', sub:'2진수8진수10진수16진수를 실시간으로 상호 변환합니다.', btn:'🌐 EN', cardTitle:'진수 변환', labelBin:'2진수', labelOct:'8진수', labelDec:'10진수', labelHex:'16진수', bitTitle:'32bit 이진 표현', copyBtn:'복사', copyDone:'복사됨', seoTitle1:'진수 변환 방법', seoP1:'10진수 255 = 16진수 FF = 2진수 11111111 = 8진수 377. 개발에서 자주 쓰이는 값: 0xFF = 255, 0x80 = 128, 0x7F = 127, 0x00 = 0.', seoP2:'<strong>Q. 16진수는 왜 쓰나요?</strong><br>A. 1개의 16진수 자리가 정확히 4비트를 표현하므로, 바이트 단위 데이터를 간결하게 나타낼 수 있습니다. 색상 코드(#FF5733), 메모리 주소, 비트마스크 등에 사용됩니다.', seoP3:'<strong>Q. 음수는 어떻게 표현하나요?</strong><br>A. 2의 보수(Two\'s Complement) 방식을 사용합니다. 32비트에서 최상위 비트가 1이면 음수로 해석합니다(Signed 32bit). 예: 0xFFFFFFFF = -1.' },
+  en: { lang:'en', title:'Number Base Converter - Binary, Octal, Decimal & Hex', h1:'Number Base Converter', sub:'Convert between binary, octal, decimal and hexadecimal in real time.', btn:'🌐 中文', cardTitle:'Base Conversion', labelBin:'Binary', labelOct:'Octal', labelDec:'Decimal', labelHex:'Hex', bitTitle:'32-bit Binary', copyBtn:'Copy', copyDone:'Copied', seoTitle1:'How Number Base Conversion Works', seoP1:'Decimal 255 = Hex FF = Binary 11111111 = Octal 377. Common development values: 0xFF = 255, 0x80 = 128, 0x7F = 127, 0x00 = 0.', seoP2:'<strong>Q. Why use hexadecimal?</strong><br>A. One hex digit maps exactly to 4 bits, so byte-level values are compact and readable. It is widely used in color codes (#FF5733), memory addresses, and bitmasks.', seoP3:'<strong>Q. How are negative numbers represented?</strong><br>A. Computers use Two\'s Complement. In 32-bit signed integers, if the highest bit is 1, the value is interpreted as negative. Example: 0xFFFFFFFF = -1.' },
+  zh: { lang:'zh', title:'进制转换器 - 二八十十六进制实时转换', h1:'进制转换器', sub:'实时转换二进制、八进制、十进制和十六进制。', btn:'🌐 한국어', cardTitle:'进制转换', labelBin:'二进制', labelOct:'八进制', labelDec:'十进制', labelHex:'十六进制', bitTitle:'32位二进制', copyBtn:'复制', copyDone:'已复制', seoTitle1:'进制转换说明', seoP1:'十进制 255 = 十六进制 FF = 二进制 11111111 = 八进制 377。常见开发数值：0xFF = 255，0x80 = 128，0x7F = 127，0x00 = 0。', seoP2:'<strong>问：为什么要用十六进制？</strong><br>答：1 个十六进制位正好对应 4 个比特，表示字节数据更紧凑。常用于颜色代码（#FF5733）、内存地址和位掩码。', seoP3:'<strong>问：负数如何表示？</strong><br>答：通常使用二进制补码（Two\'s Complement）。在 32 位有符号整数中，最高位为 1 时表示负数。例如：0xFFFFFFFF = -1。' }
 };
 function _detectLang() {
   const u = new URLSearchParams(location.search).get('lang');
@@ -192,6 +192,15 @@ function _applyLang() {
     const v = t[el.dataset.i18n];
     if (v !== undefined) el.innerHTML = v;
   });
+  const cardTitle = document.getElementById('cardTitle');
+  if (cardTitle) cardTitle.textContent = t.cardTitle;
+  ['labelBin','labelOct','labelDec','labelHex'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = t[id];
+  });
+  const bitTitle = document.getElementById('bitTitle');
+  if (bitTitle) bitTitle.textContent = t.bitTitle;
+  document.querySelectorAll('.copy-btn').forEach(btn => btn.textContent = t.copyBtn);
   const seoTitle1 = document.getElementById('seoTitle1');
   if (seoTitle1) seoTitle1.textContent = t.seoTitle1;
   const seoP1 = document.getElementById('seoP1');

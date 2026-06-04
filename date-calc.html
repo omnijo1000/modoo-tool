@@ -91,33 +91,33 @@
   <p class="subtitle">날짜 더하기·빼기, 두 날짜 사이의 기간을 계산합니다</p>
 
   <div class="tabs">
-    <div class="tab active" onclick="switchTab('add')">날짜 더하기/빼기</div>
-    <div class="tab" onclick="switchTab('diff')">기간 계산</div>
+    <div class="tab active" onclick="switchTab('add')" data-i18n="tabAdd">날짜 더하기/빼기</div>
+    <div class="tab" onclick="switchTab('diff')" data-i18n="tabDiff">기간 계산</div>
   </div>
 
   <!-- 날짜 더하기/빼기 -->
   <div id="tabAdd">
     <div class="card">
-      <label>기준 날짜</label>
+      <label data-i18n="baseLabel">기준 날짜</label>
       <input type="date" id="baseDate" oninput="calcAdd()">
     </div>
     <div class="op-btns">
-      <div class="op-btn active" data-op="+" onclick="selectOp('+')">+ 더하기</div>
-      <div class="op-btn" data-op="-" onclick="selectOp('-')">− 빼기</div>
+      <div class="op-btn active" data-op="+" onclick="selectOp('+')" data-i18n="opAdd">+ 더하기</div>
+      <div class="op-btn" data-op="-" onclick="selectOp('-')" data-i18n="opSub">− 빼기</div>
     </div>
     <div class="card-row">
       <div class="card">
-        <label>일수</label>
+        <label data-i18n="lblDays">일수</label>
         <input type="number" id="addDays" placeholder="30" oninput="calcAdd()">
       </div>
       <div class="card">
-        <label>개월수</label>
+        <label data-i18n="lblMonths">개월수</label>
         <input type="number" id="addMonths" placeholder="0" oninput="calcAdd()">
       </div>
     </div>
     <div class="card" style="padding:14px 20px;">
       <div class="toggle-row">
-        <span class="toggle-label">주말 제외 (영업일 기준)</span>
+        <span class="toggle-label" data-i18n="bizWeekend">주말 제외 (영업일 기준)</span>
         <div class="toggle" id="bizToggle" onclick="toggleBiz()"></div>
       </div>
     </div>
@@ -127,11 +127,11 @@
   <div id="tabDiff" style="display:none">
     <div class="card-row">
       <div class="card">
-        <label>시작 날짜</label>
+        <label data-i18n="lblFrom">시작 날짜</label>
         <input type="date" id="diffStart" oninput="calcDiff()">
       </div>
       <div class="card">
-        <label>종료 날짜</label>
+        <label data-i18n="lblTo">종료 날짜</label>
         <input type="date" id="diffEnd" oninput="calcDiff()">
       </div>
     </div>
@@ -157,7 +157,8 @@
   <footer>공휴일은 미포함 · 영업일 계산은 주말만 제외</footer>
 </main>
 <script>
-const DAYS = ['일','월','화','수','목','금','토'];
+const DAYS_MAP = {ko:['일','월','화','수','목','금','토'],en:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],zh:['日','一','二','三','四','五','六']};
+function DAYS(i){return (DAYS_MAP[_lang]||DAYS_MAP.ko)[i];}
 let currentTab = 'add';
 let currentOp = '+';
 let bizMode = false;
@@ -183,7 +184,7 @@ function toggleBiz() {
 }
 
 function pad(n) { return String(n).padStart(2,'0'); }
-function fmtDate(d) { return `${d.getFullYear()}.${pad(d.getMonth()+1)}.${pad(d.getDate())} (${DAYS[d.getDay()]})`; }
+function fmtDate(d) { return `${d.getFullYear()}.${pad(d.getMonth()+1)}.${pad(d.getDate())} (${DAYS(d.getDay())})`; }
 
 function addBizDays(date, days) {
   let d = new Date(date);
@@ -223,11 +224,12 @@ function calcAdd() {
 function showAddResult(result, totalDays) {
   document.getElementById('result').classList.add('show');
   document.getElementById('resultValue').textContent = fmtDate(result);
-  document.getElementById('resultSub').textContent = bizMode ? '영업일 기준' : '달력 기준';
+  const t=_i18n[_lang];
+  document.getElementById('resultSub').textContent = bizMode ? t.bizCal : t.calCal;
   document.getElementById('detailRows').innerHTML = `
-    <div class="detail-row"><span class="detail-label">이동한 일수</span><span class="detail-value">${totalDays.toLocaleString()}일</span></div>
-    <div class="detail-row"><span class="detail-label">주</span><span class="detail-value">${Math.floor(totalDays/7)}주 ${totalDays%7}일</span></div>
-    <div class="detail-row"><span class="detail-label">개월 (약)</span><span class="detail-value">${(totalDays/30).toFixed(1)}개월</span></div>
+    <div class="detail-row"><span class="detail-label">${t.movedDays}</span><span class="detail-value">${totalDays.toLocaleString()}${t.unitDay}</span></div>
+    <div class="detail-row"><span class="detail-label">${t.lblWeek}</span><span class="detail-value">${Math.floor(totalDays/7)}${t.unitWeek} ${totalDays%7}${t.unitDay}</span></div>
+    <div class="detail-row"><span class="detail-label">${t.lblMonthApprox}</span><span class="detail-value">${(totalDays/30).toFixed(1)}${t.unitMonth}</span></div>
   `;
 }
 
@@ -250,14 +252,15 @@ function calcDiff() {
     cursor.setDate(cursor.getDate()+1);
   }
 
+  const t=_i18n[_lang];
   document.getElementById('result').classList.add('show');
-  document.getElementById('resultValue').textContent = `${diff.toLocaleString()}일`;
-  document.getElementById('resultSub').textContent = e >= s ? '후' : '전';
+  document.getElementById('resultValue').textContent = `${diff.toLocaleString()}${t.unitDay}`;
+  document.getElementById('resultSub').textContent = e >= s ? t.after : t.before;
   document.getElementById('detailRows').innerHTML = `
-    <div class="detail-row"><span class="detail-label">주</span><span class="detail-value">${weeks}주 ${diff%7}일</span></div>
-    <div class="detail-row"><span class="detail-label">개월 (약)</span><span class="detail-value">${months}개월</span></div>
-    <div class="detail-row"><span class="detail-label">년 (약)</span><span class="detail-value">${(diff/365).toFixed(1)}년</span></div>
-    <div class="detail-row"><span class="detail-label">영업일 (주말 제외)</span><span class="detail-value">${bizDays}일</span></div>
+    <div class="detail-row"><span class="detail-label">${t.lblWeek}</span><span class="detail-value">${weeks}${t.unitWeek} ${diff%7}${t.unitDay}</span></div>
+    <div class="detail-row"><span class="detail-label">${t.lblMonthApprox}</span><span class="detail-value">${months}${t.unitMonth}</span></div>
+    <div class="detail-row"><span class="detail-label">${t.lblYearApprox}</span><span class="detail-value">${(diff/365).toFixed(1)}${t.unitYear}</span></div>
+    <div class="detail-row"><span class="detail-label">${t.bizDaysLabel}</span><span class="detail-value">${bizDays}${t.unitDay}</span></div>
   `;
 }
 
@@ -268,9 +271,30 @@ document.getElementById('baseDate').value = new Date().toISOString().split('T')[
 <script>
 /* ===== i18n multilingual ===== */
 const _i18n = {
-  ko: { lang:'ko', title:'날짜 계산기 - 날짜 더하기·빼기·기간 계산', h1:'날짜 계산기', sub:'날짜 더하기·빼기, 두 날짜 사이의 기간을 계산합니다.', btn:'🌐 EN' },
-  en: { lang:'en', title:'Date Calculator - Add/Subtract Days & Date Difference', h1:'Date Calculator', sub:'Add or subtract days from a date. Calculate the period between two dates.', btn:'🌐 中文' },
-  zh: { lang:'zh', title:'日期计算器 - 日期加减·日期差计算', h1:'日期计算器', sub:'日期加减运算，计算两日期之间的天数和期间。', btn:'🌐 한국어' }
+  ko: { lang:'ko', title:'날짜 계산기 - 날짜 더하기·빼기·기간 계산', h1:'날짜 계산기', sub:'날짜 더하기·빼기, 두 날짜 사이의 기간을 계산합니다.', btn:'🌐 EN',
+    tabAdd:'날짜 더하기/빼기', tabDiff:'기간 계산', baseLabel:'기준 날짜',
+    opAdd:'+ 더하기', opSub:'− 빼기', lblDays:'일수', lblMonths:'개월수',
+    bizWeekend:'주말 제외 (영업일 기준)', lblFrom:'시작 날짜', lblTo:'종료 날짜',
+    bizCal:'영업일 기준', calCal:'달력 기준', after:'후', before:'전',
+    movedDays:'이동한 일수', lblWeek:'주', lblMonthApprox:'개월 (약)', lblYearApprox:'년 (약)', bizDaysLabel:'영업일 (주말 제외)',
+    unitDay:'일', unitWeek:'주', unitMonth:'개월', unitYear:'년',
+  },
+  en: { lang:'en', title:'Date Calculator - Add/Subtract Days & Date Difference', h1:'Date Calculator', sub:'Add or subtract days from a date. Calculate the period between two dates.', btn:'🌐 中文',
+    tabAdd:'Add/Subtract', tabDiff:'Date Difference', baseLabel:'Base date',
+    opAdd:'+ Add', opSub:'− Subtract', lblDays:'Days', lblMonths:'Months',
+    bizWeekend:'Exclude weekends (business days)', lblFrom:'Start date', lblTo:'End date',
+    bizCal:'Business days', calCal:'Calendar days', after:'later', before:'ago',
+    movedDays:'Days moved', lblWeek:'Weeks', lblMonthApprox:'Months (approx)', lblYearApprox:'Years (approx)', bizDaysLabel:'Business days (excl. weekends)',
+    unitDay:'d', unitWeek:'w', unitMonth:'mo', unitYear:'y',
+  },
+  zh: { lang:'zh', title:'日期计算器 - 日期加减·日期差计算', h1:'日期计算器', sub:'日期加减运算，计算两日期之间的天数和期间。', btn:'🌐 한국어',
+    tabAdd:'日期加减', tabDiff:'日期差计算', baseLabel:'基准日期',
+    opAdd:'+ 加', opSub:'− 减', lblDays:'天数', lblMonths:'月数',
+    bizWeekend:'排除周末（工作日）', lblFrom:'开始日期', lblTo:'结束日期',
+    bizCal:'工作日基准', calCal:'日历基准', after:'后', before:'前',
+    movedDays:'移动天数', lblWeek:'周', lblMonthApprox:'月（约）', lblYearApprox:'年（约）', bizDaysLabel:'工作日（排除周末）',
+    unitDay:'天', unitWeek:'周', unitMonth:'月', unitYear:'年',
+  }
 };
 Object.assign(_i18n.ko, {
   seoTitle1:'날짜 계산기 활용법',
