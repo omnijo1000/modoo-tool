@@ -87,8 +87,8 @@
 <body>
 <header>
   <div class="dot"></div>
-  <span class="header-label">CRON EXPRESSION GENERATOR</span>
-  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <span class="header-label">MODOO HUB</span>
+  <a href="index.html" class="back-link">← 모두의 툴</a>
   <div class="lang-toggle" onclick="toggleLang()" id="langBtn">🌐 EN</div>
 </header>
 <main>
@@ -174,7 +174,7 @@ const i18n = {
     pageTitle:'Cron Expression Generator',
     h1:'Cron Expression<br><span>Generator</span>',
     sub:'Build cron expressions by clicking and preview next execution times',
-    backLink:'← Modoo Hub', langBtn:'🌐 KO',
+    backLink:'← Modoo Hub', langBtn:'🌐 中文',
     labelExpr:'Generated Cron Expression', copyBtn:'Copy',
     labelPresets:'Common expressions', labelBuilder:'Build manually',
     labelManual:'Direct input & validate', manualHint:'Type an expression to sync with the builder',
@@ -202,44 +202,80 @@ const i18n = {
   }
 };
 
-let lang = localStorage.getItem('lang') || (navigator.language.startsWith('ko') ? 'ko' : 'en');
+if (!i18n.zh) {
+  i18n.zh = { ...i18n.en };
+}
+Object.assign(i18n.zh, {
+  pageTitle: 'Cron 表达式生成器 - 在线 Cron 工具',
+  h1: 'Cron <span>表达式生成器</span>',
+  sub: '可视化生成并校验 cron 表达式',
+  backLink: '← 首页',
+  langBtn: '🌐 한국어',
+  labelExpr: '生成的表达式',
+  copyBtn: '复制',
+  labelPresets: '常用预设',
+  labelBuilder: '可视化构建器',
+  labelManual: '手动输入与校验',
+  manualHint: '输入表达式后可同步到构建器',
+  labelNext: '下次执行时间',
+  labelRef: '特殊字符说明',
+  seoTitle1: '什么是 Cron 表达式？',
+  seoBody1: 'Cron 是类 Unix 系统中的定时任务语法，通常由 分钟、小时、日、月、星期 5 个字段组成。',
+  seoTitle2: 'Spring @Scheduled 用法',
+  seoBody2: 'Spring Boot 的 @Scheduled 需要 6 个字段（最前面包含秒）。',
+  footer: '标准 5 字段 cron · Spring @Scheduled 需额外秒字段',
+});
+
+let lang = localStorage.getItem('lang');
+if (!lang || !i18n[lang]) {
+  const nav = navigator.language || '';
+  if (nav.startsWith('zh')) lang = 'zh';
+  else if (nav.startsWith('ko')) lang = 'ko';
+  else lang = 'en';
+}
 const fieldIds = ['f-min','f-hour','f-dom','f-mon','f-dow'];
 
 function applyLang() {
   const t = i18n[lang];
   document.documentElement.lang = lang;
   document.title = t.pageTitle;
-  document.getElementById('h1Title').innerHTML = t.h1;
-  document.getElementById('h1Sub').textContent = t.sub;
-  document.getElementById('backLink').textContent = t.backLink;
-  document.getElementById('langBtn').textContent = t.langBtn;
-  document.getElementById('labelExpr').textContent = t.labelExpr;
-  document.getElementById('copyBtn').textContent = t.copyBtn;
-  document.getElementById('labelPresets').textContent = t.labelPresets;
-  document.getElementById('labelBuilder').textContent = t.labelBuilder;
-  document.getElementById('labelManual').textContent = t.labelManual;
-  document.getElementById('manualHint').textContent = t.manualHint;
-  document.getElementById('labelNext').textContent = t.labelNext;
-  document.getElementById('labelRef').textContent = t.labelRef;
-  document.getElementById('seoTitle1').textContent = t.seoTitle1;
-  document.getElementById('seoBody1').textContent = t.seoBody1;
-  document.getElementById('seoTitle2').textContent = t.seoTitle2;
-  document.getElementById('seoBody2').textContent = t.seoBody2;
-  document.getElementById('footerText').textContent = t.footer;
+  if (document.getElementById('h1Title')) document.getElementById('h1Title').innerHTML = t.h1;
+  if (document.getElementById('h1Sub')) document.getElementById('h1Sub').textContent = t.sub;
+  if (document.getElementById('backLink')) document.getElementById('backLink').textContent = t.backLink;
+  if (document.getElementById('langBtn')) document.getElementById('langBtn').textContent = t.langBtn;
+  if (document.getElementById('labelExpr')) document.getElementById('labelExpr').textContent = t.labelExpr;
+  if (document.getElementById('copyBtn')) document.getElementById('copyBtn').textContent = t.copyBtn;
+  if (document.getElementById('labelPresets')) document.getElementById('labelPresets').textContent = t.labelPresets;
+  if (document.getElementById('labelBuilder')) document.getElementById('labelBuilder').textContent = t.labelBuilder;
+  if (document.getElementById('labelManual')) document.getElementById('labelManual').textContent = t.labelManual;
+  if (document.getElementById('manualHint')) document.getElementById('manualHint').textContent = t.manualHint;
+  if (document.getElementById('labelNext')) document.getElementById('labelNext').textContent = t.labelNext;
+  if (document.getElementById('labelRef')) document.getElementById('labelRef').textContent = t.labelRef;
+  if (document.getElementById('seoTitle1')) document.getElementById('seoTitle1').textContent = t.seoTitle1;
+  if (document.getElementById('seoBody1')) document.getElementById('seoBody1').textContent = t.seoBody1;
+  if (document.getElementById('seoTitle2')) document.getElementById('seoTitle2').textContent = t.seoTitle2;
+  if (document.getElementById('seoBody2')) document.getElementById('seoBody2').textContent = t.seoBody2;
+  if (document.getElementById('footerText')) document.getElementById('footerText').textContent = t.footer;
   renderPresets(); renderBuilder(); renderRefs(); buildCron();
 }
 
-function toggleLang() { lang = lang==='ko'?'en':'ko'; localStorage.setItem('lang',lang); applyLang(); }
+function toggleLang() {
+  const order = ['ko','en','zh'];
+  const idx = order.indexOf(lang);
+  lang = order[(idx + 1) % order.length];
+  localStorage.setItem('lang', lang);
+  applyLang();
+}
 
 function renderPresets() {
-  document.getElementById('presetGrid').innerHTML = i18n[lang].presets.map(p=>
+  if (document.getElementById('presetGrid')) document.getElementById('presetGrid').innerHTML = i18n[lang].presets.map(p=>
     `<button class="preset-btn" onclick="applyPreset('${p.expr}','${p.name}')"><span class="preset-name">${p.name}</span><span class="preset-expr">${p.expr}</span></button>`
   ).join('');
 }
 
 function renderBuilder() {
   const defaults = ['0','0','*','*','*'];
-  document.getElementById('builderEl').innerHTML = i18n[lang].fields.map((f,i)=>`
+  if (document.getElementById('builderEl')) document.getElementById('builderEl').innerHTML = i18n[lang].fields.map((f,i)=>`
     <div class="field">
       <div class="field-header"><span class="field-name">${f.name}</span><input type="text" class="field-input" id="${fieldIds[i]}" value="${defaults[i]}" oninput="buildCron()"></div>
       <div class="field-desc">${f.desc}</div>
@@ -249,7 +285,7 @@ function renderBuilder() {
 }
 
 function renderRefs() {
-  document.getElementById('refGrid').innerHTML = i18n[lang].refs.map(r=>
+  if (document.getElementById('refGrid')) document.getElementById('refGrid').innerHTML = i18n[lang].refs.map(r=>
     `<div class="ref-item"><div class="ref-expr">${r.e}</div><div class="ref-desc">${r.d}</div></div>`
   ).join('');
 }
@@ -261,10 +297,10 @@ function getFields() {
 function buildCron() {
   const f = getFields();
   const expr = f.join(' ');
-  document.getElementById('cronExpr').textContent = expr;
+  if (document.getElementById('cronExpr')) document.getElementById('cronExpr').textContent = expr;
   document.getElementById('manualExpr').value = expr;
   const labels = i18n[lang].fields.map(f=>f.name.split(' ')[0]);
-  document.getElementById('cronParts').innerHTML = f.map((v,i)=>`<div class="cron-part"><span>${labels[i]}</span>${v}</div>`).join('');
+  if (document.getElementById('cronParts')) document.getElementById('cronParts').innerHTML = f.map((v,i)=>`<div class="cron-part"><span>${labels[i]}</span>${v}</div>`).join('');
   updateDesc(f);
   updateNextRuns(expr);
 }
@@ -275,10 +311,10 @@ function applyPreset(expr, name) {
   const parts = expr.split(' ');
   if(parts.length!==5) return;
   fieldIds.forEach((id,i)=>document.getElementById(id).value=parts[i]);
-  document.getElementById('cronExpr').textContent=expr;
+  if (document.getElementById('cronExpr')) document.getElementById('cronExpr').textContent = expr;
   document.getElementById('manualExpr').value=expr;
-  document.getElementById('cronDesc').textContent='→ '+name;
-  document.getElementById('cronParts').innerHTML = parts.map((v,i)=>`<div class="cron-part"><span>${i18n[lang].fields[i].name.split(' ')[0]}</span>${v}</div>`).join('');
+  if (document.getElementById('cronDesc')) document.getElementById('cronDesc').textContent = '→ '+name;
+  if (document.getElementById('cronParts')) document.getElementById('cronParts').innerHTML = parts.map((v,i)=>`<div class="cron-part"><span>${i18n[lang].fields[i].name.split(' ')[0]}</span>${v}</div>`).join('');
   updateNextRuns(expr);
 }
 
@@ -287,7 +323,7 @@ function validateManual() {
   const parts = val.split(/\s+/);
   if(parts.length!==5) return;
   fieldIds.forEach((id,i)=>{ if(document.getElementById(id)) document.getElementById(id).value=parts[i]; });
-  document.getElementById('cronExpr').textContent=val;
+  if (document.getElementById('cronExpr')) document.getElementById('cronExpr').textContent = val;
   updateDesc(parts);
   updateNextRuns(val);
 }
@@ -299,14 +335,14 @@ function updateDesc(f) {
   else if(f[1].startsWith('*/')) timeDesc=(isKo?`${f[1].slice(2)}시간마다`:`Every ${f[1].slice(2)} hours`);
   else if(f[1]==='*') timeDesc=f[0]==='*'?(isKo?'매분':'Every minute'):(isKo?`매시 ${f[0]}분`:`At ${f[0]} min past every hour`);
   else { const h=parseInt(f[1]); const m=f[0]==='*'?'00':f[0].padStart(2,'0'); timeDesc=isKo?`${h>=12?'오후':'오전'} ${h>12?h-12:h}시 ${m}분`:`${h>=12?'PM':'AM'} ${h>12?h-12:h===0?12:h}:${m}`; }
-  document.getElementById('cronDesc').textContent='→ '+timeDesc+(isKo?' 실행':'');
+  if (document.getElementById('cronDesc')) document.getElementById('cronDesc').textContent = '→ '+timeDesc+(isKo?' 실행':'');
 }
 
 function updateNextRuns(expr) {
   const parts=expr.split(/\s+/);
   if(parts.length!==5) return;
   const runs=calcNextRuns(parts,5);
-  document.getElementById('nextRuns').innerHTML=runs.map((d,i)=>`<div class="next-item"><span class="next-num">${i+1}</span>${formatDate(d)}</div>`).join('');
+  if (document.getElementById('nextRuns')) document.getElementById('nextRuns').innerHTML = runs.map((d,i)=>`<div class="next-item"><span class="next-num">${i+1}</span>${formatDate(d)}</div>`).join('');
 }
 
 function calcNextRuns(parts,count) {

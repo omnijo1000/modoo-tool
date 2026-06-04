@@ -96,8 +96,8 @@
 <body>
 <header>
   <div class="dot"></div>
-  <span class="header-label">BASE64 & URL ENCODER</span>
-  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <span class="header-label">MODOO HUB</span>
+  <a href="index.html" class="back-link">← 모두의 툴</a>
   <div class="lang-toggle" onclick="toggleLang()" id="langBtn">🌐 EN</div>
 </header>
 <main>
@@ -202,7 +202,7 @@ const i18n = {
     pageTitle:'Base64 & URL Encoder/Decoder - Free Online Tool',
     h1:'Base64 & URL<br><span>Encoder/Decoder</span>',
     sub:'Encode or decode Base64 and URL encoded strings instantly',
-    backLink:'← Modoo Hub', langBtn:'🌐 KO',
+    backLink:'← Modoo Hub', langBtn:'🌐 中文',
     tabBase64:'Base64', tabUrl:'URL Encoding',
     optLabel:'Mode:', optStandard:'Standard', optUrlSafe:'URL-safe',
     btnEncode:'Encode →', btnDecode:'← Decode', btnSwap:'↕ Swap', btnPaste:'Paste', btnClear:'Clear',
@@ -219,7 +219,44 @@ const i18n = {
   }
 };
 
-let lang = localStorage.getItem('lang') || (navigator.language.startsWith('ko') ? 'ko' : 'en');
+if (!i18n.zh) {
+  i18n.zh = { ...i18n.en };
+}
+Object.assign(i18n.zh, {
+  pageTitle: 'Base64 与 URL 编解码工具',
+  h1: 'Base64 / URL <span>编解码</span>',
+  sub: '在 Base64 与 URL 编码之间快速转换',
+  backLink: '← 首页',
+  langBtn: '🌐 한국어',
+  tabBase64: 'Base64',
+  tabUrl: 'URL',
+  optLabel: '选项',
+  btnEncode: '编码',
+  btnDecode: '解码',
+  btnSwap: '交换',
+  btnPaste: '粘贴',
+  btnClear: '清空',
+  labelInput: '输入',
+  labelOutput: '输出',
+  copyBtn: '复制',
+  statusIdle: '等待输入',
+  refTitle: '说明',
+  seoTitle1: '什么时候使用 Base64？',
+  seoBody1: '常用于二进制文本化传输，例如 JWT、Data URI 等。',
+  seoTitle2: 'URL 编码是什么？',
+  seoBody2: 'URL 编码可安全传递特殊字符，避免请求参数出错。',
+  footer: '所有处理均在浏览器本地完成',
+  inputPlaceholder: '请输入文本...',
+  outputPlaceholder: '输出结果...',
+});
+
+let lang = localStorage.getItem('lang');
+if (!lang || !i18n[lang]) {
+  const nav = navigator.language || '';
+  if (nav.startsWith('zh')) lang = 'zh';
+  else if (nav.startsWith('ko')) lang = 'ko';
+  else lang = 'en';
+}
 let mode = 'base64';
 let opt = 'standard';
 
@@ -227,36 +264,42 @@ function applyLang() {
   const t = i18n[lang];
   document.documentElement.lang = lang;
   document.title = t.pageTitle;
-  document.getElementById('h1Title').innerHTML = t.h1;
-  document.getElementById('h1Sub').textContent = t.sub;
-  document.getElementById('backLink').textContent = t.backLink;
-  document.getElementById('langBtn').textContent = t.langBtn;
-  document.getElementById('tabBase64').textContent = t.tabBase64;
-  document.getElementById('tabUrl').textContent = t.tabUrl;
-  document.getElementById('optLabel').textContent = t.optLabel;
-  document.getElementById('optStandard').textContent = t.optStandard;
-  document.getElementById('optUrlSafe').textContent = t.optUrlSafe;
-  document.getElementById('btnEncode').textContent = t.btnEncode;
-  document.getElementById('btnDecode').textContent = t.btnDecode;
-  document.getElementById('btnSwap').textContent = t.btnSwap;
-  document.getElementById('btnPaste').textContent = t.btnPaste;
-  document.getElementById('btnClear').textContent = t.btnClear;
-  document.getElementById('labelInput').textContent = t.labelInput;
-  document.getElementById('labelOutput').textContent = t.labelOutput;
-  document.getElementById('copyInputBtn').textContent = t.copyBtn;
-  document.getElementById('copyOutputBtn').textContent = t.copyBtn;
-  document.getElementById('statusText').textContent = t.statusIdle;
-  document.getElementById('refTitle').textContent = t.refTitle;
-  document.getElementById('seoTitle1').textContent = t.seoTitle1;
-  document.getElementById('seoBody1').textContent = t.seoBody1;
-  document.getElementById('seoTitle2').textContent = t.seoTitle2;
-  document.getElementById('seoBody2').textContent = t.seoBody2;
-  document.getElementById('footerText').textContent = t.footer;
+  if (document.getElementById('h1Title')) document.getElementById('h1Title').innerHTML = t.h1;
+  if (document.getElementById('h1Sub')) document.getElementById('h1Sub').textContent = t.sub;
+  if (document.getElementById('backLink')) document.getElementById('backLink').textContent = t.backLink;
+  if (document.getElementById('langBtn')) document.getElementById('langBtn').textContent = t.langBtn;
+  if (document.getElementById('tabBase64')) document.getElementById('tabBase64').textContent = t.tabBase64;
+  if (document.getElementById('tabUrl')) document.getElementById('tabUrl').textContent = t.tabUrl;
+  if (document.getElementById('optLabel')) document.getElementById('optLabel').textContent = t.optLabel;
+  if (document.getElementById('optStandard')) document.getElementById('optStandard').textContent = t.optStandard;
+  if (document.getElementById('optUrlSafe')) document.getElementById('optUrlSafe').textContent = t.optUrlSafe;
+  if (document.getElementById('btnEncode')) document.getElementById('btnEncode').textContent = t.btnEncode;
+  if (document.getElementById('btnDecode')) document.getElementById('btnDecode').textContent = t.btnDecode;
+  if (document.getElementById('btnSwap')) document.getElementById('btnSwap').textContent = t.btnSwap;
+  if (document.getElementById('btnPaste')) document.getElementById('btnPaste').textContent = t.btnPaste;
+  if (document.getElementById('btnClear')) document.getElementById('btnClear').textContent = t.btnClear;
+  if (document.getElementById('labelInput')) document.getElementById('labelInput').textContent = t.labelInput;
+  if (document.getElementById('labelOutput')) document.getElementById('labelOutput').textContent = t.labelOutput;
+  if (document.getElementById('copyInputBtn')) document.getElementById('copyInputBtn').textContent = t.copyBtn;
+  if (document.getElementById('copyOutputBtn')) document.getElementById('copyOutputBtn').textContent = t.copyBtn;
+  if (document.getElementById('statusText')) document.getElementById('statusText').textContent = t.statusIdle;
+  if (document.getElementById('refTitle')) document.getElementById('refTitle').textContent = t.refTitle;
+  if (document.getElementById('seoTitle1')) document.getElementById('seoTitle1').textContent = t.seoTitle1;
+  if (document.getElementById('seoBody1')) document.getElementById('seoBody1').textContent = t.seoBody1;
+  if (document.getElementById('seoTitle2')) document.getElementById('seoTitle2').textContent = t.seoTitle2;
+  if (document.getElementById('seoBody2')) document.getElementById('seoBody2').textContent = t.seoBody2;
+  if (document.getElementById('footerText')) document.getElementById('footerText').textContent = t.footer;
   document.getElementById('input').placeholder = t.inputPlaceholder;
   document.getElementById('output').placeholder = t.outputPlaceholder;
 }
 
-function toggleLang() { lang = lang==='ko'?'en':'ko'; localStorage.setItem('lang',lang); applyLang(); }
+function toggleLang() {
+  const order = ['ko','en','zh'];
+  const idx = order.indexOf(lang);
+  lang = order[(idx + 1) % order.length];
+  localStorage.setItem('lang', lang);
+  applyLang();
+}
 
 function switchMode(m) {
   mode = m;
@@ -274,13 +317,13 @@ function selectOpt(o) {
 function setStatus(type, msg) {
   const el = document.getElementById('status');
   el.className = 'status ' + type;
-  document.getElementById('statusText').textContent = msg;
+  if (document.getElementById('statusText')) document.getElementById('statusText').textContent = msg;
 }
 
 function clearStatus() {
   const el = document.getElementById('status');
   el.className = 'status idle';
-  document.getElementById('statusText').textContent = i18n[lang].statusIdle;
+  if (document.getElementById('statusText')) document.getElementById('statusText').textContent = i18n[lang].statusIdle;
 }
 
 function encode() {
@@ -356,7 +399,6 @@ async function pasteInput() {
   } catch(e) {}
 }
 
-lang = localStorage.getItem('lang') || (navigator.language.startsWith('ko') ? 'ko' : 'en');
 applyLang();
 </script>
 </body>

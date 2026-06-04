@@ -18,9 +18,6 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text);font-family:'Noto Sans',sans-serif;min-height:100vh;display:flex;flex-direction:column;}
 header{padding:16px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-shrink:0;}
-.back{color:var(--text-muted);text-decoration:none;font-size:13px;font-family:'DM Mono',monospace;}
-.back:hover{color:var(--accent);}
-.site-name{font-size:13px;color:var(--text-dim);font-family:'DM Mono',monospace;}
 .toolbar{padding:10px 16px;border-bottom:1px solid var(--border);display:flex;gap:6px;flex-wrap:wrap;flex-shrink:0;}
 .tb-btn{background:#111;border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer;color:var(--text-muted);font-family:'DM Mono',monospace;transition:all 0.15s;}
 .tb-btn:hover{border-color:var(--accent);color:var(--accent);}
@@ -55,6 +52,12 @@ textarea.md-input{flex:1;background:#111;border:none;resize:none;padding:16px;co
 .md-preview em{color:#aaa;font-style:italic;}
 .status-bar{padding:6px 16px;border-top:1px solid var(--border);font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;display:flex;gap:16px;flex-shrink:0;background:var(--surface);}
 @media(max-width:600px){.editor-layout{grid-template-columns:1fr;}}
+  .back-link { margin-left:auto; font-size:13px; color:var(--text-muted); text-decoration:none; }
+  .back-link:hover { color:var(--accent2); }
+  .lang-toggle { margin-left:4px; font-size:12px; color:var(--text-muted); cursor:pointer; padding:4px 12px; border:1px solid var(--border); border-radius:6px; font-family:'DM Mono',monospace; transition:all 0.15s; }
+  .lang-toggle:hover { border-color:var(--accent2,#4ade80); color:var(--accent2,#4ade80); }
+  .dot { width:8px; height:8px; border-radius:50%; background:var(--accent2,#4ade80); }
+  .header-label { font-size:13px; color:var(--text-muted); letter-spacing:0.1em; font-family:'DM Mono',monospace; }
 </style>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
@@ -62,35 +65,37 @@ textarea.md-input{flex:1;background:#111;border:none;resize:none;padding:16px;co
 </head>
 <body>
 <header>
-  <a href="/" class="back">← MODOO HUB</a>
-  <span class="site-name">/ Markdown Preview</span>
+  <div class="dot"></div>
+  <span class="header-label">MODOO HUB</span>
+  <a href="index.html" class="back-link">← 모두의 툴</a>
+  <div class="lang-toggle" onclick="cycleLang()" id="langBtn">🌐 EN</div>
 </header>
 <div class="toolbar">
   <button class="tb-btn" onclick="ins('**','**')"><b>B</b></button>
   <button class="tb-btn" onclick="ins('*','*')"><i>I</i></button>
-  <button class="tb-btn" onclick="ins('`','`')">code</button>
+  <button class="tb-btn" onclick="ins('`','`')" data-i18n="tbCode">code</button>
   <button class="tb-btn" onclick="insLine('# ')">H1</button>
   <button class="tb-btn" onclick="insLine('## ')">H2</button>
   <button class="tb-btn" onclick="insLine('### ')">H3</button>
-  <button class="tb-btn" onclick="insLine('- ')">List</button>
+  <button class="tb-btn" onclick="insLine('- ')" data-i18n="tbList">List</button>
   <button class="tb-btn" onclick="insLine('1. ')">OL</button>
-  <button class="tb-btn" onclick="insLine('> ')">Quote</button>
-  <button class="tb-btn" onclick="ins('```\n','\n```')">block</button>
+  <button class="tb-btn" onclick="insLine('> ')" data-i18n="tbQuote">Quote</button>
+  <button class="tb-btn" onclick="ins('```\n','\n```')" data-i18n="tbBlock">block</button>
   <button class="tb-btn" onclick="insLine('---')">HR</button>
-  <button class="tb-btn" onclick="ins('[','](url)')">Link</button>
-  <button class="tb-btn" onclick="ins('![alt](',')')">Img</button>
-  <button class="tb-btn" onclick="insTable()">Table</button>
-  <button class="tb-btn" onclick="clearMD()" style="margin-left:auto;">Clear</button>
-  <button class="tb-btn" onclick="copyHTML()">Copy HTML</button>
-  <button class="tb-btn" onclick="copyMD()">Copy MD</button>
+  <button class="tb-btn" onclick="ins('[','](url)')" data-i18n="tbLink">Link</button>
+  <button class="tb-btn" onclick="ins('![alt](',')')" data-i18n="tbImg">Img</button>
+  <button class="tb-btn" onclick="insTable()" data-i18n="tbTable">Table</button>
+  <button class="tb-btn" onclick="clearMD()" style="margin-left:auto;" data-i18n="tbClear">Clear</button>
+  <button class="tb-btn" onclick="copyHTML()" data-i18n="tbCopyHtml">Copy HTML</button>
+  <button class="tb-btn" onclick="copyMD()" data-i18n="tbCopyMd">Copy MD</button>
 </div>
 <div class="editor-layout">
   <div class="pane-wrap">
-    <div class="pane-header">MARKDOWN INPUT</div>
+    <div class="pane-header" data-i18n="paneInput">MARKDOWN INPUT</div>
     <textarea class="md-input" id="mdInput" oninput="render()" spellcheck="false"></textarea>
   </div>
   <div class="pane-wrap">
-    <div class="pane-header">PREVIEW</div>
+    <div class="pane-header" data-i18n="panePreview">PREVIEW</div>
     <div class="md-preview" id="mdPreview"></div>
   </div>
 </div>
@@ -100,7 +105,8 @@ textarea.md-input{flex:1;background:#111;border:none;resize:none;padding:16px;co
   <span id="statLines">0 lines</span>
 </div>
 <script>
-const DEFAULT=`# Welcome to Markdown Preview
+const DEFAULTS={
+en:`# Welcome to Markdown Preview
 
 Type your **Markdown** on the left and see the preview here.
 
@@ -127,7 +133,62 @@ hello();
 > **Tip:** Use the toolbar above for quick formatting shortcuts.
 
 ---
-*Made with ❤️ by MODOO HUB*`;
+*Made with ❤️ by MODOO HUB*`,
+ko:`# 마크다운 미리보기에 오신 것을 환영합니다
+
+왼쪽에 **마크다운**을 입력하면 오른쪽에서 바로 결과를 볼 수 있습니다.
+
+## 기능
+- 입력 즉시 미리보기
+- GitHub Flavored Markdown(GFM) 지원
+- 코드 블록, 표, 인용문 지원
+
+## 코드 예시
+\`\`\`javascript
+const hello = () => console.log("안녕하세요!");
+hello();
+\`\`\`
+
+## 표 예시
+| 기능 | 지원 여부 |
+|------|-----------|
+| 굵게 / 기울임 | ✅ |
+| 코드 블록 | ✅ |
+| 표 | ✅ |
+| 링크 / 이미지 | ✅ |
+
+> **팁:** 위 툴바 버튼으로 빠르게 서식을 넣을 수 있습니다.
+
+---
+*MODOO HUB와 함께 만들었어요*`,
+zh:`# 欢迎使用 Markdown 预览
+
+在左侧输入 **Markdown**，右侧会实时显示渲染结果。
+
+## 功能
+- 实时预览
+- 支持 GitHub Flavored Markdown (GFM)
+- 支持代码块、表格、引用
+
+## 代码示例
+\`\`\`javascript
+const hello = () => console.log("你好，世界！");
+hello();
+\`\`\`
+
+## 表格示例
+| 功能 | 支持 |
+|------|------|
+| 粗体 / 斜体 | ✅ |
+| 代码块 | ✅ |
+| 表格 | ✅ |
+| 链接 / 图片 | ✅ |
+
+> **提示：** 可使用上方工具栏快速插入语法。
+
+---
+*由 MODOO HUB 制作*`
+};
 
 function mdToHtml(md){
   let h=md
@@ -177,9 +238,15 @@ function render(){
   const md=document.getElementById('mdInput').value;
   document.getElementById('mdPreview').innerHTML=mdToHtml(md);
   const words=md.trim()===''?0:md.trim().split(/\s+/).length;
-  document.getElementById('statWords').textContent=words+' words';
-  document.getElementById('statChars').textContent=md.length+' chars';
-  document.getElementById('statLines').textContent=md.split('\n').length+' lines';
+  const lang = (window._lang && ['ko','en','zh'].includes(window._lang)) ? window._lang : 'en';
+  const labels = {
+    en:{w:'words',c:'chars',l:'lines'},
+    ko:{w:'단어',c:'글자',l:'줄'},
+    zh:{w:'词',c:'字符',l:'行'}
+  }[lang];
+  document.getElementById('statWords').textContent=words+' '+labels.w;
+  document.getElementById('statChars').textContent=md.length+' '+labels.c;
+  document.getElementById('statLines').textContent=md.split('\n').length+' '+labels.l;
 }
 
 function ins(before,after){
@@ -207,8 +274,66 @@ function copyHTML(){navigator.clipboard.writeText(document.getElementById('mdPre
 function copyMD(){navigator.clipboard.writeText(document.getElementById('mdInput').value);}
 
 // init
-document.getElementById('mdInput').value=DEFAULT;
+document.getElementById('mdInput').value=DEFAULTS.en;
 render();
+</script>
+
+<script>
+/* ===== i18n multilingual ===== */
+const _i18n = {
+  ko: { lang:'ko', title:'마크다운 미리보기 - 실시간 마크다운 에디터·렌더러 | 무료', btn:'🌐 EN', paneInput:'마크다운 입력', panePreview:'미리보기', tbCode:'코드', tbList:'목록', tbQuote:'인용', tbBlock:'블록', tbLink:'링크', tbImg:'이미지', tbTable:'표', tbClear:'지우기', tbCopyHtml:'HTML 복사', tbCopyMd:'MD 복사' },
+  en: { lang:'en', title:'Markdown Preview - Live Editor & Renderer | Free Online Tool', btn:'🌐 中文', paneInput:'MARKDOWN INPUT', panePreview:'PREVIEW', tbCode:'code', tbList:'List', tbQuote:'Quote', tbBlock:'block', tbLink:'Link', tbImg:'Img', tbTable:'Table', tbClear:'Clear', tbCopyHtml:'Copy HTML', tbCopyMd:'Copy MD' },
+  zh: { lang:'zh', title:'Markdown预览 - 实时编辑器·渲染器 | 免费', btn:'🌐 한국어', paneInput:'Markdown 输入', panePreview:'预览', tbCode:'代码', tbList:'列表', tbQuote:'引用', tbBlock:'代码块', tbLink:'链接', tbImg:'图片', tbTable:'表格', tbClear:'清空', tbCopyHtml:'复制 HTML', tbCopyMd:'复制 MD' }
+};
+function _detectLang() {
+  const u = new URLSearchParams(location.search).get('lang');
+  if (u && _i18n[u]) return u;
+  const s = localStorage.getItem('lang');
+  if (s && _i18n[s]) return s;
+  const n = navigator.language || '';
+  if (n.startsWith('zh')) return 'zh';
+  if (n.startsWith('ko')) return 'ko';
+  return 'en';
+}
+let _lang = _detectLang();
+function _applyLang() {
+  const t = _i18n[_lang];
+  window._lang = _lang;
+  document.documentElement.lang = t.lang;
+  document.title = t.title;
+  const btn = document.getElementById('langBtn');
+  if (btn) btn.textContent = t.btn;
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const key = el.dataset.i18n;
+    if (t[key] !== undefined) el.textContent = t[key];
+  });
+  const back = document.querySelector('.back-link');
+  if (back) back.textContent = (_lang === 'ko') ? '← 모두의 툴' : (_lang === 'zh') ? '← 首页' : '← Home';
+
+  // 기본 예시 텍스트는 사용자 입력이 없거나 기존 기본값일 때만 언어에 맞춰 교체
+  const input = document.getElementById('mdInput');
+  if (input) {
+    const current = input.value;
+    const isDefault = Object.values(DEFAULTS).includes(current);
+    if (isDefault) {
+      input.value = DEFAULTS[_lang] || DEFAULTS.en;
+      render();
+    } else {
+      render();
+    }
+  }
+}
+const _langOrder = ['ko','en','zh'];
+function cycleLang() {
+  const idx = _langOrder.indexOf(_lang);
+  _lang = _langOrder[(idx + 1) % _langOrder.length];
+  localStorage.setItem('lang', _lang);
+  const url = new URL(location.href);
+  if (_lang === 'ko') { url.searchParams.delete('lang'); } else { url.searchParams.set('lang', _lang); }
+  history.replaceState({}, '', url);
+  _applyLang();
+}
+_applyLang();
 </script>
 </body>
 </html>

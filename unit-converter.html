@@ -20,10 +20,6 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
 header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
-.back{color:var(--text-muted);text-decoration:none;font-size:13px;font-family:'DM Mono',monospace;}
-.back:hover{color:var(--accent);}
-.site-name{font-size:13px;color:var(--text-dim);font-family:'DM Mono',monospace;}
-.lang-sel{margin-left:auto;font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:transparent;font-family:'DM Mono',monospace;}
 main{max-width:640px;margin:0 auto;padding:48px 24px;}
 h1{font-size:28px;font-weight:900;margin-bottom:8px;}
 h1 span{color:var(--accent);}
@@ -50,6 +46,12 @@ h1 span{color:var(--accent);}
 .seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
 .seo strong{color:var(--text-muted);}
 footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:48px;padding:24px;}
+  .back-link { margin-left:auto; font-size:13px; color:var(--text-muted); text-decoration:none; }
+  .back-link:hover { color:var(--accent2); }
+  .lang-toggle { margin-left:4px; font-size:12px; color:var(--text-muted); cursor:pointer; padding:4px 12px; border:1px solid var(--border); border-radius:6px; font-family:'DM Mono',monospace; transition:all 0.15s; }
+  .lang-toggle:hover { border-color:var(--accent2,#4ade80); color:var(--accent2,#4ade80); }
+  .dot { width:8px; height:8px; border-radius:50%; background:var(--accent2,#4ade80); }
+  .header-label { font-size:13px; color:var(--text-muted); letter-spacing:0.1em; font-family:'DM Mono',monospace; }
 </style>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
@@ -57,25 +59,22 @@ footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:48px;pa
 </head>
 <body>
 <header>
-  <a href="/" class="back">← MODOO HUB</a>
-  <span class="site-name">/ Unit Converter</span>
-  <select class="lang-sel" onchange="setLang(this.value)">
-    <option value="en">EN</option>
-    <option value="ko">한국어</option>
-    <option value="zh">中文</option>
-  </select>
+  <div class="dot"></div>
+  <span class="header-label">MODOO HUB</span>
+  <a href="index.html" class="back-link">← 모두의 툴</a>
+  <div class="lang-toggle" onclick="cycleLang()" id="langBtn">🌐 EN</div>
 </header>
 <main>
   <h1 id="h1">Unit <span>Converter</span></h1>
   <p class="subtitle" id="sub">Instantly convert length, weight, temperature, area and more.</p>
 
   <div class="cat-bar">
-    <button class="cat-btn active" onclick="setCat('length',this)">📏 Length</button>
-    <button class="cat-btn" onclick="setCat('weight',this)">⚖️ Weight</button>
-    <button class="cat-btn" onclick="setCat('temp',this)">🌡️ Temp</button>
-    <button class="cat-btn" onclick="setCat('area',this)">📐 Area</button>
-    <button class="cat-btn" onclick="setCat('speed',this)">💨 Speed</button>
-    <button class="cat-btn" onclick="setCat('data',this)">💾 Data</button>
+    <button class="cat-btn active" onclick="setCat('length',this)"><span data-i18n="ucLength">📏 Length</span></button>
+    <button class="cat-btn" onclick="setCat('weight',this)"><span data-i18n="ucWeight">⚖️ Weight</span></button>
+    <button class="cat-btn" onclick="setCat('temp',this)"><span data-i18n="ucTemp">🌡️ Temp</span></button>
+    <button class="cat-btn" onclick="setCat('area',this)"><span data-i18n="ucArea">📐 Area</span></button>
+    <button class="cat-btn" onclick="setCat('speed',this)"><span data-i18n="ucSpeed">💨 Speed</span></button>
+    <button class="cat-btn" onclick="setCat('data',this)"><span data-i18n="ucData">💾 Data</span></button>
   </div>
 
   <div class="card">
@@ -94,7 +93,7 @@ footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:48px;pa
       <label id="inputLabel">Value</label>
       <input type="number" id="inputVal" value="1" oninput="convert()">
     </div>
-    <button class="swap-btn" onclick="swap()">⇆ Swap units</button>
+    <button class="swap-btn" onclick="swap()"><span data-i18n="ucSwap">⇆ Swap units</span></button>
     <div class="result-box">
       <div class="rval" id="resultVal">-</div>
       <div class="runit" id="resultUnit"></div>
@@ -149,6 +148,33 @@ const categories = {
   }
 };
 
+const refsI18n = {
+  zh: {
+    length: ['1 公里 = 0.6214 英里','1 英里 = 1.6093 公里','1 英尺 = 30.48 厘米','1 英寸 = 2.54 厘米','1 码 = 91.44 厘米','1 米 = 3.2808 英尺'],
+    weight: ['1 千克 = 2.2046 磅','1 磅 = 453.6 克','1 盎司 = 28.35 克','1 吨 = 1,000 千克','1 英石 = 6.35 千克','1 千克 = 35.274 盎司'],
+    temp: ['0°C = 32°F = 273.15K','100°C = 212°F','37°C = 98.6°F（体温）','−40°C = −40°F','-273.15°C = 0K（绝对零度）','20°C = 68°F（室温）'],
+    area: ['1 平方公里 = 100 公顷','1 英亩 = 4,047 平方米','1 公顷 = 2.471 英亩','1 坪 = 3.306 平方米','1 平方英尺 = 929 平方厘米','100 坪 = 330.6 平方米'],
+    speed: ['1 米/秒 = 3.6 公里/时','1 英里/时 = 1.609 公里/时','1 节 = 1.852 公里/时','100 公里/时 = 62.14 英里/时','60 英里/时 = 96.56 公里/时','1 英尺/秒 = 1.097 公里/时'],
+    data: ['1 KB = 1,024 字节','1 MB = 1,024 KB','1 GB = 1,024 MB','1 TB = 1,024 GB','1 GB = 8 Gbit','1 PB = 1,024 TB']
+  },
+  ko: {
+    length: ['1 km = 0.6214 mile','1 mile = 1.6093 km','1 foot = 30.48 cm','1 inch = 2.54 cm','1 yard = 91.44 cm','1 m = 3.2808 ft'],
+    weight: ['1 kg = 2.2046 lb','1 lb = 453.6 g','1 oz = 28.35 g','1 ton = 1,000 kg','1 stone = 6.35 kg','1 kg = 35.274 oz'],
+    temp: ['0°C = 32°F = 273.15K','100°C = 212°F','37°C = 98.6°F (body)','−40°C = −40°F','-273.15°C = 0K (abs. zero)','20°C = 68°F (room)'],
+    area: ['1 km² = 100 ha','1 acre = 4,047 m²','1 ha = 2.471 acres','1 평 = 3.306 m²','1 ft² = 929 cm²','100평 = 330.6 m²'],
+    speed: ['1 m/s = 3.6 km/h','1 mph = 1.609 km/h','1 knot = 1.852 km/h','100 km/h = 62.14 mph','60 mph = 96.56 km/h','1 ft/s = 1.097 km/h'],
+    data: ['1 KB = 1,024 Bytes','1 MB = 1,024 KB','1 GB = 1,024 MB','1 TB = 1,024 GB','1 GB = 8 Gbit','1 PB = 1,024 TB']
+  },
+  en: {
+    length: ['1 km = 0.6214 mile','1 mile = 1.6093 km','1 foot = 30.48 cm','1 inch = 2.54 cm','1 yard = 91.44 cm','1 m = 3.2808 ft'],
+    weight: ['1 kg = 2.2046 lb','1 lb = 453.6 g','1 oz = 28.35 g','1 ton = 1,000 kg','1 stone = 6.35 kg','1 kg = 35.274 oz'],
+    temp: ['0°C = 32°F = 273.15K','100°C = 212°F','37°C = 98.6°F (body)','−40°C = −40°F','-273.15°C = 0K (abs. zero)','20°C = 68°F (room)'],
+    area: ['1 km² = 100 ha','1 acre = 4,047 m²','1 ha = 2.471 acres','1 평 = 3.306 m²','1 ft² = 929 cm²','100평 = 330.6 m²'],
+    speed: ['1 m/s = 3.6 km/h','1 mph = 1.609 km/h','1 knot = 1.852 km/h','100 km/h = 62.14 mph','60 mph = 96.56 km/h','1 ft/s = 1.097 km/h'],
+    data: ['1 KB = 1,024 Bytes','1 MB = 1,024 KB','1 GB = 1,024 MB','1 TB = 1,024 GB','1 GB = 8 Gbit','1 PB = 1,024 TB']
+  }
+};
+
 let curCat = 'length';
 
 function setCat(cat, btn) {
@@ -161,12 +187,14 @@ function setCat(cat, btn) {
 
 function populateUnits() {
   const c = categories[curCat];
+  const lang = (typeof _lang !== 'undefined' && _lang) ? _lang : 'en';
   const f = document.getElementById('fromUnit');
   const t = document.getElementById('toUnit');
   f.innerHTML = c.units.map((u,i)=>`<option value="${i}">${u}</option>`).join('');
   t.innerHTML = c.units.map((u,i)=>`<option value="${i}" ${i===1?'selected':''}>${u}</option>`).join('');
-  // quick refs
-  document.getElementById('quickRefs').innerHTML = c.refs.map(r=>`<div class="qr-item">${r}</div>`).join('');
+  // quick refs (localized)
+  const refs = (refsI18n[lang] && refsI18n[lang][curCat]) ? refsI18n[lang][curCat] : c.refs;
+  document.getElementById('quickRefs').innerHTML = refs.map(r=>`<div class="qr-item">${r}</div>`).join('');
 }
 
 function convertTemp(val, fromIdx, toIdx) {
@@ -206,30 +234,73 @@ function swap() {
   convert();
 }
 
-// i18n
-const labels = {
-  en:{h1:'Unit <span>Converter</span>',sub:'Instantly convert length, weight, temperature, area and more.',from:'From',to:'To',input:'Value',swap:'⇆ Swap units',seoH:'Common Unit Conversions'},
-  ko:{h1:'단위 <span>변환기</span>',sub:'길이·무게·온도·면적·속도·데이터 단위를 즉시 변환합니다.',from:'변환 전',to:'변환 후',input:'값 입력',swap:'⇆ 단위 바꾸기',seoH:'자주 쓰는 단위 변환'},
-  zh:{h1:'单位 <span>换算器</span>',sub:'长度、重量、温度、面积、速度、数据单位即时换算。',from:'换算前',to:'换算后',input:'输入值',swap:'⇆ 交换单位',seoH:'常用单位换算'},
-};
-function setLang(l) {
-  const t=labels[l]||labels.en;
-  document.getElementById('h1').innerHTML=t.h1;
-  document.getElementById('sub').textContent=t.sub;
-  document.getElementById('fromLabel').textContent=t.from;
-  document.getElementById('toLabel').textContent=t.to;
-  document.getElementById('inputLabel').textContent=t.input;
-  document.querySelector('.swap-btn').textContent=t.swap;
-  document.getElementById('seoH').textContent=t.seoH;
-  document.documentElement.lang=l==='ko'?'ko':l==='zh'?'zh':'en';
-}
-
 // init
-populateUnits(); convert();
-// auto lang
-const sl=localStorage.getItem('lang')||navigator.language||'';
-if(sl.startsWith('ko')){ document.querySelector('.lang-sel').value='ko'; setLang('ko'); }
-else if(sl.startsWith('zh')){ document.querySelector('.lang-sel').value='zh'; setLang('zh'); }
+populateUnits();
+convert();
+</script>
+
+<script>
+/* ===== i18n multilingual ===== */
+const _i18n = {
+  ko: { lang:'ko', title:'단위 변환기 - 길이·무게·온도·면적 변환 | 무료', h1:'단위 <span>변환기</span>', sub:'길이, 무게, 온도, 면적 등을 즉시 변환합니다.', btn:'🌐 EN', from:'변환 전', to:'변환 후', input:'값 입력', seoH:'자주 쓰는 단위 변환', seoP1:'1 kilometer = 0.621371 miles · 1 kg = 2.20462 lbs · 0°C = 32°F · 1 meter = 3.28084 feet · 1 inch = 2.54 cm', seoP2:'<strong>Q. 인치(inch)를 cm로 바꾸면?</strong><br>1 inch = 2.54 centimeters (정확값). 1 foot = 30.48 cm, 1 yard = 91.44 cm.', seoP3:'<strong>Q. 화씨를 섭씨로 바꾸는 공식은?</strong><br>°C = (°F − 32) × 5/9. 예: 98.6°F = 37°C (체온).', ucLength:'📏 길이', ucWeight:'⚖️ 무게', ucTemp:'🌡️ 온도', ucArea:'📐 면적', ucSpeed:'💨 속도', ucData:'💾 데이터', ucSwap:'⇆ 단위 교환' },
+  en: { lang:'en', title:'Unit Converter - Length, Weight, Temperature, Area | Free Online Tool', h1:'Unit <span>Converter</span>', sub:'Instantly convert length, weight, temperature, area and more.', btn:'🌐 中文', from:'From', to:'To', input:'Value', seoH:'Common Unit Conversions', seoP1:'1 kilometer = 0.621371 miles · 1 kg = 2.20462 lbs · 0°C = 32°F · 1 meter = 3.28084 feet · 1 inch = 2.54 cm', seoP2:'<strong>Q. How many cm in an inch?</strong><br>1 inch = 2.54 centimeters exactly. 1 foot = 30.48 cm. 1 yard = 91.44 cm.', seoP3:'<strong>Q. How to convert Fahrenheit to Celsius?</strong><br>Formula: °C = (°F − 32) × 5/9. Example: 98.6°F = 37°C (body temperature).', ucLength:'📏 Length', ucWeight:'⚖️ Weight', ucTemp:'🌡️ Temp', ucArea:'📐 Area', ucSpeed:'💨 Speed', ucData:'💾 Data', ucSwap:'⇆ Swap units' },
+  zh: { lang:'zh', title:'单位换算器 - 长度·重量·温度·面积换算 | 免费', h1:'单位 <span>换算器</span>', sub:'即时换算长度、重量、温度、面积等单位。', btn:'🌐 한국어', from:'换算前', to:'换算后', input:'输入值', seoH:'常用单位换算', seoP1:'1 公里 = 0.621371 英里 · 1 千克 = 2.20462 磅 · 0°C = 32°F · 1 米 = 3.28084 英尺 · 1 英寸 = 2.54 厘米', seoP2:'<strong>问：1 英寸等于多少厘米？</strong><br>1 英寸 = 2.54 厘米（精确值）。1 英尺 = 30.48 厘米，1 码 = 91.44 厘米。', seoP3:'<strong>问：华氏度如何换算成摄氏度？</strong><br>公式：°C = (°F − 32) × 5/9。例：98.6°F = 37°C（体温）。', ucLength:'📏 长度', ucWeight:'⚖️ 重量', ucTemp:'🌡️ 温度', ucArea:'📐 面积', ucSpeed:'💨 速度', ucData:'💾 数据', ucSwap:'⇆ 交换单位' }
+};
+function _detectLang() {
+  const u = new URLSearchParams(location.search).get('lang');
+  if (u && _i18n[u]) return u;
+  const s = localStorage.getItem('lang');
+  if (s && _i18n[s]) return s;
+  const n = navigator.language || '';
+  if (n.startsWith('zh')) return 'zh';
+  if (n.startsWith('ko')) return 'ko';
+  return 'en';
+}
+let _lang = _detectLang();
+function _applyLang() {
+  const t = _i18n[_lang];
+  document.documentElement.lang = t.lang;
+  document.title = t.title;
+  const btn = document.getElementById('langBtn');
+  if (btn) btn.textContent = t.btn;
+  const h1 = document.querySelector('h1');
+  if (h1) h1.innerHTML = t.h1;
+  const sub = document.querySelector('.subtitle');
+  if (sub) sub.textContent = t.sub;
+  const from = document.getElementById('fromLabel');
+  if (from) from.textContent = t.from;
+  const to = document.getElementById('toLabel');
+  if (to) to.textContent = t.to;
+  const input = document.getElementById('inputLabel');
+  if (input) input.textContent = t.input;
+  const seoH = document.getElementById('seoH');
+  if (seoH) seoH.textContent = t.seoH;
+  const seoP1 = document.getElementById('seoP1');
+  if (seoP1) seoP1.innerHTML = t.seoP1;
+  const seoP2 = document.getElementById('seoP2');
+  if (seoP2) seoP2.innerHTML = t.seoP2;
+  const seoP3 = document.getElementById('seoP3');
+  if (seoP3) seoP3.innerHTML = t.seoP3;
+  const back = document.querySelector('.back-link');
+  if (back) back.textContent = (_lang === 'ko') ? '← 모두의 툴' : (_lang === 'zh') ? '← 首页' : '← Home';
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const v = t[el.dataset.i18n];
+    if (v !== undefined) el.innerHTML = v;
+  });
+  populateUnits();
+  convert();
+}
+const _langOrder = ['ko','en','zh'];
+function cycleLang() {
+  const idx = _langOrder.indexOf(_lang);
+  _lang = _langOrder[(idx + 1) % _langOrder.length];
+  localStorage.setItem('lang', _lang);
+  const url = new URL(location.href);
+  if (_lang === 'ko') { url.searchParams.delete('lang'); } else { url.searchParams.set('lang', _lang); }
+  history.replaceState({}, '', url);
+  _applyLang();
+}
+_applyLang();
 </script>
 </body>
 </html>

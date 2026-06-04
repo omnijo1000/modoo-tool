@@ -66,8 +66,8 @@
 <body>
 <header>
   <div class="dot"></div>
-  <span class="header-label">COLOR CONVERTER</span>
-  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <span class="header-label">MODOO HUB</span>
+  <a href="index.html" class="back-link">← 모두의 툴</a>
   <div class="lang-toggle" onclick="toggleLang()" id="langBtn">🌐 EN</div>
 </header>
 <main>
@@ -125,9 +125,31 @@
 <script>
 const i18n={
   ko:{pageTitle:'색상 변환기 - HEX RGB HSL 변환',h1:'색상<br><span>변환기</span>',sub:'HEX, RGB, HSL 색상 코드를 즉시 변환합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',pickerHint:'클릭해서 색상 선택',paletteTitle:'자주 쓰는 색상',copyBtn:'복사',seoT1:'색상 코드 변환이란?',seoB1:'HEX, RGB, HSL은 동일한 색상을 다른 방식으로 표현합니다. CSS, 디자인 툴마다 다른 형식을 요구하므로 변환이 필요합니다.',footer:'모든 변환은 브라우저에서 처리됩니다'},
-  en:{pageTitle:'Color Converter - HEX RGB HSL Color Code Converter',h1:'Color<br><span>Converter</span>',sub:'Convert between HEX, RGB, HSL and RGBA color formats',backLink:'← Modoo Hub',langBtn:'🌐 KO',pickerHint:'Click to pick a color',paletteTitle:'Common colors',copyBtn:'Copy',seoT1:'What is color code conversion?',seoB1:'HEX (#RRGGBB), RGB, and HSL represent the same color in different ways. Different CSS properties, design tools, and development environments require different formats.',footer:'All conversions are processed in your browser'}
+  en:{pageTitle:'Color Converter - HEX RGB HSL Color Code Converter',h1:'Color<br><span>Converter</span>',sub:'Convert between HEX, RGB, HSL and RGBA color formats',backLink:'← Modoo Hub',langBtn:'🌐 中文',pickerHint:'Click to pick a color',paletteTitle:'Common colors',copyBtn:'Copy',seoT1:'What is color code conversion?',seoB1:'HEX (#RRGGBB), RGB, and HSL represent the same color in different ways. Different CSS properties, design tools, and development environments require different formats.',footer:'All conversions are processed in your browser'}
 };
-let lang=localStorage.getItem('lang')||(navigator.language.startsWith('ko')?'ko':'en');
+if (!i18n.zh) {
+  i18n.zh = { ...i18n.en };
+}
+Object.assign(i18n.zh, {
+  pageTitle: '颜色转换器 - HEX RGB HSL',
+  h1: '颜色 <span>转换器</span>',
+  sub: '在 HEX、RGB、HSL、RGBA 之间快速转换',
+  backLink: '← 首页',
+  langBtn: '🌐 한국어',
+  pickerHint: '点击选择颜色',
+  paletteTitle: '常用颜色',
+  copyBtn: '复制',
+  seoT1: '什么是颜色代码转换？',
+  seoB1: '同一颜色可用 HEX、RGB、HSL 等多种格式表示。',
+  footer: '所有转换均在浏览器本地完成',
+});
+let lang = localStorage.getItem('lang');
+if (!lang || !i18n[lang]) {
+  const nav = navigator.language || '';
+  if (nav.startsWith('zh')) lang = 'zh';
+  else if (nav.startsWith('ko')) lang = 'ko';
+  else lang = 'en';
+}
 let currentR=236,currentG=72,currentB=153;
 
 const PALETTE=['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#8b5cf6','#ec4899','#14b8a6','#f59e0b','#10b981','#6366f1','#84cc16','#ffffff','#d1d5db','#6b7280','#374151','#1f2937','#000000','#fef3c7','#dbeafe'];
@@ -135,22 +157,28 @@ const PALETTE=['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#8b5cf6','#ec4
 function applyLang(){
   const t=i18n[lang];
   document.documentElement.lang=lang;document.title=t.pageTitle;
-  document.getElementById('h1Title').innerHTML=t.h1;
-  document.getElementById('h1Sub').textContent=t.sub;
-  document.getElementById('backLink').textContent=t.backLink;
-  document.getElementById('langBtn').textContent=t.langBtn;
-  document.getElementById('pickerHint').textContent=t.pickerHint;
-  document.getElementById('paletteTitle').textContent=t.paletteTitle;
+  if (document.getElementById('h1Title')) document.getElementById('h1Title').innerHTML = t.h1;
+  if (document.getElementById('h1Sub')) document.getElementById('h1Sub').textContent = t.sub;
+  if (document.getElementById('backLink')) document.getElementById('backLink').textContent = t.backLink;
+  if (document.getElementById('langBtn')) document.getElementById('langBtn').textContent = t.langBtn;
+  if (document.getElementById('pickerHint')) document.getElementById('pickerHint').textContent = t.pickerHint;
+  if (document.getElementById('paletteTitle')) document.getElementById('paletteTitle').textContent = t.paletteTitle;
   ['copyHex','copyRgb','copyHsl','copyRgba'].forEach(id=>document.getElementById(id).textContent=t.copyBtn);
-  document.getElementById('seoT1').textContent=t.seoT1;
-  document.getElementById('seoB1').textContent=t.seoB1;
-  document.getElementById('footerText').textContent=t.footer;
+  if (document.getElementById('seoT1')) document.getElementById('seoT1').textContent = t.seoT1;
+  if (document.getElementById('seoB1')) document.getElementById('seoB1').textContent = t.seoB1;
+  if (document.getElementById('footerText')) document.getElementById('footerText').textContent = t.footer;
   renderPalette();
 }
-function toggleLang(){lang=lang==='ko'?'en':'ko';localStorage.setItem('lang',lang);applyLang();}
+function toggleLang() {
+  const order = ['ko','en','zh'];
+  const idx = order.indexOf(lang);
+  lang = order[(idx + 1) % order.length];
+  localStorage.setItem('lang', lang);
+  applyLang();
+}
 
 function renderPalette(){
-  document.getElementById('paletteGrid').innerHTML=PALETTE.map(c=>`<div class="swatch" style="background:${c}" title="${c}" onclick="setFromHex('${c}')"></div>`).join('');
+  if (document.getElementById('paletteGrid')) document.getElementById('paletteGrid').innerHTML = PALETTE.map(c=>`<div class="swatch" style="background:${c}" title="${c}" onclick="setFromHex('${c}')"></div>`).join('');
   renderShades();
 }
 
@@ -164,7 +192,7 @@ function renderShades(){
     const b=Math.round(currentB*(1-f)+255*f);
     shades.push(`<div class="shade" style="background:rgb(${r},${g},${b})" title="rgb(${r},${g},${b})" onclick="setFromRgbVal(${r},${g},${b})"></div>`);
   }
-  document.getElementById('shadeBar').innerHTML=shades.join('');
+  if (document.getElementById('shadeBar')) document.getElementById('shadeBar').innerHTML = shades.join('');
 }
 
 function hexToRgb(hex){
@@ -192,7 +220,7 @@ function updateAll(r,g,b,skip=''){
   const{h,s,l}=rgbToHsl(r,g,b);
   const preview=document.getElementById('preview');
   preview.style.background=hex;
-  document.getElementById('previewText').textContent=hex;
+  if (document.getElementById('previewText')) document.getElementById('previewText').textContent = hex;
   document.getElementById('colorPicker').value=hex;
   if(skip!=='hex')document.getElementById('hexInput').value=hex;
   if(skip!=='rgb')document.getElementById('rgbInput').value=`rgb(${r}, ${g}, ${b})`;
@@ -244,7 +272,6 @@ function copyColor(type){
   setTimeout(()=>{btn.textContent=i18n[lang].copyBtn;btn.style.color='';},2000);
 }
 
-lang=localStorage.getItem('lang')||(navigator.language.startsWith('ko')?'ko':'en');
 applyLang();
 updateAll(236,72,153);
 </script>

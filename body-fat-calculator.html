@@ -19,9 +19,6 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text);font-family:'Noto Sans',sans-serif;min-height:100vh;}
 header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
-.back{color:var(--text-muted);text-decoration:none;font-size:13px;font-family:'DM Mono',monospace;}
-.back:hover{color:var(--accent);}
-.site-name{font-size:13px;color:var(--text-dim);font-family:'DM Mono',monospace;}
 main{max-width:640px;margin:0 auto;padding:48px 24px;}
 h1{font-size:28px;font-weight:900;margin-bottom:8px;}
 h1 span{color:var(--accent);}
@@ -67,6 +64,12 @@ label{font-size:13px;color:var(--text-muted);display:block;margin-bottom:6px;}
 .seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
 .seo strong{color:var(--text-muted);}
 footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:48px;padding:24px;}
+  .back-link { margin-left:auto; font-size:13px; color:var(--text-muted); text-decoration:none; }
+  .back-link:hover { color:var(--accent2); }
+  .lang-toggle { margin-left:4px; font-size:12px; color:var(--text-muted); cursor:pointer; padding:4px 12px; border:1px solid var(--border); border-radius:6px; font-family:'DM Mono',monospace; transition:all 0.15s; }
+  .lang-toggle:hover { border-color:var(--accent2,#4ade80); color:var(--accent2,#4ade80); }
+  .dot { width:8px; height:8px; border-radius:50%; background:var(--accent2,#4ade80); }
+  .header-label { font-size:13px; color:var(--text-muted); letter-spacing:0.1em; font-family:'DM Mono',monospace; }
 </style>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
@@ -74,21 +77,23 @@ footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:48px;pa
 </head>
 <body>
 <header>
-  <a href="/" class="back">← MODOO HUB</a>
-  <span class="site-name">/ Body Fat Calculator</span>
+  <div class="dot"></div>
+  <span class="header-label">MODOO HUB</span>
+  <a href="index.html" class="back-link">← 모두의 툴</a>
+  <div class="lang-toggle" onclick="cycleLang()" id="langBtn">🌐 EN</div>
 </header>
 <main>
   <h1>Body Fat <span>Calculator</span></h1>
   <p class="subtitle">Calculate your body fat percentage using the US Navy method or BMI method. No gym equipment needed.</p>
 
   <div class="card">
-    <div class="card-title">Method</div>
+    <div class="card-title" data-i18n="bfMethod">Method</div>
     <div class="method-toggle">
-      <button class="method-btn active" id="mNavy" onclick="setMethod('navy')">⚓ Navy Method</button>
-      <button class="method-btn" id="mBmi" onclick="setMethod('bmi')">📊 BMI Method</button>
+      <button class="method-btn active" id="mNavy" onclick="setMethod('navy')"><span data-i18n="bfNavy">⚓ Navy Method</span></button>
+      <button class="method-btn" id="mBmi" onclick="setMethod('bmi')"><span data-i18n="bfBmi">📊 BMI Method</span></button>
     </div>
 
-    <div class="card-title">Gender</div>
+    <div class="card-title" data-i18n="bfGender">Gender</div>
     <div class="gender-row">
       <div class="g-btn active" id="gMale" onclick="setGender('male')">♂ Male</div>
       <div class="g-btn" id="gFemale" onclick="setGender('female')">♀ Female</div>
@@ -118,7 +123,7 @@ footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:48px;pa
       </div>
     </div>
 
-    <button class="calc-btn" onclick="calc()">Calculate Body Fat</button>
+    <button class="calc-btn" onclick="calc()"><span data-i18n="bfCalcBtn">Calculate Body Fat</span></button>
   </div>
 
   <div class="card result-area" id="resultArea">
@@ -222,6 +227,66 @@ function calc(){
 }
 // init
 setGender('male');
+</script>
+
+<script>
+/* ===== i18n multilingual ===== */
+const _i18n = {
+  ko: { lang:'ko', title:'체지방률 계산기 - 해군법·BMI법 체지방 계산 | 무료', h1:'체지방률 계산기', sub:'해군법 또는 BMI법으로 체지방률을 계산합니다. 기구 없이 측정 가능.', btn:'🌐 EN' ,
+  bfMethod:'측정 방법',
+  bfNavy:'⚓ 해군 측정법',
+  bfBmi:'📊 BMI 측정법',
+  bfGender:'성별',
+  bfCalcBtn:'계산하기',
+ },
+  en: { lang:'en', title:'Body Fat Calculator - Navy Method, BMI Method | Free Online', h1:'Body Fat Calculator', sub:'Calculate your body fat percentage using the US Navy method or BMI method. No gym equipment needed.', btn:'🌐 中文' },
+  zh: { lang:'zh', title:'体脂率计算器 - 海军法·BMI法体脂计算 | 免费', h1:'体脂率计算器', sub:'使用美国海军法或BMI法计算体脂率。无需任何器材。', btn:'🌐 한국어' ,
+  bfMethod:'测量方法',
+  bfNavy:'⚓ 海军测量法',
+  bfBmi:'📊 BMI测量法',
+  bfGender:'性别',
+  bfCalcBtn:'计算',
+ }
+};
+function _detectLang() {
+  const u = new URLSearchParams(location.search).get('lang');
+  if (u && _i18n[u]) return u;
+  const s = localStorage.getItem('lang');
+  if (s && _i18n[s]) return s;
+  const n = navigator.language || '';
+  if (n.startsWith('zh')) return 'zh';
+  if (n.startsWith('ko')) return 'ko';
+  return 'en';
+}
+let _lang = _detectLang();
+function _applyLang() {
+  const t = _i18n[_lang];
+  document.documentElement.lang = t.lang;
+  document.title = t.title;
+  const btn = document.getElementById('langBtn');
+  if (btn) btn.textContent = t.btn;
+  const h1 = document.querySelector('h1');
+  if (h1) h1.innerHTML = t.h1;
+  const sub = document.querySelector('.subtitle');
+  if (sub) sub.textContent = t.sub;
+  const back = document.querySelector('.back-link');
+  if (back) back.textContent = (_lang === 'ko') ? '← 모두의 툴' : (_lang === 'zh') ? '← 首页' : '← Home';
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const v = t[el.dataset.i18n];
+    if (v !== undefined) el.innerHTML = v;
+  });
+}
+const _langOrder = ['ko','en','zh'];
+function cycleLang() {
+  const idx = _langOrder.indexOf(_lang);
+  _lang = _langOrder[(idx + 1) % _langOrder.length];
+  localStorage.setItem('lang', _lang);
+  const url = new URL(location.href);
+  if (_lang === 'ko') { url.searchParams.delete('lang'); } else { url.searchParams.set('lang', _lang); }
+  history.replaceState({}, '', url);
+  _applyLang();
+}
+_applyLang();
 </script>
 </body>
 </html>

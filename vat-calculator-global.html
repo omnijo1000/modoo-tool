@@ -19,9 +19,6 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text);font-family:'Noto Sans',sans-serif;min-height:100vh;}
 header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
-.back{color:var(--text-muted);text-decoration:none;font-size:13px;font-family:'DM Mono',monospace;}
-.back:hover{color:var(--accent);}
-.site-name{font-size:13px;color:var(--text-dim);font-family:'DM Mono',monospace;}
 main{max-width:640px;margin:0 auto;padding:48px 24px;}
 h1{font-size:28px;font-weight:900;margin-bottom:8px;}
 h1 span{color:var(--accent);}
@@ -62,6 +59,12 @@ label{font-size:13px;color:var(--text-muted);display:block;margin-bottom:6px;}
 .seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
 .seo strong{color:var(--text-muted);}
 footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:48px;padding:24px;}
+  .back-link { margin-left:auto; font-size:13px; color:var(--text-muted); text-decoration:none; }
+  .back-link:hover { color:var(--accent2); }
+  .lang-toggle { margin-left:4px; font-size:12px; color:var(--text-muted); cursor:pointer; padding:4px 12px; border:1px solid var(--border); border-radius:6px; font-family:'DM Mono',monospace; transition:all 0.15s; }
+  .lang-toggle:hover { border-color:var(--accent2,#4ade80); color:var(--accent2,#4ade80); }
+  .dot { width:8px; height:8px; border-radius:50%; background:var(--accent2,#4ade80); }
+  .header-label { font-size:13px; color:var(--text-muted); letter-spacing:0.1em; font-family:'DM Mono',monospace; }
 </style>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
@@ -69,21 +72,23 @@ footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:48px;pa
 </head>
 <body>
 <header>
-  <a href="/" class="back">← MODOO HUB</a>
-  <span class="site-name">/ VAT Calculator</span>
+  <div class="dot"></div>
+  <span class="header-label">MODOO HUB</span>
+  <a href="index.html" class="back-link">← 모두의 툴</a>
+  <div class="lang-toggle" onclick="cycleLang()" id="langBtn">🌐 EN</div>
 </header>
 <main>
   <h1>VAT <span>Calculator</span></h1>
   <p class="subtitle">Add or remove VAT for UK, EU, Australia and 40+ countries. Standard rates pre-loaded.</p>
 
   <div class="card">
-    <div class="card-title">Mode</div>
+    <div class="card-title" data-i18n="vatMode">Mode</div>
     <div class="mode-toggle">
-      <button class="mode-btn active" id="modeAdd" onclick="setMode('add')">➕ Add VAT</button>
-      <button class="mode-btn" id="modeRemove" onclick="setMode('remove')">➖ Remove VAT</button>
+      <button class="mode-btn active" id="modeAdd" onclick="setMode('add')"><span data-i18n="vatAdd">➕ Add VAT</span></button>
+      <button class="mode-btn" id="modeRemove" onclick="setMode('remove')"><span data-i18n="vatRemove">➖ Remove VAT</span></button>
     </div>
 
-    <div class="card-title">Country / Region</div>
+    <div class="card-title" data-i18n="vatCountry">Country / Region</div>
     <select class="country-select" id="country" onchange="setCountry()">
       <optgroup label="🇬🇧 United Kingdom">
         <option value="20|£|UK Standard">UK — Standard (20%)</option>
@@ -197,6 +202,64 @@ function calc(){
 }
 // init
 setCountry();
+</script>
+
+<script>
+/* ===== i18n multilingual ===== */
+const _i18n = {
+  ko: { lang:'ko', title:'글로벌 VAT 계산기 - 국가별 부가세 계산 | 무료', h1:'글로벌 VAT 계산기', sub:'영국, EU, 호주 등 40개국 이상의 부가세를 계산합니다.', btn:'🌐 EN' ,
+  vatMode:'계산 방식',
+  vatAdd:'➕ VAT 추가',
+  vatRemove:'➖ VAT 제거',
+  vatCountry:'국가 / 지역',
+ },
+  en: { lang:'en', title:'VAT Calculator - UK, EU, Australia & 40+ Countries | Free Online', h1:'VAT Calculator', sub:'Add or remove VAT for UK, EU, Australia and 40+ countries. Standard rates pre-loaded.', btn:'🌐 中文' },
+  zh: { lang:'zh', title:'VAT计算器 - 英国、欧盟、澳大利亚等40+国家 | 免费', h1:'全球VAT计算器', sub:'计算英国、欧盟、澳大利亚等40+国家的增值税。', btn:'🌐 한국어' ,
+  vatMode:'计算模式',
+  vatAdd:'➕ 加VAT',
+  vatRemove:'➖ 去VAT',
+  vatCountry:'国家 / 地区',
+ }
+};
+function _detectLang() {
+  const u = new URLSearchParams(location.search).get('lang');
+  if (u && _i18n[u]) return u;
+  const s = localStorage.getItem('lang');
+  if (s && _i18n[s]) return s;
+  const n = navigator.language || '';
+  if (n.startsWith('zh')) return 'zh';
+  if (n.startsWith('ko')) return 'ko';
+  return 'en';
+}
+let _lang = _detectLang();
+function _applyLang() {
+  const t = _i18n[_lang];
+  document.documentElement.lang = t.lang;
+  document.title = t.title;
+  const btn = document.getElementById('langBtn');
+  if (btn) btn.textContent = t.btn;
+  const h1 = document.querySelector('h1');
+  if (h1) h1.innerHTML = t.h1;
+  const sub = document.querySelector('.subtitle');
+  if (sub) sub.textContent = t.sub;
+  const back = document.querySelector('.back-link');
+  if (back) back.textContent = (_lang === 'ko') ? '← 모두의 툴' : (_lang === 'zh') ? '← 首页' : '← Home';
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const v = t[el.dataset.i18n];
+    if (v !== undefined) el.innerHTML = v;
+  });
+}
+const _langOrder = ['ko','en','zh'];
+function cycleLang() {
+  const idx = _langOrder.indexOf(_lang);
+  _lang = _langOrder[(idx + 1) % _langOrder.length];
+  localStorage.setItem('lang', _lang);
+  const url = new URL(location.href);
+  if (_lang === 'ko') { url.searchParams.delete('lang'); } else { url.searchParams.set('lang', _lang); }
+  history.replaceState({}, '', url);
+  _applyLang();
+}
+_applyLang();
 </script>
 </body>
 </html>

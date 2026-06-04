@@ -69,8 +69,8 @@
 <body>
 <header>
   <div class="dot"></div>
-  <span class="header-label">HASH GENERATOR</span>
-  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <span class="header-label">MODOO HUB</span>
+  <a href="index.html" class="back-link">← 모두의 툴</a>
   <div class="lang-toggle" onclick="toggleLang()" id="langBtn">🌐 EN</div>
 </header>
 <main>
@@ -126,33 +126,71 @@
 <script>
 const i18n={
   ko:{pageTitle:'Hash 생성기 - MD5 SHA256 SHA512',h1:'Hash<br><span>생성기</span>',sub:'텍스트에서 MD5, SHA-1, SHA-256, SHA-512 해시를 즉시 생성합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',inputLabel:'입력 텍스트',placeholder:'해시를 생성할 텍스트를 입력하세요...',btnPaste:'붙여넣기',btnClear:'지우기',btnGenerate:'해시 생성',copyBtn:'복사',compareTitle:'해시 비교 (검증)',comparePlaceholder:'비교할 해시값 입력...',matchMsg:'✓ 일치합니다',noMatchMsg:'✗ 일치하지 않습니다',emptyMsg:'-',seoT1:'해시(Hash)란?',seoB1:'해시 함수는 임의의 데이터를 고정된 길이의 문자열로 변환합니다. SHA-256은 비밀번호 저장, 파일 무결성 검증 등에 사용됩니다.',seoT2:'MD5 vs SHA-256',seoB2:'MD5는 빠르지만 보안에 취약합니다. 보안이 필요한 경우 SHA-256 또는 SHA-512를 사용하세요.',footer:'모든 해시는 브라우저에서 처리됩니다 · 서버로 전송되지 않습니다'},
-  en:{pageTitle:'Hash Generator - MD5 SHA1 SHA256 SHA512 Online',h1:'Hash<br><span>Generator</span>',sub:'Generate MD5, SHA-1, SHA-256, SHA-512 hashes from any text instantly',backLink:'← Modoo Hub',langBtn:'🌐 KO',inputLabel:'Input text',placeholder:'Enter text to hash...',btnPaste:'Paste',btnClear:'Clear',btnGenerate:'Generate',copyBtn:'Copy',compareTitle:'Hash comparison (verify)',comparePlaceholder:'Enter hash to compare...',matchMsg:'✓ Match!',noMatchMsg:'✗ No match',emptyMsg:'-',seoT1:'What is a Hash?',seoB1:'A hash function converts arbitrary data into a fixed-length string. SHA-256 is widely used for password storage, file integrity verification, and blockchain.',seoT2:'MD5 vs SHA-256',seoB2:'MD5 is fast but cryptographically broken. Use SHA-256 or SHA-512 for security-sensitive applications.',footer:'All hashes are computed in your browser · No data sent to any server'}
+  en:{pageTitle:'Hash Generator - MD5 SHA1 SHA256 SHA512 Online',h1:'Hash<br><span>Generator</span>',sub:'Generate MD5, SHA-1, SHA-256, SHA-512 hashes from any text instantly',backLink:'← Modoo Hub',langBtn:'🌐 中文',inputLabel:'Input text',placeholder:'Enter text to hash...',btnPaste:'Paste',btnClear:'Clear',btnGenerate:'Generate',copyBtn:'Copy',compareTitle:'Hash comparison (verify)',comparePlaceholder:'Enter hash to compare...',matchMsg:'✓ Match!',noMatchMsg:'✗ No match',emptyMsg:'-',seoT1:'What is a Hash?',seoB1:'A hash function converts arbitrary data into a fixed-length string. SHA-256 is widely used for password storage, file integrity verification, and blockchain.',seoT2:'MD5 vs SHA-256',seoB2:'MD5 is fast but cryptographically broken. Use SHA-256 or SHA-512 for security-sensitive applications.',footer:'All hashes are computed in your browser · No data sent to any server'}
 };
-let lang=localStorage.getItem('lang')||(navigator.language.startsWith('ko')?'ko':'en');
+if (!i18n.zh) {
+  i18n.zh = { ...i18n.en };
+}
+Object.assign(i18n.zh, {
+  pageTitle: 'Hash 生成器 - MD5 SHA256 SHA512',
+  h1: 'Hash <span>生成器</span>',
+  sub: '即时生成 MD5、SHA-1、SHA-256、SHA-512 哈希',
+  backLink: '← 首页',
+  langBtn: '🌐 한국어',
+  inputLabel: '输入文本',
+  placeholder: '请输入要生成哈希的文本...',
+  btnPaste: '粘贴',
+  btnClear: '清空',
+  btnGenerate: '生成',
+  copyBtn: '复制',
+  compareTitle: '哈希对比（校验）',
+  comparePlaceholder: '输入要对比的哈希...',
+  matchMsg: '✓ 一致',
+  noMatchMsg: '✗ 不一致',
+  emptyMsg: '-',
+  seoT1: '什么是 Hash？',
+  seoB1: '哈希函数可将任意长度数据映射为固定长度摘要。',
+  seoT2: 'MD5 与 SHA-256',
+  seoB2: '安全场景建议使用 SHA-256 或 SHA-512。',
+  footer: '所有哈希均在浏览器本地生成，不会上传',
+});
+let lang = localStorage.getItem('lang');
+if (!lang || !i18n[lang]) {
+  const nav = navigator.language || '';
+  if (nav.startsWith('zh')) lang = 'zh';
+  else if (nav.startsWith('ko')) lang = 'ko';
+  else lang = 'en';
+}
 const hashes={MD5:null,SHA1:null,SHA256:null,SHA512:null};
 
 function applyLang(){
   const t=i18n[lang];
   document.documentElement.lang=lang;document.title=t.pageTitle;
-  document.getElementById('h1Title').innerHTML=t.h1;
-  document.getElementById('h1Sub').textContent=t.sub;
-  document.getElementById('backLink').textContent=t.backLink;
-  document.getElementById('langBtn').textContent=t.langBtn;
-  document.getElementById('inputLabel').textContent=t.inputLabel;
+  if (document.getElementById('h1Title')) document.getElementById('h1Title').innerHTML = t.h1;
+  if (document.getElementById('h1Sub')) document.getElementById('h1Sub').textContent = t.sub;
+  if (document.getElementById('backLink')) document.getElementById('backLink').textContent = t.backLink;
+  if (document.getElementById('langBtn')) document.getElementById('langBtn').textContent = t.langBtn;
+  if (document.getElementById('inputLabel')) document.getElementById('inputLabel').textContent = t.inputLabel;
   document.getElementById('textInput').placeholder=t.placeholder;
-  document.getElementById('btnPaste').textContent=t.btnPaste;
-  document.getElementById('btnClear').textContent=t.btnClear;
-  document.getElementById('btnGenerate').textContent=t.btnGenerate;
+  if (document.getElementById('btnPaste')) document.getElementById('btnPaste').textContent = t.btnPaste;
+  if (document.getElementById('btnClear')) document.getElementById('btnClear').textContent = t.btnClear;
+  if (document.getElementById('btnGenerate')) document.getElementById('btnGenerate').textContent = t.btnGenerate;
   ['MD5','SHA1','SHA256','SHA512'].forEach(n=>document.getElementById('copy-'+n).textContent=t.copyBtn);
-  document.getElementById('compareTitle').textContent=t.compareTitle;
+  if (document.getElementById('compareTitle')) document.getElementById('compareTitle').textContent = t.compareTitle;
   document.getElementById('compareInput').placeholder=t.comparePlaceholder;
-  document.getElementById('seoT1').textContent=t.seoT1;
-  document.getElementById('seoB1').textContent=t.seoB1;
-  document.getElementById('seoT2').textContent=t.seoT2;
-  document.getElementById('seoB2').textContent=t.seoB2;
-  document.getElementById('footerText').textContent=t.footer;
+  if (document.getElementById('seoT1')) document.getElementById('seoT1').textContent = t.seoT1;
+  if (document.getElementById('seoB1')) document.getElementById('seoB1').textContent = t.seoB1;
+  if (document.getElementById('seoT2')) document.getElementById('seoT2').textContent = t.seoT2;
+  if (document.getElementById('seoB2')) document.getElementById('seoB2').textContent = t.seoB2;
+  if (document.getElementById('footerText')) document.getElementById('footerText').textContent = t.footer;
 }
-function toggleLang(){lang=lang==='ko'?'en':'ko';localStorage.setItem('lang',lang);applyLang();}
+function toggleLang() {
+  const order = ['ko','en','zh'];
+  const idx = order.indexOf(lang);
+  lang = order[(idx + 1) % order.length];
+  localStorage.setItem('lang', lang);
+  applyLang();
+}
 
 async function sha(algorithm,text){
   const enc=new TextEncoder();
@@ -209,16 +247,16 @@ async function generateHashes(){
     return;
   }
   hashes.MD5=md5(text);
-  document.getElementById('hash-MD5').textContent=hashes.MD5;
+  if (document.getElementById('hash-MD5')) document.getElementById('hash-MD5').textContent = hashes.MD5;
   document.getElementById('hash-MD5').className='hash-value';
   hashes.SHA1=await sha('SHA-1',text);
-  document.getElementById('hash-SHA1').textContent=hashes.SHA1;
+  if (document.getElementById('hash-SHA1')) document.getElementById('hash-SHA1').textContent = hashes.SHA1;
   document.getElementById('hash-SHA1').className='hash-value';
   hashes.SHA256=await sha('SHA-256',text);
-  document.getElementById('hash-SHA256').textContent=hashes.SHA256;
+  if (document.getElementById('hash-SHA256')) document.getElementById('hash-SHA256').textContent = hashes.SHA256;
   document.getElementById('hash-SHA256').className='hash-value';
   hashes.SHA512=await sha('SHA-512',text);
-  document.getElementById('hash-SHA512').textContent=hashes.SHA512;
+  if (document.getElementById('hash-SHA512')) document.getElementById('hash-SHA512').textContent = hashes.SHA512;
   document.getElementById('hash-SHA512').className='hash-value';
   compareHash();
 }
@@ -247,7 +285,6 @@ async function pasteText(){
 }
 function clearInput(){document.getElementById('textInput').value='';generateHashes();}
 
-lang=localStorage.getItem('lang')||(navigator.language.startsWith('ko')?'ko':'en');
 applyLang();
 </script>
 </body>

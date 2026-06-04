@@ -85,8 +85,8 @@
 <body>
 <header>
   <div class="dot"></div>
-  <span class="header-label">JWT DECODER</span>
-  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <span class="header-label">MODOO HUB</span>
+  <a href="index.html" class="back-link">← 모두의 툴</a>
   <div class="lang-toggle" onclick="toggleLang()" id="langBtn">🌐 EN</div>
 </header>
 <main>
@@ -166,7 +166,7 @@ const i18n = {
     pageTitle: 'JWT Decoder - Decode and Inspect JWT Tokens',
     h1: 'JWT<br><span>Decoder</span>',
     sub: 'Paste your JWT token to instantly decode Header, Payload and Signature',
-    backLink: '← Modoo Hub', langBtn: '🌐 KO',
+    backLink: '← Modoo Hub', langBtn: '🌐 中文',
     exampleBtn: 'Load example token', pasteBtn: 'Paste',
     labelHeader: 'Header', labelPayload: 'Payload', labelSig: 'Signature', copyBtn: 'Copy',
     seoTitle1: 'What is JWT?',
@@ -178,32 +178,64 @@ const i18n = {
   }
 };
 
-let lang = localStorage.getItem('lang') || (navigator.language.startsWith('ko') ? 'ko' : 'en');
+if (!i18n.zh) {
+  i18n.zh = { ...i18n.en };
+}
+Object.assign(i18n.zh, {
+  pageTitle: 'JWT 解码器 - 在线解析 Token',
+  h1: 'JWT <span>解码器</span>',
+  sub: '解析 JWT 并查看 Header、Payload 与有效期',
+  backLink: '← 首页',
+  langBtn: '🌐 한국어',
+  exampleBtn: '示例',
+  pasteBtn: '粘贴',
+  labelHeader: 'Header',
+  labelPayload: 'Payload',
+  labelSig: 'Signature',
+  copyBtn: '复制',
+  seoTitle1: '什么是 JWT？',
+  seoBody1: 'JWT 是一种紧凑的身份声明格式，常用于认证与授权。',
+  seoTitle2: 'JWT 安全提示',
+  seoBody2: '请勿在客户端存放敏感信息，并检查过期时间与签名算法。',
+  footer: '仅做本地解码，不会发送至服务器',
+  expired: '已过期',
+  valid: '有效',
+});
+
+let lang = localStorage.getItem('lang');
+if (!lang || !i18n[lang]) {
+  const nav = navigator.language || '';
+  if (nav.startsWith('zh')) lang = 'zh';
+  else if (nav.startsWith('ko')) lang = 'ko';
+  else lang = 'en';
+}
 
 function applyLang() {
   const t = i18n[lang];
   document.documentElement.lang = lang;
   document.title = t.pageTitle;
-  document.getElementById('h1Title').innerHTML = t.h1;
-  document.getElementById('h1Sub').textContent = t.sub;
-  document.getElementById('backLink').textContent = t.backLink;
-  document.getElementById('langBtn').textContent = t.langBtn;
-  document.getElementById('exampleBtn').textContent = t.exampleBtn;
-  document.getElementById('pasteBtn').textContent = t.pasteBtn;
-  document.getElementById('labelHeader').textContent = t.labelHeader;
-  document.getElementById('labelPayload').textContent = t.labelPayload;
-  document.getElementById('labelSig').textContent = t.labelSig;
-  document.getElementById('copyHeaderBtn').textContent = t.copyBtn;
-  document.getElementById('copyPayloadBtn').textContent = t.copyBtn;
-  document.getElementById('seoTitle1').textContent = t.seoTitle1;
-  document.getElementById('seoBody1').textContent = t.seoBody1;
-  document.getElementById('seoTitle2').textContent = t.seoTitle2;
-  document.getElementById('seoBody2').textContent = t.seoBody2;
-  document.getElementById('footerText').textContent = t.footer;
+  if (document.getElementById('h1Title')) document.getElementById('h1Title').innerHTML = t.h1;
+  if (document.getElementById('h1Sub')) document.getElementById('h1Sub').textContent = t.sub;
+  if (document.getElementById('backLink')) document.getElementById('backLink').textContent = t.backLink;
+  if (document.getElementById('langBtn')) document.getElementById('langBtn').textContent = t.langBtn;
+  if (document.getElementById('exampleBtn')) document.getElementById('exampleBtn').textContent = t.exampleBtn;
+  if (document.getElementById('pasteBtn')) document.getElementById('pasteBtn').textContent = t.pasteBtn;
+  if (document.getElementById('labelHeader')) document.getElementById('labelHeader').textContent = t.labelHeader;
+  if (document.getElementById('labelPayload')) document.getElementById('labelPayload').textContent = t.labelPayload;
+  if (document.getElementById('labelSig')) document.getElementById('labelSig').textContent = t.labelSig;
+  if (document.getElementById('copyHeaderBtn')) document.getElementById('copyHeaderBtn').textContent = t.copyBtn;
+  if (document.getElementById('copyPayloadBtn')) document.getElementById('copyPayloadBtn').textContent = t.copyBtn;
+  if (document.getElementById('seoTitle1')) document.getElementById('seoTitle1').textContent = t.seoTitle1;
+  if (document.getElementById('seoBody1')) document.getElementById('seoBody1').textContent = t.seoBody1;
+  if (document.getElementById('seoTitle2')) document.getElementById('seoTitle2').textContent = t.seoTitle2;
+  if (document.getElementById('seoBody2')) document.getElementById('seoBody2').textContent = t.seoBody2;
+  if (document.getElementById('footerText')) document.getElementById('footerText').textContent = t.footer;
 }
 
 function toggleLang() {
-  lang = lang === 'ko' ? 'en' : 'ko';
+  const order = ['ko','en','zh'];
+  const idx = order.indexOf(lang);
+  lang = order[(idx + 1) % order.length];
   localStorage.setItem('lang', lang);
   applyLang();
 }
@@ -226,7 +258,7 @@ function setStatus(type, msg) {
   const el = document.getElementById('status');
   el.style.display = 'flex';
   el.className = 'status ' + type;
-  document.getElementById('statusText').textContent = msg;
+  if (document.getElementById('statusText')) document.getElementById('statusText').textContent = msg;
 }
 
 function decode() {
@@ -242,16 +274,16 @@ function decode() {
     coloredEl.classList.add('show');
     coloredEl.innerHTML = `<span class="part-header">${parts[0]}</span><span class="part-dot">.</span><span class="part-payload">${parts[1]}</span><span class="part-dot">.</span><span class="part-sig">${parts[2]}</span>`;
     sectionsEl.style.display = 'flex';
-    document.getElementById('headerPre').textContent = JSON.stringify(header,null,2);
-    document.getElementById('payloadPre').textContent = JSON.stringify(payload,null,2);
-    document.getElementById('sigPre').textContent = parts[2];
+    if (document.getElementById('headerPre')) document.getElementById('headerPre').textContent = JSON.stringify(header,null,2);
+    if (document.getElementById('payloadPre')) document.getElementById('payloadPre').textContent = JSON.stringify(payload,null,2);
+    if (document.getElementById('sigPre')) document.getElementById('sigPre').textContent = parts[2];
     const now = Math.floor(Date.now()/1000);
     const exp = payload.exp;
     if (exp && exp < now) setStatus('warn', (lang==='ko'?'⚠ 만료된 토큰 · ':'⚠ Expired token · ')+new Date(exp*1000).toLocaleString());
     else if (exp) setStatus('ok', (lang==='ko'?'✓ 유효한 토큰 · ':'✓ Valid token · ')+new Date(exp*1000).toLocaleString());
     else setStatus('ok', lang==='ko'?'✓ 디코딩 성공':'✓ Decoded successfully');
     const claimDefs = {sub:'Subject',iss:'Issuer',aud:'Audience',exp:'Expiration',iat:'Issued At',nbf:'Not Before',jti:'JWT ID',name:lang==='ko'?'이름':'Name',email:lang==='ko'?'이메일':'Email',role:lang==='ko'?'권한':'Role'};
-    document.getElementById('claims').innerHTML = Object.entries(payload).map(([k,v])=>{
+    if (document.getElementById('claims')) document.getElementById('claims').innerHTML = Object.entries(payload).map(([k,v])=>{
       let display = String(v);
       let cls = '';
       if(['exp','iat','nbf'].includes(k)){display=new Date(v*1000).toLocaleString();if(k==='exp')cls=v<now?'expired':'valid';}
