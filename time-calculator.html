@@ -175,7 +175,8 @@ function toMin(t){const[h,m]=t.split(':').map(Number);return h*60+m;}
 function fmtTime(totalMin){
   const sign=totalMin<0?'-':'';
   const abs=Math.abs(totalMin);
-  return sign+Math.floor(abs/60)+'시간 '+String(abs%60).padStart(2,'0')+'분';
+  const t=_i18n[_lang];
+  return sign+Math.floor(abs/60)+(t.unitH||'시간 ')+String(abs%60).padStart(2,'0')+(t.unitMin||'분');
 }
 function fmtHM(totalMin){
   const abs=Math.abs(totalMin);
@@ -198,8 +199,9 @@ function calcWork(){
   if(actualStart<360) night+=360-Math.max(actualStart,0);
   document.getElementById('wTotal').textContent=fmtTime(total);
   document.getElementById('wNet').textContent=fmtTime(net);
-  document.getElementById('wOvertime').textContent=ot>0?fmtTime(ot):'없음';
-  document.getElementById('wNight').textContent=night>0?fmtTime(night):'없음';
+  const tl=_i18n[_lang];
+  document.getElementById('wOvertime').textContent=ot>0?fmtTime(ot):(tl.none||'없음');
+  document.getElementById('wNight').textContent=night>0?fmtTime(night):(tl.none||'없음');
   document.getElementById('workMain').textContent=fmtHM(net);
   document.getElementById('workResult').style.display='block';
 }
@@ -210,7 +212,8 @@ function addSumRow(){
   const div=document.createElement('div');
   div.className='add-row';
   div.id='sr'+sumRowCount;
-  div.innerHTML=`<input type="number" placeholder="시" min="0" style="width:70px;"> <span class="colon">:</span> <input type="number" placeholder="분" min="0" max="59" style="width:70px;"> <button class="remove-btn" onclick="this.parentElement.remove()">×</button>`;
+  const tp=_i18n[_lang];
+  div.innerHTML=`<input type="number" placeholder="${tp.phHour||'시'}" min="0" style="width:70px;"> <span class="colon">:</span> <input type="number" placeholder="${tp.phMin||'분'}" min="0" max="59" style="width:70px;"> <button class="remove-btn" onclick="this.parentElement.remove()">×</button>`;
   document.getElementById('sumRows').appendChild(div);
 }
 function calcSum(){
@@ -221,10 +224,11 @@ function calcSum(){
   });
   const h=Math.floor(total/60),m=total%60;
   document.getElementById('sumMain').textContent=h+':'+String(m).padStart(2,'0');
-  document.getElementById('sHour').textContent=h+'시간';
-  document.getElementById('sMin').textContent=m+'분';
-  document.getElementById('sDay').textContent=(total/480).toFixed(2)+'일';
-  document.getElementById('sTotalMin').textContent=total+'분';
+  const ts=_i18n[_lang];
+  document.getElementById('sHour').textContent=h+(ts.unitH||'시간');
+  document.getElementById('sMin').textContent=m+(ts.unitMin||'분');
+  document.getElementById('sDay').textContent=(total/480).toFixed(2)+(ts.unitDay||'일');
+  document.getElementById('sTotalMin').textContent=total+(ts.unitMin||'분');
   document.getElementById('sumResult').style.display='block';
 }
 function calcDiff(){
@@ -234,10 +238,11 @@ function calcDiff(){
   const diff=e-s;
   const h=Math.floor(diff/60),m=diff%60;
   document.getElementById('diffMain').textContent=h+':'+String(m).padStart(2,'0');
-  document.getElementById('dH').textContent=h+'시간';
-  document.getElementById('dM').textContent=m+'분';
-  document.getElementById('dS').textContent=(diff*60).toLocaleString()+'초';
-  document.getElementById('dTM').textContent=diff+'분';
+  const td=_i18n[_lang];
+  document.getElementById('dH').textContent=h+(td.unitH||'시간');
+  document.getElementById('dM').textContent=m+(td.unitMin||'분');
+  document.getElementById('dS').textContent=(diff*60).toLocaleString()+(td.unitSec||'초');
+  document.getElementById('dTM').textContent=diff+(td.unitMin||'분');
   document.getElementById('diffResult').style.display='block';
 }
 // 초기 합산 행 3개
@@ -250,7 +255,7 @@ const _i18n = {
   ko: { lang:'ko', title:'시간 계산기 - 근무시간·시간 합산·시간 빼기', h1:'시간 계산기', sub:'출퇴근 시간으로 근무시간 계산, 여러 시간 합산, 시간 빼기까지 한 번에.', btn:'🌐 EN',
     tabWork:'근무시간 계산', tabSum:'시간 합산', tabDiff:'시간 빼기',
     workTitle:'출퇴근 시간', startLabel:'출근 시간', endLabel:'퇴근 시간',
-    breakLabel:'휴게시간 제외', unitMin:'분', calcBtn:'계산하기',
+    breakLabel:'휴게시간 제외', unitMin:'분', unitH:'시간 ', unitDay:'일', unitSec:'초', none:'없음', phHour:'시', phMin:'분', calcBtn:'계산하기',
     wTotalLabel:'총 체류시간', wNetLabel:'실 근무시간', wOvertimeLabel:'초과근무 (8h 초과)', wNightLabel:'야간근무 (22~06시)',
     workNotice:'※ 초과근무는 법정근로시간 8시간 초과분입니다. 야간근무(오후 10시~오전 6시) 해당 여부를 함께 표시합니다.',
     sumTitle:'시간 목록 입력 (시:분)', addRowBtn:'+ 항목 추가', sumBtn:'합산하기',
@@ -261,7 +266,7 @@ const _i18n = {
   en: { lang:'en', title:'Time Calculator - Work Hours & Time Interval Calculator', h1:'Time Calculator', sub:'Calculate work hours, add or subtract multiple time intervals easily.', btn:'🌐 中文',
     tabWork:'Work Hours', tabSum:'Add Times', tabDiff:'Subtract Times',
     workTitle:'Work Schedule', startLabel:'Start time', endLabel:'End time',
-    breakLabel:'Deduct break time', unitMin:'min', calcBtn:'Calculate',
+    breakLabel:'Deduct break time', unitMin:' min', unitH:'h ', unitDay:' d', unitSec:' sec', none:'—', phHour:'h', phMin:'min', calcBtn:'Calculate',
     wTotalLabel:'Total time', wNetLabel:'Net work time', wOvertimeLabel:'Overtime (over 8h)', wNightLabel:'Night shift (22~06)',
     workNotice:'※ Overtime is time beyond the legal 8 hours. Night work (10pm–6am) is shown separately.',
     sumTitle:'Enter times (h:min)', addRowBtn:'+ Add row', sumBtn:'Sum up',
@@ -272,7 +277,7 @@ const _i18n = {
   zh: { lang:'zh', title:'时间计算器 - 工作时间·时间加减计算', h1:'时间计算器', sub:'计算工作时间、多时段累加、时间加减运算。', btn:'🌐 한국어',
     tabWork:'工时计算', tabSum:'时间累加', tabDiff:'时间相减',
     workTitle:'上下班时间', startLabel:'上班时间', endLabel:'下班时间',
-    breakLabel:'扣除休息时间', unitMin:'分', calcBtn:'计算',
+    breakLabel:'扣除休息时间', unitMin:'分', unitH:'小时 ', unitDay:'天', unitSec:'秒', none:'—', phHour:'时', phMin:'分', calcBtn:'计算',
     wTotalLabel:'总在岗时间', wNetLabel:'实际工时', wOvertimeLabel:'加班（超过8小时）', wNightLabel:'夜班（22~06时）',
     workNotice:'※ 加班指超过法定8小时工时的部分。同时显示夜班（晚10时~早6时）情况。',
     sumTitle:'输入时间列表（时:分）', addRowBtn:'+ 添加行', sumBtn:'合计',
@@ -334,6 +339,10 @@ function _applyLang() {
   if (seoP3) seoP3.innerHTML = t.seoP3;
   const back = document.querySelector('.back-link');
   if (back) back.textContent = (_lang === 'ko') ? '← 모두의 툴' : (_lang === 'zh') ? '← 首页' : '← Home';
+  const unitMinSpan = document.getElementById('unitMin');
+  if (unitMinSpan) unitMinSpan.textContent = {ko:'분',en:'min',zh:'分'}[_lang]||'분';
+  const brkInput = document.getElementById('breakMin');
+  if (brkInput) brkInput.placeholder = {ko:'분',en:'min',zh:'分'}[_lang]||'분';
 }
 const _langOrder = ['ko','en','zh'];
 function cycleLang() {
