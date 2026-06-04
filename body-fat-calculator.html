@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Body Fat Calculator - Navy Method, BMI Method | Free Online</title>
+<meta name="description" content="Free body fat percentage calculator. Calculate body fat using the US Navy method (waist, neck, hip measurements) or BMI method. Works for men and women. Includes fat mass and lean mass.">
+<meta name="keywords" content="body fat calculator, body fat percentage, navy body fat, body fat percentage calculator, 체지방 계산기, 체지방률 계산, fat mass lean mass">
+<link rel="canonical" href="https://modoohub.com/body-fat-calculator.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/body-fat-calculator.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/body-fat-calculator.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/body-fat-calculator.html">
+<meta property="og:title" content="Body Fat Calculator | MODOO HUB">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f0f0f;--surface:#1a1a1a;--border:#2e2e2e;--accent:#4ade80;--text:#f0f0f0;--text-muted:#888;--text-dim:#555;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans',sans-serif;min-height:100vh;}
+header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
+.back{color:var(--text-muted);text-decoration:none;font-size:13px;font-family:'DM Mono',monospace;}
+.back:hover{color:var(--accent);}
+.site-name{font-size:13px;color:var(--text-dim);font-family:'DM Mono',monospace;}
+main{max-width:640px;margin:0 auto;padding:48px 24px;}
+h1{font-size:28px;font-weight:900;margin-bottom:8px;}
+h1 span{color:var(--accent);}
+.subtitle{font-size:13px;color:var(--text-muted);margin-bottom:28px;line-height:1.6;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:16px;}
+.card-title{font-size:11px;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:16px;}
+.method-toggle{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:20px;}
+.method-btn{padding:10px;text-align:center;font-size:14px;font-weight:700;cursor:pointer;border:none;background:transparent;color:var(--text-muted);font-family:'Noto Sans',sans-serif;transition:all 0.15s;}
+.method-btn.active{background:var(--accent);color:#000;}
+.gender-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
+.g-btn{background:#111;border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center;cursor:pointer;font-size:14px;transition:all 0.15s;}
+.g-btn.active{border-color:var(--accent);background:#0d2b1a;color:var(--accent);}
+label{font-size:13px;color:var(--text-muted);display:block;margin-bottom:6px;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.input-wrap{position:relative;margin-bottom:16px;}
+.input-wrap input{width:100%;background:#111;border:1px solid var(--border);border-radius:10px;padding:12px 50px 12px 16px;color:var(--text);font-size:15px;font-family:'DM Mono',monospace;outline:none;transition:border-color 0.2s;}
+.input-wrap input:focus{border-color:var(--accent);}
+.input-wrap .unit{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--text-dim);font-size:13px;pointer-events:none;}
+.pane{display:none;}.pane.active{display:block;}
+.tip-box{background:#0d2b1a;border-radius:10px;padding:12px 14px;font-size:12px;color:var(--text-muted);margin-bottom:16px;line-height:1.7;}
+.tip-box strong{color:var(--accent);}
+.calc-btn{width:100%;background:var(--accent);color:#000;font-weight:700;font-size:15px;border:none;border-radius:12px;padding:14px;cursor:pointer;font-family:'Noto Sans',sans-serif;transition:opacity 0.15s;}
+.calc-btn:hover{opacity:0.85;}
+.result-area{display:none;}
+.bf-display{text-align:center;padding:20px 0;}
+.bf-num{font-size:64px;font-weight:900;font-family:'DM Mono',monospace;color:var(--accent);}
+.bf-category{font-size:16px;font-weight:700;margin-top:6px;}
+.bf-bar-wrap{position:relative;height:12px;border-radius:6px;overflow:hidden;margin:16px 0 4px;background:linear-gradient(to right,#3b82f6 0%,#4ade80 20%,#fcd34d 50%,#f97316 75%,#ef4444 100%);}
+.bf-marker{position:absolute;top:-4px;width:20px;height:20px;background:#fff;border-radius:50%;box-shadow:0 0 0 2px #000;transform:translateX(-50%);transition:left 0.5s;}
+.bf-range-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--text-dim);margin-bottom:16px;}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.d-item{background:#111;border-radius:10px;padding:14px;}
+.d-label{font-size:11px;color:var(--text-dim);margin-bottom:4px;}
+.d-val{font-size:16px;font-weight:700;font-family:'DM Mono',monospace;}
+.category-table{background:#111;border-radius:10px;padding:14px;}
+.ct-title{font-size:11px;color:var(--text-dim);margin-bottom:10px;font-family:'DM Mono',monospace;}
+.ct-row{display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid #1e1e1e;}
+.ct-row:last-child{border-bottom:none;}
+.ct-cat{color:var(--text-muted);}
+.ct-range{font-family:'DM Mono',monospace;}
+.seo{margin-top:48px;padding-top:32px;border-top:1px solid var(--border);}
+.seo h2{font-size:16px;font-weight:700;margin-bottom:10px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:48px;padding:24px;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+</head>
+<body>
+<header>
+  <a href="/" class="back">← MODOO HUB</a>
+  <span class="site-name">/ Body Fat Calculator</span>
+</header>
+<main>
+  <h1>Body Fat <span>Calculator</span></h1>
+  <p class="subtitle">Calculate your body fat percentage using the US Navy method or BMI method. No gym equipment needed.</p>
+
+  <div class="card">
+    <div class="card-title">Method</div>
+    <div class="method-toggle">
+      <button class="method-btn active" id="mNavy" onclick="setMethod('navy')">⚓ Navy Method</button>
+      <button class="method-btn" id="mBmi" onclick="setMethod('bmi')">📊 BMI Method</button>
+    </div>
+
+    <div class="card-title">Gender</div>
+    <div class="gender-row">
+      <div class="g-btn active" id="gMale" onclick="setGender('male')">♂ Male</div>
+      <div class="g-btn" id="gFemale" onclick="setGender('female')">♀ Female</div>
+    </div>
+
+    <div class="pane active" id="pane-navy">
+      <div class="tip-box">
+        <strong>How to measure:</strong> Waist = at navel level (relaxed). Neck = below larynx. Hip = widest point (women only). All in <strong>cm</strong>.
+      </div>
+      <div class="two-col">
+        <div><label>Height</label><div class="input-wrap"><input type="number" id="nHeight" value="170" step="0.1"><span class="unit">cm</span></div></div>
+        <div><label>Weight</label><div class="input-wrap"><input type="number" id="nWeight" value="70" step="0.1"><span class="unit">kg</span></div></div>
+        <div><label>Waist</label><div class="input-wrap"><input type="number" id="nWaist" value="85" step="0.5"><span class="unit">cm</span></div></div>
+        <div><label>Neck</label><div class="input-wrap"><input type="number" id="nNeck" value="38" step="0.5"><span class="unit">cm</span></div></div>
+      </div>
+      <div id="hipWrap">
+        <label>Hip <span style="font-size:11px;color:var(--text-dim)">(women only)</span></label>
+        <div class="input-wrap"><input type="number" id="nHip" value="95" step="0.5"><span class="unit">cm</span></div>
+      </div>
+    </div>
+
+    <div class="pane" id="pane-bmi">
+      <div class="two-col">
+        <div><label>Height</label><div class="input-wrap"><input type="number" id="bHeight" value="170" step="0.1"><span class="unit">cm</span></div></div>
+        <div><label>Weight</label><div class="input-wrap"><input type="number" id="bWeight" value="70" step="0.1"><span class="unit">kg</span></div></div>
+        <div><label>Age</label><div class="input-wrap"><input type="number" id="bAge" value="30" min="1" max="100"><span class="unit">yrs</span></div></div>
+      </div>
+    </div>
+
+    <button class="calc-btn" onclick="calc()">Calculate Body Fat</button>
+  </div>
+
+  <div class="card result-area" id="resultArea">
+    <div class="bf-display">
+      <div class="bf-num" id="bfNum">-</div>
+      <div class="bf-category" id="bfCat">-</div>
+    </div>
+    <div class="bf-bar-wrap"><div class="bf-marker" id="bfMarker" style="left:0%"></div></div>
+    <div class="bf-range-labels"><span>3%</span><span id="rl1">Athletic</span><span id="rl2">Fitness</span><span id="rl3">Average</span><span>40%</span></div>
+    <div class="detail-grid">
+      <div class="d-item"><div class="d-label">Body Fat %</div><div class="d-val" id="dBF">-</div></div>
+      <div class="d-item"><div class="d-label">Fat Mass</div><div class="d-val" id="dFatMass">-</div></div>
+      <div class="d-item"><div class="d-label">Lean Mass</div><div class="d-val" id="dLeanMass">-</div></div>
+      <div class="d-item"><div class="d-label">Ideal Body Fat</div><div class="d-val" id="dIdeal">-</div></div>
+    </div>
+    <div class="category-table" id="catTable"></div>
+  </div>
+
+  <div class="seo">
+    <h2>Body Fat Percentage Categories</h2>
+    <p><strong>Men:</strong> Essential fat 2–5% · Athletes 6–13% · Fitness 14–17% · Average 18–24% · Obese 25%+<br><strong>Women:</strong> Essential fat 10–13% · Athletes 14–20% · Fitness 21–24% · Average 25–31% · Obese 32%+</p>
+    <p><strong>Q. Navy method vs BMI method — which is more accurate?</strong><br>The Navy method (using actual body measurements) is generally more accurate than the BMI method, especially for muscular or athletic individuals. For best results, use a DEXA scan or hydrostatic weighing.</p>
+    <p><strong>Q. What is a healthy body fat percentage?</strong><br>For men: 10–20% is generally considered healthy. For women: 18–28%. Athletes typically have lower body fat (men 6–13%, women 14–20%). Very low body fat can also be unhealthy.</p>
+  </div>
+  <footer>© 2026 MODOO HUB · Free · No ads · <a href="privacy.html" style="color:var(--text-dim);text-decoration:none;">Privacy Policy</a></footer>
+</main>
+<script>
+let method='navy', gender='male';
+function setMethod(m){
+  method=m;
+  document.getElementById('mNavy').classList.toggle('active',m==='navy');
+  document.getElementById('mBmi').classList.toggle('active',m==='bmi');
+  document.getElementById('pane-navy').classList.toggle('active',m==='navy');
+  document.getElementById('pane-bmi').classList.toggle('active',m==='bmi');
+}
+function setGender(g){
+  gender=g;
+  document.getElementById('gMale').classList.toggle('active',g==='male');
+  document.getElementById('gFemale').classList.toggle('active',g==='female');
+  document.getElementById('hipWrap').style.display=g==='female'?'block':'none';
+}
+function calc(){
+  let bf, weight;
+  if(method==='navy'){
+    const h=parseFloat(document.getElementById('nHeight').value)||170;
+    weight=parseFloat(document.getElementById('nWeight').value)||70;
+    const waist=parseFloat(document.getElementById('nWaist').value)||85;
+    const neck=parseFloat(document.getElementById('nNeck').value)||38;
+    const hip=parseFloat(document.getElementById('nHip').value)||95;
+    if(gender==='male'){
+      bf=86.010*Math.log10(waist-neck)-70.041*Math.log10(h)+36.76;
+    } else {
+      bf=163.205*Math.log10(waist+hip-neck)-97.684*Math.log10(h)-78.387;
+    }
+  } else {
+    const h=parseFloat(document.getElementById('bHeight').value)||170;
+    weight=parseFloat(document.getElementById('bWeight').value)||70;
+    const age=parseInt(document.getElementById('bAge').value)||30;
+    const bmi=weight/((h/100)**2);
+    bf=gender==='male'?1.20*bmi+0.23*age-16.2:1.20*bmi+0.23*age-5.4;
+  }
+  bf=Math.max(3,Math.min(60,bf));
+  const fatMass=weight*(bf/100);
+  const leanMass=weight-fatMass;
+  const idealBF=gender==='male'?15:22;
+
+  let cat,color;
+  if(gender==='male'){
+    if(bf<6){cat='Essential Fat';color='#3b82f6';}
+    else if(bf<14){cat='Athletes';color='#4ade80';}
+    else if(bf<18){cat='Fitness';color='#86efac';}
+    else if(bf<25){cat='Average';color='#fcd34d';}
+    else{cat='Obese';color='#ef4444';}
+  } else {
+    if(bf<14){cat='Essential Fat';color='#3b82f6';}
+    else if(bf<21){cat='Athletes';color='#4ade80';}
+    else if(bf<25){cat='Fitness';color='#86efac';}
+    else if(bf<32){cat='Average';color='#fcd34d';}
+    else{cat='Obese';color='#ef4444';}
+  }
+  const pct=Math.min(100,Math.max(0,(bf-3)/37*100));
+  document.getElementById('bfNum').textContent=bf.toFixed(1)+'%';
+  document.getElementById('bfNum').style.color=color;
+  document.getElementById('bfCat').textContent=cat;
+  document.getElementById('bfCat').style.color=color;
+  document.getElementById('bfMarker').style.left=pct+'%';
+  document.getElementById('dBF').textContent=bf.toFixed(1)+'%';
+  document.getElementById('dFatMass').textContent=fatMass.toFixed(1)+' kg';
+  document.getElementById('dLeanMass').textContent=leanMass.toFixed(1)+' kg';
+  document.getElementById('dIdeal').textContent=idealBF+'% (ideal)';
+
+  const cats=gender==='male'?
+    [['Essential Fat','2–5%'],['Athletes','6–13%'],['Fitness','14–17%'],['Average','18–24%'],['Obese','25%+']]:
+    [['Essential Fat','10–13%'],['Athletes','14–20%'],['Fitness','21–24%'],['Average','25–31%'],['Obese','32%+']];
+  document.getElementById('catTable').innerHTML=
+    '<div class="ct-title">BODY FAT CATEGORIES ('+( gender==='male'?'MEN':'WOMEN')+')</div>'+
+    cats.map(([c,r])=>`<div class="ct-row"><span class="ct-cat">${c}</span><span class="ct-range">${r}</span></div>`).join('');
+
+  document.getElementById('resultArea').style.display='block';
+  document.getElementById('resultArea').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+// init
+setGender('male');
+</script>
+</body>
+</html>

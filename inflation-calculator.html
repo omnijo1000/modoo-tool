@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inflation Calculator - Real Value of Money Over Time | Free</title>
+<meta name="description" content="Free inflation calculator. Find out what money was worth in the past or what today's money will be worth in the future. Supports US CPI, UK RPI, Korea CPI and custom rates.">
+<meta name="keywords" content="inflation calculator, CPI calculator, purchasing power calculator, real value of money, 물가 계산기, inflation rate, cost of living calculator">
+<link rel="canonical" href="https://modoohub.com/inflation-calculator.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/inflation-calculator.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/inflation-calculator.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/inflation-calculator.html">
+<meta property="og:title" content="Inflation Calculator | MODOO HUB">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f0f0f;--surface:#1a1a1a;--border:#2e2e2e;--accent:#fb923c;--text:#f0f0f0;--text-muted:#888;--text-dim:#555;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans',sans-serif;min-height:100vh;}
+header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
+.back{color:var(--text-muted);text-decoration:none;font-size:13px;font-family:'DM Mono',monospace;}
+.back:hover{color:var(--accent);}
+.site-name{font-size:13px;color:var(--text-dim);font-family:'DM Mono',monospace;}
+main{max-width:640px;margin:0 auto;padding:48px 24px;}
+h1{font-size:28px;font-weight:900;margin-bottom:8px;}
+h1 span{color:var(--accent);}
+.subtitle{font-size:13px;color:var(--text-muted);margin-bottom:36px;line-height:1.6;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:16px;}
+.card-title{font-size:11px;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:16px;}
+.mode-toggle{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:20px;}
+.mode-btn{padding:10px;text-align:center;font-size:14px;font-weight:700;cursor:pointer;border:none;background:transparent;color:var(--text-muted);font-family:'Noto Sans',sans-serif;transition:all 0.15s;}
+.mode-btn.active{background:var(--accent);color:#000;}
+label{font-size:13px;color:var(--text-muted);display:block;margin-bottom:6px;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+.input-wrap{position:relative;margin-bottom:16px;}
+.input-wrap input,.input-wrap select{width:100%;background:#111;border:1px solid var(--border);border-radius:10px;padding:12px 50px 12px 16px;color:var(--text);font-size:15px;font-family:'DM Mono',monospace;outline:none;transition:border-color 0.2s;}
+.input-wrap select{font-family:'Noto Sans',sans-serif;font-size:13px;padding-right:16px;}
+.input-wrap input:focus{border-color:var(--accent);}
+.input-wrap .unit{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--text-dim);font-size:13px;pointer-events:none;}
+.country-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;}
+.c-btn{background:#111;border:1px solid var(--border);border-radius:10px;padding:10px 8px;text-align:center;cursor:pointer;font-size:12px;transition:all 0.15s;}
+.c-btn.active{border-color:var(--accent);background:#2a1500;color:var(--accent);}
+.c-btn .flag{font-size:18px;margin-bottom:3px;}
+.c-btn .cpi{font-size:10px;color:var(--text-dim);}
+.c-btn.active .cpi{color:var(--accent);}
+.calc-btn{width:100%;background:var(--accent);color:#000;font-weight:700;font-size:15px;border:none;border-radius:12px;padding:14px;cursor:pointer;font-family:'Noto Sans',sans-serif;transition:opacity 0.15s;}
+.calc-btn:hover{opacity:0.85;}
+.result-area{display:none;}
+.result-compare{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;margin-bottom:16px;}
+.rc-card{background:#111;border-radius:12px;padding:18px;text-align:center;}
+.rc-year{font-size:11px;color:var(--text-dim);margin-bottom:4px;font-family:'DM Mono',monospace;}
+.rc-amt{font-size:24px;font-weight:900;font-family:'DM Mono',monospace;}
+.rc-amt.new{color:var(--accent);}
+.rc-arrow{font-size:24px;color:var(--text-dim);text-align:center;}
+.insight-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.i-item{background:#111;border-radius:10px;padding:14px;}
+.i-label{font-size:11px;color:var(--text-dim);margin-bottom:4px;}
+.i-val{font-size:16px;font-weight:700;font-family:'DM Mono',monospace;}
+.buying-power{background:#2a1500;border-radius:12px;padding:16px;margin-bottom:12px;}
+.bp-title{font-size:11px;color:var(--accent);margin-bottom:8px;font-family:'DM Mono',monospace;}
+.bp-bar-wrap{background:#111;border-radius:4px;height:12px;overflow:hidden;margin-bottom:6px;}
+.bp-bar{height:100%;background:var(--accent);border-radius:4px;transition:width 0.5s;}
+.bp-label{font-size:12px;color:var(--text-muted);}
+.seo{margin-top:48px;padding-top:32px;border-top:1px solid var(--border);}
+.seo h2{font-size:16px;font-weight:700;margin-bottom:10px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:48px;padding:24px;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+</head>
+<body>
+<header>
+  <a href="/" class="back">← MODOO HUB</a>
+  <span class="site-name">/ Inflation Calculator</span>
+</header>
+<main>
+  <h1>Inflation <span>Calculator</span></h1>
+  <p class="subtitle">Find out what a sum of money was worth in the past, or what it will be worth in the future accounting for inflation.</p>
+
+  <div class="card">
+    <div class="card-title">Mode</div>
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="modePast" onclick="setMode('past')">📅 Past → Today</button>
+      <button class="mode-btn" id="modeFuture" onclick="setMode('future')">🔮 Today → Future</button>
+    </div>
+
+    <div class="card-title">Country / CPI Rate</div>
+    <div class="country-grid">
+      <div class="c-btn active" onclick="setCountry(this,3.0,'$','US')"><div class="flag">🇺🇸</div><div>US CPI</div><div class="cpi">avg 3.0%</div></div>
+      <div class="c-btn" onclick="setCountry(this,2.8,'£','UK')"><div class="flag">🇬🇧</div><div>UK RPI</div><div class="cpi">avg 2.8%</div></div>
+      <div class="c-btn" onclick="setCountry(this,2.3,'€','EU')"><div class="flag">🇪🇺</div><div>EU CPI</div><div class="cpi">avg 2.3%</div></div>
+      <div class="c-btn" onclick="setCountry(this,2.5,'₩','KR')"><div class="flag">🇰🇷</div><div>Korea</div><div class="cpi">avg 2.5%</div></div>
+      <div class="c-btn" onclick="setCountry(this,5.5,'₹','IN')"><div class="flag">🇮🇳</div><div>India</div><div class="cpi">avg 5.5%</div></div>
+      <div class="c-btn" onclick="setCountry(this,2.0,'¥','JP')"><div class="flag">🇯🇵</div><div>Japan</div><div class="cpi">avg 2.0%</div></div>
+    </div>
+    <label>Custom Inflation Rate</label>
+    <div class="input-wrap">
+      <input type="number" id="inflRate" value="3.0" step="0.1" min="0.1" max="50">
+      <span class="unit">% / yr</span>
+    </div>
+
+    <div class="two-col">
+      <div>
+        <label id="fromYearLabel">From Year</label>
+        <div class="input-wrap">
+          <input type="number" id="fromYear" value="2000" min="1800" max="2100">
+          <span class="unit">yr</span>
+        </div>
+      </div>
+      <div>
+        <label id="toYearLabel">To Year</label>
+        <div class="input-wrap">
+          <input type="number" id="toYear" value="2026" min="1800" max="2100">
+          <span class="unit">yr</span>
+        </div>
+      </div>
+    </div>
+    <label>Amount</label>
+    <div class="input-wrap">
+      <input type="number" id="amount" value="1000" step="100">
+      <span class="unit" id="currSym">$</span>
+    </div>
+    <button class="calc-btn" onclick="calc()">Calculate</button>
+  </div>
+
+  <div class="card result-area" id="resultArea">
+    <div class="result-compare">
+      <div class="rc-card">
+        <div class="rc-year" id="rcFromYear">2000</div>
+        <div class="rc-amt" id="rcFrom">$1,000</div>
+      </div>
+      <div class="rc-arrow">→</div>
+      <div class="rc-card">
+        <div class="rc-year" id="rcToYear">2026</div>
+        <div class="rc-amt new" id="rcTo">-</div>
+      </div>
+    </div>
+    <div class="insight-grid">
+      <div class="i-item"><div class="i-label">Total Inflation</div><div class="i-val" id="iTotal">-</div></div>
+      <div class="i-item"><div class="i-label">Avg Annual Rate</div><div class="i-val" id="iRate">-</div></div>
+      <div class="i-item"><div class="i-label">Years</div><div class="i-val" id="iYears">-</div></div>
+      <div class="i-item"><div class="i-label">Value Change</div><div class="i-val" id="iChange">-</div></div>
+    </div>
+    <div class="buying-power">
+      <div class="bp-title">PURCHASING POWER RETAINED</div>
+      <div class="bp-bar-wrap"><div class="bp-bar" id="bpBar" style="width:50%"></div></div>
+      <div class="bp-label" id="bpLabel">-</div>
+    </div>
+    <div style="font-size:11px;color:var(--text-dim);margin-top:4px;line-height:1.7;padding:12px 16px;border-left:2px solid var(--border);">* Calculated using compound annual inflation rate. Historical rates are approximate averages; actual rates varied year to year.</div>
+  </div>
+
+  <div class="seo">
+    <h2>What is Inflation?</h2>
+    <p>Inflation is the rate at which the general level of prices rises over time, eroding purchasing power. <strong>$1,000 in 2000</strong> at 3% annual inflation would be worth approximately <strong>$2,094 in 2026</strong> — meaning you'd need twice as much money to buy the same things.</p>
+    <p><strong>Q. How does inflation affect savings?</strong><br>If your savings earn 2% interest but inflation is 3%, your real return is −1%. Your money grows nominally but loses purchasing power. This is why investing in assets that beat inflation (stocks, real estate) is important.</p>
+    <p><strong>Q. What's a normal inflation rate?</strong><br>Most central banks target 2% annual inflation as healthy. Above 5% is considered high; above 10% is a crisis. The US saw 9% inflation in 2022, the highest since 1981.</p>
+  </div>
+  <footer>© 2026 MODOO HUB · Free · No ads · <a href="privacy.html" style="color:var(--text-dim);text-decoration:none;">Privacy Policy</a></footer>
+</main>
+<script>
+let mode='past', sym='$', inflRate=3.0;
+function setMode(m){
+  mode=m;
+  document.getElementById('modePast').classList.toggle('active',m==='past');
+  document.getElementById('modeFuture').classList.toggle('active',m==='future');
+  document.getElementById('fromYearLabel').textContent=m==='past'?'From Year (Past)':'From Year (Now)';
+  document.getElementById('toYearLabel').textContent=m==='past'?'To Year (Now)':'To Year (Future)';
+}
+function setCountry(btn, rate, currency, code){
+  document.querySelectorAll('.c-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  inflRate=rate;
+  sym=currency;
+  document.getElementById('inflRate').value=rate;
+  document.getElementById('currSym').textContent=currency;
+}
+function fmt(n){return sym+Math.round(n).toLocaleString('en-US');}
+function calc(){
+  inflRate=parseFloat(document.getElementById('inflRate').value)||3;
+  const fromY=parseInt(document.getElementById('fromYear').value)||2000;
+  const toY=parseInt(document.getElementById('toYear').value)||2026;
+  const amt=parseFloat(document.getElementById('amount').value)||1000;
+  const years=Math.abs(toY-fromY);
+  if(years===0){alert('Please choose different years.');return;}
+  const factor=Math.pow(1+inflRate/100,years);
+  const result=mode==='past'?amt*factor:amt/factor;
+  const totalInfl=(factor-1)*100;
+  const power=mode==='past'?(1/factor*100):(factor*100);
+  const powerPct=Math.min(100,Math.max(0,mode==='past'?(amt/result*100):(result/amt*100)));
+
+  document.getElementById('rcFromYear').textContent=fromY;
+  document.getElementById('rcToYear').textContent=toY;
+  document.getElementById('rcFrom').textContent=fmt(amt);
+  document.getElementById('rcTo').textContent=fmt(result);
+  document.getElementById('iTotal').textContent=totalInfl.toFixed(1)+'%';
+  document.getElementById('iRate').textContent=inflRate+'% / yr';
+  document.getElementById('iYears').textContent=years+' years';
+  const diff=result-amt;
+  document.getElementById('iChange').textContent=(diff>=0?'+':'')+fmt(diff);
+  document.getElementById('bpBar').style.width=powerPct+'%';
+  document.getElementById('bpLabel').textContent=`${powerPct.toFixed(1)}% of original purchasing power retained`;
+  document.getElementById('resultArea').style.display='block';
+  document.getElementById('resultArea').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>퇴직소득세 계산기 2026 - 퇴직금 실수령액 자동 계산</title>
+<meta name="description" content="2026년 소득세법 기준 퇴직소득세를 자동 계산합니다. 퇴직금과 근속연수 입력으로 근속연수 공제·환산급여 공제·실수령액을 즉시 확인하세요.">
+<meta name="keywords" content="퇴직소득세 계산기, 퇴직금 세금, 퇴직소득공제, 퇴직금 실수령액, 퇴직소득세율, IRP 퇴직금 절세">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/severance-tax.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/severance-tax.html?lang=en">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/severance-tax.html">
+<link rel="canonical" href="https://modoohub.com/severance-tax.html">
+<meta property="og:title" content="퇴직소득세 계산기 2026 - 퇴직금 실수령액 자동 계산">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f0f0f;--surface:#1a1a1a;--border:#2e2e2e;--accent:#f472b6;--text:#f0f0f0;--text-muted:#888;--text-dim:#555;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
+.back{color:var(--text-muted);text-decoration:none;font-size:13px;font-family:'DM Mono',monospace;}
+.back:hover{color:var(--accent);}
+.site-name{font-size:13px;color:var(--text-dim);font-family:'DM Mono',monospace;}
+main{max-width:640px;margin:0 auto;padding:48px 24px;}
+h1{font-size:28px;font-weight:900;margin-bottom:8px;}
+h1 span{color:var(--accent);}
+.subtitle{font-size:13px;color:var(--text-muted);margin-bottom:36px;line-height:1.6;}
+.badge{display:inline-block;background:#2a0d1e;color:var(--accent);font-size:11px;padding:3px 10px;border-radius:20px;font-family:'DM Mono',monospace;margin-bottom:16px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:16px;}
+.card-title{font-size:11px;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:16px;}
+label{font-size:13px;color:var(--text-muted);display:block;margin-bottom:6px;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.input-wrap{position:relative;margin-bottom:16px;}
+.input-wrap input{width:100%;background:#111;border:1px solid var(--border);border-radius:10px;padding:12px 50px 12px 16px;color:var(--text);font-size:15px;font-family:'DM Mono',monospace;outline:none;transition:border-color 0.2s;}
+.input-wrap input:focus{border-color:var(--accent);}
+.input-wrap .unit{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--text-dim);font-size:13px;pointer-events:none;}
+.calc-btn{width:100%;background:var(--accent);color:#000;font-weight:700;font-size:15px;border:none;border-radius:12px;padding:14px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:opacity 0.15s;}
+.calc-btn:hover{opacity:0.85;}
+.result-area{display:none;}
+.result-tag{font-size:11px;color:var(--accent);font-family:'DM Mono',monospace;margin-bottom:16px;}
+.flow-list{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;}
+.flow-item{display:flex;justify-content:space-between;align-items:center;background:#111;border-radius:10px;padding:14px 16px;}
+.flow-item.total{background:#2a0d1e;border:1px solid var(--accent);}
+.flow-left .flow-name{font-size:14px;font-weight:700;}
+.flow-left .flow-desc{font-size:11px;color:var(--text-dim);margin-top:2px;}
+.flow-right{text-align:right;}
+.flow-amt{font-size:16px;font-weight:700;font-family:'DM Mono',monospace;}
+.flow-item.total .flow-amt{color:var(--accent);font-size:20px;}
+.flow-sign{font-size:12px;color:var(--text-dim);margin-bottom:2px;}
+.process-steps{background:#111;border-radius:12px;padding:16px;margin-bottom:12px;}
+.ps-title{font-size:11px;color:var(--text-dim);margin-bottom:12px;font-family:'DM Mono',monospace;}
+.ps-row{display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px solid #1e1e1e;}
+.ps-row:last-child{border-bottom:none;}
+.ps-label{color:var(--text-muted);}
+.ps-val{font-family:'DM Mono',monospace;}
+.notice{font-size:11px;color:var(--text-dim);margin-top:12px;line-height:1.7;padding:12px 16px;border-left:2px solid var(--border);}
+.seo{margin-top:48px;padding-top:32px;border-top:1px solid var(--border);}
+.seo h2{font-size:16px;font-weight:700;margin-bottom:10px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:48px;padding:24px;}
+
+  .faq-list { margin-top: 12px; }
+  .faq-item { background: #111; border-radius: 10px; padding: 16px 18px; margin-bottom: 10px; }
+  .faq-q { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 8px; line-height: 1.5; }
+  .faq-a { font-size: 13px; color: var(--text-muted); line-height: 1.8; }
+
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+    {"@type":"Question","name":"퇴직금을 IRP에 넣으면 세금이 줄어드나요?","acceptedAnswer":{"@type":"Answer","text":"IRP에 넣으면 퇴직소득세 납부를 이연하고, 55세 이후 연금 수령 시 세금의 30~40%를 감면받습니다. 예를 들어 퇴직소득세 500만원이면 IRP 연금 수령 시 약 150~200만원을 절세할 수 있습니다."}},
+    {"@type":"Question","name":"퇴직소득세 실효세율은 어느 정도인가요?","acceptedAnswer":{"@type":"Answer","text":"근속 10년, 퇴직금 1억원 기준 실효세율은 약 4~6% 수준입니다. 근속기간이 길수록 실효세율이 낮아져 장기 근속자에게 유리한 구조입니다."}},
+    {"@type":"Question","name":"퇴직금을 일시불로 받을 때와 연금으로 받을 때 세금 차이는?","acceptedAnswer":{"@type":"Answer","text":"일시불 수령은 퇴직소득세 전액 납부, 연금 수령은 30~40% 감면됩니다. IRP 잔액이 클수록 연금 수령이 유리합니다."}},
+    {"@type":"Question","name":"퇴직소득세는 회사가 원천징수하나요?","acceptedAnswer":{"@type":"Answer","text":"네. 퇴직금 지급 시 회사가 퇴직소득세를 원천징수하고 지급합니다. 단, IRP 이전 수령 시 세금 이연이 가능하므로, 퇴직 전 IRP 계좌를 개설해두는 것이 좋습니다."}},
+    {"@type":"Question","name":"중간정산 받은 퇴직금도 퇴직소득세를 내나요?","acceptedAnswer":{"@type":"Answer","text":"네. 중간정산도 퇴직소득세 부과 대상입니다. 중간정산 이후 근속 기간은 새로 시작되므로, 최종 퇴직 시 공제 혜택이 줄어듭니다. 불가피한 경우가 아니라면 중간정산을 피하는 것이 절세에 유리합니다."}}
+]}</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"퇴직소득세 계산기","url":"https://modoohub.com/severance-tax.html","applicationCategory":"FinanceApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"KRW"},"description":"2026년 소득세법 기준 퇴직소득세를 자동 계산합니다. 퇴직금과 근속연수 입력으로 근속연수 공제·환산급여 공제·실수령액을 즉시 확인하세요."}</script>
+</head>
+<body>
+<header>
+  <a href="/" class="back">← MODOO HUB</a>
+  <span class="site-name">/ 퇴직소득세 계산기</span>
+</header>
+<main>
+  <div class="badge">소득세법 2026 기준</div>
+  <h1>퇴직소득세 <span>계산기</span></h1>
+  <p class="subtitle">퇴직금 총액과 근속연수를 입력하면 퇴직소득공제와 세금을 자동 계산합니다.</p>
+
+  <div class="card">
+    <div class="two-col">
+      <div>
+        <label>퇴직금 총액</label>
+        <div class="input-wrap"><input type="number" id="severance" value="50000000" step="1000000"><span class="unit">원</span></div>
+      </div>
+      <div>
+        <label>근속연수</label>
+        <div class="input-wrap"><input type="number" id="tenure" value="10" min="1" max="50"><span class="unit">년</span></div>
+      </div>
+    </div>
+    <button class="calc-btn" onclick="calc()">세금 계산하기</button>
+  </div>
+
+  <div class="card result-area" id="resultArea">
+    <div class="result-tag">✓ 퇴직소득세 계산 결과</div>
+    <div class="flow-list">
+      <div class="flow-item">
+        <div class="flow-left"><div class="flow-name">퇴직금 총액</div></div>
+        <div class="flow-right"><div class="flow-amt" id="r1">-</div></div>
+      </div>
+      <div class="flow-item">
+        <div class="flow-left"><div class="flow-name">퇴직소득공제</div><div class="flow-desc">근속연수 공제 + 환산급여 공제</div></div>
+        <div class="flow-right"><div class="flow-sign">−</div><div class="flow-amt" id="r2">-</div></div>
+      </div>
+      <div class="flow-item">
+        <div class="flow-left"><div class="flow-name">퇴직소득 과세표준</div></div>
+        <div class="flow-right"><div class="flow-amt" id="r3">-</div></div>
+      </div>
+      <div class="flow-item">
+        <div class="flow-left"><div class="flow-name">퇴직소득세 + 지방세</div><div class="flow-desc">근속연수 안분 × 5배수 방식</div></div>
+        <div class="flow-right"><div class="flow-sign">−</div><div class="flow-amt" id="r4">-</div></div>
+      </div>
+      <div class="flow-item total">
+        <div class="flow-left"><div class="flow-name">💰 실수령액</div></div>
+        <div class="flow-right"><div class="flow-amt" id="r5">-</div></div>
+      </div>
+    </div>
+    <div class="process-steps">
+      <div class="ps-title">계산 과정 상세</div>
+      <div class="ps-row"><span class="ps-label">근속연수 공제</span><span class="ps-val" id="p1">-</span></div>
+      <div class="ps-row"><span class="ps-label">환산급여</span><span class="ps-val" id="p2">-</span></div>
+      <div class="ps-row"><span class="ps-label">환산급여 공제</span><span class="ps-val" id="p3">-</span></div>
+      <div class="ps-row"><span class="ps-label">과세표준 (환산)</span><span class="ps-val" id="p4">-</span></div>
+      <div class="ps-row"><span class="ps-label">산출세액 (환산)</span><span class="ps-val" id="p5">-</span></div>
+      <div class="ps-row"><span class="ps-label">실효세율</span><span class="ps-val" id="p6">-</span></div>
+    </div>
+    <div class="notice">※ 근속연수 안분 방식: 과세표준 ÷ 근속연수 × 5배수 구간 적용 후 역산. 2013년 이전 입사자는 별도 계산이 필요합니다. 정확한 세액은 국세청 홈택스 또는 세무사 확인을 권장합니다.</div>
+  </div>
+
+    <section class="seo" aria-label="도움말 및 자주 묻는 질문">
+    <h2>퇴직소득세 계산 구조와 절세 방법</h2>
+    <p>퇴직소득세는 ① 근속연수 공제 → ② 환산급여 계산 → ③ 환산급여 공제 → ④ 과세표준 산출 → ⑤ 세율 적용 순서로 계산됩니다. 근속연수가 길수록 공제가 커져 세 부담이 줄어드는 구조입니다. 10년 근속 기준 근속연수 공제는 1,500만원입니다. 퇴직금을 IRP(개인형 퇴직연금) 계좌로 수령하면 퇴직소득세 납부를 이연할 수 있고, 55세 이후 연금으로 수령하면 퇴직소득세의 30%(10년 초과 시 40%)를 감면받습니다. 따라서 IRP 활용이 퇴직소득세 절세의 핵심입니다.</p>
+    <h2>근속연수별 공제 금액</h2>
+    <p>5년 이하: 연 100만원 × 근속연수. 5~10년: 500만원 + 200만원 × (연수-5). 10~20년: 1,500만원 + 250만원 × (연수-10). 20년 초과: 4,000만원 + 300만원 × (연수-20).</p>
+    <h2>자주 묻는 질문 (FAQ)</h2>
+    <div class="faq-list">
+    <div class="faq-item"><h3 class="faq-q">Q. 퇴직금을 IRP에 넣으면 세금이 줄어드나요?</h3><p class="faq-a">A. IRP에 넣으면 퇴직소득세 납부를 이연하고, 55세 이후 연금 수령 시 세금의 30~40%를 감면받습니다. 예를 들어 퇴직소득세 500만원이면 IRP 연금 수령 시 약 150~200만원을 절세할 수 있습니다.</p></div>
+    <div class="faq-item"><h3 class="faq-q">Q. 퇴직소득세 실효세율은 어느 정도인가요?</h3><p class="faq-a">A. 근속 10년, 퇴직금 1억원 기준 실효세율은 약 4~6% 수준입니다. 근속기간이 길수록 실효세율이 낮아져 장기 근속자에게 유리한 구조입니다.</p></div>
+    <div class="faq-item"><h3 class="faq-q">Q. 퇴직금을 일시불로 받을 때와 연금으로 받을 때 세금 차이는?</h3><p class="faq-a">A. 일시불 수령은 퇴직소득세 전액 납부, 연금 수령은 30~40% 감면됩니다. IRP 잔액이 클수록 연금 수령이 유리합니다.</p></div>
+    <div class="faq-item"><h3 class="faq-q">Q. 퇴직소득세는 회사가 원천징수하나요?</h3><p class="faq-a">A. 네. 퇴직금 지급 시 회사가 퇴직소득세를 원천징수하고 지급합니다. 단, IRP 이전 수령 시 세금 이연이 가능하므로, 퇴직 전 IRP 계좌를 개설해두는 것이 좋습니다.</p></div>
+    <div class="faq-item"><h3 class="faq-q">Q. 중간정산 받은 퇴직금도 퇴직소득세를 내나요?</h3><p class="faq-a">A. 네. 중간정산도 퇴직소득세 부과 대상입니다. 중간정산 이후 근속 기간은 새로 시작되므로, 최종 퇴직 시 공제 혜택이 줄어듭니다. 불가피한 경우가 아니라면 중간정산을 피하는 것이 절세에 유리합니다.</p></div>
+    </div>
+  </section>
+  <footer>© 2026 MODOO HUB · <a href="privacy.html" style="color:var(--text-dim);text-decoration:none;">개인정보처리방침</a></footer>
+</main>
+<script>
+function fmt(n){return Math.round(n).toLocaleString('ko-KR')+'원';}
+function calcTax(taxBase){
+  // 소득세 누진세율
+  if(taxBase<=14000000) return taxBase*0.06;
+  if(taxBase<=50000000) return 840000+(taxBase-14000000)*0.15;
+  if(taxBase<=88000000) return 6240000+(taxBase-50000000)*0.24;
+  if(taxBase<=150000000) return 15360000+(taxBase-88000000)*0.35;
+  if(taxBase<=300000000) return 37060000+(taxBase-150000000)*0.38;
+  if(taxBase<=500000000) return 94060000+(taxBase-300000000)*0.40;
+  return 174060000+(taxBase-500000000)*0.42;
+}
+function calc(){
+  const sev=parseFloat(document.getElementById('severance').value)||0;
+  const yr=parseInt(document.getElementById('tenure').value)||1;
+
+  // 1. 근속연수 공제
+  let empDeduct=0;
+  if(yr<=5) empDeduct=yr*1000000;
+  else if(yr<=10) empDeduct=5000000+(yr-5)*2000000;
+  else if(yr<=20) empDeduct=15000000+(yr-10)*2500000;
+  else empDeduct=40000000+(yr-20)*3000000;
+
+  // 2. 환산급여 = (퇴직금 - 근속연수공제) / 근속연수 × 12
+  const converted=(sev-empDeduct)/yr*12;
+
+  // 3. 환산급여 공제
+  let convDeduct=0;
+  if(converted<=8000000) convDeduct=converted*0.5;
+  else if(converted<=28000000) convDeduct=4000000+(converted-8000000)*0.4;
+  else if(converted<=56000000) convDeduct=12000000+(converted-28000000)*0.3;
+  else if(converted<=136000000) convDeduct=20400000+(converted-56000000)*0.2;
+  else convDeduct=36400000+(converted-136000000)*0.1;
+
+  // 4. 환산 과세표준
+  const convTaxBase=Math.max(0,converted-convDeduct);
+
+  // 5. 세액 산출 (환산 기준) → 역산
+  const convTax=calcTax(convTaxBase);
+  const finalTax=convTax/12*yr;
+  const localTax=finalTax*0.1;
+  const totalTax=finalTax+localTax;
+  const net=sev-totalTax;
+  const effRate=sev>0?totalTax/sev*100:0;
+  const totalDeduct=empDeduct+(sev-empDeduct-convTaxBase/12*yr*sev/(sev>0?sev:1));
+
+  document.getElementById('r1').textContent=fmt(sev);
+  document.getElementById('r2').textContent=fmt(Math.max(0,sev-convTaxBase/12*yr));
+  document.getElementById('r3').textContent=fmt(Math.max(0,convTaxBase/12*yr));
+  document.getElementById('r4').textContent=fmt(totalTax);
+  document.getElementById('r5').textContent=fmt(net);
+  document.getElementById('p1').textContent=fmt(empDeduct);
+  document.getElementById('p2').textContent=fmt(Math.max(0,converted));
+  document.getElementById('p3').textContent=fmt(Math.max(0,convDeduct));
+  document.getElementById('p4').textContent=fmt(Math.max(0,convTaxBase));
+  document.getElementById('p5').textContent=fmt(convTax);
+  document.getElementById('p6').textContent=effRate.toFixed(2)+'%';
+  document.getElementById('resultArea').style.display='block';
+  document.getElementById('resultArea').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+</script>
+</body>
+</html>

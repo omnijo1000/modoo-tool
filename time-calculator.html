@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>시간 계산기 - 근무시간·시간 차이·시간 합계 계산</title>
+<meta name="description" content="출퇴근 시간 입력으로 근무시간 자동 계산. 여러 시간 합산, 시간 빼기, 초과근무·야간근무 시간도 계산합니다.">
+<meta name="keywords" content="시간 계산기, 근무시간 계산기, 시간 차이 계산, 출퇴근 시간 계산, 초과근무 계산">
+<link rel="canonical" href="https://modoohub.com/time-calculator.html">
+<meta property="og:title" content="시간 계산기 | MODOO HUB">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f0f0f;--surface:#1a1a1a;--border:#2e2e2e;--accent:#c084fc;--text:#f0f0f0;--text-muted:#888;--text-dim:#555;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
+.back{color:var(--text-muted);text-decoration:none;font-size:13px;font-family:'DM Mono',monospace;}
+.back:hover{color:var(--accent);}
+.site-name{font-size:13px;color:var(--text-dim);font-family:'DM Mono',monospace;}
+main{max-width:640px;margin:0 auto;padding:48px 24px;}
+h1{font-size:28px;font-weight:900;margin-bottom:8px;}
+h1 span{color:var(--accent);}
+.subtitle{font-size:13px;color:var(--text-muted);margin-bottom:36px;line-height:1.6;}
+.tab-bar{display:flex;gap:8px;margin-bottom:20px;}
+.tab{padding:8px 18px;border-radius:20px;font-size:13px;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-family:'Noto Sans KR',sans-serif;transition:all 0.15s;}
+.tab.active{background:var(--accent);color:#000;border-color:var(--accent);font-weight:700;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:16px;}
+.card-title{font-size:11px;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:16px;}
+.pane{display:none;} .pane.active{display:block;}
+.time-row{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;margin-bottom:12px;}
+.time-row .sep{font-size:20px;text-align:center;color:var(--text-dim);}
+label{font-size:13px;color:var(--text-muted);display:block;margin-bottom:6px;}
+input[type=time],input[type=number]{width:100%;background:#111;border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--text);font-size:15px;font-family:'DM Mono',monospace;outline:none;transition:border-color 0.2s;}
+input[type=time]:focus,input[type=number]:focus{border-color:var(--accent);}
+.row-label{font-size:12px;color:var(--text-dim);margin-bottom:6px;}
+.add-row{display:flex;gap:8px;margin-bottom:8px;align-items:center;}
+.add-row input{flex:1;}
+.add-row .colon{color:var(--text-dim);font-size:18px;}
+.remove-btn{background:none;border:1px solid var(--border);color:var(--text-dim);width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:16px;flex-shrink:0;}
+.remove-btn:hover{border-color:#ff6b6b;color:#ff6b6b;}
+.add-btn{background:none;border:1px dashed var(--border);color:var(--text-dim);width:100%;padding:10px;border-radius:10px;cursor:pointer;font-size:13px;font-family:'Noto Sans KR',sans-serif;margin-bottom:16px;}
+.add-btn:hover{border-color:var(--accent);color:var(--accent);}
+.break-toggle{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.break-toggle input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent);}
+.break-input{width:100%;background:#111;border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-size:14px;font-family:'DM Mono',monospace;outline:none;}
+.calc-btn{width:100%;background:var(--accent);color:#000;font-weight:700;font-size:15px;border:none;border-radius:12px;padding:14px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:opacity 0.15s;}
+.calc-btn:hover{opacity:0.85;}
+.result-area{display:none;}
+.result-main{font-size:48px;font-weight:900;font-family:'DM Mono',monospace;color:var(--accent);text-align:center;padding:20px 0;}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.detail-item{background:#111;border-radius:10px;padding:14px 16px;}
+.detail-label{font-size:11px;color:var(--text-dim);margin-bottom:4px;}
+.detail-value{font-size:16px;font-weight:700;font-family:'DM Mono',monospace;}
+.notice{font-size:11px;color:var(--text-dim);margin-top:14px;line-height:1.7;padding:12px 16px;border-left:2px solid var(--border);}
+.seo{margin-top:48px;padding-top:32px;border-top:1px solid var(--border);}
+.seo h2{font-size:16px;font-weight:700;margin-bottom:10px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:48px;padding:24px;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+</head>
+<body>
+<header>
+  <a href="/" class="back">← MODOO HUB</a>
+  <span class="site-name">/ 시간 계산기</span>
+</header>
+<main>
+  <h1>시간 <span>계산기</span></h1>
+  <p class="subtitle">출퇴근 시간으로 근무시간 계산, 여러 시간 합산, 시간 빼기까지 한 번에.</p>
+
+  <div class="tab-bar">
+    <button class="tab active" onclick="switchTab('work',this)">근무시간 계산</button>
+    <button class="tab" onclick="switchTab('sum',this)">시간 합산</button>
+    <button class="tab" onclick="switchTab('diff',this)">시간 빼기</button>
+  </div>
+
+  <!-- 근무시간 계산 -->
+  <div class="pane active" id="pane-work">
+    <div class="card">
+      <div class="card-title">출퇴근 시간</div>
+      <div class="time-row">
+        <div><label>출근 시간</label><input type="time" id="startTime" value="09:00"></div>
+        <div class="sep">→</div>
+        <div><label>퇴근 시간</label><input type="time" id="endTime" value="18:00"></div>
+      </div>
+      <div class="break-toggle">
+        <input type="checkbox" id="breakCheck" checked onchange="toggleBreak()">
+        <label for="breakCheck" style="margin-bottom:0;cursor:pointer;">휴게시간 제외</label>
+        <input type="number" class="break-input" id="breakMin" value="60" min="0" max="480" style="width:100px;margin-left:auto;" placeholder="분"> <span style="font-size:13px;color:var(--text-dim);">분</span>
+      </div>
+      <button class="calc-btn" onclick="calcWork()">계산하기</button>
+    </div>
+    <div class="card result-area" id="workResult">
+      <div class="result-main" id="workMain">0:00</div>
+      <div class="detail-grid">
+        <div class="detail-item"><div class="detail-label">총 체류시간</div><div class="detail-value" id="wTotal">-</div></div>
+        <div class="detail-item"><div class="detail-label">실 근무시간</div><div class="detail-value" style="color:var(--accent)" id="wNet">-</div></div>
+        <div class="detail-item"><div class="detail-label">초과근무 (8h 초과)</div><div class="detail-value" id="wOvertime">-</div></div>
+        <div class="detail-item"><div class="detail-label">야간근무 (22~06시)</div><div class="detail-value" id="wNight">-</div></div>
+      </div>
+      <div class="notice">※ 초과근무는 법정근로시간 8시간 초과분입니다. 야간근무(오후 10시~오전 6시) 해당 여부를 함께 표시합니다.</div>
+    </div>
+  </div>
+
+  <!-- 시간 합산 -->
+  <div class="pane" id="pane-sum">
+    <div class="card">
+      <div class="card-title">시간 목록 입력 (시:분)</div>
+      <div id="sumRows"></div>
+      <button class="add-btn" onclick="addSumRow()">+ 항목 추가</button>
+      <button class="calc-btn" onclick="calcSum()">합산하기</button>
+    </div>
+    <div class="card result-area" id="sumResult">
+      <div class="result-main" id="sumMain">0:00</div>
+      <div class="detail-grid">
+        <div class="detail-item"><div class="detail-label">총 시간</div><div class="detail-value" id="sHour">-</div></div>
+        <div class="detail-item"><div class="detail-label">총 분</div><div class="detail-value" id="sMin">-</div></div>
+        <div class="detail-item"><div class="detail-label">일 환산 (8h 기준)</div><div class="detail-value" id="sDay">-</div></div>
+        <div class="detail-item"><div class="detail-label">분 환산</div><div class="detail-value" id="sTotalMin">-</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 시간 빼기 -->
+  <div class="pane" id="pane-diff">
+    <div class="card">
+      <div class="card-title">시간 차이 계산</div>
+      <div class="time-row">
+        <div><label>시작 시간</label><input type="time" id="diffStart" value="08:30"></div>
+        <div class="sep">−</div>
+        <div><label>종료 시간</label><input type="time" id="diffEnd" value="17:45"></div>
+      </div>
+      <button class="calc-btn" onclick="calcDiff()">계산하기</button>
+    </div>
+    <div class="card result-area" id="diffResult">
+      <div class="result-main" id="diffMain">0:00</div>
+      <div class="detail-grid">
+        <div class="detail-item"><div class="detail-label">시간</div><div class="detail-value" id="dH">-</div></div>
+        <div class="detail-item"><div class="detail-label">분</div><div class="detail-value" id="dM">-</div></div>
+        <div class="detail-item"><div class="detail-label">초 환산</div><div class="detail-value" id="dS">-</div></div>
+        <div class="detail-item"><div class="detail-label">분 환산</div><div class="detail-value" id="dTM">-</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="seo">
+    <h2>시간 계산기 사용법</h2>
+    <p>근무시간 계산기는 출근 시간과 퇴근 시간을 입력하면 실 근무시간을 자동으로 계산합니다. 점심 휴게시간 등을 분 단위로 입력하면 공제 후 순수 근무시간만 표시됩니다.</p>
+    <p><strong>Q. 야간수당은 몇 시부터인가요?</strong><br>A. 오후 10시(22:00)부터 오전 6시(06:00)까지 근무한 시간에는 통상임금의 50%를 가산한 야간수당이 지급됩니다(근로기준법 제56조).</p>
+    <p><strong>Q. 초과근무수당은 어떻게 계산하나요?</strong><br>A. 법정근로시간(하루 8시간, 주 40시간) 초과 시 통상임금의 50%를 가산합니다. 연장근로는 주 12시간 이내로 제한됩니다.</p>
+  </div>
+  <footer>© 2026 MODOO HUB · <a href="privacy.html" style="color:var(--text-dim);text-decoration:none;">개인정보처리방침</a></footer>
+</main>
+<script>
+function switchTab(id, btn) {
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('pane-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+function toggleBreak(){
+  document.getElementById('breakMin').disabled=!document.getElementById('breakCheck').checked;
+}
+function toMin(t){const[h,m]=t.split(':').map(Number);return h*60+m;}
+function fmtTime(totalMin){
+  const sign=totalMin<0?'-':'';
+  const abs=Math.abs(totalMin);
+  return sign+Math.floor(abs/60)+'시간 '+String(abs%60).padStart(2,'0')+'분';
+}
+function fmtHM(totalMin){
+  const abs=Math.abs(totalMin);
+  return Math.floor(abs/60)+':'+String(abs%60).padStart(2,'0');
+}
+function calcWork(){
+  const s=toMin(document.getElementById('startTime').value);
+  let e=toMin(document.getElementById('endTime').value);
+  if(e<s) e+=24*60;
+  const brk=document.getElementById('breakCheck').checked?parseInt(document.getElementById('breakMin').value)||0:0;
+  const total=e-s;
+  const net=Math.max(0,total-brk);
+  const ot=Math.max(0,net-480);
+  // 야간: 1320(22:00)~360(06:00 다음날)
+  const nightStart=1320, nightEnd=360+1440;
+  let night=0;
+  const actualStart=s, actualEnd=e;
+  // 단순 체크: 22~24 or 0~6
+  if(actualEnd>1320) night+=Math.min(actualEnd,1440)-1320;
+  if(actualStart<360) night+=360-Math.max(actualStart,0);
+  document.getElementById('wTotal').textContent=fmtTime(total);
+  document.getElementById('wNet').textContent=fmtTime(net);
+  document.getElementById('wOvertime').textContent=ot>0?fmtTime(ot):'없음';
+  document.getElementById('wNight').textContent=night>0?fmtTime(night):'없음';
+  document.getElementById('workMain').textContent=fmtHM(net);
+  document.getElementById('workResult').style.display='block';
+}
+// 합산
+let sumRowCount=0;
+function addSumRow(){
+  sumRowCount++;
+  const div=document.createElement('div');
+  div.className='add-row';
+  div.id='sr'+sumRowCount;
+  div.innerHTML=`<input type="number" placeholder="시" min="0" style="width:70px;"> <span class="colon">:</span> <input type="number" placeholder="분" min="0" max="59" style="width:70px;"> <button class="remove-btn" onclick="this.parentElement.remove()">×</button>`;
+  document.getElementById('sumRows').appendChild(div);
+}
+function calcSum(){
+  let total=0;
+  document.querySelectorAll('#sumRows .add-row').forEach(row=>{
+    const inputs=row.querySelectorAll('input');
+    total+=(parseInt(inputs[0].value)||0)*60+(parseInt(inputs[1].value)||0);
+  });
+  const h=Math.floor(total/60),m=total%60;
+  document.getElementById('sumMain').textContent=h+':'+String(m).padStart(2,'0');
+  document.getElementById('sHour').textContent=h+'시간';
+  document.getElementById('sMin').textContent=m+'분';
+  document.getElementById('sDay').textContent=(total/480).toFixed(2)+'일';
+  document.getElementById('sTotalMin').textContent=total+'분';
+  document.getElementById('sumResult').style.display='block';
+}
+function calcDiff(){
+  const s=toMin(document.getElementById('diffStart').value);
+  let e=toMin(document.getElementById('diffEnd').value);
+  if(e<s) e+=1440;
+  const diff=e-s;
+  const h=Math.floor(diff/60),m=diff%60;
+  document.getElementById('diffMain').textContent=h+':'+String(m).padStart(2,'0');
+  document.getElementById('dH').textContent=h+'시간';
+  document.getElementById('dM').textContent=m+'분';
+  document.getElementById('dS').textContent=(diff*60).toLocaleString()+'초';
+  document.getElementById('dTM').textContent=diff+'분';
+  document.getElementById('diffResult').style.display='block';
+}
+// 초기 합산 행 3개
+addSumRow();addSumRow();addSumRow();
+</script>
+</body>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>영업일 계산기 2026 - 공휴일 제외 근무일수 자동 계산</title>
+<meta name="description" content="2026년 공휴일·대체공휴일을 반영한 영업일 계산기. 두 날짜 사이 영업일수, 특정 날짜 이후 N 영업일을 즉시 계산합니다.">
+<meta name="keywords" content="영업일 계산기, 근무일수 계산, 공휴일 제외 날짜 계산, 2026 공휴일, 영업일 구하기">
+<link rel="canonical" href="https://modoohub.com/working-days-calc.html">
+<meta property="og:title" content="영업일 계산기 2026 | MODOO HUB">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f0f0f;--surface:#1a1a1a;--border:#2e2e2e;--accent:#fcd34d;--text:#f0f0f0;--text-muted:#888;--text-dim:#555;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
+.back{color:var(--text-muted);text-decoration:none;font-size:13px;font-family:'DM Mono',monospace;}
+.back:hover{color:var(--accent);}
+.site-name{font-size:13px;color:var(--text-dim);font-family:'DM Mono',monospace;}
+main{max-width:640px;margin:0 auto;padding:48px 24px;}
+h1{font-size:28px;font-weight:900;margin-bottom:8px;}
+h1 span{color:var(--accent);}
+.subtitle{font-size:13px;color:var(--text-muted);margin-bottom:36px;line-height:1.6;}
+.tab-bar{display:flex;gap:8px;margin-bottom:20px;}
+.tab{padding:8px 18px;border-radius:20px;font-size:13px;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-family:'Noto Sans KR',sans-serif;transition:all 0.15s;}
+.tab.active{background:var(--accent);color:#000;border-color:var(--accent);font-weight:700;}
+.pane{display:none;}.pane.active{display:block;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:16px;}
+.card-title{font-size:11px;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:16px;}
+label{font-size:13px;color:var(--text-muted);display:block;margin-bottom:6px;}
+input[type=date],input[type=number]{width:100%;background:#111;border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--text);font-size:15px;font-family:'DM Mono',monospace;outline:none;transition:border-color 0.2s;margin-bottom:16px;color-scheme:dark;}
+input[type=date]:focus,input[type=number]:focus{border-color:var(--accent);}
+.check-row{display:flex;align-items:center;gap:10px;margin-bottom:16px;font-size:13px;color:var(--text-muted);}
+.check-row input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent);}
+.calc-btn{width:100%;background:var(--accent);color:#000;font-weight:700;font-size:15px;border:none;border-radius:12px;padding:14px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:opacity 0.15s;}
+.calc-btn:hover{opacity:0.85;}
+.result-area{display:none;}
+.result-main{font-size:52px;font-weight:900;font-family:'DM Mono',monospace;color:var(--accent);text-align:center;padding:16px 0;}
+.result-unit{font-size:14px;color:var(--text-muted);text-align:center;margin-bottom:20px;}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;}
+.d-item{background:#111;border-radius:10px;padding:12px;text-align:center;}
+.d-label{font-size:10px;color:var(--text-dim);margin-bottom:4px;}
+.d-val{font-size:16px;font-weight:700;font-family:'DM Mono',monospace;}
+.holiday-list{background:#111;border-radius:10px;padding:14px;margin-top:8px;}
+.hl-title{font-size:11px;color:var(--text-dim);margin-bottom:10px;font-family:'DM Mono',monospace;}
+.hl-item{display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid #1e1e1e;}
+.hl-item:last-child{border-bottom:none;}
+.hl-date{font-family:'DM Mono',monospace;color:var(--text-muted);}
+.hl-name{color:var(--accent);}
+.seo{margin-top:48px;padding-top:32px;border-top:1px solid var(--border);}
+.seo h2{font-size:16px;font-weight:700;margin-bottom:10px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:48px;padding:24px;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+</head>
+<body>
+<header>
+  <a href="/" class="back">← MODOO HUB</a>
+  <span class="site-name">/ 영업일 계산기</span>
+</header>
+<main>
+  <h1>영업일 <span>계산기</span></h1>
+  <p class="subtitle">2026년 공휴일·대체공휴일을 자동 반영합니다. 기간 내 영업일수 또는 N일 후 날짜를 계산하세요.</p>
+
+  <div class="tab-bar">
+    <button class="tab active" onclick="switchTab('between',this)">기간 내 영업일수</button>
+    <button class="tab" onclick="switchTab('after',this)">N 영업일 후 날짜</button>
+  </div>
+
+  <div class="pane active" id="pane-between">
+    <div class="card">
+      <label>시작일</label>
+      <input type="date" id="startDate" value="2026-06-04">
+      <label>종료일</label>
+      <input type="date" id="endDate" value="2026-06-30">
+      <div class="check-row"><input type="checkbox" id="inclHoliday" checked><label for="inclHoliday" style="margin:0;cursor:pointer;">공휴일 제외</label></div>
+      <div class="check-row"><input type="checkbox" id="inclStart"><label for="inclStart" style="margin:0;cursor:pointer;">시작일 포함</label></div>
+      <button class="calc-btn" onclick="calcBetween()">영업일 계산</button>
+    </div>
+    <div class="card result-area" id="betweenResult">
+      <div class="result-main" id="bMain">0</div>
+      <div class="result-unit">영업일</div>
+      <div class="detail-grid">
+        <div class="d-item"><div class="d-label">전체 일수</div><div class="d-val" id="bTotal">-</div></div>
+        <div class="d-item"><div class="d-label">주말 제외</div><div class="d-val" id="bWeekend">-</div></div>
+        <div class="d-item"><div class="d-label">공휴일 제외</div><div class="d-val" id="bHoliday">-</div></div>
+      </div>
+      <div class="holiday-list" id="holidayListBetween"></div>
+    </div>
+  </div>
+
+  <div class="pane" id="pane-after">
+    <div class="card">
+      <label>기준일</label>
+      <input type="date" id="baseDate" value="2026-06-04">
+      <label>영업일 수</label>
+      <input type="number" id="daysAfter" value="10" min="1" max="365">
+      <div class="check-row"><input type="checkbox" id="inclHoliday2" checked><label for="inclHoliday2" style="margin:0;cursor:pointer;">공휴일 제외</label></div>
+      <button class="calc-btn" onclick="calcAfter()">날짜 계산</button>
+    </div>
+    <div class="card result-area" id="afterResult">
+      <div style="text-align:center;padding:20px 0;">
+        <div style="font-size:13px;color:var(--text-muted);margin-bottom:8px;">결과 날짜</div>
+        <div class="result-main" id="aDate" style="font-size:32px;">-</div>
+        <div style="font-size:13px;color:var(--text-muted);margin-top:4px;" id="aDay"></div>
+      </div>
+      <div class="holiday-list" id="holidayListAfter"></div>
+    </div>
+  </div>
+
+  <div class="seo">
+    <h2>2026년 공휴일 목록</h2>
+    <p>2026년 법정 공휴일: 신정(1/1), 설날 연휴(1/27~29), 삼일절(3/1), 어린이날(5/5), 부처님오신날(5/27), 현충일(6/6), 광복절(8/15), 추석 연휴(10/5~7), 개천절(10/3), 한글날(10/9), 성탄절(12/25). 대체공휴일 적용 여부는 정부 발표를 확인하세요.</p>
+    <p><strong>Q. 영업일과 근무일의 차이는?</strong><br>A. 영업일(Business Day)은 공휴일과 주말을 제외한 날입니다. 근무일은 실제 출근한 날로 회사마다 다를 수 있습니다. 법적 납기일·계약 기간 등에는 영업일 기준을 사용하는 경우가 많습니다.</p>
+  </div>
+  <footer>© 2026 MODOO HUB · <a href="privacy.html" style="color:var(--text-dim);text-decoration:none;">개인정보처리방침</a></footer>
+</main>
+<script>
+// 2026년 한국 공휴일
+const HOLIDAYS_2026 = {
+  '2026-01-01':'신정','2026-01-27':'설날 전날','2026-01-28':'설날','2026-01-29':'설날 다음날',
+  '2026-03-01':'삼일절','2026-05-05':'어린이날','2026-05-27':'부처님오신날',
+  '2026-06-06':'현충일','2026-08-15':'광복절',
+  '2026-10-03':'개천절','2026-10-05':'추석 전날','2026-10-06':'추석','2026-10-07':'추석 다음날',
+  '2026-10-09':'한글날','2026-12-25':'성탄절'
+};
+const DAYS_KO=['일','월','화','수','목','금','토'];
+function dateStr(d){return d.toISOString().split('T')[0];}
+function isHoliday(d){return !!HOLIDAYS_2026[dateStr(d)];}
+function isWeekend(d){return d.getDay()===0||d.getDay()===6;}
+function switchTab(id,btn){
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('pane-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+function calcBetween(){
+  const s=new Date(document.getElementById('startDate').value);
+  const e=new Date(document.getElementById('endDate').value);
+  const excHol=document.getElementById('inclHoliday').checked;
+  const inclS=document.getElementById('inclStart').checked;
+  if(s>e){alert('종료일이 시작일보다 앞입니다.');return;}
+  let cur=new Date(s);
+  if(!inclS) cur.setDate(cur.getDate()+1);
+  let total=0,weekends=0,holidays=0,bizDays=0;
+  const hitHols=[];
+  while(cur<=e){
+    total++;
+    if(isWeekend(cur)){weekends++;}
+    else if(excHol&&isHoliday(cur)){holidays++;hitHols.push({d:dateStr(cur),n:HOLIDAYS_2026[dateStr(cur)]});}
+    else bizDays++;
+    cur.setDate(cur.getDate()+1);
+  }
+  document.getElementById('bMain').textContent=bizDays;
+  document.getElementById('bTotal').textContent=total+'일';
+  document.getElementById('bWeekend').textContent=weekends+'일';
+  document.getElementById('bHoliday').textContent=holidays+'일';
+  const hl=document.getElementById('holidayListBetween');
+  if(hitHols.length>0){
+    hl.innerHTML='<div class="hl-title">기간 내 공휴일 ('+hitHols.length+'개)</div>'+
+      hitHols.map(h=>`<div class="hl-item"><span class="hl-date">${h.d}</span><span class="hl-name">${h.n}</span></div>`).join('');
+    hl.style.display='block';
+  } else hl.style.display='none';
+  document.getElementById('betweenResult').style.display='block';
+  document.getElementById('betweenResult').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function calcAfter(){
+  const base=new Date(document.getElementById('baseDate').value);
+  const n=parseInt(document.getElementById('daysAfter').value)||10;
+  const excHol=document.getElementById('inclHoliday2').checked;
+  let cur=new Date(base);
+  cur.setDate(cur.getDate()+1);
+  let count=0;
+  const hitHols=[];
+  while(count<n){
+    if(!isWeekend(cur)){
+      if(excHol&&isHoliday(cur)){hitHols.push({d:dateStr(cur),n:HOLIDAYS_2026[dateStr(cur)]});}
+      else count++;
+    }
+    if(count<n) cur.setDate(cur.getDate()+1);
+  }
+  document.getElementById('aDate').textContent=dateStr(cur);
+  document.getElementById('aDay').textContent=DAYS_KO[cur.getDay()]+'요일';
+  const hl=document.getElementById('holidayListAfter');
+  if(hitHols.length>0){
+    hl.innerHTML='<div class="hl-title">건너뛴 공휴일 ('+hitHols.length+'개)</div>'+
+      hitHols.map(h=>`<div class="hl-item"><span class="hl-date">${h.d}</span><span class="hl-name">${h.n}</span></div>`).join('');
+    hl.style.display='block';
+  } else hl.style.display='none';
+  document.getElementById('afterResult').style.display='block';
+  document.getElementById('afterResult').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+</script>
+</body>
+</html>

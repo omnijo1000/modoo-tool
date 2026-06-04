@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>진수 변환기 - 2진수 8진수 10진수 16진수 변환</title>
+<meta name="description" content="2진수, 8진수, 10진수, 16진수를 즉시 상호 변환합니다. 개발자를 위한 진법 변환 도구. Binary, Octal, Decimal, Hex converter.">
+<meta name="keywords" content="진수 변환기, 2진수 변환, 16진수 변환, binary decimal hex converter, 진법 변환">
+<link rel="canonical" href="https://modoohub.com/number-converter.html">
+<meta property="og:title" content="진수 변환기 | MODOO HUB">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f0f0f;--surface:#1a1a1a;--border:#2e2e2e;--accent:#818cf8;--text:#f0f0f0;--text-muted:#888;--text-dim:#555;--error:#ff6b6b;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
+.back{color:var(--text-muted);text-decoration:none;font-size:13px;font-family:'DM Mono',monospace;}
+.back:hover{color:var(--accent);}
+.site-name{font-size:13px;color:var(--text-dim);font-family:'DM Mono',monospace;}
+main{max-width:640px;margin:0 auto;padding:48px 24px;}
+h1{font-size:28px;font-weight:900;margin-bottom:8px;}
+h1 span{color:var(--accent);}
+.subtitle{font-size:13px;color:var(--text-muted);margin-bottom:36px;line-height:1.6;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:16px;}
+.card-title{font-size:11px;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:16px;}
+.base-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.base-field label{font-size:12px;color:var(--text-dim);margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.base-badge{display:inline-block;padding:1px 7px;border-radius:4px;font-size:10px;font-family:'DM Mono',monospace;font-weight:700;}
+.b2{background:#1a1a3a;color:#818cf8;}.b8{background:#1a2a1a;color:#4ade80;}.b10{background:#2a1a1a;color:#fb923c;}.b16{background:#1a2a2a;color:#2dd4bf;}
+.base-field input{width:100%;background:#111;border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-size:14px;font-family:'DM Mono',monospace;outline:none;transition:border-color 0.2s;letter-spacing:0.05em;}
+.base-field input:focus{border-color:var(--accent);}
+.base-field input.error{border-color:var(--error);}
+.copy-btn{background:none;border:1px solid var(--border);color:var(--text-dim);font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer;margin-top:6px;font-family:'DM Mono',monospace;transition:all 0.15s;}
+.copy-btn:hover{border-color:var(--accent);color:var(--accent);}
+.copy-btn.copied{border-color:#4ade80;color:#4ade80;}
+.bit-display{margin-top:16px;padding:16px;background:#111;border-radius:12px;}
+.bit-title{font-size:11px;color:var(--text-dim);margin-bottom:10px;font-family:'DM Mono',monospace;}
+.bit-grid{display:flex;flex-wrap:wrap;gap:3px;}
+.bit{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:4px;font-size:13px;font-family:'DM Mono',monospace;font-weight:700;}
+.bit-1{background:#1a1a3a;color:#818cf8;}.bit-0{background:#181818;color:#444;}
+.bit-sep{width:6px;}
+.ops-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px;}
+.op-card{background:#111;border-radius:10px;padding:12px;text-align:center;}
+.op-label{font-size:11px;color:var(--text-dim);margin-bottom:6px;font-family:'DM Mono',monospace;}
+.op-val{font-size:14px;font-family:'DM Mono',monospace;color:var(--text-muted);}
+.seo{margin-top:48px;padding-top:32px;border-top:1px solid var(--border);}
+.seo h2{font-size:16px;font-weight:700;margin-bottom:10px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:48px;padding:24px;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+</head>
+<body>
+<header>
+  <a href="/" class="back">← MODOO HUB</a>
+  <span class="site-name">/ 진수 변환기</span>
+</header>
+<main>
+  <h1>진수 <span>변환기</span></h1>
+  <p class="subtitle">2진수·8진수·10진수·16진수를 실시간으로 상호 변환합니다.<br>어느 칸에 입력해도 나머지가 자동으로 바뀝니다.</p>
+
+  <div class="card">
+    <div class="card-title">진수 변환</div>
+    <div class="base-grid">
+      <div class="base-field">
+        <label><span class="base-badge b2">BIN</span> 2진수</label>
+        <input type="text" id="bin" placeholder="1010" oninput="fromBase(this,2)">
+        <button class="copy-btn" onclick="copyVal('bin')">Copy</button>
+      </div>
+      <div class="base-field">
+        <label><span class="base-badge b8">OCT</span> 8진수</label>
+        <input type="text" id="oct" placeholder="12" oninput="fromBase(this,8)">
+        <button class="copy-btn" onclick="copyVal('oct')">Copy</button>
+      </div>
+      <div class="base-field">
+        <label><span class="base-badge b10">DEC</span> 10진수</label>
+        <input type="text" id="dec" placeholder="10" oninput="fromBase(this,10)">
+        <button class="copy-btn" onclick="copyVal('dec')">Copy</button>
+      </div>
+      <div class="base-field">
+        <label><span class="base-badge b16">HEX</span> 16진수</label>
+        <input type="text" id="hex" placeholder="A" oninput="fromBase(this,16)">
+        <button class="copy-btn" onclick="copyVal('hex')">Copy</button>
+      </div>
+    </div>
+
+    <div class="bit-display" id="bitDisplay">
+      <div class="bit-title">32bit 이진 표현</div>
+      <div class="bit-grid" id="bitGrid"></div>
+    </div>
+
+    <div class="ops-grid" id="opsGrid">
+      <div class="op-card"><div class="op-label">Unsigned</div><div class="op-val" id="opUnsigned">-</div></div>
+      <div class="op-card"><div class="op-label">Signed 32bit</div><div class="op-val" id="opSigned">-</div></div>
+      <div class="op-card"><div class="op-label">Char (ASCII)</div><div class="op-val" id="opChar">-</div></div>
+    </div>
+  </div>
+
+  <div class="seo">
+    <h2>진수 변환 방법</h2>
+    <p>10진수 255 = 16진수 FF = 2진수 11111111 = 8진수 377. 개발에서 자주 쓰이는 값: 0xFF = 255, 0x80 = 128, 0x7F = 127, 0x00 = 0.</p>
+    <p><strong>Q. 16진수는 왜 쓰나요?</strong><br>A. 1개의 16진수 자리가 정확히 4비트를 표현하므로, 바이트 단위 데이터를 간결하게 나타낼 수 있습니다. 색상 코드(#FF5733), 메모리 주소, 비트마스크 등에 사용됩니다.</p>
+    <p><strong>Q. 음수는 어떻게 표현하나요?</strong><br>A. 2의 보수(Two's Complement) 방식을 사용합니다. 32비트에서 최상위 비트가 1이면 음수로 해석합니다(Signed 32bit). 예: 0xFFFFFFFF = -1.</p>
+  </div>
+  <footer>© 2026 MODOO HUB · <a href="privacy.html" style="color:var(--text-dim);text-decoration:none;">개인정보처리방침</a></footer>
+</main>
+<script>
+let updating=false;
+function fromBase(el, base) {
+  if(updating) return;
+  updating=true;
+  el.classList.remove('error');
+  const raw=el.value.trim().toUpperCase();
+  if(!raw){['bin','oct','dec','hex'].forEach(id=>document.getElementById(id).value='');updating=false;clearBits();return;}
+  const n=parseInt(raw,base);
+  if(isNaN(n)){el.classList.add('error');updating=false;return;}
+  if(el.id!=='bin') document.getElementById('bin').value=n.toString(2);
+  if(el.id!=='oct') document.getElementById('oct').value=n.toString(8);
+  if(el.id!=='dec') document.getElementById('dec').value=n.toString(10);
+  if(el.id!=='hex') document.getElementById('hex').value=n.toString(16).toUpperCase();
+  renderBits(n);
+  document.getElementById('opUnsigned').textContent=n>>>0;
+  const signed=(n|0);
+  document.getElementById('opSigned').textContent=signed;
+  document.getElementById('opChar').textContent=n>=32&&n<127?`'${String.fromCharCode(n)}'`:'—';
+  updating=false;
+}
+function renderBits(n){
+  const bits=(n>>>0).toString(2).padStart(32,'0');
+  const grid=document.getElementById('bitGrid');
+  grid.innerHTML='';
+  bits.split('').forEach((b,i)=>{
+    if(i>0&&i%8===0){const sep=document.createElement('div');sep.className='bit-sep';grid.appendChild(sep);}
+    const d=document.createElement('div');
+    d.className='bit bit-'+b;
+    d.textContent=b;
+    grid.appendChild(d);
+  });
+}
+function clearBits(){document.getElementById('bitGrid').innerHTML='';['opUnsigned','opSigned','opChar'].forEach(id=>document.getElementById(id).textContent='-');}
+function copyVal(id){
+  const val=document.getElementById(id).value;
+  if(!val) return;
+  navigator.clipboard.writeText(val).then(()=>{
+    const btn=document.querySelector(`#${id}~.copy-btn`)||document.querySelectorAll('.copy-btn')[['bin','oct','dec','hex'].indexOf(id)];
+    if(btn){btn.textContent='Copied!';btn.classList.add('copied');setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied');},1500);}
+  });
+}
+// init
+const d=document.getElementById('dec');d.value='255';fromBase(d,10);
+</script>
+</body>
+</html>

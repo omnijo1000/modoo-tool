@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>급여명세서 계산기 - 월급 공제항목 자동 계산 및 출력</title>
+<meta name="description" content="월 기본급 입력으로 국민연금·건강보험·고용보험·소득세·지방소득세를 자동 계산한 급여명세서를 생성합니다. 출력 및 PDF 저장 가능.">
+<meta name="keywords" content="급여명세서 계산기, 월급명세서, 급여 공제 계산, 임금명세서 자동 생성, 급여 계산기">
+<link rel="canonical" href="https://modoohub.com/payslip-calc.html">
+<meta property="og:title" content="급여명세서 계산기 | MODOO HUB">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f0f0f;--surface:#1a1a1a;--border:#2e2e2e;--accent:#38bdf8;--text:#f0f0f0;--text-muted:#888;--text-dim:#555;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
+.back{color:var(--text-muted);text-decoration:none;font-size:13px;font-family:'DM Mono',monospace;}
+.back:hover{color:var(--accent);}
+.site-name{font-size:13px;color:var(--text-dim);font-family:'DM Mono',monospace;}
+main{max-width:640px;margin:0 auto;padding:48px 24px;}
+h1{font-size:28px;font-weight:900;margin-bottom:8px;}
+h1 span{color:var(--accent);}
+.subtitle{font-size:13px;color:var(--text-muted);margin-bottom:36px;line-height:1.6;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:16px;}
+.card-title{font-size:11px;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:16px;}
+label{font-size:13px;color:var(--text-muted);display:block;margin-bottom:6px;}
+.input-wrap{position:relative;margin-bottom:14px;}
+.input-wrap input{width:100%;background:#111;border:1px solid var(--border);border-radius:10px;padding:11px 50px 11px 14px;color:var(--text);font-size:14px;font-family:'DM Mono',monospace;outline:none;transition:border-color 0.2s;}
+.input-wrap input:focus{border-color:var(--accent);}
+.input-wrap .unit{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--text-dim);font-size:12px;pointer-events:none;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.calc-btn{width:100%;background:var(--accent);color:#000;font-weight:700;font-size:15px;border:none;border-radius:12px;padding:14px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:opacity 0.15s;margin-bottom:10px;}
+.calc-btn:hover{opacity:0.85;}
+/* 급여명세서 출력 스타일 */
+.slip-area{display:none;}
+.slip-print{background:#fff;color:#111;border-radius:12px;padding:28px;font-family:'Noto Sans KR',sans-serif;}
+.slip-header{text-align:center;border-bottom:2px solid #222;padding-bottom:14px;margin-bottom:16px;}
+.slip-header h2{font-size:20px;font-weight:900;margin-bottom:4px;}
+.slip-header p{font-size:12px;color:#666;}
+.slip-info{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #ddd;}
+.slip-info-item{font-size:12px;color:#555;display:flex;gap:6px;}
+.slip-info-item strong{color:#111;}
+.slip-section-title{font-size:12px;font-weight:700;color:#444;background:#f5f5f5;padding:6px 10px;border-radius:4px;margin-bottom:8px;}
+.slip-row{display:flex;justify-content:space-between;font-size:13px;padding:5px 8px;border-bottom:1px solid #f0f0f0;}
+.slip-row:last-child{border-bottom:none;}
+.slip-row .sl{color:#555;}
+.slip-row .sv{font-family:'DM Mono',monospace;font-weight:700;}
+.slip-total{display:flex;justify-content:space-between;font-size:16px;font-weight:900;padding:12px 8px;background:#f9f9f9;border-radius:8px;margin-top:12px;}
+.slip-net{display:flex;justify-content:space-between;font-size:18px;font-weight:900;padding:14px 8px;background:#e8f5e9;border-radius:8px;margin-top:8px;}
+.slip-net .label{color:#2e7d32;}
+.slip-net .value{color:#1b5e20;font-family:'DM Mono',monospace;}
+.slip-notice{font-size:10px;color:#999;margin-top:16px;text-align:center;line-height:1.6;}
+.action-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;}
+.print-btn{padding:12px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;border:none;transition:opacity 0.15s;}
+.print-btn:hover{opacity:0.85;}
+.btn-print{background:#222;color:var(--text);}
+.btn-pdf{background:var(--accent);color:#000;}
+.seo{margin-top:48px;padding-top:32px;border-top:1px solid var(--border);}
+.seo h2{font-size:16px;font-weight:700;margin-bottom:10px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:48px;padding:24px;}
+@media print{body{background:#fff;} header,main>h1,main>.subtitle,main>.card:first-of-type,.action-btns,.seo,footer{display:none!important;} .slip-area{display:block!important;} .slip-print{box-shadow:none;padding:0;}}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+</head>
+<body>
+<header>
+  <a href="/" class="back">← MODOO HUB</a>
+  <span class="site-name">/ 급여명세서 계산기</span>
+</header>
+<main>
+  <h1>급여명세서 <span>계산기</span></h1>
+  <p class="subtitle">기본급 입력으로 4대보험·소득세를 자동 계산하고 급여명세서를 바로 출력합니다.</p>
+
+  <div class="card">
+    <div class="card-title">사원 정보</div>
+    <div class="two-col">
+      <div><label>회사명</label><div class="input-wrap"><input type="text" id="compName" placeholder="(주)모두의회사"></div></div>
+      <div><label>사원명</label><div class="input-wrap"><input type="text" id="empName" placeholder="홍길동"></div></div>
+      <div><label>부서</label><div class="input-wrap"><input type="text" id="dept" placeholder="개발팀"></div></div>
+      <div><label>귀속 연월</label><div class="input-wrap"><input type="month" id="payMonth" value="2026-06"></div></div>
+    </div>
+
+    <div class="card-title" style="margin-top:8px;">지급 항목</div>
+    <div class="two-col">
+      <div><label>기본급</label><div class="input-wrap"><input type="number" id="basic" value="3000000" step="10000"><span class="unit">원</span></div></div>
+      <div><label>식대</label><div class="input-wrap"><input type="number" id="meal" value="200000" step="10000"><span class="unit">원</span></div></div>
+      <div><label>교통비</label><div class="input-wrap"><input type="number" id="transport" value="0" step="10000"><span class="unit">원</span></div></div>
+      <div><label>연장수당</label><div class="input-wrap"><input type="number" id="overtime" value="0" step="10000"><span class="unit">원</span></div></div>
+      <div><label>기타수당</label><div class="input-wrap"><input type="number" id="bonus" value="0" step="10000"><span class="unit">원</span></div></div>
+    </div>
+    <button class="calc-btn" onclick="generate()">급여명세서 생성</button>
+  </div>
+
+  <div class="slip-area" id="slipArea">
+    <div class="slip-print" id="slipPrint"></div>
+    <div class="action-btns">
+      <button class="print-btn btn-print" onclick="window.print()">🖨️ 인쇄하기</button>
+      <button class="print-btn btn-pdf" onclick="window.print()">📄 PDF 저장</button>
+    </div>
+  </div>
+
+  <div class="seo">
+    <h2>급여명세서 교부 의무</h2>
+    <p>2021년 11월부터 근로기준법 개정으로 모든 사업주는 임금 지급 시 <strong>임금명세서를 의무적으로 교부</strong>해야 합니다. 서면 또는 전자적 방법(이메일·문자 등)으로 제공할 수 있으며, 위반 시 500만원 이하의 과태료가 부과됩니다.</p>
+    <p><strong>Q. 급여명세서에 반드시 기재해야 할 항목은?</strong><br>A. 성명, 생년월일(또는 사원번호), 지급일, 근로일수, 총 근무시간, 각 수당 항목별 금액, 4대보험·소득세 등 공제항목별 금액, 실수령액이 포함되어야 합니다.</p>
+  </div>
+  <footer>© 2026 MODOO HUB · <a href="privacy.html" style="color:var(--text-dim);text-decoration:none;">개인정보처리방침</a></footer>
+</main>
+<script>
+function fmt(n){return Math.round(n).toLocaleString('ko-KR');}
+function generate(){
+  const comp=document.getElementById('compName').value||'(주)회사명';
+  const emp=document.getElementById('empName').value||'성명';
+  const dept=document.getElementById('dept').value||'-';
+  const month=document.getElementById('payMonth').value||'2026-06';
+  const basic=parseFloat(document.getElementById('basic').value)||0;
+  const meal=parseFloat(document.getElementById('meal').value)||0;
+  const trans=parseFloat(document.getElementById('transport').value)||0;
+  const ot=parseFloat(document.getElementById('overtime').value)||0;
+  const bonus=parseFloat(document.getElementById('bonus').value)||0;
+  const gross=basic+meal+trans+ot+bonus;
+  // 4대보험 (식대 비과세 20만원 제외 후 계산)
+  const insBase=Math.max(0,gross-200000);
+  const np=Math.min(insBase,6170000)*0.0475;
+  const hi=insBase*0.03545;
+  const lt=hi*0.1314;
+  const ei=insBase*0.009;
+  // 소득세 (연 기준 → 월 환산, 단순)
+  const annual=gross*12;
+  let incomeTax=0;
+  if(annual<=14000000) incomeTax=annual*0.06;
+  else if(annual<=50000000) incomeTax=840000+(annual-14000000)*0.15;
+  else if(annual<=88000000) incomeTax=6240000+(annual-50000000)*0.24;
+  else incomeTax=15360000+(annual-88000000)*0.35;
+  incomeTax=incomeTax*0.45/12; // 근로소득공제·인적공제 단순 반영
+  const localTax=incomeTax*0.1;
+  const totalDeduct=np+hi+lt+ei+incomeTax+localTax;
+  const net=gross-totalDeduct;
+  const [y,m]=month.split('-');
+  document.getElementById('slipPrint').innerHTML=`
+    <div class="slip-header"><h2>임 금 명 세 서</h2><p>${y}년 ${m}월분 급여</p></div>
+    <div class="slip-info">
+      <div class="slip-info-item"><span>회사명</span><strong>${comp}</strong></div>
+      <div class="slip-info-item"><span>성명</span><strong>${emp}</strong></div>
+      <div class="slip-info-item"><span>부서</span><strong>${dept}</strong></div>
+      <div class="slip-info-item"><span>지급일</span><strong>${y}.${m}.25</strong></div>
+    </div>
+    <div class="slip-section-title">지급 내역</div>
+    ${[['기본급',basic],['식대(비과세)',meal],['교통비',trans],['연장수당',ot],['기타수당',bonus]].filter(r=>r[1]>0).map(r=>`<div class="slip-row"><span class="sl">${r[0]}</span><span class="sv">${fmt(r[1])}원</span></div>`).join('')}
+    <div class="slip-total"><span>지급 합계</span><span style="font-family:'DM Mono'">${fmt(gross)}원</span></div>
+    <div style="margin-top:16px;"></div>
+    <div class="slip-section-title">공제 내역</div>
+    <div class="slip-row"><span class="sl">국민연금 (4.75%)</span><span class="sv">${fmt(np)}원</span></div>
+    <div class="slip-row"><span class="sl">건강보험 (3.545%)</span><span class="sv">${fmt(hi)}원</span></div>
+    <div class="slip-row"><span class="sl">장기요양보험</span><span class="sv">${fmt(lt)}원</span></div>
+    <div class="slip-row"><span class="sl">고용보험 (0.9%)</span><span class="sv">${fmt(ei)}원</span></div>
+    <div class="slip-row"><span class="sl">근로소득세</span><span class="sv">${fmt(incomeTax)}원</span></div>
+    <div class="slip-row"><span class="sl">지방소득세</span><span class="sv">${fmt(localTax)}원</span></div>
+    <div class="slip-total"><span>공제 합계</span><span style="font-family:'DM Mono'">${fmt(totalDeduct)}원</span></div>
+    <div class="slip-net"><span class="label">💰 실 수 령 액</span><span class="value">${fmt(net)}원</span></div>
+    <div class="slip-notice">※ 소득세는 간이세액표 기준 추정치입니다. 실제 금액은 회사 인사팀에 문의하세요.<br>본 명세서는 MODOO HUB(modoohub.com)에서 생성되었습니다.</div>`;
+  document.getElementById('slipArea').style.display='block';
+  document.getElementById('slipArea').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+</script>
+</body>
+</html>

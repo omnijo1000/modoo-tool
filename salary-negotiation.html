@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>연봉 협상 계산기 - 인상률별 실수령액 변화 즉시 비교</title>
+<meta name="description" content="현재 연봉과 목표 인상률 입력으로 세후 실수령액 변화를 즉시 비교합니다. 인상률별 월 실수령 증가액 자동 계산.">
+<meta name="keywords" content="연봉협상 계산기, 연봉 인상 계산기, 연봉 인상률 계산, 실수령액 비교, 연봉 협상 준비, 연봉 올리면 실수령">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/salary-negotiation.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/salary-negotiation.html?lang=en">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/salary-negotiation.html">
+<link rel="canonical" href="https://modoohub.com/salary-negotiation.html">
+<meta property="og:title" content="연봉 협상 계산기 - 인상률별 실수령액 변화 즉시 비교">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f0f0f;--surface:#1a1a1a;--border:#2e2e2e;--accent:#a78bfa;--text:#f0f0f0;--text-muted:#888;--text-dim:#555;--up:#4ade80;--down:#f87171;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
+.back{color:var(--text-muted);text-decoration:none;font-size:13px;font-family:'DM Mono',monospace;}
+.back:hover{color:var(--accent);}
+.site-name{font-size:13px;color:var(--text-dim);font-family:'DM Mono',monospace;}
+main{max-width:640px;margin:0 auto;padding:48px 24px;}
+h1{font-size:28px;font-weight:900;margin-bottom:8px;}
+h1 span{color:var(--accent);}
+.subtitle{font-size:13px;color:var(--text-muted);margin-bottom:36px;line-height:1.6;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:16px;}
+.card-title{font-size:11px;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:16px;}
+label{font-size:13px;color:var(--text-muted);display:block;margin-bottom:6px;}
+.input-wrap{position:relative;margin-bottom:16px;}
+.input-wrap input{width:100%;background:#111;border:1px solid var(--border);border-radius:10px;padding:12px 50px 12px 16px;color:var(--text);font-size:15px;font-family:'DM Mono',monospace;outline:none;transition:border-color 0.2s;}
+.input-wrap input:focus{border-color:var(--accent);}
+.input-wrap .unit{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--text-dim);font-size:13px;pointer-events:none;}
+.raise-btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.raise-btn{background:#111;border:1px solid var(--border);border-radius:8px;padding:7px 14px;font-size:13px;cursor:pointer;color:var(--text-muted);font-family:'DM Mono',monospace;transition:all 0.15s;}
+.raise-btn:hover{border-color:var(--accent);color:var(--accent);}
+.slider{width:100%;accent-color:var(--accent);margin-bottom:8px;}
+.range-disp{text-align:center;font-size:22px;font-weight:900;font-family:'DM Mono',monospace;color:var(--accent);margin-bottom:16px;}
+.calc-btn{width:100%;background:var(--accent);color:#000;font-weight:700;font-size:15px;border:none;border-radius:12px;padding:14px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:opacity 0.15s;}
+.calc-btn:hover{opacity:0.85;}
+.result-area{display:none;}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+.cmp-card{border-radius:14px;padding:20px;}
+.cmp-card.before{background:#1a1a1a;border:1px solid var(--border);}
+.cmp-card.after{background:#1a1040;border:1px solid var(--accent);}
+.cmp-label{font-size:11px;color:var(--text-dim);margin-bottom:8px;font-family:'DM Mono',monospace;}
+.cmp-salary{font-size:13px;color:var(--text-muted);margin-bottom:4px;}
+.cmp-net{font-size:22px;font-weight:900;font-family:'DM Mono',monospace;}
+.cmp-net.after-val{color:var(--accent);}
+.diff-box{background:#0d1f0d;border-radius:12px;padding:16px;text-align:center;margin-bottom:16px;}
+.diff-label{font-size:12px;color:var(--text-muted);margin-bottom:6px;}
+.diff-monthly{font-size:32px;font-weight:900;font-family:'DM Mono',monospace;color:var(--up);}
+.diff-yearly{font-size:14px;color:var(--text-muted);margin-top:4px;}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.d-item{background:#111;border-radius:10px;padding:12px 14px;}
+.d-label{font-size:10px;color:var(--text-dim);margin-bottom:4px;}
+.d-before{font-size:12px;color:var(--text-dim);font-family:'DM Mono',monospace;}
+.d-after{font-size:14px;font-weight:700;font-family:'DM Mono',monospace;color:var(--accent);}
+.target-guide{margin-top:12px;background:#111;border-radius:12px;padding:16px;}
+.tg-title{font-size:11px;color:var(--text-dim);margin-bottom:12px;font-family:'DM Mono',monospace;}
+.tg-row{display:flex;justify-content:space-between;font-size:13px;padding:4px 0;border-bottom:1px solid #1e1e1e;}
+.tg-row:last-child{border-bottom:none;}
+.tg-label{color:var(--text-muted);}
+.tg-val{font-family:'DM Mono',monospace;color:var(--up);}
+.seo{margin-top:48px;padding-top:32px;border-top:1px solid var(--border);}
+.seo h2{font-size:16px;font-weight:700;margin-bottom:10px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:48px;padding:24px;}
+
+  .faq-list { margin-top: 12px; }
+  .faq-item { background: #111; border-radius: 10px; padding: 16px 18px; margin-bottom: 10px; }
+  .faq-q { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 8px; line-height: 1.5; }
+  .faq-a { font-size: 13px; color: var(--text-muted); line-height: 1.8; }
+
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+    {"@type":"Question","name":"연봉 협상에서 어느 수준을 요구하는 것이 적절한가요?","acceptedAnswer":{"@type":"Answer","text":"일반적으로 물가상승률+α를 기본으로, 성과에 따라 추가 요구합니다. 업계 평균 인상률(3~5%)을 기준으로 본인 기여도가 높다면 7~10%를 목표로 하는 것이 현실적입니다."}},
+    {"@type":"Question","name":"인상 금액과 인상률 중 어느 것으로 협상하는 게 유리한가요?","acceptedAnswer":{"@type":"Answer","text":"현재 연봉이 낮다면 '금액' 기준 협상이, 높다면 '인상률' 기준이 더 유리할 수 있습니다. 예를 들어 3,000만원의 10%는 300만원, 5,000만원의 5%는 250만원입니다."}},
+    {"@type":"Question","name":"협상 실패 시 다음 기회는?","acceptedAnswer":{"@type":"Answer","text":"통상 연봉 협상은 연 1회(입사 1주년 또는 성과 평가 시점)입니다. 협상 실패 후 이직을 통한 연봉 인상도 방법이며, 이직 시 평균 10~20% 인상이 가능합니다."}},
+    {"@type":"Question","name":"연봉 외 복리후생도 협상할 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"네. 재택근무 일수, 복지포인트, 교육비 지원, 스톡옵션 등 비금전적 항목도 협상 대상입니다. 세금 부담이 없는 비과세 항목은 실수령 효과가 더 큽니다."}},
+    {"@type":"Question","name":"현재 회사 연봉이 시장 대비 낮은지 확인하는 방법은?","acceptedAnswer":{"@type":"Answer","text":"잡코리아·사람인·링크드인 살라리 인사이트·크레딧잡 등에서 직군·경력별 시장 연봉 데이터를 확인할 수 있습니다. 헤드헌터에게 현재 시장가를 문의하는 것도 효과적입니다."}}
+]}</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"연봉 협상 계산기","url":"https://modoohub.com/salary-negotiation.html","applicationCategory":"FinanceApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"KRW"},"description":"현재 연봉과 목표 인상률 입력으로 세후 실수령액 변화를 즉시 비교합니다. 인상률별 월 실수령 증가액 자동 계산."}</script>
+</head>
+<body>
+<header>
+  <a href="/" class="back">← MODOO HUB</a>
+  <span class="site-name">/ 연봉 협상 계산기</span>
+</header>
+<main>
+  <h1>연봉 협상 <span>계산기</span></h1>
+  <p class="subtitle">현재 연봉과 목표 인상률을 입력하면 세후 실수령액 변화를 즉시 비교합니다.</p>
+
+  <div class="card">
+    <div class="card-title">현재 연봉</div>
+    <div class="input-wrap">
+      <input type="number" id="currentSalary" value="40000000" step="1000000">
+      <span class="unit">원</span>
+    </div>
+
+    <div class="card-title">목표 인상률</div>
+    <div class="raise-btns">
+      <button class="raise-btn" onclick="setRaise(3)">+3%</button>
+      <button class="raise-btn" onclick="setRaise(5)">+5%</button>
+      <button class="raise-btn" onclick="setRaise(7)">+7%</button>
+      <button class="raise-btn" onclick="setRaise(10)">+10%</button>
+      <button class="raise-btn" onclick="setRaise(15)">+15%</button>
+      <button class="raise-btn" onclick="setRaise(20)">+20%</button>
+    </div>
+    <input type="range" class="slider" id="raiseSlider" min="1" max="50" step="0.5" value="10" oninput="syncRaise(this.value)">
+    <div class="range-disp">+<span id="raiseDisp">10</span>%</div>
+
+    <label>또는 목표 연봉 직접 입력</label>
+    <div class="input-wrap">
+      <input type="number" id="targetSalary" placeholder="예: 44000000" step="1000000" oninput="calcFromTarget()">
+      <span class="unit">원</span>
+    </div>
+    <button class="calc-btn" onclick="calc()">비교하기</button>
+  </div>
+
+  <div class="card result-area" id="resultArea">
+    <div class="compare-grid">
+      <div class="cmp-card before">
+        <div class="cmp-label">BEFORE</div>
+        <div class="cmp-salary" id="bSalary">연봉 -</div>
+        <div class="cmp-net" id="bNet">-</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">세후 월 실수령</div>
+      </div>
+      <div class="cmp-card after">
+        <div class="cmp-label">AFTER</div>
+        <div class="cmp-salary" id="aSalary">연봉 -</div>
+        <div class="cmp-net after-val" id="aNet">-</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">세후 월 실수령</div>
+      </div>
+    </div>
+    <div class="diff-box">
+      <div class="diff-label">월 실수령 증가액</div>
+      <div class="diff-monthly" id="diffMonthly">+0원</div>
+      <div class="diff-yearly" id="diffYearly">연간 +0원 증가</div>
+    </div>
+    <div class="detail-grid">
+      <div class="d-item"><div class="d-label">국민연금 변화</div><div class="d-before" id="npBefore">-</div><div class="d-after" id="npAfter">-</div></div>
+      <div class="d-item"><div class="d-label">건강보험 변화</div><div class="d-before" id="hiBefore">-</div><div class="d-after" id="hiAfter">-</div></div>
+      <div class="d-item"><div class="d-label">소득세 변화</div><div class="d-before" id="taxBefore">-</div><div class="d-after" id="taxAfter">-</div></div>
+    </div>
+    <div class="target-guide">
+      <div class="tg-title">인상률별 연봉 비교</div>
+      <div id="targetRows"></div>
+    </div>
+  </div>
+
+    <section class="seo" aria-label="도움말 및 자주 묻는 질문">
+    <h2>연봉 협상, 명목 인상률보다 실수령 증가분을 보세요</h2>
+    <p>연봉 10% 인상이 실수령액 10% 증가를 의미하지는 않습니다. 소득세·4대보험이 누진 구조라 인상분에 더 높은 세율이 적용되기 때문입니다. 예를 들어 연봉 4,000만원에서 4,400만원(10% 인상)으로 올라도 월 실수령은 약 25~27만원(약 9%) 증가에 그칩니다. 연봉 협상 시에는 ① 같은 직군 시장 연봉 데이터, ② 본인 성과 기여도, ③ 물가상승률(2025년 약 2.5%), ④ 회사 영업이익 성장률을 근거로 제시하면 유리합니다. 이 계산기로 목표 인상률과 현실적 협상 범위를 미리 확인해보세요.</p>
+    <h2>연봉 구간별 세금 인상 영향</h2>
+    <p>연봉 4,600만원~5,000만원 구간: 초과분 400만원에 24% 세율 적용. 세후 실수령 월 약 25만원 증가. 실효 인상률 약 7.5%.  8,800만원 초과분: 35% 구간 진입, 실효 인상률 더 낮아짐.</p>
+    <h2>자주 묻는 질문 (FAQ)</h2>
+    <div class="faq-list">
+    <div class="faq-item"><h3 class="faq-q">Q. 연봉 협상에서 어느 수준을 요구하는 것이 적절한가요?</h3><p class="faq-a">A. 일반적으로 물가상승률+α를 기본으로, 성과에 따라 추가 요구합니다. 업계 평균 인상률(3~5%)을 기준으로 본인 기여도가 높다면 7~10%를 목표로 하는 것이 현실적입니다.</p></div>
+    <div class="faq-item"><h3 class="faq-q">Q. 인상 금액과 인상률 중 어느 것으로 협상하는 게 유리한가요?</h3><p class="faq-a">A. 현재 연봉이 낮다면 '금액' 기준 협상이, 높다면 '인상률' 기준이 더 유리할 수 있습니다. 예를 들어 3,000만원의 10%는 300만원, 5,000만원의 5%는 250만원입니다.</p></div>
+    <div class="faq-item"><h3 class="faq-q">Q. 협상 실패 시 다음 기회는?</h3><p class="faq-a">A. 통상 연봉 협상은 연 1회(입사 1주년 또는 성과 평가 시점)입니다. 협상 실패 후 이직을 통한 연봉 인상도 방법이며, 이직 시 평균 10~20% 인상이 가능합니다.</p></div>
+    <div class="faq-item"><h3 class="faq-q">Q. 연봉 외 복리후생도 협상할 수 있나요?</h3><p class="faq-a">A. 네. 재택근무 일수, 복지포인트, 교육비 지원, 스톡옵션 등 비금전적 항목도 협상 대상입니다. 세금 부담이 없는 비과세 항목은 실수령 효과가 더 큽니다.</p></div>
+    <div class="faq-item"><h3 class="faq-q">Q. 현재 회사 연봉이 시장 대비 낮은지 확인하는 방법은?</h3><p class="faq-a">A. 잡코리아·사람인·링크드인 살라리 인사이트·크레딧잡 등에서 직군·경력별 시장 연봉 데이터를 확인할 수 있습니다. 헤드헌터에게 현재 시장가를 문의하는 것도 효과적입니다.</p></div>
+    </div>
+  </section>
+  <footer>© 2026 MODOO HUB · <a href="privacy.html" style="color:var(--text-dim);text-decoration:none;">개인정보처리방침</a></footer>
+</main>
+<script>
+let raiseRate=10;
+function syncRaise(v){raiseRate=parseFloat(v);document.getElementById('raiseDisp').textContent=raiseRate;}
+function setRaise(v){raiseRate=v;document.getElementById('raiseSlider').value=v;document.getElementById('raiseDisp').textContent=v;}
+function calcFromTarget(){
+  const cur=parseFloat(document.getElementById('currentSalary').value)||0;
+  const tgt=parseFloat(document.getElementById('targetSalary').value)||0;
+  if(cur>0&&tgt>0){
+    const r=((tgt-cur)/cur*100);
+    raiseRate=Math.round(r*10)/10;
+    document.getElementById('raiseSlider').value=Math.min(50,Math.max(1,raiseRate));
+    document.getElementById('raiseDisp').textContent=raiseRate;
+  }
+}
+function fmt(n){return Math.round(n).toLocaleString('ko-KR')+'원';}
+function fmtShort(n){
+  if(n>=100000000) return (n/100000000).toFixed(1)+'억';
+  if(n>=10000) return Math.round(n/10000)+'만';
+  return Math.round(n).toLocaleString()+'원';
+}
+function netMonthly(annual){
+  const monthly=annual/12;
+  const np=Math.min(monthly,6170000)*0.0475;
+  const hi=monthly*0.03545;
+  const lt=hi*0.1314;
+  const ei=monthly*0.009;
+  const deductions=np+hi+lt+ei;
+  // 근로소득세 간이 추정
+  let tax=0;
+  if(annual<=14000000) tax=annual*0.06;
+  else if(annual<=50000000) tax=840000+(annual-14000000)*0.15;
+  else if(annual<=88000000) tax=6240000+(annual-50000000)*0.24;
+  else if(annual<=150000000) tax=15360000+(annual-88000000)*0.35;
+  else tax=37060000+(annual-150000000)*0.38;
+  // 근로소득공제 약 50% (단순)
+  tax=tax*0.5;
+  const monthlyTax=tax/12;
+  const localTax=monthlyTax*0.1;
+  return {net:monthly-deductions-monthlyTax-localTax, np, hi, tax:monthlyTax};
+}
+function calc(){
+  const cur=parseFloat(document.getElementById('currentSalary').value)||40000000;
+  const after=cur*(1+raiseRate/100);
+  const b=netMonthly(cur), a=netMonthly(after);
+  const diffMo=a.net-b.net;
+  document.getElementById('bSalary').textContent='연봉 '+fmtShort(cur);
+  document.getElementById('bNet').textContent=fmt(b.net);
+  document.getElementById('aSalary').textContent='연봉 '+fmtShort(after)+' (+'+raiseRate+'%)';
+  document.getElementById('aNet').textContent=fmt(a.net);
+  document.getElementById('diffMonthly').textContent='+'+fmt(diffMo);
+  document.getElementById('diffYearly').textContent='연간 +'+fmt(diffMo*12)+' 증가';
+  document.getElementById('npBefore').textContent=fmt(b.np);
+  document.getElementById('npAfter').textContent='→ '+fmt(a.np);
+  document.getElementById('hiBefore').textContent=fmt(b.hi);
+  document.getElementById('hiAfter').textContent='→ '+fmt(a.hi);
+  document.getElementById('taxBefore').textContent=fmt(b.tax);
+  document.getElementById('taxAfter').textContent='→ '+fmt(a.tax);
+  const rows=[3,5,7,10,15,20].map(r=>{
+    const s=cur*(1+r/100);
+    const n=netMonthly(s);
+    const d=n.net-b.net;
+    return `<div class="tg-row"><span class="tg-label">+${r}% → ${fmtShort(s)}</span><span class="tg-val">월 +${fmt(d)}</span></div>`;
+  });
+  document.getElementById('targetRows').innerHTML=rows.join('');
+  document.getElementById('resultArea').style.display='block';
+  document.getElementById('resultArea').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+</script>
+</body>
+</html>
