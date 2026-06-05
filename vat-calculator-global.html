@@ -136,7 +136,7 @@ footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:48px;pa
       <input type="number" id="amount" value="100" step="0.01">
       <span class="unit" id="currSym">£</span>
     </div>
-    <button class="calc-btn" onclick="calc()">Calculate VAT</button>
+    <button class="calc-btn" onclick="calc()"><span data-i18n="vatCalcBtn">Calculate VAT</span></button>
   </div>
 
   <div class="card result-area" id="resultArea">
@@ -144,7 +144,7 @@ footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:48px;pa
     <div class="result-row"><span class="rl" id="vatLabel">VAT (20%)</span><span class="rv" id="rVat">-</span></div>
     <div class="result-row total"><span class="rl" id="totalLabel">Gross Amount (inc-VAT)</span><span class="rv" id="rTotal">-</span></div>
     <div class="rate-table">
-      <div class="rt-title">QUICK REFERENCE — EUROPE</div>
+      <div class="rt-title" data-i18n="vatQuickRef">QUICK REFERENCE — EUROPE</div>
       <div class="rt-grid">
         <div class="rt-item"><span class="rt-country">🇬🇧 UK</span><span class="rt-rate">20%</span></div>
         <div class="rt-item"><span class="rt-country">🇩🇪 Germany</span><span class="rt-rate">19%</span></div>
@@ -160,7 +160,7 @@ footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:48px;pa
     </div>
   </div>
 
-  <div class="seo">
+  <div class="seo" data-i18n="seoHtml">
     <h2>VAT Rates in Europe 2026</h2>
     <p>The UK standard VAT rate is <strong>20%</strong> (reduced 5% for energy, children's car seats etc). In the EU, rates range from Hungary's <strong>27%</strong> (highest in EU) to Luxembourg's <strong>17%</strong> (lowest). Most EU countries have a standard rate between 20–25%.</p>
     <p><strong>Q. How do I remove VAT from a price?</strong><br>Net price = Gross ÷ (1 + VAT rate). Example: £120 including 20% VAT → Net = 120 ÷ 1.20 = £100. VAT = £20.</p>
@@ -174,7 +174,8 @@ function setMode(m){
   mode=m;
   document.getElementById('modeAdd').classList.toggle('active',m==='add');
   document.getElementById('modeRemove').classList.toggle('active',m==='remove');
-  document.getElementById('inputLabel').textContent=m==='add'?'Amount (excluding VAT)':'Amount (including VAT)';
+  const t=typeof _i18n!=='undefined'&&_i18n[typeof _lang!=='undefined'?_lang:'en']||{};
+  document.getElementById('inputLabel').textContent=m==='add'?(t.vatInputExcl||'Amount (excluding VAT)'):(t.vatInputIncl||'Amount (including VAT)');
 }
 function setCountry(){
   const val=document.getElementById('country').value;
@@ -191,9 +192,10 @@ function calc(){
   let base,vat,total;
   if(mode==='add'){base=amt;vat=amt*r/100;total=amt+vat;}
   else{total=amt;base=amt/(1+r/100);vat=total-base;}
-  document.getElementById('baseLabel').textContent=mode==='add'?`Net Amount (ex-VAT)`:`Amount (ex-VAT)`;
+  const _tv=typeof _i18n!=='undefined'&&_i18n[typeof _lang!=='undefined'?_lang:'en']||{};
+  document.getElementById('baseLabel').textContent=mode==='add'?(_tv.vatNetAmount||'Net Amount (ex-VAT)'):(_tv.vatExAmount||'Amount (ex-VAT)');
   document.getElementById('vatLabel').textContent=`VAT (${r}%)`;
-  document.getElementById('totalLabel').textContent=mode==='add'?`Gross Amount (inc-VAT)`:`Original Price Paid`;
+  document.getElementById('totalLabel').textContent=mode==='add'?(_tv.vatGrossAmount||'Gross Amount (inc-VAT)'):(_tv.vatOrigPrice||'Original Price Paid');
   document.getElementById('rBase').textContent=fmt(base,sym);
   document.getElementById('rVat').textContent=fmt(vat,sym);
   document.getElementById('rTotal').textContent=fmt(total,sym);
@@ -207,18 +209,26 @@ setCountry();
 <script>
 /* ===== i18n multilingual ===== */
 const _i18n = {
-  ko: { lang:'ko', title:'글로벌 VAT 계산기 - 국가별 부가세 계산 | 무료', h1:'글로벌 VAT 계산기', sub:'영국, EU, 호주 등 40개국 이상의 부가세를 계산합니다.', btn:'🌐 EN' ,
-  vatMode:'계산 방식',
-  vatAdd:'➕ VAT 추가',
-  vatRemove:'➖ VAT 제거',
-  vatCountry:'국가 / 지역',
+  ko: { lang:'ko', title:'글로벌 VAT 계산기 - 국가별 부가세 계산 | 무료', h1:'글로벌 VAT 계산기', sub:'영국, EU, 호주 등 40개국 이상의 부가세를 계산합니다.', btn:'🌐 EN',
+  vatMode:'계산 방식', vatAdd:'➕ VAT 추가', vatRemove:'➖ VAT 제거', vatCountry:'국가 / 지역', vatCalcBtn:'계산하기',
+  vatInputExcl:'금액 (VAT 제외)', vatInputIncl:'금액 (VAT 포함)',
+  vatNetAmount:'순액 (VAT 제외)', vatExAmount:'금액 (VAT 제외)', vatGrossAmount:'합계 (VAT 포함)', vatOrigPrice:'원래 지불 금액',
+  vatQuickRef:'빠른 참조 — 유럽',
+  seoHtml:'<h2>유럽 VAT 세율 2026</h2><p>영국 표준 VAT는 <strong>20%</strong>(에너지, 아동용 카시트 등은 5% 감면세율). EU에서는 헝가리 <strong>27%</strong>(EU 최고)부터 룩셈부르크 <strong>17%</strong>(EU 최저)까지 다양합니다. 대부분의 EU 국가는 20~25%.</p><p><strong>Q. VAT 포함 가격에서 VAT 제거하는 방법은?</strong><br>순액 = 총액 ÷ (1 + VAT 세율). 예: VAT 20% 포함 £120 → 순액 = 120 ÷ 1.20 = £100. VAT = £20.</p><p><strong>Q. VAT와 GST의 차이는?</strong><br>VAT(부가가치세)는 유럽 등 많은 국가에서 사용됩니다. GST(재화용역세)는 호주, 뉴질랜드, 싱가포르, 캐나다, 인도에서 사용됩니다. 기능적으로는 동일한 소비세입니다.</p>',
  },
-  en: { lang:'en', title:'VAT Calculator - UK, EU, Australia & 40+ Countries | Free Online', h1:'VAT Calculator', sub:'Add or remove VAT for UK, EU, Australia and 40+ countries. Standard rates pre-loaded.', btn:'🌐 中文' },
-  zh: { lang:'zh', title:'VAT计算器 - 英国、欧盟、澳大利亚等40+国家 | 免费', h1:'全球VAT计算器', sub:'计算英国、欧盟、澳大利亚等40+国家的增值税。', btn:'🌐 한국어' ,
-  vatMode:'计算模式',
-  vatAdd:'➕ 加VAT',
-  vatRemove:'➖ 去VAT',
-  vatCountry:'国家 / 地区',
+  en: { lang:'en', title:'VAT Calculator - UK, EU, Australia & 40+ Countries | Free Online', h1:'VAT Calculator', sub:'Add or remove VAT for UK, EU, Australia and 40+ countries. Standard rates pre-loaded.', btn:'🌐 中文',
+  vatMode:'Mode', vatAdd:'➕ Add VAT', vatRemove:'➖ Remove VAT', vatCountry:'Country / Region', vatCalcBtn:'Calculate VAT',
+  vatInputExcl:'Amount (excluding VAT)', vatInputIncl:'Amount (including VAT)',
+  vatNetAmount:'Net Amount (ex-VAT)', vatExAmount:'Amount (ex-VAT)', vatGrossAmount:'Gross Amount (inc-VAT)', vatOrigPrice:'Original Price Paid',
+  vatQuickRef:'QUICK REFERENCE — EUROPE',
+  seoHtml:'<h2>VAT Rates in Europe 2026</h2><p>The UK standard VAT rate is <strong>20%</strong> (reduced 5% for energy, children\'s car seats etc). In the EU, rates range from Hungary\'s <strong>27%</strong> (highest in EU) to Luxembourg\'s <strong>17%</strong> (lowest). Most EU countries have a standard rate between 20–25%.</p><p><strong>Q. How do I remove VAT from a price?</strong><br>Net price = Gross ÷ (1 + VAT rate). Example: £120 including 20% VAT → Net = 120 ÷ 1.20 = £100. VAT = £20.</p><p><strong>Q. What is the difference between VAT and GST?</strong><br>VAT (Value Added Tax) is used in Europe and many countries. GST (Goods and Services Tax) is used in Australia, New Zealand, Singapore, Canada and India. Functionally they work the same way — a consumption tax added at each stage of production.</p>',
+ },
+  zh: { lang:'zh', title:'VAT计算器 - 英国、欧盟、澳大利亚等40+国家 | 免费', h1:'全球VAT计算器', sub:'计算英国、欧盟、澳大利亚等40+国家的增值税。', btn:'🌐 한국어',
+  vatMode:'计算模式', vatAdd:'➕ 加VAT', vatRemove:'➖ 去VAT', vatCountry:'国家 / 地区', vatCalcBtn:'计算',
+  vatInputExcl:'金额 (不含VAT)', vatInputIncl:'金额 (含VAT)',
+  vatNetAmount:'净额 (不含VAT)', vatExAmount:'金额 (不含VAT)', vatGrossAmount:'总额 (含VAT)', vatOrigPrice:'原始支付金额',
+  vatQuickRef:'快速参考 — 欧洲',
+  seoHtml:'<h2>欧洲VAT税率 2026</h2><p>英国标准VAT税率为<strong>20%</strong>（能源、儿童汽车座椅等享受5%优惠税率）。欧盟税率从匈牙利<strong>27%</strong>（欧盟最高）到卢森堡<strong>17%</strong>（欧盟最低）不等。大多数欧盟国家在20-25%之间。</p><p><strong>Q. 如何从含税价格中去除VAT？</strong><br>净价 = 总价 ÷ (1 + VAT税率)。例如：含20% VAT的£120 → 净价 = 120÷1.20 = £100，VAT = £20。</p><p><strong>Q. VAT和GST的区别是什么？</strong><br>VAT（增值税）在欧洲及许多国家使用。GST（商品服务税）在澳大利亚、新西兰、新加坡、加拿大和印度使用。功能上两者相同，都是在生产各环节征收的消费税。</p>',
  }
 };
 function _detectLang() {
@@ -248,6 +258,7 @@ function _applyLang() {
     const v = t[el.dataset.i18n];
     if (v !== undefined) el.innerHTML = v;
   });
+  setMode(mode);
 }
 const _langOrder = ['ko','en','zh'];
 function cycleLang() {

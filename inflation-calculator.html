@@ -145,20 +145,20 @@ footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:48px;pa
       </div>
     </div>
     <div class="insight-grid">
-      <div class="i-item"><div class="i-label">Total Inflation</div><div class="i-val" id="iTotal">-</div></div>
-      <div class="i-item"><div class="i-label">Avg Annual Rate</div><div class="i-val" id="iRate">-</div></div>
-      <div class="i-item"><div class="i-label">Years</div><div class="i-val" id="iYears">-</div></div>
-      <div class="i-item"><div class="i-label">Value Change</div><div class="i-val" id="iChange">-</div></div>
+      <div class="i-item"><div class="i-label" data-i18n="inflTotalInfl">Total Inflation</div><div class="i-val" id="iTotal">-</div></div>
+      <div class="i-item"><div class="i-label" data-i18n="inflAvgRate">Avg Annual Rate</div><div class="i-val" id="iRate">-</div></div>
+      <div class="i-item"><div class="i-label" data-i18n="inflYearsLabel">Years</div><div class="i-val" id="iYears">-</div></div>
+      <div class="i-item"><div class="i-label" data-i18n="inflValChange">Value Change</div><div class="i-val" id="iChange">-</div></div>
     </div>
     <div class="buying-power">
-      <div class="bp-title">PURCHASING POWER RETAINED</div>
+      <div class="bp-title" data-i18n="inflBpTitle">PURCHASING POWER RETAINED</div>
       <div class="bp-bar-wrap"><div class="bp-bar" id="bpBar" style="width:50%"></div></div>
       <div class="bp-label" id="bpLabel">-</div>
     </div>
     <div style="font-size:11px;color:var(--text-dim);margin-top:4px;line-height:1.7;padding:12px 16px;border-left:2px solid var(--border);">* Calculated using compound annual inflation rate. Historical rates are approximate averages; actual rates varied year to year.</div>
   </div>
 
-  <div class="seo">
+  <div class="seo" data-i18n="seoHtml">
     <h2>What is Inflation?</h2>
     <p>Inflation is the rate at which the general level of prices rises over time, eroding purchasing power. <strong>$1,000 in 2000</strong> at 3% annual inflation would be worth approximately <strong>$2,094 in 2026</strong> — meaning you'd need twice as much money to buy the same things.</p>
     <p><strong>Q. How does inflation affect savings?</strong><br>If your savings earn 2% interest but inflation is 3%, your real return is −1%. Your money grows nominally but loses purchasing power. This is why investing in assets that beat inflation (stocks, real estate) is important.</p>
@@ -172,8 +172,9 @@ function setMode(m){
   mode=m;
   document.getElementById('modePast').classList.toggle('active',m==='past');
   document.getElementById('modeFuture').classList.toggle('active',m==='future');
-  document.getElementById('fromYearLabel').textContent=m==='past'?'From Year (Past)':'From Year (Now)';
-  document.getElementById('toYearLabel').textContent=m==='past'?'To Year (Now)':'To Year (Future)';
+  const t=typeof _i18n!=='undefined'&&_i18n[typeof _lang!=='undefined'?_lang:'en']||{};
+  document.getElementById('fromYearLabel').textContent=m==='past'?(t.inflFromPast||'From Year (Past)'):(t.inflFromFuture||'From Year (Now)');
+  document.getElementById('toYearLabel').textContent=m==='past'?(t.inflToPast||'To Year (Now)'):(t.inflToFuture||'To Year (Future)');
 }
 function setCountry(btn, rate, currency, code){
   document.querySelectorAll('.c-btn').forEach(b=>b.classList.remove('active'));
@@ -190,7 +191,7 @@ function calc(){
   const toY=parseInt(document.getElementById('toYear').value)||2026;
   const amt=parseFloat(document.getElementById('amount').value)||1000;
   const years=Math.abs(toY-fromY);
-  if(years===0){alert('Please choose different years.');return;}
+  if(years===0){const _ta=typeof _i18n!=='undefined'&&_i18n[typeof _lang!=='undefined'?_lang:'en']||{};alert(_ta.inflAlertYears||'Please choose different years.');return;}
   const factor=Math.pow(1+inflRate/100,years);
   const result=mode==='past'?amt*factor:amt/factor;
   const totalInfl=(factor-1)*100;
@@ -201,13 +202,14 @@ function calc(){
   document.getElementById('rcToYear').textContent=toY;
   document.getElementById('rcFrom').textContent=fmt(amt);
   document.getElementById('rcTo').textContent=fmt(result);
+  const _t2=typeof _i18n!=='undefined'&&_i18n[typeof _lang!=='undefined'?_lang:'en']||{};
   document.getElementById('iTotal').textContent=totalInfl.toFixed(1)+'%';
-  document.getElementById('iRate').textContent=inflRate+'% / yr';
-  document.getElementById('iYears').textContent=years+' years';
+  document.getElementById('iRate').textContent=inflRate+'% / '+(_t2.inflPerYr||'yr');
+  document.getElementById('iYears').textContent=years+' '+(_t2.inflYears||'years');
   const diff=result-amt;
   document.getElementById('iChange').textContent=(diff>=0?'+':'')+fmt(diff);
   document.getElementById('bpBar').style.width=powerPct+'%';
-  document.getElementById('bpLabel').textContent=`${powerPct.toFixed(1)}% of original purchasing power retained`;
+  document.getElementById('bpLabel').textContent=`${powerPct.toFixed(1)}% `+(_t2.inflBpLabel||'of original purchasing power retained');
   document.getElementById('resultArea').style.display='block';
   document.getElementById('resultArea').scrollIntoView({behavior:'smooth',block:'nearest'});
 }
@@ -216,20 +218,29 @@ function calc(){
 <script>
 /* ===== i18n multilingual ===== */
 const _i18n = {
-  ko: { lang:'ko', title:'물가상승률 계산기 - 실질 화폐 가치 계산 | 무료', h1:'물가상승률 계산기', sub:'과거 또는 미래의 화폐가치를 인플레이션 기준으로 계산합니다.', btn:'🌐 EN' ,
-  inflMode:'계산 방식',
-  inflPast:'📅 과거 → 현재',
-  inflFuture:'🔮 현재 → 미래',
-  inflAmount:'금액',
-  inflCalcBtn:'계산하기',
+  ko: { lang:'ko', title:'물가상승률 계산기 - 실질 화폐 가치 계산 | 무료', h1:'물가상승률 계산기', sub:'과거 또는 미래의 화폐가치를 인플레이션 기준으로 계산합니다.', btn:'🌐 EN',
+  inflMode:'계산 방식', inflPast:'📅 과거 → 현재', inflFuture:'🔮 현재 → 미래', inflAmount:'금액', inflCalcBtn:'계산하기',
+  inflFromPast:'시작 연도 (과거)', inflToPast:'종료 연도 (현재)', inflFromFuture:'시작 연도 (현재)', inflToFuture:'종료 연도 (미래)',
+  inflPerYr:'년', inflYears:'년', inflBpLabel:'의 구매력 유지',
+  inflTotalInfl:'총 물가상승률', inflAvgRate:'평균 연 상승률', inflYearsLabel:'기간 (년)', inflValChange:'가치 변화',
+  inflBpTitle:'구매력 유지율', inflAlertYears:'다른 연도를 선택해주세요.',
+  seoHtml:'<h2>인플레이션이란?</h2><p>인플레이션은 시간이 지남에 따라 물가가 전반적으로 상승하여 구매력이 감소하는 현상입니다. 2000년의 <strong>100만원</strong>이 연 3% 인플레이션 기준으로 2026년에 약 <strong>209만원</strong>의 가치 — 즉 같은 것을 사려면 두 배의 돈이 필요합니다.</p><p><strong>Q. 인플레이션이 저축에 미치는 영향은?</strong><br>이자율이 2%인데 인플레이션이 3%라면 실질 수익률은 -1%입니다. 명목상 돈은 늘어나지만 구매력은 떨어집니다. 인플레이션을 이기는 자산(주식, 부동산)에 투자하는 것이 중요한 이유입니다.</p><p><strong>Q. 정상적인 인플레이션 수준은?</strong><br>대부분의 중앙은행은 연 2%를 건전한 목표로 삼습니다. 5% 이상은 높은 수준, 10% 이상은 위기 상황입니다. 미국은 2022년 9%로 1981년 이후 최고치를 기록했습니다.</p>',
  },
-  en: { lang:'en', title:'Inflation Calculator - Real Value of Money Over Time | Free', h1:'Inflation Calculator', sub:'Find out what a sum of money was worth in the past, or what it will be worth in the future.', btn:'🌐 中文' },
-  zh: { lang:'zh', title:'通胀计算器 - 货币实际价值计算 | 免费', h1:'通胀计算器', sub:'计算过去或未来货币的实际购买力。', btn:'🌐 한국어' ,
-  inflMode:'计算模式',
-  inflPast:'📅 过去→现在',
-  inflFuture:'🔮 现在→未来',
-  inflAmount:'金额',
-  inflCalcBtn:'计算',
+  en: { lang:'en', title:'Inflation Calculator - Real Value of Money Over Time | Free', h1:'Inflation Calculator', sub:'Find out what a sum of money was worth in the past, or what it will be worth in the future.', btn:'🌐 中文',
+  inflMode:'Mode', inflPast:'📅 Past → Today', inflFuture:'🔮 Today → Future', inflAmount:'Amount', inflCalcBtn:'Calculate',
+  inflFromPast:'From Year (Past)', inflToPast:'To Year (Now)', inflFromFuture:'From Year (Now)', inflToFuture:'To Year (Future)',
+  inflPerYr:'yr', inflYears:'years', inflBpLabel:'of original purchasing power retained',
+  inflTotalInfl:'Total Inflation', inflAvgRate:'Avg Annual Rate', inflYearsLabel:'Years', inflValChange:'Value Change',
+  inflBpTitle:'PURCHASING POWER RETAINED', inflAlertYears:'Please choose different years.',
+  seoHtml:'<h2>What is Inflation?</h2><p>Inflation is the rate at which the general level of prices rises over time, eroding purchasing power. <strong>$1,000 in 2000</strong> at 3% annual inflation would be worth approximately <strong>$2,094 in 2026</strong> — meaning you\'d need twice as much money to buy the same things.</p><p><strong>Q. How does inflation affect savings?</strong><br>If your savings earn 2% interest but inflation is 3%, your real return is −1%. Your money grows nominally but loses purchasing power. This is why investing in assets that beat inflation (stocks, real estate) is important.</p><p><strong>Q. What\'s a normal inflation rate?</strong><br>Most central banks target 2% annual inflation as healthy. Above 5% is considered high; above 10% is a crisis. The US saw 9% inflation in 2022, the highest since 1981.</p>',
+ },
+  zh: { lang:'zh', title:'通胀计算器 - 货币实际价值计算 | 免费', h1:'通胀计算器', sub:'计算过去或未来货币的实际购买力。', btn:'🌐 한국어',
+  inflMode:'计算模式', inflPast:'📅 过去→现在', inflFuture:'🔮 现在→未来', inflAmount:'金额', inflCalcBtn:'计算',
+  inflFromPast:'起始年份 (过去)', inflToPast:'终止年份 (现在)', inflFromFuture:'起始年份 (现在)', inflToFuture:'终止年份 (未来)',
+  inflPerYr:'年', inflYears:'年', inflBpLabel:'原始购买力保留',
+  inflTotalInfl:'总通胀率', inflAvgRate:'年均通胀率', inflYearsLabel:'年数', inflValChange:'价值变化',
+  inflBpTitle:'购买力保留率', inflAlertYears:'请选择不同的年份。',
+  seoHtml:'<h2>什么是通货膨胀？</h2><p>通货膨胀是指物价总水平随时间上涨、购买力下降的现象。2000年的<strong>1,000美元</strong>按年均3%通胀率计算，到2026年需约<strong>2,094美元</strong>才能买到同样的东西。</p><p><strong>Q. 通胀如何影响储蓄？</strong><br>如果储蓄利率为2%而通胀率为3%，实际回报率为-1%。名义上资金在增长，但购买力在下降。这正是投资能跑赢通胀的资产（股票、房产）的重要性所在。</p><p><strong>Q. 正常的通胀率是多少？</strong><br>大多数央行将2%年通胀设为健康目标。超过5%视为偏高；超过10%则为危机。美国2022年通胀率达9%，为1981年以来最高。</p>',
  }
 };
 function _detectLang() {
@@ -259,6 +270,7 @@ function _applyLang() {
     const v = t[el.dataset.i18n];
     if (v !== undefined) el.innerHTML = v;
   });
+  setMode(mode);
 }
 const _langOrder = ['ko','en','zh'];
 function cycleLang() {

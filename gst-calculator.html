@@ -102,7 +102,7 @@ footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:48px;pa
       <div class="rate-btn" onclick="setRate(this,28)"><div class="pct">28%</div><div class="name">Luxury</div></div>
     </div>
     <div class="custom-rate">
-      <span>Custom:</span>
+      <span data-i18n="gstCustom">Custom:</span>
       <input type="number" id="customRate" placeholder="e.g. 3" min="0" max="100" step="0.1" oninput="customRateInput()">
       <span>%</span>
     </div>
@@ -121,7 +121,7 @@ footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:48px;pa
     <div class="result-row"><span class="rlabel" id="gstLabel">GST (18%)</span><span class="rval" id="rGST">-</span></div>
     <div class="result-row total"><span class="rlabel" id="totalLabel">Total Amount</span><span class="rval" id="rTotal">-</span></div>
     <div class="gst-split">
-      <div class="gst-split-title">GST SPLIT (Intra-state)</div>
+      <div class="gst-split-title" data-i18n="gstSplitTitle">GST SPLIT (Intra-state)</div>
       <div class="gst-split-row"><span class="sl">CGST (<span id="cgstRate">9%</span>)</span><span class="sv" id="rCGST">-</span></div>
       <div class="gst-split-row"><span class="sl">SGST (<span id="sgstRate">9%</span>)</span><span class="sv" id="rSGST">-</span></div>
       <div class="gst-split-row" style="margin-top:6px;padding-top:6px;border-top:1px solid #2e2e2e;"><span class="sl">IGST (Inter-state)</span><span class="sv" id="rIGST">-</span></div>
@@ -129,7 +129,7 @@ footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:48px;pa
     <div class="notice">* For intra-state supply: CGST = SGST = half of GST rate. For inter-state supply: IGST = full GST rate. This calculator provides estimates only.</div>
   </div>
 
-  <div class="seo">
+  <div class="seo" data-i18n="seoHtml">
     <h2>GST Rates in India (2026)</h2>
     <p>India's GST has four main rate slabs: <strong>5%</strong> (essential goods: unprocessed food, medicines), <strong>12%</strong> (processed food, business class air travel), <strong>18%</strong> (most goods and services, IT services), and <strong>28%</strong> (luxury items: cars, tobacco, aerated drinks).</p>
     <p><strong>Q. What is CGST and SGST?</strong><br>For intra-state transactions, GST is split equally between Central GST (CGST) and State GST (SGST). For example, 18% GST = 9% CGST + 9% SGST. For inter-state transactions, only IGST (Integrated GST) at the full rate applies.</p>
@@ -144,7 +144,8 @@ function setMode(m){
   mode=m;
   document.getElementById('modeAdd').classList.toggle('active',m==='add');
   document.getElementById('modeRemove').classList.toggle('active',m==='remove');
-  document.getElementById('inputLabel').textContent=m==='add'?'Amount (excluding GST) ₹':'Amount (including GST) ₹';
+  const t=typeof _i18n!=='undefined'&&_i18n[typeof _lang!=='undefined'?_lang:'en']||{};
+  document.getElementById('inputLabel').textContent=m==='add'?(t.gstInputExcl||'Amount (excluding GST) ₹'):(t.gstInputIncl||'Amount (including GST) ₹');
 }
 function setRate(btn,rate){
   document.querySelectorAll('.rate-btn').forEach(b=>b.classList.remove('active'));
@@ -166,10 +167,12 @@ function calc(){
   if(mode==='add'){base=amt;gst=amt*gstRate/100;total=amt+gst;}
   else{total=amt;base=amt/(1+gstRate/100);gst=total-base;}
   const cgstRate=gstRate/2;
-  document.getElementById('resultTag').textContent=`✓ GST ${gstRate}% — ${mode==='add'?'Add':'Remove'} Mode`;
-  document.getElementById('baseLabel').textContent=mode==='add'?'Original Amount':'Amount (ex-GST)';
+  const _tg=typeof _i18n!=='undefined'&&_i18n[typeof _lang!=='undefined'?_lang:'en']||{};
+  const modeWord=mode==='add'?(_tg.gstAdd||'Add').replace(/[➕➖]\s*/,''):(_tg.gstRemove||'Remove').replace(/[➕➖]\s*/,'');
+  document.getElementById('resultTag').textContent=`✓ GST ${gstRate}% — ${modeWord} Mode`;
+  document.getElementById('baseLabel').textContent=mode==='add'?(_tg.gstBaseAdd||'Original Amount'):(_tg.gstBaseRemove||'Amount (ex-GST)');
   document.getElementById('gstLabel').textContent=`GST (${gstRate}%)`;
-  document.getElementById('totalLabel').textContent=mode==='add'?'Total (incl. GST)':'Original Amount Paid';
+  document.getElementById('totalLabel').textContent=mode==='add'?(_tg.gstTotalAdd||'Total (incl. GST)'):(_tg.gstTotalRemove||'Original Amount Paid');
   document.getElementById('rBase').textContent=fmtINR(base);
   document.getElementById('rGST').textContent=fmtINR(gst);
   document.getElementById('rTotal').textContent=fmtINR(total);
@@ -186,20 +189,26 @@ function calc(){
 <script>
 /* ===== i18n multilingual ===== */
 const _i18n = {
-  ko: { lang:'ko', title:'GST 계산기 - GST 포함/제외 금액 계산 | 무료', h1:'GST 계산기', sub:'GST 포함/제외 금액을 계산합니다. CGST + SGST 분할 포함.', btn:'🌐 EN' ,
-  gstMode:'계산 방식',
-  gstAdd:'➕ GST 추가',
-  gstRemove:'➖ GST 제거',
-  gstRate:'GST 세율',
-  gstCalcBtn:'계산하기',
+  ko: { lang:'ko', title:'GST 계산기 - GST 포함/제외 금액 계산 | 무료', h1:'GST 계산기', sub:'GST 포함/제외 금액을 계산합니다. CGST + SGST 분할 포함.', btn:'🌐 EN',
+  gstMode:'계산 방식', gstAdd:'➕ GST 추가', gstRemove:'➖ GST 제거', gstRate:'GST 세율', gstCalcBtn:'계산하기',
+  gstInputExcl:'금액 (GST 제외) ₹', gstInputIncl:'금액 (GST 포함) ₹',
+  gstBaseAdd:'원래 금액', gstBaseRemove:'GST 제외 금액', gstTotalAdd:'합계 (GST 포함)', gstTotalRemove:'원래 지불 금액',
+  gstCustom:'직접 입력:', gstSplitTitle:'GST 분할 (주내 거래)',
+  seoHtml:'<h2>인도 GST 세율 (2026)</h2><p>인도 GST는 4가지 세율 구간이 있습니다: <strong>5%</strong>(필수품: 미가공 식품, 의약품), <strong>12%</strong>(가공식품, 비즈니스 항공권), <strong>18%</strong>(대부분의 상품 및 서비스, IT 서비스), <strong>28%</strong>(사치품: 자동차, 담배, 탄산음료).</p><p><strong>Q. CGST와 SGST의 차이는?</strong><br>주내 거래에서 GST는 중앙정부(CGST)와 주정부(SGST)에 균등 분배됩니다. 예: 18% GST = CGST 9% + SGST 9%. 주간 거래에는 IGST(통합 GST)만 적용됩니다.</p><p><strong>Q. GST 포함 금액에서 GST를 빼는 방법은?</strong><br>원래 금액 = 합계 ÷ (1 + GST 세율). 예: 18% GST 포함 ₹1,180 → 원가 = 1180 ÷ 1.18 = ₹1,000. GST = ₹180.</p><p><strong>Q. 서비스에도 GST가 적용되나요?</strong><br>네. 대부분의 서비스에 18% GST가 적용됩니다. 예외: 의료(면세), 교육(면세), 은행(18%), 통신(18%), 음식점(에어컨 유무에 따라 5% 또는 18%).</p>',
  },
-  en: { lang:'en', title:'GST Calculator India - Add or Remove GST (5%, 12%, 18%, 28%) Free', h1:'GST Calculator', sub:'Add GST to get total amount, or remove GST from a GST-inclusive price. CGST + SGST split included.', btn:'🌐 中文' },
-  zh: { lang:'zh', title:'GST计算器 - 印度GST含税/不含税计算 | 免费', h1:'GST计算器', sub:'计算含GST或不含GST的金额。包含CGST+SGST分割计算。', btn:'🌐 한국어' ,
-  gstMode:'计算模式',
-  gstAdd:'➕ 加GST',
-  gstRemove:'➖ 去GST',
-  gstRate:'GST税率',
-  gstCalcBtn:'计算',
+  en: { lang:'en', title:'GST Calculator India - Add or Remove GST (5%, 12%, 18%, 28%) Free', h1:'GST Calculator', sub:'Add GST to get total amount, or remove GST from a GST-inclusive price. CGST + SGST split included.', btn:'🌐 中文',
+  gstMode:'Mode', gstAdd:'➕ Add GST', gstRemove:'➖ Remove GST', gstRate:'GST Rate', gstCalcBtn:'Calculate GST',
+  gstInputExcl:'Amount (excluding GST) ₹', gstInputIncl:'Amount (including GST) ₹',
+  gstBaseAdd:'Original Amount', gstBaseRemove:'Amount (ex-GST)', gstTotalAdd:'Total (incl. GST)', gstTotalRemove:'Original Amount Paid',
+  gstCustom:'Custom:', gstSplitTitle:'GST SPLIT (Intra-state)',
+  seoHtml:'<h2>GST Rates in India (2026)</h2><p>India\'s GST has four main rate slabs: <strong>5%</strong> (essential goods: unprocessed food, medicines), <strong>12%</strong> (processed food, business class air travel), <strong>18%</strong> (most goods and services, IT services), and <strong>28%</strong> (luxury items: cars, tobacco, aerated drinks).</p><p><strong>Q. What is CGST and SGST?</strong><br>For intra-state transactions, GST is split equally between Central GST (CGST) and State GST (SGST). For example, 18% GST = 9% CGST + 9% SGST. For inter-state transactions, only IGST (Integrated GST) at the full rate applies.</p><p><strong>Q. How to remove GST from total amount?</strong><br>Original price = Total ÷ (1 + GST rate). Example: ₹1,180 inclusive of 18% GST → Original = 1180 ÷ 1.18 = ₹1,000. GST amount = ₹180.</p><p><strong>Q. Is GST applicable on services?</strong><br>Yes. Most services are taxed at 18% GST. Notable exceptions: healthcare (exempt), education (exempt), banking (18%), telecom (18%), restaurants (5% or 18% depending on AC/non-AC).</p>',
+ },
+  zh: { lang:'zh', title:'GST计算器 - 印度GST含税/不含税计算 | 免费', h1:'GST计算器', sub:'计算含GST或不含GST的金额。包含CGST+SGST分割计算。', btn:'🌐 한국어',
+  gstMode:'计算模式', gstAdd:'➕ 加GST', gstRemove:'➖ 去GST', gstRate:'GST税率', gstCalcBtn:'计算',
+  gstInputExcl:'金额 (不含GST) ₹', gstInputIncl:'金额 (含GST) ₹',
+  gstBaseAdd:'原始金额', gstBaseRemove:'不含GST金额', gstTotalAdd:'合计 (含GST)', gstTotalRemove:'原始支付金额',
+  gstCustom:'自定义:', gstSplitTitle:'GST分割 (州内交易)',
+  seoHtml:'<h2>印度GST税率（2026）</h2><p>印度GST有四个主要税率档次：<strong>5%</strong>（必需品：未加工食品、药品），<strong>12%</strong>（加工食品、商务舱机票），<strong>18%</strong>（大多数商品和服务、IT服务），<strong>28%</strong>（奢侈品：汽车、烟草、碳酸饮料）。</p><p><strong>Q. CGST和SGST是什么？</strong><br>对于州内交易，GST平均分配给中央GST（CGST）和州GST（SGST）。例如18% GST = 9% CGST + 9% SGST。州际交易仅适用IGST（综合GST）。</p><p><strong>Q. 如何从含税价格中去除GST？</strong><br>原始价格 = 总价 ÷ (1 + GST税率)。例如：含18% GST的₹1,180 → 原价 = 1180÷1.18 = ₹1,000，GST = ₹180。</p><p><strong>Q. GST适用于服务吗？</strong><br>是的。大多数服务适用18% GST。例外情况：医疗（免税）、教育（免税）、银行（18%）、电信（18%）、餐厅（根据是否有空调为5%或18%）。</p>',
  }
 };
 function _detectLang() {
@@ -229,6 +238,7 @@ function _applyLang() {
     const v = t[el.dataset.i18n];
     if (v !== undefined) el.innerHTML = v;
   });
+  setMode(mode);
 }
 const _langOrder = ['ko','en','zh'];
 function cycleLang() {

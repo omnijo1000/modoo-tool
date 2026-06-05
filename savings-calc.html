@@ -65,10 +65,10 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
   <p class="subtitle">월 납입액·금리·기간으로 만기 수령액 계산 · 이자과세 15.4% 자동 반영</p>
 
   <div class="card">
-    <label>월 납입액</label>
+    <label data-i18n="saveMonthly">월 납입액</label>
     <div class="input-wrap">
       <input type="number" id="monthly" placeholder="0" oninput="calc()">
-      <span class="unit">만원</span>
+      <span class="unit" data-i18n="saveUnit">만원</span>
     </div>
     <div class="quick-btns">
       <div class="qbtn" onclick="setVal('monthly',10)">10만</div>
@@ -79,7 +79,7 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
   </div>
 
   <div class="card">
-    <label>연 금리</label>
+    <label data-i18n="saveRate">연 금리</label>
     <div class="input-wrap">
       <input type="number" id="rate" placeholder="0.0" step="0.01" oninput="calc()">
       <span class="unit">%</span>
@@ -93,35 +93,35 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
   </div>
 
   <div class="card">
-    <label>저축 기간</label>
+    <label data-i18n="savePeriod">저축 기간</label>
     <div class="radio-row" id="period">
-      <div class="rbtn" onclick="sel(this,'period');calc()">6개월</div>
-      <div class="rbtn on" onclick="sel(this,'period');calc()">12개월</div>
-      <div class="rbtn" onclick="sel(this,'period');calc()">24개월</div>
-      <div class="rbtn" onclick="sel(this,'period');calc()">36개월</div>
+      <div class="rbtn" onclick="sel(this,'period');calc()" data-val="6" data-i18n="save6mo">6개월</div>
+      <div class="rbtn on" onclick="sel(this,'period');calc()" data-val="12" data-i18n="save12mo">12개월</div>
+      <div class="rbtn" onclick="sel(this,'period');calc()" data-val="24" data-i18n="save24mo">24개월</div>
+      <div class="rbtn" onclick="sel(this,'period');calc()" data-val="36" data-i18n="save36mo">36개월</div>
     </div>
   </div>
 
   <div class="card">
-    <label>이자 과세 유형</label>
+    <label data-i18n="saveTaxType">이자 과세 유형</label>
     <div class="radio-row" id="taxType">
-      <div class="rbtn on" onclick="sel(this,'taxType');calc()">일반과세 15.4%</div>
-      <div class="rbtn" onclick="sel(this,'taxType');calc()">비과세 (ISA 등)</div>
-      <div class="rbtn" onclick="sel(this,'taxType');calc()">저율과세 9.9%</div>
+      <div class="rbtn on" onclick="sel(this,'taxType');calc()" data-val="0.154" data-i18n="saveTax154">일반과세 15.4%</div>
+      <div class="rbtn" onclick="sel(this,'taxType');calc()" data-val="0" data-i18n="saveTax0">비과세 (ISA 등)</div>
+      <div class="rbtn" onclick="sel(this,'taxType');calc()" data-val="0.099" data-i18n="saveTax99">저율과세 9.9%</div>
     </div>
   </div>
 
   <div class="result" id="result">
     <div class="big-num" id="r_recv">—</div>
-    <div class="big-label">세후 만기 수령액</div>
+    <div class="big-label" data-i18n="saveAfterTaxTitle">세후 만기 수령액</div>
     <div class="divider"></div>
-    <div class="row"><span class="lk">총 납입 원금</span><span class="lv" id="r_principal">—</span></div>
-    <div class="row"><span class="lk">세전 이자</span><span class="lv green" id="r_interest">—</span></div>
-    <div class="row"><span class="lk">이자 세금</span><span class="lv red" id="r_tax">—</span></div>
-    <div class="row"><span class="lk">세후 이자</span><span class="lv green" id="r_netInt">—</span></div>
+    <div class="row"><span class="lk" data-i18n="savePrincipalLabel">총 납입 원금</span><span class="lv" id="r_principal">—</span></div>
+    <div class="row"><span class="lk" data-i18n="savePreTaxInt">세전 이자</span><span class="lv green" id="r_interest">—</span></div>
+    <div class="row"><span class="lk" data-i18n="saveIntTax">이자 세금</span><span class="lv red" id="r_tax">—</span></div>
+    <div class="row"><span class="lk" data-i18n="saveAfterTaxInt">세후 이자</span><span class="lv green" id="r_netInt">—</span></div>
     <div class="divider"></div>
-    <div class="row"><span class="lk">세후 만기 수령액</span><span class="lv green" style="font-size:16px" id="r_total">—</span></div>
-    <div class="row"><span class="lk">실효 세후 수익률</span><span class="lv yellow" id="r_eff">—</span></div>
+    <div class="row"><span class="lk" data-i18n="saveAfterTaxTotal">세후 만기 수령액</span><span class="lv green" style="font-size:16px" id="r_total">—</span></div>
+    <div class="row"><span class="lk" data-i18n="saveEffRate">실효 세후 수익률</span><span class="lv yellow" id="r_eff">—</span></div>
 
     <div class="progress-bar">
       <div class="progress-fill" id="progress" style="width:0%"></div>
@@ -134,20 +134,19 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 </main>
 <script>
 function fmt(n){return Math.round(n).toLocaleString('ko-KR');}
-function fmtW(n){return fmt(n)+'만원';}
+function fmtW(n){const u=typeof _lang!=='undefined'?(_lang==='zh'?'万韩元':_lang==='en'?' (×10K KRW)':'만원'):'만원';return fmt(n)+u;}
 function setVal(id,v){document.getElementById(id).value=v;calc();}
 function sel(el,g){document.querySelectorAll('#'+g+' .rbtn').forEach(b=>b.classList.remove('on'));el.classList.add('on');}
-function getVal(g){return document.querySelector('#'+g+' .rbtn.on')?.textContent.trim()||'';}
+function getVal(g){return document.querySelector('#'+g+' .rbtn.on')?.dataset.val||'';}
 
 function calc(){
   const m=parseFloat(document.getElementById('monthly').value)||0;
   const r=parseFloat(document.getElementById('rate').value)||0;
   if(m<=0||r<=0){document.getElementById('result').style.display='none';return;}
 
-  const pstr=getVal('period');
-  const months=pstr==='6개월'?6:pstr==='24개월'?24:pstr==='36개월'?36:12;
-  const taxStr=getVal('taxType');
-  const taxRate=taxStr.includes('비과세')?0:taxStr.includes('9.9')?0.099:0.154;
+  const months=parseInt(getVal('period'))||12;
+  const _tv=getVal('taxType');
+  const taxRate=_tv!==''?parseFloat(_tv):0.154;
 
   // 적금 이자 = 월 납입 × 연이율/12 × (n*(n+1)/2) / n ... 단리 방식
   const monthlyRate=r/100/12;
@@ -168,21 +167,38 @@ function calc(){
   document.getElementById('r_netInt').textContent='+'+fmtW(netInt);
   document.getElementById('r_total').textContent=fmtW(total);
   document.getElementById('r_recv').textContent=fmtW(total);
-  document.getElementById('r_eff').textContent=effRate.toFixed(2)+'%/년';
+  const _yr=typeof _lang!=='undefined'?(_lang==='zh'?'年':_lang==='en'?'yr':'년'):'년';
+  document.getElementById('r_eff').textContent=effRate.toFixed(2)+'%/'+_yr;
 
   const pct=(netInt/total*100).toFixed(1);
   document.getElementById('progress').style.width=pct+'%';
-  document.getElementById('pl_principal').textContent='원금 '+fmtW(principal);
-  document.getElementById('pl_interest').textContent='이자 '+fmtW(netInt);
+  const _lt=typeof _i18n!=='undefined'&&_i18n[typeof _lang!=='undefined'?_lang:'ko']||{};
+  document.getElementById('pl_principal').textContent=(_lt.savePrincipalShort||'원금')+' '+fmtW(principal);
+  document.getElementById('pl_interest').textContent=(_lt.saveInterestShort||'이자')+' '+fmtW(netInt);
 }
 </script>
 
 <script>
 /* ===== i18n multilingual ===== */
 const _i18n = {
-  ko: { lang:'ko', title:'적금 만기 계산기 2026 - 이자·세후 수령액 계산', h1:'적금 만기계산기', sub:'월 납입액·금리·기간으로 만기 수령액 계산. 이자과세 15.4% 자동 반영.', btn:'🌐 EN' },
-  en: { lang:'en', title:'Savings Calculator - Maturity Amount & After-tax Returns', h1:'Savings Calculator', sub:'Calculate maturity amount from monthly deposit, interest rate and term. Tax on interest auto-applied.', btn:'🌐 中文' },
-  zh: { lang:'zh', title:'定期储蓄计算器 - 到期金额计算', h1:'定期储蓄计算器', sub:'根据月存款、利率和期限计算到期金额。自动计算利息税。', btn:'🌐 한국어' }
+  ko: { lang:'ko', title:'적금 만기 계산기 2026 - 이자·세후 수령액 계산', h1:'적금 만기계산기', sub:'월 납입액·금리·기간으로 만기 수령액 계산. 이자과세 15.4% 자동 반영.', btn:'🌐 EN',
+  saveAfterTaxTitle:'세후 만기 수령액', savePrincipalLabel:'총 납입 원금', savePreTaxInt:'세전 이자',
+  saveIntTax:'이자 세금', saveAfterTaxInt:'세후 이자', saveAfterTaxTotal:'세후 만기 수령액',
+  saveEffRate:'실효 세후 수익률', savePrincipalShort:'원금', saveInterestShort:'이자' },
+  en: { lang:'en', title:'Savings Calculator - Maturity Amount & After-tax Returns', h1:'Savings Calculator', sub:'Calculate maturity amount from monthly deposit, interest rate and term. Tax on interest auto-applied.', btn:'🌐 中文',
+  saveMonthly:'Monthly Deposit', saveUnit:'10K KRW', saveRate:'Annual Rate', savePeriod:'Savings Term',
+  save6mo:'6 Months', save12mo:'12 Months', save24mo:'24 Months', save36mo:'36 Months',
+  saveTaxType:'Tax Type', saveTax154:'Standard Tax 15.4%', saveTax0:'Tax Free (ISA etc.)', saveTax99:'Low Tax 9.9%',
+  saveAfterTaxTitle:'After-tax Maturity Amount', savePrincipalLabel:'Total Principal', savePreTaxInt:'Pre-tax Interest',
+  saveIntTax:'Tax on Interest', saveAfterTaxInt:'After-tax Interest', saveAfterTaxTotal:'After-tax Maturity Amount',
+  saveEffRate:'Effective After-tax Rate', savePrincipalShort:'Principal', saveInterestShort:'Interest' },
+  zh: { lang:'zh', title:'定期储蓄计算器 - 到期金额计算', h1:'定期储蓄计算器', sub:'根据月存款、利率和期限计算到期金额。自动计算利息税。', btn:'🌐 한국어',
+  saveMonthly:'月存款额', saveUnit:'万韩元', saveRate:'年利率', savePeriod:'储蓄期限',
+  save6mo:'6个月', save12mo:'12个月', save24mo:'24个月', save36mo:'36个月',
+  saveTaxType:'税务类型', saveTax154:'普通税 15.4%', saveTax0:'免税 (ISA等)', saveTax99:'低税 9.9%',
+  saveAfterTaxTitle:'税后到期金额', savePrincipalLabel:'总本金', savePreTaxInt:'税前利息',
+  saveIntTax:'利息税', saveAfterTaxInt:'税后利息', saveAfterTaxTotal:'税后到期金额',
+  saveEffRate:'实际税后收益率', savePrincipalShort:'本金', saveInterestShort:'利息' }
 };
 function _detectLang() {
   const u = new URLSearchParams(location.search).get('lang');
