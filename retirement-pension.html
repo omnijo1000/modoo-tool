@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>퇴직연금 계산기 2026 - DB형·DC형 퇴직연금 예상 수령액 자동 계산</title>
+<meta name="description" content="퇴직연금 계산기. DB형(확정급여)·DC형(확정기여) 방식에 따라 퇴직연금 예상 수령액을 자동 계산합니다. 투자 수익률 반영 DC형 시뮬레이션 포함.">
+<meta name="keywords" content="퇴직연금 계산기, DB형 퇴직연금, DC형 퇴직연금, 퇴직연금 수령액, 확정급여형, 확정기여형, IRP, 퇴직금 계산">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/retirement-pension.html">
+<link rel="canonical" href="https://modoohub.com/retirement-pension.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#222;--text:#f0f0f0;--text2:#888;--text3:#444;--accent:#818cf8;--accent2:#a5b4fc;--accent-dim:rgba(129,140,248,0.08);--green:#4ade80;--red:#f87171;--yellow:#facc15;--orange:#fb923c;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:20px 24px;display:flex;align-items:center;gap:12px;}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--accent);}
+.header-label{font-size:13px;color:var(--text2);letter-spacing:0.1em;font-family:'DM Mono',monospace;}
+.back-link{margin-left:auto;font-size:13px;color:var(--text2);text-decoration:none;}
+.back-link:hover{color:var(--accent);}
+main{max-width:620px;margin:0 auto;padding:48px 24px;}
+.title-block{margin-bottom:36px;}
+h1{font-size:clamp(26px,5vw,36px);font-weight:900;line-height:1.15;margin-bottom:10px;}
+h1 span{color:var(--accent2);}
+.subtitle{color:var(--text2);font-size:14px;line-height:1.7;}
+.tab-row{display:flex;gap:8px;margin-bottom:20px;}
+.tab-btn{flex:1;padding:12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text2);font-family:'Noto Sans KR',sans-serif;font-size:14px;cursor:pointer;transition:all .2s;font-weight:500;}
+.tab-btn.active{background:var(--accent-dim);border-color:var(--accent);color:var(--accent2);font-weight:700;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:14px;transition:border-color .2s;}
+.card:focus-within{border-color:var(--accent);}
+label{font-size:12px;color:var(--text2);letter-spacing:.08em;display:block;margin-bottom:10px;}
+.label-sub{font-size:11px;color:var(--text3);margin-top:3px;}
+.input-wrap{display:flex;align-items:center;gap:8px;}
+input[type=number]{flex:1;background:transparent;border:none;outline:none;font-size:26px;font-weight:700;color:var(--text);font-family:'DM Mono',monospace;width:100%;min-width:0;}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;}
+.unit{color:var(--text3);font-size:14px;}
+.quick-btns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.qbtn{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:12px;color:var(--text2);cursor:pointer;font-family:'DM Mono',monospace;transition:all .15s;}
+.qbtn:hover{border-color:var(--accent);color:var(--accent2);}
+.result-box{background:var(--accent-dim);border:1px solid var(--accent);border-radius:16px;padding:28px;margin-bottom:20px;display:none;}
+.result-box.show{display:block;}
+.result-main{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:20px;}
+.result-main-label{font-size:14px;color:var(--text2);}
+.result-main-value{font-family:'DM Mono',monospace;font-size:34px;font-weight:700;color:var(--accent2);}
+.divider{height:1px;background:var(--border);margin:16px 0;}
+.d-rows{display:flex;flex-direction:column;gap:8px;}
+.d-row{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border);}
+.d-row:last-child{border-bottom:none;}
+.dk{color:var(--text2);}
+.dv{font-family:'DM Mono',monospace;}
+.gain-row{background:rgba(74,222,128,.08);border-radius:8px;padding:8px 12px;display:flex;justify-content:space-between;font-size:13px;margin-top:8px;}
+.gk{color:var(--text2);}
+.gv{font-family:'DM Mono',monospace;color:var(--green);font-weight:700;}
+.info-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:24px;font-size:13px;color:var(--text2);line-height:1.7;}
+.info-box strong{color:var(--text);}
+.seo{border-top:1px solid var(--border);padding-top:32px;}
+.seo h2{font-size:16px;font-weight:700;margin-bottom:10px;}
+.seo p{font-size:13px;color:var(--text2);line-height:1.8;margin-bottom:20px;}
+.faq-list{margin-top:12px;}
+.faq-item{background:#111;border-radius:10px;padding:16px 18px;margin-bottom:10px;}
+.faq-q{font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px;line-height:1.5;}
+.faq-a{font-size:13px;color:var(--text2);line-height:1.8;}
+footer{text-align:center;font-size:12px;color:var(--text3);margin-top:48px;}
+</style>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>
+window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());gtag('config','G-NR6VJF0534');
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<meta property="og:title" content="퇴직연금 계산기 2026 - DB형·DC형 퇴직연금 예상 수령액 자동 계산">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"DB형과 DC형 퇴직연금의 차이는 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"DB형(확정급여형)은 퇴직 시 받는 금액이 '퇴직 직전 3개월 평균 임금 × 근속연수'로 미리 정해져 있습니다. DC형(확정기여형)은 회사가 매년 연봉의 1/12을 납입하고 근로자가 직접 운용하는 방식으로, 투자 수익에 따라 수령액이 달라집니다."}},
+{"@type":"Question","name":"어느 유형이 더 유리한가요?","acceptedAnswer":{"@type":"Answer","text":"임금 인상률이 높은 경우 DB형이 유리하고, 투자 수익률이 임금 인상률보다 높을 것으로 예상되면 DC형이 유리합니다. 장기 투자 시 복리 효과로 DC형이 유리한 경우가 많습니다."}},
+{"@type":"Question","name":"퇴직연금에 세금이 붙나요?","acceptedAnswer":{"@type":"Answer","text":"IRP 계좌에서 55세 이후 수령 시 연금소득세(3.3~5.5%)가 적용됩니다. 일시금으로 수령 시 퇴직소득세가 부과되며, IRP에서 연금으로 수령하는 것이 세금 측면에서 유리합니다."}}
+]}</script>
+</head>
+<body>
+<header>
+  <div class="dot"></div>
+  <span class="header-label">MODOO HUB</span>
+  <a href="index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <div class="title-block">
+    <h1>퇴직연금<br><span>계산기</span></h1>
+    <p class="subtitle">DB형(확정급여) · DC형(확정기여) 퇴직연금 예상 수령액 시뮬레이션</p>
+  </div>
+
+  <div class="tab-row">
+    <button class="tab-btn active" id="tabDB" onclick="setType('DB')">DB형 (확정급여)</button>
+    <button class="tab-btn" id="tabDC" onclick="setType('DC')">DC형 (확정기여)</button>
+  </div>
+
+  <!-- DB형 -->
+  <div id="secDB">
+    <div class="card">
+      <label>퇴직 직전 3개월 평균 월급</label>
+      <div class="input-wrap">
+        <input type="number" id="dbSalary" placeholder="4000000" oninput="calc()">
+        <span class="unit">원</span>
+      </div>
+      <div class="quick-btns">
+        <button class="qbtn" onclick="setV('dbSalary',3000000)">300만</button>
+        <button class="qbtn" onclick="setV('dbSalary',4000000)">400만</button>
+        <button class="qbtn" onclick="setV('dbSalary',5000000)">500만</button>
+        <button class="qbtn" onclick="setV('dbSalary',7000000)">700만</button>
+      </div>
+    </div>
+    <div class="card">
+      <label>근속 연수</label>
+      <div class="input-wrap">
+        <input type="number" id="dbYears" placeholder="10" min="1" oninput="calc()">
+        <span class="unit">년</span>
+      </div>
+      <div class="quick-btns">
+        <button class="qbtn" onclick="setV('dbYears',5)">5년</button>
+        <button class="qbtn" onclick="setV('dbYears',10)">10년</button>
+        <button class="qbtn" onclick="setV('dbYears',20)">20년</button>
+        <button class="qbtn" onclick="setV('dbYears',30)">30년</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DC형 -->
+  <div id="secDC" style="display:none">
+    <div class="card">
+      <label>현재 연봉 (세전)</label>
+      <div class="input-wrap">
+        <input type="number" id="dcSalary" placeholder="50000000" oninput="calc()">
+        <span class="unit">원</span>
+      </div>
+      <div class="quick-btns">
+        <button class="qbtn" onclick="setV('dcSalary',40000000)">4천만</button>
+        <button class="qbtn" onclick="setV('dcSalary',50000000)">5천만</button>
+        <button class="qbtn" onclick="setV('dcSalary',70000000)">7천만</button>
+        <button class="qbtn" onclick="setV('dcSalary',100000000)">1억</button>
+      </div>
+    </div>
+    <div class="card">
+      <label>근속 연수 (남은 재직 기간)</label>
+      <div class="input-wrap">
+        <input type="number" id="dcYears" placeholder="20" min="1" oninput="calc()">
+        <span class="unit">년</span>
+      </div>
+      <div class="quick-btns">
+        <button class="qbtn" onclick="setV('dcYears',5)">5년</button>
+        <button class="qbtn" onclick="setV('dcYears',10)">10년</button>
+        <button class="qbtn" onclick="setV('dcYears',20)">20년</button>
+        <button class="qbtn" onclick="setV('dcYears',30)">30년</button>
+      </div>
+    </div>
+    <div class="card">
+      <label>연간 연봉 인상률</label>
+      <div class="input-wrap">
+        <input type="number" id="dcRaise" value="3" step="0.1" min="0" oninput="calc()">
+        <span class="unit">%</span>
+      </div>
+    </div>
+    <div class="card">
+      <label>예상 연 투자 수익률</label>
+      <div class="input-wrap">
+        <input type="number" id="dcReturn" value="5" step="0.1" min="0" oninput="calc()">
+        <span class="unit">%</span>
+      </div>
+      <div class="quick-btns">
+        <button class="qbtn" onclick="setV('dcReturn',3)">보수 3%</button>
+        <button class="qbtn" onclick="setV('dcReturn',5)">중립 5%</button>
+        <button class="qbtn" onclick="setV('dcReturn',7)">적극 7%</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="result-box" id="result">
+    <div class="result-main">
+      <span class="result-main-label" id="mainLabel">예상 퇴직연금</span>
+      <span class="result-main-value" id="mainValue">--</span>
+    </div>
+    <div class="divider"></div>
+    <div class="d-rows" id="dRows"></div>
+    <div class="gain-row" id="gainRow" style="display:none">
+      <span class="gk">투자 수익 (원금 대비)</span>
+      <span class="gv" id="gainVal">--</span>
+    </div>
+  </div>
+
+  <div class="info-box" id="infoBox">
+    <strong>DB형</strong>: 회사가 운용 책임. 퇴직 직전 3개월 평균임금 × 근속연수가 확정 지급됩니다.<br>
+    <strong>DC형</strong>: 근로자가 직접 운용. 연봉의 1/12을 매년 납입하며 수익률에 따라 수령액이 달라집니다.
+  </div>
+
+  <section class="seo" aria-label="도움말 및 자주 묻는 질문">
+    <h2>퇴직연금이란?</h2>
+    <p>퇴직연금은 근로자가 퇴직 후 안정적인 소득을 받을 수 있도록 회사가 퇴직금을 사전에 금융기관에 적립하는 제도입니다. DB형(확정급여형)은 퇴직 시 받는 금액이 '평균임금 × 근속연수'로 확정되고, DC형(확정기여형)은 매년 연봉의 1/12이 납입되어 근로자가 직접 운용합니다. 임금 상승률이 높다면 DB형이, 투자 수익률이 기대된다면 DC형이 유리한 경우가 많습니다.</p>
+    <h2>자주 묻는 질문 (FAQ)</h2>
+    <div class="faq-list">
+      <div class="faq-item"><h3 class="faq-q">Q. DB형과 DC형의 차이는?</h3><p class="faq-a">A. DB형은 퇴직 직전 3개월 평균임금 × 근속연수로 수령액이 확정됩니다. DC형은 매년 연봉 1/12이 납입되며 투자 수익에 따라 수령액이 달라집니다.</p></div>
+      <div class="faq-item"><h3 class="faq-q">Q. 어느 유형이 더 유리한가요?</h3><p class="faq-a">A. 임금 인상률이 높으면 DB형, 투자 수익률이 임금 인상률보다 높을 것으로 예상되면 DC형이 유리합니다. 장기 복리 효과를 고려하면 DC형이 유리한 경우가 많습니다.</p></div>
+      <div class="faq-item"><h3 class="faq-q">Q. 퇴직연금에 세금이 붙나요?</h3><p class="faq-a">A. IRP 계좌에서 55세 이후 연금으로 수령 시 연금소득세(3.3~5.5%)가 부과됩니다. 일시금 수령 시 퇴직소득세가 적용되며, 연금 수령이 세금 면에서 유리합니다.</p></div>
+    </div>
+  </section>
+  <footer>참고용 시뮬레이션 · 실제 수령액은 금융기관 운용 결과에 따라 다름</footer>
+</main>
+<script>
+let _type = 'DB';
+function setType(t) {
+  _type = t;
+  document.getElementById('secDB').style.display = t === 'DB' ? '' : 'none';
+  document.getElementById('secDC').style.display = t === 'DC' ? '' : 'none';
+  document.getElementById('tabDB').classList.toggle('active', t === 'DB');
+  document.getElementById('tabDC').classList.toggle('active', t === 'DC');
+  document.getElementById('result').classList.remove('show');
+  const info = document.getElementById('infoBox');
+  info.innerHTML = t === 'DB'
+    ? '<strong>DB형</strong>: 회사가 운용 책임. 퇴직 직전 3개월 평균임금 × 근속연수가 확정 지급됩니다.'
+    : '<strong>DC형</strong>: 근로자가 직접 운용. 연봉의 1/12을 매년 납입하며 수익률에 따라 수령액이 달라집니다.';
+  calc();
+}
+function setV(id, v) { document.getElementById(id).value = v; calc(); }
+function fmtW(n) {
+  n = Math.round(n);
+  if (n >= 100000000) return (n/100000000).toFixed(2).replace(/\.?0+$/,'') + '억원';
+  if (n >= 10000) return Math.round(n/10000) + '만원';
+  return n.toLocaleString('ko-KR') + '원';
+}
+function calc() {
+  const res = document.getElementById('result');
+  if (_type === 'DB') {
+    const salary = parseFloat(document.getElementById('dbSalary').value);
+    const years = parseFloat(document.getElementById('dbYears').value);
+    if (!salary || !years) { res.classList.remove('show'); return; }
+    const total = salary * years;
+    document.getElementById('mainLabel').textContent = '예상 퇴직연금 (세전)';
+    document.getElementById('mainValue').textContent = fmtW(total);
+    document.getElementById('dRows').innerHTML = `
+      <div class="d-row"><span class="dk">퇴직 직전 3개월 평균 월급</span><span class="dv">${fmtW(salary)}</span></div>
+      <div class="d-row"><span class="dk">근속 연수</span><span class="dv">${years}년</span></div>
+      <div class="d-row"><span class="dk">산출 기준</span><span class="dv">평균월급 × 근속연수</span></div>
+      <div class="d-row" style="font-weight:700"><span class="dk">DB형 퇴직연금 (세전)</span><span class="dv" style="color:var(--accent2)">${fmtW(total)}</span></div>`;
+    document.getElementById('gainRow').style.display = 'none';
+    res.classList.add('show');
+  } else {
+    const salary = parseFloat(document.getElementById('dcSalary').value);
+    const years = parseFloat(document.getElementById('dcYears').value);
+    const raise = parseFloat(document.getElementById('dcRaise').value) || 0;
+    const ret = parseFloat(document.getElementById('dcReturn').value) || 0;
+    if (!salary || !years) { res.classList.remove('show'); return; }
+    const months = years * 12;
+    const monthlyRet = ret / 100 / 12;
+    const annualRaiseRate = raise / 100;
+    let total = 0, principal = 0;
+    let curSalary = salary;
+    for (let y = 0; y < years; y++) {
+      const annualContrib = curSalary / 12;
+      const monthlyContrib = annualContrib / 12;
+      const yearsLeft = years - y;
+      const mLeft = yearsLeft * 12;
+      let fv;
+      if (monthlyRet === 0) {
+        fv = monthlyContrib * mLeft;
+      } else {
+        fv = monthlyContrib * (Math.pow(1 + monthlyRet, mLeft) - 1) / monthlyRet * (1 + monthlyRet);
+      }
+      total += fv;
+      principal += annualContrib;
+      curSalary *= (1 + annualRaiseRate);
+    }
+    const gain = total - principal;
+    document.getElementById('mainLabel').textContent = '예상 DC형 퇴직연금';
+    document.getElementById('mainValue').textContent = fmtW(total);
+    document.getElementById('dRows').innerHTML = `
+      <div class="d-row"><span class="dk">초기 연봉</span><span class="dv">${fmtW(salary)}</span></div>
+      <div class="d-row"><span class="dk">근속 기간</span><span class="dv">${years}년</span></div>
+      <div class="d-row"><span class="dk">총 납입 원금 (누계)</span><span class="dv">${fmtW(principal)}</span></div>
+      <div class="d-row"><span class="dk">예상 투자 수익</span><span class="dv" style="color:var(--green)">${fmtW(gain)}</span></div>
+      <div class="d-row" style="font-weight:700"><span class="dk">DC형 퇴직연금 합계</span><span class="dv" style="color:var(--accent2)">${fmtW(total)}</span></div>`;
+    document.getElementById('gainRow').style.display = 'flex';
+    document.getElementById('gainVal').textContent = '+' + fmtW(gain) + ' (' + ((gain/principal)*100).toFixed(1) + '%)';
+    res.classList.add('show');
+  }
+}
+</script>
+</body>
+</html>

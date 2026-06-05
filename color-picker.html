@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Color Picker - Free Online HEX RGB HSL Color Tool</title>
+<meta name="description" content="Free online color picker. Pick colors and convert between HEX, RGB, HSL, HSV formats. Save color history. Copy any format instantly. All in browser.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/color-picker.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/color-picker.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/color-picker.html?lang=zh">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/color-picker.html">
+<link rel="canonical" href="https://modoohub.com/color-picker.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#222;--text:#f0f0f0;--text-muted:#777;--text-dim:#444;--accent:#f87171;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.lang-btn{margin-left:auto;font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;font-family:'DM Mono',monospace;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:640px;margin:0 auto;padding:36px 20px 60px;}
+.back{font-size:12px;color:var(--text-dim);text-decoration:none;font-family:'DM Mono',monospace;display:inline-block;margin-bottom:22px;}
+.back:hover{color:var(--text-muted);}
+h1{font-size:26px;font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;line-height:1.6;}
+.picker-row{display:flex;align-items:flex-start;gap:20px;margin-bottom:20px;flex-wrap:wrap;}
+.native-picker-wrap{display:flex;flex-direction:column;align-items:center;gap:8px;}
+input[type=color]{width:80px;height:80px;border:none;border-radius:12px;cursor:pointer;padding:0;background:none;outline:none;}
+input[type=color]::-webkit-color-swatch-wrapper{padding:0;}
+input[type=color]::-webkit-color-swatch{border-radius:10px;border:none;}
+.swatch-big{width:80px;height:80px;border-radius:12px;border:1px solid var(--border);cursor:pointer;}
+.color-info{flex:1;min-width:240px;}
+.fmt-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.fmt-label{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;width:40px;}
+.fmt-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;outline:none;}
+.fmt-input:focus{border-color:var(--accent);}
+.copy-tiny{padding:5px 10px;border:1px solid var(--border);border-radius:5px;font-size:11px;color:var(--text-dim);cursor:pointer;font-family:'DM Mono',monospace;background:none;transition:all .15s;white-space:nowrap;}
+.copy-tiny:hover{border-color:var(--accent);color:var(--accent);}
+.sliders{margin-bottom:18px;}
+.slider-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.slider-label{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;width:20px;}
+input[type=range]{flex:1;accent-color:var(--accent);height:4px;}
+.slider-val{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;width:32px;text-align:right;}
+.history-wrap{margin-top:4px;}
+.hist-label{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.hist-clear{font-size:10px;color:var(--text-dim);cursor:pointer;border:none;background:none;padding:0;font-family:'DM Mono',monospace;}
+.hist-clear:hover{color:var(--accent);}
+.history{display:flex;gap:6px;flex-wrap:wrap;}
+.hist-swatch{width:28px;height:28px;border-radius:6px;border:1px solid var(--border);cursor:pointer;transition:transform .1s;flex-shrink:0;}
+.hist-swatch:hover{transform:scale(1.15);border-color:var(--accent);}
+.presets-label{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;margin:16px 0 8px;}
+.presets{display:flex;gap:6px;flex-wrap:wrap;}
+.preset{width:28px;height:28px;border-radius:6px;border:1px solid transparent;cursor:pointer;transition:transform .1s;}
+.preset:hover{transform:scale(1.15);border-color:var(--accent);}
+.copied-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:var(--accent);color:#000;padding:10px 24px;border-radius:20px;font-family:'DM Mono',monospace;font-size:13px;pointer-events:none;opacity:0;transition:opacity .2s;}
+.copied-toast.show{opacity:1;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;}
+footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:32px;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<meta property="og:title" content="Color Picker - Free HEX RGB HSL Color Tool">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <a href="index.html" class="back" id="backBtn">← 모두의 툴</a>
+  <h1>Color <span>Picker</span></h1>
+  <p class="sub" data-i18n="sub">HEX · RGB · HSL · HSV 변환 · 컬러 히스토리</p>
+
+  <div class="picker-row">
+    <div class="native-picker-wrap">
+      <input type="color" id="nativePicker" value="#f87171" oninput="onPickerChange()">
+      <div class="swatch-big" id="swatchBig" style="background:#f87171" title="click to pick" onclick="document.getElementById('nativePicker').click()"></div>
+    </div>
+    <div class="color-info">
+      <div class="fmt-row">
+        <span class="fmt-label">HEX</span>
+        <input class="fmt-input" id="hexInput" value="#f87171" oninput="onHexInput()" maxlength="9">
+        <button class="copy-tiny" onclick="copyFmt('hex')">copy</button>
+      </div>
+      <div class="fmt-row">
+        <span class="fmt-label">RGB</span>
+        <input class="fmt-input" id="rgbInput" readonly>
+        <button class="copy-tiny" onclick="copyFmt('rgb')">copy</button>
+      </div>
+      <div class="fmt-row">
+        <span class="fmt-label">HSL</span>
+        <input class="fmt-input" id="hslInput" readonly>
+        <button class="copy-tiny" onclick="copyFmt('hsl')">copy</button>
+      </div>
+      <div class="fmt-row">
+        <span class="fmt-label">HSV</span>
+        <input class="fmt-input" id="hsvInput" readonly>
+        <button class="copy-tiny" onclick="copyFmt('hsv')">copy</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="sliders">
+    <div class="slider-row">
+      <span class="slider-label" style="color:#f87171">R</span>
+      <input type="range" id="rSlider" min="0" max="255" value="248" oninput="onRgbSlider()">
+      <span class="slider-val" id="rVal">248</span>
+    </div>
+    <div class="slider-row">
+      <span class="slider-label" style="color:#4ade80">G</span>
+      <input type="range" id="gSlider" min="0" max="255" value="113" oninput="onRgbSlider()">
+      <span class="slider-val" id="gVal">113</span>
+    </div>
+    <div class="slider-row">
+      <span class="slider-label" style="color:#60a5fa">B</span>
+      <input type="range" id="bSlider" min="0" max="255" value="113" oninput="onRgbSlider()">
+      <span class="slider-val" id="bVal">113</span>
+    </div>
+  </div>
+
+  <div class="presets-label" data-i18n="presetsLabel">프리셋</div>
+  <div class="presets" id="presets"></div>
+
+  <div class="history-wrap">
+    <div class="hist-label">
+      <span data-i18n="histLabel">히스토리</span>
+      <button class="hist-clear" onclick="clearHistory()" data-i18n="histClear">지우기</button>
+    </div>
+    <div class="history" id="history"></div>
+  </div>
+
+  <div class="seo">
+    <h2 data-i18n="seoH2">Color Picker란?</h2>
+    <p data-i18n="seoP">색상을 HEX·RGB·HSL·HSV 형식으로 변환하고 클립보드에 복사할 수 있습니다. R·G·B 슬라이더로 세밀한 조정, 프리셋 팔레트, 최근 사용 색상 히스토리를 제공합니다.</p>
+  </div>
+  <footer>Color Picker · HEX · RGB · HSL · HSV · All in browser</footer>
+</main>
+<div class="copied-toast" id="toast" data-i18n="toastMsg">복사되었습니다!</div>
+<script>
+const _i18n={
+  ko:{sub:'HEX · RGB · HSL · HSV 변환 · 컬러 히스토리',langBtn:'🌐 EN',backBtn:'← 모두의 툴',presetsLabel:'프리셋',histLabel:'히스토리',histClear:'지우기',seoH2:'Color Picker란?',seoP:'색상을 HEX·RGB·HSL·HSV로 변환하고 클립보드에 복사합니다. R·G·B 슬라이더, 프리셋, 히스토리를 제공합니다.',toastMsg:'복사되었습니다!'},
+  en:{sub:'HEX · RGB · HSL · HSV conversion · Color history',langBtn:'🌐 中文',backBtn:'← All Tools',presetsLabel:'Presets',histLabel:'History',histClear:'Clear',seoH2:'Color Picker',seoP:'Pick colors and convert between HEX, RGB, HSL, HSV formats. Includes RGB sliders, preset palette and color history.',toastMsg:'Copied!'},
+  zh:{sub:'HEX · RGB · HSL · HSV转换 · 颜色历史',langBtn:'🌐 한국어',backBtn:'← 所有工具',presetsLabel:'预设',histLabel:'历史',histClear:'清空',seoH2:'颜色选择器',seoP:'选取颜色并在HEX、RGB、HSL、HSV格式之间转换，支持RGB滑块调节、预设调色板和颜色历史记录。',toastMsg:'已复制！'},
+};
+let _lang='ko';
+const LANGS=['ko','en','zh'];
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=navigator.language?.slice(0,2);return n==='zh'?'zh':n==='ko'?'ko':'en';}
+function cycleLang(){const idx=LANGS.indexOf(_lang);_lang=LANGS[(idx+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const url=new URL(location.href);url.searchParams.set('lang',_lang);history.replaceState({},'',url);applyLang();}
+function applyLang(){const t=_i18n[_lang];document.documentElement.lang=_lang;document.getElementById('langBtn').textContent=t.langBtn;document.getElementById('backBtn').innerHTML=t.backBtn;document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.dataset.i18n;if(t[k]!==undefined)el.innerHTML=t[k];});}
+
+const PRESETS=['#f87171','#fb923c','#fbbf24','#4ade80','#34d399','#38bdf8','#60a5fa','#818cf8','#a78bfa','#f472b6','#ffffff','#d1d5db','#6b7280','#374151','#1f2937','#000000','#ef4444','#3b82f6','#10b981','#8b5cf6'];
+let _history=[];
+
+function hexToRgb(hex){
+  const h=hex.replace('#','');
+  const full=h.length===3?h.split('').map(c=>c+c).join(''):h;
+  return{r:parseInt(full.slice(0,2),16),g:parseInt(full.slice(2,4),16),b:parseInt(full.slice(4,6),16)};
+}
+function rgbToHex(r,g,b){return'#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('');}
+function rgbToHsl(r,g,b){r/=255;g/=255;b/=255;const max=Math.max(r,g,b),min=Math.min(r,g,b);let h,s,l=(max+min)/2;if(max===min){h=s=0;}else{const d=max-min;s=l>0.5?d/(2-max-min):d/(max+min);switch(max){case r:h=(g-b)/d+(g<b?6:0);break;case g:h=(b-r)/d+2;break;case b:h=(r-g)/d+4;break;}h/=6;}return{h:Math.round(h*360),s:Math.round(s*100),l:Math.round(l*100)};}
+function rgbToHsv(r,g,b){r/=255;g/=255;b/=255;const max=Math.max(r,g,b),min=Math.min(r,g,b),d=max-min;let h;const s=max===0?0:d/max,v=max;if(max===min){h=0;}else{switch(max){case r:h=(g-b)/d+(g<b?6:0);break;case g:h=(b-r)/d+2;break;case b:h=(r-g)/d+4;break;}h/=6;}return{h:Math.round(h*360),s:Math.round(s*100),v:Math.round(v*100)};}
+
+function updateAll(hex,addHistory=true){
+  const {r,g,b}=hexToRgb(hex);
+  const {h:hl,s:sl,l}=rgbToHsl(r,g,b);
+  const {h:hv,s:sv,v}=rgbToHsv(r,g,b);
+  document.getElementById('nativePicker').value=hex;
+  document.getElementById('swatchBig').style.background=hex;
+  document.getElementById('hexInput').value=hex;
+  document.getElementById('rgbInput').value=`rgb(${r}, ${g}, ${b})`;
+  document.getElementById('hslInput').value=`hsl(${hl}, ${sl}%, ${l}%)`;
+  document.getElementById('hsvInput').value=`hsv(${hv}, ${sv}%, ${v}%)`;
+  document.getElementById('rSlider').value=r;document.getElementById('rVal').textContent=r;
+  document.getElementById('gSlider').value=g;document.getElementById('gVal').textContent=g;
+  document.getElementById('bSlider').value=b;document.getElementById('bVal').textContent=b;
+  if(addHistory) addToHistory(hex);
+}
+
+function onPickerChange(){const hex=document.getElementById('nativePicker').value;updateAll(hex);}
+function onHexInput(){
+  let v=document.getElementById('hexInput').value.trim();
+  if(!v.startsWith('#'))v='#'+v;
+  if(/^#[0-9a-fA-F]{6}$/.test(v)||/^#[0-9a-fA-F]{3}$/.test(v)) updateAll(v.length===4?'#'+v[1]+v[1]+v[2]+v[2]+v[3]+v[3]:v);
+}
+function onRgbSlider(){
+  const r=document.getElementById('rSlider').value,g=document.getElementById('gSlider').value,b=document.getElementById('bSlider').value;
+  document.getElementById('rVal').textContent=r;document.getElementById('gVal').textContent=g;document.getElementById('bVal').textContent=b;
+  updateAll(rgbToHex(+r,+g,+b));
+}
+
+function copyFmt(fmt){
+  let text='';
+  if(fmt==='hex') text=document.getElementById('hexInput').value;
+  else if(fmt==='rgb') text=document.getElementById('rgbInput').value;
+  else if(fmt==='hsl') text=document.getElementById('hslInput').value;
+  else if(fmt==='hsv') text=document.getElementById('hsvInput').value;
+  navigator.clipboard?.writeText(text).then(showToast).catch(()=>{const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);showToast();});
+}
+
+function addToHistory(hex){
+  if(_history[0]===hex)return;
+  _history=_history.filter(c=>c!==hex);
+  _history.unshift(hex);
+  if(_history.length>24)_history.pop();
+  renderHistory();
+}
+function renderHistory(){
+  const el=document.getElementById('history');el.innerHTML='';
+  _history.forEach(c=>{const s=document.createElement('div');s.className='hist-swatch';s.style.background=c;s.title=c;s.onclick=()=>updateAll(c,false);el.appendChild(s);});
+}
+function clearHistory(){_history=[];renderHistory();}
+
+function buildPresets(){
+  const el=document.getElementById('presets');
+  PRESETS.forEach(c=>{const s=document.createElement('div');s.className='preset';s.style.background=c;s.title=c;s.onclick=()=>updateAll(c);el.appendChild(s);});
+}
+
+function showToast(){const el=document.getElementById('toast');el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1800);}
+_lang=detectLang();applyLang();buildPresets();updateAll('#f87171',false);
+</script>
+</body>
+</html>

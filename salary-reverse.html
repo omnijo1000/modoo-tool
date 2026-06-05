@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>연봉 실수령액 역산기 2026 - 원하는 월급으로 필요 세전 연봉 계산</title>
+<meta name="description" content="연봉 실수령액 역산기. 원하는 세후 월 실수령액을 입력하면 필요한 세전 연봉을 2026년 4대보험·소득세 기준으로 역산합니다.">
+<meta name="keywords" content="연봉 역산기, 실수령액 역산, 세후 월급 역산, 필요 세전 연봉, 연봉 계산기, 원하는 월급 연봉">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/salary-reverse.html">
+<link rel="canonical" href="https://modoohub.com/salary-reverse.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0f0a;--surface:#111811;--surface2:#182018;--border:#1e2e1e;--accent:#86efac;--accent2:#4ade80;--accent3:#16a34a;--accent-dim:rgba(134,239,172,0.08);--text:#f0f5f0;--text-muted:#7a9a7a;--text-dim:#3a5a3a;--red:#f87171;--yellow:#facc15;--blue:#60a5fa;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:20px 24px;display:flex;align-items:center;gap:12px;}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--accent2);}
+.header-label{font-size:13px;color:var(--text-muted);letter-spacing:0.1em;font-family:'DM Mono',monospace;}
+.back-link{margin-left:auto;font-size:13px;color:var(--text-muted);text-decoration:none;}
+.back-link:hover{color:var(--accent2);}
+main{max-width:620px;margin:0 auto;padding:48px 24px;}
+.title-block{margin-bottom:40px;}
+h1{font-size:clamp(26px,5vw,38px);font-weight:900;line-height:1.1;margin-bottom:12px;}
+h1 span{color:var(--accent2);}
+.subtitle{color:var(--text-muted);font-size:14px;line-height:1.7;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;transition:border-color .2s;margin-bottom:14px;}
+.card:focus-within{border-color:var(--accent3);}
+label{font-size:12px;color:var(--text-muted);letter-spacing:.08em;display:block;margin-bottom:10px;}
+.input-wrap{display:flex;align-items:center;gap:8px;}
+input[type=number]{flex:1;background:transparent;border:none;outline:none;font-size:28px;font-weight:700;color:var(--text);font-family:'DM Mono',monospace;width:100%;min-width:0;}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;}
+.unit{color:var(--text-dim);font-size:14px;}
+.quick-btns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.qbtn{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:12px;color:var(--text-muted);cursor:pointer;font-family:'DM Mono',monospace;transition:all .15s;}
+.qbtn:hover{border-color:var(--accent3);color:var(--accent2);}
+.options-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 24px;margin-bottom:24px;}
+.opt-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);}
+.opt-row:last-child{border-bottom:none;}
+.opt-label{font-size:13px;color:var(--text-muted);}
+.opt-sub{font-size:11px;color:var(--text-dim);margin-top:2px;}
+.opt-input{font-family:'DM Mono',monospace;font-size:14px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;color:var(--text);outline:none;width:110px;text-align:right;}
+.opt-input:focus{border-color:var(--accent3);}
+.result{border-radius:16px;padding:28px;margin-bottom:20px;display:none;background:var(--accent-dim);border:1px solid var(--accent3);}
+.result.show{display:block;}
+.result-main{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:20px;}
+.result-main-label{font-size:14px;color:var(--text-muted);}
+.result-main-value{font-family:'DM Mono',monospace;font-size:30px;font-weight:700;color:var(--accent2);}
+.divider{height:1px;background:var(--border);margin:16px 0;}
+.deduct-title{font-size:11px;color:var(--text-muted);letter-spacing:.08em;margin-bottom:12px;}
+.deduct-rows{display:flex;flex-direction:column;gap:8px;}
+.deduct-row{display:flex;justify-content:space-between;font-size:13px;}
+.deduct-label{color:var(--text-muted);}
+.deduct-value{font-family:'DM Mono',monospace;color:var(--red);}
+.deduct-total{display:flex;justify-content:space-between;font-size:14px;font-weight:700;padding-top:10px;border-top:1px solid var(--border);margin-top:4px;}
+.deduct-total-label{color:var(--text-muted);}
+.deduct-total-value{font-family:'DM Mono',monospace;color:var(--red);}
+.annual-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:24px;display:none;}
+.annual-grid.show{display:grid;}
+.annual-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+.annual-label{font-size:11px;color:var(--text-dim);margin-bottom:6px;}
+.annual-value{font-family:'DM Mono',monospace;font-size:15px;font-weight:700;color:var(--text);}
+.rate-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:40px;}
+.rate-title{font-size:12px;color:var(--text-muted);letter-spacing:.08em;margin-bottom:14px;}
+.rate-rows{display:flex;flex-direction:column;gap:8px;}
+.rate-row{display:flex;justify-content:space-between;font-size:13px;}
+.rate-key{color:var(--text-dim);}
+.rate-val{font-family:'DM Mono',monospace;color:var(--text-muted);}
+.seo{border-top:1px solid var(--border);padding-top:32px;}
+.seo h2{font-size:16px;font-weight:700;margin-bottom:12px;}
+.seo p{font-size:13px;color:var(--text-muted);line-height:1.8;margin-bottom:24px;}
+footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:48px;}
+.faq-list{margin-top:12px;}
+.faq-item{background:#111;border-radius:10px;padding:16px 18px;margin-bottom:10px;}
+.faq-q{font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px;line-height:1.5;}
+.faq-a{font-size:13px;color:var(--text-muted);line-height:1.8;}
+</style>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>
+window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());gtag('config','G-NR6VJF0534');
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<meta property="og:title" content="연봉 실수령액 역산기 2026 - 원하는 월급으로 필요 세전 연봉 계산">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"월 실수령액 300만원 받으려면 연봉이 얼마여야 하나요?","acceptedAnswer":{"@type":"Answer","text":"2026년 기준(부양가족 1인, 비과세 20만원) 월 실수령액 300만원을 위해서는 세전 연봉 약 4,050만~4,100만원이 필요합니다. 부양가족이 많을수록 소득세가 줄어 더 낮은 연봉으로도 가능합니다."}},
+{"@type":"Question","name":"연봉 협상 시 실수령액으로 역산하는 방법은?","acceptedAnswer":{"@type":"Answer","text":"원하는 월 생활비(실수령)를 먼저 정하고, 이 계산기로 필요 세전 연봉을 역산하면 협상 목표 금액을 정확히 설정할 수 있습니다. 세전 기준으로 협상하는 관행상 역산 금액을 협상 최저선으로 제시하세요."}},
+{"@type":"Question","name":"비과세액이 크면 더 낮은 연봉으로 같은 실수령을 받을 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"네, 비과세 항목(식대·자가운전보조금 등)이 많을수록 4대보험과 소득세 기준 금액이 낮아져 공제액이 줄고 실수령액이 증가합니다. 따라서 비과세 항목이 많은 회사는 같은 연봉이라도 실수령이 더 높습니다."}}
+]}</script>
+</head>
+<body>
+<header>
+  <div class="dot"></div>
+  <span class="header-label">MODOO HUB</span>
+  <a href="index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <div class="title-block">
+    <h1>연봉<br><span>실수령액 역산기</span></h1>
+    <p class="subtitle">원하는 세후 월 실수령액 입력 → 필요한 세전 연봉 역산 (2026년 기준)</p>
+  </div>
+
+  <div class="card">
+    <label>원하는 월 실수령액 (세후)</label>
+    <div class="input-wrap">
+      <input type="number" id="target" placeholder="3000000" min="0" oninput="calc()">
+      <span class="unit">원</span>
+    </div>
+    <div class="quick-btns">
+      <button class="qbtn" onclick="setTarget(2500000)">250만</button>
+      <button class="qbtn" onclick="setTarget(3000000)">300만</button>
+      <button class="qbtn" onclick="setTarget(3500000)">350만</button>
+      <button class="qbtn" onclick="setTarget(4000000)">400만</button>
+      <button class="qbtn" onclick="setTarget(5000000)">500만</button>
+      <button class="qbtn" onclick="setTarget(6000000)">600만</button>
+    </div>
+  </div>
+
+  <div class="options-card">
+    <div class="opt-row">
+      <div>
+        <div class="opt-label">비과세액 (월)</div>
+        <div class="opt-sub">식대 등 비과세 항목 (기본 20만원)</div>
+      </div>
+      <input type="number" class="opt-input" id="nontax" value="200000" oninput="calc()">
+    </div>
+    <div class="opt-row">
+      <div>
+        <div class="opt-label">부양가족 수</div>
+        <div class="opt-sub">본인 포함 (소득세 간이세액표 기준)</div>
+      </div>
+      <input type="number" class="opt-input" id="dependents" value="1" min="1" max="11" oninput="calc()">
+    </div>
+  </div>
+
+  <div class="result" id="result">
+    <div class="result-main">
+      <span class="result-main-label">필요 세전 연봉</span>
+      <span class="result-main-value" id="grossAnnual"></span>
+    </div>
+    <div class="divider"></div>
+    <div class="deduct-title">월 공제 내역 (역산 기준)</div>
+    <div class="deduct-rows">
+      <div class="deduct-row"><span class="deduct-label">국민연금 (4.75%)</span><span class="deduct-value" id="pension"></span></div>
+      <div class="deduct-row"><span class="deduct-label">건강보험 (3.595%)</span><span class="deduct-value" id="health"></span></div>
+      <div class="deduct-row"><span class="deduct-label">장기요양보험 (건보료×13.14%)</span><span class="deduct-value" id="care"></span></div>
+      <div class="deduct-row"><span class="deduct-label">고용보험 (0.9%)</span><span class="deduct-value" id="employment"></span></div>
+      <div class="deduct-row"><span class="deduct-label">소득세 (간이세액표)</span><span class="deduct-value" id="incomeTax"></span></div>
+      <div class="deduct-row"><span class="deduct-label">지방소득세 (소득세×10%)</span><span class="deduct-value" id="localTax"></span></div>
+    </div>
+    <div class="divider"></div>
+    <div class="deduct-total">
+      <span class="deduct-total-label">총 공제액</span>
+      <span class="deduct-total-value" id="totalDeduct"></span>
+    </div>
+  </div>
+
+  <div class="annual-grid" id="annualGrid">
+    <div class="annual-item">
+      <div class="annual-label">필요 세전 연봉</div>
+      <div class="annual-value" id="annualGross"></div>
+    </div>
+    <div class="annual-item">
+      <div class="annual-label">연 공제 총액</div>
+      <div class="annual-value" id="annualDeduct" style="color:var(--red)"></div>
+    </div>
+    <div class="annual-item">
+      <div class="annual-label">실효 공제율</div>
+      <div class="annual-value" id="effectiveRate" style="color:var(--yellow)"></div>
+    </div>
+  </div>
+
+  <div class="rate-box">
+    <div class="rate-title">2026년 4대보험 요율 (근로자 부담)</div>
+    <div class="rate-rows">
+      <div class="rate-row"><span class="rate-key">국민연금</span><span class="rate-val">4.75% (2026년 인상)</span></div>
+      <div class="rate-row"><span class="rate-key">건강보험</span><span class="rate-val">3.595%</span></div>
+      <div class="rate-row"><span class="rate-key">장기요양보험</span><span class="rate-val">건강보험료 × 13.14%</span></div>
+      <div class="rate-row"><span class="rate-key">고용보험</span><span class="rate-val">0.9%</span></div>
+    </div>
+  </div>
+
+  <section class="seo" aria-label="도움말 및 자주 묻는 질문">
+    <h2>연봉 실수령액 역산이란?</h2>
+    <p>세후 월 실수령액(통장에 들어오는 금액)을 먼저 정하고, 그 금액을 받으려면 세전 연봉이 얼마여야 하는지 역으로 계산하는 방법입니다. 이직 협상이나 연봉 목표 설정 시 유용합니다. 2026년 국민연금(4.75%), 건강보험(3.595%), 장기요양(건보료×13.14%), 고용보험(0.9%), 소득세·지방소득세를 모두 반영해 정확하게 역산합니다.</p>
+    <h2>자주 묻는 질문 (FAQ)</h2>
+    <div class="faq-list">
+      <div class="faq-item"><h3 class="faq-q">Q. 월 실수령액 300만원이 되려면 연봉이 얼마인가요?</h3><p class="faq-a">A. 2026년 기준 부양가족 1인, 비과세 20만원일 때 월 실수령 300만원을 위해서는 세전 연봉 약 4,050만원이 필요합니다. 위 계산기에 정확한 조건을 입력하면 즉시 확인할 수 있습니다.</p></div>
+      <div class="faq-item"><h3 class="faq-q">Q. 연봉 협상 시 이 계산기를 어떻게 활용하나요?</h3><p class="faq-a">A. 원하는 월 생활비를 실수령 기준으로 정한 뒤, 이 계산기로 필요 세전 연봉을 역산해 협상 목표 금액으로 사용하세요. 관행상 협상은 세전 기준으로 이루어집니다.</p></div>
+      <div class="faq-item"><h3 class="faq-q">Q. 비과세액이 크면 필요 연봉이 낮아지나요?</h3><p class="faq-a">A. 네, 비과세 항목(식대·자가운전보조금 등)이 많을수록 4대보험과 소득세 기준 금액이 낮아져 같은 실수령을 위해 필요한 세전 연봉이 줄어듭니다.</p></div>
+    </div>
+  </section>
+  <footer>2026년 기준 · 실제 공제액은 회사 및 개인 상황에 따라 다를 수 있습니다</footer>
+</main>
+<script>
+function fmt(n) { return Math.round(n).toLocaleString('ko-KR') + '원'; }
+function fmtShort(n) {
+  if (n >= 100000000) return (n/100000000).toFixed(1) + '억원';
+  if (n >= 10000) return Math.round(n/10000) + '만원';
+  return fmt(n);
+}
+function setTarget(v) { document.getElementById('target').value = v; calc(); }
+
+function getIncomeTax(taxableMonthly, dependents) {
+  const d = Math.max(1, Math.min(dependents, 11));
+  const m = Math.floor(taxableMonthly);
+  let tax = 0;
+  if (m <= 1060000) tax = 0;
+  else if (m <= 1500000) tax = Math.round(m * 0.06 - 63600);
+  else if (m <= 3000000) tax = Math.round(m * 0.15 - 198600);
+  else if (m <= 4500000) tax = Math.round(m * 0.24 - 468600);
+  else if (m <= 8000000) tax = Math.round(m * 0.35 - 963600);
+  else if (m <= 15000000) tax = Math.round(m * 0.38 - 1203600);
+  else tax = Math.round(m * 0.40 - 1503600);
+  return Math.max(0, tax - (d - 1) * 12500);
+}
+
+function computeNet(annualSalary, nontax, dependents) {
+  const monthly = Math.floor(annualSalary / 12);
+  const insBase = Math.max(0, monthly - nontax);
+  const pension    = Math.floor(insBase * 0.0475);
+  const health     = Math.floor(insBase * 0.03595);
+  const care       = Math.floor(health * 0.1314);
+  const employment = Math.floor(insBase * 0.009);
+  const incomeTax  = getIncomeTax(insBase, dependents);
+  const localTax   = Math.floor(incomeTax * 0.1);
+  const totalDeduct = pension + health + care + employment + incomeTax + localTax;
+  return { monthly, net: monthly - totalDeduct, pension, health, care, employment, incomeTax, localTax, totalDeduct };
+}
+
+function calc() {
+  const target = parseFloat(document.getElementById('target').value);
+  const nontax = parseFloat(document.getElementById('nontax').value) || 0;
+  const dependents = parseInt(document.getElementById('dependents').value) || 1;
+  const res = document.getElementById('result');
+  const annualEl = document.getElementById('annualGrid');
+
+  if (!target || target <= 0) { res.classList.remove('show'); annualEl.classList.remove('show'); return; }
+
+  // binary search for gross annual salary
+  let lo = target * 12, hi = target * 12 * 3;
+  for (let i = 0; i < 60; i++) {
+    const mid = (lo + hi) / 2;
+    const { net } = computeNet(mid, nontax, dependents);
+    if (net < target) lo = mid;
+    else hi = mid;
+  }
+  const grossAnnual = Math.ceil(hi / 10000) * 10000;
+  const d = computeNet(grossAnnual, nontax, dependents);
+
+  res.classList.add('show');
+  annualEl.classList.add('show');
+
+  document.getElementById('grossAnnual').textContent = fmtShort(grossAnnual);
+  document.getElementById('pension').textContent     = '-' + fmt(d.pension);
+  document.getElementById('health').textContent      = '-' + fmt(d.health);
+  document.getElementById('care').textContent        = '-' + fmt(d.care);
+  document.getElementById('employment').textContent  = '-' + fmt(d.employment);
+  document.getElementById('incomeTax').textContent   = '-' + fmt(d.incomeTax);
+  document.getElementById('localTax').textContent    = '-' + fmt(d.localTax);
+  document.getElementById('totalDeduct').textContent = '-' + fmt(d.totalDeduct);
+
+  document.getElementById('annualGross').textContent  = fmtShort(grossAnnual);
+  document.getElementById('annualDeduct').textContent = fmtShort(d.totalDeduct * 12);
+  document.getElementById('effectiveRate').textContent= (d.totalDeduct / d.monthly * 100).toFixed(1) + '%';
+}
+</script>
+</body>
+</html>

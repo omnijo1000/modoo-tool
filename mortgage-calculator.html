@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mortgage Calculator - Monthly Payment & Amortization | Free</title>
+<meta name="description" content="Free mortgage calculator. Calculate monthly payment, total interest and 12-month amortization schedule. Supports Korean, English, Chinese.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--border:#222;--text:#f0f0f0;--text-muted:#777;--text-dim:#444;--accent:#4ade80;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.lang-btn{margin-left:auto;font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;font-family:'DM Mono',monospace;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:540px;margin:0 auto;padding:40px 20px 60px;}
+.back{font-size:12px;color:var(--text-dim);text-decoration:none;font-family:'DM Mono',monospace;display:inline-block;margin-bottom:28px;}
+.back:hover{color:var(--text-muted);}
+h1{font-size:28px;font-weight:900;margin-bottom:6px;}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:32px;line-height:1.6;}
+.input-group{margin-bottom:18px;}
+label{font-size:12px;color:var(--text-muted);display:block;margin-bottom:6px;font-family:'DM Mono',monospace;}
+input[type=number]{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-size:15px;font-family:'Noto Sans KR',sans-serif;outline:none;}
+input:focus{border-color:var(--accent);}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.rb-group{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;}
+.rbtn{padding:7px 14px;border:1px solid var(--border);border-radius:999px;font-size:12px;color:var(--text-muted);cursor:pointer;font-family:'DM Mono',monospace;transition:all 0.15s;background:none;}
+.rbtn:hover,.rbtn.on{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;}
+.calc-btn{width:100%;background:var(--accent);color:#000;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px;font-family:'Noto Sans KR',sans-serif;}
+.calc-btn:hover{opacity:.85;}
+.result-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-top:20px;display:none;}
+.result-main{text-align:center;padding-bottom:18px;margin-bottom:18px;border-bottom:1px solid var(--border);}
+.result-main .rl{font-size:12px;color:var(--text-muted);margin-bottom:4px;font-family:'DM Mono',monospace;}
+.result-main .rv{font-size:36px;font-weight:900;color:var(--accent);}
+.result-main .ru{font-size:13px;color:var(--text-muted);margin-top:4px;}
+.s-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);}
+.s-row:last-child{border-bottom:none;}
+.s-label{font-size:13px;color:var(--text-muted);}
+.s-val{font-size:13px;font-weight:700;font-family:'DM Mono',monospace;}
+.section-title{font-size:11px;color:var(--text-dim);letter-spacing:.12em;font-family:'DM Mono',monospace;margin:16px 0 8px;}
+.bar-container{display:flex;height:10px;border-radius:5px;overflow:hidden;margin-bottom:8px;}
+.bar-p{background:var(--accent);transition:width .4s;}
+.bar-i{background:#f97316;transition:width .4s;}
+.legend{display:flex;gap:16px;font-size:11px;color:var(--text-muted);margin-bottom:16px;}
+.legend-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:4px;vertical-align:middle;}
+.amort-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px;}
+.amort-table th{text-align:left;color:var(--text-dim);font-family:'DM Mono',monospace;padding:4px 6px;border-bottom:1px solid var(--border);}
+.amort-table td{padding:5px 6px;color:var(--text-muted);border-bottom:1px solid #1a1a1a;}
+.seo{margin-top:48px;padding-top:32px;border-top:1px solid var(--border);}
+.seo h2{font-size:16px;font-weight:700;margin-bottom:10px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:40px;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <a href="index.html" class="back" id="backBtn">← 모두의 툴</a>
+  <h1 data-i18n="h1">모기지 계산기</h1>
+  <p class="sub" data-i18n="sub">주택 가격·계약금·금리·기간으로 월 납입금을 계산합니다.</p>
+
+  <div class="input-group">
+    <label data-i18n="mortHomePrice">주택 가격 ($)</label>
+    <input type="number" id="homePrice" value="300000" min="0">
+  </div>
+  <div class="row2">
+    <div class="input-group">
+      <label data-i18n="mortDown">계약금 (%)</label>
+      <input type="number" id="downPct" value="20" min="0" max="99" step="1">
+    </div>
+    <div class="input-group">
+      <label data-i18n="mortRate">연이율 (%)</label>
+      <input type="number" id="annRate" value="6.5" step="0.1" min="0">
+    </div>
+  </div>
+  <div class="input-group">
+    <label data-i18n="mortTerm">대출 기간</label>
+    <div class="rb-group" id="termGrp">
+      <button class="rbtn" data-val="10" onclick="pick(this,'termGrp')">10 <span data-i18n="mortYr">yr</span></button>
+      <button class="rbtn" data-val="15" onclick="pick(this,'termGrp')">15 <span data-i18n="mortYr2">yr</span></button>
+      <button class="rbtn on" data-val="20" onclick="pick(this,'termGrp')">20 <span data-i18n="mortYr3">yr</span></button>
+      <button class="rbtn" data-val="30" onclick="pick(this,'termGrp')">30 <span data-i18n="mortYr4">yr</span></button>
+    </div>
+  </div>
+  <div class="row2">
+    <div class="input-group">
+      <label data-i18n="mortTax">재산세율 (%/년)</label>
+      <input type="number" id="propTax" value="1.2" step="0.1" min="0">
+    </div>
+    <div class="input-group">
+      <label data-i18n="mortIns">월 보험료 ($)</label>
+      <input type="number" id="insurance" value="100" min="0">
+    </div>
+  </div>
+  <button class="calc-btn" onclick="calc()"><span data-i18n="mortCalcBtn">계산하기</span></button>
+
+  <div class="result-box" id="result">
+    <div class="result-main">
+      <div class="rl" data-i18n="mortTotalMonthly">총 월 납입금</div>
+      <div class="rv" id="rTotal">-</div>
+      <div class="ru" id="rUnit">/월</div>
+    </div>
+    <div class="s-row"><span class="s-label" data-i18n="mortPI">원금 + 이자</span><span class="s-val" id="rPI">-</span></div>
+    <div class="s-row"><span class="s-label" data-i18n="mortTaxMo">월 재산세</span><span class="s-val" id="rTax">-</span></div>
+    <div class="s-row"><span class="s-label" data-i18n="mortInsMo">월 보험료</span><span class="s-val" id="rIns">-</span></div>
+
+    <div class="section-title" data-i18n="mortSummary">대출 요약</div>
+    <div class="s-row"><span class="s-label" data-i18n="mortLoanAmt">대출 금액</span><span class="s-val" id="rLoan">-</span></div>
+    <div class="s-row"><span class="s-label" data-i18n="mortTotalInt">총 이자</span><span class="s-val" id="rInt">-</span></div>
+    <div class="s-row"><span class="s-label" data-i18n="mortTotalCost">총 상환액</span><span class="s-val" id="rCost">-</span></div>
+
+    <div class="section-title" data-i18n="mortBarTitle">원금 VS 이자</div>
+    <div class="bar-container" id="barWrap">
+      <div class="bar-p" id="barP" style="width:60%"></div>
+      <div class="bar-i" id="barI" style="width:40%"></div>
+    </div>
+    <div class="legend">
+      <span><span class="legend-dot" style="background:var(--accent)"></span><span data-i18n="mortPrinLeg">원금</span> <span id="legP"></span></span>
+      <span><span class="legend-dot" style="background:#f97316"></span><span data-i18n="mortIntLeg">이자</span> <span id="legI"></span></span>
+    </div>
+
+    <details>
+      <summary style="cursor:pointer;font-size:13px;color:var(--text-muted);margin-bottom:12px;" data-i18n="mortAmortTitle">상환 스케줄 (처음 12개월)</summary>
+      <table class="amort-table">
+        <thead><tr>
+          <th data-i18n="mortThMo">#</th>
+          <th data-i18n="mortThPrin">원금</th>
+          <th data-i18n="mortThInt">이자</th>
+          <th data-i18n="mortThBal">잔액</th>
+        </tr></thead>
+        <tbody id="amortBody"></tbody>
+      </table>
+    </details>
+  </div>
+
+  <div class="seo" data-i18n="seoHtml">
+    <h2>How to Calculate Mortgage Payment</h2>
+    <p>Monthly P&I = L × r(1+r)ⁿ / ((1+r)ⁿ−1), where L = loan amount, r = monthly rate (annual ÷ 12), n = total payments. Add monthly property tax and insurance for total monthly cost.</p>
+    <p><strong>Q. How much mortgage can I afford?</strong><br>The 28% rule: monthly housing costs should not exceed 28% of gross monthly income. For a $6,000/month salary, max payment is $1,680.</p>
+    <p><strong>Q. How does down payment affect my mortgage?</strong><br>A larger down payment reduces your loan amount and monthly payment. Putting 20% down typically eliminates PMI (Private Mortgage Insurance), saving $100–200/month.</p>
+  </div>
+  <footer>© 2026 MODOO HUB · Free · <a href="privacy.html" style="color:var(--text-dim);text-decoration:none;" data-i18n="privacyLink">Privacy Policy</a></footer>
+</main>
+<script>
+function fmt(n){
+  const l=typeof _lang!=='undefined'?_lang:'en';
+  const sym=l==='ko'?'₩':l==='zh'?'¥':'$';
+  return sym+Math.round(n).toLocaleString('en-US');
+}
+function pick(btn,gid){
+  document.querySelectorAll('#'+gid+' .rbtn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+function getVal(gid){return document.querySelector('#'+gid+' .rbtn.on')?.dataset.val||'';}
+function calc(){
+  const hp=parseFloat(document.getElementById('homePrice').value)||0;
+  const dp=parseFloat(document.getElementById('downPct').value)||0;
+  const rate=parseFloat(document.getElementById('annRate').value)||0;
+  const term=parseInt(getVal('termGrp'))||20;
+  const taxRate=parseFloat(document.getElementById('propTax').value)||0;
+  const ins=parseFloat(document.getElementById('insurance').value)||0;
+
+  const loan=hp*(1-dp/100);
+  const r=rate/100/12;
+  const n=term*12;
+  const pi=r===0?loan/n:loan*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1);
+  const moTax=hp*taxRate/100/12;
+  const total=pi+moTax+ins;
+  const totalInt=pi*n-loan;
+
+  const l=typeof _lang!=='undefined'?_lang:'en';
+  document.getElementById('rUnit').textContent=l==='ko'?'/월':l==='zh'?'/月':'/mo';
+  document.getElementById('rTotal').textContent=fmt(total);
+  document.getElementById('rPI').textContent=fmt(pi);
+  document.getElementById('rTax').textContent=fmt(moTax);
+  document.getElementById('rIns').textContent=fmt(ins);
+  document.getElementById('rLoan').textContent=fmt(loan);
+  document.getElementById('rInt').textContent=fmt(totalInt);
+  document.getElementById('rCost').textContent=fmt(loan+totalInt);
+
+  const pPct=Math.round(loan/(loan+totalInt)*100);
+  const iPct=100-pPct;
+  document.getElementById('barP').style.width=pPct+'%';
+  document.getElementById('barI').style.width=iPct+'%';
+  document.getElementById('legP').textContent='('+pPct+'%)';
+  document.getElementById('legI').textContent='('+iPct+'%)';
+
+  let bal=loan,rows='';
+  for(let m=1;m<=Math.min(12,n);m++){
+    const interest=bal*r;
+    const prin=pi-interest;
+    bal=Math.max(0,bal-prin);
+    rows+=`<tr><td>${m}</td><td>${fmt(prin)}</td><td>${fmt(interest)}</td><td>${fmt(bal)}</td></tr>`;
+  }
+  document.getElementById('amortBody').innerHTML=rows;
+  document.getElementById('result').style.display='block';
+}
+</script>
+<script>
+const _i18n={
+  ko:{lang:'ko',title:'모기지 계산기 - 주택담보대출 월 납입금 | 무료',h1:'모기지 계산기',sub:'주택 가격·계약금·금리·기간으로 월 납입금을 계산합니다.',btn:'🌐 EN',
+    mortHomePrice:'주택 가격 ($)',mortDown:'계약금 (%)',mortRate:'연이율 (%)',mortTerm:'대출 기간',
+    mortYr:'년',mortYr2:'년',mortYr3:'년',mortYr4:'년',
+    mortTax:'재산세율 (%/년)',mortIns:'월 보험료 ($)',mortCalcBtn:'계산하기',
+    mortTotalMonthly:'총 월 납입금',mortPI:'원금 + 이자',mortTaxMo:'월 재산세',mortInsMo:'월 보험료',
+    mortSummary:'대출 요약',mortLoanAmt:'대출 금액',mortTotalInt:'총 이자',mortTotalCost:'총 상환액',
+    mortBarTitle:'원금 VS 이자',mortPrinLeg:'원금',mortIntLeg:'이자',
+    mortAmortTitle:'상환 스케줄 (처음 12개월)',
+    mortThMo:'회차',mortThPrin:'원금',mortThInt:'이자',mortThBal:'잔액',
+    privacyLink:'개인정보처리방침',
+    seoHtml:'<h2>주택담보대출 월 납입금 계산법</h2><p>월 원리금 = L × r(1+r)ⁿ / ((1+r)ⁿ−1), 여기서 L=대출금액, r=월이율(연이율÷12), n=납입회수. 여기에 월 재산세·보험료를 더하면 총 월 납입금이 됩니다.</p><p><strong>Q. 얼마까지 대출받을 수 있을까요?</strong><br>28% 법칙: 월 주거 비용이 세전 월 소득의 28%를 넘지 않도록 하세요. 월 소득 600만원이면 최대 월 납입금 168만원.</p><p><strong>Q. 계약금이 클수록 유리한가요?</strong><br>계약금이 많을수록 대출 원금과 월 납입금이 줄어듭니다. 20% 이상 납입하면 PMI가 면제되어 월 10-20만원 절약 가능.</p>',
+  },
+  en:{lang:'en',title:'Mortgage Calculator - Monthly Payment & Amortization | Free',h1:'Mortgage Calculator',sub:'Calculate monthly payment, total interest and amortization schedule for any home loan.',btn:'🌐 中文',
+    mortHomePrice:'Home Price ($)',mortDown:'Down Payment (%)',mortRate:'Annual Interest Rate (%)',mortTerm:'Loan Term',
+    mortYr:'yr',mortYr2:'yr',mortYr3:'yr',mortYr4:'yr',
+    mortTax:'Property Tax Rate (%/yr)',mortIns:'Monthly Insurance ($)',mortCalcBtn:'Calculate',
+    mortTotalMonthly:'TOTAL MONTHLY PAYMENT',mortPI:'Principal & Interest',mortTaxMo:'Monthly Property Tax',mortInsMo:'Monthly Insurance',
+    mortSummary:'LOAN SUMMARY',mortLoanAmt:'Loan Amount',mortTotalInt:'Total Interest',mortTotalCost:'Total Cost',
+    mortBarTitle:'PRINCIPAL vs INTEREST',mortPrinLeg:'Principal',mortIntLeg:'Interest',
+    mortAmortTitle:'Amortization Schedule (first 12 months)',
+    mortThMo:'#',mortThPrin:'Principal',mortThInt:'Interest',mortThBal:'Balance',
+    privacyLink:'Privacy Policy',
+    seoHtml:'<h2>How to Calculate Mortgage Payment</h2><p>Monthly P&I = L × r(1+r)ⁿ / ((1+r)ⁿ−1), where L = loan amount, r = monthly rate (annual ÷ 12), n = total payments. Add monthly property tax and insurance for total monthly cost.</p><p><strong>Q. How much mortgage can I afford?</strong><br>The 28% rule: monthly housing costs should not exceed 28% of gross monthly income. For a $6,000/month salary, max payment is $1,680.</p><p><strong>Q. How does down payment affect my mortgage?</strong><br>A larger down payment reduces your loan amount and monthly payment. Putting 20% down typically eliminates PMI, saving $100–200/month.</p>',
+  },
+  zh:{lang:'zh',title:'房贷计算器 - 月还款额与摊销计划 | 免费',h1:'房贷计算器',sub:'计算房贷月还款额、总利息及还款计划。',btn:'🌐 한국어',
+    mortHomePrice:'房屋价格 ($)',mortDown:'首付比例 (%)',mortRate:'年利率 (%)',mortTerm:'贷款期限',
+    mortYr:'年',mortYr2:'年',mortYr3:'年',mortYr4:'年',
+    mortTax:'房产税率 (%/年)',mortIns:'月保险费 ($)',mortCalcBtn:'计算',
+    mortTotalMonthly:'每月总还款额',mortPI:'本金 + 利息',mortTaxMo:'月房产税',mortInsMo:'月保险费',
+    mortSummary:'贷款摘要',mortLoanAmt:'贷款金额',mortTotalInt:'总利息',mortTotalCost:'总还款额',
+    mortBarTitle:'本金 VS 利息',mortPrinLeg:'本金',mortIntLeg:'利息',
+    mortAmortTitle:'还款计划（前12个月）',
+    mortThMo:'期数',mortThPrin:'本金',mortThInt:'利息',mortThBal:'余额',
+    privacyLink:'隐私政策',
+    seoHtml:'<h2>如何计算房贷月还款额</h2><p>月还款额 = L × r(1+r)ⁿ / ((1+r)ⁿ−1)，其中L=贷款金额，r=月利率（年利率÷12），n=还款期数。再加月房产税和保险费即为每月总支出。</p><p><strong>Q. 我能承受多少房贷？</strong><br>28%法则：月住房支出不超过税前月收入的28%。月收入$6,000时，最高月供为$1,680。</p><p><strong>Q. 首付越多越好吗？</strong><br>首付越高，贷款金额和月供越低。首付达20%可免除PMI，每月节省$100–200。</p>',
+  }
+};
+function _detectLang(){
+  const u=new URLSearchParams(location.search).get('lang');
+  if(u&&_i18n[u])return u;
+  const s=localStorage.getItem('lang');
+  if(s&&_i18n[s])return s;
+  const n=navigator.language||'';
+  if(n.startsWith('zh'))return 'zh';
+  if(n.startsWith('ko'))return 'ko';
+  return 'en';
+}
+let _lang=_detectLang();
+function _applyLang(){
+  const t=_i18n[_lang];
+  document.documentElement.lang=t.lang;
+  document.title=t.title;
+  document.getElementById('langBtn').textContent=t.btn;
+  const back=document.getElementById('backBtn');
+  if(back)back.textContent=_lang==='ko'?'← 모두의 툴':_lang==='zh'?'← 首页':'← Home';
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const v=t[el.dataset.i18n];
+    if(v!==undefined)el.innerHTML=v;
+  });
+}
+const _langOrder=['ko','en','zh'];
+function cycleLang(){
+  const idx=_langOrder.indexOf(_lang);
+  _lang=_langOrder[(idx+1)%_langOrder.length];
+  localStorage.setItem('lang',_lang);
+  const url=new URL(location.href);
+  if(_lang==='ko'){url.searchParams.delete('lang');}else{url.searchParams.set('lang',_lang);}
+  history.replaceState({},'',url);
+  _applyLang();
+}
+_applyLang();
+</script>
+</body>
+</html>

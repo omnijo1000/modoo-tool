@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>신용대출 한도 계산기 2026 - DSR 기준 최대 대출 가능 금액 자동 계산</title>
+<meta name="description" content="신용대출 한도 계산기. 연 소득·기존 대출 원리금·금리·DSR 기준을 입력하면 최대 신용대출 가능 금액을 즉시 계산합니다.">
+<meta name="keywords" content="신용대출 한도 계산기, 신용대출 한도, DSR 신용대출, 대출 가능 금액, 신용대출 계산, 소득 대비 대출">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/credit-loan-limit.html">
+<link rel="canonical" href="https://modoohub.com/credit-loan-limit.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#222;--text:#f0f0f0;--text2:#888;--text3:#444;--accent:#c084fc;--accent2:#d8b4fe;--accent-dim:rgba(192,132,252,0.08);--green:#4ade80;--red:#f87171;--yellow:#facc15;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:20px 24px;display:flex;align-items:center;gap:12px;}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--accent);}
+.header-label{font-size:13px;color:var(--text2);letter-spacing:0.1em;font-family:'DM Mono',monospace;}
+.back-link{margin-left:auto;font-size:13px;color:var(--text2);text-decoration:none;}
+.back-link:hover{color:var(--accent);}
+main{max-width:620px;margin:0 auto;padding:48px 24px;}
+.title-block{margin-bottom:36px;}
+h1{font-size:clamp(26px,5vw,36px);font-weight:900;line-height:1.15;margin-bottom:10px;}
+h1 span{color:var(--accent2);}
+.subtitle{color:var(--text2);font-size:14px;line-height:1.7;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:14px;transition:border-color .2s;}
+.card:focus-within{border-color:var(--accent);}
+label{font-size:12px;color:var(--text2);letter-spacing:0.08em;display:block;margin-bottom:10px;}
+.label-sub{font-size:11px;color:var(--text3);margin-top:3px;}
+.input-wrap{display:flex;align-items:center;gap:8px;}
+input[type=number]{flex:1;background:transparent;border:none;outline:none;font-size:26px;font-weight:700;color:var(--text);font-family:'DM Mono',monospace;width:100%;min-width:0;}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;}
+.unit{color:var(--text3);font-size:14px;}
+.quick-btns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.qbtn{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:12px;color:var(--text2);cursor:pointer;font-family:'DM Mono',monospace;transition:all .15s;}
+.qbtn:hover{border-color:var(--accent);color:var(--accent2);}
+.options-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 24px;margin-bottom:24px;}
+.opt-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);}
+.opt-row:last-child{border-bottom:none;}
+.opt-label{font-size:13px;color:var(--text2);}
+.opt-sub{font-size:11px;color:var(--text3);margin-top:2px;}
+.opt-input{font-family:'DM Mono',monospace;font-size:14px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;color:var(--text);outline:none;width:110px;text-align:right;}
+.opt-input:focus{border-color:var(--accent);}
+.result-box{background:var(--accent-dim);border:1px solid var(--accent);border-radius:16px;padding:28px;margin-bottom:20px;display:none;}
+.result-box.show{display:block;}
+.result-main{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:20px;}
+.result-main-label{font-size:14px;color:var(--text2);}
+.result-main-value{font-family:'DM Mono',monospace;font-size:34px;font-weight:700;color:var(--accent2);}
+.divider{height:1px;background:var(--border);margin:16px 0;}
+.d-rows{display:flex;flex-direction:column;gap:8px;}
+.d-row{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border);}
+.d-row:last-child{border-bottom:none;}
+.dk{color:var(--text2);}
+.dv{font-family:'DM Mono',monospace;}
+.dsr-bar-wrap{margin:16px 0;}
+.dsr-bar-label{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:6px;}
+.dsr-bar-bg{height:12px;background:var(--surface2);border-radius:6px;overflow:hidden;}
+.dsr-bar-fill{height:100%;border-radius:6px;transition:width .4s;}
+.warn-box{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);border-radius:10px;padding:12px 16px;font-size:13px;color:var(--red);line-height:1.6;margin-bottom:14px;display:none;}
+.seo{border-top:1px solid var(--border);padding-top:32px;}
+.seo h2{font-size:16px;font-weight:700;margin-bottom:10px;}
+.seo p{font-size:13px;color:var(--text2);line-height:1.8;margin-bottom:20px;}
+.faq-list{margin-top:12px;}
+.faq-item{background:#111;border-radius:10px;padding:16px 18px;margin-bottom:10px;}
+.faq-q{font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px;line-height:1.5;}
+.faq-a{font-size:13px;color:var(--text2);line-height:1.8;}
+footer{text-align:center;font-size:12px;color:var(--text3);margin-top:48px;}
+</style>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>
+window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());gtag('config','G-NR6VJF0534');
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<meta property="og:title" content="신용대출 한도 계산기 2026 - DSR 기준 최대 대출 가능 금액 자동 계산">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"신용대출 한도는 어떻게 계산하나요?","acceptedAnswer":{"@type":"Answer","text":"DSR(총부채원리금상환비율) 40% 기준으로, 연소득 × 40% = 연간 최대 원리금 상환액입니다. 여기서 기존 대출 연간 상환액을 빼면 신규 신용대출에 쓸 수 있는 연간 원리금이 나오고, 이를 원리금균등상환 공식에 대입해 최대 원금을 산출합니다."}},
+{"@type":"Question","name":"DSR 40% 규제가 신용대출에도 적용되나요?","acceptedAnswer":{"@type":"Answer","text":"네, 2022년부터 모든 금융권 대출에 DSR 40% 규제가 적용됩니다. 주담대·신용대출·카드론 등 모든 부채의 연간 원리금 합계가 연소득의 40%를 초과하면 추가 대출이 제한됩니다."}},
+{"@type":"Question","name":"연소득 외에 사업소득·임대소득도 인정되나요?","acceptedAnswer":{"@type":"Answer","text":"사업소득, 임대소득, 연금소득 등도 소득으로 인정됩니다. 단, 신고된 소득 기준이며 비공식 소득은 인정되지 않습니다. 소득 유형에 따라 인정 비율이 다를 수 있습니다."}}
+]}</script>
+</head>
+<body>
+<header>
+  <div class="dot"></div>
+  <span class="header-label">MODOO HUB</span>
+  <a href="index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <div class="title-block">
+    <h1>신용대출 한도<br><span>계산기</span></h1>
+    <p class="subtitle">연 소득 · 기존 부채 · DSR 기준으로 추가 신용대출 가능 금액 계산</p>
+  </div>
+
+  <div class="card">
+    <label>연 소득 (세전)</label>
+    <div class="input-wrap">
+      <input type="number" id="income" placeholder="50000000" oninput="calc()">
+      <span class="unit">원</span>
+    </div>
+    <div class="quick-btns">
+      <button class="qbtn" onclick="set('income',30000000)">3천만</button>
+      <button class="qbtn" onclick="set('income',40000000)">4천만</button>
+      <button class="qbtn" onclick="set('income',50000000)">5천만</button>
+      <button class="qbtn" onclick="set('income',70000000)">7천만</button>
+      <button class="qbtn" onclick="set('income',100000000)">1억</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <label>기존 대출 월 원리금 상환액 (있는 경우)</label>
+    <div class="input-wrap">
+      <input type="number" id="existing" placeholder="0" oninput="calc()">
+      <span class="unit">원/월</span>
+    </div>
+  </div>
+
+  <div class="options-card">
+    <div class="opt-row">
+      <div>
+        <div class="opt-label">신용대출 금리</div>
+        <div class="opt-sub">연 금리 (현재 시중은행 신용대출 평균 약 5~7%)</div>
+      </div>
+      <input type="number" class="opt-input" id="rate" value="5.5" step="0.1" oninput="calc()">
+    </div>
+    <div class="opt-row">
+      <div>
+        <div class="opt-label">대출 기간</div>
+        <div class="opt-sub">신용대출 통상 1~5년</div>
+      </div>
+      <input type="number" class="opt-input" id="term" value="3" min="1" max="30" oninput="calc()">
+    </div>
+    <div class="opt-row">
+      <div>
+        <div class="opt-label">DSR 기준</div>
+        <div class="opt-sub">은행권 40%, 2금융권 50%</div>
+      </div>
+      <input type="number" class="opt-input" id="dsr" value="40" min="1" max="100" oninput="calc()">
+    </div>
+  </div>
+
+  <div class="warn-box" id="warnBox">
+    기존 대출 상환액이 이미 DSR 기준을 초과했습니다. 추가 신용대출이 어려울 수 있습니다.
+  </div>
+
+  <div class="result-box" id="result">
+    <div class="result-main">
+      <span class="result-main-label">최대 신용대출 가능 금액</span>
+      <span class="result-main-value" id="maxLoan">--</span>
+    </div>
+    <div class="dsr-bar-wrap">
+      <div class="dsr-bar-label">
+        <span>현재 DSR</span>
+        <span id="dsrPct">0%</span>
+      </div>
+      <div class="dsr-bar-bg"><div class="dsr-bar-fill" id="dsrBar"></div></div>
+    </div>
+    <div class="divider"></div>
+    <div class="d-rows">
+      <div class="d-row"><span class="dk">연 소득</span><span class="dv" id="rIncome"></span></div>
+      <div class="d-row"><span class="dk">DSR 기준 연간 최대 원리금</span><span class="dv" id="rMax"></span></div>
+      <div class="d-row"><span class="dk">기존 대출 연간 상환액</span><span class="dv" id="rExisting"></span></div>
+      <div class="d-row"><span class="dk">신규 대출 가능 월 원리금</span><span class="dv" id="rAvail"></span></div>
+      <div class="d-row" style="font-weight:700;padding-top:10px;border-top:1px solid var(--border);margin-top:4px;">
+        <span class="dk">최대 대출 원금 (참고)</span>
+        <span class="dv" id="rLoan" style="color:var(--accent2)"></span>
+      </div>
+    </div>
+  </div>
+
+  <section class="seo" aria-label="도움말 및 자주 묻는 질문">
+    <h2>신용대출 한도 계산 방법</h2>
+    <p>신용대출 한도는 DSR(총부채원리금상환비율) 40% 규제를 기반으로 계산합니다. 연소득 × DSR% = 연간 최대 원리금 상환 허용 금액이며, 여기서 기존 대출 원리금을 빼면 신규 대출에 활용 가능한 금액이 나옵니다. 이를 원리금균등상환(원금+이자) 공식에 대입하면 최대 대출 원금을 산출할 수 있습니다. 단, 실제 한도는 신용등급·직장·담보 여부 등에 따라 달라질 수 있습니다.</p>
+    <h2>자주 묻는 질문 (FAQ)</h2>
+    <div class="faq-list">
+      <div class="faq-item"><h3 class="faq-q">Q. 신용대출 한도는 어떻게 계산하나요?</h3><p class="faq-a">A. 연소득 × DSR% ÷ 12 = 월 최대 원리금이며, 기존 부채 원리금을 빼고 남은 금액을 원리금균등상환 공식에 대입해 대출 한도를 산출합니다.</p></div>
+      <div class="faq-item"><h3 class="faq-q">Q. DSR 40% 규제가 신용대출에도 적용되나요?</h3><p class="faq-a">A. 네, 2022년부터 은행권 전 대출에 DSR 40% 규제가 적용됩니다. 주담대·신용대출·카드론 등 모든 원리금 합계가 연소득의 40%를 넘으면 추가 대출이 제한됩니다.</p></div>
+      <div class="faq-item"><h3 class="faq-q">Q. 연소득에 사업소득도 포함되나요?</h3><p class="faq-a">A. 사업소득, 임대소득, 연금소득 등 신고된 소득은 인정됩니다. 비공식 소득은 포함되지 않으며, 소득 유형에 따라 인정 비율이 다를 수 있습니다.</p></div>
+    </div>
+  </section>
+  <footer>DSR 40% 기준 참고값 · 실제 대출 한도는 은행 심사 기준에 따라 다름</footer>
+</main>
+<script>
+function set(id, v) { document.getElementById(id).value = v; calc(); }
+function fmtW(n) {
+  if (n >= 100000000) return (n/100000000).toFixed(2).replace(/\.?0+$/,'') + '억원';
+  if (n >= 10000) return Math.round(n/10000) + '만원';
+  return Math.round(n).toLocaleString('ko-KR') + '원';
+}
+function calc() {
+  const income = parseFloat(document.getElementById('income').value);
+  const existing = parseFloat(document.getElementById('existing').value) || 0;
+  const rate = parseFloat(document.getElementById('rate').value) || 5.5;
+  const term = parseFloat(document.getElementById('term').value) || 3;
+  const dsr = parseFloat(document.getElementById('dsr').value) || 40;
+  const res = document.getElementById('result');
+  const warnBox = document.getElementById('warnBox');
+
+  if (!income || income <= 0) { res.classList.remove('show'); warnBox.style.display='none'; return; }
+
+  const maxAnnual = income * dsr / 100;
+  const existingAnnual = existing * 12;
+  const availMonthly = (maxAnnual - existingAnnual) / 12;
+
+  if (availMonthly <= 0) {
+    warnBox.style.display = 'block';
+    res.classList.remove('show');
+    return;
+  }
+  warnBox.style.display = 'none';
+
+  const r = rate / 100 / 12;
+  const n = term * 12;
+  let maxPrincipal;
+  if (r === 0) {
+    maxPrincipal = availMonthly * n;
+  } else {
+    maxPrincipal = availMonthly * (1 - Math.pow(1+r, -n)) / r;
+  }
+
+  const currentDSR = existingAnnual / income * 100;
+  const usedDSR = Math.min(dsr, currentDSR);
+  const barColor = usedDSR >= dsr ? '#f87171' : usedDSR >= dsr * 0.7 ? '#facc15' : '#c084fc';
+
+  document.getElementById('dsrPct').textContent = currentDSR.toFixed(1) + '% / ' + dsr + '%';
+  document.getElementById('dsrBar').style.width = Math.min(currentDSR / dsr * 100, 100) + '%';
+  document.getElementById('dsrBar').style.background = barColor;
+
+  document.getElementById('maxLoan').textContent = fmtW(maxPrincipal);
+  document.getElementById('rIncome').textContent = fmtW(income);
+  document.getElementById('rMax').textContent = fmtW(maxAnnual) + ' (월 ' + fmtW(maxAnnual/12) + ')';
+  document.getElementById('rExisting').textContent = fmtW(existingAnnual) + ' (월 ' + fmtW(existing) + ')';
+  document.getElementById('rAvail').textContent = fmtW(availMonthly) + '/월';
+  document.getElementById('rLoan').textContent = fmtW(maxPrincipal);
+  res.classList.add('show');
+}
+calc();
+</script>
+</body>
+</html>

@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calorie Calculator - Daily Calorie Needs & TDEE | Free Online</title>
+<meta name="description" content="Free calorie calculator. Calculate BMR and TDEE based on age, gender, weight, height and activity level. Supports Korean, English, Chinese.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--border:#222;--text:#f0f0f0;--text-muted:#777;--text-dim:#444;--accent:#4ade80;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.lang-btn{margin-left:auto;font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;font-family:'DM Mono',monospace;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:540px;margin:0 auto;padding:40px 20px 60px;}
+.back{font-size:12px;color:var(--text-dim);text-decoration:none;font-family:'DM Mono',monospace;display:inline-block;margin-bottom:28px;}
+.back:hover{color:var(--text-muted);}
+h1{font-size:28px;font-weight:900;margin-bottom:6px;}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:32px;line-height:1.6;}
+.input-group{margin-bottom:18px;}
+label{font-size:12px;color:var(--text-muted);display:block;margin-bottom:6px;font-family:'DM Mono',monospace;}
+input[type=number]{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-size:15px;font-family:'Noto Sans KR',sans-serif;outline:none;}
+input:focus{border-color:var(--accent);}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.rb-group{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;}
+.rbtn{padding:7px 14px;border:1px solid var(--border);border-radius:999px;font-size:12px;color:var(--text-muted);cursor:pointer;font-family:'DM Mono',monospace;transition:all 0.15s;background:none;}
+.rbtn:hover,.rbtn.on{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;}
+.rbtn.wide{border-radius:8px;text-align:left;padding:10px 14px;font-size:12px;line-height:1.4;}
+.rbtn.wide.on{background:var(--accent);color:#000;}
+.act-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px;}
+.calc-btn{width:100%;background:var(--accent);color:#000;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px;font-family:'Noto Sans KR',sans-serif;}
+.calc-btn:hover{opacity:.85;}
+.result-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-top:20px;display:none;}
+.result-main{text-align:center;padding-bottom:18px;margin-bottom:18px;border-bottom:1px solid var(--border);}
+.result-main .rl{font-size:12px;color:var(--text-muted);margin-bottom:4px;font-family:'DM Mono',monospace;}
+.result-main .rv{font-size:42px;font-weight:900;color:var(--accent);}
+.result-main .ru{font-size:13px;color:var(--text-muted);margin-top:4px;}
+.goal-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.goal-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;}
+.goal-card .gc-label{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;margin-bottom:6px;}
+.goal-card .gc-val{font-size:20px;font-weight:700;font-family:'DM Mono',monospace;}
+.goal-card.highlight{border-color:var(--accent);}
+.goal-card.highlight .gc-val{color:var(--accent);}
+.s-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);}
+.s-row:last-child{border-bottom:none;}
+.s-label{font-size:13px;color:var(--text-muted);}
+.s-val{font-size:13px;font-weight:700;font-family:'DM Mono',monospace;}
+.section-title{font-size:11px;color:var(--text-dim);letter-spacing:.12em;font-family:'DM Mono',monospace;margin:16px 0 8px;}
+.seo{margin-top:48px;padding-top:32px;border-top:1px solid var(--border);}
+.seo h2{font-size:16px;font-weight:700;margin-bottom:10px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:40px;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <a href="index.html" class="back" id="backBtn">← 모두의 툴</a>
+  <h1 data-i18n="h1">칼로리 계산기</h1>
+  <p class="sub" data-i18n="sub">나이·성별·체중·신장·활동량으로 하루 필요 칼로리를 계산합니다.</p>
+
+  <div class="input-group">
+    <label data-i18n="calGender">성별</label>
+    <div class="rb-group" id="genderGrp">
+      <button class="rbtn on" data-val="male" onclick="pick(this,'genderGrp')" data-i18n="calMale">남성</button>
+      <button class="rbtn" data-val="female" onclick="pick(this,'genderGrp')" data-i18n="calFemale">여성</button>
+    </div>
+  </div>
+  <div class="row2">
+    <div class="input-group">
+      <label data-i18n="calAge">나이</label>
+      <input type="number" id="calAge" value="30" min="1" max="120">
+    </div>
+    <div class="input-group">
+      <label data-i18n="calWeight">체중 (kg)</label>
+      <input type="number" id="calWeight" value="70" min="1" step="0.1">
+    </div>
+  </div>
+  <div class="input-group">
+    <label data-i18n="calHeight">신장 (cm)</label>
+    <input type="number" id="calHeight" value="170" min="50" step="0.1">
+  </div>
+  <div class="input-group">
+    <label data-i18n="calActivity">활동 수준</label>
+    <div class="act-grid" id="actGrp">
+      <button class="rbtn wide" data-val="1.2" onclick="pick(this,'actGrp')"><span data-i18n="calSedentary">좌식 생활</span><br><small data-i18n="calSedentaryHint">운동 거의 없음</small></button>
+      <button class="rbtn wide on" data-val="1.375" onclick="pick(this,'actGrp')"><span data-i18n="calLight">가벼운 활동</span><br><small data-i18n="calLightHint">주 1-3회 운동</small></button>
+      <button class="rbtn wide" data-val="1.55" onclick="pick(this,'actGrp')"><span data-i18n="calModerate">보통 활동</span><br><small data-i18n="calModerateHint">주 3-5회 운동</small></button>
+      <button class="rbtn wide" data-val="1.725" onclick="pick(this,'actGrp')"><span data-i18n="calActive">활발한 활동</span><br><small data-i18n="calActiveHint">주 6-7회 운동</small></button>
+    </div>
+  </div>
+  <button class="calc-btn" onclick="calc()"><span data-i18n="calCalcBtn">계산하기</span></button>
+
+  <div class="result-box" id="result">
+    <div class="result-main">
+      <div class="rl" data-i18n="calTdeeLabel">유지 칼로리 (TDEE)</div>
+      <div class="rv" id="rTdee">-</div>
+      <div class="ru" data-i18n="calKcalDay">kcal/일</div>
+    </div>
+
+    <div class="section-title" data-i18n="calGoalTitle">목표별 칼로리</div>
+    <div class="goal-grid">
+      <div class="goal-card"><div class="gc-label" data-i18n="calLose1">체중 감량 (−0.5kg/주)</div><div class="gc-val" id="gLose1">-</div></div>
+      <div class="goal-card"><div class="gc-label" data-i18n="calLoseHalf">완만한 감량 (−0.25kg/주)</div><div class="gc-val" id="gLoseH">-</div></div>
+      <div class="goal-card highlight"><div class="gc-label" data-i18n="calMaintain">현재 체중 유지</div><div class="gc-val" id="gMaint">-</div></div>
+      <div class="goal-card"><div class="gc-label" data-i18n="calGain">근육 증가 (+0.25kg/주)</div><div class="gc-val" id="gGain">-</div></div>
+    </div>
+
+    <div class="section-title" data-i18n="calBmrTitle">기초대사량</div>
+    <div class="s-row"><span class="s-label" data-i18n="calBmrLabel">BMR (기초대사량)</span><span class="s-val" id="rBmr">-</span></div>
+    <div class="s-row"><span class="s-label" data-i18n="calFormulaLabel">계산식</span><span class="s-val" style="font-size:11px;color:var(--text-dim)" id="rFormula">Mifflin-St Jeor</span></div>
+  </div>
+
+  <div class="seo" data-i18n="seoHtml">
+    <h2>How to Calculate Daily Calorie Needs (TDEE)</h2>
+    <p>BMR (Basal Metabolic Rate) uses the Mifflin-St Jeor formula: Men: 10×weight(kg) + 6.25×height(cm) − 5×age + 5. Women: same but −161 instead of +5. TDEE = BMR × activity multiplier (1.2 to 1.9).</p>
+    <p><strong>Q. How many calories should I eat to lose weight?</strong><br>A 500 kcal/day deficit causes ~0.5 kg/week loss. Never go below 1,200 kcal/day (women) or 1,500 kcal/day (men) without medical supervision.</p>
+    <p><strong>Q. What is the difference between BMR and TDEE?</strong><br>BMR is calories burned at complete rest (just to stay alive). TDEE (Total Daily Energy Expenditure) adds activity on top. For weight management, compare food intake to TDEE.</p>
+  </div>
+  <footer>© 2026 MODOO HUB · Free · <a href="privacy.html" style="color:var(--text-dim);text-decoration:none;" data-i18n="privacyLink">Privacy Policy</a></footer>
+</main>
+<script>
+function pick(btn,gid){
+  document.querySelectorAll('#'+gid+' .rbtn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+function getVal(gid){return document.querySelector('#'+gid+' .rbtn.on')?.dataset.val||'';}
+function fmtKcal(n){return Math.round(n).toLocaleString('en-US')+' kcal';}
+function calc(){
+  const gender=getVal('genderGrp');
+  const age=parseFloat(document.getElementById('calAge').value)||30;
+  const weight=parseFloat(document.getElementById('calWeight').value)||70;
+  const height=parseFloat(document.getElementById('calHeight').value)||170;
+  const actMult=parseFloat(getVal('actGrp'))||1.375;
+
+  const bmr=gender==='male'
+    ?(10*weight)+(6.25*height)-(5*age)+5
+    :(10*weight)+(6.25*height)-(5*age)-161;
+  const tdee=bmr*actMult;
+
+  document.getElementById('rTdee').textContent=Math.round(tdee).toLocaleString('en-US');
+  document.getElementById('rBmr').textContent=fmtKcal(bmr);
+  document.getElementById('gLose1').textContent=fmtKcal(tdee-500);
+  document.getElementById('gLoseH').textContent=fmtKcal(tdee-250);
+  document.getElementById('gMaint').textContent=fmtKcal(tdee);
+  document.getElementById('gGain').textContent=fmtKcal(tdee+250);
+  document.getElementById('result').style.display='block';
+}
+</script>
+<script>
+const _i18n={
+  ko:{lang:'ko',title:'칼로리 계산기 - 하루 필요 칼로리·TDEE 계산 | 무료',h1:'칼로리 계산기',sub:'나이·성별·체중·신장·활동량으로 하루 필요 칼로리를 계산합니다.',btn:'🌐 EN',
+    calGender:'성별',calMale:'남성',calFemale:'여성',calAge:'나이',calWeight:'체중 (kg)',calHeight:'신장 (cm)',calActivity:'활동 수준',
+    calSedentary:'좌식 생활',calSedentaryHint:'운동 거의 없음',
+    calLight:'가벼운 활동',calLightHint:'주 1-3회 운동',
+    calModerate:'보통 활동',calModerateHint:'주 3-5회 운동',
+    calActive:'활발한 활동',calActiveHint:'주 6-7회 운동',
+    calCalcBtn:'계산하기',
+    calTdeeLabel:'유지 칼로리 (TDEE)',calKcalDay:'kcal/일',
+    calGoalTitle:'목표별 칼로리',
+    calLose1:'체중 감량 (−0.5kg/주)',calLoseHalf:'완만한 감량 (−0.25kg/주)',calMaintain:'현재 체중 유지',calGain:'근육 증가 (+0.25kg/주)',
+    calBmrTitle:'기초대사량',calBmrLabel:'BMR (기초대사량)',calFormulaLabel:'계산식',
+    privacyLink:'개인정보처리방침',
+    seoHtml:'<h2>하루 필요 칼로리(TDEE) 계산 방법</h2><p>Mifflin-St Jeor 공식 BMR: 남성 = 10×체중(kg) + 6.25×신장(cm) − 5×나이 + 5. 여성 = 동일하나 +5 대신 −161. TDEE = BMR × 활동계수(1.2~1.9).</p><p><strong>Q. 살을 빼려면 칼로리를 얼마나 줄여야 할까요?</strong><br>하루 500kcal 부족 = 주당 약 0.5kg 감량. 여성은 1,200kcal/일, 남성은 1,500kcal/일 아래로 내려가지 않도록 주의하세요.</p><p><strong>Q. BMR과 TDEE의 차이는?</strong><br>BMR은 완전히 쉬는 상태에서 소모되는 칼로리(생명 유지용)이고, TDEE는 일상 활동까지 포함한 총 소비 칼로리입니다. 체중 관리에는 TDEE를 기준으로 식이 조절을 하세요.</p>',
+  },
+  en:{lang:'en',title:'Calorie Calculator - Daily Calorie Needs & TDEE | Free Online',h1:'Calorie Calculator',sub:'Calculate your daily calorie needs (TDEE) based on age, gender, weight, height and activity.',btn:'🌐 中文',
+    calGender:'Gender',calMale:'Male',calFemale:'Female',calAge:'Age',calWeight:'Weight (kg)',calHeight:'Height (cm)',calActivity:'Activity Level',
+    calSedentary:'Sedentary',calSedentaryHint:'Little or no exercise',
+    calLight:'Lightly Active',calLightHint:'Exercise 1-3 days/week',
+    calModerate:'Moderately Active',calModerateHint:'Exercise 3-5 days/week',
+    calActive:'Very Active',calActiveHint:'Exercise 6-7 days/week',
+    calCalcBtn:'Calculate',
+    calTdeeLabel:'MAINTENANCE CALORIES (TDEE)',calKcalDay:'kcal/day',
+    calGoalTitle:'CALORIES BY GOAL',
+    calLose1:'Lose weight (−0.5kg/week)',calLoseHalf:'Mild loss (−0.25kg/week)',calMaintain:'Maintain weight',calGain:'Gain muscle (+0.25kg/week)',
+    calBmrTitle:'BASAL METABOLIC RATE',calBmrLabel:'BMR',calFormulaLabel:'Formula',
+    privacyLink:'Privacy Policy',
+    seoHtml:'<h2>How to Calculate Daily Calorie Needs (TDEE)</h2><p>BMR uses the Mifflin-St Jeor formula: Men: 10×weight(kg) + 6.25×height(cm) − 5×age + 5. Women: same but −161 instead of +5. TDEE = BMR × activity multiplier (1.2 to 1.9).</p><p><strong>Q. How many calories should I eat to lose weight?</strong><br>A 500 kcal/day deficit causes ~0.5 kg/week loss. Never go below 1,200 kcal/day (women) or 1,500 kcal/day (men) without medical supervision.</p><p><strong>Q. What is the difference between BMR and TDEE?</strong><br>BMR is calories burned at complete rest. TDEE adds daily activity on top. For weight management, compare food intake to TDEE, not BMR.</p>',
+  },
+  zh:{lang:'zh',title:'卡路里计算器 - 每日热量需求与TDEE | 免费',h1:'卡路里计算器',sub:'根据年龄、性别、体重、身高和活动量计算每日所需热量。',btn:'🌐 한국어',
+    calGender:'性别',calMale:'男',calFemale:'女',calAge:'年龄',calWeight:'体重 (kg)',calHeight:'身高 (cm)',calActivity:'活动水平',
+    calSedentary:'久坐不动',calSedentaryHint:'几乎不运动',
+    calLight:'轻度活动',calLightHint:'每周运动1-3天',
+    calModerate:'中度活动',calModerateHint:'每周运动3-5天',
+    calActive:'高度活动',calActiveHint:'每周运动6-7天',
+    calCalcBtn:'计算',
+    calTdeeLabel:'维持体重热量 (TDEE)',calKcalDay:'千卡/天',
+    calGoalTitle:'目标热量',
+    calLose1:'减脂 (−0.5kg/周)',calLoseHalf:'缓慢减脂 (−0.25kg/周)',calMaintain:'保持体重',calGain:'增肌 (+0.25kg/周)',
+    calBmrTitle:'基础代谢率',calBmrLabel:'BMR（基础代谢率）',calFormulaLabel:'计算公式',
+    privacyLink:'隐私政策',
+    seoHtml:'<h2>如何计算每日热量需求（TDEE）</h2><p>Mifflin-St Jeor公式BMR：男性 = 10×体重(kg) + 6.25×身高(cm) − 5×年龄 + 5；女性 = 相同但末项改为−161。TDEE = BMR × 活动系数（1.2到1.9）。</p><p><strong>Q. 减肥需要减少多少卡路里？</strong><br>每天少摄入500千卡可实现约0.5kg/周的减重。女性每日不应低于1,200千卡，男性不低于1,500千卡。</p><p><strong>Q. BMR和TDEE有什么区别？</strong><br>BMR是完全静止状态下消耗的热量，TDEE则包含日常活动。体重管理应以TDEE为基准，而非BMR。</p>',
+  }
+};
+function _detectLang(){
+  const u=new URLSearchParams(location.search).get('lang');
+  if(u&&_i18n[u])return u;
+  const s=localStorage.getItem('lang');
+  if(s&&_i18n[s])return s;
+  const n=navigator.language||'';
+  if(n.startsWith('zh'))return 'zh';
+  if(n.startsWith('ko'))return 'ko';
+  return 'en';
+}
+let _lang=_detectLang();
+function _applyLang(){
+  const t=_i18n[_lang];
+  document.documentElement.lang=t.lang;
+  document.title=t.title;
+  document.getElementById('langBtn').textContent=t.btn;
+  const back=document.getElementById('backBtn');
+  if(back)back.textContent=_lang==='ko'?'← 모두의 툴':_lang==='zh'?'← 首页':'← Home';
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const v=t[el.dataset.i18n];
+    if(v!==undefined)el.innerHTML=v;
+  });
+}
+const _langOrder=['ko','en','zh'];
+function cycleLang(){
+  const idx=_langOrder.indexOf(_lang);
+  _lang=_langOrder[(idx+1)%_langOrder.length];
+  localStorage.setItem('lang',_lang);
+  const url=new URL(location.href);
+  if(_lang==='ko'){url.searchParams.delete('lang');}else{url.searchParams.set('lang',_lang);}
+  history.replaceState({},'',url);
+  _applyLang();
+}
+_applyLang();
+</script>
+</body>
+</html>

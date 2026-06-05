@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Macro Calculator - Free TDEE & Macronutrient Calculator</title>
+<meta name="description" content="Free online macro calculator. Calculate daily protein, carbs, and fat intake based on your TDEE. Supports cut, maintain, and bulk goals. Metric and imperial units.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/macro-calculator.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/macro-calculator.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/macro-calculator.html?lang=zh">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/macro-calculator.html">
+<link rel="canonical" href="https://modoohub.com/macro-calculator.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#222;--text:#f0f0f0;--text-muted:#777;--text-dim:#444;--accent:#a78bfa;--protein:#f87171;--carbs:#fbbf24;--fat:#34d399;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.lang-btn{margin-left:auto;font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;font-family:'DM Mono',monospace;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:620px;margin:0 auto;padding:36px 20px 60px;}
+.back{font-size:12px;color:var(--text-dim);text-decoration:none;font-family:'DM Mono',monospace;display:inline-block;margin-bottom:22px;}
+.back:hover{color:var(--text-muted);}
+h1{font-size:26px;font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:22px;line-height:1.6;}
+.unit-toggle{display:flex;gap:6px;margin-bottom:16px;}
+.unit-btn{padding:6px 16px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:'DM Mono',monospace;cursor:pointer;background:none;color:var(--text-muted);}
+.unit-btn.on{border-color:var(--accent);color:var(--accent);background:rgba(167,139,250,.08);}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:14px;}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+@media(max-width:480px){.row{grid-template-columns:1fr;}}
+.row.tri{grid-template-columns:1fr 1fr 1fr;}
+.field label{font-size:11px;color:var(--text-muted);font-family:'DM Mono',monospace;display:block;margin-bottom:5px;}
+.inp{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;outline:none;}
+.inp:focus{border-color:var(--accent);}
+select.inp{cursor:pointer;}
+.calc-btn{width:100%;background:var(--accent);color:#000;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Mono',monospace;margin-top:4px;}
+.calc-btn:hover{opacity:.85;}
+.result{margin-top:14px;display:none;}
+.tdee-box{background:var(--surface);border:1px solid var(--accent);border-radius:12px;padding:16px;text-align:center;margin-bottom:14px;}
+.tdee-val{font-size:40px;font-weight:900;font-family:'DM Mono',monospace;color:var(--accent);}
+.tdee-label{font-size:12px;color:var(--text-muted);margin-top:4px;}
+.macro-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;}
+.macro-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;}
+.macro-box.p{border-top:3px solid var(--protein);}
+.macro-box.c{border-top:3px solid var(--carbs);}
+.macro-box.f{border-top:3px solid var(--fat);}
+.macro-g{font-size:28px;font-weight:900;font-family:'DM Mono',monospace;}
+.macro-box.p .macro-g{color:var(--protein);}
+.macro-box.c .macro-g{color:var(--carbs);}
+.macro-box.f .macro-g{color:var(--fat);}
+.macro-kcal{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;margin-top:3px;}
+.macro-name{font-size:12px;color:var(--text-muted);margin-top:2px;}
+.bar-wrap{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;}
+.bar-label{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;margin-bottom:8px;}
+.bar-track{display:flex;height:12px;border-radius:6px;overflow:hidden;gap:2px;}
+.bar-seg{height:100%;border-radius:3px;transition:width .4s;}
+.bar-legend{display:flex;gap:14px;margin-top:8px;font-size:11px;font-family:'DM Mono',monospace;color:var(--text-dim);}
+.leg-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:4px;}
+.note{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;text-align:center;margin-top:10px;line-height:1.6;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;}
+footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:32px;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<meta property="og:title" content="Macro Calculator - Free TDEE & Macronutrient Calculator">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <a href="index.html" class="back" id="backBtn">← 모두의 툴</a>
+  <h1>Macro <span>Calculator</span></h1>
+  <p class="sub" data-i18n="sub">TDEE 기반 단백질·탄수화물·지방 목표량 계산</p>
+
+  <div class="unit-toggle">
+    <button class="unit-btn on" id="btnMetric" onclick="setUnit('metric')" data-i18n="btnMetric">Metric (kg/cm)</button>
+    <button class="unit-btn" id="btnImperial" onclick="setUnit('imperial')" data-i18n="btnImperial">Imperial (lbs/in)</button>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <div class="field">
+        <label data-i18n="ageLabel">나이</label>
+        <input class="inp" type="number" id="age" value="30" min="10" max="100">
+      </div>
+      <div class="field">
+        <label data-i18n="genderLabel">성별</label>
+        <select class="inp" id="gender">
+          <option value="m" data-i18n="genderM">남성</option>
+          <option value="f" data-i18n="genderF">여성</option>
+        </select>
+      </div>
+    </div>
+    <div class="row" id="metricRow">
+      <div class="field">
+        <label data-i18n="weightLabel">체중 (kg)</label>
+        <input class="inp" type="number" id="weightKg" value="70" min="20" max="300">
+      </div>
+      <div class="field">
+        <label data-i18n="heightLabel">키 (cm)</label>
+        <input class="inp" type="number" id="heightCm" value="170" min="100" max="250">
+      </div>
+    </div>
+    <div class="row" id="imperialRow" style="display:none">
+      <div class="field">
+        <label data-i18n="weightLbLabel">체중 (lbs)</label>
+        <input class="inp" type="number" id="weightLb" value="154" min="44" max="660">
+      </div>
+      <div class="field">
+        <label data-i18n="heightInLabel">키 (inches)</label>
+        <input class="inp" type="number" id="heightIn" value="67" min="40" max="100">
+      </div>
+    </div>
+    <div class="row" style="margin-bottom:12px">
+      <div class="field" style="grid-column:1/-1">
+        <label data-i18n="actLabel">활동 수준</label>
+        <select class="inp" id="activity">
+          <option value="1.2" data-i18n="actSed">비활동 (좌식 생활)</option>
+          <option value="1.375" data-i18n="actLight">가벼운 활동 (주 1-3회 운동)</option>
+          <option value="1.55" selected data-i18n="actMod">보통 활동 (주 3-5회 운동)</option>
+          <option value="1.725" data-i18n="actActive">활발한 활동 (주 6-7회 운동)</option>
+          <option value="1.9" data-i18n="actVery">매우 활발 (하루 2회 운동)</option>
+        </select>
+      </div>
+    </div>
+    <div class="row" style="margin-bottom:0">
+      <div class="field" style="grid-column:1/-1">
+        <label data-i18n="goalLabel">목표</label>
+        <select class="inp" id="goal">
+          <option value="cut" data-i18n="goalCut">감량 (−500 kcal)</option>
+          <option value="maintain" selected data-i18n="goalMaintain">유지</option>
+          <option value="bulk" data-i18n="goalBulk">증량 (+300 kcal)</option>
+        </select>
+      </div>
+    </div>
+    <button class="calc-btn" onclick="calc()" data-i18n="calcBtn">▶ 계산하기</button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="tdee-box">
+      <div class="tdee-val" id="rTdee">-</div>
+      <div class="tdee-label" data-i18n="tdeeLabel">kcal / 일 (목표 칼로리)</div>
+    </div>
+    <div class="macro-grid">
+      <div class="macro-box p">
+        <div class="macro-g" id="rProt">-</div>
+        <div class="macro-kcal" id="rProtKcal"></div>
+        <div class="macro-name" data-i18n="protLabel">단백질</div>
+      </div>
+      <div class="macro-box c">
+        <div class="macro-g" id="rCarb">-</div>
+        <div class="macro-kcal" id="rCarbKcal"></div>
+        <div class="macro-name" data-i18n="carbLabel">탄수화물</div>
+      </div>
+      <div class="macro-box f">
+        <div class="macro-g" id="rFat">-</div>
+        <div class="macro-kcal" id="rFatKcal"></div>
+        <div class="macro-name" data-i18n="fatLabel">지방</div>
+      </div>
+    </div>
+    <div class="bar-wrap">
+      <div class="bar-label" data-i18n="barLabel">매크로 비율</div>
+      <div class="bar-track">
+        <div class="bar-seg" id="barP" style="background:var(--protein)"></div>
+        <div class="bar-seg" id="barC" style="background:var(--carbs)"></div>
+        <div class="bar-seg" id="barF" style="background:var(--fat)"></div>
+      </div>
+      <div class="bar-legend">
+        <span><span class="leg-dot" style="background:var(--protein)"></span><span id="legP"></span></span>
+        <span><span class="leg-dot" style="background:var(--carbs)"></span><span id="legC"></span></span>
+        <span><span class="leg-dot" style="background:var(--fat)"></span><span id="legF"></span></span>
+      </div>
+    </div>
+    <div class="note" data-i18n="noteText">※ Mifflin-St Jeor 공식 기반. 의료 목적이 아닌 참고용입니다.</div>
+  </div>
+
+  <div class="seo">
+    <h2 data-i18n="seoH2">Macro Calculator란?</h2>
+    <p data-i18n="seoP">Mifflin-St Jeor 공식으로 기초대사량(BMR)과 총 에너지 소비량(TDEE)을 계산하고, 목표(감량/유지/증량)에 맞는 단백질·탄수화물·지방 목표량을 산출합니다.</p>
+  </div>
+  <footer>Macro Calculator · Mifflin-St Jeor · Free Online Tool</footer>
+</main>
+<script>
+const _i18n={
+  ko:{sub:'TDEE 기반 단백질·탄수화물·지방 목표량 계산',langBtn:'🌐 EN',backBtn:'← 모두의 툴',btnMetric:'Metric (kg/cm)',btnImperial:'Imperial (lbs/in)',ageLabel:'나이',genderLabel:'성별',genderM:'남성',genderF:'여성',weightLabel:'체중 (kg)',heightLabel:'키 (cm)',weightLbLabel:'체중 (lbs)',heightInLabel:'키 (inches)',actLabel:'활동 수준',actSed:'비활동 (좌식 생활)',actLight:'가벼운 활동 (주 1-3회 운동)',actMod:'보통 활동 (주 3-5회 운동)',actActive:'활발한 활동 (주 6-7회 운동)',actVery:'매우 활발 (하루 2회 운동)',goalLabel:'목표',goalCut:'감량 (−500 kcal)',goalMaintain:'유지',goalBulk:'증량 (+300 kcal)',calcBtn:'▶ 계산하기',tdeeLabel:'kcal / 일 (목표 칼로리)',protLabel:'단백질',carbLabel:'탄수화물',fatLabel:'지방',barLabel:'매크로 비율',noteText:'※ Mifflin-St Jeor 공식 기반. 의료 목적이 아닌 참고용입니다.',seoH2:'Macro Calculator란?',seoP:'BMR·TDEE를 계산하고 감량/유지/증량 목표에 맞는 단백질·탄수화물·지방 목표량을 산출합니다.'},
+  en:{sub:'Calculate daily protein, carbs & fat based on your TDEE',langBtn:'🌐 中文',backBtn:'← All Tools',btnMetric:'Metric (kg/cm)',btnImperial:'Imperial (lbs/in)',ageLabel:'Age',genderLabel:'Gender',genderM:'Male',genderF:'Female',weightLabel:'Weight (kg)',heightLabel:'Height (cm)',weightLbLabel:'Weight (lbs)',heightInLabel:'Height (inches)',actLabel:'Activity Level',actSed:'Sedentary (desk job)',actLight:'Lightly active (1-3x/week)',actMod:'Moderately active (3-5x/week)',actActive:'Very active (6-7x/week)',actVery:'Extra active (2x/day)',goalLabel:'Goal',goalCut:'Cut (−500 kcal)',goalMaintain:'Maintain',goalBulk:'Bulk (+300 kcal)',calcBtn:'▶ Calculate',tdeeLabel:'kcal / day (target calories)',protLabel:'Protein',carbLabel:'Carbs',fatLabel:'Fat',barLabel:'Macro ratio',noteText:'※ Based on Mifflin-St Jeor formula. For reference only, not medical advice.',seoH2:'Macro Calculator',seoP:'Calculate BMR and TDEE using the Mifflin-St Jeor formula, then get daily protein, carb, and fat targets for your cut, maintain, or bulk goal.'},
+  zh:{sub:'基于TDEE计算每日蛋白质、碳水化合物和脂肪目标',langBtn:'🌐 한국어',backBtn:'← 所有工具',btnMetric:'公制 (kg/cm)',btnImperial:'英制 (lbs/in)',ageLabel:'年龄',genderLabel:'性别',genderM:'男性',genderF:'女性',weightLabel:'体重 (kg)',heightLabel:'身高 (cm)',weightLbLabel:'体重 (磅)',heightInLabel:'身高（英寸）',actLabel:'活动水平',actSed:'久坐（办公室工作）',actLight:'轻度活动（每周1-3次）',actMod:'中度活动（每周3-5次）',actActive:'高度活动（每周6-7次）',actVery:'极度活动（每天2次）',goalLabel:'目标',goalCut:'减脂（-500千卡）',goalMaintain:'维持',goalBulk:'增肌（+300千卡）',calcBtn:'▶ 计算',tdeeLabel:'千卡/天（目标热量）',protLabel:'蛋白质',carbLabel:'碳水化合物',fatLabel:'脂肪',barLabel:'宏量营养素比例',noteText:'※ 基于Mifflin-St Jeor公式，仅供参考，非医疗建议。',seoH2:'宏量营养素计算器',seoP:'使用Mifflin-St Jeor公式计算BMR和TDEE，根据减脂/维持/增肌目标获取每日蛋白质、碳水化合物和脂肪目标量。'},
+};
+let _lang='ko',_unit='metric';
+const LANGS=['ko','en','zh'];
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=navigator.language?.slice(0,2);return n==='zh'?'zh':n==='ko'?'ko':'en';}
+function cycleLang(){const idx=LANGS.indexOf(_lang);_lang=LANGS[(idx+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const url=new URL(location.href);url.searchParams.set('lang',_lang);history.replaceState({},'',url);applyLang();}
+function applyLang(){
+  const t=_i18n[_lang];
+  document.documentElement.lang=_lang;
+  document.getElementById('langBtn').textContent=t.langBtn;
+  document.getElementById('backBtn').innerHTML=t.backBtn;
+  document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.dataset.i18n;if(t[k]!==undefined)el.innerHTML=t[k];});
+  document.querySelectorAll('option[data-i18n]').forEach(el=>{const k=el.dataset.i18n;if(t[k])el.textContent=t[k];});
+}
+function setUnit(u){
+  _unit=u;
+  document.getElementById('btnMetric').classList.toggle('on',u==='metric');
+  document.getElementById('btnImperial').classList.toggle('on',u==='imperial');
+  document.getElementById('metricRow').style.display=u==='metric'?'grid':'none';
+  document.getElementById('imperialRow').style.display=u==='imperial'?'grid':'none';
+}
+function calc(){
+  const age=parseInt(document.getElementById('age').value)||30;
+  const isMale=document.getElementById('gender').value==='m';
+  const act=parseFloat(document.getElementById('activity').value);
+  const goal=document.getElementById('goal').value;
+  let wKg,hCm;
+  if(_unit==='metric'){
+    wKg=parseFloat(document.getElementById('weightKg').value)||70;
+    hCm=parseFloat(document.getElementById('heightCm').value)||170;
+  }else{
+    wKg=parseFloat(document.getElementById('weightLb').value)/2.20462||70;
+    hCm=parseFloat(document.getElementById('heightIn').value)*2.54||170;
+  }
+  const bmr=isMale?(10*wKg+6.25*hCm-5*age+5):(10*wKg+6.25*hCm-5*age-161);
+  let tdee=Math.round(bmr*act);
+  if(goal==='cut')tdee-=500;
+  else if(goal==='bulk')tdee+=300;
+  const prot=Math.round(wKg*2.0);
+  const fat=Math.round(tdee*0.25/9);
+  const carb=Math.round((tdee-prot*4-fat*9)/4);
+  const pKcal=prot*4,cKcal=carb*4,fKcal=fat*9;
+  const total=pKcal+cKcal+fKcal;
+  const pPct=Math.round(pKcal/total*100),cPct=Math.round(cKcal/total*100),fPct=100-pPct-cPct;
+  document.getElementById('rTdee').textContent=tdee.toLocaleString()+' kcal';
+  document.getElementById('rProt').textContent=prot+'g';
+  document.getElementById('rCarb').textContent=Math.max(0,carb)+'g';
+  document.getElementById('rFat').textContent=fat+'g';
+  document.getElementById('rProtKcal').textContent=pKcal+' kcal';
+  document.getElementById('rCarbKcal').textContent=Math.max(0,cKcal)+' kcal';
+  document.getElementById('rFatKcal').textContent=fKcal+' kcal';
+  document.getElementById('barP').style.width=pPct+'%';
+  document.getElementById('barC').style.width=cPct+'%';
+  document.getElementById('barF').style.width=fPct+'%';
+  const t=_i18n[_lang];
+  document.getElementById('legP').textContent=`${t.protLabel} ${pPct}%`;
+  document.getElementById('legC').textContent=`${t.carbLabel} ${cPct}%`;
+  document.getElementById('legF').textContent=`${t.fatLabel} ${fPct}%`;
+  document.getElementById('result').style.display='block';
+}
+_lang=detectLang();applyLang();
+</script>
+</body>
+</html>

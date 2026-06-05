@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fuel Cost Calculator - Road Trip Gas Cost | Free Online</title>
+<meta name="description" content="Free fuel cost calculator. Calculate road trip gas cost with metric (L/100km) or imperial (MPG) units. Supports Korean, English, Chinese.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--border:#222;--text:#f0f0f0;--text-muted:#777;--text-dim:#444;--accent:#4ade80;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.lang-btn{margin-left:auto;font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;font-family:'DM Mono',monospace;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:540px;margin:0 auto;padding:40px 20px 60px;}
+.back{font-size:12px;color:var(--text-dim);text-decoration:none;font-family:'DM Mono',monospace;display:inline-block;margin-bottom:28px;}
+.back:hover{color:var(--text-muted);}
+h1{font-size:28px;font-weight:900;margin-bottom:6px;}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:32px;line-height:1.6;}
+.unit-toggle{display:flex;gap:0;margin-bottom:24px;border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.ut-btn{flex:1;padding:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Mono',monospace;background:var(--surface);color:var(--text-muted);border:none;transition:all .15s;}
+.ut-btn.on{background:var(--accent);color:#000;}
+.input-group{margin-bottom:18px;}
+label{font-size:12px;color:var(--text-muted);display:block;margin-bottom:6px;font-family:'DM Mono',monospace;}
+input[type=number]{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-size:15px;font-family:'Noto Sans KR',sans-serif;outline:none;}
+input:focus{border-color:var(--accent);}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.calc-btn{width:100%;background:var(--accent);color:#000;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px;font-family:'Noto Sans KR',sans-serif;}
+.calc-btn:hover{opacity:.85;}
+.result-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-top:20px;display:none;}
+.result-main{text-align:center;padding-bottom:18px;margin-bottom:18px;border-bottom:1px solid var(--border);}
+.result-main .rl{font-size:12px;color:var(--text-muted);margin-bottom:4px;font-family:'DM Mono',monospace;}
+.result-main .rv{font-size:42px;font-weight:900;color:var(--accent);}
+.s-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);}
+.s-row:last-child{border-bottom:none;}
+.s-label{font-size:13px;color:var(--text-muted);}
+.s-val{font-size:13px;font-weight:700;font-family:'DM Mono',monospace;}
+.seo{margin-top:48px;padding-top:32px;border-top:1px solid var(--border);}
+.seo h2{font-size:16px;font-weight:700;margin-bottom:10px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:40px;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <a href="index.html" class="back" id="backBtn">← 모두의 툴</a>
+  <h1 data-i18n="h1">연료비 계산기</h1>
+  <p class="sub" data-i18n="sub">주행 거리·연비·연료 가격으로 총 연료비를 계산합니다.</p>
+
+  <div class="unit-toggle">
+    <button class="ut-btn on" id="btnMetric" onclick="setUnit('metric')" data-i18n="fuelMetric">미터법 (km, L)</button>
+    <button class="ut-btn" id="btnImperial" onclick="setUnit('imperial')" data-i18n="fuelImperial">야드파운드 (mi, gal)</button>
+  </div>
+
+  <div class="input-group">
+    <label id="lblDist" data-i18n="fuelDist">주행 거리 (km)</label>
+    <input type="number" id="fuelDist" value="500" min="0">
+  </div>
+  <div class="row2">
+    <div class="input-group">
+      <label id="lblEff" data-i18n="fuelEff">연비 (L/100km)</label>
+      <input type="number" id="fuelEff" value="8" min="0.1" step="0.1">
+    </div>
+    <div class="input-group">
+      <label id="lblPrice" data-i18n="fuelPrice">연료 가격 (원/L)</label>
+      <input type="number" id="fuelPrice" value="1700" min="0" step="10">
+    </div>
+  </div>
+  <button class="calc-btn" onclick="calc()"><span data-i18n="fuelCalcBtn">계산하기</span></button>
+
+  <div class="result-box" id="result">
+    <div class="result-main">
+      <div class="rl" data-i18n="fuelTotalCostLabel">총 연료비</div>
+      <div class="rv" id="rCost">-</div>
+    </div>
+    <div class="s-row"><span class="s-label" id="lblFuelNeeded" data-i18n="fuelNeeded">필요 연료량</span><span class="s-val" id="rFuel">-</span></div>
+    <div class="s-row"><span class="s-label" id="lblPerKm" data-i18n="fuelPerKm">km당 비용</span><span class="s-val" id="rPerKm">-</span></div>
+    <div class="s-row"><span class="s-label" data-i18n="fuelRoundTrip">왕복 예상 비용</span><span class="s-val" id="rRound">-</span></div>
+  </div>
+
+  <div class="seo" data-i18n="seoHtml">
+    <h2>How to Calculate Fuel Cost</h2>
+    <p>Metric: Fuel (L) = Distance(km) × Efficiency(L/100km) ÷ 100. Cost = Fuel × Price per liter.<br>Imperial: Fuel (gal) = Distance(miles) ÷ MPG. Cost = Fuel × Price per gallon.</p>
+    <p><strong>Q. How do I improve fuel efficiency?</strong><br>Maintain steady speed (cruise control on highways), keep tires properly inflated (+1 MPG per 10 PSI), remove roof racks when not in use, avoid idling more than 1 minute.</p>
+    <p><strong>Q. L/100km vs MPG — how to convert?</strong><br>MPG = 235.21 ÷ L/100km. For example, 8 L/100km ≈ 29.4 MPG. 6 L/100km ≈ 39.2 MPG. The lower the L/100km, the better the efficiency.</p>
+  </div>
+  <footer>© 2026 MODOO HUB · Free · <a href="privacy.html" style="color:var(--text-dim);text-decoration:none;" data-i18n="privacyLink">Privacy Policy</a></footer>
+</main>
+<script>
+let _unit='metric';
+function setUnit(u){
+  _unit=u;
+  document.getElementById('btnMetric').classList.toggle('on',u==='metric');
+  document.getElementById('btnImperial').classList.toggle('on',u==='imperial');
+  _updateLabels();
+}
+function _updateLabels(){
+  const t=typeof _i18n!=='undefined'&&_i18n[typeof _lang!=='undefined'?_lang:'en']||{};
+  const isM=_unit==='metric';
+  document.getElementById('lblDist').textContent=isM?(t.fuelDistKm||'Distance (km)'):(t.fuelDistMi||'Distance (miles)');
+  document.getElementById('lblEff').textContent=isM?(t.fuelEffL||'Fuel Efficiency (L/100km)'):(t.fuelEffMpg||'Fuel Efficiency (MPG)');
+  document.getElementById('lblPrice').textContent=isM?(t.fuelPriceL||'Fuel Price (per liter)'):(t.fuelPriceG||'Fuel Price (per gallon)');
+  document.getElementById('lblFuelNeeded').textContent=isM?(t.fuelNeededL||'Fuel needed (L)'):(t.fuelNeededG||'Fuel needed (gal)');
+  document.getElementById('lblPerKm').textContent=isM?(t.fuelPerKm||'Cost per km'):(t.fuelPerMi||'Cost per mile');
+  if(isM){document.getElementById('fuelEff').value=document.getElementById('fuelEff').dataset.metricVal||'8';document.getElementById('fuelPrice').value=document.getElementById('fuelPrice').dataset.metricVal||'1700';}
+  else{document.getElementById('fuelEff').value='28';document.getElementById('fuelPrice').value='3.80';}
+}
+function fmtCost(n){
+  const l=typeof _lang!=='undefined'?_lang:'en';
+  if(l==='ko')return Math.round(n).toLocaleString('ko-KR')+'원';
+  if(l==='zh')return '¥'+n.toFixed(2);
+  return '$'+n.toFixed(2);
+}
+function calc(){
+  const dist=parseFloat(document.getElementById('fuelDist').value)||0;
+  const eff=parseFloat(document.getElementById('fuelEff').value)||1;
+  const price=parseFloat(document.getElementById('fuelPrice').value)||0;
+
+  let fuelNeeded,costPerUnit;
+  if(_unit==='metric'){
+    fuelNeeded=dist*eff/100;
+    costPerUnit=dist>0?fuelNeeded*price/dist:0;
+  } else {
+    fuelNeeded=eff>0?dist/eff:0;
+    costPerUnit=dist>0?fuelNeeded*price/dist:0;
+  }
+  const totalCost=fuelNeeded*price;
+  const unitLabel=_unit==='metric'?' L':' gal';
+
+  document.getElementById('rCost').textContent=fmtCost(totalCost);
+  document.getElementById('rFuel').textContent=fuelNeeded.toFixed(2)+unitLabel;
+  document.getElementById('rPerKm').textContent=fmtCost(costPerUnit);
+  document.getElementById('rRound').textContent=fmtCost(totalCost*2);
+  document.getElementById('result').style.display='block';
+}
+</script>
+<script>
+const _i18n={
+  ko:{lang:'ko',title:'연료비 계산기 - 주행 연료 비용 계산 | 무료',h1:'연료비 계산기',sub:'주행 거리·연비·연료 가격으로 총 연료비를 계산합니다.',btn:'🌐 EN',
+    fuelMetric:'미터법 (km, L)',fuelImperial:'야드파운드 (mi, gal)',
+    fuelDist:'주행 거리 (km)',fuelDistKm:'주행 거리 (km)',fuelDistMi:'주행 거리 (마일)',
+    fuelEff:'연비 (L/100km)',fuelEffL:'연비 (L/100km)',fuelEffMpg:'연비 (MPG)',
+    fuelPrice:'연료 가격 (원/L)',fuelPriceL:'연료 가격 (원/L)',fuelPriceG:'연료 가격 (원/갤런)',
+    fuelCalcBtn:'계산하기',
+    fuelTotalCostLabel:'총 연료비',
+    fuelNeeded:'필요 연료량',fuelNeededL:'필요 연료량 (L)',fuelNeededG:'필요 연료량 (갤런)',
+    fuelPerKm:'km당 비용',fuelPerMi:'마일당 비용',
+    fuelRoundTrip:'왕복 예상 비용',
+    privacyLink:'개인정보처리방침',
+    seoHtml:'<h2>연료비 계산 방법</h2><p>미터법: 연료(L) = 거리(km) × 연비(L/100km) ÷ 100. 비용 = 연료(L) × 리터당 가격.<br>야드파운드: 연료(갤런) = 거리(마일) ÷ MPG. 비용 = 연료(갤런) × 갤런당 가격.</p><p><strong>Q. 연비를 높이는 방법은?</strong><br>고속도로에서 일정 속도 유지(크루즈 컨트롤 사용), 타이어 공기압 적정 유지, 루프랙 미사용 시 제거, 1분 이상 공회전 금지.</p><p><strong>Q. L/100km와 MPG는 어떻게 변환하나요?</strong><br>MPG = 235.21 ÷ L/100km. 예: 8L/100km ≈ 29.4 MPG, 6L/100km ≈ 39.2 MPG. L/100km가 낮을수록 연비가 좋습니다.</p>',
+  },
+  en:{lang:'en',title:'Fuel Cost Calculator - Road Trip Gas Cost | Free Online',h1:'Fuel Cost Calculator',sub:'Calculate trip fuel cost with metric (L/100km) or imperial (MPG) units.',btn:'🌐 中文',
+    fuelMetric:'Metric (km, L)',fuelImperial:'Imperial (mi, gal)',
+    fuelDist:'Distance (km)',fuelDistKm:'Distance (km)',fuelDistMi:'Distance (miles)',
+    fuelEff:'Fuel Economy (L/100km)',fuelEffL:'Fuel Economy (L/100km)',fuelEffMpg:'Fuel Economy (MPG)',
+    fuelPrice:'Fuel Price (per liter)',fuelPriceL:'Fuel Price (per liter)',fuelPriceG:'Fuel Price (per gallon)',
+    fuelCalcBtn:'Calculate',
+    fuelTotalCostLabel:'TOTAL FUEL COST',
+    fuelNeeded:'Fuel needed',fuelNeededL:'Fuel needed (L)',fuelNeededG:'Fuel needed (gal)',
+    fuelPerKm:'Cost per km',fuelPerMi:'Cost per mile',
+    fuelRoundTrip:'Round trip estimate',
+    privacyLink:'Privacy Policy',
+    seoHtml:'<h2>How to Calculate Fuel Cost</h2><p>Metric: Fuel (L) = Distance(km) × Efficiency(L/100km) ÷ 100. Cost = Fuel × Price per liter.<br>Imperial: Fuel (gal) = Distance(miles) ÷ MPG. Cost = Fuel × Price per gallon.</p><p><strong>Q. How do I improve fuel efficiency?</strong><br>Maintain steady speed (cruise control on highways), keep tires properly inflated, remove roof racks when not in use, avoid idling more than 1 minute.</p><p><strong>Q. L/100km vs MPG — how to convert?</strong><br>MPG = 235.21 ÷ L/100km. For example, 8 L/100km ≈ 29.4 MPG. 6 L/100km ≈ 39.2 MPG. The lower the L/100km, the better the efficiency.</p>',
+  },
+  zh:{lang:'zh',title:'油费计算器 - 行程油费计算 | 免费',h1:'油费计算器',sub:'根据行程距离、油耗和油价计算总油费。',btn:'🌐 한국어',
+    fuelMetric:'公制 (km, L)',fuelImperial:'英制 (mi, gal)',
+    fuelDist:'行驶距离 (km)',fuelDistKm:'行驶距离 (km)',fuelDistMi:'行驶距离 (英里)',
+    fuelEff:'油耗 (L/100km)',fuelEffL:'油耗 (L/100km)',fuelEffMpg:'油耗 (MPG)',
+    fuelPrice:'油价 (元/L)',fuelPriceL:'油价 (元/升)',fuelPriceG:'油价 (元/加仑)',
+    fuelCalcBtn:'计算',
+    fuelTotalCostLabel:'总油费',
+    fuelNeeded:'所需油量',fuelNeededL:'所需油量 (L)',fuelNeededG:'所需油量 (加仑)',
+    fuelPerKm:'每公里费用',fuelPerMi:'每英里费用',
+    fuelRoundTrip:'往返预估费用',
+    privacyLink:'隐私政策',
+    seoHtml:'<h2>如何计算油费</h2><p>公制：油量(L) = 距离(km) × 油耗(L/100km) ÷ 100，油费 = 油量 × 每升价格。<br>英制：油量(加仑) = 距离(英里) ÷ MPG，油费 = 油量 × 每加仑价格。</p><p><strong>Q. 如何提高燃油效率？</strong><br>高速公路使用定速巡航、保持轮胎气压适当、不使用时拆除车顶架、避免怠速超过1分钟。</p><p><strong>Q. L/100km和MPG如何换算？</strong><br>MPG = 235.21 ÷ L/100km。例如：8L/100km ≈ 29.4 MPG，6L/100km ≈ 39.2 MPG。L/100km越低，油耗越好。</p>',
+  }
+};
+function _detectLang(){
+  const u=new URLSearchParams(location.search).get('lang');
+  if(u&&_i18n[u])return u;
+  const s=localStorage.getItem('lang');
+  if(s&&_i18n[s])return s;
+  const n=navigator.language||'';
+  if(n.startsWith('zh'))return 'zh';
+  if(n.startsWith('ko'))return 'ko';
+  return 'en';
+}
+let _lang=_detectLang();
+function _applyLang(){
+  const t=_i18n[_lang];
+  document.documentElement.lang=t.lang;
+  document.title=t.title;
+  document.getElementById('langBtn').textContent=t.btn;
+  const back=document.getElementById('backBtn');
+  if(back)back.textContent=_lang==='ko'?'← 모두의 툴':_lang==='zh'?'← 首页':'← Home';
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const v=t[el.dataset.i18n];
+    if(v!==undefined)el.innerHTML=v;
+  });
+  _updateLabels();
+}
+const _langOrder=['ko','en','zh'];
+function cycleLang(){
+  const idx=_langOrder.indexOf(_lang);
+  _lang=_langOrder[(idx+1)%_langOrder.length];
+  localStorage.setItem('lang',_lang);
+  const url=new URL(location.href);
+  if(_lang==='ko'){url.searchParams.delete('lang');}else{url.searchParams.set('lang',_lang);}
+  history.replaceState({},'',url);
+  _applyLang();
+}
+_applyLang();
+</script>
+</body>
+</html>

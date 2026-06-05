@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LTV 계산기 2026 - 주택담보대출 비율 및 최대 대출 한도 자동 계산</title>
+<meta name="description" content="LTV(주택담보대출비율) 계산기. 주택 가격과 대출 금액을 입력하면 LTV%와 투기과열·조정지역 기준 초과 여부를 즉시 확인합니다.">
+<meta name="keywords" content="LTV 계산기, 주택담보대출비율, LTV 40%, LTV 50%, LTV 70%, 투기과열지구 대출한도, 조정대상지역 대출">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/ltv-calculator.html">
+<link rel="canonical" href="https://modoohub.com/ltv-calculator.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#222;--text:#f0f0f0;--text2:#888;--text3:#444;--accent:#4f8ef7;--accent2:#60a5fa;--accent-dim:rgba(79,142,247,0.08);--green:#4ade80;--red:#f87171;--yellow:#facc15;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:20px 24px;display:flex;align-items:center;gap:12px;}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--accent);}
+.header-label{font-size:13px;color:var(--text2);letter-spacing:0.1em;font-family:'DM Mono',monospace;}
+.back-link{margin-left:auto;font-size:13px;color:var(--text2);text-decoration:none;}
+.back-link:hover{color:var(--accent);}
+main{max-width:620px;margin:0 auto;padding:48px 24px;}
+.title-block{margin-bottom:36px;}
+h1{font-size:clamp(26px,5vw,36px);font-weight:900;line-height:1.15;margin-bottom:10px;}
+h1 span{color:var(--accent2);}
+.subtitle{color:var(--text2);font-size:14px;line-height:1.7;}
+.tab-row{display:flex;gap:8px;margin-bottom:20px;}
+.tab-btn{flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text2);font-family:'Noto Sans KR',sans-serif;font-size:13px;cursor:pointer;transition:all .2s;}
+.tab-btn.active{background:var(--accent-dim);border-color:var(--accent);color:var(--accent2);font-weight:700;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:14px;transition:border-color .2s;}
+.card:focus-within{border-color:var(--accent);}
+label{font-size:12px;color:var(--text2);letter-spacing:0.08em;display:block;margin-bottom:10px;}
+.input-wrap{display:flex;align-items:center;gap:8px;}
+input[type=number]{flex:1;background:transparent;border:none;outline:none;font-size:26px;font-weight:700;color:var(--text);font-family:'DM Mono',monospace;width:100%;min-width:0;}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;}
+.unit{color:var(--text3);font-size:14px;}
+.zone-select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;outline:none;cursor:pointer;transition:border-color .2s;}
+.zone-select:focus{border-color:var(--accent);}
+.result-box{background:var(--accent-dim);border:1px solid var(--accent);border-radius:16px;padding:28px;margin-bottom:20px;display:none;}
+.result-box.show{display:block;}
+.ltv-display{text-align:center;margin-bottom:24px;}
+.ltv-num{font-family:'DM Mono',monospace;font-size:64px;font-weight:900;line-height:1;}
+.ltv-unit{font-size:22px;color:var(--text2);}
+.status-badge{display:inline-block;margin-top:10px;padding:6px 18px;border-radius:20px;font-size:14px;font-weight:700;}
+.ok{background:rgba(74,222,128,.15);color:var(--green);border:1px solid rgba(74,222,128,.4);}
+.warn{background:rgba(250,204,21,.15);color:var(--yellow);border:1px solid rgba(250,204,21,.4);}
+.fail{background:rgba(248,113,113,.15);color:var(--red);border:1px solid rgba(248,113,113,.4);}
+.bar-wrap{height:14px;background:var(--surface2);border-radius:7px;margin:20px 0;overflow:hidden;position:relative;}
+.bar-fill{height:100%;border-radius:7px;transition:width .4s;}
+.bar-limit{position:absolute;top:0;bottom:0;width:2px;background:#fff3;}
+.detail-rows{display:flex;flex-direction:column;gap:8px;}
+.d-row{display:flex;justify-content:space-between;font-size:14px;padding:8px 0;border-bottom:1px solid var(--border);}
+.d-row:last-child{border-bottom:none;}
+.dk{color:var(--text2);}
+.dv{font-family:'DM Mono',monospace;}
+.zone-info{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:24px;}
+.zone-title{font-size:12px;color:var(--text2);letter-spacing:0.08em;margin-bottom:12px;}
+.zone-row{display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:1px solid var(--border);}
+.zone-row:last-child{border-bottom:none;}
+.zk{color:var(--text2);}
+.zv{font-family:'DM Mono',monospace;color:var(--text);}
+.seo{border-top:1px solid var(--border);padding-top:32px;}
+.seo h2{font-size:16px;font-weight:700;margin-bottom:10px;}
+.seo p{font-size:13px;color:var(--text2);line-height:1.8;margin-bottom:20px;}
+.faq-list{margin-top:12px;}
+.faq-item{background:#111;border-radius:10px;padding:16px 18px;margin-bottom:10px;}
+.faq-q{font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px;line-height:1.5;}
+.faq-a{font-size:13px;color:var(--text2);line-height:1.8;}
+footer{text-align:center;font-size:12px;color:var(--text3);margin-top:48px;}
+</style>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>
+window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());gtag('config','G-NR6VJF0534');
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<meta property="og:title" content="LTV 계산기 2026 - 주택담보대출 비율 및 최대 대출 한도 자동 계산">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"LTV가 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"LTV(Loan-to-Value ratio)는 주택담보대출비율로, 주택 가격 대비 대출 금액의 비율입니다. LTV = 대출금액 ÷ 주택가격 × 100으로 계산됩니다."}},
+{"@type":"Question","name":"2026년 LTV 규제 기준은 어떻게 되나요?","acceptedAnswer":{"@type":"Answer","text":"투기과열지구 40%, 조정대상지역 50%, 기타 일반 지역 70%가 기준입니다. 단, 생애최초 구입자, 서민 실수요자, 정책금융(보금자리론) 등은 완화된 기준이 적용될 수 있습니다."}},
+{"@type":"Question","name":"LTV와 DSR을 둘 다 충족해야 하나요?","acceptedAnswer":{"@type":"Answer","text":"네, LTV와 DSR 모두 충족해야 대출이 가능합니다. LTV로 최대 대출 금액을 산출한 뒤, 그 금액의 월 원리금이 DSR(소득 대비 40%) 기준을 초과하지 않아야 합니다."}}
+]}</script>
+</head>
+<body>
+<header>
+  <div class="dot"></div>
+  <span class="header-label">MODOO HUB</span>
+  <a href="index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <div class="title-block">
+    <h1><span>LTV</span><br>주택담보대출비율 계산기</h1>
+    <p class="subtitle">주택 가격 · 대출 금액으로 LTV% 계산 및 지역별 규제 기준 비교</p>
+  </div>
+
+  <div class="tab-row">
+    <button class="tab-btn active" id="tab1" onclick="setMode(1)">LTV 계산 (대출 → %)</button>
+    <button class="tab-btn" id="tab2" onclick="setMode(2)">최대 대출 한도 (% → 금액)</button>
+  </div>
+
+  <!-- 모드 1: 대출금액 → LTV% -->
+  <div id="mode1">
+    <div class="card">
+      <label>주택 가격 (매매가)</label>
+      <div class="input-wrap">
+        <input type="number" id="price1" placeholder="500000000" oninput="calc()">
+        <span class="unit">원</span>
+      </div>
+    </div>
+    <div class="card">
+      <label>대출 금액</label>
+      <div class="input-wrap">
+        <input type="number" id="loan1" placeholder="200000000" oninput="calc()">
+        <span class="unit">원</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 모드 2: LTV% → 최대 대출 -->
+  <div id="mode2" style="display:none">
+    <div class="card">
+      <label>주택 가격 (매매가)</label>
+      <div class="input-wrap">
+        <input type="number" id="price2" placeholder="500000000" oninput="calc()">
+        <span class="unit">원</span>
+      </div>
+    </div>
+    <div class="card">
+      <label>지역 구분 (LTV 기준)</label>
+      <select class="zone-select" id="zoneSelect" onchange="calc()">
+        <option value="40">투기과열지구 (LTV 40%)</option>
+        <option value="50">조정대상지역 (LTV 50%)</option>
+        <option value="60">생애최초 조정지역 (LTV 60%)</option>
+        <option value="70" selected>기타 일반 지역 (LTV 70%)</option>
+        <option value="80">생애최초 일반 지역 (LTV 80%)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="result-box" id="result">
+    <div class="ltv-display">
+      <div>
+        <span class="ltv-num" id="ltvNum">--</span><span class="ltv-unit">%</span>
+      </div>
+      <div><span class="status-badge" id="statusBadge"></span></div>
+    </div>
+    <div class="bar-wrap">
+      <div class="bar-fill" id="barFill"></div>
+    </div>
+    <div class="detail-rows" id="detailRows"></div>
+  </div>
+
+  <div class="zone-info">
+    <div class="zone-title">2026년 지역별 LTV 규제 기준</div>
+    <div class="zone-row"><span class="zk">투기과열지구</span><span class="zv">40%</span></div>
+    <div class="zone-row"><span class="zk">조정대상지역</span><span class="zv">50%</span></div>
+    <div class="zone-row"><span class="zk">생애최초 조정지역</span><span class="zv">60%</span></div>
+    <div class="zone-row"><span class="zk">기타 일반 지역</span><span class="zv">70%</span></div>
+    <div class="zone-row"><span class="zk">생애최초 일반 지역</span><span class="zv">80%</span></div>
+  </div>
+
+  <section class="seo" aria-label="도움말 및 자주 묻는 질문">
+    <h2>LTV(주택담보대출비율)란?</h2>
+    <p>LTV(Loan-to-Value)는 주택 담보 가치 대비 대출 금액의 비율입니다. 예를 들어 5억 원짜리 아파트에 2억 원을 대출받으면 LTV는 40%입니다. 2026년 기준 투기과열지구 40%, 조정대상지역 50%, 기타 일반 지역 70%로 규제됩니다. LTV 외에 DSR(총부채원리금상환비율) 40% 기준도 동시에 충족해야 합니다.</p>
+    <h2>자주 묻는 질문 (FAQ)</h2>
+    <div class="faq-list">
+      <div class="faq-item"><h3 class="faq-q">Q. LTV가 무엇인가요?</h3><p class="faq-a">A. 주택 가격 대비 대출 금액의 비율입니다. LTV = 대출금액 ÷ 주택가격 × 100으로 계산됩니다.</p></div>
+      <div class="faq-item"><h3 class="faq-q">Q. 2026년 LTV 규제 기준은?</h3><p class="faq-a">A. 투기과열지구 40%, 조정대상지역 50%, 일반 지역 70%입니다. 생애최초 구입자는 각각 10%p 완화된 기준이 적용될 수 있습니다.</p></div>
+      <div class="faq-item"><h3 class="faq-q">Q. LTV와 DSR 둘 다 충족해야 하나요?</h3><p class="faq-a">A. 네, 두 조건 모두 충족해야 대출이 가능합니다. LTV로 산출한 최대 대출 금액의 월 원리금이 DSR 40% 기준도 통과해야 합니다.</p></div>
+    </div>
+  </section>
+  <footer>2026년 금융감독원 기준 · 개인별 대출 가능 여부는 금융기관에서 확인</footer>
+</main>
+<script>
+let _mode = 1;
+function setMode(m) {
+  _mode = m;
+  document.getElementById('mode1').style.display = m === 1 ? '' : 'none';
+  document.getElementById('mode2').style.display = m === 2 ? '' : 'none';
+  document.getElementById('tab1').classList.toggle('active', m === 1);
+  document.getElementById('tab2').classList.toggle('active', m === 2);
+  document.getElementById('result').classList.remove('show');
+  calc();
+}
+function fmtW(n) {
+  if (n >= 100000000) return (n / 100000000).toFixed(2).replace(/\.?0+$/, '') + '억원';
+  if (n >= 10000) return Math.round(n / 10000) + '만원';
+  return n.toLocaleString('ko-KR') + '원';
+}
+function calc() {
+  const res = document.getElementById('result');
+  const limits = [
+    {label:'투기과열지구', pct:40},
+    {label:'조정대상지역', pct:50},
+    {label:'생애최초 조정', pct:60},
+    {label:'일반 지역', pct:70},
+    {label:'생애최초 일반', pct:80},
+  ];
+
+  if (_mode === 1) {
+    const price = parseFloat(document.getElementById('price1').value);
+    const loan = parseFloat(document.getElementById('loan1').value);
+    if (!price || !loan || price <= 0) { res.classList.remove('show'); return; }
+    const ltv = loan / price * 100;
+    const color = ltv <= 40 ? '#4ade80' : ltv <= 50 ? '#86efac' : ltv <= 70 ? '#facc15' : '#f87171';
+    document.getElementById('ltvNum').textContent = ltv.toFixed(1);
+    document.getElementById('ltvNum').style.color = color;
+    document.getElementById('barFill').style.width = Math.min(ltv, 100) + '%';
+    document.getElementById('barFill').style.background = color;
+    const badge = document.getElementById('statusBadge');
+    if (ltv <= 40) { badge.textContent = '투기과열지구 이내'; badge.className = 'status-badge ok'; }
+    else if (ltv <= 50) { badge.textContent = '조정지역 이내'; badge.className = 'status-badge ok'; }
+    else if (ltv <= 70) { badge.textContent = '일반 지역 이내'; badge.className = 'status-badge warn'; }
+    else { badge.textContent = 'LTV 초과'; badge.className = 'status-badge fail'; }
+    const rows = limits.map(l => {
+      const max = price * l.pct / 100;
+      const over = loan > max;
+      return `<div class="d-row"><span class="dk">${l.label} (${l.pct}%)</span><span class="dv" style="color:${over?'#f87171':'#4ade80'}">${fmtW(max)} ${over ? '초과 ✕' : '이내 ✓'}</span></div>`;
+    }).join('');
+    document.getElementById('detailRows').innerHTML = rows;
+    res.classList.add('show');
+  } else {
+    const price = parseFloat(document.getElementById('price2').value);
+    const pct = parseFloat(document.getElementById('zoneSelect').value);
+    if (!price || price <= 0) { res.classList.remove('show'); return; }
+    const maxLoan = price * pct / 100;
+    document.getElementById('ltvNum').textContent = pct.toFixed(0);
+    document.getElementById('ltvNum').style.color = pct <= 40 ? '#4ade80' : pct <= 50 ? '#86efac' : pct <= 70 ? '#facc15' : '#60a5fa';
+    document.getElementById('barFill').style.width = pct + '%';
+    document.getElementById('barFill').style.background = '#4f8ef7';
+    const badge = document.getElementById('statusBadge');
+    badge.textContent = '최대 대출: ' + fmtW(maxLoan);
+    badge.className = 'status-badge ok';
+    const rows = `
+      <div class="d-row"><span class="dk">주택 가격</span><span class="dv">${fmtW(price)}</span></div>
+      <div class="d-row"><span class="dk">적용 LTV</span><span class="dv">${pct}%</span></div>
+      <div class="d-row"><span class="dk">최대 대출 가능 금액</span><span class="dv" style="color:var(--accent2)">${fmtW(maxLoan)}</span></div>
+      <div class="d-row"><span class="dk">필요 자기자본(최소)</span><span class="dv">${fmtW(price - maxLoan)}</span></div>`;
+    document.getElementById('detailRows').innerHTML = rows;
+    res.classList.add('show');
+  }
+}
+</script>
+</body>
+</html>
