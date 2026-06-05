@@ -57,10 +57,20 @@ main { max-width:700px; margin:0 auto; padding:56px 24px; }
 .hero h1 { font-size:clamp(36px,8vw,56px); font-weight:900; line-height:1.1; margin-bottom:14px; }
 .hero h1 span { background:linear-gradient(90deg,#4ade80,#4f8ef7,#c084fc,#fb923c,#2dd4bf); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
 .hero p { font-size:14px; color:var(--text-muted); line-height:1.8; }
+.filter-wrap { display:flex; align-items:center; gap:8px; margin:-8px 0 28px; }
+.filter-bar { display:flex; flex:1; flex-wrap:nowrap; gap:8px; overflow-x:auto; overflow-y:hidden; padding:2px 0 6px; scrollbar-width:none; -webkit-overflow-scrolling:touch; overscroll-behavior-x:contain; touch-action:pan-x; }
+.filter-bar::-webkit-scrollbar { display:none; }
+.filter-nav { width:30px; height:30px; border:1px solid var(--border); background:var(--surface); color:var(--text-muted); border-radius:999px; cursor:pointer; font-family:'DM Mono',monospace; font-size:16px; line-height:1; transition:all 0.15s; }
+.filter-nav:hover { border-color:#4ade80; color:#4ade80; }
+.filter-nav:disabled { opacity:0.35; cursor:default; border-color:var(--border); color:var(--text-dim); }
+.filter-chip { flex:0 0 auto; border:1px solid var(--border); background:var(--surface); color:var(--text-muted); border-radius:999px; padding:8px 14px; font-size:12px; font-family:'DM Mono',monospace; cursor:pointer; transition:all 0.15s; white-space:nowrap; }
+.filter-chip:hover { border-color:#4ade80; color:#4ade80; }
+.filter-chip.active { background:#4ade80; border-color:#4ade80; color:#000; font-weight:700; }
 .section { margin-bottom:32px; }
 .category-label { font-size:11px; color:var(--text-dim); letter-spacing:0.12em; text-transform:uppercase; font-family:'DM Mono',monospace; margin-bottom:10px; }
 .tools { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
 @media(max-width:500px) { .tools { grid-template-columns:1fr; } }
+@media(max-width:500px) { .filter-wrap { margin-bottom:22px; } .filter-nav { width:28px; height:28px; } }
 .tool-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px 18px; text-decoration:none; color:var(--text); display:flex; align-items:center; gap:14px; transition:all 0.2s; position:relative; overflow:hidden; }
 .tool-card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--card-color); opacity:0; transition:opacity 0.2s; }
 .tool-card:hover { border-color:var(--card-color); transform:translateX(3px); }
@@ -98,8 +108,24 @@ gtag('config', 'G-NR6VJF0534');
     <p data-i18n="heroSub">직장인, 알바생, 프리랜서, 개발자<br>누구나 쓸 수 있는 무료 온라인 도구 모음</p>
   </div>
 
+  <div class="filter-wrap">
+    <button class="filter-nav" type="button" id="filterPrev" aria-label="scroll categories left" onclick="scrollFilters(-220)">‹</button>
+    <div class="filter-bar" id="filterBar" aria-label="category filters" tabindex="0">
+      <button class="filter-chip active" type="button" data-filter="all" data-i18n="filterAll" onclick="setFilter('all', this)">전체</button>
+      <button class="filter-chip" type="button" data-filter="work" data-i18n="filterWork" onclick="setFilter('work', this)">근로·급여</button>
+      <button class="filter-chip" type="button" data-filter="tax" data-i18n="filterTax" onclick="setFilter('tax', this)">4대보험·세금</button>
+      <button class="filter-chip" type="button" data-filter="real" data-i18n="filterReal" onclick="setFilter('real', this)">부동산·대출</button>
+      <button class="filter-chip" type="button" data-filter="finance" data-i18n="filterFinance" onclick="setFilter('finance', this)">금융·재테크</button>
+      <button class="filter-chip" type="button" data-filter="health" data-i18n="filterHealth" onclick="setFilter('health', this)">건강·체력</button>
+      <button class="filter-chip" type="button" data-filter="life-ko" data-i18n="filterLifeKo" onclick="setFilter('life-ko', this)">일상·날짜(한국)</button>
+      <button class="filter-chip" type="button" data-filter="life" data-i18n="filterLife" onclick="setFilter('life', this)">일상 생활</button>
+      <button class="filter-chip" type="button" data-filter="dev" data-i18n="filterDev" onclick="setFilter('dev', this)">개발자 도구</button>
+    </div>
+    <button class="filter-nav" type="button" id="filterNext" aria-label="scroll categories right" onclick="scrollFilters(220)">›</button>
+  </div>
+
   <!-- ===== 근로·급여 (한국 전용) ===== -->
-  <div class="section ko-only" id="secWork">
+  <div class="section ko-only" id="secWork" data-cat="work">
     <div class="category-label">근로 · 급여</div>
     <div class="tools">
       <a href="salary.html" class="tool-card c1"><div class="tool-icon">💰</div><div class="tool-info"><div class="tool-name">연봉 실수령액 계산기</div><div class="tool-desc">4대보험·소득세 공제 후 세후 월급</div></div><div class="tool-arrow">→</div></a>
@@ -119,7 +145,7 @@ gtag('config', 'G-NR6VJF0534');
   </div>
 
   <!-- ===== 4대보험·세금 (한국 전용) ===== -->
-  <div class="section ko-only" id="secTax">
+  <div class="section ko-only" id="secTax" data-cat="tax">
     <div class="category-label">4대보험 · 세금</div>
     <div class="tools">
       <a href="four-insurance.html" class="tool-card c3"><div class="tool-icon">🏥</div><div class="tool-info"><div class="tool-name">4대보험 계산기</div><div class="tool-desc">국민연금·건강보험·고용·산재 계산</div></div><div class="tool-arrow">→</div></a>
@@ -139,7 +165,7 @@ gtag('config', 'G-NR6VJF0534');
   </div>
 
   <!-- ===== 부동산·대출 (한국 전용) ===== -->
-  <div class="section ko-only" id="secReal">
+  <div class="section ko-only" id="secReal" data-cat="real">
     <div class="category-label">부동산 · 대출</div>
     <div class="tools">
       <a href="loan-calc.html" class="tool-card c4"><div class="tool-icon">🏦</div><div class="tool-info"><div class="tool-name">대출이자 계산기</div><div class="tool-desc">원리금균등·원금균등 월 납입금 계산</div></div><div class="tool-arrow">→</div></a>
@@ -151,7 +177,7 @@ gtag('config', 'G-NR6VJF0534');
   </div>
 
   <!-- ===== 일상·날짜 (한국 전용) ===== -->
-  <div class="section ko-only" id="secLifeKo">
+  <div class="section ko-only" id="secLifeKo" data-cat="life-ko">
     <div class="category-label">일상 · 날짜 (한국)</div>
     <div class="tools">
       <a href="korean-age.html" class="tool-card c5"><div class="tool-icon">🎂</div><div class="tool-info"><div class="tool-name">만나이 계산기</div><div class="tool-desc">만나이·한국나이·생일 카운트다운</div></div><div class="tool-arrow">→</div></a>
@@ -160,7 +186,7 @@ gtag('config', 'G-NR6VJF0534');
   </div>
 
   <!-- ===== 금융·재테크 (글로벌) ===== -->
-  <div class="section" id="secFinance">
+  <div class="section" id="secFinance" data-cat="finance">
     <div class="category-label" data-i18n="labelFinance">금융 · 재테크</div>
     <div class="tools">
       <a href="compound-interest.html" class="tool-card c5"><div class="tool-icon">📈</div><div class="tool-info"><div class="tool-name" data-i18n="toolCompoundName">복리 계산기</div><div class="tool-desc" data-i18n="toolCompoundDesc">원금·이율로 복리 수익 계산</div></div><div class="tool-arrow">→</div></a>
@@ -176,7 +202,7 @@ gtag('config', 'G-NR6VJF0534');
   </div>
 
   <!-- ===== 건강·체력 (글로벌) ===== -->
-  <div class="section" id="secHealth">
+  <div class="section" id="secHealth" data-cat="health">
     <div class="category-label" data-i18n="labelHealth">건강 · 체력</div>
     <div class="tools">
       <a href="bmi-calculator.html" class="tool-card c1"><div class="tool-icon">⚖️</div><div class="tool-info"><div class="tool-name" data-i18n="toolBmiCalcName">BMI 계산기</div><div class="tool-desc" data-i18n="toolBmiCalcDesc">체질량지수 + 적정 체중 계산</div></div><div class="tool-arrow">→</div></a>
@@ -186,7 +212,7 @@ gtag('config', 'G-NR6VJF0534');
   </div>
 
   <!-- ===== 일상 생활 (글로벌) ===== -->
-  <div class="section" id="secLife">
+  <div class="section" id="secLife" data-cat="life">
     <div class="category-label" data-i18n="labelLife">일상 생활</div>
     <div class="tools">
       <a href="age-calculator.html" class="tool-card c6"><div class="tool-icon">🎂</div><div class="tool-info"><div class="tool-name" data-i18n="toolAgeCalcName">나이 계산기</div><div class="tool-desc" data-i18n="toolAgeCalcDesc">만나이 자동 계산</div></div><div class="tool-arrow">→</div></a>
@@ -201,7 +227,7 @@ gtag('config', 'G-NR6VJF0534');
   </div>
 
   <!-- ===== 개발자 도구 (글로벌) ===== -->
-  <div class="section" id="secDev">
+  <div class="section" id="secDev" data-cat="dev">
     <div class="category-label" data-i18n="labelDev">개발자 도구</div>
     <div class="tools">
       <a href="cron-generator.html" class="tool-card c9"><div class="tool-icon">⏱️</div><div class="tool-info"><div class="tool-name" data-i18n="toolCronName">Cron 표현식 생성기</div><div class="tool-desc" data-i18n="toolCronDesc">cron 생성·검증·다음 실행시간</div></div><div class="tool-arrow">→</div></a>
@@ -231,6 +257,7 @@ const i18n = {
     heroTitle:'모두의 툴',
     heroSub:'직장인, 알바생, 프리랜서, 개발자<br>누구나 쓸 수 있는 무료 온라인 도구 모음',
     langBtn:'🌐 EN',
+    filterAll:'전체', filterWork:'근로·급여', filterTax:'4대보험·세금', filterReal:'부동산·대출', filterFinance:'금융·재테크', filterHealth:'건강·체력', filterLifeKo:'일상·날짜(한국)', filterLife:'일상 생활', filterDev:'개발자 도구',
     // section labels
     labelFinance:'금융 · 재테크', labelHealth:'건강 · 체력', labelLife:'일상 생활', labelDev:'개발자 도구',
     // finance
@@ -279,6 +306,7 @@ const i18n = {
     heroTitle:'Modoo Hub',
     heroSub:'Free online tools for developers, workers & everyone.<br>All tools run in your browser — no data sent to servers.',
     langBtn:'🌐 中文',
+    filterAll:'All', filterWork:'Work & Pay', filterTax:'Insurance & Tax', filterReal:'Real Estate & Loans', filterFinance:'Finance & Investment', filterHealth:'Health & Fitness', filterLifeKo:'Daily & Dates (KR)', filterLife:'Daily Life', filterDev:'Developer Tools',
     labelFinance:'Finance & Investment', labelHealth:'Health & Fitness', labelLife:'Daily Life', labelDev:'Developer Tools',
     toolCompoundName:'Compound Interest', toolCompoundDesc:'Calculate compound growth over time',
     toolSavingsName:'Savings Calculator', toolSavingsDesc:'Monthly deposit & maturity amount',
@@ -321,6 +349,7 @@ const i18n = {
     heroTitle:'模都工具箱',
     heroSub:'开发者、上班族、自由职业者都能用的<br>免费在线工具集合，无需注册，数据不离开浏览器',
     langBtn:'🌐 한국어',
+    filterAll:'全部', filterWork:'工资·工作', filterTax:'保险·税金', filterReal:'房产·贷款', filterFinance:'金融·投资', filterHealth:'健康·体能', filterLifeKo:'日常·日期（韩国）', filterLife:'日常工具', filterDev:'开发者工具',
     labelFinance:'金融理财', labelHealth:'健康体能', labelLife:'日常工具', labelDev:'开发者工具',
     toolCompoundName:'复利计算器', toolCompoundDesc:'计算复利收益',
     toolSavingsName:'储蓄计算器', toolSavingsDesc:'月存款及到期金额计算',
@@ -371,6 +400,69 @@ function detectLang() {
 }
 
 let lang = detectLang();
+let currentFilter = 'all';
+let filterBarEl = null;
+
+function updateFilterNavState() {
+  const prev = document.getElementById('filterPrev');
+  const next = document.getElementById('filterNext');
+  if (!filterBarEl || !prev || !next) return;
+  const maxLeft = Math.max(0, filterBarEl.scrollWidth - filterBarEl.clientWidth);
+  prev.disabled = filterBarEl.scrollLeft <= 1;
+  next.disabled = filterBarEl.scrollLeft >= maxLeft - 1;
+}
+
+function scrollFilters(delta) {
+  if (!filterBarEl) return;
+  filterBarEl.scrollBy({ left: delta, behavior: 'smooth' });
+  setTimeout(updateFilterNavState, 220);
+}
+
+function initFilterBar() {
+  filterBarEl = document.getElementById('filterBar');
+  if (!filterBarEl) return;
+  filterBarEl.addEventListener('scroll', updateFilterNavState, { passive: true });
+  window.addEventListener('resize', updateFilterNavState);
+  // Vertical wheel should also scroll chips horizontally for common mouse users.
+  filterBarEl.addEventListener('wheel', (e) => {
+    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+      e.preventDefault();
+      filterBarEl.scrollLeft += e.deltaY;
+      updateFilterNavState();
+    }
+  }, { passive: false });
+  updateFilterNavState();
+}
+
+function applySectionFilter() {
+  const t = i18n[lang];
+  const visibleCats = new Set();
+  document.querySelectorAll('[data-cat]').forEach(section => {
+    const sectionVisibleByLang = !section.classList.contains('ko-only') || t.showKo;
+    if (sectionVisibleByLang) visibleCats.add(section.dataset.cat);
+    const matchFilter = currentFilter === 'all' || section.dataset.cat === currentFilter;
+    const visible = matchFilter && sectionVisibleByLang;
+    section.style.display = visible ? '' : 'none';
+  });
+  document.querySelectorAll('.filter-chip').forEach(btn => {
+    const showChip = btn.dataset.filter === 'all' || visibleCats.has(btn.dataset.filter);
+    btn.hidden = !showChip;
+  });
+  if (currentFilter !== 'all' && !visibleCats.has(currentFilter)) currentFilter = 'all';
+  document.querySelectorAll('.filter-chip').forEach(btn => {
+    const active = !btn.hidden && btn.dataset.filter === currentFilter;
+    btn.classList.toggle('active', active);
+    btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+  });
+  updateFilterNavState();
+}
+
+function setFilter(filter, btn) {
+  currentFilter = filter;
+  applySectionFilter();
+  if (btn) btn.scrollIntoView({ behavior:'smooth', inline:'center', block:'nearest' });
+  setTimeout(updateFilterNavState, 220);
+}
 
 function applyLang() {
   const t = i18n[lang];
@@ -384,14 +476,11 @@ function applyLang() {
     if (t[key] !== undefined) el.innerHTML = t[key];
   });
 
-  // 한국 전용 섹션 표시/숨김
-  document.querySelectorAll('.ko-only').forEach(el => {
-    el.style.display = t.showKo ? '' : 'none';
-  });
-
   // footer
   document.getElementById('footerText').innerHTML =
     t.footer + ' · <a href="privacy.html" style="color:var(--text-dim);text-decoration:none;">' + t.privacyLink + '</a>';
+
+  applySectionFilter();
 }
 
 const langOrder = ['ko','en','zh'];
@@ -407,6 +496,7 @@ function cycleLang() {
 }
 
 applyLang();
+initFilterBar();
 </script>
 </body>
 </html>

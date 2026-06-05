@@ -178,18 +178,130 @@
   </section>
 </div>
 
-  <footer>© 2026 Modoo Hub · <a href="index.html">홈으로</a></footer>
+<div class="divider"></div>
+
+<!-- 中文 -->
+<div id="zhContent" style="display:none">
+  <h1>隐私政策</h1>
+  <p class="updated">最后更新：2026年6月2日</p>
+
+  <section>
+    <h2>1. 概述</h2>
+    <p>Modoo Hub（modoohub.com，以下简称“本服务”）重视您的隐私。本政策说明您在使用本服务时可能被收集的信息及其用途。</p>
+  </section>
+
+  <section>
+    <h2>2. 我们收集的信息</h2>
+    <ul>
+      <li><strong>自动收集信息：</strong>访问页面、停留时间、浏览器类型、设备信息、IP 地址（通过 Google Analytics 匿名收集）</li>
+      <li><strong>Cookies / localStorage：</strong>语言偏好及部分设置将保存在您的浏览器本地。</li>
+    </ul>
+    <p>所有计算、转换与编码操作均在<strong>浏览器本地完成</strong>，输入数据不会上传到我们的服务器。</p>
+  </section>
+
+  <section>
+    <h2>3. 信息使用目的</h2>
+    <ul>
+      <li>统计分析与服务改进</li>
+      <li>保存语言偏好</li>
+      <li>广告展示（Google AdSense）</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>4. 第三方服务</h2>
+    <ul>
+      <li><strong>Google Analytics：</strong>访问统计。<a href="https://policies.google.com/privacy" target="_blank">Google 隐私政策</a></li>
+      <li><strong>Google AdSense：</strong>广告投放。可能使用 Cookie 提供个性化广告。<a href="https://policies.google.com/technologies/ads" target="_blank">Google 广告政策</a></li>
+      <li><strong>Google Fonts：</strong>加载字体时会向 Google 服务器发起请求。</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>5. Cookie 与广告</h2>
+    <p>Google AdSense 可能使用 Cookie 提供个性化广告。您可在浏览器设置中禁用 Cookie，或在 <a href="https://www.google.com/settings/ads" target="_blank">Google 广告设置</a> 中关闭个性化广告。</p>
+  </section>
+
+  <section>
+    <h2>6. 数据保留</h2>
+    <p>我们不会在服务器上单独保存用户输入数据。Google Analytics 数据由 Google 按其政策管理。保存在 localStorage 的语言设置可由用户随时删除。</p>
+  </section>
+
+  <section>
+    <h2>7. 用户权利</h2>
+    <p>您可随时通过清除浏览器 Cookie / localStorage 来重置已保存设置。</p>
+  </section>
+
+  <section>
+    <h2>8. 联系方式</h2>
+    <p>如有隐私相关问题，请联系：</p>
+    <p>邮箱：<a href="mailto:privacy@modoohub.com">privacy@modoohub.com</a></p>
+  </section>
+
+  <section>
+    <h2>9. 政策变更</h2>
+    <p>本政策可能随服务或法规变化而更新，更新内容将发布在本页面。</p>
+  </section>
+</div>
+
+  <footer>© 2026 Modoo Hub · <a href="index.html" id="footerHomeLink">홈으로</a></footer>
 </main>
 <script>
-let lang = localStorage.getItem('lang') || (navigator.language.startsWith('ko') ? 'ko' : 'en');
+let lang = (() => {
+  const urlLang = new URLSearchParams(location.search).get('lang');
+  if (urlLang === 'ko' || urlLang === 'en' || urlLang === 'zh') return urlLang;
+  const saved = localStorage.getItem('lang');
+  if (saved === 'ko' || saved === 'en' || saved === 'zh') return saved;
+  const nav = navigator.language || '';
+  if (nav.startsWith('zh')) return 'zh';
+  if (nav.startsWith('ko')) return 'ko';
+  return 'en';
+})();
+
+const i18n = {
+  ko: {
+    langBtn:'🌐 EN',
+    backLink:'← 모두의 툴',
+    pageTitle:'개인정보처리방침 | Modoo Hub',
+    footerHome:'홈으로',
+  },
+  en: {
+    langBtn:'🌐 中文',
+    backLink:'← Home',
+    pageTitle:'Privacy Policy | Modoo Hub',
+    footerHome:'Home',
+  },
+  zh: {
+    langBtn:'🌐 한국어',
+    backLink:'← 首页',
+    pageTitle:'隐私政策 | Modoo Hub',
+    footerHome:'首页',
+  }
+};
+
 function applyLang() {
+  const t = i18n[lang];
   document.getElementById('koContent').style.display = lang==='ko' ? '' : 'none';
   document.getElementById('enContent').style.display = lang==='en' ? '' : 'none';
-  document.getElementById('langBtn').textContent = lang==='ko' ? '🌐 EN' : '🌐 한국어';
-  document.getElementById('backLink').textContent = lang==='ko' ? '← 모두의 툴' : '← Modoo Hub';
-  document.title = lang==='ko' ? '개인정보처리방침 | Modoo Hub' : 'Privacy Policy | Modoo Hub';
+  document.getElementById('zhContent').style.display = lang==='zh' ? '' : 'none';
+  document.getElementById('langBtn').textContent = t.langBtn;
+  document.getElementById('backLink').textContent = t.backLink;
+  document.getElementById('footerHomeLink').textContent = t.footerHome;
+  document.title = t.pageTitle;
 }
-function toggleLang() { lang=lang==='ko'?'en':'ko'; localStorage.setItem('lang',lang); applyLang(); }
+
+function toggleLang() {
+  const order = ['ko','en','zh'];
+  const idx = order.indexOf(lang);
+  lang = order[(idx + 1) % order.length];
+  localStorage.setItem('lang',lang);
+  const url = new URL(location.href);
+  if (lang === 'ko') url.searchParams.delete('lang');
+  else url.searchParams.set('lang', lang);
+  history.replaceState({}, '', url);
+  applyLang();
+}
+
 applyLang();
 </script>
 </body>
