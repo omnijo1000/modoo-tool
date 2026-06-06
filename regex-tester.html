@@ -215,12 +215,54 @@ if (!i18n.zh) {
   i18n.zh = { ...i18n.en };
 }
 
+if (!i18n.ja) i18n.ja = { ...i18n.en };
+Object.assign(i18n.ja, {
+  pageTitle:'正規表現テスター - Regex テスト・検証ツール',
+  h1:'正規表現<br><span>テスター</span>',
+  sub:'正規表現をリアルタイムでテストしてマッチング結果を確認',
+  backLink:'← ホーム',
+  langBtn:'🌐 한국어',
+  flagLabel:'フラグ:',
+  flagG:'g 全体',
+  flagI:'i 大小文字無視',
+  flagM:'m 複数行',
+  flagS:'s 改行含む',
+  labelTest:'テスト文字列',
+  labelHighlight:'マッチハイライト',
+  labelPresets:'よく使う正規表現',
+  regexPlaceholder:'regex pattern...',
+  flagPlaceholder:'flags',
+  seoTitle1:'正規表現（Regex）とは？',
+  seoBody1:'正規表現（Regular Expression）は文字列から特定のパターンを検索・検証するための文字パターンです。メール、電話番号、URLの形式検証やテキスト抽出などに活用されます。',
+  seoTitle2:'よくある質問',
+  seoFaq1:'<strong>Q. gフラグとは何ですか？</strong><br>A. globalフラグで、文字列全体からパターンに一致するすべての項目を検索します。gなしでは最初の一致のみ返します。',
+  seoFaq2:'<strong>Q. 日本語テキストをマッチするには？</strong><br>A. [\\u3040-\\u30FF\\u4E00-\\u9FAF]+ を使用して日本語文字をマッチできます。',
+  seoFaq3:'<strong>Q. メール検証の正規表現はありますか？</strong><br>A. はい。プリセットから「Email」をクリックするとすぐに適用されます。',
+  seoFaq4:'<strong>Q. 特殊文字をそのままマッチするには？</strong><br>A. バックスラッシュでエスケープします。例）ドット(.)をマッチするには \\. を使用します。',
+  footer:'JavaScript RegExp 基準 · リアルタイム処理、サーバー送信なし',
+  statusNone:'⚠ マッチなし',
+  statusErr:'✗ 無効な正規表現: ',
+  matchCountTpl:(n)=>`${n}件マッチ`,
+  groupTpl:(i,v)=>`グループ${i+1}: ${v}`,
+  sampleText:`こんにちは！メールは test@example.com です。\n電話番号は 090-1234-5678 です。\nホームページは https://www.example.com です。\n日付: 2026-06-01`,
+  presets:[
+    {name:'メール',pattern:'[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}',flags:'gi'},
+    {name:'日本の携帯',pattern:'0[789]0-?\\d{4}-?\\d{4}',flags:'g'},
+    {name:'URL',pattern:'https?://[^\\s]+',flags:'gi'},
+    {name:'日付 (YYYY-MM-DD)',pattern:'\\d{4}-\\d{2}-\\d{2}',flags:'g'},
+    {name:'数字のみ',pattern:'\\d+',flags:'g'},
+    {name:'英単語のみ',pattern:'\\b[a-zA-Z]+\\b',flags:'g'},
+    {name:'メール（厳密）',pattern:'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',flags:'gm'},
+    {name:'IPv4アドレス',pattern:'\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b',flags:'g'},
+  ],
+});
+
 Object.assign(i18n.zh, {
   pageTitle:'正则表达式测试器 - Regex 在线测试与验证',
   h1:'正则<br><span>测试器</span>',
   sub:'实时测试正则表达式并查看匹配结果',
   backLink:'← 首页',
-  langBtn:'🌐 한국어',
+  langBtn:'🌐 日本語',
   flagLabel:'标志:',
   flagG:'g 全局',
   flagI:'i 忽略大小写',
@@ -260,6 +302,7 @@ let lang = localStorage.getItem('lang');
 if (!lang || !i18n[lang]) {
   const nav = navigator.language || '';
   if (nav.startsWith('zh')) lang = 'zh';
+  else if (nav.startsWith('ja')) lang = 'ja';
   else if (nav.startsWith('ko')) lang = 'ko';
   else lang = 'en';
 }
@@ -297,7 +340,7 @@ function applyLang() {
 }
 
 function toggleLang() {
-  const order = ['ko','en','zh'];
+  const order = ['ko','en','zh','ja'];
   const idx = order.indexOf(lang);
   lang = order[(idx + 1) % order.length];
   localStorage.setItem('lang', lang);

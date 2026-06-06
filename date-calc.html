@@ -157,7 +157,7 @@
   <footer>공휴일은 미포함 · 영업일 계산은 주말만 제외</footer>
 </main>
 <script>
-const DAYS_MAP = {ko:['일','월','화','수','목','금','토'],en:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],zh:['日','一','二','三','四','五','六']};
+const DAYS_MAP = {ko:['일','월','화','수','목','금','토'],en:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],zh:['日','一','二','三','四','五','六'],ja:['日','月','火','水','木','金','土']};
 function DAYS(i){return (DAYS_MAP[_lang]||DAYS_MAP.ko)[i];}
 let currentTab = 'add';
 let currentOp = '+';
@@ -287,13 +287,21 @@ const _i18n = {
     movedDays:'Days moved', lblWeek:'Weeks', lblMonthApprox:'Months (approx)', lblYearApprox:'Years (approx)', bizDaysLabel:'Business days (excl. weekends)',
     unitDay:'d', unitWeek:'w', unitMonth:'mo', unitYear:'y',
   },
-  zh: { lang:'zh', title:'日期计算器 - 日期加减·日期差计算', h1:'日期计算器', sub:'日期加减运算，计算两日期之间的天数和期间。', btn:'🌐 한국어',
+  zh: { lang:'zh', title:'日期计算器 - 日期加减·日期差计算', h1:'日期计算器', sub:'日期加减运算，计算两日期之间的天数和期间。', btn:'🌐 日本語',
     tabAdd:'日期加减', tabDiff:'日期差计算', baseLabel:'基准日期',
     opAdd:'+ 加', opSub:'− 减', lblDays:'天数', lblMonths:'月数',
     bizWeekend:'排除周末（工作日）', lblFrom:'开始日期', lblTo:'结束日期',
     bizCal:'工作日基准', calCal:'日历基准', after:'后', before:'前',
     movedDays:'移动天数', lblWeek:'周', lblMonthApprox:'月（约）', lblYearApprox:'年（约）', bizDaysLabel:'工作日（排除周末）',
     unitDay:'天', unitWeek:'周', unitMonth:'月', unitYear:'年',
+  },
+  ja: { lang:'ja', title:'日付計算機 - 日付の加算・減算・期間計算 | 無料オンラインツール', h1:'日付<br><span>計算機</span>', sub:'日付の加算・減算、2つの日付の間の期間を計算します。', btn:'🌐 한국어',
+    tabAdd:'日付の加算/減算', tabDiff:'期間計算', baseLabel:'基準日',
+    opAdd:'+ 加算', opSub:'− 減算', lblDays:'日数', lblMonths:'月数',
+    bizWeekend:'週末を除く（営業日ベース）', lblFrom:'開始日', lblTo:'終了日',
+    bizCal:'営業日ベース', calCal:'暦日ベース', after:'後', before:'前',
+    movedDays:'移動した日数', lblWeek:'週', lblMonthApprox:'ヶ月（約）', lblYearApprox:'年（約）', bizDaysLabel:'営業日（週末を除く）',
+    unitDay:'日', unitWeek:'週', unitMonth:'ヶ月', unitYear:'年',
   }
 };
 Object.assign(_i18n.ko, {
@@ -317,8 +325,16 @@ Object.assign(_i18n.zh, {
   seoP1:'可以在基准日期上加减天数，或计算两个日期之间的间隔（天、周、月、工作日）。适用于到期日、交付日、合同期限等场景。',
   seoTitle2:'常见问题',
   seoFaq1:'<strong>问：什么是工作日计算？</strong><br>答：只统计工作日，默认排除周末（周六/周日），不自动排除法定节假日。',
-  seoFaq2:'<strong>问：如何计算 30 天后的日期？</strong><br>答：在“日期加减”标签中选择基准日期，并将天数输入为 30。',
+  seoFaq2:'<strong>问：如何计算 30 天后的日期？</strong><br>答：在”日期加减”标签中选择基准日期，并将天数输入为 30。',
   seoFaq3:'<strong>问：可以用于合同到期日计算吗？</strong><br>答：可以，输入合同开始日期和合同期限（月）即可计算到期日。'
+});
+Object.assign(_i18n.ja, {
+  seoTitle1:'日付計算機の使い方',
+  seoP1:'基準日に日数を加減算したり、2つの日付間の期間（日数・週数・月数・営業日）を計算したりできます。契約満了日・納期・法的期限の計算に便利です。',
+  seoTitle2:'よくある質問',
+  seoFaq1:'<strong>Q. 営業日計算とは？</strong><br>A. 土日を除いた実際の業務日だけを数える方式です。祝日は自動的には除外されません。',
+  seoFaq2:'<strong>Q. 30日後の日付を求めるには？</strong><br>A. 「日付の加算/減算」タブで基準日を選択し、日数に 30 を入力してください。',
+  seoFaq3:'<strong>Q. 契約満了日の計算にも使えますか？</strong><br>A. はい。契約開始日と契約期間（月数）を入力すると満了日を計算できます。'
 });
 function _detectLang() {
   const u = new URLSearchParams(location.search).get('lang');
@@ -327,6 +343,7 @@ function _detectLang() {
   if (s && _i18n[s]) return s;
   const n = navigator.language || '';
   if (n.startsWith('zh')) return 'zh';
+  else if (n.startsWith('ja')) return 'ja';
   if (n.startsWith('ko')) return 'ko';
   return 'en';
 }
@@ -358,9 +375,9 @@ function _applyLang() {
   const seoFaq3 = document.getElementById('seoFaq3');
   if (seoFaq3) seoFaq3.innerHTML = t.seoFaq3;
   const back = document.querySelector('.back-link');
-  if (back) back.textContent = (_lang === 'ko') ? '← 모두의 툴' : (_lang === 'zh') ? '← 首页' : '← Home';
+  if (back) back.textContent = (_lang === 'ko') ? '← 모두의 툴' : (_lang === 'zh') ? '← 首页' : (_lang === 'ja') ? '← ホーム' : '← Home';
 }
-const _langOrder = ['ko','en','zh'];
+const _langOrder = ['ko','en','zh','ja'];
 function cycleLang() {
   const idx = _langOrder.indexOf(_lang);
   _lang = _langOrder[(idx + 1) % _langOrder.length];

@@ -109,11 +109,12 @@ const PDFJS_WORKER='https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.w
 const _i18n={
   ko:{sub:'PDF 페이지를 PNG 이미지로 변환 · 개별 또는 전체 다운로드',langBtn:'🌐 EN',backBtn:'← 모두의 툴',dropText:'PDF 파일을 드래그하거나 클릭해서 선택',scaleLabel:'해상도',convBtn:'▶ 변환',dlAllBtn:'⬇ 모두 다운로드',seoH2:'PDF to Image란?',seoP:'PDF.js로 브라우저에서 직접 PDF 페이지를 PNG로 변환합니다. 해상도 조절과 개별/전체 다운로드를 지원합니다.'},
   en:{sub:'Convert PDF pages to PNG images · Download individually or all at once',langBtn:'🌐 中文',backBtn:'← All Tools',dropText:'Drag & drop or click to select PDF',scaleLabel:'Resolution',convBtn:'▶ Convert',dlAllBtn:'⬇ Download All',seoH2:'PDF to Image',seoP:'Convert PDF pages to PNG images directly in the browser using PDF.js. Adjust resolution and download pages individually or all at once.'},
-  zh:{sub:'将PDF页面转换为PNG图片 · 单页或全部下载',langBtn:'🌐 한국어',backBtn:'← 所有工具',dropText:'拖放或点击选择PDF文件',scaleLabel:'分辨率',convBtn:'▶ 转换',dlAllBtn:'⬇ 全部下载',seoH2:'PDF转图片工具',seoP:'使用PDF.js在浏览器中直接将PDF页面转换为PNG图片，支持分辨率调节和单页/全部下载。'},
+  zh:{sub:'将PDF页面转换为PNG图片 · 单页或全部下载',langBtn:'🌐 日本語',backBtn:'← 所有工具',dropText:'拖放或点击选择PDF文件',scaleLabel:'分辨率',convBtn:'▶ 转换',dlAllBtn:'⬇ 全部下载',seoH2:'PDF转图片工具',seoP:'使用PDF.js在浏览器中直接将PDF页面转换为PNG图片，支持分辨率调节和单页/全部下载。'},
+  ja:{sub:'PDFページをPNG画像に変換 · 個別または全ページダウンロード',langBtn:'🌐 한국어',backBtn:'← ホーム',dropText:'PDFファイルをドラッグするかクリックして選択',scaleLabel:'解像度',convBtn:'▶ 変換',dlAllBtn:'⬇ 全てダウンロード',seoH2:'PDF to Imageとは？',seoP:'PDF.jsを使用してブラウザで直接PDFページをPNG画像に変換します。解像度の調整と個別/全ページのダウンロードに対応しています。'},
 };
 let _lang='ko',_pdfDoc=null,_canvases=[],_origName='';
-const LANGS=['ko','en','zh'];
-function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=navigator.language?.slice(0,2);return n==='zh'?'zh':n==='ko'?'ko':'en';}
+const LANGS=['ko','en','zh','ja'];
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=navigator.language?.slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
 function cycleLang(){const idx=LANGS.indexOf(_lang);_lang=LANGS[(idx+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const url=new URL(location.href);url.searchParams.set('lang',_lang);history.replaceState({},'',url);applyLang();}
 function applyLang(){const t=_i18n[_lang];document.documentElement.lang=_lang;document.getElementById('langBtn').textContent=t.langBtn;document.getElementById('backBtn').innerHTML=t.backBtn;document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.dataset.i18n;if(t[k]!==undefined)el.innerHTML=t[k];});}
 function ev(e,type){e.preventDefault();const dz=document.getElementById('dropZone');if(type==='over')dz.classList.add('over');else if(type==='leave')dz.classList.remove('over');else{dz.classList.remove('over');const f=e.dataTransfer.files[0];if(f)loadPDF(f);}}

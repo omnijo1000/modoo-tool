@@ -274,7 +274,7 @@ const _i18n = {
     diffTitle:'Time difference', diffStartLabel:'Start time', diffEndLabel:'End time',
     dHLabel:'Hours', dMLabel:'Minutes', dSLabel:'In seconds', dTMLabel:'In minutes',
   },
-  zh: { lang:'zh', title:'时间计算器 - 工作时间·时间加减计算', h1:'时间计算器', sub:'计算工作时间、多时段累加、时间加减运算。', btn:'🌐 한국어',
+  zh: { lang:'zh', title:'时间计算器 - 工作时间·时间加减计算', h1:'时间计算器', sub:'计算工作时间、多时段累加、时间加减运算。', btn:'🌐 日本語',
     tabWork:'工时计算', tabSum:'时间累加', tabDiff:'时间相减',
     workTitle:'上下班时间', startLabel:'上班时间', endLabel:'下班时间',
     breakLabel:'扣除休息时间', unitMin:'分', unitH:'小时 ', unitDay:'天', unitSec:'秒', none:'—', phHour:'时', phMin:'分', calcBtn:'计算',
@@ -284,6 +284,17 @@ const _i18n = {
     sHourLabel:'总小时数', sMinLabel:'总分钟数', sDayLabel:'换算工作日（8h基准）', sTotalMinLabel:'换算分钟',
     diffTitle:'时间差计算', diffStartLabel:'开始时间', diffEndLabel:'结束时间',
     dHLabel:'小时', dMLabel:'分钟', dSLabel:'换算秒', dTMLabel:'换算分钟',
+  },
+  ja: { lang:'ja', title:'時間計算機 - 労働時間・時間の足し算・引き算', h1:'時間計算機', sub:'出退勤時間で労働時間を計算、複数の時間を合算、時間の引き算もまとめて。', btn:'🌐 한국어',
+    tabWork:'労働時間計算', tabSum:'時間合算', tabDiff:'時間の引き算',
+    workTitle:'出退勤時間', startLabel:'出勤時間', endLabel:'退勤時間',
+    breakLabel:'休憩時間を除く', unitMin:'分', unitH:'時間 ', unitDay:'日', unitSec:'秒', none:'なし', phHour:'時', phMin:'分', calcBtn:'計算する',
+    wTotalLabel:'総在席時間', wNetLabel:'実労働時間', wOvertimeLabel:'残業（8時間超）', wNightLabel:'深夜勤務（22~06時）',
+    workNotice:'※ 残業は法定労働時間8時間超過分です。深夜勤務（午後10時〜午前6時）の該当有無も表示します。',
+    sumTitle:'時間リストを入力（時:分）', addRowBtn:'+ 行を追加', sumBtn:'合算する',
+    sHourLabel:'合計時間', sMinLabel:'合計分', sDayLabel:'日換算（8時間基準）', sTotalMinLabel:'分換算',
+    diffTitle:'時間差計算', diffStartLabel:'開始時間', diffEndLabel:'終了時間',
+    dHLabel:'時間', dMLabel:'分', dSLabel:'秒換算', dTMLabel:'分換算',
   }
 };
 Object.assign(_i18n.ko, {
@@ -304,6 +315,12 @@ Object.assign(_i18n.zh, {
   seoP2:'<strong>问：夜间津贴从几点开始？</strong><br>答：通常在 22:00 至次日 06:00 的工作时间适用夜间加成（韩国劳动基准法第56条）。',
   seoP3:'<strong>问：加班费如何计算？</strong><br>答：超过法定工时（每日 8 小时、每周 40 小时）部分通常按 50% 加成计算，每周延长工时上限为 12 小时。'
 });
+Object.assign(_i18n.ja, {
+  seoTitle1:'時間計算機の使い方',
+  seoP1:'労働時間計算モードでは出勤・退勤時間を入力すると実労働時間を自動計算します。休憩時間を分単位で入力すると、差し引いた純粋な労働時間が表示されます。',
+  seoP2:'<strong>Q. 深夜手当は何時からですか？</strong><br>A. 午後10時（22:00）から午前6時（06:00）までの労働には通常賃金の25〜50%割増の深夜手当が適用されます。',
+  seoP3:'<strong>Q. 残業代はどう計算しますか？</strong><br>A. 法定労働時間（1日8時間・週40時間）を超えた部分は通常賃金の25〜50%割増で計算します。時間外労働は週40時間を超えて45時間まで可能です。'
+});
 function _detectLang() {
   const u = new URLSearchParams(location.search).get('lang');
   if (u && _i18n[u]) return u;
@@ -311,6 +328,7 @@ function _detectLang() {
   if (s && _i18n[s]) return s;
   const n = navigator.language || '';
   if (n.startsWith('zh')) return 'zh';
+  else if (n.startsWith('ja')) return 'ja';
   if (n.startsWith('ko')) return 'ko';
   return 'en';
 }
@@ -338,13 +356,13 @@ function _applyLang() {
   const seoP3 = document.getElementById('seoP3');
   if (seoP3) seoP3.innerHTML = t.seoP3;
   const back = document.querySelector('.back-link');
-  if (back) back.textContent = (_lang === 'ko') ? '← 모두의 툴' : (_lang === 'zh') ? '← 首页' : '← Home';
+  if (back) back.textContent = (_lang === 'ko') ? '← 모두의 툴' : (_lang === 'zh') ? '← 首页' : (_lang === 'ja') ? '← ホーム' : '← Home';
   const unitMinSpan = document.getElementById('unitMin');
-  if (unitMinSpan) unitMinSpan.textContent = {ko:'분',en:'min',zh:'分'}[_lang]||'분';
+  if (unitMinSpan) unitMinSpan.textContent = {ko:'분',en:'min',zh:'分',ja:'分'}[_lang]||'분';
   const brkInput = document.getElementById('breakMin');
-  if (brkInput) brkInput.placeholder = {ko:'분',en:'min',zh:'分'}[_lang]||'분';
+  if (brkInput) brkInput.placeholder = {ko:'분',en:'min',zh:'分',ja:'分'}[_lang]||'분';
 }
-const _langOrder = ['ko','en','zh'];
+const _langOrder = ['ko','en','zh','ja'];
 function cycleLang() {
   const idx = _langOrder.indexOf(_lang);
   _lang = _langOrder[(idx + 1) % _langOrder.length];

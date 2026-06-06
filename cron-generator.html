@@ -246,6 +246,45 @@ const i18n = {
       {name:'星期',desc:'0=日 1=一 2=二 3=三 4=四 5=五 6=六',opts:[{l:'每天 *',v:'*'},{l:'工作日',v:'1-5'},{l:'周末',v:'0,6'},{l:'周一',v:'1'},{l:'周五',v:'5'},{l:'周日',v:'0'}]},
     ],
     refs:[{e:'*',d:'任意值'},{e:',',d:'列表 (1,3,5)'},{e:'-',d:'范围 (1-5)'},{e:'/',d:'间隔 (*/5)'},{e:'L',d:'最后一天'},{e:'?',d:'不指定 (Spring)'}],
+  },
+  ja: {
+    pageTitle: 'Cron 式ジェネレーター - 無料オンラインツール',
+    h1: 'Cron <span>式ジェネレーター</span>',
+    sub: 'クリックで cron 式を生成し、次回実行時刻を確認できます',
+    backLink: '← ホーム',
+    langBtn: '🌐 한국어',
+    labelExpr: '生成された Cron 式',
+    copyBtn: 'コピー', copyDone: 'コピー済み ✓',
+    labelPresets: 'よく使う式',
+    labelBuilder: 'ビジュアルビルダー',
+    labelManual: '手動入力と検証',
+    manualHint: '式を入力するとビルダーに反映されます',
+    labelNext: '次回実行予定時刻',
+    labelRef: '特殊文字の説明',
+    seoTitle1: 'Cron 式とは？',
+    seoBody1: 'Cron は Unix 系システムで特定の時刻にジョブを自動実行するスケジューラです。Cron 式は「分 時 日 月 曜日」の 5 フィールドで構成され、Spring @Scheduled、Jenkins、GitHub Actions などで使用されます。',
+    seoTitle2: 'よくある質問',
+    seoBody2: '<strong>Q. Spring @Scheduled と標準 cron の違いは？</strong><br>A. Spring は先頭に秒フィールドが追加され、合計 6 フィールドになります。例: "0 0 9 * * MON-FRI"。',
+    seoFaq1: '<strong>Q. */5 * * * * の意味は？</strong><br>A. 5 分ごとに実行されます。*/n は n 分（時間/日）ごとに実行する間隔指定です。',
+    seoFaq2: '<strong>Q. 平日の午前 9 時だけ実行するには？</strong><br>A. 0 9 * * 1-5 を使います。1-5 は月曜（1）から金曜（5）を意味します。',
+    seoFaq3: '<strong>Q. 毎月の最終日に実行するには？</strong><br>A. 日フィールドに L を使います。例: 0 0 L * *（毎月最終日の深夜）。',
+    footer: '標準 5 フィールド cron · Spring @Scheduled は先頭に秒フィールドが必要',
+    days:['日','月','火','水','木','金','土'],
+    presets:[
+      {name:'毎時整刻',expr:'0 * * * *'},{name:'毎日深夜',expr:'0 0 * * *'},
+      {name:'毎日午前9時',expr:'0 9 * * *'},{name:'平日午前9時',expr:'0 9 * * 1-5'},
+      {name:'毎月1日',expr:'0 0 1 * *'},{name:'5分ごと',expr:'*/5 * * * *'},
+      {name:'30分ごと',expr:'*/30 * * * *'},{name:'毎週日曜',expr:'0 0 * * 0'},
+      {name:'毎週月曜',expr:'0 0 * * 1'},{name:'平日午後6時',expr:'0 18 * * 1-5'},
+    ],
+    fields:[
+      {name:'分',desc:'0–59 · * (毎分) · */5 (5分ごと)',opts:[{l:'毎分 *',v:'*'},{l:'整刻 0',v:'0'},{l:'5分ごと',v:'*/5'},{l:'10分ごと',v:'*/10'},{l:'15分ごと',v:'*/15'},{l:'30分ごと',v:'*/30'}]},
+      {name:'時',desc:'0–23 · * (毎時) · 9-18 (9時〜18時)',opts:[{l:'毎時 *',v:'*'},{l:'深夜 0',v:'0'},{l:'午前9時',v:'9'},{l:'正午 12',v:'12'},{l:'午後6時',v:'18'},{l:'6時間ごと',v:'*/6'}]},
+      {name:'日',desc:'1–31 · * (毎日)',opts:[{l:'毎日 *',v:'*'},{l:'1日',v:'1'},{l:'15日',v:'15'},{l:'1日,15日',v:'1,15'},{l:'最終日 L',v:'L'}]},
+      {name:'月',desc:'1–12 · * (毎月)',opts:[{l:'毎月 *',v:'*'},{l:'1月',v:'1'},{l:'四半期ごと',v:'*/3'},{l:'半年ごと',v:'*/6'}]},
+      {name:'曜日',desc:'0=日 1=月 2=火 3=水 4=木 5=金 6=土',opts:[{l:'毎日 *',v:'*'},{l:'平日',v:'1-5'},{l:'週末',v:'0,6'},{l:'月曜',v:'1'},{l:'金曜',v:'5'},{l:'日曜',v:'0'}]},
+    ],
+    refs:[{e:'*',d:'任意の値'},{e:',',d:'リスト (1,3,5)'},{e:'-',d:'範囲 (1-5)'},{e:'/',d:'間隔 (*/5)'},{e:'L',d:'最終日'},{e:'?',d:'指定なし (Spring)'}],
   }
 };
 
@@ -253,6 +292,7 @@ let lang = localStorage.getItem('lang');
 if (!lang || !i18n[lang]) {
   const nav = navigator.language || '';
   if (nav.startsWith('zh')) lang = 'zh';
+  else if (nav.startsWith('ja')) lang = 'ja';
   else if (nav.startsWith('ko')) lang = 'ko';
   else lang = 'en';
 }
@@ -287,7 +327,7 @@ function applyLang() {
 }
 
 function toggleLang() {
-  const order = ['ko','en','zh'];
+  const order = ['ko','en','zh','ja'];
   const idx = order.indexOf(lang);
   lang = order[(idx + 1) % order.length];
   localStorage.setItem('lang', lang);
