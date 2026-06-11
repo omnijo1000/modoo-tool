@@ -87,7 +87,11 @@
 
   .seo { border-top:1px solid var(--border); padding-top:32px; }
   .seo h2 { font-size:16px; font-weight:700; margin-bottom:12px; }
-  .seo p { font-size:13px; color:var(--text-muted); line-height:1.8; margin-bottom:24px; }
+  .seo p { font-size:13px; color:var(--text-muted); line-height:1.8; margin-bottom:14px; }
+  .seo strong { color:var(--accent); }
+  .seo-sub { font-size:14px; font-weight:700; margin:18px 0 8px; color:var(--text-muted); }
+  .seo-ul { font-size:13px; color:var(--text-muted); line-height:1.8; padding-left:18px; margin-bottom:20px; }
+  .seo-ul li { margin-bottom:4px; }
   footer { text-align:center; font-size:12px; color:var(--text-dim); margin-top:48px; }
 
 .faq-section{margin-top:40px;border-top:1px solid var(--border);padding-top:32px;}
@@ -298,9 +302,11 @@
 
   <div class="seo">
     <h2 id="seoTitle1">Base64란?</h2>
-    <p id="seoBody1">Base64는 바이너리 데이터를 ASCII 문자열로 변환하는 인코딩 방식입니다. JWT 토큰, 이메일 첨부파일, 이미지 데이터 URI 등에서 사용됩니다.</p>
+    <p id="seoBody1">Base64는 바이너리 데이터를 ASCII 문자열로 변환하는 인코딩 방식입니다.</p>
+    <h3 class="seo-sub" id="exH3">활용 예제</h3>
+    <ul class="seo-ul" id="exList"><li>로딩 중...</li></ul>
     <h2 id="seoTitle2">URL 인코딩이란?</h2>
-    <p id="seoBody2">URL 인코딩(Percent Encoding)은 URL에서 사용할 수 없는 문자를 %XX 형식으로 변환합니다. 한글, 공백, 특수문자는 반드시 인코딩해야 합니다.</p>
+    <p id="seoBody2">URL 인코딩(Percent Encoding)은 URL에서 사용할 수 없는 문자를 %XX 형식으로 변환합니다.</p>
   </div>
   <footer id="footerText">모든 처리는 브라우저에서만 이루어집니다 · 서버로 전송되지 않습니다</footer>
   <div id="faqSection" class="faq-section"></div>
@@ -318,10 +324,12 @@ const i18n = {
     labelInput:'입력 (원문)', labelOutput:'출력 (결과)', copyBtn:'복사',
     statusIdle:'텍스트를 입력하고 인코딩/디코딩 버튼을 누르세요',
     refTitle:'자주 쓰는 URL 인코딩 참조',
-    seoTitle1:'Base64란?',
-    seoBody1:'Base64는 바이너리 데이터를 ASCII 문자열로 변환하는 인코딩 방식입니다. JWT 토큰, 이미지 데이터 URI 등에서 사용됩니다.',
-    seoTitle2:'URL 인코딩이란?',
-    seoBody2:'URL 인코딩(Percent Encoding)은 URL에서 사용할 수 없는 문자를 %XX 형식으로 변환합니다.',
+    seoTitle1:'Base64 완전 가이드',
+    seoBody1:'<strong>Base64</strong>는 바이너리 데이터(이진수)를 64개의 ASCII 출력 가능 문자(A–Z, a–z, 0–9, +, /)로 변환하는 인코딩 방식으로, RFC 4648 표준을 따릅니다. 3바이트를 4개의 ASCII 문자로 변환하므로 데이터 크기가 약 <strong>33% 증가</strong>합니다. 암호화가 아닌 단순 인코딩이므로 키 없이 누구나 디코딩할 수 있습니다. <strong>URL-safe Base64</strong>는 +를 -, /를 _로 대체해 URL·파일명에 안전하게 사용하며 JWT 토큰은 항상 이 방식을 사용합니다.',
+    exH3:'활용 예제',
+    exList:'<li>JWT 토큰 파싱: eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjoiYWxpY2UifQ.xxx → 페이로드 URL-safe 디코딩 → {"user":"alice"}</li><li>이미지 Data URI: &lt;img src="data:image/png;base64,iVBORw0KGg..."/&gt; — 소용량 아이콘을 HTTP 요청 없이 삽입</li><li>이메일 첨부파일: MIME/multipart에서 바이너리 첨부파일을 Base64로 인코딩해 텍스트 이메일 프로토콜로 전송</li><li>API 인증: Basic Auth 헤더 Authorization: Basic dXNlcjpwYXNz → Base64 디코딩 → user:pass</li><li>CSS 인라인 폰트: @font-face src에 Base64 폰트 데이터 직접 삽입</li><li>바이너리 JSON 전송: JSON에 직접 넣을 수 없는 바이너리 파일을 Base64 문자열로 변환</li>',
+    seoTitle2:'URL 인코딩(퍼센트 인코딩) 완전 가이드',
+    seoBody2:'<strong>URL 인코딩(Percent Encoding)</strong>은 RFC 3986에 따라 URL에서 사용 불가한 문자를 %XX 형식(XX = 16진수 UTF-8 바이트)으로 변환합니다. 한글·중국어는 UTF-8에서 3바이트로 표현되어 한 글자가 %EA%B0%80 처럼 9자리로 늘어납니다. 공백에는 두 가지 표기법이 있습니다: <strong>%20</strong>(RFC 3986 표준, URL 경로 및 쿼리에 사용)과 <strong>+</strong>(HTML form의 application/x-www-form-urlencoded 방식). API·서버 간 데이터 전송 시 JSON 문자열이나 특수문자가 포함된 값은 반드시 URL 인코딩해야 합니다.',
     footer:'모든 처리는 브라우저에서만 이루어집니다 · 서버로 전송되지 않습니다',
     inputPlaceholder:'인코딩할 텍스트 입력...',
     outputPlaceholder:'결과가 여기 표시됩니다',
@@ -338,10 +346,12 @@ const i18n = {
     labelInput:'Input (plain text)', labelOutput:'Output (result)', copyBtn:'Copy',
     statusIdle:'Enter text and click Encode or Decode',
     refTitle:'Common URL encoding reference',
-    seoTitle1:'What is Base64?',
-    seoBody1:'Base64 is an encoding scheme that converts binary data into ASCII characters. Commonly used in JWT tokens, email attachments, and image data URIs. URL-safe Base64 replaces + with - and / with _ for safe use in URLs.',
-    seoTitle2:'What is URL Encoding?',
-    seoBody2:'URL encoding (Percent Encoding) converts characters that cannot be used in URLs into %XX format. Required when including Korean characters, special characters, or spaces in URLs.',
+    seoTitle1:'Base64 Complete Guide',
+    seoBody1:'<strong>Base64</strong> is an encoding scheme standardized in RFC 4648 that converts binary data into 64 printable ASCII characters (A–Z, a–z, 0–9, +, /). Every 3 bytes of input becomes 4 ASCII characters, increasing data size by approximately <strong>33%</strong>. It\'s encoding, not encryption — anyone can decode it without a key. <strong>URL-safe Base64</strong> replaces + with - and / with _ to avoid conflicts in URLs and filenames; JWT tokens always use this variant.',
+    exH3:'Usage Examples',
+    exList:'<li>JWT parsing: eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjoiYWxpY2UifQ.xxx → decode payload URL-safe → {"user":"alice"}</li><li>Image Data URI: &lt;img src="data:image/png;base64,iVBORw0KGg..."/&gt; — embed small icons without extra HTTP requests</li><li>Email attachments: MIME/multipart encodes binary attachments as Base64 to transmit over text-only email protocols</li><li>Basic Auth header: Authorization: Basic dXNlcjpwYXNz → decode → user:pass</li><li>Inline fonts in CSS: embed Base64 font data directly in @font-face src</li><li>Binary data in JSON: convert binary files to Base64 strings for embedding in JSON payloads</li>',
+    seoTitle2:'URL Encoding (Percent Encoding) Complete Guide',
+    seoBody2:'<strong>URL encoding (Percent Encoding)</strong> converts URL-unsafe characters into %XX format (where XX is the hexadecimal UTF-8 byte value), as defined in RFC 3986. Korean and CJK characters require 3 bytes in UTF-8, so a single character expands to 9 characters (e.g., %EA%B0%80). There are two ways to represent spaces: <strong>%20</strong> (RFC 3986 standard, used in paths and query strings) and <strong>+</strong> (HTML form\'s application/x-www-form-urlencoded format). Always URL-encode JSON strings and values containing special characters when passing them as query parameters.',
     footer:'All processing is done in your browser · No data sent to any server',
     inputPlaceholder:'Enter text to encode...',
     outputPlaceholder:'Result will appear here',
@@ -358,10 +368,12 @@ const i18n = {
     labelInput:'输入 (原文)', labelOutput:'输出 (结果)', copyBtn:'复制',
     statusIdle:'请输入文本，然后点击编码或解码',
     refTitle:'常用 URL 编码参考',
-    seoTitle1:'什么是 Base64？',
-    seoBody1:'Base64 是将二进制数据转换为 ASCII 字符串的编码方式，常用于 JWT 令牌、图片 Data URI 等场景。URL-safe Base64 将 + 替换为 -，/ 替换为 _，可安全嵌入 URL。',
-    seoTitle2:'什么是 URL 编码？',
-    seoBody2:'URL 编码（Percent Encoding）将 URL 中无法直接使用的字符转换为 %XX 格式，中文、空格及特殊字符均需编码。',
+    seoTitle1:'Base64 完整指南',
+    seoBody1:'<strong>Base64</strong> 是遵循 RFC 4648 标准的编码方式，将二进制数据转换为 64 个可打印 ASCII 字符（A–Z、a–z、0–9、+、/）。每 3 字节输入转为 4 个 ASCII 字符，数据量增加约 <strong>33%</strong>。Base64 是编码而非加密，任何人无需密钥即可解码。<strong>URL-safe Base64</strong> 将 + 替换为 -、/ 替换为 _，可安全嵌入 URL 和文件名；JWT 令牌始终使用此变体。',
+    exH3:'使用示例',
+    exList:'<li>解析 JWT：eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjoiYWxpY2UifQ.xxx → URL-safe 解码载荷 → {"user":"alice"}</li><li>图片 Data URI：&lt;img src="data:image/png;base64,iVBORw0KGg..."/&gt; — 小图标直接嵌入，无需 HTTP 请求</li><li>邮件附件：MIME/multipart 将二进制附件编码为 Base64 通过纯文本邮件协议传输</li><li>Basic Auth 头：Authorization: Basic dXNlcjpwYXNz → 解码 → user:pass</li><li>CSS 内联字体：在 @font-face src 中直接嵌入 Base64 字体数据</li><li>JSON 中的二进制数据：将二进制文件转为 Base64 字符串嵌入 JSON 载荷</li>',
+    seoTitle2:'URL 编码（百分号编码）完整指南',
+    seoBody2:'<strong>URL 编码（百分号编码）</strong>依据 RFC 3986，将 URL 中无法直接使用的字符转换为 %XX 格式（XX 为 UTF-8 字节的十六进制值）。中文字符在 UTF-8 中占 3 字节，一个汉字变为 9 个字符（如 %E4%B8%AD）。空格有两种表示方式：<strong>%20</strong>（RFC 3986 标准，用于路径和查询字符串）和 <strong>+</strong>（HTML 表单的 application/x-www-form-urlencoded 格式）。将 JSON 或含特殊字符的值作为查询参数传递时，必须进行 URL 编码。',
     footer:'所有处理均在浏览器本地完成 · 不会上传到服务器',
     inputPlaceholder:'请输入要编码的文本...',
     outputPlaceholder:'结果将在此显示',
@@ -378,10 +390,12 @@ const i18n = {
     labelInput:'入力 (原文)', labelOutput:'出力 (結果)', copyBtn:'コピー',
     statusIdle:'テキストを入力してエンコードまたはデコードボタンを押してください',
     refTitle:'よく使うURLエンコード参照',
-    seoTitle1:'Base64とは？',
-    seoBody1:'Base64はバイナリデータをASCII文字列に変換するエンコード方式です。JWTトークン、メール添付ファイル、画像データURIなどで使われます。URL-safe Base64は+を-に、/を_に置き換えてURLに安全に埋め込めます。',
-    seoTitle2:'URLエンコードとは？',
-    seoBody2:'URLエンコード（パーセントエンコーディング）はURLで使用できない文字を%XX形式に変換します。日本語、スペース、特殊文字はエンコードが必要です。',
+    seoTitle1:'Base64 完全ガイド',
+    seoBody1:'<strong>Base64</strong>はRFC 4648で標準化されたエンコード方式で、バイナリデータを64種類の印刷可能なASCII文字（A–Z、a–z、0–9、+、/）に変換します。3バイトを4つのASCII文字に変換するためデータサイズが約 <strong>33%増加</strong>します。暗号化ではなくエンコードのため、鍵なしで誰でもデコードできます。<strong>URL-safe Base64</strong>は+を-に、/を_に置き換えてURLやファイル名に安全に使用でき、JWTトークンは常にこの方式を使用します。',
+    exH3:'活用例',
+    exList:'<li>JWTの解析：eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjoiYWxpY2UifQ.xxx → ペイロードをURL-safeデコード → {"user":"alice"}</li><li>画像のData URI：&lt;img src="data:image/png;base64,iVBORw0KGg..."/&gt; — 小さなアイコンをHTTPリクエスト不要で埋め込み</li><li>メール添付ファイル：MIME/multipartでバイナリ添付をBase64エンコードしてテキストのみのメールプロトコルで送信</li><li>Basic Authヘッダー：Authorization: Basic dXNlcjpwYXNz → デコード → user:pass</li><li>CSSインラインフォント：@font-faceのsrcにBase64フォントデータを直接埋め込み</li><li>JSONへのバイナリ埋め込み：バイナリファイルをBase64文字列に変換してJSONペイロードに含める</li>',
+    seoTitle2:'URLエンコード（パーセントエンコーディング）完全ガイド',
+    seoBody2:'<strong>URLエンコード（パーセントエンコーディング）</strong>はRFC 3986に従い、URLで使用できない文字を%XX形式（XXはUTF-8バイトの16進数値）に変換します。日本語はUTF-8で3バイト使用するため、1文字が%E3%81%82のように9文字に展開されます。スペースの表記法は2種類あります：<strong>%20</strong>（RFC 3986標準、URLパスとクエリ文字列に使用）と<strong>+</strong>（HTMLフォームのapplication/x-www-form-urlencoded形式）。JSONや特殊文字を含む値をクエリパラメータとして渡す場合は、必ずURLエンコードが必要です。',
     footer:'すべての処理はブラウザ内で完結します · サーバーへの送信はありません',
     inputPlaceholder:'エンコードするテキストを入力...',
     outputPlaceholder:'結果がここに表示されます',
@@ -425,9 +439,11 @@ function applyLang() {
   if (document.getElementById('statusText')) document.getElementById('statusText').textContent = t.statusIdle;
   if (document.getElementById('refTitle')) document.getElementById('refTitle').textContent = t.refTitle;
   if (document.getElementById('seoTitle1')) document.getElementById('seoTitle1').textContent = t.seoTitle1;
-  if (document.getElementById('seoBody1')) document.getElementById('seoBody1').textContent = t.seoBody1;
+  if (document.getElementById('seoBody1')) document.getElementById('seoBody1').innerHTML = t.seoBody1;
+  if (document.getElementById('exH3')) document.getElementById('exH3').textContent = t.exH3;
+  if (document.getElementById('exList')) document.getElementById('exList').innerHTML = t.exList;
   if (document.getElementById('seoTitle2')) document.getElementById('seoTitle2').textContent = t.seoTitle2;
-  if (document.getElementById('seoBody2')) document.getElementById('seoBody2').textContent = t.seoBody2;
+  if (document.getElementById('seoBody2')) document.getElementById('seoBody2').innerHTML = t.seoBody2;
   if (document.getElementById('footerText')) document.getElementById('footerText').textContent = t.footer;
   document.getElementById('input').placeholder = t.inputPlaceholder;
   document.getElementById('output').placeholder = t.outputPlaceholder;

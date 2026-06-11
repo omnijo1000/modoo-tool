@@ -1,8 +1,8 @@
 (function () {
   'use strict';
 
-  var LANGS = ['ko', 'en', 'zh'];
-  var VALID = { ko: 1, en: 1, zh: 1 };
+  var LANGS = ['ko', 'en', 'zh', 'ja'];
+  var VALID = { ko: 1, en: 1, zh: 1, ja: 1 };
 
   function detectLang() {
     var u = new URLSearchParams(location.search).get('lang');
@@ -10,7 +10,7 @@
     var s = localStorage.getItem('lang') || localStorage.getItem('modoo_lang');
     if (s && VALID[s]) return s;
     var n = (navigator.language || '').slice(0, 2);
-    return n === 'zh' ? 'zh' : n === 'ko' ? 'ko' : 'en';
+    return n === 'zh' ? 'zh' : n === 'ja' ? 'ja' : n === 'ko' ? 'ko' : 'en';
   }
 
   function persistLang(lang) {
@@ -20,16 +20,106 @@
 
 
   var UI = {
-    backAll: { ko: '\u2190 \ubaa8\ub4e0 \ub3c4\uad6c', en: '\u2190 All Tools', zh: '\u2190 \u5168\u90e8\u5de5\u5177' },
-    breadcrumbHome: { ko: 'MODOO HUB', en: 'MODOO HUB', zh: 'MODOO HUB' },
-    toolsWord: { ko: '\uac1c', en: 'Tools', zh: '\u4e2a\u5de5\u5177' },
-    sectionFaq: { ko: '\uc790\uc8fc \ubb3b\ub294 \uc9c8\ubb38', en: 'Frequently Asked Questions', zh: '\u5e38\u89c1\u95ee\u9898' },
-    sectionRelated: { ko: '\uad00\ub828 \uce74\ud14c\uace0\ub9ac', en: 'Related Categories', zh: '\u76f8\u5173\u5206\u7c7b' },
-    allToolsCard: { ko: '\uc804\uccb4 {n}\uac1c \ub3c4\uad6c', en: 'All {n} Tools', zh: '\u5168\u90e8 {n} \u4e2a\u5de5\u5177' },
-    free: { ko: '\ubb34\ub8cc', en: 'Free', zh: '\u514d\u8d39' },
-    privacy: { ko: '\uac1c\uc778\uc815\ubcf4\ucc98\ub9ac\ubc29\uce68', en: 'Privacy Policy', zh: '\u9690\u79c1\u653f\u7b56' },
-    langBtn: { ko: '\ud83c\udf10 EN', en: '\ud83c\udf10 \u4e2d\u6587', zh: '\ud83c\udf10 \ud55c\uad6d\uc5b4' }
+    backAll: { ko: '\u2190 \ubaa8\ub4e0 \ub3c4\uad6c', en: '\u2190 All Tools', zh: '\u2190 \u5168\u90e8\u5de5\u5177', ja: '\u2190 \u3059\u3079\u3066\u306e\u30c4\u30fc\u30eb' },
+    breadcrumbHome: { ko: 'MODOO HUB', en: 'MODOO HUB', zh: 'MODOO HUB', ja: 'MODOO HUB' },
+    toolsWord: { ko: '\uac1c', en: 'Tools', zh: '\u4e2a\u5de5\u5177', ja: '\u30c4\u30fc\u30eb' },
+    sectionFaq: { ko: '\uc790\uc8fc \ubb3b\ub294 \uc9c8\ubb38', en: 'Frequently Asked Questions', zh: '\u5e38\u89c1\u95ee\u9898', ja: '\u3088\u304f\u3042\u308b\u8cea\u554f' },
+    sectionRelated: { ko: '\uad00\ub828 \uce74\ud14c\uace0\ub9ac', en: 'Related Categories', zh: '\u76f8\u5173\u5206\u7c7b', ja: '\u95a2\u9023\u30ab\u30c6\u30b4\u30ea' },
+    allToolsCard: { ko: '\uc804\uccb4 {n}\uac1c \ub3c4\uad6c', en: 'All {n} Tools', zh: '\u5168\u90e8 {n} \u4e2a\u5de5\u5177', ja: '\u5168 {n} \u30c4\u30fc\u30eb' },
+    free: { ko: '\ubb34\ub8cc', en: 'Free', zh: '\u514d\u8d39', ja: '\u7121\u6599' },
+    privacy: { ko: '\uac1c\uc778\uc815\ubcf4\ucc98\ub9ac\ubc29\uce68', en: 'Privacy Policy', zh: '\u9690\u79c1\u653f\u7b56', ja: '\u30d7\u30e9\u30a4\u30d0\u30b7\u30fc\u30dd\u30ea\u30b7\u30fc' },
+    langBtn: { ko: '\ud83c\udf10 EN', en: '\ud83c\udf10 \u4e2d\u6587', zh: '\ud83c\udf10 \u65e5\u672c\u8a9e', ja: '\ud83c\udf10 \ud55c\uad6d\uc5b4' }
   };
+
+  var MAIN_I18N = {
+    subtitle: {
+      ko: '{cat}\uc758 \uc8fc\uc694 \ub3c4\uad6c\ub97c \ud55c\uacf3\uc5d0\uc11c \ube60\ub974\uac8c \uc0b4\ud3b4\ubcf4\uc138\uc694.',
+      zh: '\u5728\u8fd9\u91cc\u5feb\u901f\u6d4f\u89c8{cat}\u7684\u4e3b\u8981\u5de5\u5177\u3002',
+      ja: '{cat}\u306e\u4e3b\u8981\u30c4\u30fc\u30eb\u3092\u307e\u3068\u3081\u3066\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002'
+    },
+    intro: {
+      ko: [
+        '\uc774 \uce74\ud14c\uace0\ub9ac\ub294 \uc790\uc8fc \uc0ac\uc6a9\ud558\ub294 \ud575\uc2ec \uae30\ub2a5\ub4e4\uc744 \ubaa8\uc544 \ub454 \ud5c8\ube0c \ud398\uc774\uc9c0\uc785\ub2c8\ub2e4.',
+        '\uac01 \ub3c4\uad6c\ub294 \ube0c\ub77c\uc6b0\uc800\uc5d0\uc11c \ubc14\ub85c \uc2e4\ud589\ub418\uba70 \ubcc4\ub3c4 \uc124\uce58\ub098 \uac00\uc785 \uc5c6\uc774 \uc0ac\uc6a9\ud560 \uc218 \uc788\uc2b5\ub2c8\ub2e4.',
+        '\uc6d0\ud558\ub294 \ub3c4\uad6c\ub97c \uc120\ud0dd\ud574 \ubc14\ub85c \uc791\uc5c5\uc744 \uc2dc\uc791\ud574 \ubcf4\uc138\uc694.'
+      ],
+      zh: [
+        '\u8be5\u5206\u7c7b\u9875\u9762\u6c47\u603b\u4e86\u6700\u5e38\u7528\u7684\u6838\u5fc3\u5de5\u5177\u3002',
+        '\u6240\u6709\u5de5\u5177\u90fd\u53ef\u5728\u6d4f\u89c8\u5668\u5185\u76f4\u63a5\u8fd0\u884c\uff0c\u65e0\u9700\u5b89\u88c5\u6216\u6ce8\u518c\u3002',
+        '\u9009\u62e9\u60a8\u9700\u8981\u7684\u5de5\u5177\uff0c\u5373\u53ef\u7acb\u5373\u5f00\u59cb\u4f7f\u7528\u3002'
+      ],
+      ja: [
+        '\u3053\u306e\u30ab\u30c6\u30b4\u30ea\u306b\u306f\u3001\u3088\u304f\u4f7f\u308f\u308c\u308b\u4e3b\u8981\u30c4\u30fc\u30eb\u3092\u307e\u3068\u3081\u3066\u3044\u307e\u3059\u3002',
+        '\u3059\u3079\u3066\u306e\u30c4\u30fc\u30eb\u306f\u30d6\u30e9\u30a6\u30b6\u3067\u3059\u3050\u306b\u5b9f\u884c\u3067\u304d\u3001\u30a4\u30f3\u30b9\u30c8\u30fc\u30eb\u3084\u767b\u9332\u306f\u4e0d\u8981\u3067\u3059\u3002',
+        '\u4f7f\u3044\u305f\u3044\u30c4\u30fc\u30eb\u3092\u9078\u3093\u3067\u3001\u3059\u3050\u306b\u4f5c\u696d\u3092\u958b\u59cb\u3067\u304d\u307e\u3059\u3002'
+      ]
+    },
+    toolDesc: {
+      ko: '\ub3c4\uad6c \uc0c1\uc138 \ud398\uc774\uc9c0\ub85c \uc774\ub3d9',
+      zh: '\u8fdb\u5165\u5de5\u5177\u8be6\u60c5\u9875',
+      ja: '\u30c4\u30fc\u30eb\u8a73\u7d30\u30da\u30fc\u30b8\u3078\u79fb\u52d5'
+    },
+    faq: {
+      ko: [
+        ['\uc774 \uce74\ud14c\uace0\ub9ac\uc758 \ub3c4\uad6c\ub4e4\uc740 \ubb34\ub8cc\uc778\uac00\uc694?', '\ub124, \ud45c\uc2dc\ub41c \ub3c4\uad6c\ub4e4\uc740 \ubb34\ub8cc\ub85c \uc0ac\uc6a9\ud558\uc2e4 \uc218 \uc788\uc2b5\ub2c8\ub2e4.'],
+        ['\ud68c\uc6d0\uac00\uc785\uc774 \ud544\uc694\ud55c\uac00\uc694?', '\ub300\ubd80\ubd84\uc758 \ub3c4\uad6c\ub294 \ud68c\uc6d0\uac00\uc785 \uc5c6\uc774 \ubc14\ub85c \uc2e4\ud589\ud560 \uc218 \uc788\uc2b5\ub2c8\ub2e4.'],
+        ['\ubaa8\ubc14\uc77c\uc5d0\uc11c\ub3c4 \uc0ac\uc6a9\uac00\ub2a5\ud55c\uac00\uc694?', '\ub124, \uc8fc\uc694 \uae30\ub2a5\uc740 \ubaa8\ubc14\uc77c\uacfc \ub370\uc2a4\ud06c\ud0d1 \ud658\uacbd\uc744 \ubaa8\ub450 \uc9c0\uc6d0\ud569\ub2c8\ub2e4.'],
+        ['\uc785\ub825\ud55c \ub370\uc774\ud130\ub294 \uc800\uc7a5\ub418\ub098\uc694?', '\uac1c\ubcc4 \ub3c4\uad6c \uc815\ucc45\uc5d0 \ub530\ub77c \ucc98\ub9ac\ub418\uba70, \ud398\uc774\uc9c0 \uc548\uc758 \uc548\ub0b4\ub97c \ud655\uc778\ud574 \uc8fc\uc138\uc694.']
+      ],
+      zh: [
+        ['\u8fd9\u4e2a\u5206\u7c7b\u7684\u5de5\u5177\u514d\u8d39\u5417\uff1f', '\u662f\u7684\uff0c\u8fd9\u91cc\u663e\u793a\u7684\u5de5\u5177\u53ef\u4ee5\u514d\u8d39\u4f7f\u7528\u3002'],
+        ['\u9700\u8981\u6ce8\u518c\u8d26\u53f7\u5417\uff1f', '\u5927\u591a\u6570\u5de5\u5177\u65e0\u9700\u6ce8\u518c\uff0c\u53ef\u76f4\u63a5\u4f7f\u7528\u3002'],
+        ['\u652f\u6301\u624b\u673a\u4f7f\u7528\u5417\uff1f', '\u662f\u7684\uff0c\u4e3b\u8981\u529f\u80fd\u540c\u65f6\u652f\u6301\u624b\u673a\u4e0e\u684c\u9762\u7aef\u3002'],
+        ['\u8f93\u5165\u7684\u6570\u636e\u4f1a\u88ab\u4fdd\u5b58\u5417\uff1f', '\u5177\u4f53\u53d6\u51b3\u4e8e\u5404\u5de5\u5177\u7684\u5904\u7406\u65b9\u5f0f\uff0c\u8bf7\u53c2\u8003\u9875\u9762\u8bf4\u660e\u3002']
+      ],
+      ja: [
+        ['\u3053\u306e\u30ab\u30c6\u30b4\u30ea\u306e\u30c4\u30fc\u30eb\u306f\u7121\u6599\u3067\u3059\u304b\uff1f', '\u306f\u3044\u3002\u3053\u3053\u306e\u30c4\u30fc\u30eb\u306f\u7121\u6599\u3067\u5229\u7528\u3067\u304d\u307e\u3059\u3002'],
+        ['\u30a2\u30ab\u30a6\u30f3\u30c8\u767b\u9332\u306f\u5fc5\u8981\u3067\u3059\u304b\uff1f', '\u591a\u304f\u306e\u30c4\u30fc\u30eb\u306f\u767b\u9332\u4e0d\u8981\u3067\u3059\u3050\u306b\u4f7f\u3048\u307e\u3059\u3002'],
+        ['\u30e2\u30d0\u30a4\u30eb\u3067\u3082\u4f7f\u3048\u307e\u3059\u304b\uff1f', '\u306f\u3044\u3002\u4e3b\u8981\u6a5f\u80fd\u306f\u30e2\u30d0\u30a4\u30eb\u3068\u30c7\u30b9\u30af\u30c8\u30c3\u30d7\u306e\u4e21\u65b9\u306b\u5bfe\u5fdc\u3057\u3066\u3044\u307e\u3059\u3002'],
+        ['\u5165\u529b\u3057\u305f\u30c7\u30fc\u30bf\u306f\u4fdd\u5b58\u3055\u308c\u307e\u3059\u304b\uff1f', '\u51e6\u7406\u65b9\u5f0f\u306f\u30c4\u30fc\u30eb\u3054\u3068\u306b\u7570\u306a\u308a\u307e\u3059\u3002\u5404\u30da\u30fc\u30b8\u306e\u8aac\u660e\u3092\u3054\u78ba\u8a8d\u304f\u3060\u3055\u3044\u3002']
+      ]
+    }
+  };
+
+  var ORIGINAL_MAIN = {
+    captured: false,
+    intro: [],
+    toolDesc: [],
+    faq: []
+  };
+
+  function captureOriginalMain() {
+    if (ORIGINAL_MAIN.captured) return;
+
+    var intro = document.querySelector('.intro');
+    if (intro) {
+      intro.querySelectorAll('p').forEach(function (p) {
+        ORIGINAL_MAIN.intro.push(p.textContent);
+      });
+    }
+
+    document.querySelectorAll('.tools-grid .tool-card .tool-desc').forEach(function (el) {
+      ORIGINAL_MAIN.toolDesc.push(el.textContent);
+    });
+
+    document.querySelectorAll('.faq-item').forEach(function (item) {
+      var q = item.querySelector('.faq-q');
+      var a = item.querySelector('.faq-a');
+      var qText = '';
+      if (q) {
+        var qClone = q.cloneNode(true);
+        var chev = qClone.querySelector('.faq-chevron');
+        if (chev) chev.remove();
+        qText = qClone.textContent.trim();
+      }
+      ORIGINAL_MAIN.faq.push({
+        q: qText,
+        a: a ? a.textContent : ''
+      });
+    });
+
+    ORIGINAL_MAIN.captured = true;
+  }
 
   var CAT = {
     'ai-tools': {
@@ -273,6 +363,8 @@
     var cat = CAT[slug];
     if (!cat) return;
 
+    captureOriginalMain();
+
     document.documentElement.lang = lang;
 
     var back = document.querySelector('.back-link');
@@ -290,10 +382,17 @@
     }
 
     var h1 = document.querySelector('h1');
-    if (h1) h1.innerHTML = getLabel(cat.heading, lang);
+    if (h1) {
+      if (cat.heading && cat.heading[lang]) h1.innerHTML = cat.heading[lang];
+      else h1.textContent = getLabel(cat.name, lang);
+    }
 
     var subtitle = document.querySelector('.hub-subtitle');
-    if (subtitle) subtitle.textContent = getLabel(cat.subtitle, lang);
+    if (subtitle) {
+      var sub = (cat.subtitle && cat.subtitle[lang]) ? cat.subtitle[lang] : null;
+      if (!sub && lang !== 'en') sub = MAIN_I18N.subtitle[lang].replace('{cat}', getLabel(cat.name, lang));
+      subtitle.textContent = sub || getLabel(cat.subtitle, lang);
+    }
 
     var sections = document.querySelectorAll('.section-heading');
     if (sections[0]) sections[0].textContent = (lang === 'ko' ? ('전체 ' + cat.count + '개 ' + getLabel(cat.name, lang)) : lang === 'zh' ? ('全部 ' + cat.count + ' 个' + getLabel(cat.name, lang)) : ('All ' + cat.count + ' ' + getLabel(cat.name, lang)));
@@ -305,7 +404,55 @@
       var file = href.split('/').pop();
       var nameEl = card.querySelector('.tool-name');
       if (nameEl && TOOL_NAMES[file]) nameEl.textContent = getLabel(TOOL_NAMES[file], lang);
+      var descEl = card.querySelector('.tool-desc');
+      if (descEl && lang !== 'en' && MAIN_I18N.toolDesc[lang]) descEl.textContent = MAIN_I18N.toolDesc[lang];
     });
+
+    // Replace main intro/FAQ hardcoded English for non-English locales.
+    if (lang !== 'en') {
+      var intro = document.querySelector('.intro');
+      if (intro && MAIN_I18N.intro[lang]) {
+        var introPs = intro.querySelectorAll('p');
+        MAIN_I18N.intro[lang].forEach(function (txt, idx) {
+          if (introPs[idx]) introPs[idx].textContent = txt;
+        });
+      }
+
+      var faqList = MAIN_I18N.faq[lang] || [];
+      document.querySelectorAll('.faq-item').forEach(function (item, idx) {
+        if (!faqList[idx]) return;
+        var q = item.querySelector('.faq-q');
+        var a = item.querySelector('.faq-a');
+        if (q) {
+          var chev = q.querySelector('.faq-chevron');
+          q.innerHTML = faqList[idx][0] + (chev ? chev.outerHTML : '<span class="faq-chevron">▼</span>');
+        }
+        if (a) a.textContent = faqList[idx][1];
+      });
+    } else {
+      var introEn = document.querySelector('.intro');
+      if (introEn && ORIGINAL_MAIN.intro.length) {
+        var introPsEn = introEn.querySelectorAll('p');
+        ORIGINAL_MAIN.intro.forEach(function (txt, idx) {
+          if (introPsEn[idx]) introPsEn[idx].textContent = txt;
+        });
+      }
+
+      document.querySelectorAll('.tools-grid .tool-card .tool-desc').forEach(function (el, idx) {
+        if (ORIGINAL_MAIN.toolDesc[idx]) el.textContent = ORIGINAL_MAIN.toolDesc[idx];
+      });
+
+      document.querySelectorAll('.faq-item').forEach(function (item, idx) {
+        if (!ORIGINAL_MAIN.faq[idx]) return;
+        var q = item.querySelector('.faq-q');
+        var a = item.querySelector('.faq-a');
+        if (q) {
+          var chev = q.querySelector('.faq-chevron');
+          q.innerHTML = ORIGINAL_MAIN.faq[idx].q + (chev ? chev.outerHTML : '<span class="faq-chevron">▼</span>');
+        }
+        if (a) a.textContent = ORIGINAL_MAIN.faq[idx].a;
+      });
+    }
 
     document.querySelectorAll('.related-cats .cat-card').forEach(function (card) {
       var href = (card.getAttribute('href') || '').split('?')[0];
