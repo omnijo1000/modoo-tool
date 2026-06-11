@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cron Expression Validator - Cron 표현식 검증기 | MODOO HUB</title>
+<meta name="description" content="Cron 표현식 문법 검증, 오류 위치 표시, 5필드/6필드 지원. Free online cron expression validator — highlight invalid fields with detailed error messages.">
+<meta name="keywords" content="cron validator, cron expression validator, cron 검증기, cron syntax checker, crontab validator, cron error, 5-field cron, 6-field cron">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/cron-validator.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/cron-validator.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/cron-validator.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/cron-validator.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/cron-validator.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/cron-validator.html">
+<meta property="og:title" content="Cron Expression Validator - Cron 표현식 검증기 | MODOO HUB">
+<meta property="og:description" content="Cron 표현식 문법 검증·오류 위치 표시·5필드/6필드 지원. Real-time cron syntax validator with field-level error reporting.">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<meta property="og:url" content="https://modoohub.com/cron-validator.html">
+<meta property="og:type" content="website">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {"@type":"Question","name":"Why should I validate cron expressions before deploying?","acceptedAnswer":{"@type":"Answer","text":"An invalid cron expression can silently fail or run at unexpected times, causing missed backups, billing anomalies, or server outages. Validating before deployment catches syntax errors that won't be obvious until a job fires at the wrong time."}},
+    {"@type":"Question","name":"What is the difference between 5-field and 6-field cron?","acceptedAnswer":{"@type":"Answer","text":"Standard 5-field cron is: minute hour day-of-month month day-of-week. 6-field cron (used by Spring @Scheduled and some cloud schedulers) prepends a seconds field: second minute hour day-of-month month day-of-week."}},
+    {"@type":"Question","name":"What do the special characters * / - , mean in cron?","acceptedAnswer":{"@type":"Answer","text":"* matches any value. / defines a step (*/15 = every 15 units). - defines a range (1-5 = values 1 through 5). , defines a list (1,3,5 = each of those specific values)."}},
+    {"@type":"Question","name":"Can I use month names or weekday names in cron?","acceptedAnswer":{"@type":"Answer","text":"Some cron implementations support names like JAN-DEC for months and SUN-SAT for weekdays. However, numeric values (1-12 for months, 0-7 for weekdays where both 0 and 7 = Sunday) are universally supported across all platforms."}},
+    {"@type":"Question","name":"What happens if both DOM and DOW are specified?","acceptedAnswer":{"@type":"Answer","text":"When both day-of-month and day-of-week contain non-wildcard values, most cron implementations (Vixie cron) use OR logic — the job runs when either condition is true. For strict AND behavior, use a wrapper script that checks both conditions."}},
+    {"@type":"Question","name":"Are L and W characters supported in standard cron?","acceptedAnswer":{"@type":"Answer","text":"L (last day) and W (nearest weekday) are Quartz Scheduler and Spring @Scheduled extensions. They are NOT supported by standard Linux crontab. AWS EventBridge has its own special characters. Always check your platform's documentation."}},
+    {"@type":"Question","name":"How does cron differ between AWS EventBridge and GitHub Actions?","acceptedAnswer":{"@type":"Answer","text":"AWS EventBridge uses 6-field cron (with seconds) and requires non-wildcard values in either DOM or DOW (not both). GitHub Actions uses standard 5-field cron in UTC timezone with a minimum interval of approximately 5 minutes for scheduled workflows."}},
+    {"@type":"Question","name":"How can I test a cron expression without running it on a server?","acceptedAnswer":{"@type":"Answer","text":"Use an online cron validator or parser (like this tool) to check the syntax and calculate next run times. Tools like cron-parser npm package or the croniter Python library let you calculate next runs programmatically before deploying."}}
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Cron Expression Validator",
+  "url": "https://modoohub.com/cron-validator.html",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "All",
+  "offers": {"@type":"Offer","price":"0","priceCurrency":"USD"},
+  "description": "Free online cron expression validator. Check 5-field and 6-field cron syntax with field-level error highlighting and range reference."
+}
+</script>
+<style>
+:root {
+  --bg:#0a0a0a; --surface:#141414; --surface2:#1a1a1a; --border:#252525;
+  --accent:#fbbf24; --text:#f5f5f5; --text-muted:#888; --text-dim:#444;
+  --green:#4ade80; --red:#f87171;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;font-family:'DM Mono',monospace;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;font-family:'DM Mono',monospace;background:none;margin-left:8px;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:680px;margin:0 auto;padding:40px 20px 60px;}
+h1{font-size:clamp(24px,5vw,36px);font-weight:900;margin-bottom:8px;line-height:1.15;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:32px;line-height:1.6;}
+.section-title{font-size:11px;color:var(--text-muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;font-family:'DM Mono',monospace;}
+/* Input */
+.input-row{display:flex;gap:8px;margin-bottom:16px;align-items:stretch;}
+.cron-input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text);font-family:'DM Mono',monospace;font-size:16px;outline:none;transition:border-color .15s;letter-spacing:.03em;}
+.cron-input:focus{border-color:var(--accent);}
+.cron-input.state-valid{border-color:var(--green);}
+.cron-input.state-invalid{border-color:var(--red);}
+.btn{padding:10px 18px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Mono',monospace;white-space:nowrap;transition:opacity .15s;}
+.btn-primary{background:var(--accent);color:#000;}
+.btn-primary:hover{opacity:.85;}
+.btn-ghost{background:none;border:1px solid var(--border);color:var(--text-muted);padding:6px 14px;font-size:12px;}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
+/* Field bar */
+.field-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;}
+.field-chip{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);min-width:54px;transition:all .15s;}
+.field-chip.fc-valid{border-color:var(--green);background:rgba(74,222,128,.07);}
+.field-chip.fc-invalid{border-color:var(--red);background:rgba(248,113,113,.08);}
+.field-chip.fc-empty{border-color:var(--border);opacity:.4;}
+.fc-name{font-size:10px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.06em;text-transform:uppercase;}
+.fc-val{font-size:13px;font-family:'DM Mono',monospace;font-weight:700;color:var(--text);}
+.field-chip.fc-valid .fc-val{color:var(--green);}
+.field-chip.fc-invalid .fc-val{color:var(--red);}
+/* Status */
+.status-row{display:flex;align-items:flex-start;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:20px;}
+.status-icon{font-size:20px;line-height:1;flex-shrink:0;margin-top:1px;}
+.status-text{flex:1;}
+.status-main{font-size:14px;font-weight:700;}
+.status-main.ok{color:var(--green);}
+.status-main.err{color:var(--red);}
+.status-detail{font-size:12px;color:var(--text-muted);margin-top:4px;line-height:1.6;font-family:'DM Mono',monospace;}
+.status-desc{font-size:13px;color:var(--text);margin-top:6px;line-height:1.6;}
+/* Sample cards */
+.samples-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px;margin-bottom:28px;}
+.sample-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all .15s;}
+.sample-card:hover{border-color:var(--accent);}
+.sc-expr{font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);margin-bottom:4px;}
+.sc-desc{font-size:12px;color:var(--text-muted);}
+/* Reference table */
+.ref-section{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:28px;}
+.ref-table{width:100%;border-collapse:collapse;font-size:12px;}
+.ref-table th{text-align:left;color:var(--text-muted);padding:5px 10px;border-bottom:1px solid var(--border);font-size:11px;text-transform:uppercase;letter-spacing:.07em;}
+.ref-table td{padding:6px 10px;border-bottom:1px solid var(--border);font-family:'DM Mono',monospace;}
+.ref-table tr:last-child td{border-bottom:none;}
+.ref-table td:first-child{color:var(--accent);font-weight:700;}
+.ref-table td:nth-child(2){color:var(--text);}
+.ref-table td:nth-child(3){color:var(--text-muted);}
+/* SEO */
+.seo{margin-top:48px;padding-top:32px;border-top:1px solid var(--border);}
+.seo h2{font-size:16px;font-weight:700;margin-bottom:10px;}
+.seo p{font-size:13px;color:var(--text-muted);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text);}
+details.faq-item{border:1px solid var(--border);border-radius:8px;margin-bottom:8px;}
+details.faq-item summary{padding:12px 16px;font-size:13px;font-weight:600;cursor:pointer;list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item summary::before{content:'Q. ';color:var(--accent);}
+details.faq-item p{padding:0 16px 12px;font-size:13px;color:var(--text-muted);line-height:1.8;margin:0;}
+footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:40px;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="toggleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1 id="h1El">Cron <span>Validator</span></h1>
+  <p class="sub" id="subEl">Cron 표현식 문법 검증·오류 위치 표시</p>
+
+  <div class="section-title" id="labelInput">Cron 표현식 입력</div>
+  <div class="input-row">
+    <input type="text" class="cron-input" id="cronInput"
+      placeholder="* * * * *"
+      oninput="onCronInput()" autocomplete="off" spellcheck="false">
+    <button class="btn btn-ghost" onclick="clearAll()" id="btnClear">Clear</button>
+  </div>
+
+  <!-- Field bar -->
+  <div class="field-bar" id="fieldBar"></div>
+
+  <!-- Status -->
+  <div class="status-row" id="statusRow" style="display:none;">
+    <div class="status-icon" id="statusIcon"></div>
+    <div class="status-text">
+      <div class="status-main" id="statusMain"></div>
+      <div class="status-detail" id="statusDetail"></div>
+      <div class="status-desc" id="statusDesc"></div>
+    </div>
+  </div>
+
+  <!-- Sample cards -->
+  <div class="section-title" id="labelSamples">Sample Expressions</div>
+  <div class="samples-grid" id="samplesGrid"></div>
+
+  <!-- Reference table -->
+  <div class="ref-section">
+    <div class="section-title" id="labelRef">Field Reference</div>
+    <table class="ref-table" id="refTable">
+      <thead><tr>
+        <th id="refThField">Field</th>
+        <th id="refThRange">Range</th>
+        <th id="refThNote">Note</th>
+      </tr></thead>
+      <tbody id="refBody"></tbody>
+    </table>
+  </div>
+
+  <div class="seo" data-i18n="seoHtml"></div>
+  <footer>Cron Validator · 5-field &amp; 6-field · RFC-compatible</footer>
+</main>
+<script>
+const SAMPLES_DATA = [
+  { expr: '* * * * *',      ko: '매분 실행',             en: 'Every minute',          zh: '每分钟执行',       ja: '毎分実行' },
+  { expr: '0 9-17 * * 1-5', ko: '평일 오전 9시~오후 5시', en: 'Weekdays 9AM–5PM',      zh: '工作日 9时-17时',  ja: '平日9時〜17時' },
+  { expr: '*/15 * * * *',   ko: '15분마다',               en: 'Every 15 minutes',      zh: '每15分钟',         ja: '15分ごと' },
+  { expr: '0 0 1 * *',      ko: '매월 1일 자정',          en: '1st of every month',    zh: '每月1日午夜',      ja: '毎月1日深夜' },
+  { expr: '30 2 * * 0',     ko: '일요일 오전 2:30',        en: 'Sundays at 2:30 AM',    zh: '周日凌晨2:30',     ja: '日曜日の2:30AM' },
+  { expr: '0 */6 * * *',    ko: '6시간마다',              en: 'Every 6 hours',         zh: '每6小时',          ja: '6時間ごと' },
+];
+
+const i18n = {
+  ko: {
+    pageTitle: 'Cron 표현식 검증기 - Cron Validator | MODOO HUB',
+    h1: 'Cron <span>Validator</span>',
+    sub: 'Cron 표현식 문법 검증·오류 위치 표시',
+    backLink: '← 모두의 툴',
+    langBtn: '🌐 EN',
+    btnClear: '지우기',
+    labelInput: 'Cron 표현식 입력',
+    labelSamples: '샘플 표현식',
+    labelRef: '필드 참고',
+    refThField: '필드',
+    refThRange: '범위',
+    refThNote: '비고',
+    statusValid: '✓ 유효한 Cron 표현식',
+    statusInvalid: '✗ 유효하지 않은 Cron 표현식',
+    errTooFew: '필드가 부족합니다 (5개 또는 6개 필요)',
+    errTooMany: '필드가 너무 많습니다 (최대 6개)',
+    fieldNames5: ['MIN', 'HOUR', 'DOM', 'MON', 'DOW'],
+    fieldNames6: ['SEC', 'MIN', 'HOUR', 'DOM', 'MON', 'DOW'],
+    fieldLabels5: ['분', '시', '일(DOM)', '월', '요일(DOW)'],
+    fieldLabels6: ['초', '분', '시', '일(DOM)', '월', '요일(DOW)'],
+    errInvalidChar: v => `잘못된 문자: "${v}"`,
+    errStepMin: `스텝(step)은 1 이상이어야 합니다`,
+    errStartRange: (v, lo, hi) => `시작값 ${v}이(가) 허용 범위(${lo}–${hi})를 벗어납니다`,
+    errRange: (v, lo, hi) => `범위 ${v}이(가) 허용 범위(${lo}–${hi})에 맞지 않습니다`,
+    errOutOfRange: (v, lo, hi) => `값 ${v}이(가) 허용 범위(${lo}–${hi})를 벗어납니다`,
+    fieldErrPrefix: (name) => `${name} 필드: `,
+    refRows: [
+      ['SEC',  '0–59',  '6필드 cron에서만 사용'],
+      ['MIN',  '0–59',  '항상 사용'],
+      ['HOUR', '0–23',  ''],
+      ['DOM',  '1–31',  '일(Day of Month)'],
+      ['MON',  '1–12',  '월(Month)'],
+      ['DOW',  '0–7',   '0과 7은 모두 일요일'],
+    ],
+    describeValid: (parts) => {
+      const is6 = parts.length === 6;
+      const [min, hour, dom, mon, dow] = parts.slice(-5);
+      const bits = [];
+      if (min === '*' && hour === '*') bits.push('매분');
+      else if (min.startsWith('*/')) bits.push(`${min.slice(2)}분마다`);
+      else if (hour === '*') bits.push(`매시 ${min}분`);
+      else bits.push(`${hour}시 ${min}분`);
+      if (dow !== '*') {
+        const map = {0:'일',1:'월',2:'화',3:'수',4:'목',5:'금',6:'토',7:'일'};
+        if (dow.includes('-')) { const [a,b]=dow.split('-'); bits.push(`${(map[a]||a)}~${(map[b]||b)}요일`); }
+        else if (dow.includes(',')) bits.push(dow.split(',').map(x=>(map[x.trim()]||x)+'요').join('·')+'일');
+        else bits.push((map[dow]||dow)+'요일');
+      } else if (dom !== '*') {
+        bits.push(`매월 ${dom}일`);
+      } else if (mon !== '*') {
+        bits.push(`${mon}월`);
+      } else {
+        bits.push('매일');
+      }
+      return bits.join(', ');
+    },
+    seoHtml: `<h2>Cron 표현식 검증이란?</h2>
+<p>잘못된 Cron 표현식은 배포 후 <strong>서버 장애</strong>, <strong>스케줄 누락</strong>, <strong>예상치 못한 실행</strong>을 일으킬 수 있습니다. 배포 전에 문법을 검증하면 초·분·일·월·요일 각 필드의 허용 범위와 특수 문자 규칙을 확인할 수 있습니다.</p>
+<p>표준 Linux crontab은 5개 필드(분·시·일·월·요일)를 사용하고, Spring @Scheduled와 일부 클라우드 스케줄러는 앞에 초(0–59) 필드를 추가한 6개 필드를 사용합니다. 이 도구는 두 형식을 모두 실시간으로 검증합니다.</p>
+<details class="faq-item"><summary>배포 전에 Cron 표현식을 검증해야 하는 이유는?</summary><p>잘못된 cron은 자동 백업 누락, 결제 처리 지연, 정기 리포트 미발송 등 비즈니스 손실을 초래할 수 있습니다. 또한 일부 시스템은 잘못된 표현식을 묵묵히 무시하므로 오류가 늦게 발견됩니다. 사전 검증으로 이를 예방할 수 있습니다.</p></details>
+<details class="faq-item"><summary>5필드와 6필드 Cron의 차이는 무엇인가요?</summary><p>표준 5필드: <code>분 시 일 월 요일</code>. 6필드(Spring @Scheduled, 일부 AWS): <code>초 분 시 일 월 요일</code>. 초 필드의 범위는 0–59이며, 표준 Linux crontab에서는 지원되지 않습니다.</p></details>
+<details class="faq-item"><summary>특수 문자 * / - , 의 규칙은?</summary><p>* 는 모든 값 허용. / 는 간격(*/5 = 5단위마다). - 는 범위(1-5 = 1부터 5까지). , 는 목록(1,3,5 = 각각 1, 3, 5). 조합도 가능합니다: 예) 1-5,10,15-20.</p></details>
+<details class="faq-item"><summary>월과 요일에 이름(JAN, MON 등)을 사용할 수 있나요?</summary><p>일부 구현체는 JAN–DEC(월), SUN–SAT(요일) 이름을 지원하지만, 숫자(월 1–12, 요일 0–7)는 모든 플랫폼에서 범용적으로 동작합니다. 이식성을 위해 숫자 사용을 권장합니다.</p></details>
+<details class="faq-item"><summary>DOM과 DOW를 모두 지정하면 어떻게 되나요?</summary><p>두 필드 모두 와일드카드(*)가 아닐 때, Vixie cron 등 대부분의 구현체는 OR 조건으로 실행합니다. 예: <code>0 0 15 * 1</code>은 매월 15일이거나 매주 월요일 자정에 실행됩니다.</p></details>
+<details class="faq-item"><summary>L과 W 문자는 표준 cron에서 지원되나요?</summary><p>L(마지막 날)과 W(가장 가까운 평일)는 Quartz Scheduler와 Spring @Scheduled의 확장 문자입니다. 표준 Linux crontab에서는 지원되지 않습니다. AWS EventBridge는 별도의 특수 문자 체계를 가집니다.</p></details>
+<details class="faq-item"><summary>AWS EventBridge와 GitHub Actions의 Cron 차이는?</summary><p>AWS EventBridge는 6필드 cron(초 포함)을 사용하며, DOM과 DOW 중 하나에만 값을 지정하고 다른 하나는 ? 로 표시해야 합니다. GitHub Actions는 표준 5필드 cron을 UTC 기준으로 사용하며 최소 간격은 약 5분입니다.</p></details>
+<details class="faq-item"><summary>서버 없이 Cron 표현식을 테스트하는 방법은?</summary><p>이 도구처럼 온라인 cron 검증기를 사용하면 문법 오류와 다음 실행 시간을 즉시 확인할 수 있습니다. 코드 레벨에서는 npm의 cron-parser, Python의 croniter 라이브러리를 활용할 수 있습니다.</p></details>`,
+  },
+  en: {
+    pageTitle: 'Cron Expression Validator - Free Syntax Checker | MODOO HUB',
+    h1: 'Cron <span>Validator</span>',
+    sub: 'Validate cron syntax and highlight invalid fields',
+    backLink: '← All Tools',
+    langBtn: '🌐 中文',
+    btnClear: 'Clear',
+    labelInput: 'Enter Cron Expression',
+    labelSamples: 'Sample Expressions',
+    labelRef: 'Field Reference',
+    refThField: 'Field',
+    refThRange: 'Range',
+    refThNote: 'Note',
+    statusValid: '✓ Valid Cron Expression',
+    statusInvalid: '✗ Invalid Cron Expression',
+    errTooFew: 'Too few fields (need 5 or 6)',
+    errTooMany: 'Too many fields (max 6)',
+    fieldNames5: ['MIN', 'HOUR', 'DOM', 'MON', 'DOW'],
+    fieldNames6: ['SEC', 'MIN', 'HOUR', 'DOM', 'MON', 'DOW'],
+    fieldLabels5: ['Minute', 'Hour', 'DOM', 'Month', 'DOW'],
+    fieldLabels6: ['Second', 'Minute', 'Hour', 'DOM', 'Month', 'DOW'],
+    errInvalidChar: v => `Invalid character in "${v}"`,
+    errStepMin: 'Step must be ≥ 1',
+    errStartRange: (v, lo, hi) => `Start value ${v} not in ${lo}–${hi}`,
+    errRange: (v, lo, hi) => `Range ${v} invalid for ${lo}–${hi}`,
+    errOutOfRange: (v, lo, hi) => `Value ${v} not in ${lo}–${hi}`,
+    fieldErrPrefix: (name) => `${name}: `,
+    refRows: [
+      ['SEC',  '0–59',  '6-field cron only'],
+      ['MIN',  '0–59',  'Always present'],
+      ['HOUR', '0–23',  ''],
+      ['DOM',  '1–31',  'Day of Month'],
+      ['MON',  '1–12',  'Month'],
+      ['DOW',  '0–7',   '0 and 7 are both Sunday'],
+    ],
+    describeValid: (parts) => {
+      const [min, hour, dom, mon, dow] = parts.slice(-5);
+      const bits = [];
+      if (min === '*' && hour === '*') bits.push('every minute');
+      else if (min.startsWith('*/')) bits.push(`every ${min.slice(2)} min`);
+      else if (hour === '*') bits.push(`at minute ${min} of every hour`);
+      else bits.push(`at ${hour.padStart?hour.padStart(2,'0'):hour}:${String(min).padStart(2,'0')}`);
+      if (dow !== '*') {
+        const map = {0:'Sun',1:'Mon',2:'Tue',3:'Wed',4:'Thu',5:'Fri',6:'Sat',7:'Sun'};
+        if (dow.includes('-')) { const [a,b]=dow.split('-'); bits.push(`${map[a]||a}–${map[b]||b}`); }
+        else if (dow.includes(',')) bits.push(dow.split(',').map(x=>map[x.trim()]||x).join(', '));
+        else bits.push(map[dow]||dow);
+      } else if (dom !== '*') {
+        bits.push(`on day ${dom}`);
+      } else if (mon !== '*') {
+        bits.push(`in month ${mon}`);
+      } else {
+        bits.push('every day');
+      }
+      return bits.join(', ');
+    },
+    seoHtml: `<h2>Why Validate Cron Expressions?</h2>
+<p>An invalid cron expression can silently fail or trigger at unexpected times, causing <strong>missed backups</strong>, <strong>billing errors</strong>, or <strong>server outages</strong>. Validating syntax before deployment checks each field's allowed range and special character rules.</p>
+<p>Standard Linux crontab uses 5 fields (minute hour dom month dow). Spring @Scheduled and some cloud schedulers use 6 fields with a seconds field prepended. This tool validates both formats in real time.</p>
+<details class="faq-item"><summary>Why should I validate before deploying?</summary><p>Some systems silently skip invalid cron expressions without logging errors. A missed automated backup, delayed payment job, or undelivered report can cause real business impact. Validating first eliminates these risks.</p></details>
+<details class="faq-item"><summary>What is the difference between 5-field and 6-field cron?</summary><p>Standard 5-field: <code>minute hour dom month dow</code>. 6-field (Spring, some AWS): <code>second minute hour dom month dow</code>. The seconds field range is 0–59 and is not supported by standard Linux crontab.</p></details>
+<details class="faq-item"><summary>What are the special character rules?</summary><p>* allows any value. / sets a step (*/5 = every 5 units). - sets a range (1-5 = 1 through 5). , creates a list (1,3,5 = those specific values). Combinations are valid: e.g. 1-5,10,15-20.</p></details>
+<details class="faq-item"><summary>Can I use month or weekday names?</summary><p>Some implementations accept JAN–DEC (months) and SUN–SAT (weekdays), but numeric values (months 1–12, weekdays 0–7) are universally portable. Prefer numbers for maximum compatibility.</p></details>
+<details class="faq-item"><summary>What happens when both DOM and DOW are set?</summary><p>Most cron implementations (Vixie cron) use OR logic when both dom and dow are non-wildcard. Example: <code>0 0 15 * 1</code> fires on the 15th of the month OR every Monday at midnight.</p></details>
+<details class="faq-item"><summary>Are L and W supported in standard cron?</summary><p>L (last) and W (nearest weekday) are Quartz/Spring extensions and are NOT supported by standard Linux crontab. AWS EventBridge has its own set of special characters — always check the target platform's docs.</p></details>
+<details class="faq-item"><summary>How does cron differ between AWS and GitHub Actions?</summary><p>AWS EventBridge uses 6-field cron with a mandatory ? in either DOM or DOW (not both). GitHub Actions uses 5-field cron in UTC with a practical minimum interval of ~5 minutes.</p></details>
+<details class="faq-item"><summary>How can I test cron expressions without a server?</summary><p>Online validators like this one check syntax and calculate next run times instantly. Programmatically, use cron-parser (npm) or croniter (Python) to test before deployment.</p></details>`,
+  },
+  zh: {
+    pageTitle: 'Cron 表达式验证器 - 在线 Cron 语法检查 | MODOO HUB',
+    h1: 'Cron <span>验证器</span>',
+    sub: 'Cron 表达式语法验证·错误字段高亮显示',
+    backLink: '← 首页',
+    langBtn: '🌐 日本語',
+    btnClear: '清空',
+    labelInput: '输入 Cron 表达式',
+    labelSamples: '示例表达式',
+    labelRef: '字段参考',
+    refThField: '字段',
+    refThRange: '范围',
+    refThNote: '备注',
+    statusValid: '✓ 有效的 Cron 表达式',
+    statusInvalid: '✗ 无效的 Cron 表达式',
+    errTooFew: '字段不足（需要 5 或 6 个字段）',
+    errTooMany: '字段过多（最多 6 个）',
+    fieldNames5: ['MIN', 'HOUR', 'DOM', 'MON', 'DOW'],
+    fieldNames6: ['SEC', 'MIN', 'HOUR', 'DOM', 'MON', 'DOW'],
+    fieldLabels5: ['分钟', '小时', '日(DOM)', '月', '星期(DOW)'],
+    fieldLabels6: ['秒', '分钟', '小时', '日(DOM)', '月', '星期(DOW)'],
+    errInvalidChar: v => `"${v}" 中包含无效字符`,
+    errStepMin: '步长必须 ≥ 1',
+    errStartRange: (v, lo, hi) => `起始值 ${v} 不在允许范围 ${lo}–${hi} 内`,
+    errRange: (v, lo, hi) => `范围 ${v} 不符合 ${lo}–${hi} 的要求`,
+    errOutOfRange: (v, lo, hi) => `值 ${v} 不在允许范围 ${lo}–${hi} 内`,
+    fieldErrPrefix: (name) => `${name} 字段: `,
+    refRows: [
+      ['SEC',  '0–59',  '仅6字段cron使用'],
+      ['MIN',  '0–59',  '始终存在'],
+      ['HOUR', '0–23',  ''],
+      ['DOM',  '1–31',  '月中的日'],
+      ['MON',  '1–12',  '月份'],
+      ['DOW',  '0–7',   '0和7均表示周日'],
+    ],
+    describeValid: (parts) => {
+      const [min, hour, dom, mon, dow] = parts.slice(-5);
+      const bits = [];
+      if (min === '*' && hour === '*') bits.push('每分钟');
+      else if (min.startsWith('*/')) bits.push(`每${min.slice(2)}分钟`);
+      else if (hour === '*') bits.push(`每小时第${min}分`);
+      else bits.push(`${hour}:${String(min).padStart(2,'0')}`);
+      if (dow !== '*') {
+        const map = {0:'日',1:'一',2:'二',3:'三',4:'四',5:'五',6:'六',7:'日'};
+        if (dow.includes('-')) { const [a,b]=dow.split('-'); bits.push(`周${map[a]||a}至${map[b]||b}`); }
+        else if (dow.includes(',')) bits.push(dow.split(',').map(x=>'周'+(map[x.trim()]||x)).join('、'));
+        else bits.push('周'+(map[dow]||dow));
+      } else if (dom !== '*') {
+        bits.push(`每月${dom}日`);
+      } else if (mon !== '*') {
+        bits.push(`${mon}月`);
+      } else {
+        bits.push('每天');
+      }
+      return bits.join('，');
+    },
+    seoHtml: `<h2>为什么需要验证 Cron 表达式？</h2>
+<p>无效的 Cron 表达式可能<strong>静默失败</strong>或在意外时间触发，造成<strong>备份遗漏</strong>、<strong>账单错误</strong>或<strong>服务器故障</strong>。部署前验证语法可以检查各字段的允许范围和特殊字符规则。</p>
+<p>标准 Linux crontab 使用 5 个字段（分钟 小时 日 月 星期）。Spring @Scheduled 和部分云调度器使用 6 个字段（在前面增加秒字段）。本工具实时验证两种格式。</p>
+<details class="faq-item"><summary>部署前为什么要验证 Cron 表达式？</summary><p>部分系统会静默忽略无效的 cron 表达式而不记录错误。定时备份遗漏、延迟付款任务或未能发送的报告都会造成实际损失。提前验证可以杜绝这些风险。</p></details>
+<details class="faq-item"><summary>5字段和6字段 Cron 的区别是什么？</summary><p>标准5字段：<code>分钟 小时 日 月 星期</code>。6字段（Spring、部分AWS）：<code>秒 分钟 小时 日 月 星期</code>。秒字段范围为0–59，标准Linux crontab不支持。</p></details>
+<details class="faq-item"><summary>特殊字符的规则是什么？</summary><p>* 允许任意值；/ 设置步长（*/5=每5个单位）；- 设置范围（1-5=1到5）；, 创建列表（1,3,5=这些特定值）。可以组合使用，例如 1-5,10,15-20。</p></details>
+<details class="faq-item"><summary>可以使用月份或星期的名称吗？</summary><p>部分实现支持 JAN–DEC（月份）和 SUN–SAT（星期），但数字值（月份1–12，星期0–7）在所有平台通用。为了最大兼容性，建议使用数字。</p></details>
+<details class="faq-item"><summary>同时指定 DOM 和 DOW 会怎样？</summary><p>大多数 cron 实现（Vixie cron）在 DOM 和 DOW 均非通配符时使用 OR 逻辑。例：<code>0 0 15 * 1</code> 表示每月15日或每周一午夜执行。</p></details>
+<details class="faq-item"><summary>标准 cron 支持 L 和 W 字符吗？</summary><p>L（最后一天）和 W（最近工作日）是 Quartz/Spring 的扩展字符，标准 Linux crontab 不支持。AWS EventBridge 有自己的特殊字符体系，使用前请查阅对应平台文档。</p></details>
+<details class="faq-item"><summary>AWS EventBridge 和 GitHub Actions 的 Cron 有什么不同？</summary><p>AWS EventBridge 使用6字段 cron，且 DOM 和 DOW 其中一个必须为 ?（不能同时指定）。GitHub Actions 使用标准5字段 cron，UTC 时区，最小间隔约5分钟。</p></details>
+<details class="faq-item"><summary>如何在不部署服务器的情况下测试 Cron 表达式？</summary><p>使用像本工具这样的在线验证器可以即时检查语法并计算下次执行时间。编程方式可使用 npm 的 cron-parser 或 Python 的 croniter 库进行部署前测试。</p></details>`,
+  },
+  ja: {
+    pageTitle: 'Cron 式バリデーター - Cron 構文チェッカー | MODOO HUB',
+    h1: 'Cron <span>バリデーター</span>',
+    sub: 'Cron 式の構文検証・エラーフィールド表示',
+    backLink: '← ホーム',
+    langBtn: '🌐 한국어',
+    btnClear: 'クリア',
+    labelInput: 'Cron 式を入力',
+    labelSamples: 'サンプル式',
+    labelRef: 'フィールド参照',
+    refThField: 'フィールド',
+    refThRange: '範囲',
+    refThNote: '備考',
+    statusValid: '✓ 有効な Cron 式',
+    statusInvalid: '✗ 無効な Cron 式',
+    errTooFew: 'フィールドが不足しています（5 または 6 フィールド必要）',
+    errTooMany: 'フィールドが多すぎます（最大 6 フィールド）',
+    fieldNames5: ['MIN', 'HOUR', 'DOM', 'MON', 'DOW'],
+    fieldNames6: ['SEC', 'MIN', 'HOUR', 'DOM', 'MON', 'DOW'],
+    fieldLabels5: ['分', '時', '日(DOM)', '月', '曜日(DOW)'],
+    fieldLabels6: ['秒', '分', '時', '日(DOM)', '月', '曜日(DOW)'],
+    errInvalidChar: v => `"${v}" に無効な文字が含まれています`,
+    errStepMin: 'ステップは 1 以上にしてください',
+    errStartRange: (v, lo, hi) => `開始値 ${v} が許容範囲 ${lo}–${hi} 外です`,
+    errRange: (v, lo, hi) => `範囲 ${v} は ${lo}–${hi} に対して無効です`,
+    errOutOfRange: (v, lo, hi) => `値 ${v} は許容範囲 ${lo}–${hi} 外です`,
+    fieldErrPrefix: (name) => `${name} フィールド: `,
+    refRows: [
+      ['SEC',  '0–59',  '6フィールド cron のみ'],
+      ['MIN',  '0–59',  '常に使用'],
+      ['HOUR', '0–23',  ''],
+      ['DOM',  '1–31',  '月の日'],
+      ['MON',  '1–12',  '月'],
+      ['DOW',  '0–7',   '0 と 7 は両方日曜日'],
+    ],
+    describeValid: (parts) => {
+      const [min, hour, dom, mon, dow] = parts.slice(-5);
+      const bits = [];
+      if (min === '*' && hour === '*') bits.push('毎分');
+      else if (min.startsWith('*/')) bits.push(`${min.slice(2)}分ごと`);
+      else if (hour === '*') bits.push(`毎時 ${min}分`);
+      else bits.push(`${hour}:${String(min).padStart(2,'0')}`);
+      if (dow !== '*') {
+        const map = {0:'日',1:'月',2:'火',3:'水',4:'木',5:'金',6:'土',7:'日'};
+        if (dow.includes('-')) { const [a,b]=dow.split('-'); bits.push(`${map[a]||a}〜${map[b]||b}曜日`); }
+        else if (dow.includes(',')) bits.push(dow.split(',').map(x=>(map[x.trim()]||x)+'曜').join('・')+'日');
+        else bits.push((map[dow]||dow)+'曜日');
+      } else if (dom !== '*') {
+        bits.push(`毎月 ${dom} 日`);
+      } else if (mon !== '*') {
+        bits.push(`${mon} 月`);
+      } else {
+        bits.push('毎日');
+      }
+      return bits.join('、');
+    },
+    seoHtml: `<h2>Cron 式の検証とは？</h2>
+<p>無効な Cron 式はサイレントに失敗したり、予期しない時刻に実行されたりして、<strong>バックアップの欠落</strong>、<strong>請求エラー</strong>、<strong>サーバー障害</strong>を引き起こす可能性があります。デプロイ前に構文を検証することで、各フィールドの許容範囲と特殊文字のルールを確認できます。</p>
+<p>標準 Linux crontab は 5 フィールド（分・時・日・月・曜日）を使用し、Spring @Scheduled や一部のクラウドスケジューラは先頭に秒フィールドを追加した 6 フィールドを使用します。このツールは両形式をリアルタイムで検証します。</p>
+<details class="faq-item"><summary>デプロイ前に検証すべき理由は？</summary><p>一部のシステムは無効な cron 式をエラーなく無視します。定期バックアップの欠落、遅延した支払い処理、未送信のレポートは実際のビジネス損失につながります。事前検証でこれらのリスクを排除できます。</p></details>
+<details class="faq-item"><summary>5フィールドと6フィールドの違いは？</summary><p>標準5フィールド：<code>分 時 日 月 曜日</code>。6フィールド（Spring、一部AWS）：<code>秒 分 時 日 月 曜日</code>。秒フィールドの範囲は0–59で、標準Linux crontabでは未対応です。</p></details>
+<details class="faq-item"><summary>特殊文字のルールは？</summary><p>* は任意の値を許可。/ はステップ（*/5=5単位ごと）。- は範囲（1-5=1から5）。, はリスト（1,3,5=それぞれの値）。組み合わせも有効：例 1-5,10,15-20。</p></details>
+<details class="faq-item"><summary>月名や曜日名は使えますか？</summary><p>一部の実装は JAN–DEC（月）や SUN–SAT（曜日）をサポートしますが、数値（月 1–12、曜日 0–7）はすべてのプラットフォームで通用します。移植性のために数値を推奨します。</p></details>
+<details class="faq-item"><summary>DOM と DOW を同時に指定するとどうなりますか？</summary><p>ほとんどの cron 実装（Vixie cron）は DOM と DOW が両方ともワイルドカード以外の場合、OR 条件で実行します。例：<code>0 0 15 * 1</code> は毎月15日または毎週月曜日の深夜に実行されます。</p></details>
+<details class="faq-item"><summary>L と W は標準 cron でサポートされますか？</summary><p>L（最終日）と W（最も近い平日）は Quartz/Spring の拡張文字で、標準 Linux crontab では未対応です。AWS EventBridge は独自の特殊文字体系を持ちます。必ず対象プラットフォームのドキュメントを確認してください。</p></details>
+<details class="faq-item"><summary>AWS と GitHub Actions の Cron の違いは？</summary><p>AWS EventBridge は6フィールド cron を使用し、DOM と DOW のどちらかを ? にする必要があります。GitHub Actions は標準5フィールド cron で UTC 基準、最小間隔は約5分です。</p></details>
+<details class="faq-item"><summary>サーバーなしで Cron 式をテストするには？</summary><p>このようなオンラインバリデーターで構文チェックと次回実行時刻の計算をすぐに行えます。プログラム的には npm の cron-parser や Python の croniter ライブラリでデプロイ前にテストできます。</p></details>`,
+  },
+};
+
+const LANGS = ['ko','en','zh','ja'];
+let lang = 'ko';
+
+// ---------- Validation core ----------
+function validateField(v, lo, hi, t) {
+  if (v === '*') return { ok: true };
+  if (/[^0-9*\/\-,]/.test(v)) return { ok: false, err: t.errInvalidChar(v) };
+  if (v.includes('/')) {
+    const [s, step] = v.split('/');
+    const st = parseInt(step);
+    if (isNaN(st) || st < 1) return { ok: false, err: t.errStepMin };
+    if (s !== '*') {
+      const n = parseInt(s);
+      if (isNaN(n) || n < lo || n > hi) return { ok: false, err: t.errStartRange(s, lo, hi) };
+    }
+    return { ok: true };
+  }
+  if (v.includes(',')) {
+    for (const p of v.split(',')) {
+      const r = validateField(p.trim(), lo, hi, t);
+      if (!r.ok) return r;
+    }
+    return { ok: true };
+  }
+  if (v.includes('-')) {
+    const parts = v.split('-');
+    if (parts.length !== 2) return { ok: false, err: t.errRange(v, lo, hi) };
+    const [a, b] = parts.map(Number);
+    if (isNaN(a) || isNaN(b) || a < lo || b > hi || a > b) return { ok: false, err: t.errRange(v, lo, hi) };
+    return { ok: true };
+  }
+  const n = parseInt(v);
+  if (isNaN(n) || n < lo || n > hi) return { ok: false, err: t.errOutOfRange(v, lo, hi) };
+  return { ok: true };
+}
+
+function validateCron(expr, t) {
+  const p = expr.trim().split(/\s+/);
+  if (p.length < 5) return { ok: false, err: t.errTooFew, fields: [] };
+  if (p.length > 6) return { ok: false, err: t.errTooMany, fields: [] };
+  const is6 = p.length === 6;
+  const defs = is6
+    ? [
+        { n: 'SEC',  v: p[0], lo: 0,  hi: 59 },
+        { n: 'MIN',  v: p[1], lo: 0,  hi: 59 },
+        { n: 'HOUR', v: p[2], lo: 0,  hi: 23 },
+        { n: 'DOM',  v: p[3], lo: 1,  hi: 31 },
+        { n: 'MON',  v: p[4], lo: 1,  hi: 12 },
+        { n: 'DOW',  v: p[5], lo: 0,  hi: 7  },
+      ]
+    : [
+        { n: 'MIN',  v: p[0], lo: 0,  hi: 59 },
+        { n: 'HOUR', v: p[1], lo: 0,  hi: 23 },
+        { n: 'DOM',  v: p[2], lo: 1,  hi: 31 },
+        { n: 'MON',  v: p[3], lo: 1,  hi: 12 },
+        { n: 'DOW',  v: p[4], lo: 0,  hi: 7  },
+      ];
+  const results = defs.map(f => ({ ...f, result: validateField(f.v, f.lo, f.hi, t) }));
+  const firstErr = results.find(r => !r.result.ok);
+  return {
+    ok: results.every(r => r.result.ok),
+    err: firstErr ? t.fieldErrPrefix(firstErr.n) + firstErr.result.err : '',
+    fields: results,
+    parts: p,
+  };
+}
+
+// ---------- i18n / lang ----------
+function detectLang() {
+  const u = new URLSearchParams(location.search).get('lang');
+  if (u && i18n[u]) return u;
+  const s = localStorage.getItem('modoo_lang');
+  if (s && i18n[s]) return s;
+  const n = (navigator.language || '').slice(0, 2);
+  return n === 'zh' ? 'zh' : n === 'ja' ? 'ja' : n === 'ko' ? 'ko' : 'en';
+}
+
+function applyLang() {
+  const t = i18n[lang];
+  document.documentElement.lang = lang;
+  document.title = t.pageTitle;
+  document.getElementById('h1El').innerHTML = t.h1;
+  document.getElementById('subEl').textContent = t.sub;
+  document.getElementById('backLink').textContent = t.backLink;
+  document.getElementById('langBtn').textContent = t.langBtn;
+  document.getElementById('btnClear').textContent = t.btnClear;
+  document.getElementById('labelInput').textContent = t.labelInput;
+  document.getElementById('labelSamples').textContent = t.labelSamples;
+  document.getElementById('labelRef').textContent = t.labelRef;
+  document.getElementById('refThField').textContent = t.refThField;
+  document.getElementById('refThRange').textContent = t.refThRange;
+  document.getElementById('refThNote').textContent = t.refThNote;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const k = el.dataset.i18n;
+    if (t[k] !== undefined) el.innerHTML = t[k];
+  });
+  renderSamples();
+  renderRefTable();
+  // Re-validate if there's content
+  const val = document.getElementById('cronInput').value.trim();
+  if (val) onCronInput();
+}
+
+function toggleLang() {
+  const idx = LANGS.indexOf(lang);
+  lang = LANGS[(idx + 1) % LANGS.length];
+  localStorage.setItem('modoo_lang', lang);
+  const url = new URL(location.href);
+  url.searchParams.set('lang', lang);
+  history.replaceState({}, '', url);
+  applyLang();
+}
+
+// ---------- Render helpers ----------
+function renderSamples() {
+  const t = i18n[lang];
+  document.getElementById('samplesGrid').innerHTML = SAMPLES_DATA.map(s =>
+    `<div class="sample-card" onclick="loadSample('${s.expr}')">
+      <div class="sc-expr">${s.expr}</div>
+      <div class="sc-desc">${s[lang] || s.en}</div>
+    </div>`
+  ).join('');
+}
+
+function renderRefTable() {
+  const t = i18n[lang];
+  document.getElementById('refBody').innerHTML = t.refRows.map(r =>
+    `<tr><td>${r[0]}</td><td>${r[1]}</td><td style="font-family:'Noto Sans KR',sans-serif;">${r[2]}</td></tr>`
+  ).join('');
+}
+
+function renderFieldBar(fields, emptyCount) {
+  const t = i18n[lang];
+  if (emptyCount) {
+    // show placeholder chips
+    const names = emptyCount === 5 ? t.fieldNames5 : t.fieldNames6;
+    document.getElementById('fieldBar').innerHTML = names.map(n =>
+      `<div class="field-chip fc-empty"><span class="fc-name">${n}</span><span class="fc-val">–</span></div>`
+    ).join('');
+    return;
+  }
+  document.getElementById('fieldBar').innerHTML = fields.map(f =>
+    `<div class="field-chip ${f.result.ok ? 'fc-valid' : 'fc-invalid'}">
+      <span class="fc-name">${f.n}</span>
+      <span class="fc-val">${escHtml(f.v)}</span>
+    </div>`
+  ).join('');
+}
+
+// ---------- Main validation handler ----------
+function onCronInput() {
+  const val = document.getElementById('cronInput').value;
+  const trimmed = val.trim();
+  const t = i18n[lang];
+  const input = document.getElementById('cronInput');
+
+  if (!trimmed) {
+    input.className = 'cron-input';
+    document.getElementById('fieldBar').innerHTML = '';
+    document.getElementById('statusRow').style.display = 'none';
+    return;
+  }
+
+  const result = validateCron(trimmed, t);
+
+  // Input border
+  input.className = 'cron-input ' + (result.ok ? 'state-valid' : 'state-invalid');
+
+  // Field bar
+  if (result.fields && result.fields.length > 0) {
+    renderFieldBar(result.fields, 0);
+  } else {
+    // Still show empty bar with expected count
+    const parts = trimmed.split(/\s+/);
+    renderFieldBar([], parts.length >= 6 ? 6 : 5);
+  }
+
+  // Status
+  const statusRow = document.getElementById('statusRow');
+  statusRow.style.display = 'flex';
+  const icon = document.getElementById('statusIcon');
+  const main = document.getElementById('statusMain');
+  const detail = document.getElementById('statusDetail');
+  const desc = document.getElementById('statusDesc');
+
+  if (result.ok) {
+    icon.textContent = '✓';
+    main.className = 'status-main ok';
+    main.textContent = t.statusValid;
+    detail.textContent = '';
+    desc.textContent = t.describeValid(result.parts);
+  } else {
+    icon.textContent = '✗';
+    main.className = 'status-main err';
+    main.textContent = t.statusInvalid;
+    detail.textContent = result.err || '';
+    desc.textContent = '';
+  }
+}
+
+function loadSample(expr) {
+  document.getElementById('cronInput').value = expr;
+  onCronInput();
+}
+
+function clearAll() {
+  document.getElementById('cronInput').value = '';
+  document.getElementById('cronInput').className = 'cron-input';
+  document.getElementById('fieldBar').innerHTML = '';
+  document.getElementById('statusRow').style.display = 'none';
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Init
+lang = detectLang();
+applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

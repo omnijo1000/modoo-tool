@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="pageTitle">URL 인코더 - 퍼센트 인코딩 변환 도구</title>
+<meta name="description" content="텍스트와 URL을 퍼센트 인코딩(URL 인코딩)으로 변환합니다. encodeURIComponent와 encodeURI 두 가지 모드를 지원합니다.">
+<meta name="keywords" content="URL 인코더, URL encoder, 퍼센트 인코딩, percent encoding, encodeURIComponent, encodeURI, URL encoding">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/url-encoder.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/url-encoder.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/url-encoder.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/url-encoder.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/url-encoder.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/url-encoder.html">
+<style>
+:root {
+  --bg:#0a0a0a; --surface:#141414; --surface2:#1a1a1a; --border:#252525;
+  --accent:#fbbf24; --accent2:#f59e0b; --accent-dim:rgba(251,191,36,0.08);
+  --text:#f5f5f5; --text-muted:#888; --text-dim:#444;
+  --green:#4ade80; --red:#f87171; --blue:#60a5fa; --purple:#c084fc;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body { background:var(--bg); color:var(--text); font-family:'Noto Sans KR',sans-serif; min-height:100vh; }
+header { border-bottom:1px solid var(--border); padding:20px 24px; display:flex; align-items:center; gap:12px; }
+.dot { width:8px; height:8px; border-radius:50%; background:var(--accent); }
+.header-label { font-size:13px; color:var(--text-muted); letter-spacing:0.1em; font-family:'DM Mono',monospace; }
+.back-link { margin-left:auto; font-size:13px; color:var(--text-muted); text-decoration:none; }
+.back-link:hover { color:var(--accent); }
+.lang-toggle { font-size:12px; color:var(--text-muted); cursor:pointer; padding:4px 10px; border:1px solid var(--border); border-radius:6px; font-family:'DM Mono',monospace; transition:all 0.15s; margin-left:8px; }
+.lang-toggle:hover { border-color:var(--accent); color:var(--accent); }
+main { max-width:900px; margin:0 auto; padding:40px 24px; }
+h1 { font-size:clamp(24px,4vw,34px); font-weight:900; line-height:1.1; margin-bottom:10px; }
+h1 span { color:var(--accent); }
+.subtitle { color:var(--text-muted); font-size:14px; margin-bottom:28px; }
+.mode-row { display:flex; gap:8px; margin-bottom:8px; flex-wrap:wrap; align-items:center; }
+.mode-btn { padding:7px 18px; border:1px solid var(--border); border-radius:8px; font-size:13px; font-family:'DM Mono',monospace; background:none; color:var(--text-muted); cursor:pointer; transition:all .15s; }
+.mode-btn.on { background:var(--accent-dim); border-color:var(--accent2); color:var(--accent); font-weight:700; }
+.mode-btn:not(.on):hover { border-color:var(--accent2); color:var(--accent); }
+.mode-desc { font-size:12px; color:var(--text-dim); font-family:'DM Mono',monospace; margin-bottom:16px; }
+.toolbar { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; align-items:center; }
+.sep { width:1px; height:24px; background:var(--border); }
+.btn { background:var(--surface2); border:1px solid var(--border); border-radius:7px; padding:7px 14px; font-size:13px; color:var(--text-muted); cursor:pointer; font-family:'Noto Sans KR',sans-serif; transition:all 0.15s; }
+.btn:hover { border-color:var(--accent2); color:var(--accent); }
+.btn.primary { background:var(--accent2); border-color:var(--accent2); color:#000; font-weight:700; }
+.btn.primary:hover { opacity:0.85; color:#000; }
+.btn.danger:hover { border-color:var(--red); color:var(--red); }
+.editor-wrap { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; }
+@media(max-width:600px) { .editor-wrap { grid-template-columns:1fr; } }
+.editor-box { display:flex; flex-direction:column; }
+.editor-label { font-size:11px; color:var(--text-dim); letter-spacing:0.08em; margin-bottom:8px; text-transform:uppercase; display:flex; justify-content:space-between; align-items:center; }
+.copy-small { font-size:11px; color:var(--text-dim); cursor:pointer; padding:3px 8px; border:1px solid var(--border); border-radius:4px; transition:all 0.15s; }
+.copy-small:hover { color:var(--accent); border-color:var(--accent2); }
+textarea { flex:1; width:100%; min-height:300px; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:16px; font-family:'DM Mono',monospace; font-size:13px; color:var(--text); outline:none; resize:vertical; line-height:1.6; }
+textarea:focus { border-color:var(--accent2); }
+.char-count { font-size:11px; color:var(--text-dim); font-family:'DM Mono',monospace; margin-top:6px; text-align:right; }
+.seo { border-top:1px solid var(--border); padding-top:32px; margin-top:32px; }
+.seo h2 { font-size:16px; font-weight:700; margin-bottom:12px; }
+.seo p { font-size:13px; color:var(--text-muted); line-height:1.8; margin-bottom:24px; }
+details.faq-item { border:1px solid var(--border); border-radius:10px; margin-bottom:8px; overflow:hidden; }
+details.faq-item summary { padding:14px 18px; font-size:14px; font-weight:600; cursor:pointer; list-style:none; display:flex; justify-content:space-between; align-items:center; background:var(--surface); }
+details.faq-item summary::-webkit-details-marker { display:none; }
+details.faq-item summary:hover { color:var(--accent); }
+details.faq-item summary::after { content:'▼'; font-size:11px; color:var(--text-muted); transition:transform .2s; flex-shrink:0; }
+details.faq-item[open] summary::after { transform:rotate(180deg); }
+details.faq-item p { padding:0 18px 14px; font-size:13px; color:var(--text-muted); line-height:1.8; background:var(--surface); }
+footer { text-align:center; font-size:12px; color:var(--text-dim); margin-top:48px; }
+</style>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-NR6VJF0534');
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<meta property="og:title" content="URL Encoder - Percent Encoding Tool | MODOO HUB">
+<meta property="og:description" content="Encode text and URLs with percent-encoding. Supports encodeURIComponent and encodeURI modes.">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<meta property="og:url" content="https://modoohub.com/url-encoder.html">
+<meta property="og:type" content="website">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is URL encoding (percent encoding)?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "URL encoding converts characters that are not allowed or have special meaning in a URL into a percent-sign followed by two hexadecimal digits. For example, a space becomes %20 and a Korean character like 안 becomes %EC%95%88."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why do spaces become %20 in URLs?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Spaces are not valid in a URL. RFC 3986 requires non-unreserved characters to be percent-encoded. A space is represented as %20 (hexadecimal 20 = decimal 32 = ASCII space). Some systems use + instead of %20 in query strings, but %20 is more universally correct."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the difference between encodeURIComponent and encodeURI?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "encodeURIComponent encodes everything except letters, digits, and - _ . ! ~ * ' ( ). It is designed for encoding individual query parameter values. encodeURI preserves characters that are valid in a complete URL such as :, /, ?, &, =, #, and @, so it is suited for encoding a full URL."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which characters do not need to be URL-encoded?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The unreserved characters defined in RFC 3986 never need encoding: A–Z, a–z, 0–9, hyphen (-), underscore (_), period (.), and tilde (~). All other characters should be percent-encoded when they appear as data."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is double-encoding and how do I avoid it?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Double-encoding happens when an already-encoded string is encoded again, turning %20 into %2520. Always decode first if the input may already be encoded, or check whether the value contains existing % sequences before encoding."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How are Korean and CJK characters encoded in URLs?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Korean and CJK characters are first converted to their UTF-8 byte sequences, then each byte is percent-encoded. For example, the Korean word 안녕 is encoded as %EC%95%88%EB%85%95 because its UTF-8 bytes are EC 95 88 EB 85 95."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does URL encoding work in HTML form submission?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "When an HTML form uses method=GET, the browser serializes the form data using application/x-www-form-urlencoded format, which encodes spaces as + and other special characters as percent sequences. When using method=POST with multipart/form-data, no URL encoding is applied."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How should I encode URL parameters in a REST API?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Use encodeURIComponent for each query parameter name and value individually before concatenating them into the URL. Never pass an unencoded user-supplied string directly into a URL, as it can break the URL structure or create security issues."
+      }
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "URL Encoder",
+  "url": "https://modoohub.com/url-encoder.html",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "All",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "description": "Free online URL encoder. Encode text and URLs using percent-encoding (encodeURIComponent or encodeURI) instantly in your browser."
+}
+</script>
+</head>
+<body>
+<header>
+  <div class="dot"></div>
+  <span class="header-label">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <div class="lang-toggle" onclick="toggleLang()" id="langBtn">🌐 EN</div>
+</header>
+<main>
+  <h1 id="h1El">URL <span>인코더</span></h1>
+  <p class="subtitle" id="subEl">텍스트·URL을 퍼센트 인코딩으로 변환</p>
+
+  <div class="mode-row">
+    <button class="mode-btn on" id="btnModeComponent" onclick="setMode('component')">Component</button>
+    <button class="mode-btn" id="btnModeFullUrl" onclick="setMode('full')">Full URL</button>
+  </div>
+  <p class="mode-desc" id="modeDesc">encodeURIComponent — ?, &amp;, =, #, / 포함 대부분의 특수문자를 인코딩</p>
+
+  <div class="toolbar">
+    <button class="btn" id="btnPaste" onclick="pasteInput()">붙여넣기</button>
+    <button class="btn danger" id="btnClear" onclick="clearAll()">지우기</button>
+    <button class="btn" id="btnSample" onclick="loadSample()">예시</button>
+    <div class="sep"></div>
+    <button class="btn primary" id="btnEncode" onclick="encode()">Encode →</button>
+    <button class="btn" id="btnCopy" onclick="copyOutput()">복사</button>
+  </div>
+
+  <div class="editor-wrap">
+    <div class="editor-box">
+      <div class="editor-label">
+        <span id="labelInput">입력</span>
+      </div>
+      <textarea id="inputEl" placeholder="인코딩할 텍스트 또는 URL" oninput="debouncedEncode()"></textarea>
+      <div class="char-count" id="charCount">0 chars</div>
+    </div>
+    <div class="editor-box">
+      <div class="editor-label">
+        <span id="labelOutput">인코딩 결과</span>
+        <span class="copy-small" id="copySmall" onclick="copyOutput()">복사</span>
+      </div>
+      <textarea id="outputEl" readonly placeholder="결과가 여기 표시됩니다"></textarea>
+    </div>
+  </div>
+
+  <div class="seo" id="seoEl"></div>
+  <footer id="footerEl">모든 데이터는 브라우저에서만 처리됩니다 · 서버로 전송되지 않습니다</footer>
+</main>
+<script>
+const i18n = {
+  ko: {
+    pageTitle: 'URL 인코더 - 퍼센트 인코딩 변환 도구',
+    h1: 'URL <span>인코더</span>',
+    sub: '텍스트·URL을 퍼센트 인코딩으로 변환',
+    backLink: '← 모두의 툴',
+    langBtn: '🌐 EN',
+    btnPaste: '붙여넣기',
+    btnClear: '지우기',
+    btnSample: '예시',
+    btnEncode: 'Encode →',
+    btnCopy: '복사',
+    copyDone: '복사됨 ✓',
+    optComponent: 'Component',
+    optFullUrl: 'Full URL',
+    modeDescComponent: 'encodeURIComponent — ?, &, =, #, / 포함 대부분의 특수문자를 인코딩',
+    modeDescFull: 'encodeURI — URL 구조 문자(:, /, ?, &, =, #)를 보존하고 나머지만 인코딩',
+    labelInput: '입력',
+    labelOutput: '인코딩 결과',
+    footer: '모든 데이터는 브라우저에서만 처리됩니다 · 서버로 전송되지 않습니다',
+    sampleComponent: 'hello world & name=John Doe + email=test@example.com',
+    sampleFull: 'https://example.com/search?q=hello world&lang=한국어',
+    seoHtml: `<h2>URL 인코딩(퍼센트 인코딩)이란?</h2>
+<p>URL 인코딩은 URL에 포함할 수 없는 문자를 퍼센트 기호(%)와 두 자리 16진수로 변환하는 방식입니다. 예를 들어 공백은 %20, 한글 '안'은 %EC%95%88으로 변환됩니다. 웹 브라우저와 서버 간의 데이터 전송, API 요청, 폼 데이터 전송 등에 필수적입니다.</p>
+<h2>encodeURIComponent vs encodeURI 차이</h2>
+<p><strong>encodeURIComponent</strong>는 영문자·숫자·<code>- _ . ! ~ * ' ( )</code>를 제외한 모든 문자를 인코딩합니다. 쿼리 파라미터 값 하나를 인코딩할 때 사용합니다. <strong>encodeURI</strong>는 URL 구조에서 의미를 갖는 문자(: / ? & = # @)를 그대로 두고 나머지만 인코딩합니다. 전체 URL 주소를 인코딩할 때 적합합니다.</p>
+<h2>자주 묻는 질문</h2>
+<details class="faq-item"><summary>URL 인코딩(퍼센트 인코딩)이란 무엇인가요?</summary><p>URL에 포함할 수 없는 문자를 % 기호와 16진수 두 자리로 변환하는 방식입니다. RFC 3986 표준에 따라 정의되며, 브라우저·서버·API 간 안전한 데이터 전달을 위해 사용됩니다.</p></details>
+<details class="faq-item"><summary>공백이 %20이 되는 이유는?</summary><p>공백(space)은 URL에서 허용되지 않는 문자입니다. RFC 3986에 따라 허용되지 않는 문자는 UTF-8 바이트값을 16진수로 표현해 퍼센트 인코딩해야 합니다. 공백의 ASCII 코드는 32(10진수)=20(16진수)이므로 %20이 됩니다.</p></details>
+<details class="faq-item"><summary>encodeURIComponent와 encodeURI의 차이는?</summary><p>encodeURIComponent는 쿼리 파라미터처럼 값 하나를 인코딩할 때 사용하며 ?, &, =, #, / 등도 인코딩합니다. encodeURI는 전체 URL을 인코딩할 때 사용하며 URL 구조 문자는 보존합니다.</p></details>
+<details class="faq-item"><summary>인코딩이 필요 없는 문자는 어떤 것들인가요?</summary><p>RFC 3986에서 정의한 비예약 문자(unreserved characters)는 인코딩 없이 URL에 그대로 사용할 수 있습니다: 영문 대소문자(A-Z, a-z), 숫자(0-9), 하이픈(-), 밑줄(_), 마침표(.), 물결표(~).</p></details>
+<details class="faq-item"><summary>이중 인코딩 문제는 무엇인가요?</summary><p>이미 인코딩된 문자열을 다시 인코딩하면 %20이 %2520이 되는 이중 인코딩 문제가 발생합니다. 입력값에 이미 % 시퀀스가 있는지 확인하거나, 인코딩 전에 먼저 디코딩하는 방법으로 방지할 수 있습니다.</p></details>
+<details class="faq-item"><summary>한글/한자 등 CJK 문자는 어떻게 인코딩되나요?</summary><p>한글 등 비ASCII 문자는 먼저 UTF-8 바이트 시퀀스로 변환된 후, 각 바이트가 퍼센트 인코딩됩니다. 예를 들어 '안녕'은 UTF-8로 EC 95 88 EB 85 95가 되어 %EC%95%88%EB%85%95로 인코딩됩니다.</p></details>
+<details class="faq-item"><summary>HTML 폼 제출 시 URL 인코딩은 어떻게 되나요?</summary><p>method=GET 폼은 데이터를 application/x-www-form-urlencoded 방식으로 인코딩하며 공백을 +로 표현합니다. method=POST + multipart/form-data는 URL 인코딩을 적용하지 않습니다. REST API에서는 %20이 더 표준적입니다.</p></details>
+<details class="faq-item"><summary>REST API에서 URL 파라미터를 올바르게 인코딩하는 방법은?</summary><p>쿼리 파라미터 이름과 값 각각에 encodeURIComponent를 적용한 후 name=value 형태로 조합하세요. 사용자 입력값을 인코딩 없이 URL에 직접 삽입하면 URL 구조가 깨지거나 보안 문제가 발생할 수 있습니다.</p></details>`
+  },
+  en: {
+    pageTitle: 'URL Encoder - Percent Encoding Tool | MODOO HUB',
+    h1: 'URL <span>Encoder</span>',
+    sub: 'Percent-encode text or full URLs',
+    backLink: '← All Tools',
+    langBtn: '🌐 中文',
+    btnPaste: 'Paste',
+    btnClear: 'Clear',
+    btnSample: 'Sample',
+    btnEncode: 'Encode →',
+    btnCopy: 'Copy',
+    copyDone: 'Copied ✓',
+    optComponent: 'Component',
+    optFullUrl: 'Full URL',
+    modeDescComponent: 'encodeURIComponent — encodes ?, &, =, #, / and most special characters',
+    modeDescFull: 'encodeURI — preserves URL structure chars (:, /, ?, &, =, #), encodes the rest',
+    labelInput: 'Input',
+    labelOutput: 'Encoded Output',
+    footer: 'All data is processed in your browser · Never sent to any server',
+    sampleComponent: 'hello world & name=John Doe + email=test@example.com',
+    sampleFull: 'https://example.com/search?q=hello world&lang=한국어',
+    seoHtml: `<h2>URL Encoding (Percent Encoding) Explained</h2>
+<p>URL encoding converts characters that are not allowed or have reserved meaning in a URL into a percent sign (%) followed by two hexadecimal digits representing the character's UTF-8 byte value. For example, a space becomes %20 and the Korean character 안 becomes %EC%95%88. URL encoding is essential for web communication, API requests, and form data transmission.</p>
+<h2>encodeURIComponent vs encodeURI</h2>
+<p><strong>encodeURIComponent</strong> encodes everything except letters, digits, and <code>- _ . ! ~ * ' ( )</code>. Use it for encoding individual query parameter values. <strong>encodeURI</strong> preserves URL structural characters like :, /, ?, &, =, # and @ so the URL remains functional. Use it when you need to encode a complete URL.</p>
+<h2>FAQ</h2>
+<details class="faq-item"><summary>What is URL encoding (percent encoding)?</summary><p>URL encoding converts characters that cannot appear in a URL into a % symbol followed by two hexadecimal digits representing the character's byte value in UTF-8. It is defined by RFC 3986 and ensures safe data transmission between browsers, servers, and APIs.</p></details>
+<details class="faq-item"><summary>Why do spaces become %20?</summary><p>Spaces are not allowed in URLs. According to RFC 3986, disallowed characters must be percent-encoded using their UTF-8 byte values in hexadecimal. The ASCII code for a space is 32 decimal = 20 hexadecimal, so it becomes %20.</p></details>
+<details class="faq-item"><summary>What is the difference between encodeURIComponent and encodeURI?</summary><p>encodeURIComponent encodes all characters except letters, digits, and - _ . ! ~ * ' ( ). It is designed for encoding individual values like query parameters. encodeURI preserves characters that have structural meaning in a URL (: / ? & = # @) and only encodes the rest.</p></details>
+<details class="faq-item"><summary>Which characters don't need URL encoding?</summary><p>RFC 3986 defines unreserved characters that can appear in a URL as-is: uppercase and lowercase letters (A–Z, a–z), digits (0–9), hyphen (-), underscore (_), period (.), and tilde (~). All other characters should be percent-encoded when used as data.</p></details>
+<details class="faq-item"><summary>What is the double-encoding problem?</summary><p>Double-encoding occurs when an already-encoded string is encoded again, turning %20 into %2520. Always check if your input already contains percent sequences, or decode first before re-encoding to prevent this issue.</p></details>
+<details class="faq-item"><summary>How are Korean and CJK characters encoded in URLs?</summary><p>Non-ASCII characters like Korean are first converted to their UTF-8 byte sequences, then each byte is percent-encoded. For example, the Korean word 안녕 has UTF-8 bytes EC 95 88 EB 85 95, so it becomes %EC%95%88%EB%85%95.</p></details>
+<details class="faq-item"><summary>How does URL encoding work in HTML form submission?</summary><p>HTML forms using method=GET encode data as application/x-www-form-urlencoded, where spaces become + instead of %20. Forms using method=POST with multipart/form-data bypass URL encoding. For REST APIs, %20 is the more standard representation.</p></details>
+<details class="faq-item"><summary>How should I encode URL parameters in a REST API?</summary><p>Apply encodeURIComponent to each query parameter name and value individually before combining them as name=value pairs. Never insert raw user input directly into a URL, as it can break the URL structure or introduce security vulnerabilities.</p></details>`
+  },
+  zh: {
+    pageTitle: 'URL 编码器 - 百分比编码在线工具 | MODOO HUB',
+    h1: 'URL <span>编码器</span>',
+    sub: '将文本或 URL 转换为百分比编码',
+    backLink: '← 首页',
+    langBtn: '🌐 日本語',
+    btnPaste: '粘贴',
+    btnClear: '清空',
+    btnSample: '示例',
+    btnEncode: '编码 →',
+    btnCopy: '复制',
+    copyDone: '已复制 ✓',
+    optComponent: '组件模式',
+    optFullUrl: '完整 URL',
+    modeDescComponent: 'encodeURIComponent — 对 ?, &, =, #, / 等大多数特殊字符进行编码',
+    modeDescFull: 'encodeURI — 保留 URL 结构字符 (:, /, ?, &, =, #)，其余进行编码',
+    labelInput: '输入',
+    labelOutput: '编码结果',
+    footer: '所有处理均在浏览器本地完成，不传输到服务器',
+    sampleComponent: 'hello world & name=John Doe + email=test@example.com',
+    sampleFull: 'https://example.com/search?q=hello world&lang=中文',
+    seoHtml: `<h2>什么是 URL 编码（百分比编码）？</h2>
+<p>URL 编码将 URL 中不允许出现或具有特殊含义的字符转换为百分号（%）加两位十六进制数的形式。例如空格变为 %20，中文字符"中"变为 %E4%B8%AD。URL 编码是 Web 通信、API 请求和表单数据提交的基础。</p>
+<h2>常见问题</h2>
+<details class="faq-item"><summary>什么是 URL 编码（百分比编码）？</summary><p>URL 编码将 URL 中不合法的字符转换为 % 加两位十六进制数的形式，基于 RFC 3986 标准，确保浏览器、服务器和 API 之间的安全数据传输。</p></details>
+<details class="faq-item"><summary>为什么空格变成了 %20？</summary><p>空格在 URL 中是不允许的字符。根据 RFC 3986，不允许的字符需使用其 UTF-8 字节值的十六进制进行百分比编码。空格的 ASCII 码是 32（十进制）= 20（十六进制），因此变为 %20。</p></details>
+<details class="faq-item"><summary>encodeURIComponent 和 encodeURI 有什么区别？</summary><p>encodeURIComponent 对除字母、数字及 - _ . ! ~ * ' ( ) 以外的所有字符进行编码，适用于单个查询参数值。encodeURI 保留 URL 结构字符（: / ? & = # @），仅对其余字符编码，适用于完整 URL。</p></details>
+<details class="faq-item"><summary>哪些字符不需要 URL 编码？</summary><p>RFC 3986 定义的非保留字符可直接用于 URL：大小写字母（A-Z、a-z）、数字（0-9）、连字符（-）、下划线（_）、句点（.）和波浪号（~）。</p></details>
+<details class="faq-item"><summary>什么是重复编码问题？</summary><p>对已编码的字符串再次编码会导致 %20 变为 %2520。解决方法是先检查输入是否含有 % 序列，或在重新编码前先解码。</p></details>
+<details class="faq-item"><summary>中文等 CJK 字符如何进行 URL 编码？</summary><p>非 ASCII 字符先转换为 UTF-8 字节序列，再对每个字节进行百分比编码。例如"中"的 UTF-8 为 E4 B8 AD，编码后为 %E4%B8%AD。</p></details>
+<details class="faq-item"><summary>HTML 表单提交时如何进行 URL 编码？</summary><p>method=GET 的表单使用 application/x-www-form-urlencoded 格式，空格用 + 表示。method=POST 配合 multipart/form-data 时不进行 URL 编码。REST API 中 %20 更为标准。</p></details>
+<details class="faq-item"><summary>REST API 中如何正确编码 URL 参数？</summary><p>对每个查询参数的名称和值分别使用 encodeURIComponent 编码后再拼接为 name=value 形式。切勿将用户输入直接插入 URL，否则可能破坏 URL 结构或引发安全问题。</p></details>`
+  },
+  ja: {
+    pageTitle: 'URL エンコーダー - パーセントエンコーディングツール | MODOO HUB',
+    h1: 'URL <span>エンコーダー</span>',
+    sub: 'テキスト・URL をパーセントエンコードに変換',
+    backLink: '← ホーム',
+    langBtn: '🌐 한국어',
+    btnPaste: '貼り付け',
+    btnClear: 'クリア',
+    btnSample: 'サンプル',
+    btnEncode: 'エンコード →',
+    btnCopy: 'コピー',
+    copyDone: 'コピー完了 ✓',
+    optComponent: 'コンポーネント',
+    optFullUrl: '完全 URL',
+    modeDescComponent: 'encodeURIComponent — ?, &, =, #, / を含むほぼすべての特殊文字をエンコード',
+    modeDescFull: 'encodeURI — URL 構造文字 (:, /, ?, &, =, #) を保持し、残りをエンコード',
+    labelInput: '入力',
+    labelOutput: 'エンコード結果',
+    footer: 'すべての処理はブラウザ内のみで行われます · サーバーには送信されません',
+    sampleComponent: 'hello world & name=John Doe + email=test@example.com',
+    sampleFull: 'https://example.com/search?q=hello world&lang=日本語',
+    seoHtml: `<h2>URL エンコード（パーセントエンコーディング）とは？</h2>
+<p>URL エンコードは、URL に含めることができない文字や特殊な意味を持つ文字を、パーセント記号（%）と2桁の16進数に変換する方式です。例えば空白は %20、日本語の「あ」は %E3%81%82 になります。Web 通信・API リクエスト・フォームデータ送信に不可欠です。</p>
+<h2>よくある質問</h2>
+<details class="faq-item"><summary>URL エンコード（パーセントエンコーディング）とは何ですか？</summary><p>URL に使用できない文字を % 記号と16進2桁に変換する方式です。RFC 3986 で定義されており、ブラウザ・サーバー・API 間の安全なデータ送受信を保証します。</p></details>
+<details class="faq-item"><summary>空白が %20 になる理由は？</summary><p>空白は URL で許可されていない文字です。RFC 3986 に従い、許可されない文字はその UTF-8 バイト値の16進数でパーセントエンコードされます。空白の ASCII コードは 32（10進数）= 20（16進数）なので %20 になります。</p></details>
+<details class="faq-item"><summary>encodeURIComponent と encodeURI の違いは？</summary><p>encodeURIComponent は英数字と - _ . ! ~ * ' ( ) を除くすべてをエンコードし、クエリパラメータ値のエンコードに使います。encodeURI は URL 構造文字（: / ? & = # @）を保持し、完全な URL のエンコードに適しています。</p></details>
+<details class="faq-item"><summary>エンコード不要な文字はどれですか？</summary><p>RFC 3986 の非予約文字（英大小文字・数字・- _ . ~）は URL にそのまま使えます。それ以外はすべてパーセントエンコードが必要です。</p></details>
+<details class="faq-item"><summary>二重エンコードの問題とは何ですか？</summary><p>すでにエンコードされた文字列を再びエンコードすると %20 が %2520 になる二重エンコードが起きます。入力に % シーケンスが含まれているか確認するか、エンコード前にデコードして防止します。</p></details>
+<details class="faq-item"><summary>日本語などの CJK 文字はどうエンコードされますか？</summary><p>非 ASCII 文字はまず UTF-8 バイト列に変換され、各バイトがパーセントエンコードされます。例えば「あ」の UTF-8 は E3 81 82 なので %E3%81%82 になります。</p></details>
+<details class="faq-item"><summary>HTML フォーム送信での URL エンコードは？</summary><p>method=GET のフォームは application/x-www-form-urlencoded 形式でデータをエンコードし、空白を + で表します。REST API では %20 がより標準的です。</p></details>
+<details class="faq-item"><summary>REST API で URL パラメータを正しくエンコードするには？</summary><p>各クエリパラメータの名前と値それぞれに encodeURIComponent を適用してから name=value の形式で結合してください。ユーザー入力をそのまま URL に挿入すると URL 構造の破壊やセキュリティ問題につながります。</p></details>`
+  }
+};
+
+let lang = (function() {
+  const u = new URLSearchParams(location.search).get('lang');
+  if (u && i18n[u]) return u;
+  const s = localStorage.getItem('modoo_lang');
+  if (s && i18n[s]) return s;
+  const n = (navigator.language || '').slice(0, 2);
+  return n === 'zh' ? 'zh' : n === 'ja' ? 'ja' : n === 'ko' ? 'ko' : 'en';
+})();
+
+let mode = 'component';
+
+function applyLang() {
+  const t = i18n[lang];
+  document.documentElement.lang = lang;
+  document.title = t.pageTitle;
+  document.getElementById('h1El').innerHTML = t.h1;
+  document.getElementById('subEl').textContent = t.sub;
+  document.getElementById('backLink').textContent = t.backLink;
+  document.getElementById('langBtn').textContent = t.langBtn;
+  document.getElementById('btnPaste').textContent = t.btnPaste;
+  document.getElementById('btnClear').textContent = t.btnClear;
+  document.getElementById('btnSample').textContent = t.btnSample;
+  document.getElementById('btnEncode').textContent = t.btnEncode;
+  document.getElementById('btnCopy').textContent = t.btnCopy;
+  document.getElementById('copySmall').textContent = t.btnCopy;
+  document.getElementById('btnModeComponent').textContent = t.optComponent;
+  document.getElementById('btnModeFullUrl').textContent = t.optFullUrl;
+  document.getElementById('labelInput').textContent = t.labelInput;
+  document.getElementById('labelOutput').textContent = t.labelOutput;
+  document.getElementById('footerEl').textContent = t.footer;
+  document.getElementById('seoEl').innerHTML = t.seoHtml;
+  updateModeDesc();
+}
+
+function updateModeDesc() {
+  const t = i18n[lang];
+  document.getElementById('modeDesc').textContent = mode === 'component' ? t.modeDescComponent : t.modeDescFull;
+}
+
+function toggleLang() {
+  const order = ['ko', 'en', 'zh', 'ja'];
+  lang = order[(order.indexOf(lang) + 1) % order.length];
+  localStorage.setItem('modoo_lang', lang);
+  const url = new URL(location.href);
+  url.searchParams.set('lang', lang);
+  history.replaceState({}, '', url);
+  applyLang();
+}
+
+function setMode(m) {
+  mode = m;
+  document.getElementById('btnModeComponent').classList.toggle('on', m === 'component');
+  document.getElementById('btnModeFullUrl').classList.toggle('on', m === 'full');
+  updateModeDesc();
+  encode();
+}
+
+let _debounce;
+function debouncedEncode() {
+  const text = document.getElementById('inputEl').value;
+  document.getElementById('charCount').textContent = text.length + ' chars';
+  clearTimeout(_debounce);
+  _debounce = setTimeout(encode, 300);
+}
+
+function encode() {
+  const text = document.getElementById('inputEl').value;
+  if (!text) { document.getElementById('outputEl').value = ''; return; }
+  try {
+    document.getElementById('outputEl').value = mode === 'component' ? encodeURIComponent(text) : encodeURI(text);
+  } catch(e) {
+    document.getElementById('outputEl').value = '';
+  }
+}
+
+function loadSample() {
+  const t = i18n[lang];
+  document.getElementById('inputEl').value = mode === 'component' ? t.sampleComponent : t.sampleFull;
+  document.getElementById('charCount').textContent = document.getElementById('inputEl').value.length + ' chars';
+  encode();
+}
+
+function clearAll() {
+  document.getElementById('inputEl').value = '';
+  document.getElementById('outputEl').value = '';
+  document.getElementById('charCount').textContent = '0 chars';
+}
+
+async function pasteInput() {
+  try {
+    const text = await navigator.clipboard.readText();
+    document.getElementById('inputEl').value = text;
+    document.getElementById('charCount').textContent = text.length + ' chars';
+    encode();
+  } catch(e) {}
+}
+
+function copyOutput() {
+  const text = document.getElementById('outputEl').value;
+  if (!text) return;
+  navigator.clipboard.writeText(text).then(() => {
+    const t = i18n[lang];
+    const btn = document.getElementById('btnCopy');
+    const small = document.getElementById('copySmall');
+    btn.textContent = t.copyDone;
+    small.textContent = t.copyDone;
+    btn.style.color = 'var(--green)';
+    setTimeout(() => {
+      btn.textContent = t.btnCopy;
+      small.textContent = t.btnCopy;
+      btn.style.color = '';
+    }, 2000);
+  });
+}
+
+applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

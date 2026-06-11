@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="pageTitle">URL 디코더 - 퍼센트 인코딩 해제 도구</title>
+<meta name="description" content="퍼센트 인코딩된 URL을 원래 텍스트로 변환합니다. decodeURIComponent, decodeURI, 자동 감지 모드를 지원합니다.">
+<meta name="keywords" content="URL 디코더, URL decoder, 퍼센트 디코딩, percent decoding, decodeURIComponent, decodeURI, URL decode">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/url-decoder.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/url-decoder.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/url-decoder.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/url-decoder.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/url-decoder.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/url-decoder.html">
+<style>
+:root {
+  --bg:#0a0a0a; --surface:#141414; --surface2:#1a1a1a; --border:#252525;
+  --accent:#fbbf24; --accent2:#f59e0b; --accent-dim:rgba(251,191,36,0.08);
+  --text:#f5f5f5; --text-muted:#888; --text-dim:#444;
+  --green:#4ade80; --red:#f87171; --blue:#60a5fa; --purple:#c084fc;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body { background:var(--bg); color:var(--text); font-family:'Noto Sans KR',sans-serif; min-height:100vh; }
+header { border-bottom:1px solid var(--border); padding:20px 24px; display:flex; align-items:center; gap:12px; }
+.dot { width:8px; height:8px; border-radius:50%; background:var(--accent); }
+.header-label { font-size:13px; color:var(--text-muted); letter-spacing:0.1em; font-family:'DM Mono',monospace; }
+.back-link { margin-left:auto; font-size:13px; color:var(--text-muted); text-decoration:none; }
+.back-link:hover { color:var(--accent); }
+.lang-toggle { font-size:12px; color:var(--text-muted); cursor:pointer; padding:4px 10px; border:1px solid var(--border); border-radius:6px; font-family:'DM Mono',monospace; transition:all 0.15s; margin-left:8px; }
+.lang-toggle:hover { border-color:var(--accent); color:var(--accent); }
+main { max-width:900px; margin:0 auto; padding:40px 24px; }
+h1 { font-size:clamp(24px,4vw,34px); font-weight:900; line-height:1.1; margin-bottom:10px; }
+h1 span { color:var(--accent); }
+.subtitle { color:var(--text-muted); font-size:14px; margin-bottom:28px; }
+.mode-row { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; align-items:center; }
+.mode-btn { padding:7px 18px; border:1px solid var(--border); border-radius:8px; font-size:13px; font-family:'DM Mono',monospace; background:none; color:var(--text-muted); cursor:pointer; transition:all .15s; }
+.mode-btn.on { background:var(--accent-dim); border-color:var(--accent2); color:var(--accent); font-weight:700; }
+.mode-btn:not(.on):hover { border-color:var(--accent2); color:var(--accent); }
+.toolbar { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; align-items:center; }
+.sep { width:1px; height:24px; background:var(--border); }
+.btn { background:var(--surface2); border:1px solid var(--border); border-radius:7px; padding:7px 14px; font-size:13px; color:var(--text-muted); cursor:pointer; font-family:'Noto Sans KR',sans-serif; transition:all 0.15s; }
+.btn:hover { border-color:var(--accent2); color:var(--accent); }
+.btn.primary { background:var(--accent2); border-color:var(--accent2); color:#000; font-weight:700; }
+.btn.primary:hover { opacity:0.85; color:#000; }
+.btn.danger:hover { border-color:var(--red); color:var(--red); }
+.editor-wrap { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; }
+@media(max-width:600px) { .editor-wrap { grid-template-columns:1fr; } }
+.editor-box { display:flex; flex-direction:column; }
+.editor-label { font-size:11px; color:var(--text-dim); letter-spacing:0.08em; margin-bottom:8px; text-transform:uppercase; display:flex; justify-content:space-between; align-items:center; }
+.copy-small { font-size:11px; color:var(--text-dim); cursor:pointer; padding:3px 8px; border:1px solid var(--border); border-radius:4px; transition:all 0.15s; }
+.copy-small:hover { color:var(--accent); border-color:var(--accent2); }
+textarea { flex:1; width:100%; min-height:300px; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:16px; font-family:'DM Mono',monospace; font-size:13px; color:var(--text); outline:none; resize:vertical; line-height:1.6; }
+textarea:focus { border-color:var(--accent2); }
+textarea.error { border-color:var(--red); }
+.err-msg { font-size:12px; color:var(--red); margin-top:6px; min-height:18px; font-family:'DM Mono',monospace; }
+.seo { border-top:1px solid var(--border); padding-top:32px; margin-top:32px; }
+.seo h2 { font-size:16px; font-weight:700; margin-bottom:12px; }
+.seo p { font-size:13px; color:var(--text-muted); line-height:1.8; margin-bottom:24px; }
+details.faq-item { border:1px solid var(--border); border-radius:10px; margin-bottom:8px; overflow:hidden; }
+details.faq-item summary { padding:14px 18px; font-size:14px; font-weight:600; cursor:pointer; list-style:none; display:flex; justify-content:space-between; align-items:center; background:var(--surface); }
+details.faq-item summary::-webkit-details-marker { display:none; }
+details.faq-item summary:hover { color:var(--accent); }
+details.faq-item summary::after { content:'▼'; font-size:11px; color:var(--text-muted); transition:transform .2s; flex-shrink:0; }
+details.faq-item[open] summary::after { transform:rotate(180deg); }
+details.faq-item p { padding:0 18px 14px; font-size:13px; color:var(--text-muted); line-height:1.8; background:var(--surface); }
+footer { text-align:center; font-size:12px; color:var(--text-dim); margin-top:48px; }
+</style>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-NR6VJF0534');
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<meta property="og:title" content="URL Decoder - Percent Decoding Tool | MODOO HUB">
+<meta property="og:description" content="Decode percent-encoded URLs back to readable text. Supports decodeURIComponent, decodeURI, and auto-detect modes.">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<meta property="og:url" content="https://modoohub.com/url-decoder.html">
+<meta property="og:type" content="website">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "When do I need to decode a URL?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "You need to decode URLs when reading server logs with percent-encoded query strings, debugging API responses that contain encoded parameters, parsing redirect URLs in OAuth flows, or making sense of URLs copied from browser address bars that contain encoded characters."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What do %20 and %2F mean?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "%20 represents a space character (ASCII 32 = hex 20). %2F represents a forward slash (/). In general, percent-encoded sequences like %XX represent the byte with hexadecimal value XX in the UTF-8 encoding of the original character."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the difference between decodeURI and decodeURIComponent?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "decodeURIComponent decodes all percent-encoded sequences including those representing URL structural characters like %2F (/), %3F (?), and %26 (&). decodeURI leaves those structural sequences intact and only decodes sequences that represent non-URL characters, preserving the URL structure."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What happens when I try to decode malformed percent sequences?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Malformed percent sequences like %GG (non-hex digits) or %2 (incomplete sequence) cause a URIError in JavaScript. This tool catches the error and shows an error message. If possible it will try the alternative decode function as a fallback before reporting failure."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I handle double-encoded URLs?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A double-encoded URL has sequences like %2520 instead of %20. To fully decode it, apply decoding twice. Run the decoder once to get %20, then run it again to get a space. Some systems double-encode parameters accidentally; this is a common source of bugs."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How can URL decoding help with web traffic debugging?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Server access logs often store URLs in percent-encoded form. Decoding them makes query parameters, search terms, and path segments human-readable, helping you identify which pages users visited and what they searched for."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How are Korean characters decoded from a URL?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Korean characters are encoded as their UTF-8 byte sequences in percent format. For example %EC%95%88%EB%85%95 decodes to 안녕 because EC 95 88 is the UTF-8 encoding of 안 and EB 85 95 is the encoding of 녕."
+      }
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "URL Decoder",
+  "url": "https://modoohub.com/url-decoder.html",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "All",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "description": "Free online URL decoder. Decode percent-encoded URLs back to readable text using decodeURIComponent or decodeURI instantly in your browser."
+}
+</script>
+</head>
+<body>
+<header>
+  <div class="dot"></div>
+  <span class="header-label">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <div class="lang-toggle" onclick="toggleLang()" id="langBtn">🌐 EN</div>
+</header>
+<main>
+  <h1 id="h1El">URL <span>디코더</span></h1>
+  <p class="subtitle" id="subEl">퍼센트 인코딩된 URL을 원래 텍스트로 변환</p>
+
+  <div class="mode-row">
+    <button class="mode-btn on" id="btnModeAuto" onclick="setMode('auto')">Auto</button>
+    <button class="mode-btn" id="btnModeComponent" onclick="setMode('component')">Component</button>
+    <button class="mode-btn" id="btnModeFull" onclick="setMode('full')">Full URL</button>
+  </div>
+
+  <div class="toolbar">
+    <button class="btn" id="btnPaste" onclick="pasteInput()">붙여넣기</button>
+    <button class="btn danger" id="btnClear" onclick="clearAll()">지우기</button>
+    <button class="btn" id="btnSample" onclick="loadSample()">예시</button>
+    <div class="sep"></div>
+    <button class="btn primary" id="btnDecode" onclick="decode()">Decode →</button>
+    <button class="btn" id="btnCopy" onclick="copyOutput()">복사</button>
+  </div>
+
+  <div class="editor-wrap">
+    <div class="editor-box">
+      <div class="editor-label">
+        <span id="labelInput">인코딩된 입력</span>
+      </div>
+      <textarea id="inputEl" placeholder="%EC%95%88%EB%85%95%ED%95%98%EC%84%B8%EC%9A%94" oninput="debouncedDecode()"></textarea>
+      <div class="err-msg" id="errMsg"></div>
+    </div>
+    <div class="editor-box">
+      <div class="editor-label">
+        <span id="labelOutput">디코딩 결과</span>
+        <span class="copy-small" id="copySmall" onclick="copyOutput()">복사</span>
+      </div>
+      <textarea id="outputEl" readonly placeholder="결과가 여기 표시됩니다"></textarea>
+    </div>
+  </div>
+
+  <div class="seo" id="seoEl"></div>
+  <footer id="footerEl">모든 데이터는 브라우저에서만 처리됩니다 · 서버로 전송되지 않습니다</footer>
+</main>
+<script>
+const i18n = {
+  ko: {
+    pageTitle: 'URL 디코더 - 퍼센트 인코딩 해제 도구',
+    h1: 'URL <span>디코더</span>',
+    sub: '퍼센트 인코딩된 URL을 원래 텍스트로 변환',
+    backLink: '← 모두의 툴',
+    langBtn: '🌐 EN',
+    btnPaste: '붙여넣기',
+    btnClear: '지우기',
+    btnSample: '예시',
+    btnDecode: 'Decode →',
+    btnCopy: '복사',
+    copyDone: '복사됨 ✓',
+    optAuto: 'Auto',
+    optComponent: 'Component',
+    optFullUrl: 'Full URL',
+    errInvalid: '유효하지 않은 퍼센트 인코딩 시퀀스가 포함되어 있습니다.',
+    labelInput: '인코딩된 입력',
+    labelOutput: '디코딩 결과',
+    footer: '모든 데이터는 브라우저에서만 처리됩니다 · 서버로 전송되지 않습니다',
+    sample: 'https%3A%2F%2Fexample.com%2Fsearch%3Fq%3D%EC%95%88%EB%85%95%ED%95%98%EC%84%B8%EC%9A%94%26lang%3Dko',
+    seoHtml: `<h2>URL 디코딩이란?</h2>
+<p>URL 디코딩은 퍼센트 인코딩된 문자열(%EC%95%88 등)을 사람이 읽을 수 있는 원래 텍스트로 변환하는 과정입니다. 서버 로그 분석, API 응답 디버깅, OAuth 리디렉트 URL 파싱, 브라우저 주소창에서 복사한 URL 해석 등 다양한 상황에서 활용됩니다.</p>
+<h2>decodeURIComponent vs decodeURI 차이</h2>
+<p><strong>decodeURIComponent</strong>는 %2F(/), %3F(?), %26(&) 등 URL 구조 문자를 나타내는 시퀀스까지 모두 디코딩합니다. 쿼리 파라미터 값을 개별 디코딩할 때 사용합니다. <strong>decodeURI</strong>는 URL 구조 문자는 그대로 두고 나머지만 디코딩해 URL의 구조를 유지합니다. <strong>Auto</strong> 모드는 decodeURIComponent를 먼저 시도하고 실패하면 decodeURI로 대체합니다.</p>
+<h2>자주 묻는 질문</h2>
+<details class="faq-item"><summary>URL 디코딩이 필요한 상황은?</summary><p>서버 로그의 퍼센트 인코딩된 쿼리 문자열 읽기, 인코딩된 파라미터가 포함된 API 응답 디버깅, OAuth 흐름의 리디렉트 URL 파싱, 브라우저 주소창에서 복사한 인코딩된 URL 해석 등에 필요합니다.</p></details>
+<details class="faq-item"><summary>%20과 %2F는 각각 무엇을 의미하나요?</summary><p>%20은 공백 문자(ASCII 32 = 16진수 20)를 나타내고, %2F는 슬래시(/)를 나타냅니다. 일반적으로 %XX 시퀀스는 해당 문자의 UTF-8 인코딩에서 16진수 값이 XX인 바이트를 나타냅니다.</p></details>
+<details class="faq-item"><summary>decodeURI와 decodeURIComponent의 차이는?</summary><p>decodeURIComponent는 %2F, %3F, %26 등 URL 구조 문자를 포함한 모든 퍼센트 인코딩 시퀀스를 디코딩합니다. decodeURI는 URL 구조 시퀀스를 그대로 두고 나머지만 디코딩하여 URL 구조를 보존합니다.</p></details>
+<details class="faq-item"><summary>잘못된 퍼센트 시퀀스가 있으면 어떻게 되나요?</summary><p>%GG(비 16진수)나 %2(불완전한 시퀀스)처럼 잘못된 퍼센트 시퀀스는 JavaScript에서 URIError를 발생시킵니다. 이 도구는 오류를 감지하고 대체 디코딩 함수로 재시도한 뒤, 그래도 실패하면 오류 메시지를 표시합니다.</p></details>
+<details class="faq-item"><summary>이중 인코딩된 URL은 어떻게 처리하나요?</summary><p>이중 인코딩된 URL은 %2520처럼 %가 %25로 인코딩된 형태입니다. 완전히 디코딩하려면 디코더를 두 번 실행하세요. 첫 번째 실행에서 %2520 → %20, 두 번째 실행에서 %20 → 공백이 됩니다.</p></details>
+<details class="faq-item"><summary>웹 트래픽 디버깅에 URL 디코딩이 어떻게 도움이 되나요?</summary><p>서버 접속 로그는 URL을 퍼센트 인코딩 형태로 저장하는 경우가 많습니다. 디코딩하면 쿼리 파라미터, 검색어, 경로 세그먼트가 사람이 읽기 쉬운 형태가 되어 사용자의 방문 페이지와 검색 내용을 파악하는 데 도움이 됩니다.</p></details>
+<details class="faq-item"><summary>URL에서 한글 문자는 어떻게 디코딩되나요?</summary><p>한글 문자는 UTF-8 바이트 시퀀스를 퍼센트 인코딩한 형태로 표현됩니다. 예를 들어 %EC%95%88%EB%85%95는 '안녕'으로 디코딩됩니다. EC 95 88이 '안'의 UTF-8이고 EB 85 95가 '녕'의 UTF-8이기 때문입니다.</p></details>
+<details class="faq-item"><summary>입력한 데이터가 서버로 전송되나요?</summary><p>아닙니다. 모든 디코딩 처리는 브라우저에서만 이루어집니다. 민감한 URL이나 토큰이 포함된 주소도 안전하게 사용할 수 있습니다.</p></details>`
+  },
+  en: {
+    pageTitle: 'URL Decoder - Percent Decoding Tool | MODOO HUB',
+    h1: 'URL <span>Decoder</span>',
+    sub: 'Decode percent-encoded URLs to readable text',
+    backLink: '← All Tools',
+    langBtn: '🌐 中文',
+    btnPaste: 'Paste',
+    btnClear: 'Clear',
+    btnSample: 'Sample',
+    btnDecode: 'Decode →',
+    btnCopy: 'Copy',
+    copyDone: 'Copied ✓',
+    optAuto: 'Auto',
+    optComponent: 'Component',
+    optFullUrl: 'Full URL',
+    errInvalid: 'Invalid percent-encoded sequence detected.',
+    labelInput: 'Encoded Input',
+    labelOutput: 'Decoded Output',
+    footer: 'All data is processed in your browser · Never sent to any server',
+    sample: 'https%3A%2F%2Fexample.com%2Fsearch%3Fq%3Dhello%20world%26lang%3Den',
+    seoHtml: `<h2>URL Decoding Guide</h2>
+<p>URL decoding converts percent-encoded sequences like %EC%95%88 back into readable text. You need it when reading server logs with encoded query strings, debugging API responses with encoded parameters, parsing OAuth redirect URLs, or interpreting URLs copied from a browser address bar.</p>
+<h2>decodeURIComponent vs decodeURI</h2>
+<p><strong>decodeURIComponent</strong> decodes all percent-encoded sequences including those representing URL structural characters like %2F (/), %3F (?), and %26 (&). Use it for decoding individual query parameter values. <strong>decodeURI</strong> preserves structural sequences and only decodes the rest. <strong>Auto</strong> mode tries decodeURIComponent first and falls back to decodeURI on error.</p>
+<h2>FAQ</h2>
+<details class="faq-item"><summary>When do I need to decode a URL?</summary><p>You need URL decoding when reading server logs with percent-encoded query strings, debugging API responses containing encoded parameters, parsing OAuth redirect URLs, or making sense of URLs copied from browser address bars that contain encoded characters.</p></details>
+<details class="faq-item"><summary>What do %20 and %2F mean?</summary><p>%20 is a space character (ASCII 32 = hex 20). %2F is a forward slash (/). Each %XX sequence represents the byte whose hexadecimal value is XX in the UTF-8 encoding of the original character.</p></details>
+<details class="faq-item"><summary>What is the difference between decodeURI and decodeURIComponent?</summary><p>decodeURIComponent decodes all percent-encoded sequences including structural ones like %2F, %3F, and %26. decodeURI leaves those structural sequences intact, preserving the URL structure and only decoding non-structural sequences.</p></details>
+<details class="faq-item"><summary>What happens with malformed percent sequences?</summary><p>Malformed sequences like %GG or %2 trigger a URIError in JavaScript. This tool catches the error, tries the alternative decode function as a fallback, and shows an error message if both fail.</p></details>
+<details class="faq-item"><summary>How do I handle double-encoded URLs?</summary><p>A double-encoded URL contains sequences like %2520. Run the decoder twice: the first pass converts %2520 to %20, and the second pass converts %20 to a space. This is a common accidental encoding issue.</p></details>
+<details class="faq-item"><summary>How can URL decoding help with web traffic debugging?</summary><p>Server access logs store URLs in percent-encoded form. Decoding them makes query parameters, search terms, and path segments human-readable, helping you identify which pages users visited and what they searched for.</p></details>
+<details class="faq-item"><summary>How are Korean characters decoded from URLs?</summary><p>Korean characters are encoded as their UTF-8 byte sequences in percent format. For example %EC%95%88%EB%85%95 decodes to 안녕 because EC 95 88 is the UTF-8 encoding of 안 and EB 85 95 is the encoding of 녕.</p></details>
+<details class="faq-item"><summary>Is my data sent to a server?</summary><p>No. All decoding happens entirely in your browser. Sensitive URLs, auth tokens, and private query parameters are safe to paste here.</p></details>`
+  },
+  zh: {
+    pageTitle: 'URL 解码器 - 百分比解码在线工具 | MODOO HUB',
+    h1: 'URL <span>解码器</span>',
+    sub: '将百分比编码的 URL 转换为可读文本',
+    backLink: '← 首页',
+    langBtn: '🌐 日本語',
+    btnPaste: '粘贴',
+    btnClear: '清空',
+    btnSample: '示例',
+    btnDecode: '解码 →',
+    btnCopy: '复制',
+    copyDone: '已复制 ✓',
+    optAuto: '自动',
+    optComponent: '组件模式',
+    optFullUrl: '完整 URL',
+    errInvalid: '检测到无效的百分比编码序列。',
+    labelInput: '编码输入',
+    labelOutput: '解码结果',
+    footer: '所有处理均在浏览器本地完成，不传输到服务器',
+    sample: 'https%3A%2F%2Fexample.com%2Fsearch%3Fq%3D%E4%B8%AD%E6%96%87%26lang%3Dzh',
+    seoHtml: `<h2>URL 解码指南</h2>
+<p>URL 解码将百分比编码序列（如 %E4%B8%AD）还原为可读文本。在读取含编码查询字符串的服务器日志、调试含编码参数的 API 响应、解析 OAuth 重定向 URL 或解读浏览器地址栏中的编码 URL 时都需要用到。</p>
+<h2>常见问题</h2>
+<details class="faq-item"><summary>什么时候需要解码 URL？</summary><p>读取含百分比编码查询字符串的服务器日志、调试含编码参数的 API 响应、解析 OAuth 重定向 URL，或解读从浏览器地址栏复制的编码 URL 时都需要解码。</p></details>
+<details class="faq-item"><summary>%20 和 %2F 分别代表什么？</summary><p>%20 表示空格（ASCII 32 = 十六进制 20），%2F 表示斜杠（/）。每个 %XX 序列代表其 UTF-8 编码中十六进制值为 XX 的字节。</p></details>
+<details class="faq-item"><summary>decodeURI 和 decodeURIComponent 有什么区别？</summary><p>decodeURIComponent 解码所有百分比编码序列，包括代表 URL 结构字符的 %2F、%3F、%26 等。decodeURI 保留这些结构性序列，只解码其余部分，从而保持 URL 结构完整。</p></details>
+<details class="faq-item"><summary>遇到格式错误的百分比序列怎么办？</summary><p>格式错误的序列（如 %GG 或 %2）会在 JavaScript 中触发 URIError。本工具会捕获错误，尝试备用解码函数，两者均失败时显示错误提示。</p></details>
+<details class="faq-item"><summary>如何处理双重编码的 URL？</summary><p>双重编码的 URL 含有 %2520 这样的序列。需要运行两次解码：第一次将 %2520 变为 %20，第二次将 %20 变为空格。这是常见的意外编码问题。</p></details>
+<details class="faq-item"><summary>URL 解码如何帮助调试 Web 流量？</summary><p>服务器访问日志通常以百分比编码形式存储 URL。解码后查询参数、搜索词和路径段变得可读，有助于了解用户访问的页面和搜索内容。</p></details>
+<details class="faq-item"><summary>中文字符如何从 URL 中解码？</summary><p>中文字符以 UTF-8 字节序列的百分比编码形式存储。例如 %E4%B8%AD 解码为"中"，因为 E4 B8 AD 是"中"的 UTF-8 编码。</p></details>
+<details class="faq-item"><summary>本工具会向服务器发送数据吗？</summary><p>不会。所有解码均在浏览器本地完成，敏感 URL、令牌和私密查询参数可放心使用。</p></details>`
+  },
+  ja: {
+    pageTitle: 'URL デコーダー - パーセントデコードツール | MODOO HUB',
+    h1: 'URL <span>デコーダー</span>',
+    sub: 'パーセントエンコードされた URL を読みやすいテキストに変換',
+    backLink: '← ホーム',
+    langBtn: '🌐 한국어',
+    btnPaste: '貼り付け',
+    btnClear: 'クリア',
+    btnSample: 'サンプル',
+    btnDecode: 'デコード →',
+    btnCopy: 'コピー',
+    copyDone: 'コピー完了 ✓',
+    optAuto: '自動',
+    optComponent: 'コンポーネント',
+    optFullUrl: '完全 URL',
+    errInvalid: '無効なパーセントエンコードシーケンスが検出されました。',
+    labelInput: 'エンコード済み入力',
+    labelOutput: 'デコード結果',
+    footer: 'すべての処理はブラウザ内のみで行われます · サーバーには送信されません',
+    sample: 'https%3A%2F%2Fexample.com%2Fsearch%3Fq%3D%E3%81%93%E3%82%93%E3%81%AB%E3%81%A1%E3%81%AF%26lang%3Dja',
+    seoHtml: `<h2>URL デコードガイド</h2>
+<p>URL デコードは %EC%95%88 のようなパーセントエンコードされたシーケンスを読みやすいテキストに戻す処理です。サーバーログのエンコードされたクエリ文字列の読み取り、エンコードされたパラメータを含む API レスポンスのデバッグ、OAuth リダイレクト URL の解析など多くの場面で必要です。</p>
+<h2>よくある質問</h2>
+<details class="faq-item"><summary>URL デコードが必要な場面は？</summary><p>パーセントエンコードされたクエリ文字列を含むサーバーログの読み取り、エンコードされたパラメータを含む API レスポンスのデバッグ、OAuth リダイレクト URL の解析、ブラウザのアドレスバーからコピーした URL の解釈などに必要です。</p></details>
+<details class="faq-item"><summary>%20 と %2F はそれぞれ何を意味しますか？</summary><p>%20 は空白文字（ASCII 32 = 16進 20）、%2F はスラッシュ（/）を表します。一般に %XX シーケンスは元の文字の UTF-8 エンコードにおける16進値 XX のバイトを表します。</p></details>
+<details class="faq-item"><summary>decodeURI と decodeURIComponent の違いは？</summary><p>decodeURIComponent は %2F、%3F、%26 などの URL 構造文字を含むすべてのパーセントエンコードシーケンスをデコードします。decodeURI は構造的なシーケンスを保持し、それ以外のみデコードして URL 構造を維持します。</p></details>
+<details class="faq-item"><summary>不正なパーセントシーケンスがあるとどうなりますか？</summary><p>%GG や %2 のような不正なシーケンスは JavaScript で URIError を発生させます。このツールはエラーをキャッチし、代替デコード関数で再試行し、両方失敗した場合にエラーメッセージを表示します。</p></details>
+<details class="faq-item"><summary>二重エンコードされた URL はどう処理しますか？</summary><p>二重エンコードされた URL には %2520 のようなシーケンスが含まれます。デコーダーを 2 回実行してください：1 回目で %2520 → %20、2 回目で %20 → 空白になります。</p></details>
+<details class="faq-item"><summary>URL デコードで Web トラフィックのデバッグにどう役立ちますか？</summary><p>サーバーアクセスログは URL をパーセントエンコード形式で保存することが多いです。デコードするとクエリパラメータ、検索ワード、パスセグメントが読みやすくなり、ユーザーの訪問ページや検索内容の把握に役立ちます。</p></details>
+<details class="faq-item"><summary>URL から日本語文字はどうデコードされますか？</summary><p>日本語などの非 ASCII 文字は UTF-8 バイト列のパーセントエンコード形式で保存されます。例えば %E3%81%82 は「あ」にデコードされます（E3 81 82 が「あ」の UTF-8 エンコード）。</p></details>
+<details class="faq-item"><summary>入力したデータはサーバーに送信されますか？</summary><p>いいえ。すべてのデコード処理はブラウザ内のみで完結します。機密 URL や認証トークン、プライベートクエリパラメータも安全に使用できます。</p></details>`
+  }
+};
+
+let lang = (function() {
+  const u = new URLSearchParams(location.search).get('lang');
+  if (u && i18n[u]) return u;
+  const s = localStorage.getItem('modoo_lang');
+  if (s && i18n[s]) return s;
+  const n = (navigator.language || '').slice(0, 2);
+  return n === 'zh' ? 'zh' : n === 'ja' ? 'ja' : n === 'ko' ? 'ko' : 'en';
+})();
+
+let mode = 'auto';
+
+function applyLang() {
+  const t = i18n[lang];
+  document.documentElement.lang = lang;
+  document.title = t.pageTitle;
+  document.getElementById('h1El').innerHTML = t.h1;
+  document.getElementById('subEl').textContent = t.sub;
+  document.getElementById('backLink').textContent = t.backLink;
+  document.getElementById('langBtn').textContent = t.langBtn;
+  document.getElementById('btnPaste').textContent = t.btnPaste;
+  document.getElementById('btnClear').textContent = t.btnClear;
+  document.getElementById('btnSample').textContent = t.btnSample;
+  document.getElementById('btnDecode').textContent = t.btnDecode;
+  document.getElementById('btnCopy').textContent = t.btnCopy;
+  document.getElementById('copySmall').textContent = t.btnCopy;
+  document.getElementById('btnModeAuto').textContent = t.optAuto;
+  document.getElementById('btnModeComponent').textContent = t.optComponent;
+  document.getElementById('btnModeFull').textContent = t.optFullUrl;
+  document.getElementById('labelInput').textContent = t.labelInput;
+  document.getElementById('labelOutput').textContent = t.labelOutput;
+  document.getElementById('footerEl').textContent = t.footer;
+  document.getElementById('seoEl').innerHTML = t.seoHtml;
+}
+
+function toggleLang() {
+  const order = ['ko', 'en', 'zh', 'ja'];
+  lang = order[(order.indexOf(lang) + 1) % order.length];
+  localStorage.setItem('modoo_lang', lang);
+  const url = new URL(location.href);
+  url.searchParams.set('lang', lang);
+  history.replaceState({}, '', url);
+  applyLang();
+}
+
+function setMode(m) {
+  mode = m;
+  document.getElementById('btnModeAuto').classList.toggle('on', m === 'auto');
+  document.getElementById('btnModeComponent').classList.toggle('on', m === 'component');
+  document.getElementById('btnModeFull').classList.toggle('on', m === 'full');
+  decode();
+}
+
+function clearErr() {
+  document.getElementById('errMsg').textContent = '';
+  document.getElementById('inputEl').classList.remove('error');
+}
+
+function showErr(msg) {
+  document.getElementById('errMsg').textContent = msg;
+  document.getElementById('inputEl').classList.add('error');
+}
+
+let _debounce;
+function debouncedDecode() {
+  clearTimeout(_debounce);
+  _debounce = setTimeout(decode, 300);
+}
+
+function decode() {
+  const text = document.getElementById('inputEl').value.trim();
+  if (!text) { document.getElementById('outputEl').value = ''; clearErr(); return; }
+  const t = i18n[lang];
+
+  if (mode === 'auto') {
+    try {
+      document.getElementById('outputEl').value = decodeURIComponent(text);
+      clearErr();
+    } catch(e) {
+      try {
+        document.getElementById('outputEl').value = decodeURI(text);
+        clearErr();
+      } catch(e2) {
+        showErr(t.errInvalid);
+        document.getElementById('outputEl').value = '';
+      }
+    }
+  } else {
+    try {
+      document.getElementById('outputEl').value = mode === 'full' ? decodeURI(text) : decodeURIComponent(text);
+      clearErr();
+    } catch(e) {
+      try {
+        document.getElementById('outputEl').value = mode === 'full' ? decodeURIComponent(text) : decodeURI(text);
+        clearErr();
+      } catch(e2) {
+        showErr(t.errInvalid);
+        document.getElementById('outputEl').value = '';
+      }
+    }
+  }
+}
+
+function loadSample() {
+  document.getElementById('inputEl').value = i18n[lang].sample;
+  decode();
+}
+
+function clearAll() {
+  document.getElementById('inputEl').value = '';
+  document.getElementById('outputEl').value = '';
+  clearErr();
+}
+
+async function pasteInput() {
+  try {
+    const text = await navigator.clipboard.readText();
+    document.getElementById('inputEl').value = text;
+    decode();
+  } catch(e) {}
+}
+
+function copyOutput() {
+  const text = document.getElementById('outputEl').value;
+  if (!text) return;
+  navigator.clipboard.writeText(text).then(() => {
+    const t = i18n[lang];
+    const btn = document.getElementById('btnCopy');
+    const small = document.getElementById('copySmall');
+    btn.textContent = t.copyDone;
+    small.textContent = t.copyDone;
+    btn.style.color = 'var(--green)';
+    setTimeout(() => {
+      btn.textContent = t.btnCopy;
+      small.textContent = t.btnCopy;
+      btn.style.color = '';
+    }, 2000);
+  });
+}
+
+applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="pageTitle">HTML 엔티티 디코더 - HTML Entity Decoder</title>
+<meta name="description" content="HTML 엔티티(&amp;amp;, &amp;lt;, &amp;gt;, &amp;quot; 등)를 원래 텍스트로 디코딩합니다. 숫자 엔티티, 유니코드 엔티티도 지원합니다.">
+<meta name="keywords" content="HTML 엔티티 디코더, HTML entity decoder, HTML decode, &amp;amp; 디코딩, html unescape, HTML 특수문자 변환">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/html-decoder.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/html-decoder.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/html-decoder.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/html-decoder.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/html-decoder.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/html-decoder.html">
+<style>
+:root {
+  --bg:#0a0a0a; --surface:#141414; --surface2:#1a1a1a; --border:#252525;
+  --accent:#fbbf24; --accent2:#f59e0b; --accent-dim:rgba(251,191,36,0.08);
+  --text:#f5f5f5; --text-muted:#888; --text-dim:#444;
+  --green:#4ade80; --red:#f87171; --blue:#60a5fa; --purple:#c084fc;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body { background:var(--bg); color:var(--text); font-family:'Noto Sans KR',sans-serif; min-height:100vh; }
+header { border-bottom:1px solid var(--border); padding:20px 24px; display:flex; align-items:center; gap:12px; }
+.dot { width:8px; height:8px; border-radius:50%; background:var(--accent); }
+.header-label { font-size:13px; color:var(--text-muted); letter-spacing:0.1em; font-family:'DM Mono',monospace; }
+.back-link { margin-left:auto; font-size:13px; color:var(--text-muted); text-decoration:none; }
+.back-link:hover { color:var(--accent); }
+.lang-toggle { font-size:12px; color:var(--text-muted); cursor:pointer; padding:4px 10px; border:1px solid var(--border); border-radius:6px; font-family:'DM Mono',monospace; transition:all 0.15s; margin-left:8px; }
+.lang-toggle:hover { border-color:var(--accent); color:var(--accent); }
+main { max-width:900px; margin:0 auto; padding:40px 24px; }
+h1 { font-size:clamp(24px,4vw,34px); font-weight:900; line-height:1.1; margin-bottom:10px; }
+h1 span { color:var(--accent); }
+.subtitle { color:var(--text-muted); font-size:14px; margin-bottom:28px; }
+.toolbar { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; align-items:center; }
+.sep { width:1px; height:24px; background:var(--border); }
+.btn { background:var(--surface2); border:1px solid var(--border); border-radius:7px; padding:7px 14px; font-size:13px; color:var(--text-muted); cursor:pointer; font-family:'Noto Sans KR',sans-serif; transition:all 0.15s; }
+.btn:hover { border-color:var(--accent2); color:var(--accent); }
+.btn.primary { background:var(--accent2); border-color:var(--accent2); color:#000; font-weight:700; }
+.btn.primary:hover { opacity:0.85; color:#000; }
+.btn.danger:hover { border-color:var(--red); color:var(--red); }
+.editor-wrap { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; }
+@media(max-width:600px) { .editor-wrap { grid-template-columns:1fr; } }
+.editor-box { display:flex; flex-direction:column; }
+.editor-label { font-size:11px; color:var(--text-dim); letter-spacing:0.08em; margin-bottom:8px; text-transform:uppercase; display:flex; justify-content:space-between; align-items:center; }
+.copy-small { font-size:11px; color:var(--text-dim); cursor:pointer; padding:3px 8px; border:1px solid var(--border); border-radius:4px; transition:all 0.15s; }
+.copy-small:hover { color:var(--accent); border-color:var(--accent2); }
+textarea { flex:1; width:100%; min-height:300px; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:16px; font-family:'DM Mono',monospace; font-size:13px; color:var(--text); outline:none; resize:vertical; line-height:1.6; }
+textarea:focus { border-color:var(--accent2); }
+.stats-row { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px; }
+.stat-chip { background:var(--surface); border:1px solid var(--border); border-radius:7px; padding:8px 14px; font-size:12px; font-family:'DM Mono',monospace; color:var(--text-muted); }
+.stat-chip span { color:var(--accent); font-weight:700; }
+.ref-section { margin-bottom:28px; }
+.ref-title { font-size:11px; color:var(--text-dim); letter-spacing:0.08em; text-transform:uppercase; margin-bottom:10px; }
+.ref-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:6px; }
+.ref-item { background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:8px 10px; font-family:'DM Mono',monospace; font-size:11px; display:flex; justify-content:space-between; align-items:center; gap:8px; }
+.ref-entity { color:var(--text-dim); }
+.ref-char { color:var(--accent); font-size:13px; }
+.seo { border-top:1px solid var(--border); padding-top:32px; margin-top:32px; }
+.seo h2 { font-size:16px; font-weight:700; margin-bottom:12px; }
+.seo p { font-size:13px; color:var(--text-muted); line-height:1.8; margin-bottom:24px; }
+details.faq-item { border:1px solid var(--border); border-radius:10px; margin-bottom:8px; overflow:hidden; }
+details.faq-item summary { padding:14px 18px; font-size:14px; font-weight:600; cursor:pointer; list-style:none; display:flex; justify-content:space-between; align-items:center; background:var(--surface); }
+details.faq-item summary::-webkit-details-marker { display:none; }
+details.faq-item summary:hover { color:var(--accent); }
+details.faq-item summary::after { content:'▼'; font-size:11px; color:var(--text-muted); transition:transform .2s; flex-shrink:0; }
+details.faq-item[open] summary::after { transform:rotate(180deg); }
+details.faq-item p { padding:0 18px 14px; font-size:13px; color:var(--text-muted); line-height:1.8; background:var(--surface); }
+footer { text-align:center; font-size:12px; color:var(--text-dim); margin-top:48px; }
+</style>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-NR6VJF0534');
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<meta property="og:title" content="HTML Entity Decoder - Free Online Tool | MODOO HUB">
+<meta property="og:description" content="Decode HTML entities like &amp;amp;, &amp;lt;, &amp;gt;, &amp;quot;, numeric and Unicode entities back to plain text.">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<meta property="og:url" content="https://modoohub.com/html-decoder.html">
+<meta property="og:type" content="website">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What are HTML entities?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "HTML entities are special character sequences used to represent characters that have reserved meaning in HTML or cannot easily be typed. They begin with an ampersand (&) and end with a semicolon (;). For example &lt; represents a less-than sign (<), &amp; represents an ampersand (&), and &quot; represents a double quote (\")."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why do &amp;, &lt;, and &gt; exist?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The characters <, >, and & have special meaning in HTML syntax — < starts a tag, > ends a tag, and & starts an entity. To display these characters as text rather than have them interpreted as HTML syntax, they must be encoded as &lt;, &gt;, and &amp; respectively."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the difference between named and numeric HTML entities?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Named entities use a readable name like &amp;lt; or &amp;copy;. Numeric entities use a decimal (&amp;#60;) or hexadecimal (&amp;#x3C;) Unicode code point. Both represent the same character. Numeric entities can encode any Unicode character, while named entities only cover a predefined set."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How are Unicode and emoji entities decoded?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Unicode characters can be encoded as hexadecimal entities like &amp;#x1F600; for 😀. The textarea-based decoding method used by this tool handles all standard HTML5 named entities, decimal numeric entities, and hexadecimal numeric entities natively via the browser's HTML parser."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the difference between HTML decoding and URL decoding?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "HTML decoding converts &amp;lt; back to < and &amp;amp; back to &. URL decoding converts %3C back to < and %26 back to &. They are different encoding schemes used in different contexts — HTML entities appear in HTML markup, while percent-encoding is used in URLs."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does scraped web data contain HTML entities?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "When scraping web pages, you often retrieve the raw HTML source which contains entities like &amp;amp; or &amp;nbsp;. Decoding these entities converts the source HTML into the actual text that users see rendered in a browser. This decoder handles that conversion instantly."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Are there security concerns with HTML entity decoding?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "HTML entity decoding itself is safe. However, if you decode HTML entities and then insert the result directly into the DOM using innerHTML, you may reintroduce script tags or other HTML that could cause XSS vulnerabilities. Always use textContent for inserting decoded text into the DOM."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What are double-encoded entities?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Double-encoded entities occur when an already-encoded string is encoded again, turning &amp;lt; into &amp;amp;lt;. To fully decode a double-encoded string, run the decoder twice. Each pass removes one level of encoding."
+      }
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "HTML Entity Decoder",
+  "url": "https://modoohub.com/html-decoder.html",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "All",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "description": "Free online HTML entity decoder. Decode &amp;amp;, &amp;lt;, &amp;gt;, &amp;quot;, numeric and Unicode entities back to plain text instantly in your browser."
+}
+</script>
+</head>
+<body>
+<header>
+  <div class="dot"></div>
+  <span class="header-label">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <div class="lang-toggle" onclick="toggleLang()" id="langBtn">🌐 EN</div>
+</header>
+<main>
+  <h1 id="h1El">HTML <span>엔티티 디코더</span></h1>
+  <p class="subtitle" id="subEl">HTML 엔티티를 원래 텍스트로 디코딩</p>
+
+  <div class="toolbar">
+    <button class="btn" id="btnPaste" onclick="pasteInput()">붙여넣기</button>
+    <button class="btn danger" id="btnClear" onclick="clearAll()">지우기</button>
+    <button class="btn" id="btnSample" onclick="loadSample()">예시</button>
+    <div class="sep"></div>
+    <button class="btn primary" id="btnDecode" onclick="decodeHtml()">Decode →</button>
+    <button class="btn" id="btnCopy" onclick="copyOutput()">복사</button>
+  </div>
+
+  <div class="editor-wrap">
+    <div class="editor-box">
+      <div class="editor-label">
+        <span id="labelInput">HTML 입력</span>
+      </div>
+      <textarea id="inputEl" placeholder="&lt;h1&gt;Hello &amp;amp; World&lt;/h1&gt;" oninput="debouncedDecode()"></textarea>
+    </div>
+    <div class="editor-box">
+      <div class="editor-label">
+        <span id="labelOutput">디코딩 결과</span>
+        <span class="copy-small" id="copySmall" onclick="copyOutput()">복사</span>
+      </div>
+      <textarea id="outputEl" readonly placeholder="결과가 여기 표시됩니다"></textarea>
+    </div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-chip" id="statsEl">엔티티 0개 디코딩됨</div>
+  </div>
+
+  <div class="ref-section">
+    <div class="ref-title" id="refTitle">일반 HTML 엔티티 참조</div>
+    <div class="ref-grid" id="refGrid"></div>
+  </div>
+
+  <div class="seo" id="seoEl"></div>
+  <footer id="footerEl">모든 데이터는 브라우저에서만 처리됩니다 · 서버로 전송되지 않습니다</footer>
+</main>
+<script>
+const i18n = {
+  ko: {
+    pageTitle: 'HTML 엔티티 디코더 - HTML Entity Decoder | MODOO HUB',
+    h1: 'HTML <span>엔티티 디코더</span>',
+    sub: 'HTML 엔티티를 원래 텍스트로 디코딩',
+    backLink: '← 모두의 툴',
+    langBtn: '🌐 EN',
+    btnPaste: '붙여넣기',
+    btnClear: '지우기',
+    btnSample: '예시',
+    btnDecode: 'Decode →',
+    btnCopy: '복사',
+    copyDone: '복사됨 ✓',
+    statEntities: '엔티티 ${n}개 디코딩됨',
+    labelInput: 'HTML 입력',
+    labelOutput: '디코딩 결과',
+    refTitle: '일반 HTML 엔티티 참조',
+    footer: '모든 데이터는 브라우저에서만 처리됩니다 · 서버로 전송되지 않습니다',
+    sample: '&lt;h1&gt;Hello &amp; World&lt;/h1&gt; &quot;test&quot; &#39;quote&#39; &#x1F600; &copy; &trade; &nbsp;space',
+    seoHtml: `<h2>HTML 엔티티 디코딩이란?</h2>
+<p>HTML 엔티티는 HTML에서 특별한 의미를 가지거나 직접 입력하기 어려운 문자를 나타내기 위한 특수 시퀀스입니다. &amp;lt;는 &lt;, &amp;gt;는 &gt;, &amp;amp;는 &amp;, &amp;quot;는 "를 나타냅니다. 웹 스크래핑 결과 정제, 템플릿 엔진 출력 분석, 소스 코드 디버깅 등에 활용됩니다.</p>
+<h2>자주 묻는 질문</h2>
+<details class="faq-item"><summary>HTML 엔티티란 무엇인가요?</summary><p>HTML에서 특별한 의미를 갖거나 쉽게 입력하기 어려운 문자를 표현하는 특수 시퀀스입니다. &amp;(앰퍼샌드)로 시작해 ;(세미콜론)으로 끝납니다. 예를 들어 &amp;lt;는 &lt;, &amp;amp;는 &amp;, &amp;quot;는 "를 나타냅니다.</p></details>
+<details class="faq-item"><summary>&amp;, &lt;, &gt;는 왜 필요한가요?</summary><p>&lt;, &gt;, &amp; 문자는 HTML 문법에서 특별한 의미를 가집니다. &lt;는 태그를 시작하고, &gt;는 태그를 끝내며, &amp;는 엔티티를 시작합니다. 이 문자들을 텍스트로 표시하려면 &amp;lt;, &amp;gt;, &amp;amp;로 인코딩해야 합니다.</p></details>
+<details class="faq-item"><summary>이름 엔티티와 숫자 엔티티의 차이는?</summary><p>이름 엔티티는 &amp;lt;, &amp;copy; 처럼 읽기 쉬운 이름을 사용합니다. 숫자 엔티티는 10진수(&#60;) 또는 16진수(&#x3C;) 유니코드 코드 포인트를 사용합니다. 둘 다 동일한 문자를 나타내지만, 숫자 엔티티는 모든 유니코드 문자를 표현할 수 있습니다.</p></details>
+<details class="faq-item"><summary>유니코드와 이모지 엔티티는 어떻게 디코딩되나요?</summary><p>&#x1F600;처럼 16진수 엔티티로 인코딩된 이모지나 유니코드 문자를 디코딩합니다. 브라우저의 HTML 파서를 활용하므로 HTML5 표준 이름 엔티티, 10진수·16진수 숫자 엔티티를 모두 지원합니다.</p></details>
+<details class="faq-item"><summary>HTML 디코딩과 URL 디코딩의 차이는?</summary><p>HTML 디코딩은 &amp;lt;를 &lt;로, &amp;amp;를 &amp;로 변환합니다. URL 디코딩은 %3C를 &lt;로, %26을 &amp;로 변환합니다. 두 인코딩 방식은 다른 맥락에서 사용되며 서로 구별됩니다.</p></details>
+<details class="faq-item"><summary>웹 스크래핑 데이터에 HTML 엔티티가 포함되는 이유는?</summary><p>웹 페이지를 스크래핑하면 &amp;amp;, &amp;nbsp; 같은 엔티티가 포함된 원시 HTML 소스를 가져오게 됩니다. 이 디코더로 엔티티를 변환하면 브라우저가 렌더링한 것과 같은 실제 텍스트를 얻을 수 있습니다.</p></details>
+<details class="faq-item"><summary>HTML 엔티티 디코딩과 XSS 보안의 관계는?</summary><p>HTML 엔티티 디코딩 자체는 안전합니다. 하지만 디코딩된 결과를 innerHTML로 DOM에 직접 삽입하면 스크립트 태그 등이 실행될 수 있어 XSS 취약점이 생깁니다. 디코딩된 텍스트는 반드시 textContent로 삽입하세요.</p></details>
+<details class="faq-item"><summary>이중 인코딩된 엔티티란 무엇인가요?</summary><p>이미 인코딩된 문자열을 다시 인코딩하면 &amp;lt;가 &amp;amp;lt;가 되는 이중 인코딩이 발생합니다. 완전히 디코딩하려면 디코더를 두 번 실행하세요. 각 실행마다 인코딩 레이어가 하나씩 제거됩니다.</p></details>`
+  },
+  en: {
+    pageTitle: 'HTML Entity Decoder - Free Online Tool | MODOO HUB',
+    h1: 'HTML <span>Decoder</span>',
+    sub: 'Decode HTML entities to plain text',
+    backLink: '← All Tools',
+    langBtn: '🌐 中文',
+    btnPaste: 'Paste',
+    btnClear: 'Clear',
+    btnSample: 'Sample',
+    btnDecode: 'Decode →',
+    btnCopy: 'Copy',
+    copyDone: 'Copied ✓',
+    statEntities: '${n} entities decoded',
+    labelInput: 'HTML Input',
+    labelOutput: 'Decoded Output',
+    refTitle: 'Common HTML Entity Reference',
+    footer: 'All data is processed in your browser · Never sent to any server',
+    sample: '&lt;h1&gt;Hello &amp; World&lt;/h1&gt; &quot;test&quot; &#39;quote&#39; &#x1F600; &copy; &trade; &nbsp;space',
+    seoHtml: `<h2>HTML Entity Decoding Explained</h2>
+<p>HTML entities are special sequences used to represent characters that have reserved meaning in HTML or are hard to type. &amp;lt; becomes &lt;, &amp;amp; becomes &amp;, &amp;quot; becomes ", and numeric entities like &amp;#x1F600; become 😀. This decoder is useful for cleaning scraped web data, analyzing template engine output, and debugging HTML source code.</p>
+<h2>FAQ</h2>
+<details class="faq-item"><summary>What are HTML entities?</summary><p>HTML entities are special character sequences that start with & and end with ;. They represent characters that have special meaning in HTML syntax or cannot easily be typed. For example &amp;lt; is &lt;, &amp;amp; is &amp;, and &amp;quot; is ".</p></details>
+<details class="faq-item"><summary>Why do &amp;, &lt;, and &gt; exist?</summary><p>The characters &lt;, &gt;, and &amp; have special meaning in HTML: &lt; starts a tag, &gt; ends a tag, and &amp; starts an entity. To display them as literal text they must be encoded as &amp;lt;, &amp;gt;, and &amp;amp; respectively.</p></details>
+<details class="faq-item"><summary>What is the difference between named and numeric entities?</summary><p>Named entities use readable names like &amp;lt; or &amp;copy;. Numeric entities use decimal (&amp;#60;) or hexadecimal (&amp;#x3C;) Unicode code points. Both produce the same character. Numeric entities can represent any Unicode character; named entities cover only a predefined set.</p></details>
+<details class="faq-item"><summary>How are Unicode and emoji entities decoded?</summary><p>Unicode characters can be encoded as hex entities like &amp;#x1F600; for 😀. This tool uses the browser's native HTML parser via a textarea element, which natively handles all HTML5 named entities, decimal numeric entities, and hexadecimal numeric entities.</p></details>
+<details class="faq-item"><summary>What is the difference between HTML decoding and URL decoding?</summary><p>HTML decoding converts &amp;lt; back to &lt; and &amp;amp; back to &amp;. URL decoding converts %3C back to &lt; and %26 back to &amp;. They are different schemes used in different contexts: HTML entities in markup, percent-encoding in URLs.</p></details>
+<details class="faq-item"><summary>Why does scraped web data contain HTML entities?</summary><p>Web scraping retrieves raw HTML source which contains entities like &amp;amp; or &amp;nbsp;. Decoding these entities converts the HTML source into the actual text that users see in a browser. This decoder handles that conversion instantly.</p></details>
+<details class="faq-item"><summary>Are there security concerns with HTML entity decoding?</summary><p>HTML entity decoding itself is safe. However, if you insert the decoded result into the DOM using innerHTML, you may reintroduce script tags or other HTML that could cause XSS vulnerabilities. Always use textContent to insert decoded text.</p></details>
+<details class="faq-item"><summary>What are double-encoded entities?</summary><p>Double-encoded entities result from encoding an already-encoded string, turning &amp;lt; into &amp;amp;lt;. To fully decode a double-encoded string, run the decoder twice. Each pass removes one layer of encoding.</p></details>`
+  },
+  zh: {
+    pageTitle: 'HTML 实体解码器 - 在线免费工具 | MODOO HUB',
+    h1: 'HTML <span>实体解码器</span>',
+    sub: '将 HTML 实体解码为纯文本',
+    backLink: '← 首页',
+    langBtn: '🌐 日本語',
+    btnPaste: '粘贴',
+    btnClear: '清空',
+    btnSample: '示例',
+    btnDecode: '解码 →',
+    btnCopy: '复制',
+    copyDone: '已复制 ✓',
+    statEntities: '已解码 ${n} 个实体',
+    labelInput: 'HTML 输入',
+    labelOutput: '解码结果',
+    refTitle: '常用 HTML 实体参考',
+    footer: '所有处理均在浏览器本地完成，不传输到服务器',
+    sample: '&lt;h1&gt;Hello &amp; World&lt;/h1&gt; &quot;test&quot; &#39;quote&#39; &#x1F600; &copy; &trade; &nbsp;space',
+    seoHtml: `<h2>什么是 HTML 实体解码？</h2>
+<p>HTML 实体是用于表示在 HTML 中具有特殊含义或难以直接输入的字符的特殊序列。&amp;lt; 对应 &lt;，&amp;amp; 对应 &amp;，&amp;quot; 对应 "，数字实体如 &amp;#x1F600; 对应 😀。本工具适用于清洗爬取的网页数据、分析模板引擎输出及调试 HTML 源码。</p>
+<h2>常见问题</h2>
+<details class="faq-item"><summary>什么是 HTML 实体？</summary><p>HTML 实体是以 & 开头、以 ; 结尾的特殊字符序列，用于表示在 HTML 语法中有特殊含义或难以直接输入的字符。例如 &amp;lt; 表示 &lt;，&amp;amp; 表示 &amp;，&amp;quot; 表示 "。</p></details>
+<details class="faq-item"><summary>为什么需要 &amp;、&lt; 和 &gt;？</summary><p>&lt;、&gt; 和 &amp; 在 HTML 中有特殊含义：&lt; 开始标签，&gt; 结束标签，&amp; 开始实体。要将它们显示为字面文本，必须分别编码为 &amp;lt;、&amp;gt; 和 &amp;amp;。</p></details>
+<details class="faq-item"><summary>命名实体和数字实体有什么区别？</summary><p>命名实体使用可读名称如 &amp;lt; 或 &amp;copy;。数字实体使用十进制（&amp;#60;）或十六进制（&amp;#x3C;）Unicode 码点。两者产生相同字符，但数字实体可表示任意 Unicode 字符。</p></details>
+<details class="faq-item"><summary>Unicode 和 emoji 实体如何解码？</summary><p>Unicode 字符可编码为 &amp;#x1F600; 这样的十六进制实体（对应 😀）。本工具利用浏览器原生 HTML 解析器，原生支持所有 HTML5 命名实体、十进制和十六进制数字实体。</p></details>
+<details class="faq-item"><summary>HTML 解码和 URL 解码有什么区别？</summary><p>HTML 解码将 &amp;lt; 还原为 &lt;，将 &amp;amp; 还原为 &amp;。URL 解码将 %3C 还原为 &lt;，将 %26 还原为 &amp;。两者用于不同场景：HTML 实体用于标记语言，百分比编码用于 URL。</p></details>
+<details class="faq-item"><summary>为什么爬取的网页数据中含有 HTML 实体？</summary><p>网页爬取获取的是原始 HTML 源码，其中包含 &amp;amp;、&amp;nbsp; 等实体。用本工具解码后可得到与浏览器渲染相同的实际文本内容。</p></details>
+<details class="faq-item"><summary>HTML 实体解码有安全隐患吗？</summary><p>HTML 实体解码本身是安全的。但如果将解码结果通过 innerHTML 直接插入 DOM，可能重新引入 script 标签等导致 XSS 漏洞。插入解码后的文本时请使用 textContent。</p></details>
+<details class="faq-item"><summary>什么是双重编码实体？</summary><p>对已编码字符串再次编码会产生双重编码，使 &amp;lt; 变为 &amp;amp;lt;。要完全解码需运行两次解码器，每次去除一层编码。</p></details>`
+  },
+  ja: {
+    pageTitle: 'HTML エンティティデコーダー - 無料オンラインツール | MODOO HUB',
+    h1: 'HTML <span>デコーダー</span>',
+    sub: 'HTML エンティティをプレーンテキストにデコード',
+    backLink: '← ホーム',
+    langBtn: '🌐 한국어',
+    btnPaste: '貼り付け',
+    btnClear: 'クリア',
+    btnSample: 'サンプル',
+    btnDecode: 'デコード →',
+    btnCopy: 'コピー',
+    copyDone: 'コピー完了 ✓',
+    statEntities: '${n} 個のエンティティをデコードしました',
+    labelInput: 'HTML 入力',
+    labelOutput: 'デコード結果',
+    refTitle: '主な HTML エンティティ一覧',
+    footer: 'すべての処理はブラウザ内のみで行われます · サーバーには送信されません',
+    sample: '&lt;h1&gt;Hello &amp; World&lt;/h1&gt; &quot;test&quot; &#39;quote&#39; &#x1F600; &copy; &trade; &nbsp;space',
+    seoHtml: `<h2>HTML エンティティデコードとは？</h2>
+<p>HTML エンティティは、HTML で特別な意味を持つ文字や直接入力が難しい文字を表す特殊シーケンスです。&amp;lt; は &lt;、&amp;amp; は &amp;、&amp;quot; は "、数値エンティティ &amp;#x1F600; は 😀 に変換されます。スクレイピングデータの整形、テンプレートエンジン出力の分析、HTML ソースのデバッグに活用できます。</p>
+<h2>よくある質問</h2>
+<details class="faq-item"><summary>HTML エンティティとは何ですか？</summary><p>& で始まり ; で終わる特殊文字シーケンスで、HTML 構文で特別な意味を持つ文字や入力しにくい文字を表します。例：&amp;lt; は &lt;、&amp;amp; は &amp;、&amp;quot; は "。</p></details>
+<details class="faq-item"><summary>&amp;、&lt;、&gt; はなぜ必要ですか？</summary><p>&lt;、&gt;、&amp; は HTML で特別な意味を持ちます。&lt; はタグの開始、&gt; はタグの終了、&amp; はエンティティの開始を示します。テキストとして表示するには &amp;lt;、&amp;gt;、&amp;amp; にエンコードする必要があります。</p></details>
+<details class="faq-item"><summary>名前付きエンティティと数値エンティティの違いは？</summary><p>名前付きエンティティは &amp;lt; や &amp;copy; のように可読性の高い名前を使います。数値エンティティは 10 進数（&amp;#60;）または 16 進数（&amp;#x3C;）の Unicode コードポイントを使います。どちらも同じ文字を表しますが、数値エンティティは任意の Unicode 文字を表現できます。</p></details>
+<details class="faq-item"><summary>Unicode や絵文字エンティティはどうデコードされますか？</summary><p>&amp;#x1F600; のような 16 進数エンティティで表された 😀 などの絵文字や Unicode 文字をデコードできます。ブラウザのネイティブ HTML パーサーを使用するため、HTML5 の全名前付きエンティティ・10 進数・16 進数エンティティをサポートします。</p></details>
+<details class="faq-item"><summary>HTML デコードと URL デコードの違いは？</summary><p>HTML デコードは &amp;lt; を &lt; に、&amp;amp; を &amp; に変換します。URL デコードは %3C を &lt; に、%26 を &amp; に変換します。使用される文脈が異なる別個のエンコード方式です。</p></details>
+<details class="faq-item"><summary>スクレイピングデータに HTML エンティティが含まれる理由は？</summary><p>Web スクレイピングでは &amp;amp; や &amp;nbsp; などのエンティティを含む生の HTML ソースを取得します。このデコーダーで変換するとブラウザでレンダリングされた実際のテキストと同じ内容になります。</p></details>
+<details class="faq-item"><summary>HTML エンティティデコードにセキュリティ上の懸念はありますか？</summary><p>HTML エンティティデコード自体は安全です。ただしデコード結果を innerHTML で DOM に直接挿入すると script タグなどが実行されて XSS 脆弱性が生じる可能性があります。デコードされたテキストは必ず textContent で挿入してください。</p></details>
+<details class="faq-item"><summary>二重エンコードされたエンティティとは何ですか？</summary><p>すでにエンコードされた文字列を再度エンコードすると &amp;lt; が &amp;amp;lt; になる二重エンコードが起きます。完全にデコードするにはデコーダーを 2 回実行してください。各実行でエンコードの層が 1 つ除去されます。</p></details>`
+  }
+};
+
+const REFS = [
+  ['&amp;', '&'],
+  ['&lt;', '<'],
+  ['&gt;', '>'],
+  ['&quot;', '"'],
+  ['&#39;', "'"],
+  ['&nbsp;', ' '],
+  ['&copy;', '©'],
+  ['&reg;', '®'],
+  ['&trade;', '™'],
+  ['&euro;', '€'],
+  ['&pound;', '£'],
+  ['&yen;', '¥'],
+  ['&mdash;', '—'],
+  ['&ndash;', '–'],
+  ['&laquo;', '«'],
+  ['&raquo;', '»'],
+];
+
+let lang = (function() {
+  const u = new URLSearchParams(location.search).get('lang');
+  if (u && i18n[u]) return u;
+  const s = localStorage.getItem('modoo_lang');
+  if (s && i18n[s]) return s;
+  const n = (navigator.language || '').slice(0, 2);
+  return n === 'zh' ? 'zh' : n === 'ja' ? 'ja' : n === 'ko' ? 'ko' : 'en';
+})();
+
+function applyLang() {
+  const t = i18n[lang];
+  document.documentElement.lang = lang;
+  document.title = t.pageTitle;
+  document.getElementById('h1El').innerHTML = t.h1;
+  document.getElementById('subEl').textContent = t.sub;
+  document.getElementById('backLink').textContent = t.backLink;
+  document.getElementById('langBtn').textContent = t.langBtn;
+  document.getElementById('btnPaste').textContent = t.btnPaste;
+  document.getElementById('btnClear').textContent = t.btnClear;
+  document.getElementById('btnSample').textContent = t.btnSample;
+  document.getElementById('btnDecode').textContent = t.btnDecode;
+  document.getElementById('btnCopy').textContent = t.btnCopy;
+  document.getElementById('copySmall').textContent = t.btnCopy;
+  document.getElementById('labelInput').textContent = t.labelInput;
+  document.getElementById('labelOutput').textContent = t.labelOutput;
+  document.getElementById('refTitle').textContent = t.refTitle;
+  document.getElementById('footerEl').textContent = t.footer;
+  document.getElementById('seoEl').innerHTML = t.seoHtml;
+  updateStats(0);
+}
+
+function toggleLang() {
+  const order = ['ko', 'en', 'zh', 'ja'];
+  lang = order[(order.indexOf(lang) + 1) % order.length];
+  localStorage.setItem('modoo_lang', lang);
+  const url = new URL(location.href);
+  url.searchParams.set('lang', lang);
+  history.replaceState({}, '', url);
+  applyLang();
+}
+
+function updateStats(n) {
+  const t = i18n[lang];
+  document.getElementById('statsEl').innerHTML = t.statEntities.replace('${n}', '<span>' + n + '</span>');
+}
+
+function buildRefGrid() {
+  const g = document.getElementById('refGrid');
+  g.innerHTML = '';
+  REFS.forEach(([entity, char]) => {
+    const d = document.createElement('div');
+    d.className = 'ref-item';
+    const displayChar = char === ' ' ? '(nbsp)' : char;
+    d.innerHTML = '<span class="ref-entity">' + entity.replace(/&/g, '&amp;') + '</span><span class="ref-char">' + displayChar + '</span>';
+    g.appendChild(d);
+  });
+}
+
+let _debounce;
+function debouncedDecode() {
+  clearTimeout(_debounce);
+  _debounce = setTimeout(decodeHtml, 300);
+}
+
+function decodeHtml() {
+  const text = document.getElementById('inputEl').value;
+  if (!text) {
+    document.getElementById('outputEl').value = '';
+    updateStats(0);
+    return;
+  }
+  const ta = document.createElement('textarea');
+  ta.innerHTML = text;
+  const decoded = ta.value;
+  document.getElementById('outputEl').value = decoded;
+  const count = (text.match(/&[#\w]+;/g) || []).length;
+  updateStats(count);
+}
+
+function loadSample() {
+  document.getElementById('inputEl').value = i18n[lang].sample;
+  decodeHtml();
+}
+
+function clearAll() {
+  document.getElementById('inputEl').value = '';
+  document.getElementById('outputEl').value = '';
+  updateStats(0);
+}
+
+async function pasteInput() {
+  try {
+    const text = await navigator.clipboard.readText();
+    document.getElementById('inputEl').value = text;
+    decodeHtml();
+  } catch(e) {}
+}
+
+function copyOutput() {
+  const text = document.getElementById('outputEl').value;
+  if (!text) return;
+  navigator.clipboard.writeText(text).then(() => {
+    const t = i18n[lang];
+    const btn = document.getElementById('btnCopy');
+    const small = document.getElementById('copySmall');
+    btn.textContent = t.copyDone;
+    small.textContent = t.copyDone;
+    btn.style.color = 'var(--green)';
+    setTimeout(() => {
+      btn.textContent = t.btnCopy;
+      small.textContent = t.btnCopy;
+      btn.style.color = '';
+    }, 2000);
+  });
+}
+
+applyLang();
+buildRefGrid();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

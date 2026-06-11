@@ -57,20 +57,37 @@
     'electricity-cost-calculator': { ko: '전기요금 계산기',   en: 'Electricity Cost Calculator', zh: '电费计算器',         ja: '電気料金計算機',       icon: '⚡' },
     /* ── 개발자: 포맷터 ── */
     'json-formatter':            { ko: 'JSON 포맷터',          en: 'JSON Formatter',             zh: 'JSON格式化',          ja: 'JSONフォーマッター',   icon: '{ }' },
+    'json-validator':            { ko: 'JSON 검증기',          en: 'JSON Validator',             zh: 'JSON验证器',          ja: 'JSONバリデーター',     icon: '✓' },
+    'json-viewer':               { ko: 'JSON 뷰어',            en: 'JSON Viewer',                zh: 'JSON查看器',          ja: 'JSONビューアー',       icon: '🌲' },
+    'json-minifier':             { ko: 'JSON 압축기',          en: 'JSON Minifier',              zh: 'JSON压缩器',          ja: 'JSONミニファイアー',   icon: '{}' },
     'xml-formatter':             { ko: 'XML 포맷터',           en: 'XML Formatter',              zh: 'XML格式化',           ja: 'XMLフォーマッター',    icon: '〈/〉' },
     'yaml-formatter':            { ko: 'YAML 포맷터',          en: 'YAML Formatter',             zh: 'YAML格式化',          ja: 'YAMLフォーマッター',   icon: '⚙️' },
     'sql-formatter':             { ko: 'SQL 포맷터',           en: 'SQL Formatter',              zh: 'SQL格式化',           ja: 'SQLフォーマッター',    icon: '🗃️' },
     'markdown-preview':          { ko: '마크다운 미리보기',    en: 'Markdown Preview',           zh: 'Markdown预览',        ja: 'Markdownプレビュー',   icon: '📄' },
+    'markdown-to-html':          { ko: 'Markdown → HTML',      en: 'Markdown to HTML',           zh: 'Markdown转HTML',      ja: 'Markdown→HTML',        icon: 'MD' },
+    'html-to-markdown':          { ko: 'HTML → Markdown',      en: 'HTML to Markdown',           zh: 'HTML转Markdown',      ja: 'HTML→Markdown',        icon: '⬇' },
     /* ── 개발자: 인코딩·해시 ── */
     'base64-url':                { ko: 'Base64 & URL 인코더', en: 'Base64 & URL Encoder',       zh: 'Base64&URL编码',      ja: 'Base64 & URLエンコーダー', icon: '🔢' },
+    'base64-encoder':            { ko: 'Base64 인코더',        en: 'Base64 Encoder',             zh: 'Base64编码器',        ja: 'Base64エンコーダー',   icon: '🔡' },
+    'base64-decoder':            { ko: 'Base64 디코더',        en: 'Base64 Decoder',             zh: 'Base64解码器',        ja: 'Base64デコーダー',     icon: '🔓' },
+    'text-to-base64':            { ko: '텍스트 → Base64',      en: 'Text to Base64',             zh: '文本转Base64',        ja: 'テキスト→Base64',      icon: 'B64' },
+    'base64-to-text':            { ko: 'Base64 → 텍스트',      en: 'Base64 to Text',             zh: 'Base64转文本',        ja: 'Base64→テキスト',      icon: 'TXT' },
+    'url-encoder':               { ko: 'URL 인코더',           en: 'URL Encoder',                zh: 'URL编码器',           ja: 'URLエンコーダー',      icon: '%2B' },
+    'url-decoder':               { ko: 'URL 디코더',           en: 'URL Decoder',                zh: 'URL解码器',           ja: 'URLデコーダー',        icon: '%' },
+    'html-decoder':              { ko: 'HTML 엔티티 디코더',   en: 'HTML Entity Decoder',        zh: 'HTML实体解码器',      ja: 'HTMLエンティティデコーダー', icon: '&amp;' },
     'html-encoder':              { ko: 'HTML 인코더/디코더',  en: 'HTML Encoder/Decoder',       zh: 'HTML编码/解码',       ja: 'HTMLエンコーダー/デコーダー', icon: '</>' },
     'base64-image':              { ko: 'Base64 이미지 변환',  en: 'Base64 Image Converter',     zh: 'Base64图片转换',      ja: 'Base64画像変換',       icon: '🖼️' },
     'hash-generator':            { ko: 'Hash 생성기',          en: 'Hash Generator',             zh: 'Hash生成器',          ja: 'ハッシュ生成器',       icon: '#' },
+    'sha256-generator':          { ko: 'SHA-256 생성기',       en: 'SHA-256 Generator',          zh: 'SHA-256生成器',        ja: 'SHA-256生成器',        icon: '256' },
+    'md5-generator':             { ko: 'MD5 생성기',           en: 'MD5 Generator',              zh: 'MD5生成器',            ja: 'MD5生成器',            icon: 'MD5' },
     /* ── 개발자: 유틸 ── */
     'cron-generator':            { ko: 'Cron 생성기',          en: 'Cron Generator',             zh: 'Cron表达式生成器',    ja: 'Cron式生成器',         icon: '⏱️' },
+    'cron-parser':               { ko: 'Cron 파서',            en: 'Cron Parser',                zh: 'Cron解析器',          ja: 'Cronパーサー',         icon: '📋' },
+    'cron-validator':            { ko: 'Cron 검증기',          en: 'Cron Validator',             zh: 'Cron验证器',          ja: 'Cronバリデーター',     icon: '✓' },
     'regex-tester':              { ko: '정규식 테스터',        en: 'Regex Tester',               zh: '正则表达式测试',      ja: '正規表現テスター',     icon: '.*' },
     'timestamp':                 { ko: 'Timestamp 변환기',    en: 'Timestamp Converter',        zh: '时间戳转换',          ja: 'タイムスタンプ変換器', icon: '🕑' },
     'uuid-generator':            { ko: 'UUID 생성기',          en: 'UUID Generator',             zh: 'UUID生成器',          ja: 'UUID生成器',           icon: '🆔' },
+    'uuid-validator':            { ko: 'UUID 검증기',          en: 'UUID Validator',             zh: 'UUID验证器',          ja: 'UUIDバリデーター',     icon: '✓' },
     'jwt-decoder':               { ko: 'JWT 디코더',           en: 'JWT Decoder',                zh: 'JWT解析器',           ja: 'JWTデコーダー',        icon: '🔑' },
     'jwt-generator':             { ko: 'JWT 생성기',           en: 'JWT Generator',              zh: 'JWT生成器',           ja: 'JWT生成器',            icon: '🔏' },
     /* ── 개발자: 생성기·변환 ── */
@@ -85,6 +102,7 @@
     'case-converter':            { ko: '케이스 변환기',        en: 'Case Converter',             zh: '大小写转换',          ja: 'ケース変換器',         icon: 'Aa' },
     'json-to-csv':               { ko: 'JSON → CSV',           en: 'JSON → CSV',                 zh: 'JSON → CSV',         ja: 'JSON → CSV',           icon: '📊' },
     'csv-to-json':               { ko: 'CSV → JSON',           en: 'CSV → JSON',                 zh: 'CSV → JSON',         ja: 'CSV → JSON',           icon: '📋' },
+    'csv-viewer':                { ko: 'CSV 뷰어',             en: 'CSV Viewer',                 zh: 'CSV查看器',           ja: 'CSVビューアー',        icon: '📊' },
     /* ── 개발자: 색상 ── */
     'color-converter':           { ko: '색상 변환기',          en: 'Color Converter',            zh: '颜色转换器',          ja: 'カラー変換器',         icon: '🎨' },
     'color-palette':             { ko: '컬러 팔레트',          en: 'Color Palette',              zh: '调色板',              ja: 'カラーパレット',       icon: '🖌️' },
@@ -93,13 +111,22 @@
     'image-compressor':          { ko: '이미지 압축기',        en: 'Image Compressor',           zh: '图片压缩',            ja: '画像圧縮',             icon: '🗜️' },
     'image-resizer':             { ko: '이미지 리사이저',      en: 'Image Resizer',              zh: '图片调整大小',        ja: '画像リサイズ',         icon: '↔️' },
     'image-to-webp':             { ko: '이미지 → WebP',        en: 'Image → WebP',               zh: '图片→WebP',           ja: '画像→WebP',            icon: '🔄' },
+    'webp-to-png':               { ko: 'WebP → PNG',           en: 'WebP to PNG',                zh: 'WebP转PNG',           ja: 'WebP→PNG',             icon: '🖼' },
+    'png-to-jpg':                { ko: 'PNG → JPG',            en: 'PNG to JPG',                 zh: 'PNG转JPG',            ja: 'PNG→JPG',              icon: '📷' },
     /* ── 개발자: PDF ── */
     'pdf-merge':                 { ko: 'PDF 합치기',           en: 'PDF Merge',                  zh: 'PDF合并',             ja: 'PDF結合',              icon: '📄' },
     'pdf-split':                 { ko: 'PDF 분리',             en: 'PDF Split',                  zh: 'PDF分割',             ja: 'PDF分割',              icon: '✂️' },
+    'pdf-compressor':            { ko: 'PDF 압축기',           en: 'PDF Compressor',             zh: 'PDF压缩器',           ja: 'PDF圧縮ツール',        icon: '🗜' },
+    'pdf-page-counter':          { ko: 'PDF 페이지 수 계산기', en: 'PDF Page Counter',           zh: 'PDF页数计算器',        ja: 'PDFページ数カウンター', icon: '📑' },
     'pdf-to-image':              { ko: 'PDF → 이미지',         en: 'PDF → Image',                zh: 'PDF→图片',            ja: 'PDF→画像',             icon: '🖼️' },
     'image-to-pdf':              { ko: '이미지 → PDF',         en: 'Image → PDF',                zh: '图片→PDF',            ja: '画像→PDF',             icon: '📑' },
     /* ── AI 도구 ── */
     'ai-token-counter':          { ko: 'AI 토큰 카운터',       en: 'AI Token Counter',           zh: 'AI Token计数器',      ja: 'AIトークンカウンター', icon: '🤖' },
+    'ai-cost-calculator':        { ko: 'AI API 비용 계산기',   en: 'AI API Cost Calculator',     zh: 'AI API费用计算器',    ja: 'AI APIコスト計算機',   icon: '💰' },
+    'chatgpt-token-counter':     { ko: 'ChatGPT 토큰 카운터',  en: 'ChatGPT Token Counter',      zh: 'ChatGPT Token计数器', ja: 'ChatGPTトークンカウンター', icon: 'GPT' },
+    'utm-builder':               { ko: 'UTM 빌더',             en: 'UTM Builder',                zh: 'UTM生成器',           ja: 'UTMビルダー',          icon: '🔗' },
+    'robots-txt-generator':      { ko: 'Robots.txt 생성기',   en: 'Robots.txt Generator',       zh: 'Robots.txt生成器',    ja: 'Robots.txtジェネレーター', icon: '🤖' },
+    'meta-tag-generator':        { ko: 'Meta 태그 생성기',    en: 'Meta Tag Generator',         zh: 'Meta标签生成器',      ja: 'メタタグジェネレーター', icon: '<M>' },
     'prompt-formatter':          { ko: '프롬프트 포맷터',      en: 'Prompt Formatter',           zh: '提示词格式化',        ja: 'プロンプトフォーマッター', icon: '💬' },
     /* ── 텍스트: 분석 ── */
     'word-counter':              { ko: '단어수 세기',          en: 'Word Counter',               zh: '单词计数器',          ja: '単語数カウンター',     icon: '📝' },
@@ -186,11 +213,12 @@
     // 일상: 비용·유틸
     ['tip-calculator','split-calculator','percent-calc','fuel-cost-calculator','electricity-cost-calculator'],
     // 개발자: 포맷터
-    ['json-formatter','xml-formatter','yaml-formatter','sql-formatter','markdown-preview'],
+    ['json-formatter','json-validator','json-viewer','json-minifier','xml-formatter','yaml-formatter','sql-formatter','markdown-preview'],
     // 개발자: 인코딩·해시
-    ['base64-url','html-encoder','base64-image','hash-generator'],
+    ['base64-url','base64-encoder','base64-decoder','text-to-base64','base64-to-text','html-encoder','base64-image','hash-generator'],
+    ['url-encoder','url-decoder','html-encoder','html-decoder','base64-url','slug-generator'],
     // 개발자: 개발 유틸
-    ['cron-generator','regex-tester','timestamp','uuid-generator','jwt-decoder','jwt-generator'],
+    ['cron-generator','cron-parser','cron-validator','regex-tester','timestamp','uuid-generator','uuid-validator','jwt-decoder','jwt-generator'],
     // 개발자: 생성기
     ['qr-generator','barcode-generator','random-string','lorem-ipsum','password-generator','uuid-generator'],
     // 개발자: 변환
@@ -198,11 +226,15 @@
     // 개발자: 색상
     ['color-converter','color-palette','color-picker'],
     // 개발자: 이미지
-    ['image-compressor','image-resizer','image-to-webp','base64-image'],
+    ['image-compressor','image-resizer','image-to-webp','webp-to-png','png-to-jpg','base64-image'],
+    ['markdown-preview','markdown-to-html','html-to-markdown','html-encoder','html-decoder'],
+    ['csv-to-json','json-to-csv','csv-viewer','json-formatter','text-diff-checker'],
     // 개발자: PDF
-    ['pdf-merge','pdf-split','pdf-to-image','image-to-pdf'],
+    ['pdf-merge','pdf-split','pdf-to-image','image-to-pdf','pdf-compressor','pdf-page-counter'],
     // AI 도구
-    ['ai-token-counter','prompt-formatter','word-counter','character-counter'],
+    ['ai-token-counter','ai-cost-calculator','chatgpt-token-counter','prompt-formatter','word-counter','character-counter'],
+    ['utm-builder','slug-generator','url-encoder','url-decoder','qr-generator'],
+    ['robots-txt-generator','meta-tag-generator','utm-builder','slug-generator','html-encoder','url-encoder'],
     // 텍스트: 분석·카운팅
     ['word-counter','character-counter','line-counter','sentence-counter','read-time-calculator','keyword-density'],
     // 텍스트: 편집·클리닝
@@ -267,10 +299,15 @@
     'timestamp':'date-time-tools','timezone-converter':'date-time-tools',
     'dday':'date-time-tools','korean-age':'date-time-tools','working-days-calc':'date-time-tools',
     // Data
-    'json-formatter':'data-tools','xml-formatter':'data-tools','yaml-formatter':'data-tools',
+    'json-formatter':'data-tools','json-validator':'data-tools','json-viewer':'data-tools',
+    'json-minifier':'data-tools','sha256-generator':'data-tools','md5-generator':'data-tools',
+    'xml-formatter':'data-tools','yaml-formatter':'data-tools',
     'sql-formatter':'data-tools','json-to-csv':'data-tools','csv-to-json':'data-tools',
     // Security
-    'base64-url':'security-tools','html-encoder':'security-tools',
+    'base64-url':'security-tools','base64-encoder':'security-tools','base64-decoder':'security-tools',
+    'text-to-base64':'security-tools','base64-to-text':'security-tools',
+    'url-encoder':'security-tools','url-decoder':'security-tools',
+    'html-encoder':'security-tools','html-decoder':'security-tools',
     'hash-generator':'security-tools','jwt-decoder':'security-tools',
     'jwt-generator':'security-tools','password-generator':'security-tools',
     'random-string':'security-tools',
@@ -282,17 +319,22 @@
     'remove-empty-lines':'text-tools','remove-duplicate-lines':'text-tools',
     'text-cleaner':'text-tools','text-diff-checker':'text-tools','case-converter':'text-tools',
     // AI
-    'ai-token-counter':'ai-tools','prompt-formatter':'ai-tools',
+    'ai-token-counter':'ai-tools','ai-cost-calculator':'ai-tools','chatgpt-token-counter':'ai-tools','prompt-formatter':'ai-tools',
     // Developer
-    'cron-generator':'developer-tools','regex-tester':'developer-tools',
-    'markdown-preview':'developer-tools','lorem-ipsum':'developer-tools',
+    'cron-generator':'developer-tools','cron-parser':'developer-tools','cron-validator':'developer-tools',
+    'uuid-validator':'developer-tools','regex-tester':'developer-tools',
+    'markdown-preview':'developer-tools','markdown-to-html':'developer-tools','html-to-markdown':'developer-tools',
+    'lorem-ipsum':'developer-tools',
     // Image
-    'image-compressor':'image-tools','image-resizer':'image-tools',
+    'csv-viewer':'data-tools',
+    'image-compressor':'image-tools','image-resizer':'image-tools','webp-to-png':'image-tools','png-to-jpg':'image-tools',
     'image-to-webp':'image-tools','base64-image':'image-tools',
     'color-picker':'image-tools','color-palette':'image-tools','color-converter':'image-tools',
     // PDF
-    'pdf-merge':'pdf-tools','pdf-split':'pdf-tools',
+    'pdf-merge':'pdf-tools','pdf-split':'pdf-tools','pdf-compressor':'pdf-tools','pdf-page-counter':'pdf-tools',
     'pdf-to-image':'pdf-tools','image-to-pdf':'pdf-tools',
+    'utm-builder':'generator-tools',
+    'robots-txt-generator':'generator-tools','meta-tag-generator':'generator-tools',
     // Generator
     'uuid-generator':'generator-tools','qr-generator':'generator-tools',
     'barcode-generator':'generator-tools',

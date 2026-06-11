@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UUID Validator - UUID 검증기</title>
+<meta name="description" content="UUID 유효성 검사, 버전 감지(v1~v5), 구성 요소 분석. 대량 UUID 일괄 검증. RFC 4122 표준 준수 여부 확인. Free online UUID validator.">
+<meta name="keywords" content="UUID validator, UUID 검증, UUID version detector, RFC 4122, UUID v4 checker, UUID 유효성 검사">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/uuid-validator.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/uuid-validator.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/uuid-validator.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/uuid-validator.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/uuid-validator.html">
+<link rel="canonical" href="https://modoohub.com/uuid-validator.html">
+<style>
+:root{
+  --bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;
+  --accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;
+  --green:#4ade80;--red:#f87171;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;font-family:'DM Mono',monospace;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;font-family:'DM Mono',monospace;background:none;margin-left:8px;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:660px;margin:0 auto;padding:40px 20px 60px;}
+h1{font-size:clamp(24px,5vw,36px);font-weight:900;margin-bottom:8px;line-height:1.15;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:32px;line-height:1.6;}
+.section-title{font-size:11px;color:var(--text-muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;font-family:'DM Mono',monospace;}
+/* Single input */
+.input-row{display:flex;gap:8px;margin-bottom:12px;align-items:stretch;}
+.uuid-input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:'DM Mono',monospace;font-size:14px;outline:none;transition:border-color .15s;}
+.uuid-input:focus{border-color:var(--accent);}
+.uuid-input.input-valid{border-color:var(--green);}
+.uuid-input.input-invalid{border-color:var(--red);}
+.btn{padding:10px 18px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Mono',monospace;white-space:nowrap;transition:opacity .15s;}
+.btn-primary{background:var(--accent);color:#000;}
+.btn-primary:hover{opacity:.85;}
+.btn-secondary{background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);}
+.btn-secondary:hover{border-color:var(--accent);color:var(--accent);}
+.btn-ghost{background:none;border:1px solid var(--border);color:var(--text-muted);padding:6px 14px;font-size:12px;}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
+/* Result card */
+.result-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px;display:none;}
+.result-card.show{display:block;}
+.status-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:700;margin-bottom:16px;font-family:'DM Mono',monospace;}
+.badge-valid{background:rgba(74,222,128,.12);border:1px solid var(--green);color:var(--green);}
+.badge-invalid{background:rgba(248,113,113,.12);border:1px solid var(--red);color:var(--red);}
+.meta-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+.meta-chip{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:12px;font-family:'DM Mono',monospace;}
+.meta-chip span{color:var(--text-muted);margin-right:4px;}
+.normalized-row{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:16px;font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);word-break:break-all;}
+.normalized-row button{margin-left:auto;white-space:nowrap;}
+.comp-table{width:100%;border-collapse:collapse;font-size:12px;font-family:'DM Mono',monospace;}
+.comp-table th{text-align:left;color:var(--text-muted);padding:6px 10px;border-bottom:1px solid var(--border);font-weight:600;}
+.comp-table td{padding:7px 10px;border-bottom:1px solid var(--border);color:var(--text);}
+.comp-table tr:last-child td{border-bottom:none;}
+.comp-table td.val{color:var(--accent);}
+.version-info{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-top:12px;font-size:13px;color:var(--text-muted);line-height:1.6;}
+.version-info strong{color:var(--text);}
+/* Bulk */
+.bulk-section{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px;}
+.bulk-textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;resize:vertical;outline:none;min-height:100px;transition:border-color .15s;}
+.bulk-textarea:focus{border-color:var(--accent);}
+.bulk-actions{display:flex;gap:8px;margin-top:10px;}
+.bulk-results{margin-top:14px;display:flex;flex-direction:column;gap:4px;max-height:280px;overflow-y:auto;}
+.bulk-item{display:flex;align-items:baseline;gap:8px;font-family:'DM Mono',monospace;font-size:12px;padding:5px 8px;border-radius:5px;background:var(--surface2);}
+.bulk-item .mark{width:14px;flex-shrink:0;}
+.mark-ok{color:var(--green);}
+.mark-err{color:var(--red);}
+.bulk-item .uuid-txt{color:var(--text-muted);word-break:break-all;}
+.bulk-item .ver-tag{color:var(--accent);flex-shrink:0;}
+.bulk-summary{font-size:12px;color:var(--text-muted);margin-top:8px;font-family:'DM Mono',monospace;}
+.bulk-summary .ok-cnt{color:var(--green);}
+.bulk-summary .err-cnt{color:var(--red);}
+/* SEO */
+.seo{margin-top:48px;padding-top:32px;border-top:1px solid var(--border);}
+.seo h2{font-size:16px;font-weight:700;margin-bottom:10px;}
+.seo p{font-size:13px;color:var(--text-muted);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text);}
+details.faq-item{border:1px solid var(--border);border-radius:8px;margin-bottom:8px;}
+details.faq-item summary{padding:12px 16px;font-size:13px;font-weight:600;cursor:pointer;list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item summary::before{content:'Q. ';color:var(--accent);}
+details.faq-item p{padding:0 16px 12px;font-size:13px;color:var(--text-muted);line-height:1.8;margin:0;}
+footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:40px;}
+</style>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<meta property="og:title" content="UUID Validator - UUID 검증기 | MODOO HUB">
+<meta property="og:description" content="UUID 유효성 검사, 버전 감지, 구성 요소 분석. 대량 UUID 일괄 검증.">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<meta property="og:url" content="https://modoohub.com/uuid-validator.html">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      "name": "UUID Validator",
+      "url": "https://modoohub.com/uuid-validator.html",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "All",
+      "offers": {"@type":"Offer","price":"0","priceCurrency":"USD"},
+      "description": "Validate UUID strings, detect version (v1-v5), variant, and show component breakdown. Bulk validate multiple UUIDs."
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {"@type":"Question","name":"What is a UUID?","acceptedAnswer":{"@type":"Answer","text":"A UUID (Universally Unique Identifier) is a 128-bit identifier standardized in RFC 4122, formatted as 8-4-4-4-12 hexadecimal digits, designed to be globally unique without a central authority."}},
+        {"@type":"Question","name":"What is the difference between UUID v1 and v4?","acceptedAnswer":{"@type":"Answer","text":"UUID v1 is time-based and includes a timestamp and MAC address, making it traceable. UUID v4 uses 122 bits of cryptographic randomness, offering better privacy and no traceability."}},
+        {"@type":"Question","name":"What makes a UUID unique?","acceptedAnswer":{"@type":"Answer","text":"UUID uniqueness comes from either cryptographic randomness (v4), hashing (v3/v5), or time+MAC address (v1). RFC 4122 also reserves specific bits for version and variant, reducing the collision space."}},
+        {"@type":"Question","name":"What is the nil UUID?","acceptedAnswer":{"@type":"Answer","text":"The nil UUID is 00000000-0000-0000-0000-000000000000 — all zeros. It is used as a placeholder or null value and is not considered a valid random UUID."}},
+        {"@type":"Question","name":"What is the probability of UUID collision?","acceptedAnswer":{"@type":"Answer","text":"For UUID v4, generating 1 billion per second would take ~85 years to reach a 50% probability of a single collision. In practice, collisions are negligible."}},
+        {"@type":"Question","name":"Should I use UUID as a database primary key?","acceptedAnswer":{"@type":"Answer","text":"UUID v4 works but its randomness causes B-tree fragmentation and slower writes. UUID v7 or ULID, which are time-ordered, are better for primary keys when insert performance matters."}},
+        {"@type":"Question","name":"Why does a UUID have hyphens and 36 characters?","acceptedAnswer":{"@type":"Answer","text":"RFC 4122 specifies the 8-4-4-4-12 hyphenated format. This groups fields logically: time_low, time_mid, time_hi_and_version, clock_seq, and node, totaling 32 hex chars + 4 hyphens = 36 characters."}},
+        {"@type":"Question","name":"How is UUID version detected?","acceptedAnswer":{"@type":"Answer","text":"The 13th character of a UUID (first char of the 3rd group) encodes the version number (1–5). The 17th character encodes the variant bits, indicating RFC 4122 compliance."}}
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="toggleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1 id="h1El">UUID <span>검증기</span></h1>
+  <p class="sub" id="subEl">UUID 유효성 검사·버전 감지·구성 요소 분석</p>
+
+  <!-- Single UUID -->
+  <div class="section-title" id="labelSingle">단일 UUID 검증</div>
+  <div class="input-row">
+    <input type="text" class="uuid-input" id="uuidInput"
+      placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+      oninput="onInputChange()" autocomplete="off" spellcheck="false">
+    <button class="btn btn-primary" onclick="doValidate()" id="btnValidate">검증</button>
+    <button class="btn btn-secondary" onclick="loadSample()" id="btnSample">샘플</button>
+  </div>
+
+  <!-- Result card -->
+  <div class="result-card" id="resultCard">
+    <div class="status-badge" id="statusBadge"></div>
+    <div class="meta-row" id="metaRow"></div>
+    <div class="normalized-row" id="normalizedRow"></div>
+    <div class="section-title" id="colComponent" style="margin-top:4px;">구성 요소</div>
+    <table class="comp-table" id="compTable">
+      <thead><tr><th id="thComp">필드</th><th id="thVal">값</th></tr></thead>
+      <tbody id="compBody"></tbody>
+    </table>
+    <div class="version-info" id="versionInfo"></div>
+  </div>
+
+  <!-- Bulk -->
+  <div class="bulk-section" style="margin-top:8px;">
+    <div class="section-title" id="labelBulk">일괄 검증</div>
+    <textarea class="bulk-textarea" id="bulkInput" id="bulkInput"
+      oninput="clearBulkResults()"></textarea>
+    <div class="bulk-actions">
+      <button class="btn btn-primary" onclick="doBulkValidate()" id="btnValidateAll">모두 검증</button>
+      <button class="btn btn-ghost" onclick="clearBulk()" id="btnClear">지우기</button>
+    </div>
+    <div class="bulk-results" id="bulkResults"></div>
+    <div class="bulk-summary" id="bulkSummary"></div>
+  </div>
+
+  <div class="seo" id="seoSection" data-i18n="seoHtml"></div>
+  <footer>UUID Validator · RFC 4122 · v1–v5</footer>
+</main>
+<script>
+const i18n = {
+  ko: {
+    pageTitle: 'UUID 검증기 - UUID Validator',
+    h1: 'UUID <span>검증기</span>',
+    sub: 'UUID 유효성 검사·버전 감지·구성 요소 분석',
+    backLink: '← 모두의 툴',
+    langBtn: '🌐 EN',
+    btnValidate: '검증',
+    btnSample: '샘플',
+    btnValidateAll: '모두 검증',
+    btnClear: '지우기',
+    btnCopy: '복사',
+    copyDone: '복사됨 ✓',
+    labelSingle: '단일 UUID 검증',
+    labelBulk: '일괄 검증',
+    labelBulkPlaceholder: '여러 UUID를 한 줄씩 입력하세요',
+    resultValid: '✓ 유효한 UUID',
+    resultInvalid: '✗ 유효하지 않은 UUID',
+    colComponent: '구성 요소',
+    colValue: '값',
+    thComp: '필드',
+    thVal: '값',
+    labelVersion: '버전',
+    labelVariant: '변형',
+    labelNormalized: '정규화',
+    versionDescs: {1:'시간 기반 (타임스탬프 + MAC 주소)',2:'DCE 보안 (시간 기반 확장)',3:'MD5 네임스페이스 해시',4:'완전 랜덤 (가장 널리 사용)',5:'SHA-1 네임스페이스 해시'},
+    bulkValid: '유효',
+    bulkInvalid: '오류',
+    bulkSummaryText: (ok, err) => `총 ${ok+err}개 · 유효 ${ok}개 · 오류 ${err}개`,
+    seoHtml: `<h2>UUID 검증이란?</h2>
+<p>UUID(Universally Unique Identifier)는 <strong>RFC 4122</strong> 표준을 따르는 128비트 고유 식별자입니다. 형식은 <strong>8-4-4-4-12</strong> 자리의 16진수로 구성되며, 예: <code>550e8400-e29b-41d4-a716-446655440000</code>. 데이터베이스 PK, 분산 시스템 ID, API 요청 추적 등에 폭넓게 활용됩니다.</p>
+<p>UUID 버전은 13번째 문자(세 번째 그룹 첫 글자)로 식별합니다. <strong>v1</strong>은 타임스탬프 + MAC 주소 기반, <strong>v3</strong>은 MD5 해시, <strong>v4</strong>는 완전 랜덤, <strong>v5</strong>는 SHA-1 해시, <strong>v2</strong>는 DCE 보안 확장입니다. 변형(Variant)은 17번째 문자로 구분하며 RFC 4122 표준에서는 8, 9, a, b 중 하나여야 합니다.</p>
+<details class="faq-item"><summary>UUID와 GUID의 차이는 무엇인가요?</summary><p>실질적으로 동일합니다. GUID(Globally Unique Identifier)는 Microsoft가 UUID를 자사 시스템에서 부르는 이름입니다. 형식과 알고리즘은 RFC 4122 UUID와 동일하지만, Windows에서는 중괄호({})로 감싸기도 합니다.</p></details>
+<details class="faq-item"><summary>UUID v1과 v4의 차이는?</summary><p>v1은 현재 시간과 MAC 주소를 결합하므로 생성 시각과 기기를 추적할 수 있습니다. v4는 122비트를 완전 무작위로 생성하여 프라이버시가 높습니다. 일반 용도에는 v4, 이벤트 시계열 추적에는 v1을 선택합니다.</p></details>
+<details class="faq-item"><summary>UUID v5와 v3은 무엇이 다른가요?</summary><p>둘 다 네임스페이스 + 이름을 입력으로 받아 결정론적(동일 입력 → 동일 출력) UUID를 생성합니다. v3은 MD5 해시, v5는 SHA-1 해시를 사용합니다. 보안상 SHA-1이 더 강력하므로 v5를 권장합니다.</p></details>
+<details class="faq-item"><summary>UUID를 고유하게 만드는 요소는?</summary><p>v4는 암호학적 난수(122비트), v1은 타임스탬프+MAC+클럭 시퀀스, v3/v5는 네임스페이스+이름의 해시입니다. RFC 4122의 버전·변형 비트 예약도 충돌 공간을 줄이는 역할을 합니다.</p></details>
+<details class="faq-item"><summary>nil UUID(영 UUID)란 무엇인가요?</summary><p>nil UUID는 모든 비트가 0인 <code>00000000-0000-0000-0000-000000000000</code> 입니다. 유효한 UUID이지만 실제 식별자로 사용되지 않으며, 존재하지 않음이나 null 값을 나타낼 때 씁니다.</p></details>
+<details class="faq-item"><summary>UUID 충돌 확률은 얼마나 되나요?</summary><p>UUID v4 기준, 1초당 10억 개를 생성해도 충돌 확률이 50%에 도달하려면 약 85년이 필요합니다. 실용적으로는 충돌을 걱정할 필요가 없습니다.</p></details>
+<details class="faq-item"><summary>데이터베이스 기본 키로 UUID를 쓰면 왜 느린가요?</summary><p>UUID v4의 무작위성 때문에 삽입할 때마다 B-트리 인덱스의 임의 위치에 접근해 페이지 분할이 잦아집니다. 정렬 가능한 UUID v7이나 ULID를 사용하면 쓰기 성능을 크게 개선할 수 있습니다.</p></details>
+<details class="faq-item"><summary>UUID 버전은 어떻게 감지하나요?</summary><p>UUID 문자열의 13번째 글자(세 번째 그룹 첫 자리)가 버전 번호(1~5)를 나타냅니다. 예: <code>550e8400-e29b-<strong>4</strong>1d4-a716-446655440000</code>에서 4가 v4를 의미합니다. 변형은 17번째 글자로 확인합니다.</p></details>`
+  },
+  en: {
+    pageTitle: 'UUID Validator - Free Online UUID Checker',
+    h1: 'UUID <span>Validator</span>',
+    sub: 'Validate UUIDs · Detect version · Analyze components',
+    backLink: '← All Tools',
+    langBtn: '🌐 中文',
+    btnValidate: 'Validate',
+    btnSample: 'Sample',
+    btnValidateAll: 'Validate All',
+    btnClear: 'Clear',
+    btnCopy: 'Copy',
+    copyDone: 'Copied ✓',
+    labelSingle: 'Single UUID Validation',
+    labelBulk: 'Bulk Validation',
+    labelBulkPlaceholder: 'Enter multiple UUIDs, one per line',
+    resultValid: '✓ Valid UUID',
+    resultInvalid: '✗ Invalid UUID',
+    colComponent: 'Components',
+    colValue: 'Value',
+    thComp: 'Field',
+    thVal: 'Value',
+    labelVersion: 'Version',
+    labelVariant: 'Variant',
+    labelNormalized: 'Normalized',
+    versionDescs: {1:'Time-based (timestamp + MAC address)',2:'DCE Security (time-based extension)',3:'MD5 namespace hash',4:'Fully random (most widely used)',5:'SHA-1 namespace hash'},
+    bulkValid: 'valid',
+    bulkInvalid: 'invalid',
+    bulkSummaryText: (ok, err) => `Total ${ok+err} · Valid ${ok} · Invalid ${err}`,
+    seoHtml: `<h2>UUID Validation Explained</h2>
+<p>A UUID (Universally Unique Identifier) is a 128-bit identifier standardized in <strong>RFC 4122</strong>. The format is <strong>8-4-4-4-12</strong> hexadecimal digits, e.g. <code>550e8400-e29b-41d4-a716-446655440000</code>. UUIDs are widely used as database primary keys, distributed system IDs, and API request trace IDs.</p>
+<p>The UUID version is encoded in the 13th character (first character of the 3rd group): <strong>v1</strong> = time + MAC, <strong>v3</strong> = MD5 hash, <strong>v4</strong> = random, <strong>v5</strong> = SHA-1 hash. The variant is encoded in the 17th character; RFC 4122 requires it to be 8, 9, a, or b.</p>
+<details class="faq-item"><summary>What is the difference between UUID and GUID?</summary><p>They are essentially identical. GUID (Globally Unique Identifier) is Microsoft's name for UUID. The format and algorithm follow RFC 4122, though Windows often wraps them in curly braces ({}).</p></details>
+<details class="faq-item"><summary>What is the difference between UUID v1 and v4?</summary><p>v1 combines the current timestamp with a MAC address, making the creation time and device traceable. v4 uses 122 bits of cryptographic randomness for better privacy. Use v4 for general IDs; v1 for time-series event tracking.</p></details>
+<details class="faq-item"><summary>How do UUID v3 and v5 differ?</summary><p>Both take a namespace + name as input and produce deterministic UUIDs (same input → same output). v3 uses MD5 hashing; v5 uses SHA-1. SHA-1 is stronger, so v5 is generally preferred.</p></details>
+<details class="faq-item"><summary>What makes a UUID unique?</summary><p>v4 uniqueness comes from 122 cryptographically random bits. v1 uses timestamp + MAC + clock sequence. v3/v5 use namespace + name hashing. RFC 4122 version and variant bits further narrow the collision space.</p></details>
+<details class="faq-item"><summary>What is the nil UUID?</summary><p>The nil UUID is <code>00000000-0000-0000-0000-000000000000</code> — all zeros. It is a valid UUID format but is used as a null/placeholder value, not as an actual identifier.</p></details>
+<details class="faq-item"><summary>How likely is a UUID collision?</summary><p>For UUID v4, generating 1 billion per second would take approximately 85 years to reach a 50% probability of collision. In practice, collisions are negligible.</p></details>
+<details class="faq-item"><summary>Why is UUID slow as a database primary key?</summary><p>UUID v4's randomness causes inserts to access arbitrary B-tree positions, leading to frequent page splits. Time-ordered UUID v7 or ULID dramatically improves write performance.</p></details>
+<details class="faq-item"><summary>How is UUID version detected?</summary><p>The 13th character of a UUID (first char of the 3rd group) encodes the version (1–5). Example: <code>550e8400-e29b-<strong>4</strong>1d4-...</code> — "4" means v4. The 17th character encodes the variant.</p></details>`
+  },
+  zh: {
+    pageTitle: 'UUID 验证器 - 在线 UUID 校验工具',
+    h1: 'UUID <span>验证器</span>',
+    sub: 'UUID 格式校验 · 版本检测 · 字段分析',
+    backLink: '← 首页',
+    langBtn: '🌐 日本語',
+    btnValidate: '验证',
+    btnSample: '示例',
+    btnValidateAll: '全部验证',
+    btnClear: '清空',
+    btnCopy: '复制',
+    copyDone: '已复制 ✓',
+    labelSingle: '单个 UUID 验证',
+    labelBulk: '批量验证',
+    labelBulkPlaceholder: '每行输入一个 UUID',
+    resultValid: '✓ 有效的 UUID',
+    resultInvalid: '✗ 无效的 UUID',
+    colComponent: '字段组成',
+    colValue: '值',
+    thComp: '字段',
+    thVal: '值',
+    labelVersion: '版本',
+    labelVariant: '变体',
+    labelNormalized: '规范化',
+    versionDescs: {1:'基于时间（时间戳 + MAC 地址）',2:'DCE 安全（时间基扩展）',3:'MD5 命名空间哈希',4:'完全随机（最广泛使用）',5:'SHA-1 命名空间哈希'},
+    bulkValid: '有效',
+    bulkInvalid: '无效',
+    bulkSummaryText: (ok, err) => `共 ${ok+err} 个 · 有效 ${ok} · 无效 ${err}`,
+    seoHtml: `<h2>UUID 验证说明</h2>
+<p>UUID（通用唯一标识符）是遵循 <strong>RFC 4122</strong> 标准的 128 位标识符，采用 <strong>8-4-4-4-12</strong> 十六进制格式，如：<code>550e8400-e29b-41d4-a716-446655440000</code>。广泛用于数据库主键、分布式系统 ID 和 API 请求追踪。</p>
+<p>UUID 版本由第 13 位字符（第 3 组首字符）标识：<strong>v1</strong>=时间+MAC、<strong>v3</strong>=MD5 哈希、<strong>v4</strong>=随机、<strong>v5</strong>=SHA-1 哈希。变体由第 17 位字符标识，RFC 4122 要求为 8、9、a 或 b 之一。</p>
+<details class="faq-item"><summary>UUID 和 GUID 有什么区别？</summary><p>实质上相同。GUID 是微软对 UUID 的叫法，格式和算法遵循 RFC 4122，但 Windows 系统中常用大括号 ({}) 包裹。</p></details>
+<details class="faq-item"><summary>UUID v1 和 v4 有什么不同？</summary><p>v1 结合当前时间戳和 MAC 地址生成，可追溯生成时间和设备；v4 使用 122 位加密随机数，隐私性更强。一般场景用 v4，时序事件追踪用 v1。</p></details>
+<details class="faq-item"><summary>UUID v3 和 v5 有什么区别？</summary><p>两者均以命名空间 + 名称为输入生成确定性 UUID（相同输入→相同输出）。v3 用 MD5，v5 用 SHA-1，安全性更强，推荐使用 v5。</p></details>
+<details class="faq-item"><summary>什么是 nil UUID？</summary><p>nil UUID 即 <code>00000000-0000-0000-0000-000000000000</code>，全为零，格式合法但用作空值/占位符，不作实际标识符使用。</p></details>
+<details class="faq-item"><summary>UUID 碰撞概率有多大？</summary><p>UUID v4 场景下，每秒生成 10 亿个，约需 85 年才有 50% 的碰撞概率，实际应用中可忽略不计。</p></details>
+<details class="faq-item"><summary>UUID 作为数据库主键为何性能差？</summary><p>UUID v4 的随机性导致 B 树索引频繁发生页分裂，写入性能低于自增 ID。使用可排序的 UUID v7 或 ULID 可显著提升写入性能。</p></details>
+<details class="faq-item"><summary>如何检测 UUID 版本？</summary><p>UUID 第 13 位字符（第 3 组首字符）表示版本号（1–5）。例：<code>550e8400-e29b-<strong>4</strong>1d4-...</code>中"4"表示 v4。第 17 位字符表示变体。</p></details>
+<details class="faq-item"><summary>UUID 为什么有连字符，共 36 个字符？</summary><p>RFC 4122 规定了 8-4-4-4-12 的连字符格式，将字段分组为：time_low、time_mid、time_hi_and_version、clock_seq、node，共 32 个十六进制字符加 4 个连字符 = 36 个字符。</p></details>`
+  },
+  ja: {
+    pageTitle: 'UUID バリデーター - 無料オンライン UUID 検証ツール',
+    h1: 'UUID <span>バリデーター</span>',
+    sub: 'UUID 妥当性検証 · バージョン検出 · フィールド分析',
+    backLink: '← ホーム',
+    langBtn: '🌐 한국어',
+    btnValidate: '検証',
+    btnSample: 'サンプル',
+    btnValidateAll: '一括検証',
+    btnClear: 'クリア',
+    btnCopy: 'コピー',
+    copyDone: 'コピー済み ✓',
+    labelSingle: '単一 UUID の検証',
+    labelBulk: '一括検証',
+    labelBulkPlaceholder: '1 行に 1 つずつ UUID を入力してください',
+    resultValid: '✓ 有効な UUID',
+    resultInvalid: '✗ 無効な UUID',
+    colComponent: 'コンポーネント',
+    colValue: '値',
+    thComp: 'フィールド',
+    thVal: '値',
+    labelVersion: 'バージョン',
+    labelVariant: 'バリアント',
+    labelNormalized: '正規化',
+    versionDescs: {1:'時刻ベース（タイムスタンプ + MAC アドレス）',2:'DCE セキュリティ（時刻ベース拡張）',3:'MD5 名前空間ハッシュ',4:'完全ランダム（最も広く使用）',5:'SHA-1 名前空間ハッシュ'},
+    bulkValid: '有効',
+    bulkInvalid: '無効',
+    bulkSummaryText: (ok, err) => `合計 ${ok+err} · 有効 ${ok} · 無効 ${err}`,
+    seoHtml: `<h2>UUID 検証とは？</h2>
+<p>UUID（Universally Unique Identifier）は <strong>RFC 4122</strong> で標準化された 128 ビットの識別子です。<strong>8-4-4-4-12</strong> の 16 進数形式で表現され、例：<code>550e8400-e29b-41d4-a716-446655440000</code>。DB 主キー、分散システム ID、API リクエスト追跡などに広く使用されます。</p>
+<p>UUID のバージョンは 13 文字目（3 番目グループの先頭文字）で識別します：<strong>v1</strong>=時刻+MAC、<strong>v3</strong>=MD5 ハッシュ、<strong>v4</strong>=ランダム、<strong>v5</strong>=SHA-1 ハッシュ。バリアントは 17 文字目で識別し、RFC 4122 では 8、9、a、b のいずれかが要求されます。</p>
+<details class="faq-item"><summary>UUID と GUID の違いは？</summary><p>実質的に同じです。GUID は Microsoft が UUID に付けた名称で、形式とアルゴリズムは RFC 4122 に準拠しています。Windows では中括弧 ({}) で囲まれることがあります。</p></details>
+<details class="faq-item"><summary>UUID v1 と v4 の違いは？</summary><p>v1 はタイムスタンプと MAC アドレスを組み合わせるため、生成時刻とデバイスが追跡可能です。v4 は 122 ビットの乱数を使用し、プライバシー性が高いです。一般用途には v4、時系列追跡には v1 を使用します。</p></details>
+<details class="faq-item"><summary>UUID v3 と v5 の違いは？</summary><p>両方とも名前空間 + 名前を入力として決定論的（同じ入力 → 同じ出力）UUID を生成します。v3 は MD5、v5 は SHA-1 ハッシュを使用します。セキュリティが強い v5 が推奨されます。</p></details>
+<details class="faq-item"><summary>nil UUID とは何ですか？</summary><p>nil UUID は <code>00000000-0000-0000-0000-000000000000</code>（全ゼロ）です。フォーマットとしては有効ですが、実際の識別子としては使用せず、null 値のプレースホルダーとして使います。</p></details>
+<details class="faq-item"><summary>UUID の衝突確率は？</summary><p>UUID v4 の場合、毎秒 10 億個生成しても衝突確率が 50% に達するまで約 85 年かかります。実用上は無視できます。</p></details>
+<details class="faq-item"><summary>UUID をデータベース主キーにすると遅い理由は？</summary><p>UUID v4 のランダム性により B ツリーインデックスのページ分割が頻発し、書き込み性能が低下します。時間順に並ぶ UUID v7 や ULID を使うと性能が大幅に改善されます。</p></details>
+<details class="faq-item"><summary>UUID のバージョンはどうやって検出しますか？</summary><p>UUID の 13 文字目（3 番目グループの先頭文字）がバージョン番号（1–5）を示します。例：<code>550e8400-e29b-<strong>4</strong>1d4-...</code> の「4」は v4 を意味します。バリアントは 17 文字目で確認します。</p></details>
+<details class="faq-item"><summary>UUID にハイフンがあり 36 文字なのはなぜ？</summary><p>RFC 4122 が 8-4-4-4-12 の形式を規定しており、time_low・time_mid・time_hi_and_version・clock_seq・node の各フィールドを分けています。32 の 16 進文字 + 4 つのハイフン = 36 文字になります。</p></details>`
+  }
+};
+
+const LANGS = ['ko','en','zh','ja'];
+let lang = 'ko';
+
+function detectLang() {
+  const u = new URLSearchParams(location.search).get('lang');
+  if (u && i18n[u]) return u;
+  const s = localStorage.getItem('modoo_lang');
+  if (s && i18n[s]) return s;
+  const n = (navigator.language || '').slice(0, 2);
+  return n === 'zh' ? 'zh' : n === 'ja' ? 'ja' : n === 'ko' ? 'ko' : 'en';
+}
+
+function applyLang() {
+  const t = i18n[lang];
+  document.documentElement.lang = lang;
+  document.title = t.pageTitle;
+  document.getElementById('h1El').innerHTML = t.h1;
+  document.getElementById('subEl').textContent = t.sub;
+  document.getElementById('backLink').textContent = t.backLink;
+  document.getElementById('langBtn').textContent = t.langBtn;
+  document.getElementById('btnValidate').textContent = t.btnValidate;
+  document.getElementById('btnSample').textContent = t.btnSample;
+  document.getElementById('btnValidateAll').textContent = t.btnValidateAll;
+  document.getElementById('btnClear').textContent = t.btnClear;
+  document.getElementById('labelSingle').textContent = t.labelSingle;
+  document.getElementById('labelBulk').textContent = t.labelBulk;
+  document.getElementById('colComponent').textContent = t.colComponent;
+  document.getElementById('thComp').textContent = t.thComp;
+  document.getElementById('thVal').textContent = t.thVal;
+  document.getElementById('bulkInput').placeholder = t.labelBulkPlaceholder;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const k = el.dataset.i18n;
+    if (t[k] !== undefined) el.innerHTML = t[k];
+  });
+  // Re-render result if visible
+  const card = document.getElementById('resultCard');
+  if (card.classList.contains('show')) doValidate();
+}
+
+function toggleLang() {
+  const idx = LANGS.indexOf(lang);
+  lang = LANGS[(idx + 1) % LANGS.length];
+  localStorage.setItem('modoo_lang', lang);
+  const url = new URL(location.href);
+  url.searchParams.set('lang', lang);
+  history.replaceState({}, '', url);
+  applyLang();
+}
+
+// ---------- Core validation ----------
+function validateUUID(uuid) {
+  const str = uuid.trim();
+  const regex = /^[0-9a-f]{8}-[0-9a-f]{4}-([1-5])[0-9a-f]{3}-([89ab])[0-9a-f]{3}-[0-9a-f]{12}$/i;
+  const m = str.match(regex);
+  if (!m) return { valid: false };
+  const version = parseInt(m[1]);
+  const variantChar = m[2].toLowerCase();
+  const variant = ['8','9','a','b'].includes(variantChar) ? 'RFC 4122' : 'Unknown';
+  const parts = str.split('-');
+  return {
+    valid: true, version, variant,
+    normalized: str.toLowerCase(),
+    components: {
+      time_low: parts[0],
+      time_mid: parts[1],
+      time_hi_version: parts[2],
+      clock_seq: parts[3],
+      node: parts[4]
+    }
+  };
+}
+
+function onInputChange() {
+  const val = document.getElementById('uuidInput').value.trim();
+  const inp = document.getElementById('uuidInput');
+  if (!val) { inp.className = 'uuid-input'; return; }
+  const r = validateUUID(val);
+  inp.className = 'uuid-input ' + (r.valid ? 'input-valid' : 'input-invalid');
+}
+
+function doValidate() {
+  const val = document.getElementById('uuidInput').value.trim();
+  if (!val) return;
+  const r = validateUUID(val);
+  const t = i18n[lang];
+  const card = document.getElementById('resultCard');
+  card.classList.add('show');
+
+  // Badge
+  const badge = document.getElementById('statusBadge');
+  if (r.valid) {
+    badge.className = 'status-badge badge-valid';
+    badge.textContent = t.resultValid;
+  } else {
+    badge.className = 'status-badge badge-invalid';
+    badge.textContent = t.resultInvalid;
+    document.getElementById('metaRow').innerHTML = '';
+    document.getElementById('normalizedRow').innerHTML = '';
+    document.getElementById('compBody').innerHTML = '';
+    document.getElementById('versionInfo').textContent = '';
+    return;
+  }
+
+  // Meta chips
+  document.getElementById('metaRow').innerHTML =
+    `<div class="meta-chip"><span>${t.labelVersion}</span>v${r.version}</div>` +
+    `<div class="meta-chip"><span>${t.labelVariant}</span>${r.variant}</div>`;
+
+  // Normalized
+  document.getElementById('normalizedRow').innerHTML =
+    `<span>${r.normalized}</span>` +
+    `<button class="btn btn-ghost" id="copyNormBtn" onclick="copyNorm()">${t.btnCopy}</button>`;
+
+  // Components table
+  const compRows = [
+    ['time_low', r.components.time_low],
+    ['time_mid', r.components.time_mid],
+    ['time_hi_and_version', r.components.time_hi_version],
+    ['clock_seq', r.components.clock_seq],
+    ['node', r.components.node],
+  ];
+  document.getElementById('compBody').innerHTML = compRows.map(([name, val]) =>
+    `<tr><td>${name}</td><td class="val">${val}</td></tr>`
+  ).join('');
+
+  // Version info
+  document.getElementById('versionInfo').innerHTML =
+    `<strong>v${r.version}:</strong> ${t.versionDescs[r.version] || ''}`;
+}
+
+function copyNorm() {
+  const t = i18n[lang];
+  const val = document.getElementById('uuidInput').value.trim().toLowerCase();
+  navigator.clipboard.writeText(val).then(() => {
+    const btn = document.getElementById('copyNormBtn');
+    if (btn) { btn.textContent = t.copyDone; setTimeout(() => { btn.textContent = t.btnCopy; }, 1800); }
+  });
+}
+
+function loadSample() {
+  document.getElementById('uuidInput').value = '550e8400-e29b-41d4-a716-446655440000';
+  onInputChange();
+  doValidate();
+}
+
+// ---------- Bulk ----------
+function clearBulkResults() {
+  document.getElementById('bulkResults').innerHTML = '';
+  document.getElementById('bulkSummary').innerHTML = '';
+}
+
+function doBulkValidate() {
+  const raw = document.getElementById('bulkInput').value;
+  const lines = raw.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  if (!lines.length) return;
+  const t = i18n[lang];
+  let ok = 0, err = 0;
+  const html = lines.map(line => {
+    const r = validateUUID(line);
+    if (r.valid) {
+      ok++;
+      return `<div class="bulk-item"><span class="mark mark-ok">✓</span><span class="uuid-txt">${escHtml(line)}</span><span class="ver-tag">v${r.version}</span></div>`;
+    } else {
+      err++;
+      return `<div class="bulk-item"><span class="mark mark-err">✗</span><span class="uuid-txt">${escHtml(line)}</span></div>`;
+    }
+  }).join('');
+  document.getElementById('bulkResults').innerHTML = html;
+  document.getElementById('bulkSummary').innerHTML =
+    `<span class="ok-cnt">${ok} ${t.bulkValid}</span> / <span class="err-cnt">${err} ${t.bulkInvalid}</span> — ${t.bulkSummaryText(ok, err)}`;
+}
+
+function clearBulk() {
+  document.getElementById('bulkInput').value = '';
+  clearBulkResults();
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Init
+lang = detectLang();
+applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="pageTitle">JSON 뷰어 - JSON 트리 탐색기</title>
+<meta name="description" content="JSON viewer online. Visualize JSON as an interactive collapsible tree. Click nodes to expand or collapse. Copy JSON path with one click. Free browser-based tool.">
+<meta name="keywords" content="JSON 뷰어, JSON viewer, JSON tree viewer, JSON explorer, JSON path, JSON 트리">
+<link rel="canonical" href="https://modoohub.com/json-viewer.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/json-viewer.html?lang=ko">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/json-viewer.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/json-viewer.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/json-viewer.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/json-viewer.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0a0a0a; --surface:#141414; --surface2:#1a1a1a; --border:#252525;
+    --accent:#fbbf24; --accent2:#f59e0b; --accent-dim:rgba(251,191,36,0.08);
+    --text:#f5f5f5; --text-muted:#888; --text-dim:#444;
+    --green:#4ade80; --red:#f87171; --blue:#60a5fa; --purple:#c084fc;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:'Noto Sans KR',sans-serif; min-height:100vh; }
+  header { border-bottom:1px solid var(--border); padding:20px 24px; display:flex; align-items:center; gap:12px; }
+  .dot { width:8px; height:8px; border-radius:50%; background:var(--accent); }
+  .header-label { font-size:13px; color:var(--text-muted); letter-spacing:0.1em; font-family:'DM Mono',monospace; }
+  .back-link { margin-left:auto; font-size:13px; color:var(--text-muted); text-decoration:none; }
+  .back-link:hover { color:var(--accent); }
+  .lang-toggle { font-size:12px; color:var(--text-muted); cursor:pointer; padding:4px 10px; border:1px solid var(--border); border-radius:6px; font-family:'DM Mono',monospace; transition:all 0.15s; margin-left:8px; }
+  .lang-toggle:hover { border-color:var(--accent); color:var(--accent); }
+  main { max-width:1100px; margin:0 auto; padding:40px 24px; }
+  h1 { font-size:clamp(24px,4vw,34px); font-weight:900; line-height:1.1; margin-bottom:10px; }
+  h1 span { color:var(--accent); }
+  .subtitle { color:var(--text-muted); font-size:14px; margin-bottom:28px; }
+  .toolbar { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; align-items:center; }
+  .btn { background:var(--surface2); border:1px solid var(--border); border-radius:7px; padding:7px 14px; font-size:13px; color:var(--text-muted); cursor:pointer; font-family:'Noto Sans KR',sans-serif; transition:all 0.15s; }
+  .btn:hover { border-color:var(--accent2); color:var(--accent); }
+  .btn.primary { background:var(--accent2); border-color:var(--accent2); color:#000; font-weight:700; }
+  .btn.primary:hover { opacity:0.85; color:#000; }
+  .btn.danger:hover { border-color:var(--red); color:var(--red); }
+
+  /* Two-panel layout */
+  .panels { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+  @media(max-width:700px) { .panels { grid-template-columns:1fr; } }
+  .panel { display:flex; flex-direction:column; }
+  .panel-label { font-size:11px; color:var(--text-dim); letter-spacing:0.08em; margin-bottom:8px; text-transform:uppercase; display:flex; justify-content:space-between; align-items:center; }
+  .copy-small { font-size:11px; color:var(--text-dim); cursor:pointer; padding:3px 8px; border:1px solid var(--border); border-radius:4px; transition:all 0.15s; }
+  .copy-small:hover { color:var(--accent); border-color:var(--accent2); }
+  textarea { width:100%; min-height:380px; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:16px; font-family:'DM Mono',monospace; font-size:13px; color:var(--text); outline:none; resize:vertical; line-height:1.6; }
+  textarea:focus { border-color:var(--accent2); }
+  textarea.error { border-color:var(--red); }
+  textarea.success { border-color:var(--green); }
+
+  /* Tree panel */
+  .tree-panel { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:16px; min-height:380px; overflow:auto; font-family:'DM Mono',monospace; font-size:13px; line-height:1.7; }
+  .tree-empty { color:var(--text-dim); font-size:13px; font-family:'DM Mono',monospace; }
+
+  /* Path bar */
+  .path-bar { display:flex; align-items:center; gap:8px; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:8px 14px; margin-bottom:16px; font-size:12px; }
+  .path-label { color:var(--text-dim); flex-shrink:0; }
+  .path-value { font-family:'DM Mono',monospace; color:var(--accent); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .path-copy { font-size:11px; color:var(--text-dim); cursor:pointer; padding:2px 8px; border:1px solid var(--border); border-radius:4px; transition:all 0.15s; flex-shrink:0; }
+  .path-copy:hover { color:var(--accent); border-color:var(--accent2); }
+
+  /* Status */
+  .status { display:flex; align-items:center; gap:10px; padding:8px 16px; border-radius:8px; font-size:13px; margin-bottom:12px; }
+  .status.idle { background:var(--surface); border:1px solid var(--border); color:var(--text-muted); }
+  .status.ok { background:rgba(74,222,128,0.08); border:1px solid rgba(74,222,128,0.3); color:var(--green); }
+  .status.err { background:rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.3); color:var(--red); }
+  .status-dot { width:7px; height:7px; border-radius:50%; background:currentColor; flex-shrink:0; }
+
+  /* Tree nodes */
+  .tree-node { padding-left:18px; position:relative; }
+  .tree-node.root-node { padding-left:0; }
+  .tree-row { display:flex; align-items:baseline; gap:6px; cursor:default; padding:1px 0; border-radius:4px; }
+  .tree-row:hover { background:var(--accent-dim); }
+  .tree-row.clickable { cursor:pointer; }
+  .tree-toggle { color:var(--text-dim); font-size:10px; width:14px; flex-shrink:0; user-select:none; transition:transform .15s; display:inline-block; }
+  .tree-toggle.open { transform:rotate(90deg); }
+  .tree-key { color:var(--accent); }
+  .tree-colon { color:var(--text-dim); }
+  .tree-val-string { color:var(--green); }
+  .tree-val-number { color:var(--blue); }
+  .tree-val-boolean { color:var(--purple); }
+  .tree-val-null { color:var(--red); opacity:0.7; font-style:italic; }
+  .tree-val-summary { color:var(--text-dim); font-size:11px; }
+  .type-badge { font-size:10px; padding:1px 5px; border-radius:3px; font-family:'DM Mono',monospace; opacity:0.6; }
+  .badge-string { background:rgba(74,222,128,0.15); color:var(--green); }
+  .badge-number { background:rgba(96,165,250,0.15); color:var(--blue); }
+  .badge-boolean { background:rgba(192,132,252,0.15); color:var(--purple); }
+  .badge-null { background:rgba(248,113,113,0.15); color:var(--red); }
+  .badge-object { background:var(--accent-dim); color:var(--accent); }
+  .badge-array { background:var(--accent-dim); color:var(--accent2); }
+  .tree-children { border-left:1px solid var(--border); margin-left:6px; }
+
+  .seo { border-top:1px solid var(--border); padding-top:32px; }
+  .seo h2 { font-size:16px; font-weight:700; margin-bottom:12px; }
+  .seo p { font-size:13px; color:var(--text-muted); line-height:1.8; margin-bottom:24px; }
+  footer { text-align:center; font-size:12px; color:var(--text-dim); margin-top:48px; padding-bottom:32px; }
+
+  details.faq-item { border:1px solid var(--border); border-radius:10px; margin-bottom:8px; overflow:hidden; }
+  details.faq-item summary { font-size:14px; font-weight:600; padding:14px 18px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; background:var(--surface); user-select:none; list-style:none; }
+  details.faq-item summary::-webkit-details-marker { display:none; }
+  details.faq-item summary::after { content:'▼'; font-size:11px; color:var(--text-muted); transition:transform .2s; flex-shrink:0; margin-left:12px; }
+  details.faq-item[open] summary::after { transform:rotate(180deg); }
+  details.faq-item summary:hover { color:var(--accent); }
+  details.faq-item p { font-size:13px; color:var(--text-muted); line-height:1.8; padding:0 18px 14px; background:var(--surface); }
+  .faq-section { margin-top:40px; border-top:1px solid var(--border); padding-top:32px; }
+  .faq-section h2 { font-size:16px; font-weight:700; margin-bottom:16px; }
+</style>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-NR6VJF0534');
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<meta property="og:title" content="JSON 뷰어 | MODOO HUB">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What does a JSON viewer do?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A JSON viewer renders raw JSON as an interactive collapsible tree, making it easy to navigate nested structures, identify data types, and explore large JSON documents without reading compressed text."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I navigate large JSON with a tree viewer?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Click any object or array node to collapse it and hide its children, reducing visual clutter. Use Expand All to open every node at once or Collapse All to fold the entire tree back to the root level."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is JSON path notation?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "JSON path notation uses $ to represent the root and dot notation for keys (e.g. $.user.name) or bracket notation for arrays (e.g. $.roles[0]). It uniquely identifies any value within a JSON document."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I use a JSON viewer with API responses?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Copy the raw JSON body from your browser's DevTools Network tab or from Postman and paste it into the viewer. The tree immediately shows the full structure, data types, and values of the response."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How is a JSON viewer different from browser DevTools?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Browser DevTools show JSON only for live network requests. This standalone viewer lets you paste any JSON — from files, logs, clipboard, or a text editor — and explore it as a tree with path copying and expand/collapse controls."
+      }
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "JSON Viewer",
+  "url": "https://modoohub.com/json-viewer.html",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "All",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "description": "Free online JSON viewer. Visualize JSON as an interactive collapsible tree. Click nodes to expand or collapse. Copy JSON path with one click. All processing runs in your browser."
+}
+</script>
+</head>
+<body>
+<header>
+  <div class="dot"></div>
+  <span class="header-label">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <div class="lang-toggle" onclick="toggleLang()" id="langBtn">🌐 EN</div>
+</header>
+<main>
+  <h1 id="h1Title">JSON<br><span>뷰어</span></h1>
+  <p class="subtitle" id="h1Sub">JSON을 트리 구조로 시각화하여 탐색합니다</p>
+
+  <div class="toolbar">
+    <button class="btn primary" id="btnView" onclick="renderView()">보기 →</button>
+    <button class="btn" id="btnPaste" onclick="pasteClipboard()">붙여넣기</button>
+    <button class="btn" id="btnExpand" onclick="expandAll()">모두 펼치기</button>
+    <button class="btn" id="btnCollapse" onclick="collapseAll()">모두 접기</button>
+    <button class="btn danger" id="btnClear" onclick="clearAll()">지우기</button>
+  </div>
+
+  <div class="status idle" id="status">
+    <div class="status-dot"></div>
+    <span id="statusText">JSON을 입력하거나 붙여넣으세요</span>
+  </div>
+
+  <div class="path-bar" id="pathBar">
+    <span class="path-label" id="pathLabel">경로</span>
+    <span class="path-value" id="pathValue">—</span>
+    <span class="path-copy" id="copyPathBtn" onclick="copyPath()">복사</span>
+  </div>
+
+  <div class="panels">
+    <div class="panel">
+      <div class="panel-label">
+        <span id="labelInput">입력</span>
+        <span class="copy-small" id="copyInputBtn" onclick="copyInput()">복사</span>
+      </div>
+      <textarea id="taInput" placeholder='{"name":"Alice","roles":["admin"]}' oninput="onInput()"></textarea>
+    </div>
+    <div class="panel">
+      <div class="panel-label">
+        <span id="labelOutput">트리</span>
+      </div>
+      <div class="tree-panel" id="treePanel">
+        <span class="tree-empty" id="outputPlaceholder">트리가 여기에 표시됩니다</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="seo" id="seoSection"></div>
+
+  <footer id="footerText">모든 처리는 브라우저에서만 이루어집니다 · 서버로 전송되지 않습니다</footer>
+</main>
+<script>
+// ── i18n ────────────────────────────────────────────────────────────
+const i18n = {
+  ko: {
+    pageTitle: 'JSON 뷰어 - JSON 트리 탐색기',
+    h1: 'JSON<br><span>뷰어</span>',
+    sub: 'JSON을 트리 구조로 시각화하여 탐색합니다',
+    backLink: '← 모두의 툴',
+    langBtn: '🌐 EN',
+    btnView: '보기 →',
+    btnPaste: '붙여넣기',
+    btnExpand: '모두 펼치기',
+    btnCollapse: '모두 접기',
+    btnClear: '지우기',
+    labelInput: '입력',
+    labelOutput: '트리',
+    pathLabel: '경로',
+    copyPath: '복사',
+    copyDone: '복사됨 ✓',
+    statusIdle: 'JSON을 입력하거나 붙여넣으세요',
+    statusOk: '✓ 렌더링 완료',
+    statusErr: '✗ JSON 오류',
+    placeholder: '{"name":"Alice","roles":["admin"]}',
+    outputPlaceholder: '트리가 여기에 표시됩니다',
+    footer: '모든 처리는 브라우저에서만 이루어집니다 · 서버로 전송되지 않습니다',
+    seoHtml: `<h2>JSON 뷰어란?</h2>
+<p>JSON 뷰어는 평탄한 JSON 문자열을 접고 펼칠 수 있는 대화형 트리로 시각화하는 도구입니다. REST API 응답, 설정 파일, 로그 데이터 등 중첩이 깊은 JSON을 분석할 때 가독성을 크게 높여줍니다. 각 노드에는 데이터 타입 배지(string, number, boolean, null, array, object)가 표시되고, 노드를 클릭하면 JSON 경로(예: $.user.name)를 클립보드에 복사할 수 있습니다. 모든 처리는 브라우저 내에서만 실행되므로 민감한 데이터도 안전하게 탐색할 수 있습니다.</p>
+<div class="faq-section"><h2>자주 묻는 질문</h2>
+<details class="faq-item"><summary>JSON 뷰어는 포맷터와 어떻게 다른가요?</summary><p>JSON 포맷터는 들여쓰기된 텍스트로 출력합니다. JSON 뷰어는 트리 구조로 시각화하여 중첩 관계를 한눈에 파악하고, 각 노드를 접거나 펼치며 필요한 부분에 집중할 수 있습니다.</p></details>
+<details class="faq-item"><summary>대용량 JSON을 트리로 어떻게 탐색하나요?</summary><p>먼저 "모두 접기"로 루트 레벨만 표시한 뒤 관심 있는 키를 클릭해 펼치세요. 반대로 "모두 펼치기"를 사용하면 전체 구조를 한번에 볼 수 있습니다.</p></details>
+<details class="faq-item"><summary>JSON 경로 표기법이란 무엇인가요?</summary><p>$를 루트로 사용하고 점 표기법($.user.name) 또는 대괄호 표기법($.roles[0])으로 JSON 내의 특정 값을 고유하게 식별합니다. API 응답 파싱 코드 작성 시 유용합니다.</p></details>
+<details class="faq-item"><summary>API 응답과 함께 어떻게 사용하나요?</summary><p>브라우저 개발자 도구의 네트워크 탭이나 Postman에서 응답 JSON을 복사한 뒤 입력 창에 붙여넣고 "보기 →" 버튼을 클릭하세요. 즉시 트리 구조로 시각화됩니다.</p></details>
+<details class="faq-item"><summary>브라우저 개발자 도구와의 차이점은 무엇인가요?</summary><p>브라우저 개발자 도구는 실시간 네트워크 요청에서만 JSON을 시각화합니다. 이 도구는 파일, 로그, 클립보드 등 어디서 가져온 JSON이든 붙여넣어 독립적으로 탐색할 수 있습니다.</p></details>
+</div>`
+  },
+  en: {
+    pageTitle: 'JSON Viewer - Interactive JSON Tree Explorer',
+    h1: 'JSON<br><span>Viewer</span>',
+    sub: 'Visualize JSON as an interactive collapsible tree',
+    backLink: '← Modoo Hub',
+    langBtn: '🌐 中文',
+    btnView: 'View →',
+    btnPaste: 'Paste',
+    btnExpand: 'Expand All',
+    btnCollapse: 'Collapse All',
+    btnClear: 'Clear',
+    labelInput: 'Input',
+    labelOutput: 'Tree',
+    pathLabel: 'Path',
+    copyPath: 'Copy',
+    copyDone: 'Copied ✓',
+    statusIdle: 'Paste or type your JSON here',
+    statusOk: '✓ Rendered',
+    statusErr: '✗ JSON error',
+    placeholder: '{"name":"Alice","roles":["admin"]}',
+    outputPlaceholder: 'Tree will appear here',
+    footer: 'All processing runs in your browser · Never sent to any server',
+    seoHtml: `<h2>What is a JSON Viewer?</h2>
+<p>A JSON Viewer renders raw JSON as an interactive collapsible tree, making it far easier to explore deeply nested structures than reading compressed or indented text. Each node displays its data type as a colour-coded badge (string, number, boolean, null, array, object). Click any node to expand or collapse it, and click any leaf or key to copy its full JSON path (e.g. $.user.name) to the clipboard. All processing runs locally in your browser — paste API keys, tokens, or sensitive payloads without any privacy risk.</p>
+<div class="faq-section"><h2>Frequently Asked Questions</h2>
+<details class="faq-item"><summary>What does a JSON viewer do vs a formatter?</summary><p>A JSON formatter outputs indented text. A JSON viewer renders the data as a collapsible tree so you can see nesting relationships at a glance, hide irrelevant branches, and focus on the part of the structure you care about.</p></details>
+<details class="faq-item"><summary>How do I navigate large JSON with the tree viewer?</summary><p>Start by clicking Collapse All to show only the root level, then click individual nodes to open the branches you're interested in. Or click Expand All to see the complete structure at once.</p></details>
+<details class="faq-item"><summary>What is JSON path notation?</summary><p>JSON path uses $ for the root and dot notation for keys ($.user.name) or bracket notation for array indices ($.roles[0]). It uniquely identifies any value within a JSON document and is useful when writing parsing code.</p></details>
+<details class="faq-item"><summary>How do I use this with API responses?</summary><p>Copy the raw JSON from your browser's DevTools Network tab, Postman, or any HTTP client, paste it into the input panel, then click View →. The tree renders immediately, showing the full structure, types, and values.</p></details>
+<details class="faq-item"><summary>How is this different from browser DevTools?</summary><p>Browser DevTools only visualize JSON for live network requests inside the same browser session. This standalone viewer accepts any JSON you paste — from files, logs, text editors, or a clipboard — and lets you explore it independently.</p></details>
+</div>`
+  },
+  zh: {
+    pageTitle: 'JSON 查看器 - 在线 JSON 树形浏览',
+    h1: 'JSON<br><span>查看器</span>',
+    sub: '将 JSON 可视化为交互式可折叠树',
+    backLink: '← 首页',
+    langBtn: '🌐 日本語',
+    btnView: '查看 →',
+    btnPaste: '粘贴',
+    btnExpand: '展开全部',
+    btnCollapse: '折叠全部',
+    btnClear: '清空',
+    labelInput: '输入 JSON',
+    labelOutput: '树形视图',
+    pathLabel: '路径',
+    copyPath: '复制',
+    copyDone: '已复制 ✓',
+    statusIdle: '请粘贴或输入 JSON',
+    statusOk: '✓ 渲染完成',
+    statusErr: '✗ JSON 错误',
+    placeholder: '{"name":"Alice","roles":["admin"]}',
+    outputPlaceholder: '树形视图将在此显示',
+    footer: '所有处理均在浏览器本地完成 · 不会发送到任何服务器',
+    seoHtml: `<h2>什么是 JSON 查看器？</h2>
+<p>JSON 查看器将原始 JSON 字符串渲染为可交互折叠的树形结构，使探索深度嵌套的数据比阅读压缩文本或缩进文本容易得多。每个节点都以彩色徽章显示其数据类型（string、number、boolean、null、array、object）。点击任意节点可展开或折叠，点击任意叶节点或键可将完整 JSON 路径（如 $.user.name）复制到剪贴板。所有处理均在浏览器本地完成，可放心粘贴 API 密钥、令牌等敏感数据。</p>
+<div class="faq-section"><h2>常见问题</h2>
+<details class="faq-item"><summary>JSON 查看器与格式化有什么区别？</summary><p>JSON 格式化输出缩进文本；JSON 查看器将数据渲染为可折叠树，一眼即可看出嵌套关系，还可隐藏不相关的分支，聚焦于感兴趣的部分。</p></details>
+<details class="faq-item"><summary>如何用树形视图浏览大型 JSON？</summary><p>先点击"折叠全部"只显示根层级，再点击感兴趣的节点逐层展开。或点击"展开全部"一次性查看完整结构。</p></details>
+<details class="faq-item"><summary>什么是 JSON 路径表示法？</summary><p>JSON 路径用 $ 表示根，用点表示法表示键（$.user.name）或方括号表示数组索引（$.roles[0]），可唯一标识 JSON 文档中的任意值，编写解析代码时非常实用。</p></details>
+<details class="faq-item"><summary>如何配合 API 响应使用？</summary><p>从浏览器开发者工具的网络面板、Postman 或任意 HTTP 客户端复制原始 JSON，粘贴到输入区域后点击"查看 →"，树形结构将立即渲染完成。</p></details>
+<details class="faq-item"><summary>与浏览器开发者工具有什么区别？</summary><p>浏览器开发者工具只能可视化当前会话中的实时网络请求。本工具接受您粘贴的任何 JSON——来自文件、日志、文本编辑器或剪贴板——并支持独立浏览。</p></details>
+</div>`
+  },
+  ja: {
+    pageTitle: 'JSON ビューアー - JSON ツリーエクスプローラー',
+    h1: 'JSON<br><span>ビューアー</span>',
+    sub: 'JSON をインタラクティブな折り畳みツリーで可視化',
+    backLink: '← ホーム',
+    langBtn: '🌐 한국어',
+    btnView: '表示 →',
+    btnPaste: '貼り付け',
+    btnExpand: 'すべて展開',
+    btnCollapse: 'すべて折りたたむ',
+    btnClear: 'クリア',
+    labelInput: '入力',
+    labelOutput: 'ツリー',
+    pathLabel: 'パス',
+    copyPath: 'コピー',
+    copyDone: 'コピー完了 ✓',
+    statusIdle: 'JSONを入力または貼り付けてください',
+    statusOk: '✓ レンダリング完了',
+    statusErr: '✗ JSON エラー',
+    placeholder: '{"name":"Alice","roles":["admin"]}',
+    outputPlaceholder: 'ツリーがここに表示されます',
+    footer: 'すべての処理はブラウザ内のみで行われます · サーバーには送信されません',
+    seoHtml: `<h2>JSON ビューアーとは？</h2>
+<p>JSON ビューアーは、生の JSON 文字列をインタラクティブな折り畳み可能ツリーとして描画するツールです。深くネストされたデータ構造を、圧縮テキストやインデントテキストを読むよりもはるかに簡単に探索できます。各ノードにはデータ型をカラーコードで示すバッジ（string・number・boolean・null・array・object）が表示されます。ノードをクリックして展開または折りたたみ、リーフや任意のキーをクリックすると完全な JSON パス（例：$.user.name）がクリップボードにコピーされます。すべての処理がブラウザ内で完結するため、API キーやトークンを含む機密データも安全に貼り付けて使用できます。</p>
+<div class="faq-section"><h2>よくある質問</h2>
+<details class="faq-item"><summary>JSON ビューアーとフォーマッターの違いは？</summary><p>JSON フォーマッターはインデントされたテキストを出力します。JSON ビューアーはデータを折り畳み可能なツリーとして描画し、ネスト構造を一目で把握でき、不要なブランチを隠して目的の部分に集中できます。</p></details>
+<details class="faq-item"><summary>大きな JSON をツリービューアーで探索するには？</summary><p>まず「すべて折りたたむ」でルートレベルのみ表示し、興味のあるノードをクリックして展開します。または「すべて展開」で構造全体を一度に確認できます。</p></details>
+<details class="faq-item"><summary>JSON パス表記法とは何ですか？</summary><p>JSON パスは $ をルートとして使用し、キーにはドット表記（$.user.name）、配列インデックスには括弧表記（$.roles[0]）を使います。JSON 文書内の任意の値を一意に特定でき、解析コードを書く際に役立ちます。</p></details>
+<details class="faq-item"><summary>API レスポンスで使うには？</summary><p>ブラウザの DevTools のネットワークタブや Postman などから生の JSON をコピーして入力欄に貼り付け、「表示 →」をクリックします。ツリーが即座に描画されます。</p></details>
+<details class="faq-item"><summary>ブラウザ DevTools との違いは何ですか？</summary><p>ブラウザ DevTools は同じブラウザセッション内のライブネットワークリクエストの JSON のみを可視化します。このツールはファイル・ログ・テキストエディタ・クリップボードなど、どこから持ってきた JSON でも貼り付けて独立して探索できます。</p></details>
+</div>`
+  }
+};
+
+// ── 言語検出 ────────────────────────────────────────────────────────
+let lang = (new URLSearchParams(location.search).get('lang')) || localStorage.getItem('modoo_lang');
+if (!lang || !i18n[lang]) {
+  const nav = navigator.language || '';
+  if (nav.startsWith('zh')) lang = 'zh';
+  else if (nav.startsWith('ja')) lang = 'ja';
+  else if (nav.startsWith('ko')) lang = 'ko';
+  else lang = 'en';
+}
+
+function applyLang() {
+  const t = i18n[lang];
+  document.documentElement.lang = lang;
+  document.title = t.pageTitle;
+  if (document.getElementById('h1Title')) document.getElementById('h1Title').innerHTML = t.h1;
+  if (document.getElementById('h1Sub')) document.getElementById('h1Sub').textContent = t.sub;
+  if (document.getElementById('backLink')) document.getElementById('backLink').textContent = t.backLink;
+  if (document.getElementById('langBtn')) document.getElementById('langBtn').textContent = t.langBtn;
+  if (document.getElementById('btnView')) document.getElementById('btnView').textContent = t.btnView;
+  if (document.getElementById('btnPaste')) document.getElementById('btnPaste').textContent = t.btnPaste;
+  if (document.getElementById('btnExpand')) document.getElementById('btnExpand').textContent = t.btnExpand;
+  if (document.getElementById('btnCollapse')) document.getElementById('btnCollapse').textContent = t.btnCollapse;
+  if (document.getElementById('btnClear')) document.getElementById('btnClear').textContent = t.btnClear;
+  if (document.getElementById('labelInput')) document.getElementById('labelInput').textContent = t.labelInput;
+  if (document.getElementById('labelOutput')) document.getElementById('labelOutput').textContent = t.labelOutput;
+  if (document.getElementById('pathLabel')) document.getElementById('pathLabel').textContent = t.pathLabel;
+  if (document.getElementById('copyPathBtn')) document.getElementById('copyPathBtn').textContent = t.copyPath;
+  if (document.getElementById('copyInputBtn')) document.getElementById('copyInputBtn').textContent = t.copyPath;
+  if (document.getElementById('footerText')) document.getElementById('footerText').textContent = t.footer;
+  if (document.getElementById('seoSection')) document.getElementById('seoSection').innerHTML = t.seoHtml;
+  if (document.getElementById('taInput')) document.getElementById('taInput').placeholder = t.placeholder;
+  const placeholder = document.getElementById('outputPlaceholder');
+  if (placeholder) placeholder.textContent = t.outputPlaceholder;
+  // idle status text
+  const st = document.getElementById('status');
+  if (st && st.classList.contains('idle')) {
+    document.getElementById('statusText').textContent = t.statusIdle;
+  }
+}
+
+function toggleLang() {
+  const order = ['ko', 'en', 'zh', 'ja'];
+  const idx = order.indexOf(lang);
+  lang = order[(idx + 1) % order.length];
+  localStorage.setItem('modoo_lang', lang);
+  const url = new URL(location.href);
+  url.searchParams.set('lang', lang);
+  history.replaceState(null, '', url.toString());
+  applyLang();
+}
+
+// ── Tree rendering ───────────────────────────────────────────────────
+let currentPath = '$';
+
+function typeOf(val) {
+  if (val === null) return 'null';
+  if (Array.isArray(val)) return 'array';
+  return typeof val;
+}
+
+function badgeClass(type) {
+  return 'type-badge badge-' + type;
+}
+
+function renderTree(obj, container, path) {
+  if (path === undefined) path = '$';
+  container.innerHTML = '';
+  const node = buildNode(obj, null, path, true);
+  container.appendChild(node);
+}
+
+function buildNode(val, key, path, isRoot) {
+  const type = typeOf(val);
+  const wrapper = document.createElement('div');
+  wrapper.className = 'tree-node' + (isRoot ? ' root-node' : '');
+
+  const isComplex = type === 'object' || type === 'array';
+  const row = document.createElement('div');
+  row.className = 'tree-row' + (isComplex ? ' clickable' : '');
+
+  // Toggle arrow for complex nodes
+  const toggle = document.createElement('span');
+  toggle.className = 'tree-toggle open';
+  toggle.textContent = '▶';
+  if (!isComplex) toggle.style.visibility = 'hidden';
+  row.appendChild(toggle);
+
+  // Key
+  if (key !== null) {
+    const keyEl = document.createElement('span');
+    keyEl.className = 'tree-key';
+    keyEl.textContent = typeof key === 'number' ? '[' + key + ']' : '"' + key + '"';
+    row.appendChild(keyEl);
+    const colon = document.createElement('span');
+    colon.className = 'tree-colon';
+    colon.textContent = ':';
+    row.appendChild(colon);
+  }
+
+  // Type badge
+  const badge = document.createElement('span');
+  badge.className = badgeClass(type);
+  badge.textContent = type;
+  row.appendChild(badge);
+
+  // Value or summary
+  if (!isComplex) {
+    const valEl = document.createElement('span');
+    valEl.className = 'tree-val-' + type;
+    if (type === 'string') valEl.textContent = '"' + val + '"';
+    else if (type === 'null') valEl.textContent = 'null';
+    else valEl.textContent = String(val);
+    row.appendChild(valEl);
+  } else {
+    const summary = document.createElement('span');
+    summary.className = 'tree-val-summary';
+    const count = Array.isArray(val) ? val.length : Object.keys(val).length;
+    summary.textContent = type === 'array'
+      ? '[ ' + count + ' items ]'
+      : '{ ' + count + ' keys }';
+    row.appendChild(summary);
+  }
+
+  // Click handler to copy path
+  row.addEventListener('click', function(e) {
+    e.stopPropagation();
+    currentPath = path;
+    document.getElementById('pathValue').textContent = path;
+    if (isComplex) {
+      const children = wrapper.querySelector('.tree-children');
+      if (children) {
+        const hidden = children.style.display === 'none';
+        children.style.display = hidden ? '' : 'none';
+        toggle.className = 'tree-toggle' + (hidden ? ' open' : '');
+      }
+    }
+  });
+
+  wrapper.appendChild(row);
+
+  // Children
+  if (isComplex) {
+    const childrenEl = document.createElement('div');
+    childrenEl.className = 'tree-children';
+    if (Array.isArray(val)) {
+      val.forEach(function(item, i) {
+        childrenEl.appendChild(buildNode(item, i, path + '[' + i + ']', false));
+      });
+    } else {
+      Object.keys(val).forEach(function(k) {
+        childrenEl.appendChild(buildNode(val[k], k, path + '.' + k, false));
+      });
+    }
+    wrapper.appendChild(childrenEl);
+  }
+
+  return wrapper;
+}
+
+function setStatus(type, msg) {
+  const el = document.getElementById('status');
+  el.className = 'status ' + type;
+  document.getElementById('statusText').textContent = msg;
+}
+
+function renderView() {
+  const text = document.getElementById('taInput').value.trim();
+  if (!text) {
+    setStatus('idle', i18n[lang].statusIdle);
+    document.getElementById('treePanel').innerHTML = '<span class="tree-empty">' + i18n[lang].outputPlaceholder + '</span>';
+    return;
+  }
+  try {
+    const obj = JSON.parse(text);
+    document.getElementById('taInput').className = 'success';
+    const panel = document.getElementById('treePanel');
+    renderTree(obj, panel, '$');
+    currentPath = '$';
+    document.getElementById('pathValue').textContent = '$';
+    setStatus('ok', i18n[lang].statusOk);
+  } catch(e) {
+    document.getElementById('taInput').className = 'error';
+    setStatus('err', i18n[lang].statusErr + ': ' + e.message);
+    document.getElementById('treePanel').innerHTML = '<span class="tree-empty">' + i18n[lang].outputPlaceholder + '</span>';
+  }
+}
+
+function onInput() {
+  const text = document.getElementById('taInput').value.trim();
+  if (!text) {
+    document.getElementById('taInput').className = '';
+    setStatus('idle', i18n[lang].statusIdle);
+    return;
+  }
+  // Auto-render on input
+  renderView();
+}
+
+function expandAll() {
+  const panel = document.getElementById('treePanel');
+  panel.querySelectorAll('.tree-children').forEach(function(el){ el.style.display = ''; });
+  panel.querySelectorAll('.tree-toggle').forEach(function(el){ el.className = 'tree-toggle open'; });
+}
+
+function collapseAll() {
+  const panel = document.getElementById('treePanel');
+  // collapse all except root's immediate children container
+  const allChildren = panel.querySelectorAll('.tree-children');
+  allChildren.forEach(function(el, i) {
+    if (i > 0) el.style.display = 'none';
+  });
+  panel.querySelectorAll('.tree-toggle').forEach(function(el, i) {
+    if (i > 0) el.className = 'tree-toggle';
+  });
+}
+
+function clearAll() {
+  document.getElementById('taInput').value = '';
+  document.getElementById('taInput').className = '';
+  document.getElementById('treePanel').innerHTML = '<span class="tree-empty" id="outputPlaceholder">' + i18n[lang].outputPlaceholder + '</span>';
+  document.getElementById('pathValue').textContent = '—';
+  currentPath = '$';
+  setStatus('idle', i18n[lang].statusIdle);
+}
+
+function copyPath() {
+  const path = document.getElementById('pathValue').textContent;
+  if (!path || path === '—') return;
+  navigator.clipboard.writeText(path).then(function() {
+    const btn = document.getElementById('copyPathBtn');
+    btn.textContent = i18n[lang].copyDone;
+    btn.style.color = 'var(--green)';
+    setTimeout(function(){ btn.textContent = i18n[lang].copyPath; btn.style.color = ''; }, 2000);
+  });
+}
+
+function copyInput() {
+  const text = document.getElementById('taInput').value;
+  if (!text) return;
+  navigator.clipboard.writeText(text).then(function() {
+    const btn = document.getElementById('copyInputBtn');
+    btn.textContent = i18n[lang].copyDone;
+    btn.style.color = 'var(--green)';
+    setTimeout(function(){ btn.textContent = i18n[lang].copyPath; btn.style.color = ''; }, 2000);
+  });
+}
+
+async function pasteClipboard() {
+  try {
+    const text = await navigator.clipboard.readText();
+    document.getElementById('taInput').value = text;
+    renderView();
+  } catch(e) {
+    setStatus('err', 'Clipboard access denied');
+  }
+}
+
+// ── Init ────────────────────────────────────────────────────────────
+applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

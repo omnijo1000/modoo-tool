@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UTM Builder - UTM 파라미터 빌더 & 캠페인 URL 생성기</title>
+<meta name="description" content="UTM 파라미터를 간편하게 추가해 캠페인 추적 URL을 생성하세요. Google Analytics, GA4 캠페인 추적용 utm_source, utm_medium, utm_campaign 지원.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/utm-builder.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/utm-builder.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/utm-builder.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/utm-builder.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/utm-builder.html">
+<link rel="canonical" href="https://modoohub.com/utm-builder.html">
+<meta property="og:title" content="UTM Builder - UTM 파라미터 빌더 & 캠페인 URL 생성기">
+<meta property="og:description" content="UTM 파라미터를 추가해 마케팅 캠페인 추적 URL을 생성하세요. Google Analytics GA4 완벽 호환.">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<meta property="og:url" content="https://modoohub.com/utm-builder.html">
+<meta property="og:type" content="website">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;font-family:'DM Mono',monospace;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;font-family:'DM Mono',monospace;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:760px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:20px;line-height:1.6;}
+.presets{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+.preset-btn{padding:6px 14px;border:1px solid var(--border);border-radius:20px;font-size:12px;font-family:'DM Mono',monospace;cursor:pointer;background:none;color:var(--text-muted);transition:all .15s;}
+.preset-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(251,191,36,.06);}
+.form-grid{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
+.field-row{display:flex;flex-direction:column;gap:6px;}
+.field-label{font-size:11px;color:var(--text-dim);letter-spacing:.06em;text-transform:uppercase;font-family:'DM Mono',monospace;display:flex;align-items:center;gap:6px;}
+.field-req{font-size:9px;color:var(--accent);padding:1px 5px;background:rgba(251,191,36,.1);border-radius:3px;}
+.field-opt{font-size:9px;color:var(--text-dim);padding:1px 5px;background:var(--surface2);border-radius:3px;}
+.field-input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-size:13px;outline:none;font-family:'Noto Sans KR',sans-serif;transition:border-color .15s;}
+.field-input:focus{border-color:var(--accent);}
+.field-input.err{border-color:var(--red);}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}
+.chip{padding:4px 10px;border:1px solid var(--border);border-radius:14px;font-size:11px;font-family:'DM Mono',monospace;cursor:pointer;color:var(--text-dim);background:none;transition:all .15s;}
+.chip:hover{border-color:var(--accent);color:var(--accent);}
+.chip.active{border-color:var(--accent);background:rgba(251,191,36,.1);color:var(--accent);}
+.output-section{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px;}
+.output-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.output-label{font-size:11px;color:var(--text-dim);letter-spacing:.06em;text-transform:uppercase;font-family:'DM Mono',monospace;}
+.url-length{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;}
+.url-length.long{color:var(--red);}
+textarea.output-ta{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;resize:vertical;min-height:80px;outline:none;line-height:1.6;word-break:break-all;}
+textarea.output-ta:focus{border-color:var(--border);}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.btn{padding:8px 16px;border:1px solid var(--border);border-radius:7px;font-size:13px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;background:none;color:var(--text-muted);transition:all .15s;}
+.btn:hover{border-color:var(--accent);color:var(--accent);}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;}
+.btn.primary:hover{opacity:.85;}
+.btn.danger:hover{border-color:var(--red);color:var(--red);}
+.shorten-note{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;margin-top:6px;}
+.shorten-note a{color:var(--text-dim);text-decoration:underline;}
+.ref-table{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:28px;}
+.ref-head{display:grid;grid-template-columns:130px 1fr 1fr;padding:9px 14px;background:var(--surface2);font-size:10px;font-family:'DM Mono',monospace;color:var(--text-dim);letter-spacing:.06em;}
+.ref-row{display:grid;grid-template-columns:130px 1fr 1fr;padding:10px 14px;border-top:1px solid var(--border);font-size:12px;align-items:start;}
+@media(max-width:500px){.ref-head,.ref-row{grid-template-columns:100px 1fr 1fr;}}
+.ref-row:hover{background:var(--surface2);}
+.ref-param{font-family:'DM Mono',monospace;color:var(--accent);}
+.ref-req-badge{font-size:9px;color:var(--accent);margin-left:4px;}
+.ref-desc{font-size:12px;color:var(--text-muted);line-height:1.6;}
+.ref-ex{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim);}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:12px;}
+.seo strong{color:var(--text);}
+details.faq-item{border:1px solid var(--border);border-radius:8px;margin-bottom:8px;}
+details.faq-item summary{padding:12px 16px;font-size:13px;font-weight:600;cursor:pointer;list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item summary::before{content:'Q. ';color:var(--accent);}
+details.faq-item p{padding:0 16px 12px;font-size:13px;color:var(--text-dim);line-height:1.8;margin:0;}
+footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:32px;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"FAQPage",
+  "mainEntity":[
+    {"@type":"Question","name":"UTM 파라미터란 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"UTM(Urchin Tracking Module) 파라미터는 URL에 추가하는 쿼리 문자열로, Google Analytics 등 분석 도구가 트래픽의 출처(source)·매체(medium)·캠페인(campaign)을 추적할 수 있게 합니다."}},
+    {"@type":"Question","name":"필수 UTM 파라미터는 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"utm_source, utm_medium, utm_campaign이 필수입니다. utm_term(유료 검색 키워드)과 utm_content(A/B 테스트)는 선택 사항입니다."}},
+    {"@type":"Question","name":"utm_source와 utm_medium의 차이는?","acceptedAnswer":{"@type":"Answer","text":"utm_source는 트래픽이 온 곳(예: google, newsletter, facebook)이고, utm_medium은 마케팅 채널 유형(예: cpc, email, social)입니다."}},
+    {"@type":"Question","name":"UTM 파라미터는 대소문자를 구분하나요?","acceptedAnswer":{"@type":"Answer","text":"네. Google Analytics는 UTM 값을 대소문자 구분해 처리합니다. 'Google'과 'google'은 별개 소스로 집계됩니다. 일관성을 위해 소문자를 사용하는 것을 강력히 권장합니다."}},
+    {"@type":"Question","name":"UTM 값에 공백을 사용할 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"공백은 URL에서 %20 또는 +로 인코딩됩니다. 가독성과 일관성을 위해 공백 대신 하이픈(-)이나 언더스코어(_)를 사용하는 것이 좋습니다."}},
+    {"@type":"Question","name":"QR 코드에도 UTM을 사용할 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"네. QR 코드가 가리키는 URL에 UTM 파라미터를 추가하면 QR 코드를 통한 트래픽을 별도로 추적할 수 있습니다. utm_medium=qr_code, utm_source=offline_flyer 등을 활용하세요."}},
+    {"@type":"Question","name":"내부 링크에 UTM을 사용하면 안 되나요?","acceptedAnswer":{"@type":"Answer","text":"내부 링크(같은 도메인 내 이동)에 UTM을 사용하면 세션이 분리되어 직접 유입으로 오해될 수 있습니다. UTM은 외부 트래픽 소스 추적에만 사용하세요."}},
+    {"@type":"Question","name":"GA4와 UA(Universal Analytics)에서 UTM 처리 방식이 다른가요?","acceptedAnswer":{"@type":"Answer","text":"GA4는 세션 기반이 아닌 이벤트 기반으로 UTM을 처리하며, UTM 데이터가 이벤트 매개변수로 기록됩니다. 기본적인 UTM 파라미터(5가지)는 GA4에서도 동일하게 동작합니다."}}
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebApplication",
+  "name":"UTM Builder",
+  "url":"https://modoohub.com/utm-builder.html",
+  "applicationCategory":"UtilitiesApplication",
+  "operatingSystem":"All",
+  "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},
+  "description":"Build UTM-tagged campaign tracking URLs for Google Analytics. Add utm_source, utm_medium, utm_campaign and more with live URL preview."
+}
+</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>UTM <span id="h1Span">빌더</span></h1>
+  <p class="sub" id="subEl">캠페인 추적 URL 생성 · UTM 파라미터 빌더</p>
+
+  <div class="presets" id="presetsEl"></div>
+
+  <div class="form-grid">
+    <div class="field-row">
+      <label class="field-label" for="fBaseUrl" id="labelBaseUrl">Base URL <span class="field-req" id="reqBadge">필수</span></label>
+      <input type="url" id="fBaseUrl" class="field-input" oninput="buildUTM()">
+    </div>
+    <div class="field-row">
+      <label class="field-label" for="fSource">utm_source <span class="field-req" id="reqBadge2">필수</span></label>
+      <input type="text" id="fSource" class="field-input" oninput="buildUTM()">
+    </div>
+    <div class="field-row">
+      <label class="field-label" for="fMedium">utm_medium <span class="field-req" id="reqBadge3">필수</span></label>
+      <input type="text" id="fMedium" class="field-input" oninput="buildUTM()">
+      <div class="chips" id="mediumChips"></div>
+    </div>
+    <div class="field-row">
+      <label class="field-label" for="fCampaign">utm_campaign <span class="field-req" id="reqBadge4">필수</span></label>
+      <input type="text" id="fCampaign" class="field-input" oninput="buildUTM()">
+    </div>
+    <div class="field-row">
+      <label class="field-label" for="fTerm">utm_term <span class="field-opt" id="optBadge1">선택</span></label>
+      <input type="text" id="fTerm" class="field-input" oninput="buildUTM()">
+    </div>
+    <div class="field-row">
+      <label class="field-label" for="fContent">utm_content <span class="field-opt" id="optBadge2">선택</span></label>
+      <input type="text" id="fContent" class="field-input" oninput="buildUTM()">
+    </div>
+  </div>
+
+  <div class="output-section">
+    <div class="output-header">
+      <span class="output-label" id="labelOutput">생성된 URL</span>
+      <span class="url-length" id="urlLengthEl">0 chars</span>
+    </div>
+    <textarea class="output-ta" id="outputUrl" readonly></textarea>
+    <div class="btn-row">
+      <button class="btn primary" id="btnCopy" onclick="copyUrl()">복사</button>
+      <button class="btn danger" id="btnReset" onclick="resetForm()">초기화</button>
+      <button class="btn" id="btnShorten" onclick="openShortener()">단축 URL (bit.ly)</button>
+    </div>
+    <div class="shorten-note" id="shortenNote">bit.ly에서 단축 URL을 생성할 수 있습니다.</div>
+  </div>
+
+  <div class="ref-table" id="refTableEl"></div>
+
+  <div class="seo" id="seoDiv"></div>
+  <footer>UTM Builder · Free Online Tool · modoohub.com</footer>
+</main>
+<script>
+const MEDIUM_CHIPS=['cpc','email','social','organic','referral','display'];
+const PRESETS={
+  google:{source:'google',medium:'cpc'},
+  facebook:{source:'facebook',medium:'social'},
+  email:{source:'newsletter',medium:'email'},
+  instagram:{source:'instagram',medium:'social'},
+};
+
+const _i18n={
+  ko:{
+    pageTitle:'UTM 빌더 - 캠페인 추적 URL 생성기 | MODOO HUB',
+    h1Span:'빌더',
+    sub:'캠페인 추적 URL 생성 · UTM 파라미터 빌더',
+    backLink:'← 모두의 툴',langBtn:'🌐 EN',
+    labelBaseUrl:'Base URL',labelSource:'utm_source',labelMedium:'utm_medium',
+    labelCampaign:'utm_campaign',labelTerm:'utm_term',labelContent:'utm_content',
+    labelOutput:'생성된 URL',
+    btnCopy:'복사',copyDone:'복사됨 ✓',btnReset:'초기화',btnShorten:'단축 URL (bit.ly)',
+    shortenNote:'bit.ly에서 단축 URL을 생성할 수 있습니다.',
+    urlLength:'문자',
+    placeholderUrl:'https://example.com/landing',
+    placeholderSource:'google, newsletter, facebook',
+    placeholderMedium:'cpc, email, social',
+    placeholderCampaign:'spring-sale-2025',
+    placeholderTerm:'키워드 (유료 검색)',
+    placeholderContent:'banner-a, cta-1 (A/B 테스트)',
+    presetGoogle:'Google Ads',presetFacebook:'Facebook Ads',
+    presetEmail:'이메일',presetInstagram:'Instagram',
+    reqBadge:'필수',optBadge:'선택',
+    refHead:['파라미터','목적','예시'],
+    refRows:[
+      ['utm_source','트래픽이 온 곳 (필수)','google, newsletter, facebook'],
+      ['utm_medium','마케팅 채널 유형 (필수)','cpc, email, social'],
+      ['utm_campaign','캠페인 이름 (필수)','spring-sale, brand-2025'],
+      ['utm_term','유료 검색 키워드 (선택)','running+shoes'],
+      ['utm_content','A/B 테스트용 구분자 (선택)','banner-a, cta-blue'],
+    ],
+    seoHtml:`<h2>UTM 파라미터란?</h2><p>UTM(Urchin Tracking Module) 파라미터는 URL에 추가하는 쿼리 문자열로, Google Analytics 등 웹 분석 도구가 <strong>트래픽의 출처와 캠페인 성과를 추적</strong>할 수 있게 합니다. utm_source, utm_medium, utm_campaign 세 가지가 필수이며, 유료 검색에는 utm_term, A/B 테스트에는 utm_content를 추가합니다. UTM 파라미터를 올바르게 사용하면 어느 채널·광고·이메일이 가장 많은 전환을 만드는지 정확히 파악할 수 있습니다.</p>
+<details class="faq-item"><summary>UTM 파라미터란 무엇인가요?</summary><p>UTM은 Urchin Tracking Module의 약자로, URL에 붙이는 5개의 쿼리 파라미터(source, medium, campaign, term, content)입니다. Google Analytics가 이 값을 읽어 각 캠페인의 트래픽과 전환을 분리 집계합니다. UTM이 없으면 다양한 채널의 유입이 Direct로 뭉쳐 성과 분석이 어렵습니다.</p></details>
+<details class="faq-item"><summary>필수 파라미터와 선택 파라미터는?</summary><p>utm_source(어디서), utm_medium(어떤 채널), utm_campaign(어떤 캠페인)이 필수입니다. utm_term은 Google Ads 등 유료 검색 키워드 추적에 사용하고, utm_content는 동일 캠페인 내 배너·CTA 등 A/B 테스트 구분에 활용합니다. 3개 필수 파라미터만 있어도 기본 추적이 가능합니다.</p></details>
+<details class="faq-item"><summary>utm_source와 utm_medium의 차이는?</summary><p>utm_source는 트래픽의 출처(예: google, facebook, weekly-newsletter)이고, utm_medium은 마케팅 채널의 유형(예: cpc, social, email)입니다. 같은 소스라도 매체가 다를 수 있습니다. 예: source=google&medium=cpc(유료광고)와 source=google&medium=organic(자연검색)은 별개로 집계됩니다.</p></details>
+<details class="faq-item"><summary>UTM 파라미터는 대소문자를 구분하나요?</summary><p>네. Google Analytics는 UTM 값을 대소문자 구분해 처리합니다. "Google"과 "google"은 별개 소스로 집계됩니다. 반드시 소문자로 일관성 있게 사용하세요. 이 도구는 입력 값을 자동으로 소문자로 변환합니다.</p></details>
+<details class="faq-item"><summary>UTM 값에 공백을 사용할 수 있나요?</summary><p>기술적으로 가능하지만 URL에서 %20 또는 +로 인코딩됩니다. 가독성과 일관성을 위해 공백 대신 하이픈(-) 또는 언더스코어(_)를 사용하는 것을 강력히 권장합니다. 예: spring-sale-2025.</p></details>
+<details class="faq-item"><summary>QR 코드에도 UTM을 사용할 수 있나요?</summary><p>네. QR 코드가 링크하는 URL에 UTM 파라미터를 포함시키면 QR 코드를 통한 오프라인 트래픽을 Google Analytics에서 별도로 추적할 수 있습니다. utm_source=qr_code, utm_medium=offline, utm_campaign=store_flyer 같이 설정합니다.</p></details>
+<details class="faq-item"><summary>내부 링크에 UTM을 사용하면 안 되나요?</summary><p>절대 사용하지 마세요. 같은 도메인 내 내부 링크에 UTM을 붙이면 세션이 분리되어 새로운 세션으로 집계되고, 실제 외부 유입 데이터가 왜곡됩니다. UTM은 외부 채널(광고, 이메일, SNS 등)에서 사이트로 오는 링크에만 사용하세요.</p></details>
+<details class="faq-item"><summary>GA4와 UA(Universal Analytics)에서 UTM 처리 방식이 다른가요?</summary><p>GA4는 이벤트 기반으로 UTM 데이터를 처리합니다. 기본 5개 UTM 파라미터는 GA4에서도 동일하게 동작하지만, 보고서 위치가 다릅니다. GA4에서는 탐색 보고서(Exploration) → 캠페인 데이터에서 UTM별 성과를 확인할 수 있습니다.</p></details>`,
+  },
+  en:{
+    pageTitle:'UTM Builder - Campaign URL Generator | MODOO HUB',
+    h1Span:'Builder',
+    sub:'Build UTM campaign tracking URLs · UTM parameter builder',
+    backLink:'← All Tools',langBtn:'🌐 中文',
+    labelBaseUrl:'Base URL',labelSource:'utm_source',labelMedium:'utm_medium',
+    labelCampaign:'utm_campaign',labelTerm:'utm_term',labelContent:'utm_content',
+    labelOutput:'Generated URL',
+    btnCopy:'Copy',copyDone:'Copied ✓',btnReset:'Reset',btnShorten:'Shorten (bit.ly)',
+    shortenNote:'Open bit.ly to create a shortened version of this URL.',
+    urlLength:'chars',
+    placeholderUrl:'https://example.com/landing',
+    placeholderSource:'google, newsletter, facebook',
+    placeholderMedium:'cpc, email, social',
+    placeholderCampaign:'spring-sale-2025',
+    placeholderTerm:'keyword (paid search)',
+    placeholderContent:'banner-a, cta-1 (A/B test)',
+    presetGoogle:'Google Ads',presetFacebook:'Facebook Ads',
+    presetEmail:'Email Campaign',presetInstagram:'Instagram',
+    reqBadge:'required',optBadge:'optional',
+    refHead:['Parameter','Purpose','Example'],
+    refRows:[
+      ['utm_source','Where traffic came from (required)','google, newsletter, facebook'],
+      ['utm_medium','Marketing channel type (required)','cpc, email, social'],
+      ['utm_campaign','Campaign name (required)','spring-sale, brand-2025'],
+      ['utm_term','Paid search keyword (optional)','running+shoes'],
+      ['utm_content','A/B test differentiator (optional)','banner-a, cta-blue'],
+    ],
+    seoHtml:`<h2>UTM Parameters Explained</h2><p>UTM (Urchin Tracking Module) parameters are query strings appended to URLs, letting Google Analytics and other tools <strong>attribute traffic to specific campaigns, channels, and sources</strong>. Three parameters are required: utm_source, utm_medium, and utm_campaign. Add utm_term for paid search keywords and utm_content for A/B creative variants. Properly tagged URLs reveal exactly which channels, ads, and emails drive the most conversions.</p>
+<details class="faq-item"><summary>What are UTM parameters?</summary><p>UTM parameters are five optional query string fields (source, medium, campaign, term, content) that analytics tools read to segment incoming traffic. Without UTM tags, paid ads, email campaigns, and social posts often show up as "direct" traffic — making campaign attribution impossible.</p></details>
+<details class="faq-item"><summary>Which UTM parameters are required vs optional?</summary><p>Required: utm_source (who sent it), utm_medium (marketing channel), utm_campaign (campaign name). Optional: utm_term for paid keyword tracking, utm_content to distinguish ads or links in A/B tests. The three required parameters are sufficient for basic campaign tracking.</p></details>
+<details class="faq-item"><summary>utm_source vs utm_medium — what's the difference?</summary><p>utm_source is the specific origin (e.g., google, facebook, weekly-newsletter). utm_medium is the channel category (e.g., cpc, social, email). Both can differ for the same traffic: source=google&medium=cpc (paid ad) vs source=google&medium=organic (unpaid search) are tracked separately.</p></details>
+<details class="faq-item"><summary>Are UTM parameters case sensitive?</summary><p>Yes. Google Analytics treats UTM values as case-sensitive — "Google" and "google" appear as separate sources in reports. Always use lowercase for consistency. This tool auto-lowercases all UTM values on input.</p></details>
+<details class="faq-item"><summary>Can I use spaces in UTM values?</summary><p>Technically yes, but spaces become %20 or + in the URL, reducing readability. Use hyphens (-) or underscores (_) instead. Example: spring-sale-2025 instead of spring sale 2025.</p></details>
+<details class="faq-item"><summary>Can I use UTM tracking on QR codes?</summary><p>Yes — add UTM parameters to the destination URL before generating the QR code. This lets you track offline traffic (flyers, posters, packaging) in Google Analytics. Example: utm_source=qr_code&utm_medium=offline&utm_campaign=store_flyer.</p></details>
+<details class="faq-item"><summary>Should I add UTM tags to internal links?</summary><p>No. Adding UTM parameters to internal links (same domain) creates new sessions in Analytics, splitting what should be one visit and corrupting attribution data. Use UTM tags only on inbound links from external sources (ads, email, social).</p></details>
+<details class="faq-item"><summary>Does GA4 handle UTM differently than Universal Analytics?</summary><p>GA4 processes UTMs as event parameters (event-based model) rather than session attributes. All five standard UTM parameters work the same. In GA4, find UTM data in Acquisition reports → Traffic Acquisition → Session source/medium and in Explorations.</p></details>`,
+  },
+  zh:{
+    pageTitle:'UTM 链接生成器 - 营销活动追踪URL | MODOO HUB',
+    h1Span:'链接生成器',
+    sub:'生成营销活动追踪URL · UTM参数构建工具',
+    backLink:'← 所有工具',langBtn:'🌐 日本語',
+    labelBaseUrl:'目标URL',labelSource:'utm_source',labelMedium:'utm_medium',
+    labelCampaign:'utm_campaign',labelTerm:'utm_term',labelContent:'utm_content',
+    labelOutput:'生成的URL',
+    btnCopy:'复制',copyDone:'已复制 ✓',btnReset:'重置',btnShorten:'短链接 (bit.ly)',
+    shortenNote:'可前往bit.ly生成短链接。',
+    urlLength:'字符',
+    placeholderUrl:'https://example.com/landing',
+    placeholderSource:'google, newsletter, facebook',
+    placeholderMedium:'cpc, email, social',
+    placeholderCampaign:'spring-sale-2025',
+    placeholderTerm:'关键词（付费搜索）',
+    placeholderContent:'banner-a, cta-1（A/B测试）',
+    presetGoogle:'Google Ads',presetFacebook:'Facebook Ads',
+    presetEmail:'邮件营销',presetInstagram:'Instagram',
+    reqBadge:'必填',optBadge:'选填',
+    refHead:['参数','用途','示例'],
+    refRows:[
+      ['utm_source','流量来源（必填）','google, newsletter, facebook'],
+      ['utm_medium','营销渠道类型（必填）','cpc, email, social'],
+      ['utm_campaign','营销活动名称（必填）','spring-sale, brand-2025'],
+      ['utm_term','付费搜索关键词（选填）','running+shoes'],
+      ['utm_content','A/B测试区分标识（选填）','banner-a, cta-blue'],
+    ],
+    seoHtml:`<h2>UTM参数是什么？</h2><p>UTM（Urchin Tracking Module）参数是追加在URL后面的查询字符串，帮助Google Analytics等分析工具<strong>追踪流量来源和营销活动效果</strong>。utm_source、utm_medium、utm_campaign为必填项，付费搜索可加utm_term，A/B测试可加utm_content。正确使用UTM参数，可精准了解哪个渠道、广告或邮件带来了最多转化。</p>
+<details class="faq-item"><summary>UTM参数是什么？</summary><p>UTM是5个可选的URL查询参数（source、medium、campaign、term、content），分析工具通过读取这些参数来区分不同流量来源。没有UTM标记时，付费广告、邮件营销、社交媒体的流量往往被归类为"直接流量"，无法进行活动归因。</p></details>
+<details class="faq-item"><summary>哪些UTM参数是必填的？</summary><p>utm_source（来源）、utm_medium（渠道）、utm_campaign（活动名称）为必填项。utm_term用于付费搜索关键词追踪，utm_content用于A/B测试区分，均为选填。仅需3个必填参数即可实现基本的活动追踪。</p></details>
+<details class="faq-item"><summary>utm_source和utm_medium有什么区别？</summary><p>utm_source是具体来源（如google、facebook、weekly-newsletter），utm_medium是渠道类别（如cpc、social、email）。同一来源可有不同渠道：source=google&medium=cpc（付费广告）与source=google&medium=organic（自然搜索）分别统计。</p></details>
+<details class="faq-item"><summary>UTM参数区分大小写吗？</summary><p>区分。Google Analytics将"Google"和"google"视为不同来源。建议始终使用小写以保持一致性。本工具会自动将输入值转换为小写。</p></details>
+<details class="faq-item"><summary>UTM值中可以使用空格吗？</summary><p>技术上可以，但空格在URL中会被编码为%20或+，影响可读性。建议用连字符（-）或下划线（_）代替空格，例如spring-sale-2025。</p></details>
+<details class="faq-item"><summary>二维码可以使用UTM追踪吗？</summary><p>可以。在生成二维码之前，将UTM参数加入目标URL即可追踪线下流量（传单、海报等）。例如：utm_source=qr_code&utm_medium=offline&utm_campaign=store_flyer。</p></details>
+<details class="faq-item"><summary>内部链接不能用UTM吗？</summary><p>不要在内部链接（同一域名内）使用UTM，否则会创建新会话，导致本应属于同一次访问的数据被拆分，破坏归因准确性。UTM仅应用于来自外部渠道（广告、邮件、社交媒体）的入站链接。</p></details>
+<details class="faq-item"><summary>GA4与UA处理UTM的方式有何不同？</summary><p>GA4以事件为基础处理UTM数据（而非会话），5个标准UTM参数的使用方式相同。在GA4中，可通过"流量获取"报告（会话来源/媒介）或"探索"功能查看UTM数据。</p></details>`,
+  },
+  ja:{
+    pageTitle:'UTMビルダー - キャンペーンURL生成ツール | MODOO HUB',
+    h1Span:'ビルダー',
+    sub:'キャンペーン追跡URL生成 · UTMパラメータビルダー',
+    backLink:'← ホーム',langBtn:'🌐 한국어',
+    labelBaseUrl:'ベースURL',labelSource:'utm_source',labelMedium:'utm_medium',
+    labelCampaign:'utm_campaign',labelTerm:'utm_term',labelContent:'utm_content',
+    labelOutput:'生成されたURL',
+    btnCopy:'コピー',copyDone:'コピー完了 ✓',btnReset:'リセット',btnShorten:'短縮URL (bit.ly)',
+    shortenNote:'bit.lyで短縮URLを作成できます。',
+    urlLength:'文字',
+    placeholderUrl:'https://example.com/landing',
+    placeholderSource:'google, newsletter, facebook',
+    placeholderMedium:'cpc, email, social',
+    placeholderCampaign:'spring-sale-2025',
+    placeholderTerm:'キーワード（有料検索）',
+    placeholderContent:'banner-a, cta-1（A/Bテスト）',
+    presetGoogle:'Google Ads',presetFacebook:'Facebook Ads',
+    presetEmail:'メールキャンペーン',presetInstagram:'Instagram',
+    reqBadge:'必須',optBadge:'任意',
+    refHead:['パラメータ','用途','例'],
+    refRows:[
+      ['utm_source','流入元（必須）','google, newsletter, facebook'],
+      ['utm_medium','マーケティングチャネル種別（必須）','cpc, email, social'],
+      ['utm_campaign','キャンペーン名（必須）','spring-sale, brand-2025'],
+      ['utm_term','有料検索キーワード（任意）','running+shoes'],
+      ['utm_content','A/Bテスト識別子（任意）','banner-a, cta-blue'],
+    ],
+    seoHtml:`<h2>UTMパラメータとは</h2><p>UTM（Urchin Tracking Module）パラメータはURLに追加するクエリ文字列で、Google Analyticsなどのツールが<strong>トラフィックの流入元とキャンペーン効果を追跡</strong>できるようにします。utm_source・utm_medium・utm_campaignが必須で、有料検索にはutm_term、A/Bテストにはutm_contentを追加します。</p>
+<details class="faq-item"><summary>UTMパラメータとは何ですか？</summary><p>UTMは5つのURLクエリパラメータ（source・medium・campaign・term・content）で、分析ツールがこれを読み取ってトラフィックを分類します。UTMがないと広告・メール・SNSからの流入が「ダイレクト」としてまとめられ、正確なキャンペーン評価が困難になります。</p></details>
+<details class="faq-item"><summary>必須・任意のパラメータはどれですか？</summary><p>utm_source（どこから）・utm_medium（どのチャネル）・utm_campaign（どのキャンペーン）が必須です。utm_termは有料検索キーワード追跡、utm_contentはA/Bテスト識別に使います。3つの必須パラメータのみで基本的な追跡が可能です。</p></details>
+<details class="faq-item"><summary>utm_sourceとutm_mediumの違いは？</summary><p>utm_sourceは具体的な流入元（例：google・facebook・weekly-newsletter）、utm_mediumはチャネルの種類（例：cpc・social・email）です。source=google&medium=cpc（有料広告）とsource=google&medium=organic（自然検索）は別々に集計されます。</p></details>
+<details class="faq-item"><summary>UTMパラメータは大文字・小文字を区別しますか？</summary><p>はい。Google Analyticsは「Google」と「google」を別ソースとして扱います。一貫性のために必ず小文字を使用してください。本ツールは入力値を自動で小文字に変換します。</p></details>
+<details class="faq-item"><summary>UTM値にスペースは使えますか？</summary><p>技術的には可能ですが、URLで%20または+にエンコードされます。可読性のためにハイフン（-）またはアンダースコア（_）を使用することを推奨します。</p></details>
+<details class="faq-item"><summary>QRコードにもUTMを使えますか？</summary><p>はい。QRコードの遷移先URLにUTMパラメータを含めることで、オフライントラフィック（チラシ・ポスター等）をGoogle Analyticsで個別に追跡できます。</p></details>
+<details class="faq-item"><summary>内部リンクにUTMを使ってはいけないのですか？</summary><p>使用しないでください。同一ドメイン内の内部リンクにUTMを付けると新しいセッションが生成され、1回の訪問が分割されて流入元データが歪みます。UTMは外部チャネルからの流入リンクにのみ使用してください。</p></details>
+<details class="faq-item"><summary>GA4とUA（ユニバーサルアナリティクス）でUTMの処理は違いますか？</summary><p>GA4はイベントベースでUTMデータを処理します。5つの標準UTMパラメータの使い方は同じです。GA4では「集客」レポート→トラフィック獲得でUTMデータを確認できます。</p></details>`,
+  },
+};
+
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko';
+
+function detectLang(){
+  const u=new URLSearchParams(location.search).get('lang');
+  if(u&&_i18n[u])return u;
+  const s=localStorage.getItem('modoo_lang');
+  if(s&&_i18n[s])return s;
+  const n=navigator.language?.slice(0,2);
+  return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';
+}
+
+function cycleLang(){
+  const idx=LANGS.indexOf(_lang);
+  _lang=LANGS[(idx+1)%LANGS.length];
+  localStorage.setItem('modoo_lang',_lang);
+  const url=new URL(location.href);
+  url.searchParams.set('lang',_lang);
+  history.replaceState({},'',url);
+  applyLang();
+}
+
+function applyLang(){
+  const t=_i18n[_lang];
+  document.documentElement.lang=_lang;
+  document.title=t.pageTitle;
+  document.getElementById('h1Span').textContent=t.h1Span;
+  document.getElementById('subEl').textContent=t.sub;
+  document.getElementById('backLink').textContent=t.backLink;
+  document.getElementById('langBtn').textContent=t.langBtn;
+  document.getElementById('fBaseUrl').placeholder=t.placeholderUrl;
+  document.getElementById('fSource').placeholder=t.placeholderSource;
+  document.getElementById('fMedium').placeholder=t.placeholderMedium;
+  document.getElementById('fCampaign').placeholder=t.placeholderCampaign;
+  document.getElementById('fTerm').placeholder=t.placeholderTerm;
+  document.getElementById('fContent').placeholder=t.placeholderContent;
+  document.getElementById('labelOutput').textContent=t.labelOutput;
+  document.getElementById('btnCopy').textContent=t.btnCopy;
+  document.getElementById('btnReset').textContent=t.btnReset;
+  document.getElementById('btnShorten').textContent=t.btnShorten;
+  document.getElementById('shortenNote').textContent=t.shortenNote;
+  ['reqBadge','reqBadge2','reqBadge3','reqBadge4'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.textContent=t.reqBadge;
+  });
+  ['optBadge1','optBadge2'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.textContent=t.optBadge;
+  });
+  renderPresets(t);
+  renderMediumChips();
+  renderRefTable(t);
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+  buildUTM();
+}
+
+function renderPresets(t){
+  document.getElementById('presetsEl').innerHTML=`
+    <button class="preset-btn" onclick="applyPreset('google')">${t.presetGoogle}</button>
+    <button class="preset-btn" onclick="applyPreset('facebook')">${t.presetFacebook}</button>
+    <button class="preset-btn" onclick="applyPreset('email')">${t.presetEmail}</button>
+    <button class="preset-btn" onclick="applyPreset('instagram')">${t.presetInstagram}</button>
+  `;
+}
+
+function renderMediumChips(){
+  document.getElementById('mediumChips').innerHTML=MEDIUM_CHIPS.map(c=>`
+    <button class="chip${document.getElementById('fMedium').value===c?' active':''}" onclick="setMedium('${c}')">${c}</button>
+  `).join('');
+}
+
+function setMedium(val){
+  document.getElementById('fMedium').value=val;
+  renderMediumChips();
+  buildUTM();
+}
+
+function applyPreset(key){
+  const p=PRESETS[key];
+  document.getElementById('fSource').value=p.source;
+  document.getElementById('fMedium').value=p.medium;
+  renderMediumChips();
+  buildUTM();
+}
+
+function renderRefTable(t){
+  const rows=t.refRows.map(r=>`
+    <div class="ref-row">
+      <span class="ref-param">${r[0]}</span>
+      <span class="ref-desc">${r[1]}</span>
+      <span class="ref-ex">${r[2]}</span>
+    </div>
+  `).join('');
+  document.getElementById('refTableEl').innerHTML=`
+    <div class="ref-head">
+      <span>${t.refHead[0]}</span>
+      <span>${t.refHead[1]}</span>
+      <span>${t.refHead[2]}</span>
+    </div>
+    ${rows}
+  `;
+}
+
+function sanitize(val){
+  return val.trim().toLowerCase().replace(/\s+/g,'_');
+}
+
+function buildUTM(){
+  const base=document.getElementById('fBaseUrl').value.trim();
+  const source=document.getElementById('fSource').value;
+  const medium=document.getElementById('fMedium').value;
+  const campaign=document.getElementById('fCampaign').value;
+  const term=document.getElementById('fTerm').value;
+  const content=document.getElementById('fContent').value;
+
+  if(!base){
+    document.getElementById('outputUrl').value='';
+    document.getElementById('urlLengthEl').textContent='0 '+(_i18n[_lang].urlLength);
+    return;
+  }
+
+  const params=new URLSearchParams();
+  if(source)params.set('utm_source',sanitize(source));
+  if(medium)params.set('utm_medium',sanitize(medium));
+  if(campaign)params.set('utm_campaign',sanitize(campaign));
+  if(term)params.set('utm_term',term.trim());
+  if(content)params.set('utm_content',content.trim());
+
+  const qs=params.toString();
+  const sep=base.includes('?')?'&':'?';
+  const result=qs?`${base}${sep}${qs}`:base;
+  document.getElementById('outputUrl').value=result;
+
+  const len=result.length;
+  const lenEl=document.getElementById('urlLengthEl');
+  lenEl.textContent=len.toLocaleString()+' '+(_i18n[_lang].urlLength);
+  lenEl.className='url-length'+(len>2000?' long':'');
+}
+
+function copyUrl(){
+  const text=document.getElementById('outputUrl').value;
+  if(!text)return;
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn=document.getElementById('btnCopy');
+    const t=_i18n[_lang];
+    btn.textContent=t.copyDone;
+    btn.style.background='var(--green)';
+    btn.style.borderColor='var(--green)';
+    setTimeout(()=>{btn.textContent=t.btnCopy;btn.style.background='';btn.style.borderColor='';},2000);
+  }).catch(()=>{
+    document.getElementById('outputUrl').select();
+    document.execCommand('copy');
+  });
+}
+
+function resetForm(){
+  ['fBaseUrl','fSource','fMedium','fCampaign','fTerm','fContent'].forEach(id=>{
+    document.getElementById(id).value='';
+  });
+  renderMediumChips();
+  buildUTM();
+}
+
+function openShortener(){
+  const url=document.getElementById('outputUrl').value;
+  if(!url)return;
+  window.open('https://bit.ly/','_blank','noopener');
+}
+
+_lang=detectLang();
+applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

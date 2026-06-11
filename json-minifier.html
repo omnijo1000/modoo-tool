@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="pageTitle">JSON Minifier - JSON 압축 도구</title>
+<meta name="description" content="JSON Minifier. Remove whitespace and minimize JSON size instantly in your browser. Free online JSON compression tool.">
+<meta name="keywords" content="JSON minifier, JSON 압축, JSON 공백 제거, JSON 최소화, JSON compress, minify JSON online">
+<link rel="canonical" href="https://modoohub.com/json-minifier.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/json-minifier.html?lang=ko">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/json-minifier.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/json-minifier.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/json-minifier.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/json-minifier.html">
+<meta property="og:title" content="JSON Minifier | MODOO HUB">
+<meta property="og:description" content="Remove whitespace from JSON and reduce file size. Free online JSON minifier tool.">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://modoohub.com/json-minifier.html">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-NR6VJF0534');
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is a JSON Minifier?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A JSON Minifier removes all unnecessary whitespace, indentation, and line breaks from JSON data, producing the smallest possible valid JSON string without changing its data content."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How much can JSON minification reduce file size?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Savings vary by how much whitespace the original JSON contains. Heavily formatted JSON with 4-space indentation can shrink by 30–60%. Minification is lossless — no data is removed."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "When should I minify JSON?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Minify JSON for production API responses, CDN-served configuration files, and any context where bandwidth or storage cost matters. Keep the formatted version for development and debugging."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does minification change the data in JSON?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Minification only removes insignificant whitespace outside string values. The actual data — keys, values, arrays, and objects — remains exactly the same."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I minify invalid JSON?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. The minifier parses the JSON first (using JSON.parse), so only syntactically valid JSON can be minified. Invalid JSON will produce an error message with details about the problem."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is there a size limit for JSON I can minify here?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "There is no hard limit imposed by this tool. Processing happens in your browser, so practical limits depend on your device memory. JSON files up to several megabytes work fine in modern browsers."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is my JSON data sent to any server?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. All minification runs entirely in your browser using JavaScript. Your JSON data, including API keys or sensitive configuration values, never leaves your device."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the difference between JSON minification and JSON compression?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "JSON minification removes whitespace and produces human-readable (though compact) text. Compression (e.g., gzip, brotli) further encodes the binary representation. HTTP servers typically apply both: minify first, then compress for transfer."
+      }
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "JSON Minifier",
+  "url": "https://modoohub.com/json-minifier.html",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "All",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "description": "Free online JSON minifier. Remove all whitespace from JSON and minimize file size instantly in your browser. Shows before/after size stats and savings percentage."
+}
+</script>
+<style>
+  :root {
+    --bg:#0a0a0a; --surface:#141414; --surface2:#1a1a1a; --border:#252525;
+    --accent:#fbbf24; --accent2:#f59e0b; --accent-dim:rgba(251,191,36,0.08);
+    --text:#f5f5f5; --text-muted:#888; --text-dim:#444;
+    --green:#4ade80; --red:#f87171; --blue:#60a5fa; --purple:#c084fc;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:'Noto Sans KR',sans-serif; min-height:100vh; }
+  header { border-bottom:1px solid var(--border); padding:20px 24px; display:flex; align-items:center; gap:12px; }
+  .dot { width:8px; height:8px; border-radius:50%; background:var(--accent); }
+  .header-label { font-size:13px; color:var(--text-muted); letter-spacing:0.1em; font-family:'DM Mono',monospace; }
+  .back-link { margin-left:auto; font-size:13px; color:var(--text-muted); text-decoration:none; }
+  .back-link:hover { color:var(--accent); }
+  .lang-toggle { font-size:12px; color:var(--text-muted); cursor:pointer; padding:4px 10px; border:1px solid var(--border); border-radius:6px; font-family:'DM Mono',monospace; transition:all 0.15s; margin-left:8px; }
+  .lang-toggle:hover { border-color:var(--accent); color:var(--accent); }
+  main { max-width:960px; margin:0 auto; padding:40px 24px; }
+  h1 { font-size:clamp(24px,4vw,34px); font-weight:900; line-height:1.1; margin-bottom:10px; }
+  h1 span { color:var(--accent); }
+  .subtitle { color:var(--text-muted); font-size:14px; margin-bottom:28px; }
+  .toolbar { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; align-items:center; }
+  .btn { background:var(--surface2); border:1px solid var(--border); border-radius:7px; padding:7px 14px; font-size:13px; color:var(--text-muted); cursor:pointer; font-family:'Noto Sans KR',sans-serif; transition:all 0.15s; }
+  .btn:hover { border-color:var(--accent2); color:var(--accent); }
+  .btn.primary { background:var(--accent2); border-color:var(--accent2); color:#000; font-weight:700; }
+  .btn.primary:hover { opacity:0.85; color:#000; }
+  .btn.danger:hover { border-color:var(--red); color:var(--red); }
+  .editor-wrap { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+  @media(max-width:600px) { .editor-wrap { grid-template-columns:1fr; } }
+  .editor-box { display:flex; flex-direction:column; }
+  .editor-label { font-size:11px; color:var(--text-dim); letter-spacing:0.08em; margin-bottom:8px; text-transform:uppercase; display:flex; justify-content:space-between; align-items:center; }
+  .copy-small { font-size:11px; color:var(--text-dim); cursor:pointer; padding:3px 8px; border:1px solid var(--border); border-radius:4px; transition:all 0.15s; }
+  .copy-small:hover { color:var(--accent); border-color:var(--accent2); }
+  textarea { flex:1; width:100%; min-height:320px; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:16px; font-family:'DM Mono',monospace; font-size:13px; color:var(--text); outline:none; resize:vertical; line-height:1.6; }
+  textarea:focus { border-color:var(--accent2); }
+  textarea.error { border-color:var(--red); }
+  textarea.success { border-color:var(--green); }
+  .status { display:flex; align-items:center; gap:10px; padding:10px 16px; border-radius:8px; font-size:13px; margin-bottom:16px; }
+  .status.idle { background:var(--surface); border:1px solid var(--border); color:var(--text-muted); }
+  .status.ok { background:rgba(74,222,128,0.08); border:1px solid rgba(74,222,128,0.3); color:var(--green); }
+  .status.err { background:rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.3); color:var(--red); }
+  .status-dot { width:7px; height:7px; border-radius:50%; background:currentColor; flex-shrink:0; }
+  .stats-bar { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:28px; }
+  .stat { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:10px 18px; }
+  .stat-label { font-size:11px; color:var(--text-dim); letter-spacing:0.06em; text-transform:uppercase; margin-bottom:4px; }
+  .stat-value { font-family:'DM Mono',monospace; color:var(--text-muted); font-size:15px; font-weight:500; }
+  .stat.highlight .stat-value { color:var(--green); }
+  .seo { border-top:1px solid var(--border); padding-top:32px; }
+  .seo h2 { font-size:16px; font-weight:700; margin-bottom:12px; }
+  .seo p { font-size:13px; color:var(--text-muted); line-height:1.8; margin-bottom:16px; }
+  .seo-sub { font-size:14px; font-weight:700; color:var(--text-muted); margin:20px 0 8px; }
+  .seo-ul { padding-left:18px; margin-bottom:12px; }
+  .seo-ul li { font-size:13px; color:var(--text-dim); line-height:1.9; margin-bottom:4px; }
+  footer { text-align:center; font-size:12px; color:var(--text-dim); margin-top:48px; }
+  .faq-section { margin-top:40px; border-top:1px solid var(--border); padding-top:32px; }
+  .faq-section h2 { font-size:16px; font-weight:700; margin-bottom:16px; color:var(--text); }
+  .faq-item { border:1px solid var(--border); border-radius:10px; margin-bottom:8px; overflow:hidden; }
+  .faq-q { font-size:14px; font-weight:600; padding:14px 18px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; gap:12px; user-select:none; background:var(--surface); }
+  .faq-q:hover { color:var(--accent); }
+  .faq-chevron { font-size:11px; color:var(--text-muted); transition:transform .2s; flex-shrink:0; }
+  .faq-item.open .faq-chevron { transform:rotate(180deg); }
+  .faq-a { font-size:13px; color:var(--text-muted); line-height:1.8; padding:0 18px 14px; display:none; background:var(--surface); }
+  .faq-item.open .faq-a { display:block; }
+</style>
+</head>
+<body>
+<header>
+  <div class="dot"></div>
+  <span class="header-label">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <div class="lang-toggle" onclick="toggleLang()" id="langBtn">🌐 EN</div>
+</header>
+<main>
+  <h1 id="h1Title">JSON<br><span>Minifier</span></h1>
+  <p class="subtitle" id="h1Sub">JSON 공백 제거·압축·크기 최소화</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+    <div class="toolbar">
+      <button class="btn" id="btnPaste" onclick="pasteInput()">붙여넣기</button>
+      <button class="btn danger" id="btnClear" onclick="clearAll()">지우기</button>
+      <button class="btn" id="btnSample" onclick="loadSample()">샘플</button>
+    </div>
+    <div class="toolbar">
+      <button class="btn primary" id="btnMinify" onclick="minify()">Minify →</button>
+      <button class="btn" id="btnCopy" onclick="copyOutput()">복사</button>
+    </div>
+  </div>
+
+  <div class="status idle" id="status">
+    <div class="status-dot"></div>
+    <span id="statusText">JSON을 입력하거나 붙여넣으세요</span>
+  </div>
+
+  <div class="editor-wrap">
+    <div class="editor-box">
+      <div class="editor-label">
+        <span id="labelInput">입력 (원본 JSON)</span>
+      </div>
+      <textarea id="input" placeholder='{"name":"홍길동","age":30}'></textarea>
+    </div>
+    <div class="editor-box">
+      <div class="editor-label">
+        <span id="labelOutput">출력 (압축된 JSON)</span>
+        <span class="copy-small" onclick="copyOutput()" id="copySmall">복사</span>
+      </div>
+      <textarea id="output" readonly placeholder="압축 결과가 여기 표시됩니다"></textarea>
+    </div>
+  </div>
+
+  <div class="stats-bar" id="statsBar" style="display:none">
+    <div class="stat">
+      <div class="stat-label" id="lblOriginal">Original</div>
+      <div class="stat-value" id="valOriginal">—</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label" id="lblMinified">Minified</div>
+      <div class="stat-value" id="valMinified">—</div>
+    </div>
+    <div class="stat highlight">
+      <div class="stat-label" id="lblSaved">Saved</div>
+      <div class="stat-value" id="valSaved">—</div>
+    </div>
+  </div>
+
+  <div class="seo" id="seoSection"></div>
+  <footer id="footerText">모든 데이터는 브라우저에서만 처리됩니다 · 서버로 전송되지 않습니다</footer>
+  <div id="faqSection" class="faq-section"></div>
+</main>
+<script>
+// ── i18n ──────────────────────────────────────────────────────────────
+const i18n = {
+  ko: {
+    pageTitle: 'JSON Minifier - JSON 압축 도구',
+    h1: 'JSON<br><span>Minifier</span>',
+    sub: 'JSON 공백 제거·압축·크기 최소화',
+    backLink: '← 모두의 툴',
+    langBtn: '🌐 EN',
+    btnPaste: '붙여넣기',
+    btnClear: '지우기',
+    btnSample: '샘플',
+    btnMinify: 'Minify →',
+    btnCopy: '복사',
+    copyDone: '복사됨 ✓',
+    labelInput: '입력 (원본 JSON)',
+    labelOutput: '출력 (압축된 JSON)',
+    statOriginal: 'Original',
+    statMinified: 'Minified',
+    statSaved: 'Saved',
+    statusIdle: 'JSON을 입력하거나 붙여넣으세요',
+    statusOk: '✓ 압축 완료',
+    statusErr: '✗ 유효하지 않은 JSON',
+    footer: '모든 데이터는 브라우저에서만 처리됩니다 · 서버로 전송되지 않습니다',
+    placeholder: '{"name":"홍길동","age":30}',
+    placeholderOut: '압축 결과가 여기 표시됩니다',
+    seoHtml: `
+      <h2>JSON Minifier란?</h2>
+      <p>JSON Minifier는 JSON 데이터에서 불필요한 공백, 들여쓰기, 줄바꿈을 모두 제거해 파일 크기를 최소화하는 도구입니다. 데이터 자체는 전혀 변경되지 않으며 오직 공백만 제거됩니다. REST API 응답을 클라이언트에 전송할 때, CDN에 설정 파일을 배포할 때, 모바일 앱에서 JSON 페이로드를 최적화할 때 유용합니다. 압축률은 원본 포맷의 들여쓰기 크기에 따라 다르지만 4칸 들여쓰기 기준으로 보통 30~60%까지 크기를 줄일 수 있습니다.</p>
+      <h3 class="seo-sub">활용 예시</h3>
+      <ul class="seo-ul">
+        <li>프로덕션 REST API 응답 최적화 — 네트워크 전송 비용 절감</li>
+        <li>CDN 배포 설정 파일 크기 최소화</li>
+        <li>모바일 앱 JSON 페이로드 압축으로 배터리·데이터 절약</li>
+        <li>로컬 스토리지 저장 용량 최적화</li>
+        <li>서버 응답 시간 개선 (페이로드 크기 감소)</li>
+        <li>이메일/알림 서비스의 JSON 메시지 크기 축소</li>
+      </ul>
+      <h2>자주 묻는 질문 (FAQ)</h2>
+      <details class="faq-item"><summary>Q. JSON Minifier는 데이터를 변경하나요?</summary><p>A. 아닙니다. 키, 값, 배열, 객체 등 모든 데이터는 그대로 유지됩니다. 오직 문자열 외부의 공백, 탭, 줄바꿈만 제거합니다.</p></details>
+      <details class="faq-item"><summary>Q. JSON 압축으로 얼마나 크기를 줄일 수 있나요?</summary><p>A. 들여쓰기 양에 따라 다르지만 4칸 들여쓰기 기준 30~60% 감소가 일반적입니다. 이미 한 줄로 작성된 JSON은 변화가 거의 없습니다.</p></details>
+      <details class="faq-item"><summary>Q. 유효하지 않은 JSON도 압축할 수 있나요?</summary><p>A. 아니요. 내부적으로 JSON.parse를 사용하므로 문법적으로 올바른 JSON만 압축 가능합니다. 오류 메시지에서 문제 위치를 확인하세요.</p></details>
+      <details class="faq-item"><summary>Q. 입력한 데이터가 서버로 전송되나요?</summary><p>A. 아닙니다. 모든 처리는 브라우저 JavaScript에서만 이루어집니다. API 키, 인증 토큰 등 민감한 데이터도 안전합니다.</p></details>
+      <details class="faq-item"><summary>Q. JSON 압축과 gzip 압축의 차이는 무엇인가요?</summary><p>A. JSON 압축은 공백을 제거해 읽기 가능한 텍스트를 줄입니다. gzip/brotli는 이진 형태로 추가 압축합니다. HTTP 서버는 보통 둘 다 적용합니다. 먼저 JSON을 압축한 후 gzip을 적용하면 최대 효율입니다.</p></details>
+      <details class="faq-item"><summary>Q. JSON 파일 크기 제한이 있나요?</summary><p>A. 이 도구 자체의 제한은 없습니다. 브라우저 메모리 한도 내에서 동작하며 일반적으로 수 MB 크기의 JSON도 처리 가능합니다.</p></details>
+      <details class="faq-item"><summary>Q. JSON 포맷터와 어떻게 다른가요?</summary><p>A. JSON 포맷터는 읽기 쉽게 들여쓰기를 추가하고, JSON Minifier는 반대로 모든 공백을 제거합니다. 개발 중에는 포맷터, 프로덕션 배포 시에는 Minifier를 사용합니다.</p></details>
+      <details class="faq-item"><summary>Q. JSON 압축 후 원본을 복원할 수 있나요?</summary><p>A. 네. 압축된 JSON을 JSON 포맷터에 붙여넣으면 들여쓰기된 형태로 다시 볼 수 있습니다. 원본의 들여쓰기 방식은 복원되지 않을 수 있습니다.</p></details>
+    `
+  },
+  en: {
+    pageTitle: 'JSON Minifier - Compress & Minify JSON Online',
+    h1: 'JSON<br><span>Minifier</span>',
+    sub: 'Remove whitespace and minimize JSON size',
+    backLink: '← All Tools',
+    langBtn: '🌐 中文',
+    btnPaste: 'Paste',
+    btnClear: 'Clear',
+    btnSample: 'Sample',
+    btnMinify: 'Minify →',
+    btnCopy: 'Copy',
+    copyDone: 'Copied ✓',
+    labelInput: 'Input (formatted JSON)',
+    labelOutput: 'Output (minified JSON)',
+    statOriginal: 'Original',
+    statMinified: 'Minified',
+    statSaved: 'Saved',
+    statusIdle: 'Paste or type your JSON here',
+    statusOk: '✓ Minified successfully',
+    statusErr: '✗ Invalid JSON',
+    footer: 'All data is processed in your browser · Never sent to any server',
+    placeholder: '{"name":"John","age":30}',
+    placeholderOut: 'Minified output will appear here',
+    seoHtml: `
+      <h2>What is a JSON Minifier?</h2>
+      <p>A JSON Minifier removes all unnecessary whitespace, indentation, and line breaks from JSON data to produce the smallest possible valid JSON string. No data is altered — only insignificant whitespace outside string values is stripped. This is essential for production API responses, CDN-deployed config files, and any environment where bandwidth and storage efficiency matter. Savings typically range from 30–60% depending on original indentation.</p>
+      <h3 class="seo-sub">Common Use Cases</h3>
+      <ul class="seo-ul">
+        <li>Optimize REST API response payloads to reduce network transfer costs</li>
+        <li>Minimize CDN-deployed configuration files</li>
+        <li>Compress mobile app JSON payloads to save bandwidth and battery</li>
+        <li>Reduce localStorage and IndexedDB storage footprint</li>
+        <li>Improve server response time by shrinking payload size</li>
+        <li>Reduce JSON message size in email and notification services</li>
+      </ul>
+      <h2>Frequently Asked Questions</h2>
+      <details class="faq-item"><summary>Q. Does minification change the data in JSON?</summary><p>A. No. Keys, values, arrays, and objects remain exactly the same. Only whitespace, tabs, and newlines outside of string values are removed.</p></details>
+      <details class="faq-item"><summary>Q. How much can JSON minification reduce file size?</summary><p>A. It depends on how much whitespace the original contains. JSON with 4-space indentation typically shrinks by 30–60%. Already compact JSON will see minimal change.</p></details>
+      <details class="faq-item"><summary>Q. Can I minify invalid JSON?</summary><p>A. No. The minifier uses JSON.parse internally, so only syntactically valid JSON can be minified. Error messages will indicate where the problem is.</p></details>
+      <details class="faq-item"><summary>Q. Is my data sent to any server?</summary><p>A. No. All processing happens entirely in your browser via JavaScript. API keys, auth tokens, and other sensitive data are safe to paste here.</p></details>
+      <details class="faq-item"><summary>Q. What is the difference between JSON minification and gzip compression?</summary><p>A. JSON minification removes whitespace to produce compact readable text. gzip/brotli further encode the binary representation. HTTP servers typically apply both: minify JSON first, then compress for transfer to maximize efficiency.</p></details>
+      <details class="faq-item"><summary>Q. Is there a file size limit?</summary><p>A. There is no limit imposed by this tool. Processing is bounded by your browser's memory. JSON files up to several megabytes work fine in modern browsers.</p></details>
+      <details class="faq-item"><summary>Q. How does a JSON Minifier differ from a JSON Formatter?</summary><p>A. A JSON Formatter adds indentation for readability. A JSON Minifier removes all whitespace for compactness. Use the Formatter during development and the Minifier for production deployment.</p></details>
+      <details class="faq-item"><summary>Q. Can I restore the original formatting after minification?</summary><p>A. Yes. Paste the minified JSON into a JSON Formatter to re-indent it. The exact original whitespace style may not be preserved, but all data will be intact.</p></details>
+    `
+  },
+  zh: {
+    pageTitle: 'JSON Minifier - 在线JSON压缩工具',
+    h1: 'JSON<br><span>Minifier</span>',
+    sub: '删除JSON空白字符，最小化文件体积',
+    backLink: '← 首页',
+    langBtn: '🌐 日本語',
+    btnPaste: '粘贴',
+    btnClear: '清空',
+    btnSample: '示例',
+    btnMinify: '压缩 →',
+    btnCopy: '复制',
+    copyDone: '已复制 ✓',
+    labelInput: '输入（格式化的JSON）',
+    labelOutput: '输出（压缩后的JSON）',
+    statOriginal: '原始大小',
+    statMinified: '压缩后',
+    statSaved: '节省',
+    statusIdle: '请粘贴或输入JSON',
+    statusOk: '✓ 压缩完成',
+    statusErr: '✗ 无效的JSON',
+    footer: '所有处理均在浏览器本地完成 · 不会上传到服务器',
+    placeholder: '{"name":"张三","age":30}',
+    placeholderOut: '压缩结果将在此显示',
+    seoHtml: `
+      <h2>什么是JSON Minifier？</h2>
+      <p>JSON Minifier 是一种工具，用于删除JSON数据中所有不必要的空白字符、缩进和换行符，从而生成体积最小的合法JSON字符串。数据本身不会有任何改变，仅去除字符串值以外的空白字符。适用于优化生产环境API响应、CDN配置文件部署等对带宽和存储有要求的场景。根据原始缩进量，通常可节省30%~60%的体积。</p>
+      <h3 class="seo-sub">常见应用场景</h3>
+      <ul class="seo-ul">
+        <li>优化REST API响应体积，降低网络传输成本</li>
+        <li>最小化CDN部署的配置文件</li>
+        <li>压缩移动端JSON请求体，节省流量和电量</li>
+        <li>减少localStorage和IndexedDB存储占用</li>
+        <li>通过缩小响应体积提升服务器响应速度</li>
+        <li>缩减邮件和通知服务中JSON消息的体积</li>
+      </ul>
+      <h2>常见问题</h2>
+      <details class="faq-item"><summary>Q. 压缩会改变JSON中的数据吗？</summary><p>A. 不会。键名、值、数组和对象完全保持不变，仅删除字符串值以外的空白、制表符和换行符。</p></details>
+      <details class="faq-item"><summary>Q. JSON压缩能减少多少体积？</summary><p>A. 取决于原始文件中空白字符的数量。4格缩进的JSON通常可减少30%~60%的体积，已经紧凑的JSON变化不大。</p></details>
+      <details class="faq-item"><summary>Q. 能压缩无效的JSON吗？</summary><p>A. 不能。压缩器内部使用JSON.parse，因此只有语法正确的JSON才能被压缩，错误信息会指出问题所在。</p></details>
+      <details class="faq-item"><summary>Q. 输入的数据会发送到服务器吗？</summary><p>A. 不会。所有处理均通过浏览器JavaScript在本地完成，API密钥和敏感数据均可放心使用。</p></details>
+      <details class="faq-item"><summary>Q. JSON压缩和gzip压缩有什么区别？</summary><p>A. JSON压缩删除空白，生成紧凑的可读文本；gzip/brotli进一步对二进制形式进行编码。HTTP服务器通常同时使用两者，先压缩JSON再gzip传输效果最佳。</p></details>
+      <details class="faq-item"><summary>Q. 处理的JSON有大小限制吗？</summary><p>A. 本工具无硬性限制，受限于浏览器内存。现代浏览器通常可处理数MB大小的JSON文件。</p></details>
+      <details class="faq-item"><summary>Q. JSON Minifier和JSON格式化有什么区别？</summary><p>A. JSON格式化工具添加缩进使代码易读；JSON Minifier删除所有空白以压缩体积。开发时用格式化，生产部署时用Minifier。</p></details>
+      <details class="faq-item"><summary>Q. 压缩后能恢复原始格式吗？</summary><p>A. 可以。将压缩后的JSON粘贴到JSON格式化工具中即可重新缩进，数据完整无损，但原始缩进风格可能无法完全还原。</p></details>
+    `
+  },
+  ja: {
+    pageTitle: 'JSON Minifier - JSON圧縮・最小化ツール',
+    h1: 'JSON<br><span>Minifier</span>',
+    sub: 'JSONの空白を削除してファイルサイズを最小化',
+    backLink: '← ホーム',
+    langBtn: '🌐 한국어',
+    btnPaste: '貼り付け',
+    btnClear: 'クリア',
+    btnSample: 'サンプル',
+    btnMinify: '圧縮 →',
+    btnCopy: 'コピー',
+    copyDone: 'コピー完了 ✓',
+    labelInput: '入力（フォーマット済みJSON）',
+    labelOutput: '出力（圧縮されたJSON）',
+    statOriginal: '元のサイズ',
+    statMinified: '圧縮後',
+    statSaved: '削減',
+    statusIdle: 'JSONを入力または貼り付けてください',
+    statusOk: '✓ 圧縮完了',
+    statusErr: '✗ 無効なJSON',
+    footer: 'すべての処理はブラウザ内のみで行われます · サーバーには送信されません',
+    placeholder: '{"name":"山田太郎","age":30}',
+    placeholderOut: '圧縮結果がここに表示されます',
+    seoHtml: `
+      <h2>JSON Minifierとは？</h2>
+      <p>JSON Minifierは、JSONデータから不要な空白、インデント、改行をすべて削除し、最小サイズの有効なJSON文字列を生成するツールです。データ自体は変更されず、文字列値外の空白のみが除去されます。本番APIレスポンスの最適化、CDNへの設定ファイルデプロイ、帯域幅とストレージ効率が重要な環境での使用に最適です。元のインデント量によりますが、通常30〜60%のサイズ削減が可能です。</p>
+      <h3 class="seo-sub">主な活用例</h3>
+      <ul class="seo-ul">
+        <li>REST APIレスポンスペイロードを最適化してネットワーク転送コストを削減</li>
+        <li>CDNにデプロイする設定ファイルを最小化</li>
+        <li>モバイルアプリのJSONペイロードを圧縮して通信量・バッテリーを節約</li>
+        <li>localStorageおよびIndexedDBのストレージ使用量を削減</li>
+        <li>ペイロードサイズを縮小してサーバーレスポンス時間を改善</li>
+        <li>メール・通知サービスのJSONメッセージサイズを縮小</li>
+      </ul>
+      <h2>よくある質問</h2>
+      <details class="faq-item"><summary>Q. 圧縮するとJSONのデータは変わりますか？</summary><p>A. 変わりません。キー、値、配列、オブジェクトはすべてそのまま保持されます。文字列値の外側にある空白・タブ・改行のみが削除されます。</p></details>
+      <details class="faq-item"><summary>Q. JSON圧縮でどれくらいサイズを削減できますか？</summary><p>A. 元の空白量によりますが、4スペースインデントのJSONでは通常30〜60%削減できます。すでにコンパクトなJSONはほとんど変化しません。</p></details>
+      <details class="faq-item"><summary>Q. 無効なJSONも圧縮できますか？</summary><p>A. できません。内部でJSON.parseを使用するため、構文的に正しいJSONのみ圧縮可能です。エラーメッセージで問題箇所を確認してください。</p></details>
+      <details class="faq-item"><summary>Q. 入力したデータはサーバーに送信されますか？</summary><p>A. いいえ。すべての処理はブラウザ内のJavaScriptで完結します。APIキーや認証トークンなど機密データも安心して使用できます。</p></details>
+      <details class="faq-item"><summary>Q. JSON圧縮とgzip圧縮の違いは何ですか？</summary><p>A. JSON圧縮は空白を削除してコンパクトな可読テキストを生成します。gzip/brotliはさらにバイナリ形式でエンコードします。HTTPサーバーは通常両方を適用し、JSON圧縮後にgzip圧縮するのが最も効率的です。</p></details>
+      <details class="faq-item"><summary>Q. ファイルサイズに制限はありますか？</summary><p>A. このツール自体に制限はありません。ブラウザのメモリ上限内で動作し、現代のブラウザでは数MBのJSONも処理できます。</p></details>
+      <details class="faq-item"><summary>Q. JSONフォーマッターとの違いは何ですか？</summary><p>A. JSONフォーマッターは読みやすさのためにインデントを追加します。JSON Minifierはすべての空白を削除してコンパクトにします。開発中はフォーマッター、本番デプロイ時はMinifierを使います。</p></details>
+      <details class="faq-item"><summary>Q. 圧縮後に元のフォーマットを復元できますか？</summary><p>A. できます。圧縮後のJSONをJSONフォーマッターに貼り付けると再インデントされます。データはそのまま保持されますが、元の空白スタイルは完全には再現できない場合があります。</p></details>
+    `
+  }
+};
+
+// ── 언어 초기화 ──────────────────────────────────────────────────────
+let lang = (function() {
+  const p = new URLSearchParams(location.search).get('lang');
+  if (p && i18n[p]) return p;
+  const s = localStorage.getItem('modoo_lang');
+  if (s && i18n[s]) return s;
+  const n = (navigator.language || '').slice(0,2);
+  return n === 'zh' ? 'zh' : n === 'ja' ? 'ja' : n === 'ko' ? 'ko' : 'en';
+})();
+
+function applyLang() {
+  const t = i18n[lang];
+  document.documentElement.lang = lang;
+  document.title = t.pageTitle;
+  const ids = {
+    h1Title:'h1', h1Sub:'sub', backLink:'backLink', langBtn:'langBtn',
+    btnPaste:'btnPaste', btnClear:'btnClear', btnSample:'btnSample',
+    btnMinify:'btnMinify', btnCopy:'btnCopy', copySmall:'btnCopy',
+    labelInput:'labelInput', labelOutput:'labelOutput',
+    lblOriginal:'statOriginal', lblMinified:'statMinified', lblSaved:'statSaved',
+    footerText:'footer'
+  };
+  for (const [id, key] of Object.entries(ids)) {
+    const el = document.getElementById(id);
+    if (!el) continue;
+    if (key === 'h1') el.innerHTML = t.h1;
+    else el.textContent = t[key];
+  }
+  document.getElementById('statusText').textContent = t.statusIdle;
+  document.getElementById('input').placeholder = t.placeholder;
+  document.getElementById('output').placeholder = t.placeholderOut;
+  document.getElementById('seoSection').innerHTML = t.seoHtml;
+}
+
+function toggleLang() {
+  const order = ['ko','en','zh','ja'];
+  lang = order[(order.indexOf(lang) + 1) % order.length];
+  localStorage.setItem('modoo_lang', lang);
+  applyLang();
+}
+
+// ── 핵심 기능 ─────────────────────────────────────────────────────────
+function setStatus(type, msg) {
+  const el = document.getElementById('status');
+  el.className = 'status ' + type;
+  document.getElementById('statusText').textContent = msg;
+}
+
+function showStats(orig, mini) {
+  const saved = orig > 0 ? Math.round((1 - mini / orig) * 100) : 0;
+  document.getElementById('valOriginal').textContent = orig + ' B';
+  document.getElementById('valMinified').textContent = mini + ' B';
+  document.getElementById('valSaved').textContent = saved + '%';
+  document.getElementById('statsBar').style.display = 'flex';
+}
+
+function minify() {
+  const val = document.getElementById('input').value.trim();
+  if (!val) return;
+  try {
+    const obj = JSON.parse(val);
+    const out = JSON.stringify(obj);
+    document.getElementById('output').value = out;
+    const orig = new Blob([val]).size;
+    const mini = new Blob([out]).size;
+    showStats(orig, mini);
+    setStatus('ok', i18n[lang].statusOk);
+  } catch(e) {
+    setStatus('err', i18n[lang].statusErr + ': ' + e.message);
+    document.getElementById('statsBar').style.display = 'none';
+  }
+}
+
+function clearAll() {
+  document.getElementById('input').value = '';
+  document.getElementById('output').value = '';
+  document.getElementById('statsBar').style.display = 'none';
+  setStatus('idle', i18n[lang].statusIdle);
+}
+
+function copyOutput() {
+  const text = document.getElementById('output').value;
+  if (!text) return;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('btnCopy');
+    const sm = document.getElementById('copySmall');
+    const done = i18n[lang].copyDone;
+    btn.textContent = done;
+    if (sm) sm.textContent = done;
+    btn.style.color = 'var(--green)';
+    setTimeout(() => {
+      btn.textContent = i18n[lang].btnCopy;
+      if (sm) sm.textContent = i18n[lang].btnCopy;
+      btn.style.color = '';
+    }, 2000);
+  });
+}
+
+async function pasteInput() {
+  try {
+    const text = await navigator.clipboard.readText();
+    document.getElementById('input').value = text;
+  } catch(e) {}
+}
+
+function loadSample() {
+  document.getElementById('input').value = JSON.stringify({
+    "name": "Alice",
+    "age": 30,
+    "address": {
+      "city": "Seoul",
+      "zip": "04524"
+    },
+    "tags": ["developer", "designer"],
+    "active": true
+  }, null, 2);
+  document.getElementById('output').value = '';
+  document.getElementById('statsBar').style.display = 'none';
+  setStatus('idle', i18n[lang].statusIdle);
+}
+
+// ── 초기화 ────────────────────────────────────────────────────────────
+applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

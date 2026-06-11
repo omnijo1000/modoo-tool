@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cron Expression Parser - Cron 표현식 파서</title>
+<meta name="description" content="Cron 표현식을 사람이 읽기 쉬운 언어로 설명하고 다음 10회 실행 시간을 계산합니다. Linux cron, AWS EventBridge, GitHub Actions 지원. Free online cron parser.">
+<meta name="keywords" content="cron parser, cron expression, cron 파서, cron 표현식 설명, next run time, cron to english, crontab">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/cron-parser.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/cron-parser.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/cron-parser.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/cron-parser.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/cron-parser.html">
+<link rel="canonical" href="https://modoohub.com/cron-parser.html">
+<style>
+:root{
+  --bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;
+  --accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;
+  --green:#4ade80;--red:#f87171;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;font-family:'DM Mono',monospace;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;font-family:'DM Mono',monospace;background:none;margin-left:8px;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:660px;margin:0 auto;padding:40px 20px 60px;}
+h1{font-size:clamp(24px,5vw,36px);font-weight:900;margin-bottom:8px;line-height:1.15;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:32px;line-height:1.6;}
+.section-title{font-size:11px;color:var(--text-muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;font-family:'DM Mono',monospace;}
+/* Input */
+.input-row{display:flex;gap:8px;margin-bottom:12px;}
+.cron-input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:'DM Mono',monospace;font-size:16px;outline:none;transition:border-color .15s;}
+.cron-input:focus{border-color:var(--accent);}
+.cron-input.valid{border-color:var(--green);}
+.cron-input.invalid{border-color:var(--red);}
+.btn{padding:10px 18px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Mono',monospace;white-space:nowrap;transition:opacity .15s;}
+.btn-primary{background:var(--accent);color:#000;}
+.btn-primary:hover{opacity:.85;}
+.btn-ghost{background:none;border:1px solid var(--border);color:var(--text-muted);padding:6px 14px;font-size:12px;}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
+/* Quick samples */
+.samples-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;}
+.sample-chip{background:var(--surface2);border:1px solid var(--border);border-radius:16px;padding:4px 12px;font-size:12px;font-family:'DM Mono',monospace;color:var(--text-muted);cursor:pointer;transition:all .15s;}
+.sample-chip:hover{border-color:var(--accent);color:var(--accent);}
+/* Result */
+.result-panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px;display:none;}
+.result-panel.show{display:block;}
+.desc-box{background:var(--surface2);border:1px solid var(--green);border-radius:8px;padding:12px 16px;font-size:15px;color:var(--green);font-weight:600;margin-bottom:16px;line-height:1.6;}
+.desc-box.error-box{border-color:var(--red);color:var(--red);}
+/* Field table */
+.field-table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px;}
+.field-table th{text-align:left;color:var(--text-muted);padding:6px 10px;border-bottom:1px solid var(--border);font-size:11px;text-transform:uppercase;letter-spacing:.08em;}
+.field-table td{padding:8px 10px;border-bottom:1px solid var(--border);}
+.field-table tr:last-child td{border-bottom:none;}
+.field-name{font-family:'DM Mono',monospace;font-weight:700;color:var(--accent);}
+.field-val{font-family:'DM Mono',monospace;color:var(--text);}
+.field-meaning{color:var(--text-muted);font-size:12px;}
+/* Next runs */
+.next-list{display:flex;flex-direction:column;gap:4px;}
+.next-item{display:flex;gap:12px;align-items:center;font-family:'DM Mono',monospace;font-size:13px;padding:6px 10px;background:var(--surface2);border-radius:5px;}
+.next-num{color:var(--text-dim);min-width:20px;font-size:11px;}
+.next-time{color:var(--text);}
+.next-rel{color:var(--text-muted);font-size:11px;margin-left:auto;}
+/* SEO */
+.seo{margin-top:48px;padding-top:32px;border-top:1px solid var(--border);}
+.seo h2{font-size:16px;font-weight:700;margin-bottom:10px;}
+.seo p{font-size:13px;color:var(--text-muted);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text);}
+details.faq-item{border:1px solid var(--border);border-radius:8px;margin-bottom:8px;}
+details.faq-item summary{padding:12px 16px;font-size:13px;font-weight:600;cursor:pointer;list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item summary::before{content:'Q. ';color:var(--accent);}
+details.faq-item p{padding:0 16px 12px;font-size:13px;color:var(--text-muted);line-height:1.8;margin:0;}
+footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:40px;}
+</style>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<meta property="og:title" content="Cron Expression Parser - Cron 표현식 파서 | MODOO HUB">
+<meta property="og:description" content="Cron 표현식을 사람이 읽기 쉬운 언어로 설명. 다음 10회 실행 시간 계산.">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<meta property="og:url" content="https://modoohub.com/cron-parser.html">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      "name": "Cron Expression Parser",
+      "url": "https://modoohub.com/cron-parser.html",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "All",
+      "offers": {"@type":"Offer","price":"0","priceCurrency":"USD"},
+      "description": "Parse and explain cron expressions in human-readable language. Calculate next 10 run times. Supports 5-field and 6-field cron."
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {"@type":"Question","name":"What is cron?","acceptedAnswer":{"@type":"Answer","text":"Cron is a time-based job scheduler in Unix-like systems. It reads a crontab file and executes commands at specified times defined by cron expressions."}},
+        {"@type":"Question","name":"What is the difference between 5-field and 6-field cron?","acceptedAnswer":{"@type":"Answer","text":"Standard 5-field cron is: minute hour dom month dow. 6-field cron (Spring @Scheduled, AWS) adds a seconds field at the start: second minute hour dom month dow."}},
+        {"@type":"Question","name":"What do the special characters * / - , mean?","acceptedAnswer":{"@type":"Answer","text":"* means any value. / means step (*/5 = every 5). - means range (1-5 = 1 through 5). , means list (1,3,5 = at 1, 3, and 5)."}},
+        {"@type":"Question","name":"What are common cron patterns?","acceptedAnswer":{"@type":"Answer","text":"Every minute: * * * * *. Every hour: 0 * * * *. Every midnight: 0 0 * * *. Every 5 minutes: */5 * * * *. Weekdays 9am: 0 9 * * 1-5."}},
+        {"@type":"Question","name":"Does cron handle timezones?","acceptedAnswer":{"@type":"Answer","text":"Standard crontab uses the system timezone. AWS EventBridge and GitHub Actions allow specifying timezone in schedule expressions. Always verify which timezone your cron daemon uses."}},
+        {"@type":"Question","name":"What is the difference between cron and crontab?","acceptedAnswer":{"@type":"Answer","text":"Cron is the daemon that runs scheduled jobs. Crontab (cron table) is the configuration file that defines which commands to run at which times."}},
+        {"@type":"Question","name":"What is the maximum cron frequency?","acceptedAnswer":{"@type":"Answer","text":"Standard cron has a minimum interval of 1 minute (* * * * *). For sub-minute scheduling, use systemd timers, a job queue, or sleep loops within the cron job itself."}},
+        {"@type":"Question","name":"What happens when both DOM and DOW are specified?","acceptedAnswer":{"@type":"Answer","text":"When both day-of-month and day-of-week are non-wildcard, most implementations (including Vixie cron) execute the job when EITHER condition is satisfied, not both."}}
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="toggleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1 id="h1El">Cron <span>파서</span></h1>
+  <p class="sub" id="subEl">Cron 표현식을 사람이 읽기 쉬운 언어로 설명</p>
+
+  <div class="section-title" id="labelInput">Cron 표현식 입력</div>
+  <div class="input-row">
+    <input type="text" class="cron-input" id="cronInput"
+      placeholder="* * * * *"
+      oninput="onCronInput()" autocomplete="off" spellcheck="false">
+    <button class="btn btn-primary" onclick="doParse()" id="btnParse">파싱</button>
+    <button class="btn btn-ghost" onclick="clearAll()" id="btnClear">지우기</button>
+  </div>
+
+  <!-- Quick samples -->
+  <div class="samples-row" id="samplesRow"></div>
+
+  <!-- Result -->
+  <div class="result-panel" id="resultPanel">
+    <div class="section-title" id="labelDescription">설명</div>
+    <div class="desc-box" id="descBox"></div>
+
+    <div class="section-title" id="labelFields">필드 분석</div>
+    <table class="field-table" id="fieldTable">
+      <thead><tr><th id="thField">필드</th><th id="thValue">값</th><th id="thMeaning">의미</th></tr></thead>
+      <tbody id="fieldBody"></tbody>
+    </table>
+
+    <div class="section-title" id="labelNextRuns">다음 실행 예정 시간 (10회)</div>
+    <div class="next-list" id="nextList"></div>
+  </div>
+
+  <div class="seo" data-i18n="seoHtml"></div>
+  <footer>Cron Parser · 5-field &amp; 6-field · No external library</footer>
+</main>
+<script>
+const i18n = {
+  ko: {
+    pageTitle: 'Cron 표현식 파서 - Cron Parser',
+    h1: 'Cron <span>파서</span>',
+    sub: 'Cron 표현식을 사람이 읽기 쉬운 언어로 설명',
+    backLink: '← 모두의 툴',
+    langBtn: '🌐 EN',
+    btnParse: '파싱',
+    btnClear: '지우기',
+    labelInput: 'Cron 표현식 입력',
+    labelDescription: '설명',
+    labelNextRuns: '다음 실행 예정 시간 (10회)',
+    labelFields: '필드 분석',
+    thField: '필드', thValue: '값', thMeaning: '의미',
+    fieldNames: ['초','분','시','일(DOM)','월','요일(DOW)'],
+    fieldNames5: ['분','시','일(DOM)','월','요일(DOW)'],
+    sampleEveryMin: '매분',
+    sampleEveryHour: '매시',
+    sampleMidnight: '매일 자정',
+    sampleMonday: '매주 월요일',
+    sampleFirstDay: '매월 1일',
+    errInvalid: '유효하지 않은 Cron 표현식입니다. 5개 또는 6개 필드를 공백으로 구분하여 입력하세요.',
+    days: ['일','월','화','수','목','금','토'],
+    // field description helpers
+    descMin: n => n === '*' ? '매분' : n.includes('/') ? `${n.split('/')[1]}분마다` : n.includes('-') ? `${n}분` : `${n}분에`,
+    descHour: n => n === '*' ? '매시' : n.includes('/') ? `${n.split('/')[1]}시간마다` : `${n}시에`,
+    descDom: n => n === '*' ? '매일' : `${n}일에`,
+    descMonth: n => n === '*' ? '매월' : `${n}월에`,
+    descDow: n => {
+      if (n === '*') return '매 요일';
+      const map = {0:'일',1:'월',2:'화',3:'수',4:'목',5:'금',6:'토'};
+      if (n.includes('-')) { const [a,b]=n.split('-'); return `${map[a]||a}~${map[b]||b}요일에`; }
+      if (n.includes(',')) return n.split(',').map(x=>map[x.trim()]||x).join(',')+'요일에';
+      return (map[n]||n)+'요일에';
+    },
+    seoHtml: `<h2>Cron 표현식 파싱이란?</h2>
+<p>Cron 표현식은 리눅스/유닉스 시스템에서 정기 작업을 자동 실행하기 위한 문자열입니다. 표준 5개 필드(분·시·일·월·요일)로 구성되며, <strong>AWS EventBridge</strong>, <strong>GitHub Actions</strong>, <strong>Spring @Scheduled</strong> 등 다양한 환경에서 사용됩니다. 6번째 필드(초)를 추가하는 확장 형식도 있습니다.</p>
+<p>이 도구는 cron 표현식을 파싱하여 인간이 이해할 수 있는 언어로 설명하고, 순수 자바스크립트로 다음 10회 실행 시간을 계산합니다. 외부 라이브러리를 전혀 사용하지 않아 브라우저에서 완전히 동작합니다.</p>
+<details class="faq-item"><summary>Cron이란 무엇인가요?</summary><p>Cron은 유닉스 계열 운영 체제에서 정해진 시간에 명령이나 스크립트를 자동으로 실행하는 데몬입니다. crontab 파일에 "언제 무엇을 실행할지"를 cron 표현식으로 정의합니다.</p></details>
+<details class="faq-item"><summary>5필드 cron과 6필드 cron의 차이는?</summary><p>표준 cron은 분·시·일·월·요일의 5개 필드를 씁니다. Spring @Scheduled, AWS EventBridge는 맨 앞에 초(0–59) 필드를 추가해 6개 필드를 사용합니다. 이 파서는 두 형식을 모두 지원합니다.</p></details>
+<details class="faq-item"><summary>특수 문자 * / - , 는 각각 무슨 의미인가요?</summary><p>* 는 모든 값, / 는 간격(*/5 = 5마다), - 는 범위(1-5 = 1부터 5까지), , 는 목록(1,3,5 = 1, 3, 5 각각)을 의미합니다.</p></details>
+<details class="faq-item"><summary>자주 쓰는 cron 패턴에는 어떤 것이 있나요?</summary><p>매분: * * * * * | 매시 정각: 0 * * * * | 매일 자정: 0 0 * * * | 5분마다: */5 * * * * | 평일 오전 9시: 0 9 * * 1-5 | 매월 1일 자정: 0 0 1 * *</p></details>
+<details class="faq-item"><summary>Cron에서 타임존 문제는 어떻게 처리하나요?</summary><p>표준 crontab은 서버의 시스템 타임존을 따릅니다. AWS EventBridge는 UTC 기준이지만 스케줄 표현식에 타임존을 지정할 수 있고, GitHub Actions는 UTC를 기본으로 합니다. 항상 사용 환경의 타임존을 확인하세요.</p></details>
+<details class="faq-item"><summary>Cron과 crontab의 차이는?</summary><p>Cron은 주기적 작업을 실행하는 데몬(백그라운드 프로세스)이고, Crontab은 실행할 작업과 시간을 정의한 설정 파일입니다. <code>crontab -e</code>로 편집합니다.</p></details>
+<details class="faq-item"><summary>Cron의 최소 실행 주기는?</summary><p>표준 cron의 최소 단위는 1분(* * * * *)입니다. 1분 미만의 주기가 필요하면 systemd 타이머, 작업 큐, 또는 cron 내에서 sleep 루프를 사용합니다.</p></details>
+<details class="faq-item"><summary>DOM과 DOW를 모두 지정하면 어떻게 되나요?</summary><p>두 필드 모두 와일드카드(*)가 아닐 때, Vixie cron을 비롯한 대부분의 구현체는 둘 중 하나만 일치해도 실행합니다(OR 조건). 예: 0 0 15 * 1 은 매월 15일이거나 매주 월요일 자정에 실행됩니다.</p></details>`
+  },
+  en: {
+    pageTitle: 'Cron Expression Parser - Explain & Next Run Times',
+    h1: 'Cron <span>Parser</span>',
+    sub: 'Explain cron expressions in plain language',
+    backLink: '← All Tools',
+    langBtn: '🌐 中文',
+    btnParse: 'Parse',
+    btnClear: 'Clear',
+    labelInput: 'Enter Cron Expression',
+    labelDescription: 'Description',
+    labelNextRuns: 'Next 10 Run Times',
+    labelFields: 'Field Breakdown',
+    thField: 'Field', thValue: 'Value', thMeaning: 'Meaning',
+    fieldNames: ['Second','Minute','Hour','DOM','Month','DOW'],
+    fieldNames5: ['Minute','Hour','DOM','Month','DOW'],
+    sampleEveryMin: 'Every min',
+    sampleEveryHour: 'Every hour',
+    sampleMidnight: 'Daily midnight',
+    sampleMonday: 'Every Monday',
+    sampleFirstDay: '1st of month',
+    errInvalid: 'Invalid cron expression. Enter 5 or 6 space-separated fields.',
+    days: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+    descMin: n => n === '*' ? 'every minute' : n.includes('/') ? `every ${n.split('/')[1]} min` : n.includes('-') ? `at min ${n}` : `at minute ${n}`,
+    descHour: n => n === '*' ? 'every hour' : n.includes('/') ? `every ${n.split('/')[1]}h` : `at ${n}:00`,
+    descDom: n => n === '*' ? 'every day' : `on day ${n}`,
+    descMonth: n => n === '*' ? 'every month' : `in month ${n}`,
+    descDow: n => {
+      if (n === '*') return 'every weekday';
+      const map = {0:'Sun',1:'Mon',2:'Tue',3:'Wed',4:'Thu',5:'Fri',6:'Sat'};
+      if (n.includes('-')) { const [a,b]=n.split('-'); return `${map[a]||a}–${map[b]||b}`; }
+      if (n.includes(',')) return n.split(',').map(x=>map[x.trim()]||x).join(', ');
+      return map[n] || n;
+    },
+    seoHtml: `<h2>Cron Expression Parsing Guide</h2>
+<p>A cron expression defines when a scheduled job runs. The standard 5-field format is: <strong>minute hour dom month dow</strong>. Cron is used in Linux crontab, <strong>AWS EventBridge</strong>, <strong>GitHub Actions</strong>, <strong>Spring @Scheduled</strong>, and many other automation platforms.</p>
+<p>This tool parses your cron expression into plain English and calculates the next 10 execution times — all in pure JavaScript, no external libraries, running entirely in your browser.</p>
+<details class="faq-item"><summary>What is cron?</summary><p>Cron is a time-based job scheduler in Unix/Linux systems. It reads a crontab file and executes commands at the times specified by cron expressions, enabling automated recurring tasks.</p></details>
+<details class="faq-item"><summary>What is the difference between 5-field and 6-field cron?</summary><p>Standard 5-field cron: minute hour dom month dow. 6-field cron (Spring @Scheduled, some AWS) adds a seconds field at the start: second minute hour dom month dow. This parser handles both.</p></details>
+<details class="faq-item"><summary>What do * / - , mean in cron?</summary><p>* = any value. / = step (*/5 = every 5 units). - = range (1-5 = values 1 through 5). , = list (1,3,5 = each of those values).</p></details>
+<details class="faq-item"><summary>What are common cron patterns?</summary><p>Every minute: * * * * * | Every hour: 0 * * * * | Daily midnight: 0 0 * * * | Every 5 min: */5 * * * * | Weekdays 9am: 0 9 * * 1-5 | 1st of month: 0 0 1 * *</p></details>
+<details class="faq-item"><summary>How does cron handle timezones?</summary><p>Standard crontab uses the system timezone. AWS EventBridge is UTC by default but supports timezone-specific schedules. GitHub Actions uses UTC. Always confirm which timezone your cron environment uses.</p></details>
+<details class="faq-item"><summary>What is the difference between cron and crontab?</summary><p>Cron is the daemon (background process) that runs scheduled tasks. Crontab is the configuration file listing the schedule and commands. Edit it with crontab -e.</p></details>
+<details class="faq-item"><summary>What is the maximum cron frequency?</summary><p>Standard cron runs at most every minute (* * * * *). For sub-minute intervals, use systemd timers, a job queue system, or a sleep loop within a cron job.</p></details>
+<details class="faq-item"><summary>What happens when both DOM and DOW are specified?</summary><p>When both day-of-month and day-of-week are non-wildcard, most cron implementations (Vixie cron) fire the job when either condition is met (OR logic), not both. Example: 0 0 15 * 1 fires on the 15th OR every Monday.</p></details>`
+  },
+  zh: {
+    pageTitle: 'Cron 表达式解析器 - 在线 Cron 工具',
+    h1: 'Cron <span>解析器</span>',
+    sub: '将 Cron 表达式解析为人类可读的语言',
+    backLink: '← 首页',
+    langBtn: '🌐 日本語',
+    btnParse: '解析',
+    btnClear: '清空',
+    labelInput: '输入 Cron 表达式',
+    labelDescription: '解释',
+    labelNextRuns: '未来 10 次执行时间',
+    labelFields: '字段分析',
+    thField: '字段', thValue: '值', thMeaning: '含义',
+    fieldNames: ['秒','分钟','小时','日(DOM)','月','星期(DOW)'],
+    fieldNames5: ['分钟','小时','日(DOM)','月','星期(DOW)'],
+    sampleEveryMin: '每分钟',
+    sampleEveryHour: '每小时',
+    sampleMidnight: '每天午夜',
+    sampleMonday: '每周一',
+    sampleFirstDay: '每月1日',
+    errInvalid: 'Cron 表达式无效，请输入 5 或 6 个以空格分隔的字段。',
+    days: ['日','一','二','三','四','五','六'],
+    descMin: n => n === '*' ? '每分钟' : n.includes('/') ? `每${n.split('/')[1]}分钟` : `第${n}分`,
+    descHour: n => n === '*' ? '每小时' : n.includes('/') ? `每${n.split('/')[1]}小时` : `${n}时`,
+    descDom: n => n === '*' ? '每天' : `${n}日`,
+    descMonth: n => n === '*' ? '每月' : `${n}月`,
+    descDow: n => {
+      if (n === '*') return '每天';
+      const map = {0:'日',1:'一',2:'二',3:'三',4:'四',5:'五',6:'六'};
+      if (n.includes('-')) { const [a,b]=n.split('-'); return `周${map[a]||a}至${map[b]||b}`; }
+      if (n.includes(',')) return n.split(',').map(x=>'周'+(map[x.trim()]||x)).join('、');
+      return '周'+(map[n]||n);
+    },
+    seoHtml: `<h2>Cron 表达式解析指南</h2>
+<p>Cron 表达式定义了定时任务的执行时间。标准 5 字段格式为：<strong>分钟 小时 日 月 星期</strong>。广泛用于 Linux crontab、<strong>AWS EventBridge</strong>、<strong>GitHub Actions</strong>、<strong>Spring @Scheduled</strong> 等自动化平台。</p>
+<p>本工具将 Cron 表达式解析为中文说明，并计算未来 10 次执行时间，纯 JavaScript 实现，无需外部库，完全在浏览器中运行。</p>
+<details class="faq-item"><summary>什么是 Cron？</summary><p>Cron 是 Unix/Linux 系统中的定时任务调度守护进程，读取 crontab 文件，按照 cron 表达式指定的时间执行命令，实现任务自动化。</p></details>
+<details class="faq-item"><summary>5 字段和 6 字段 Cron 的区别是什么？</summary><p>标准 5 字段：分钟 小时 日 月 星期。6 字段（Spring @Scheduled、部分 AWS 场景）在最前面增加秒字段：秒 分钟 小时 日 月 星期。本工具两种格式均支持。</p></details>
+<details class="faq-item"><summary>特殊字符 * / - , 各是什么意思？</summary><p>* 表示任意值；/ 表示间隔（*/5 = 每 5 个单位）；- 表示范围（1-5 = 1 到 5）；, 表示列表（1,3,5 = 分别在 1、3、5）。</p></details>
+<details class="faq-item"><summary>常用的 Cron 模式有哪些？</summary><p>每分钟：* * * * * | 每小时：0 * * * * | 每天午夜：0 0 * * * | 每 5 分钟：*/5 * * * * | 工作日早 9 点：0 9 * * 1-5 | 每月 1 日：0 0 1 * *</p></details>
+<details class="faq-item"><summary>Cron 如何处理时区问题？</summary><p>标准 crontab 使用服务器系统时区。AWS EventBridge 默认 UTC，但支持指定时区的调度表达式；GitHub Actions 默认 UTC。使用前务必确认所在环境的时区设置。</p></details>
+<details class="faq-item"><summary>Cron 和 crontab 的区别是什么？</summary><p>Cron 是运行定时任务的守护进程（后台进程），crontab 是定义任务计划和命令的配置文件，通过 crontab -e 编辑。</p></details>
+<details class="faq-item"><summary>Cron 的最小执行频率是多少？</summary><p>标准 cron 最小间隔为 1 分钟（* * * * *）。需要亚分钟级调度可使用 systemd 定时器、任务队列或在 cron 任务内使用 sleep 循环。</p></details>
+<details class="faq-item"><summary>同时指定 DOM 和 DOW 会怎样？</summary><p>当日（DOM）和星期（DOW）字段均非通配符时，大多数 cron 实现（如 Vixie cron）采用 OR 逻辑：任一条件满足即执行。例：0 0 15 * 1 表示每月 15 日或每周一午夜执行。</p></details>`
+  },
+  ja: {
+    pageTitle: 'Cron 式パーサー - 無料オンライン Cron 解析ツール',
+    h1: 'Cron <span>パーサー</span>',
+    sub: 'Cron 式を人間が読める言語で説明',
+    backLink: '← ホーム',
+    langBtn: '🌐 한국어',
+    btnParse: '解析',
+    btnClear: 'クリア',
+    labelInput: 'Cron 式を入力',
+    labelDescription: '説明',
+    labelNextRuns: '次の 10 回の実行時刻',
+    labelFields: 'フィールド分析',
+    thField: 'フィールド', thValue: '値', thMeaning: '意味',
+    fieldNames: ['秒','分','時','日(DOM)','月','曜日(DOW)'],
+    fieldNames5: ['分','時','日(DOM)','月','曜日(DOW)'],
+    sampleEveryMin: '毎分',
+    sampleEveryHour: '毎時',
+    sampleMidnight: '毎日深夜',
+    sampleMonday: '毎週月曜',
+    sampleFirstDay: '毎月1日',
+    errInvalid: '無効な Cron 式です。スペース区切りで 5 または 6 フィールドを入力してください。',
+    days: ['日','月','火','水','木','金','土'],
+    descMin: n => n === '*' ? '毎分' : n.includes('/') ? `${n.split('/')[1]}分ごと` : `${n}分に`,
+    descHour: n => n === '*' ? '毎時' : n.includes('/') ? `${n.split('/')[1]}時間ごと` : `${n}時に`,
+    descDom: n => n === '*' ? '毎日' : `${n}日に`,
+    descMonth: n => n === '*' ? '毎月' : `${n}月に`,
+    descDow: n => {
+      if (n === '*') return '毎日（曜日問わず）';
+      const map = {0:'日',1:'月',2:'火',3:'水',4:'木',5:'金',6:'土'};
+      if (n.includes('-')) { const [a,b]=n.split('-'); return `${map[a]||a}〜${map[b]||b}曜日に`; }
+      if (n.includes(',')) return n.split(',').map(x=>(map[x.trim()]||x)+'曜').join('・')+'に';
+      return (map[n]||n)+'曜日に';
+    },
+    seoHtml: `<h2>Cron 式解析ガイド</h2>
+<p>Cron 式はスケジュールされたジョブの実行タイミングを定義します。標準の 5 フィールド形式は：<strong>分 時 日 月 曜日</strong>。Linux crontab、<strong>AWS EventBridge</strong>、<strong>GitHub Actions</strong>、<strong>Spring @Scheduled</strong> など多くの自動化プラットフォームで使用されます。</p>
+<p>このツールは Cron 式を日本語で説明し、次の 10 回の実行時刻を計算します。外部ライブラリ不要で、すべてブラウザ内で動作します。</p>
+<details class="faq-item"><summary>Cron とは何ですか？</summary><p>Cron は Unix/Linux システムで定期的にジョブを実行するデーモンです。crontab ファイルに記述した cron 式に従って、指定された時刻にコマンドを自動実行します。</p></details>
+<details class="faq-item"><summary>5 フィールドと 6 フィールドの Cron の違いは？</summary><p>標準 5 フィールド：分 時 日 月 曜日。6 フィールド（Spring @Scheduled・一部 AWS）は先頭に秒フィールドを追加：秒 分 時 日 月 曜日。このパーサーは両形式に対応しています。</p></details>
+<details class="faq-item"><summary>特殊文字 * / - , の意味は？</summary><p>* = 任意の値。/ = ステップ（*/5 = 5 単位ごと）。- = 範囲（1-5 = 1 から 5）。, = リスト（1,3,5 = それぞれ 1, 3, 5）。</p></details>
+<details class="faq-item"><summary>よく使う Cron パターンは？</summary><p>毎分：* * * * * | 毎時：0 * * * * | 毎日深夜：0 0 * * * | 5 分ごと：*/5 * * * * | 平日午前 9 時：0 9 * * 1-5 | 毎月 1 日：0 0 1 * *</p></details>
+<details class="faq-item"><summary>Cron のタイムゾーン問題は？</summary><p>標準 crontab はサーバーのシステムタイムゾーンを使用します。AWS EventBridge はデフォルト UTC、GitHub Actions も UTC です。使用環境のタイムゾーンを必ず確認してください。</p></details>
+<details class="faq-item"><summary>Cron と crontab の違いは？</summary><p>Cron はスケジュールされたジョブを実行するデーモン（バックグラウンドプロセス）で、crontab は実行するジョブとスケジュールを定義する設定ファイルです。crontab -e で編集します。</p></details>
+<details class="faq-item"><summary>Cron の最小実行間隔は？</summary><p>標準 cron の最小単位は 1 分（* * * * *）です。1 分未満が必要な場合は systemd タイマー、ジョブキュー、またはジョブ内の sleep ループを使用します。</p></details>
+<details class="faq-item"><summary>DOM と DOW を同時に指定するとどうなりますか？</summary><p>日（DOM）と曜日（DOW）が両方ともワイルドカード以外の場合、Vixie cron など多くの実装は OR 条件で実行します。例：0 0 15 * 1 は毎月 15 日または毎週月曜日の深夜に実行されます。</p></details>`
+  }
+};
+
+const LANGS = ['ko','en','zh','ja'];
+let lang = 'ko';
+const SAMPLES = ['* * * * *','0 * * * *','0 0 * * *','0 0 * * 1','0 0 1 * *'];
+
+function detectLang() {
+  const u = new URLSearchParams(location.search).get('lang');
+  if (u && i18n[u]) return u;
+  const s = localStorage.getItem('modoo_lang');
+  if (s && i18n[s]) return s;
+  const n = (navigator.language || '').slice(0, 2);
+  return n === 'zh' ? 'zh' : n === 'ja' ? 'ja' : n === 'ko' ? 'ko' : 'en';
+}
+
+function applyLang() {
+  const t = i18n[lang];
+  document.documentElement.lang = lang;
+  document.title = t.pageTitle;
+  document.getElementById('h1El').innerHTML = t.h1;
+  document.getElementById('subEl').textContent = t.sub;
+  document.getElementById('backLink').textContent = t.backLink;
+  document.getElementById('langBtn').textContent = t.langBtn;
+  document.getElementById('btnParse').textContent = t.btnParse;
+  document.getElementById('btnClear').textContent = t.btnClear;
+  document.getElementById('labelInput').textContent = t.labelInput;
+  document.getElementById('labelDescription').textContent = t.labelDescription;
+  document.getElementById('labelNextRuns').textContent = t.labelNextRuns;
+  document.getElementById('labelFields').textContent = t.labelFields;
+  document.getElementById('thField').textContent = t.thField;
+  document.getElementById('thValue').textContent = t.thValue;
+  document.getElementById('thMeaning').textContent = t.thMeaning;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const k = el.dataset.i18n;
+    if (t[k] !== undefined) el.innerHTML = t[k];
+  });
+  renderSamples();
+  // Re-parse if active
+  const val = document.getElementById('cronInput').value.trim();
+  if (val) doParse();
+}
+
+function toggleLang() {
+  const idx = LANGS.indexOf(lang);
+  lang = LANGS[(idx + 1) % LANGS.length];
+  localStorage.setItem('modoo_lang', lang);
+  const url = new URL(location.href);
+  url.searchParams.set('lang', lang);
+  history.replaceState({}, '', url);
+  applyLang();
+}
+
+function renderSamples() {
+  const t = i18n[lang];
+  const labels = [t.sampleEveryMin, t.sampleEveryHour, t.sampleMidnight, t.sampleMonday, t.sampleFirstDay];
+  document.getElementById('samplesRow').innerHTML = SAMPLES.map((s, i) =>
+    `<div class="sample-chip" onclick="loadSample('${s}')">${labels[i]} <span style="opacity:.6">${s}</span></div>`
+  ).join('');
+}
+
+function loadSample(expr) {
+  document.getElementById('cronInput').value = expr;
+  onCronInput();
+  doParse();
+}
+
+function onCronInput() {
+  const val = document.getElementById('cronInput').value.trim();
+  const el = document.getElementById('cronInput');
+  if (!val) { el.className = 'cron-input'; return; }
+  const parts = val.split(/\s+/);
+  el.className = 'cron-input ' + (parts.length >= 5 && parts.length <= 6 ? 'valid' : 'invalid');
+}
+
+function clearAll() {
+  document.getElementById('cronInput').value = '';
+  document.getElementById('cronInput').className = 'cron-input';
+  document.getElementById('resultPanel').classList.remove('show');
+}
+
+// ---------- Cron logic ----------
+function matchField(field, val, minV, maxV) {
+  if (field === '*' || field === '?') return true;
+  if (field.includes('/')) {
+    const [start, step] = field.split('/');
+    const s = start === '*' ? minV : parseInt(start);
+    return val >= s && (val - s) % parseInt(step) === 0;
+  }
+  if (field.includes(',')) return field.split(',').some(f => matchField(f.trim(), val, minV, maxV));
+  if (field.includes('-')) {
+    const [lo, hi] = field.split('-').map(Number);
+    return val >= lo && val <= hi;
+  }
+  return parseInt(field) === val;
+}
+
+function getNextRuns(expr, count) {
+  count = count || 10;
+  const parts = expr.trim().split(/\s+/);
+  if (parts.length < 5 || parts.length > 6) return [];
+  const [min, hour, dom, month, dow] = parts.slice(-5);
+  const runs = [];
+  let d = new Date();
+  d.setSeconds(0, 0);
+  d.setMinutes(d.getMinutes() + 1);
+  const limit = new Date(Date.now() + 366 * 24 * 60 * 60 * 1000);
+  while (runs.length < count && d <= limit) {
+    if (
+      matchField(month, d.getMonth() + 1, 1, 12) &&
+      matchField(dom, d.getDate(), 1, 31) &&
+      matchField(dow, d.getDay(), 0, 6) &&
+      matchField(hour, d.getHours(), 0, 23) &&
+      matchField(min, d.getMinutes(), 0, 59)
+    ) {
+      runs.push(new Date(d));
+    }
+    d.setMinutes(d.getMinutes() + 1);
+  }
+  return runs;
+}
+
+function describeField(fieldName, value, t) {
+  switch (fieldName) {
+    case 'min': return t.descMin(value);
+    case 'hour': return t.descHour(value);
+    case 'dom': return t.descDom(value);
+    case 'month': return t.descMonth(value);
+    case 'dow': return t.descDow(value);
+    default: return value;
+  }
+}
+
+function formatDate(d) {
+  const t = i18n[lang];
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}.${pad(d.getMonth()+1)}.${pad(d.getDate())} (${t.days[d.getDay()]}) ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function relTime(d) {
+  const ms = d - Date.now();
+  const m = Math.round(ms / 60000);
+  if (m < 60) return `+${m}m`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `+${h}h${m%60?m%60+'m':''}`;
+  return `+${Math.floor(h/24)}d`;
+}
+
+function doParse() {
+  const val = document.getElementById('cronInput').value.trim();
+  if (!val) return;
+  const t = i18n[lang];
+  const panel = document.getElementById('resultPanel');
+  panel.classList.add('show');
+
+  const parts = val.split(/\s+/);
+  if (parts.length < 5 || parts.length > 6) {
+    document.getElementById('descBox').textContent = t.errInvalid;
+    document.getElementById('descBox').className = 'desc-box error-box';
+    document.getElementById('fieldBody').innerHTML = '';
+    document.getElementById('nextList').innerHTML = '';
+    return;
+  }
+
+  const is6 = parts.length === 6;
+  const fieldKeys = is6 ? ['sec','min','hour','dom','month','dow'] : ['min','hour','dom','month','dow'];
+  const fieldNamesArr = is6 ? t.fieldNames : t.fieldNames5;
+  const fieldDescs = is6
+    ? [n=>n, t.descMin, t.descHour, t.descDom, t.descMonth, t.descDow]
+    : [t.descMin, t.descHour, t.descDom, t.descMonth, t.descDow];
+
+  // Build description
+  const [min, hour, dom, month, dow] = parts.slice(-5);
+  const descParts = [
+    describeField('min', min, t),
+    describeField('hour', hour, t),
+    describeField('dom', dom, t),
+    describeField('month', month, t),
+    describeField('dow', dow, t),
+  ];
+  const desc = descParts.filter(d => d && !d.includes('every') && !d.includes('매') && !d.includes('毎') && !d.includes('每')).join(', ') || descParts.join(', ');
+  document.getElementById('descBox').textContent = descParts.join(' · ');
+  document.getElementById('descBox').className = 'desc-box';
+
+  // Field table
+  document.getElementById('fieldBody').innerHTML = parts.map((v, i) =>
+    `<tr><td class="field-name">${fieldNamesArr[i]||''}</td><td class="field-val">${v}</td><td class="field-meaning">${fieldDescs[i]?fieldDescs[i](v):v}</td></tr>`
+  ).join('');
+
+  // Next runs
+  const runs = getNextRuns(val, 10);
+  document.getElementById('nextList').innerHTML = runs.length
+    ? runs.map((d, i) =>
+        `<div class="next-item"><span class="next-num">${i+1}</span><span class="next-time">${formatDate(d)}</span><span class="next-rel">${relTime(d)}</span></div>`
+      ).join('')
+    : `<div style="font-size:13px;color:var(--text-muted);padding:10px;">No runs found within 1 year</div>`;
+}
+
+// Init
+lang = detectLang();
+applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

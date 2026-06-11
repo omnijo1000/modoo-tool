@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="pageTitle">JSON 검증기 - JSON 유효성 검사 도구</title>
+<meta name="description" content="JSON validator online. Paste JSON to check syntax instantly. Shows error line, column, and message. Displays key count, nesting depth, and character stats.">
+<meta name="keywords" content="JSON 검증기, JSON validator, JSON 유효성 검사, JSON syntax checker, JSON error checker">
+<link rel="canonical" href="https://modoohub.com/json-validator.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/json-validator.html?lang=ko">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/json-validator.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/json-validator.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/json-validator.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/json-validator.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0a0a0a; --surface:#141414; --surface2:#1a1a1a; --border:#252525;
+    --accent:#fbbf24; --accent2:#f59e0b; --accent-dim:rgba(251,191,36,0.08);
+    --text:#f5f5f5; --text-muted:#888; --text-dim:#444;
+    --green:#4ade80; --red:#f87171; --blue:#60a5fa; --purple:#c084fc;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:'Noto Sans KR',sans-serif; min-height:100vh; }
+  header { border-bottom:1px solid var(--border); padding:20px 24px; display:flex; align-items:center; gap:12px; }
+  .dot { width:8px; height:8px; border-radius:50%; background:var(--accent); }
+  .header-label { font-size:13px; color:var(--text-muted); letter-spacing:0.1em; font-family:'DM Mono',monospace; }
+  .back-link { margin-left:auto; font-size:13px; color:var(--text-muted); text-decoration:none; }
+  .back-link:hover { color:var(--accent); }
+  .lang-toggle { font-size:12px; color:var(--text-muted); cursor:pointer; padding:4px 10px; border:1px solid var(--border); border-radius:6px; font-family:'DM Mono',monospace; transition:all 0.15s; margin-left:8px; }
+  .lang-toggle:hover { border-color:var(--accent); color:var(--accent); }
+  main { max-width:900px; margin:0 auto; padding:40px 24px; }
+  h1 { font-size:clamp(24px,4vw,34px); font-weight:900; line-height:1.1; margin-bottom:10px; }
+  h1 span { color:var(--accent); }
+  .subtitle { color:var(--text-muted); font-size:14px; margin-bottom:28px; }
+  .toolbar { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; align-items:center; }
+  .btn { background:var(--surface2); border:1px solid var(--border); border-radius:7px; padding:7px 14px; font-size:13px; color:var(--text-muted); cursor:pointer; font-family:'Noto Sans KR',sans-serif; transition:all 0.15s; }
+  .btn:hover { border-color:var(--accent2); color:var(--accent); }
+  .btn.primary { background:var(--accent2); border-color:var(--accent2); color:#000; font-weight:700; }
+  .btn.primary:hover { opacity:0.85; color:#000; }
+  .btn.danger:hover { border-color:var(--red); color:var(--red); }
+  textarea { width:100%; min-height:400px; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:16px; font-family:'DM Mono',monospace; font-size:13px; color:var(--text); outline:none; resize:vertical; line-height:1.6; }
+  textarea:focus { border-color:var(--accent2); }
+  textarea.error { border-color:var(--red); }
+  textarea.success { border-color:var(--green); }
+  .status { display:flex; align-items:center; gap:10px; padding:10px 16px; border-radius:8px; font-size:13px; margin-bottom:20px; }
+  .status.idle { background:var(--surface); border:1px solid var(--border); color:var(--text-muted); }
+  .status.ok { background:rgba(74,222,128,0.08); border:1px solid rgba(74,222,128,0.3); color:var(--green); }
+  .status.err { background:rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.3); color:var(--red); }
+  .status-dot { width:7px; height:7px; border-radius:50%; background:currentColor; flex-shrink:0; }
+  .stats { display:flex; gap:12px; flex-wrap:wrap; margin-top:16px; margin-bottom:32px; }
+  .stat { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:10px 16px; font-size:12px; }
+  .stat-label { color:var(--text-dim); margin-bottom:3px; }
+  .stat-value { font-family:'DM Mono',monospace; color:var(--text-muted); font-size:14px; }
+  .editor-box { display:flex; flex-direction:column; margin-bottom:12px; }
+  .editor-label { font-size:11px; color:var(--text-dim); letter-spacing:0.08em; margin-bottom:8px; text-transform:uppercase; display:flex; justify-content:space-between; align-items:center; }
+  .copy-small { font-size:11px; color:var(--text-dim); cursor:pointer; padding:3px 8px; border:1px solid var(--border); border-radius:4px; transition:all 0.15s; }
+  .copy-small:hover { color:var(--accent); border-color:var(--accent2); }
+  .seo { border-top:1px solid var(--border); padding-top:32px; }
+  .seo h2 { font-size:16px; font-weight:700; margin-bottom:12px; }
+  .seo p { font-size:13px; color:var(--text-muted); line-height:1.8; margin-bottom:24px; }
+  footer { text-align:center; font-size:12px; color:var(--text-dim); margin-top:48px; padding-bottom:32px; }
+  details.faq-item { border:1px solid var(--border); border-radius:10px; margin-bottom:8px; overflow:hidden; }
+  details.faq-item summary { font-size:14px; font-weight:600; padding:14px 18px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; background:var(--surface); user-select:none; list-style:none; }
+  details.faq-item summary::-webkit-details-marker { display:none; }
+  details.faq-item summary::after { content:'▼'; font-size:11px; color:var(--text-muted); transition:transform .2s; flex-shrink:0; margin-left:12px; }
+  details.faq-item[open] summary::after { transform:rotate(180deg); }
+  details.faq-item summary:hover { color:var(--accent); }
+  details.faq-item p { font-size:13px; color:var(--text-muted); line-height:1.8; padding:0 18px 14px; background:var(--surface); }
+  .faq-section { margin-top:40px; border-top:1px solid var(--border); padding-top:32px; }
+  .faq-section h2 { font-size:16px; font-weight:700; margin-bottom:16px; }
+</style>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-NR6VJF0534');
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<meta property="og:title" content="JSON 검증기 | MODOO HUB">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is JSON validation?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "JSON validation checks whether a string conforms to the JSON syntax standard (RFC 8259). A validator parses the input and reports errors like missing quotes, trailing commas, or mismatched brackets."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What are common JSON errors?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The most common JSON errors are trailing commas after the last item in an array or object, unquoted or single-quoted keys, missing closing brackets, and unescaped special characters inside strings."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the difference between a JSON validator and a JSON formatter?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A JSON formatter pretty-prints and indents JSON for readability. A JSON validator strictly checks syntax and reports the exact error location without modifying the input."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is RFC 8259?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "RFC 8259 is the Internet Standard that defines the JSON data-interchange format. It specifies that all keys must be double-quoted strings and that trailing commas, comments, and undefined values are not permitted."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "When should I validate JSON?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Validate JSON before sending it to an API, when debugging failed network requests, when editing configuration files by hand, or when integrating data from external sources."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does JSON reject comments?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The JSON specification was intentionally designed without comments to keep parsing simple and deterministic. If you need comments, use JSONC or JSON5, which are supersets of JSON that allow them."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Are there number precision issues in JSON?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "JSON numbers are parsed as IEEE 754 double-precision floats. Integers larger than 2^53 lose precision. For large IDs or financial values, represent them as strings instead."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is my JSON data safe to paste here?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. All validation runs entirely in your browser using JavaScript. No data is sent to any server, so API keys, tokens, and other sensitive JSON are completely safe."
+      }
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "JSON Validator",
+  "url": "https://modoohub.com/json-validator.html",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "All",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "description": "Free online JSON validator. Paste JSON to check syntax instantly. Shows error line, column, and message. Displays key count, nesting depth, and character stats. All processing runs in your browser."
+}
+</script>
+</head>
+<body>
+<header>
+  <div class="dot"></div>
+  <span class="header-label">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <div class="lang-toggle" onclick="toggleLang()" id="langBtn">🌐 EN</div>
+</header>
+<main>
+  <h1 id="h1Title">JSON<br><span>검증기</span></h1>
+  <p class="subtitle" id="h1Sub">JSON을 붙여넣으면 즉시 유효성을 검사합니다</p>
+
+  <div class="toolbar">
+    <button class="btn" id="btnPaste" onclick="pasteClipboard()">붙여넣기</button>
+    <button class="btn danger" id="btnClear" onclick="clearAll()">지우기</button>
+    <button class="btn" id="btnSample" onclick="loadSample()">샘플</button>
+  </div>
+
+  <div class="status idle" id="status">
+    <div class="status-dot"></div>
+    <span id="statusText">JSON을 입력하거나 붙여넣으세요</span>
+  </div>
+
+  <div class="editor-box">
+    <div class="editor-label">
+      <span id="labelInput">입력</span>
+      <span class="copy-small" id="copyBtn" onclick="copyInput()">복사</span>
+    </div>
+    <textarea id="taInput" placeholder='{"name":"Alice","age":30}' oninput="validate()"></textarea>
+  </div>
+
+  <div class="stats" id="statsRow" style="display:none">
+    <div class="stat"><div class="stat-label" id="statKeysLabel">키 수</div><div class="stat-value" id="statKeysVal">-</div></div>
+    <div class="stat"><div class="stat-label" id="statDepthLabel">깊이</div><div class="stat-value" id="statDepthVal">-</div></div>
+    <div class="stat"><div class="stat-label" id="statCharsLabel">문자 수</div><div class="stat-value" id="statCharsVal">-</div></div>
+  </div>
+
+  <div class="seo" id="seoSection"></div>
+
+  <footer id="footerText">모든 처리는 브라우저에서만 이루어집니다 · 서버로 전송되지 않습니다</footer>
+</main>
+<script>
+// ── i18n ────────────────────────────────────────────────────────────
+const i18n = {
+  ko: {
+    pageTitle: 'JSON 검증기 - JSON 유효성 검사 도구',
+    h1: 'JSON<br><span>검증기</span>',
+    sub: 'JSON을 붙여넣으면 즉시 유효성을 검사합니다',
+    backLink: '← 모두의 툴',
+    langBtn: '🌐 EN',
+    btnPaste: '붙여넣기',
+    btnClear: '지우기',
+    btnSample: '샘플',
+    labelInput: '입력',
+    statusIdle: 'JSON을 입력하거나 붙여넣으세요',
+    statusValid: '✓ 유효한 JSON입니다',
+    statusError: '✗ JSON 오류',
+    statKeys: '키 수',
+    statDepth: '깊이',
+    statChars: '문자 수',
+    copyBtn: '복사',
+    copyDone: '복사됨 ✓',
+    footer: '모든 처리는 브라우저에서만 이루어집니다 · 서버로 전송되지 않습니다',
+    seoHtml: `<h2>JSON 검증기란?</h2>
+<p>JSON 검증기(JSON Validator)는 입력된 문자열이 JSON 표준(RFC 8259)에 맞는 올바른 형식인지 검사하는 도구입니다. API 응답, 설정 파일, 데이터 교환 등 다양한 상황에서 JSON을 직접 편집하다 보면 후행 쉼표, 큰따옴표 누락, 괄호 불일치 같은 오류가 쉽게 발생합니다. 이 도구는 JSON을 붙여넣는 즉시 오류 위치와 메시지를 표시하고, 유효한 경우 키 수·중첩 깊이·문자 수 통계를 함께 제공합니다. 모든 처리는 브라우저 내에서만 이루어지므로 API 키나 인증 토큰이 포함된 민감한 데이터도 안전하게 검증할 수 있습니다.</p>
+<div class="faq-section"><h2>자주 묻는 질문</h2>
+<details class="faq-item"><summary>JSON 유효성 검사란 무엇인가요?</summary><p>JSON 유효성 검사는 입력 문자열이 RFC 8259 표준에 정의된 JSON 문법을 준수하는지 확인하는 과정입니다. 파서가 입력을 분석하여 큰따옴표 누락, 후행 쉼표, 중괄호 불일치 등의 오류를 보고합니다.</p></details>
+<details class="faq-item"><summary>자주 발생하는 JSON 오류는 무엇인가요?</summary><p>가장 흔한 오류는 배열이나 객체 마지막 항목 뒤의 후행 쉼표, 키나 문자열 값에 사용된 작은따옴표, 닫는 괄호 누락, 문자열 내 이스케이프되지 않은 특수문자입니다.</p></details>
+<details class="faq-item"><summary>JSON 검증기와 JSON 포맷터의 차이는 무엇인가요?</summary><p>JSON 포맷터는 JSON에 들여쓰기와 줄바꿈을 추가해 가독성을 높입니다. JSON 검증기는 입력을 수정하지 않고 오류 위치만 정확히 알려줍니다. 두 기능을 모두 원하면 JSON 포맷터를 사용하세요.</p></details>
+<details class="faq-item"><summary>RFC 8259란 무엇인가요?</summary><p>RFC 8259는 JSON 데이터 교환 형식을 정의하는 인터넷 표준입니다. 모든 키는 큰따옴표로 감싼 문자열이어야 하며, 후행 쉼표·주석·undefined 값은 허용되지 않습니다.</p></details>
+<details class="faq-item"><summary>JSON 검증은 언제 사용해야 하나요?</summary><p>API에 데이터를 전송하기 전, 실패한 네트워크 요청을 디버깅할 때, 설정 파일을 직접 편집한 후, 외부 소스에서 받은 데이터를 통합할 때 JSON을 검증하세요.</p></details>
+<details class="faq-item"><summary>JSON에서 주석을 사용할 수 없는 이유는 무엇인가요?</summary><p>JSON 사양은 파싱을 단순하고 결정적으로 유지하기 위해 의도적으로 주석을 제외했습니다. 주석이 필요하다면 JSON의 상위 집합인 JSONC 또는 JSON5를 사용하세요.</p></details>
+<details class="faq-item"><summary>JSON에서 숫자 정밀도 문제가 있나요?</summary><p>JSON 숫자는 IEEE 754 배정밀도 부동소수점으로 파싱됩니다. 2^53보다 큰 정수는 정밀도가 손실됩니다. 대형 ID나 금융 값은 문자열로 표현하는 것이 안전합니다.</p></details>
+<details class="faq-item"><summary>여기에 JSON을 붙여넣어도 안전한가요?</summary><p>네. 모든 검증은 JavaScript를 사용하여 브라우저 내에서만 실행됩니다. 데이터는 서버로 전송되지 않으므로 API 키, 토큰, 기타 민감한 JSON도 완전히 안전합니다.</p></details>
+</div>`
+  },
+  en: {
+    pageTitle: 'JSON Validator - Check JSON Syntax Instantly',
+    h1: 'JSON<br><span>Validator</span>',
+    sub: 'Paste JSON to validate syntax and see stats instantly',
+    backLink: '← Modoo Hub',
+    langBtn: '🌐 中文',
+    btnPaste: 'Paste',
+    btnClear: 'Clear',
+    btnSample: 'Sample',
+    labelInput: 'Input',
+    statusIdle: 'Paste or type your JSON here',
+    statusValid: '✓ Valid JSON',
+    statusError: '✗ JSON error',
+    statKeys: 'Keys',
+    statDepth: 'Depth',
+    statChars: 'Characters',
+    copyBtn: 'Copy',
+    copyDone: 'Copied ✓',
+    footer: 'All processing runs in your browser · Never sent to any server',
+    seoHtml: `<h2>What is a JSON Validator?</h2>
+<p>A JSON Validator checks whether a string conforms to the JSON syntax standard defined by RFC 8259. When you manually edit API responses, configuration files, or data payloads, errors like trailing commas, missing quotes, and mismatched brackets are easy to introduce. This tool validates your JSON instantly as you type — showing the exact error message from the parser — and, when the JSON is valid, displays key count, nesting depth, and character count statistics. All processing runs locally in your browser, so API keys, auth tokens, and other sensitive data are safe to paste.</p>
+<div class="faq-section"><h2>Frequently Asked Questions</h2>
+<details class="faq-item"><summary>What is JSON validation?</summary><p>JSON validation checks whether a string conforms to the JSON syntax standard (RFC 8259). A validator parses the input and reports errors like missing quotes, trailing commas, or mismatched brackets with the exact position.</p></details>
+<details class="faq-item"><summary>What are common JSON errors?</summary><p>The most common JSON errors are trailing commas after the last item in an array or object, single-quoted keys or values, missing closing brackets, and unescaped special characters inside strings.</p></details>
+<details class="faq-item"><summary>What is the difference between a JSON validator and a JSON formatter?</summary><p>A JSON formatter pretty-prints and indents JSON for readability. A JSON validator strictly checks syntax and reports the exact error location without modifying the input. Use the JSON Formatter if you want both.</p></details>
+<details class="faq-item"><summary>What is RFC 8259?</summary><p>RFC 8259 is the Internet Standard that defines the JSON data-interchange format. It specifies that all keys must be double-quoted strings and that trailing commas, comments, and undefined values are not permitted.</p></details>
+<details class="faq-item"><summary>When should I validate JSON?</summary><p>Validate JSON before sending it to an API, when debugging failed network requests, after editing configuration files by hand, or when integrating data from external sources into your application.</p></details>
+<details class="faq-item"><summary>Why does JSON reject comments?</summary><p>The JSON specification was intentionally designed without comments to keep parsing simple and deterministic. If you need comments, use JSONC or JSON5, which are supersets of JSON that allow them.</p></details>
+<details class="faq-item"><summary>Are there number precision issues in JSON?</summary><p>JSON numbers are parsed as IEEE 754 double-precision floats. Integers larger than 2^53 lose precision. For large IDs or financial values, represent them as strings to avoid data loss.</p></details>
+<details class="faq-item"><summary>Is my JSON data safe to paste here?</summary><p>Yes. All validation runs entirely in your browser using JavaScript. No data is sent to any server, so API keys, tokens, and other sensitive JSON are completely safe to use here.</p></details>
+</div>`
+  },
+  zh: {
+    pageTitle: 'JSON 验证器 - 在线检查 JSON 语法',
+    h1: 'JSON<br><span>验证器</span>',
+    sub: '粘贴 JSON 即可立即验证语法',
+    backLink: '← 首页',
+    langBtn: '🌐 日本語',
+    btnPaste: '粘贴',
+    btnClear: '清空',
+    btnSample: '示例',
+    labelInput: '输入 JSON',
+    statusIdle: '请粘贴或输入 JSON',
+    statusValid: '✓ 合法 JSON',
+    statusError: '✗ JSON 错误',
+    statKeys: '键数量',
+    statDepth: '嵌套深度',
+    statChars: '字符数',
+    copyBtn: '复制',
+    copyDone: '已复制 ✓',
+    footer: '所有处理均在浏览器本地完成 · 不会发送到任何服务器',
+    seoHtml: `<h2>什么是 JSON 验证器？</h2>
+<p>JSON 验证器用于检查字符串是否符合 RFC 8259 定义的 JSON 语法标准。在手动编辑 API 响应、配置文件或数据时，很容易引入尾随逗号、缺少引号、括号不匹配等错误。本工具在输入时即时验证 JSON，显示解析器返回的精确错误信息，并在 JSON 有效时展示键数量、嵌套深度和字符数统计。所有处理均在浏览器本地完成，API 密钥、认证令牌等敏感数据可放心粘贴使用。</p>
+<div class="faq-section"><h2>常见问题</h2>
+<details class="faq-item"><summary>什么是 JSON 验证？</summary><p>JSON 验证检查字符串是否符合 RFC 8259 标准定义的 JSON 语法。验证器会解析输入并报告缺少引号、尾随逗号、括号不匹配等错误及其确切位置。</p></details>
+<details class="faq-item"><summary>常见的 JSON 错误有哪些？</summary><p>最常见的 JSON 错误包括：数组或对象最后一项后的尾随逗号、使用单引号的键或值、缺少关闭括号，以及字符串内未转义的特殊字符。</p></details>
+<details class="faq-item"><summary>JSON 验证器和 JSON 格式化有什么区别？</summary><p>JSON 格式化工具会对 JSON 进行美化缩进以提高可读性；JSON 验证器不修改输入，只精确报告错误位置。如果两者都需要，请使用 JSON 格式化工具。</p></details>
+<details class="faq-item"><summary>什么是 RFC 8259？</summary><p>RFC 8259 是定义 JSON 数据交换格式的互联网标准。它规定所有键必须是双引号字符串，不允许使用尾随逗号、注释和 undefined 值。</p></details>
+<details class="faq-item"><summary>什么时候需要验证 JSON？</summary><p>在向 API 发送数据之前、调试失败的网络请求时、手动编辑配置文件后，或将外部数据集成到应用程序时，建议进行 JSON 验证。</p></details>
+<details class="faq-item"><summary>为什么 JSON 不支持注释？</summary><p>JSON 规范有意不包含注释，以保持解析的简单性和确定性。如果需要注释，请使用 JSON 的超集 JSONC 或 JSON5。</p></details>
+<details class="faq-item"><summary>JSON 中存在数字精度问题吗？</summary><p>JSON 数字被解析为 IEEE 754 双精度浮点数。大于 2^53 的整数会丢失精度。对于大型 ID 或金融数值，建议用字符串表示。</p></details>
+<details class="faq-item"><summary>在此粘贴 JSON 数据安全吗？</summary><p>安全。所有验证均在浏览器中通过 JavaScript 本地执行，不会向任何服务器发送数据，API 密钥、令牌等敏感 JSON 完全安全。</p></details>
+</div>`
+  },
+  ja: {
+    pageTitle: 'JSON バリデーター - JSON 構文チェックツール',
+    h1: 'JSON<br><span>バリデーター</span>',
+    sub: 'JSONを貼り付けて構文を即座に検証',
+    backLink: '← ホーム',
+    langBtn: '🌐 한국어',
+    btnPaste: '貼り付け',
+    btnClear: 'クリア',
+    btnSample: 'サンプル',
+    labelInput: '入力',
+    statusIdle: 'JSONを入力または貼り付けてください',
+    statusValid: '✓ 有効な JSON',
+    statusError: '✗ JSON エラー',
+    statKeys: 'キー数',
+    statDepth: 'ネスト深さ',
+    statChars: '文字数',
+    copyBtn: 'コピー',
+    copyDone: 'コピー完了 ✓',
+    footer: 'すべての処理はブラウザ内のみで行われます · サーバーには送信されません',
+    seoHtml: `<h2>JSON バリデーターとは？</h2>
+<p>JSON バリデーターは、入力した文字列が RFC 8259 で定義された JSON 構文標準に準拠しているかを検査するツールです。API レスポンスや設定ファイルを手動で編集する際、末尾カンマ・引用符の欠落・括弧の不一致といったエラーは簡単に発生します。本ツールは入力と同時に JSON を即時検証し、パーサーが返す正確なエラーメッセージを表示します。JSON が有効な場合はキー数・ネスト深さ・文字数の統計も表示します。すべての処理がブラウザ内で完結するため、API キーや認証トークンを含む機密データも安全に貼り付けて使用できます。</p>
+<div class="faq-section"><h2>よくある質問</h2>
+<details class="faq-item"><summary>JSON 検証とは何ですか？</summary><p>JSON 検証は、入力文字列が RFC 8259 標準で定義された JSON 構文に準拠しているかを確認する処理です。バリデーターは入力を解析し、引用符の欠落・末尾カンマ・括弧の不一致などのエラーと正確な位置を報告します。</p></details>
+<details class="faq-item"><summary>よくある JSON エラーは何ですか？</summary><p>最もよくあるエラーは、配列またはオブジェクトの最後の要素後の末尾カンマ、シングルクォートで囲まれたキーや値、閉じ括弧の欠落、文字列内のエスケープされていない特殊文字です。</p></details>
+<details class="faq-item"><summary>JSON バリデーターとフォーマッターの違いは？</summary><p>JSON フォーマッターはインデントと改行を追加して可読性を高めます。JSON バリデーターは入力を変更せず、エラーの正確な位置のみを報告します。両方必要な場合は JSON フォーマッターを使用してください。</p></details>
+<details class="faq-item"><summary>RFC 8259 とは何ですか？</summary><p>RFC 8259 は JSON データ交換フォーマットを定義するインターネット標準です。すべてのキーはダブルクォートで囲む必要があり、末尾カンマ・コメント・undefined 値は許可されていません。</p></details>
+<details class="faq-item"><summary>JSON を検証すべき場面はいつですか？</summary><p>API にデータを送信する前、失敗したネットワークリクエストをデバッグする際、設定ファイルを手動で編集した後、外部ソースのデータを統合する際に JSON を検証することをお勧めします。</p></details>
+<details class="faq-item"><summary>JSON でコメントが使えない理由は？</summary><p>JSON 仕様はパースをシンプルかつ決定的に保つため、意図的にコメントを除外しました。コメントが必要な場合は、JSON のスーパーセットである JSONC または JSON5 を使用してください。</p></details>
+<details class="faq-item"><summary>JSON に数値精度の問題はありますか？</summary><p>JSON の数値は IEEE 754 倍精度浮点数として解析されます。2^53 を超える整数は精度が失われます。大きな ID や金融値は文字列として表現することでデータ損失を防げます。</p></details>
+<details class="faq-item"><summary>ここに JSON を貼り付けても安全ですか？</summary><p>はい。すべての検証は JavaScript を使用してブラウザ内でローカルに実行されます。データはサーバーに送信されないため、API キーやトークンなどの機密 JSON も完全に安全です。</p></details>
+</div>`
+  }
+};
+
+// ── 言語検出 ────────────────────────────────────────────────────────
+let lang = (new URLSearchParams(location.search).get('lang')) || localStorage.getItem('modoo_lang');
+if (!lang || !i18n[lang]) {
+  const nav = navigator.language || '';
+  if (nav.startsWith('zh')) lang = 'zh';
+  else if (nav.startsWith('ja')) lang = 'ja';
+  else if (nav.startsWith('ko')) lang = 'ko';
+  else lang = 'en';
+}
+
+function applyLang() {
+  const t = i18n[lang];
+  document.documentElement.lang = lang;
+  document.title = t.pageTitle;
+  if (document.getElementById('h1Title')) document.getElementById('h1Title').innerHTML = t.h1;
+  if (document.getElementById('h1Sub')) document.getElementById('h1Sub').textContent = t.sub;
+  if (document.getElementById('backLink')) document.getElementById('backLink').textContent = t.backLink;
+  if (document.getElementById('langBtn')) document.getElementById('langBtn').textContent = t.langBtn;
+  if (document.getElementById('btnPaste')) document.getElementById('btnPaste').textContent = t.btnPaste;
+  if (document.getElementById('btnClear')) document.getElementById('btnClear').textContent = t.btnClear;
+  if (document.getElementById('btnSample')) document.getElementById('btnSample').textContent = t.btnSample;
+  if (document.getElementById('labelInput')) document.getElementById('labelInput').textContent = t.labelInput;
+  if (document.getElementById('copyBtn')) document.getElementById('copyBtn').textContent = t.copyBtn;
+  if (document.getElementById('statKeysLabel')) document.getElementById('statKeysLabel').textContent = t.statKeys;
+  if (document.getElementById('statDepthLabel')) document.getElementById('statDepthLabel').textContent = t.statDepth;
+  if (document.getElementById('statCharsLabel')) document.getElementById('statCharsLabel').textContent = t.statChars;
+  if (document.getElementById('footerText')) document.getElementById('footerText').textContent = t.footer;
+  if (document.getElementById('seoSection')) document.getElementById('seoSection').innerHTML = t.seoHtml;
+  // reset status text to idle
+  const st = document.getElementById('status');
+  if (st && st.classList.contains('idle')) {
+    document.getElementById('statusText').textContent = t.statusIdle;
+  }
+}
+
+function toggleLang() {
+  const order = ['ko', 'en', 'zh', 'ja'];
+  const idx = order.indexOf(lang);
+  lang = order[(idx + 1) % order.length];
+  localStorage.setItem('modoo_lang', lang);
+  const url = new URL(location.href);
+  url.searchParams.set('lang', lang);
+  history.replaceState(null, '', url.toString());
+  applyLang();
+}
+
+// ── JSON Logic ──────────────────────────────────────────────────────
+const SAMPLE = '{"user":{"id":1,"name":"Alice","email":"alice@example.com"},"roles":["admin","editor"],"active":true,"score":98.5}';
+
+function getDepth(obj, d) {
+  if (d === undefined) d = 0;
+  if (typeof obj !== 'object' || obj === null) return d;
+  const vals = Array.isArray(obj) ? obj : Object.values(obj);
+  if (!vals.length) return d;
+  return Math.max.apply(null, vals.map(function(v){ return getDepth(v, d + 1); }));
+}
+
+function countKeys(obj) {
+  if (typeof obj !== 'object' || obj === null) return 0;
+  let n = Object.keys(obj).length;
+  Object.values(obj).forEach(function(v){ n += countKeys(v); });
+  return n;
+}
+
+function showStatus(type, msg) {
+  const el = document.getElementById('status');
+  el.className = 'status ' + type;
+  document.getElementById('statusText').textContent = msg;
+}
+
+function clearStats() {
+  document.getElementById('statsRow').style.display = 'none';
+}
+
+function showStats(keys, depth, chars) {
+  document.getElementById('statKeysVal').textContent = keys;
+  document.getElementById('statDepthVal').textContent = depth;
+  document.getElementById('statCharsVal').textContent = chars;
+  document.getElementById('statsRow').style.display = 'flex';
+}
+
+function validate() {
+  const ta = document.getElementById('taInput');
+  const text = ta.value.trim();
+  if (!text) {
+    ta.className = '';
+    showStatus('idle', i18n[lang].statusIdle);
+    clearStats();
+    return;
+  }
+  try {
+    const obj = JSON.parse(text);
+    ta.className = 'success';
+    showStatus('ok', i18n[lang].statusValid + ' · ' + text.length + ' chars');
+    const depth = getDepth(obj);
+    const keys = countKeys(obj);
+    showStats(keys, depth, text.length);
+  } catch(e) {
+    ta.className = 'error';
+    showStatus('err', i18n[lang].statusError + ': ' + e.message);
+    clearStats();
+  }
+}
+
+function clearAll() {
+  const ta = document.getElementById('taInput');
+  ta.value = '';
+  ta.className = '';
+  showStatus('idle', i18n[lang].statusIdle);
+  clearStats();
+}
+
+function loadSample() {
+  document.getElementById('taInput').value = SAMPLE;
+  validate();
+}
+
+async function pasteClipboard() {
+  try {
+    const text = await navigator.clipboard.readText();
+    document.getElementById('taInput').value = text;
+    validate();
+  } catch(e) {
+    showStatus('err', 'Clipboard access denied');
+  }
+}
+
+function copyInput() {
+  const text = document.getElementById('taInput').value;
+  if (!text) return;
+  navigator.clipboard.writeText(text).then(function() {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = i18n[lang].copyDone;
+    btn.style.color = 'var(--green)';
+    setTimeout(function(){ btn.textContent = i18n[lang].copyBtn; btn.style.color = ''; }, 2000);
+  });
+}
+
+// ── Init ────────────────────────────────────────────────────────────
+applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>
