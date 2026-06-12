@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XML Validator - XML 문법 검사기 | MODOO HUB</title>
+<meta name="description" content="XML 문법을 온라인으로 검사하세요. 파싱 오류 위치(줄·열) 표시, XML 자동 들여쓰기 포맷, 요소·속성 수 통계. 무료 온라인 XML 검증기.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/xml-validator.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/xml-validator.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/xml-validator.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/xml-validator.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/xml-validator.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/xml-validator.html">
+<meta property="og:title" content="XML Validator - XML 문법 검사기">
+<meta property="og:description" content="XML 문법을 온라인으로 검사하세요. 파싱 오류 위치 표시, 자동 포맷, 요소·속성 통계 제공.">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<meta property="og:url" content="https://modoohub.com/xml-validator.html">
+<meta property="og:type" content="website">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;font-family:'DM Mono',monospace;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;font-family:'DM Mono',monospace;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:860px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:20px;line-height:1.6;}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.btn{padding:8px 16px;border:1px solid var(--border);border-radius:7px;font-size:13px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;background:none;color:var(--text-muted);transition:all .15s;}
+.btn:hover{border-color:var(--accent);color:var(--accent);}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;}
+.btn.primary:hover{opacity:.85;}
+.btn.danger:hover{border-color:var(--red);color:var(--red);}
+.input-area{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;resize:vertical;min-height:180px;outline:none;line-height:1.7;transition:border-color .15s;display:block;margin-bottom:12px;}
+.input-area:focus{border-color:var(--accent);}
+.upload-row{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.upload-label{font-size:12px;color:var(--text-dim);font-family:'DM Mono',monospace;cursor:pointer;padding:6px 14px;border:1px solid var(--border);border-radius:7px;transition:all .15s;}
+.upload-label:hover{border-color:var(--accent);color:var(--accent);}
+#fileInput{display:none;}
+.result-banner{border-radius:8px;padding:12px 16px;font-size:13px;font-weight:700;margin-bottom:12px;display:none;font-family:'DM Mono',monospace;}
+.result-banner.valid{background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.3);color:var(--green);}
+.result-banner.invalid{background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.3);color:var(--red);}
+.error-detail{font-size:12px;font-weight:400;margin-top:6px;color:var(--text-muted);line-height:1.6;font-family:'DM Mono',monospace;word-break:break-all;white-space:pre-wrap;}
+.stats-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 16px;text-align:center;min-width:90px;}
+.stat-val{font-size:22px;font-weight:700;font-family:'DM Mono',monospace;color:var(--accent);}
+.stat-lbl{font-size:11px;color:var(--text-dim);margin-top:2px;font-family:'DM Mono',monospace;letter-spacing:.04em;}
+.output-section{margin-top:4px;}
+.output-label{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;letter-spacing:.07em;text-transform:uppercase;margin-bottom:6px;}
+.output-ta{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;resize:vertical;min-height:200px;outline:none;line-height:1.7;}
+.output-ta:focus{border-color:var(--border);}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item summary::before{content:'Q. ';color:var(--accent);}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:32px;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebApplication",
+  "name":"XML Validator",
+  "url":"https://modoohub.com/xml-validator.html",
+  "applicationCategory":"UtilitiesApplication",
+  "operatingSystem":"Any",
+  "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},
+  "description":"Validate XML syntax online. Shows parse errors with line and column numbers. Auto-format (pretty-print) valid XML. Count elements, attributes, and nesting depth."
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"FAQPage",
+  "mainEntity":[
+    {"@type":"Question","name":"XML 검증이란 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"XML 검증은 XML 문서가 well-formed(올바른 형식) 또는 valid(스키마 규칙 준수) 여부를 확인하는 과정입니다. Well-formed란 태그 닫힘, 속성 인용 부호, 루트 요소 등 기본 XML 문법을 따르는 것이고, valid는 DTD나 XSD 스키마가 정의한 구조를 준수하는 것입니다."}},
+    {"@type":"Question","name":"well-formed XML과 valid XML의 차이는?","acceptedAnswer":{"@type":"Answer","text":"well-formed XML은 XML 파서가 오류 없이 파싱할 수 있는 문서로, 모든 태그가 올바르게 열리고 닫히며 속성값은 따옴표로 감싸져 있어야 합니다. valid XML은 여기에 더해 DTD 또는 XSD 스키마에 정의된 요소, 속성, 구조 규칙까지 모두 준수하는 문서입니다."}}
+  ]
+}
+</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1 id="h1El">XML <span>검증기</span></h1>
+  <p class="sub" id="subEl">XML 문법 검사·파싱 오류 위치 표시</p>
+
+  <textarea id="inputTa" class="input-area" spellcheck="false" placeholder="<?xml version=&quot;1.0&quot;?>&lt;root&gt;...&lt;/root&gt;" oninput="onInput()"></textarea>
+
+  <div class="btn-row">
+    <button class="btn primary" onclick="validate()" id="btnValidate">검사</button>
+    <button class="btn" onclick="formatXml()" id="btnFormat">XML 정렬</button>
+    <button class="btn" onclick="loadSample()" id="btnSample">예제</button>
+    <button class="btn danger" onclick="clearAll()" id="btnClear">초기화</button>
+  </div>
+
+  <div class="upload-row">
+    <label class="upload-label" for="fileInput" id="btnUpload">📂 .xml 파일 열기</label>
+    <input type="file" id="fileInput" accept=".xml,text/xml,application/xml" onchange="loadFile(event)">
+  </div>
+
+  <!-- Result banner -->
+  <div id="resultBanner" class="result-banner">
+    <span id="resultText"></span>
+    <div id="errorDetail" class="error-detail"></div>
+  </div>
+
+  <!-- Stats (shown when valid) -->
+  <div class="stats-row" id="statsRow" style="display:none;">
+    <div class="stat-card">
+      <div class="stat-val" id="statElements">0</div>
+      <div class="stat-lbl" id="statElementsLbl">Elements</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="statAttrs">0</div>
+      <div class="stat-lbl" id="statAttrsLbl">Attributes</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="statDepth">0</div>
+      <div class="stat-lbl" id="statDepthLbl">Max Depth</div>
+    </div>
+  </div>
+
+  <!-- Formatted output (shown when valid) -->
+  <div class="output-section" id="outputSection" style="display:none;">
+    <div class="output-label" id="outputLabel">FORMATTED XML</div>
+    <textarea id="outputTa" class="output-ta" readonly spellcheck="false"></textarea>
+    <div class="btn-row" style="margin-top:10px;">
+      <button class="btn primary" onclick="copyOutput()" id="btnCopy">복사</button>
+    </div>
+  </div>
+
+  <div class="seo" id="seoDiv"></div>
+  <footer>XML Validator · Free Online Tool · modoohub.com</footer>
+</main>
+<script>
+const SAMPLE_XML = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://example.com/</loc>
+    <lastmod>2026-06-12</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://example.com/about</loc>
+    <lastmod>2026-06-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+</urlset>`;
+
+const _i18n = {
+  ko: {
+    pageTitle: 'XML Validator - XML 문법 검사기 | MODOO HUB',
+    h1: 'XML <span>검증기</span>',
+    sub: 'XML 문법 검사·파싱 오류 위치 표시',
+    backLink: '← 모두의 툴',
+    langBtn: '🌐 EN',
+    btnValidate: '검사',
+    btnFormat: 'XML 정렬',
+    btnClear: '초기화',
+    btnSample: '예제',
+    btnUpload: '📂 .xml 파일 열기',
+    placeholder: '<?xml version="1.0"?><root>...</root>',
+    resultValid: '✓ 유효한 XML',
+    resultInvalid: '✗ XML 오류',
+    outputLabel: 'FORMATTED XML',
+    btnCopy: '복사',
+    copyDone: '복사됨 ✓',
+    statElementsLbl: '요소',
+    statAttrsLbl: '속성',
+    statDepthLbl: '최대 깊이',
+    seoHtml: `<h2>XML 검증이란?</h2><p>XML 검증은 XML 문서가 <strong>well-formed(올바른 형식)</strong> 또는 <strong>valid(스키마 규칙 준수)</strong> 여부를 확인하는 과정입니다. well-formed XML은 모든 태그가 올바르게 열리고 닫히며, 속성값은 따옴표로 감싸고, 루트 요소가 하나만 존재하는 문서를 의미합니다. 개발 과정에서 XML 설정 파일, API 응답, 사이트맵, RSS 피드 등의 오류를 조기에 발견하고 수정하는 데 XML 검증기가 유용합니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>XML 검증이란 무엇인가요?</summary><p>XML 검증은 XML 문서가 파서가 오류 없이 읽을 수 있는지(well-formed), 나아가 DTD·XSD 스키마에서 정의한 구조 규칙까지 만족하는지(valid) 검사하는 과정입니다. 이 도구는 브라우저 내장 DOMParser를 사용해 well-formed 여부를 즉시 확인합니다.</p></details>
+<details class="faq-item"><summary>well-formed XML과 valid XML의 차이는?</summary><p>well-formed XML은 기본 XML 문법을 따르는 문서입니다. 모든 태그가 올바르게 닫히고, 속성값은 큰따옴표 또는 작은따옴표로 감싸지고, 루트 요소가 정확히 하나 존재해야 합니다. valid XML은 여기에 더해 DTD 또는 XSD 스키마에 정의된 요소·속성 구조까지 준수합니다.</p></details>
+<details class="faq-item"><summary>XSD 스키마란 무엇인가요?</summary><p>XSD(XML Schema Definition)는 XML 문서의 구조, 데이터 타입, 요소 순서, 속성 제약 등을 정의하는 스키마 언어입니다. DTD보다 표현력이 강하며, XML 형식으로 작성됩니다. 예를 들어 sitemap.xml은 sitemaps.org에서 정의한 XSD를 따릅니다.</p></details>
+<details class="faq-item"><summary>XML 네임스페이스란 무엇인가요?</summary><p>XML 네임스페이스는 서로 다른 XML 어휘의 요소 이름 충돌을 방지하는 메커니즘입니다. xmlns 속성으로 선언하며, xmlns:prefix 형태로 접두사를 부여할 수 있습니다. 예: &lt;urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"&gt;</p></details>
+<details class="faq-item"><summary>DTD란 무엇인가요?</summary><p>DTD(Document Type Definition)는 XML 문서의 구조를 정의하는 초기 스키마 언어입니다. &lt;!DOCTYPE&gt; 선언으로 참조하거나 인라인으로 작성합니다. 현재는 표현력이 풍부한 XSD나 RelaxNG로 대체되는 추세이지만, HTML과 일부 레거시 시스템에서 여전히 사용됩니다.</p></details>
+<details class="faq-item"><summary>CDATA 섹션은 언제 사용하나요?</summary><p>CDATA(&lt;![CDATA[ ... ]]&gt;) 섹션은 &lt;, &gt;, &amp; 등 XML 특수 문자를 이스케이프 없이 그대로 포함해야 할 때 사용합니다. JavaScript 코드나 HTML 조각처럼 특수 문자가 많은 내용을 XML에 포함할 때 유용합니다.</p></details>
+<details class="faq-item"><summary>XML 파서와 HTML 파서의 차이는?</summary><p>XML 파서는 strict 모드로 동작해 문법 오류가 있으면 즉시 중단합니다. 반면 HTML 파서는 오류를 관대하게 처리해 잘못된 마크업도 최대한 렌더링합니다. 따라서 XHTML은 XML 파서로 처리되므로 완벽한 well-formed 문서여야 합니다.</p></details>
+<details class="faq-item"><summary>인코딩 선언은 왜 중요한가요?</summary><p>&lt;?xml version="1.0" encoding="UTF-8"?&gt; 선언은 XML 파서에게 파일의 문자 인코딩을 알려줍니다. 선언과 실제 인코딩이 다르면 파싱 오류나 문자 깨짐이 발생합니다. UTF-8은 한글·한자·일본어 등 다국어를 지원하므로 가장 널리 권장됩니다. BOM(Byte Order Mark)이 있는 UTF-8 파일은 일부 파서에서 오류를 일으킬 수 있으므로 BOM 없는 UTF-8을 사용하세요.</p></details>`
+  },
+  en: {
+    pageTitle: 'XML Validator - Check & Format XML Online | MODOO HUB',
+    h1: 'XML <span>Validator</span>',
+    sub: 'Validate XML syntax and show parse error locations',
+    backLink: '← All Tools',
+    langBtn: '🌐 中文',
+    btnValidate: 'Validate',
+    btnFormat: 'Format XML',
+    btnClear: 'Clear',
+    btnSample: 'Sample',
+    btnUpload: '📂 Open .xml file',
+    placeholder: '<?xml version="1.0"?><root>...</root>',
+    resultValid: '✓ Valid XML',
+    resultInvalid: '✗ Invalid XML',
+    outputLabel: 'FORMATTED XML',
+    btnCopy: 'Copy',
+    copyDone: 'Copied ✓',
+    statElementsLbl: 'Elements',
+    statAttrsLbl: 'Attributes',
+    statDepthLbl: 'Max Depth',
+    seoHtml: `<h2>What is XML Validation?</h2><p>XML validation checks whether an XML document is <strong>well-formed</strong> (correct basic syntax) and optionally <strong>valid</strong> (conforms to a schema like DTD or XSD). A well-formed XML document has all tags properly opened and closed, attribute values wrapped in quotes, and exactly one root element. Validating XML early helps catch configuration file errors, malformed API responses, broken sitemaps, and RSS feed issues before they cause runtime problems.</p>
+<h2 class="seo-sub">Frequently Asked Questions</h2>
+<details class="faq-item"><summary>What is XML validation?</summary><p>XML validation verifies that an XML document is well-formed (parseable without errors) and, optionally, valid (matches a DTD or XSD schema). This tool uses the browser\'s built-in DOMParser to instantly check well-formedness and report the exact location of any syntax error.</p></details>
+<details class="faq-item"><summary>What is the difference between well-formed and valid XML?</summary><p>Well-formed XML follows basic XML syntax rules: every opening tag has a matching closing tag, attribute values are quoted, and there is exactly one root element. Valid XML goes further — it also satisfies the structure, element names, attribute constraints, and data types defined in a DTD or XSD schema.</p></details>
+<details class="faq-item"><summary>What is an XSD schema?</summary><p>XSD (XML Schema Definition) is a schema language that defines the structure, data types, element order, and attribute constraints for XML documents. It is more expressive than DTD and is itself written in XML. For example, sitemap.xml follows the XSD defined by sitemaps.org.</p></details>
+<details class="faq-item"><summary>What are XML namespaces?</summary><p>XML namespaces prevent element name collisions between different XML vocabularies. They are declared with the xmlns attribute, and prefix forms (xmlns:prefix) allow mixing multiple vocabularies in one document. Example: &lt;urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"&gt;</p></details>
+<details class="faq-item"><summary>What is a DTD?</summary><p>DTD (Document Type Definition) is an early schema language for defining XML document structure. It is referenced via a &lt;!DOCTYPE&gt; declaration or written inline. While largely superseded by XSD and RelaxNG, DTDs are still used in HTML and some legacy systems.</p></details>
+<details class="faq-item"><summary>When should I use CDATA sections?</summary><p>A CDATA section (&lt;![CDATA[ ... ]]&gt;) lets you include raw characters like &lt;, &gt;, and &amp; without escaping them as XML entities. It is useful when embedding JavaScript code, HTML fragments, or other content with many special characters inside an XML document.</p></details>
+<details class="faq-item"><summary>How do XML parsers differ from HTML parsers?</summary><p>XML parsers operate in strict mode and halt immediately on any syntax error. HTML parsers are lenient and attempt to render malformed markup as best they can. Because XHTML is processed by an XML parser, it must be fully well-formed — unlike HTML5, which tolerates many common errors.</p></details>
+<details class="faq-item"><summary>Why is the encoding declaration important?</summary><p>The &lt;?xml version="1.0" encoding="UTF-8"?&gt; declaration tells the parser which character encoding to use. A mismatch between the declaration and the actual encoding causes parse errors or garbled characters. UTF-8 is strongly recommended as it supports all languages. Avoid UTF-8 with BOM (Byte Order Mark), as some parsers reject it.</p></details>`
+  },
+  zh: {
+    pageTitle: 'XML 验证器 - 在线检查XML语法 | MODOO HUB',
+    h1: 'XML <span>验证器</span>',
+    sub: '检查XML语法并显示解析错误位置',
+    backLink: '← 所有工具',
+    langBtn: '🌐 日本語',
+    btnValidate: '验证',
+    btnFormat: '格式化 XML',
+    btnClear: '清空',
+    btnSample: '示例',
+    btnUpload: '📂 打开 .xml 文件',
+    placeholder: '<?xml version="1.0"?><root>...</root>',
+    resultValid: '✓ XML 有效',
+    resultInvalid: '✗ XML 错误',
+    outputLabel: '格式化 XML',
+    btnCopy: '复制',
+    copyDone: '已复制 ✓',
+    statElementsLbl: '元素数',
+    statAttrsLbl: '属性数',
+    statDepthLbl: '最大深度',
+    seoHtml: `<h2>什么是XML验证？</h2><p>XML验证检查XML文档是否<strong>格式良好（well-formed）</strong>（语法正确）以及是否<strong>有效（valid）</strong>（符合DTD或XSD模式）。格式良好的XML要求所有标签正确开闭、属性值用引号包裹、只有一个根元素。及早验证XML有助于发现配置文件错误、API响应异常、站点地图问题及RSS源错误。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>XML验证是什么？</summary><p>XML验证检查XML文档是否格式良好（可被解析器无错误解析），以及可选地是否符合DTD或XSD模式。本工具使用浏览器内置DOMParser即时检查格式正确性，并精确报告语法错误的位置。</p></details>
+<details class="faq-item"><summary>格式良好和有效XML的区别是什么？</summary><p>格式良好XML遵循基本XML语法：每个开标签都有对应的闭标签、属性值用引号括起、恰好只有一个根元素。有效XML在此基础上还需满足DTD或XSD模式定义的结构、元素名称、属性约束和数据类型要求。</p></details>
+<details class="faq-item"><summary>什么是XSD模式？</summary><p>XSD（XML模式定义）是定义XML文档结构、数据类型、元素顺序和属性约束的模式语言，比DTD表达能力更强，且本身以XML格式编写。例如，sitemap.xml遵循sitemaps.org定义的XSD。</p></details>
+<details class="faq-item"><summary>什么是XML命名空间？</summary><p>XML命名空间防止不同XML词汇表之间的元素名冲突。通过xmlns属性声明，可用xmlns:prefix形式为不同词汇表指定前缀，在一个文档中混合使用多种词汇表。例如：&lt;urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"&gt;</p></details>
+<details class="faq-item"><summary>什么是DTD？</summary><p>DTD（文档类型定义）是定义XML文档结构的早期模式语言，通过&lt;!DOCTYPE&gt;声明引用或内联编写。虽然已被XSD和RelaxNG逐渐取代，但在HTML和一些遗留系统中仍在使用。</p></details>
+<details class="faq-item"><summary>什么时候使用CDATA节？</summary><p>CDATA节（&lt;![CDATA[ ... ]]&gt;）允许在不转义的情况下包含&lt;、&gt;、&amp;等XML特殊字符。当需要在XML中嵌入JavaScript代码、HTML片段或其他含大量特殊字符的内容时非常有用。</p></details>
+<details class="faq-item"><summary>XML解析器与HTML解析器有何不同？</summary><p>XML解析器以严格模式运行，遇到语法错误立即停止。HTML解析器则宽容处理，尽量渲染有问题的标记。由于XHTML由XML解析器处理，必须完全格式良好——与HTML5不同，后者容忍许多常见错误。</p></details>
+<details class="faq-item"><summary>为什么编码声明很重要？</summary><p>&lt;?xml version="1.0" encoding="UTF-8"?&gt;声明告知解析器使用的字符编码。声明与实际编码不一致会导致解析错误或乱码。UTF-8支持多语言，强烈推荐使用。请避免带BOM（字节顺序标记）的UTF-8，部分解析器会拒绝。</p></details>`
+  },
+  ja: {
+    pageTitle: 'XML Validator - XML文法検査ツール | MODOO HUB',
+    h1: 'XML <span>バリデーター</span>',
+    sub: 'XML構文チェック・パースエラーの位置表示',
+    backLink: '← ホーム',
+    langBtn: '🌐 한국어',
+    btnValidate: '検証',
+    btnFormat: 'XML 整形',
+    btnClear: 'クリア',
+    btnSample: 'サンプル',
+    btnUpload: '📂 .xmlファイルを開く',
+    placeholder: '<?xml version="1.0"?><root>...</root>',
+    resultValid: '✓ 有効な XML',
+    resultInvalid: '✗ XML エラー',
+    outputLabel: '整形済み XML',
+    btnCopy: 'コピー',
+    copyDone: 'コピー完了 ✓',
+    statElementsLbl: '要素数',
+    statAttrsLbl: '属性数',
+    statDepthLbl: '最大深さ',
+    seoHtml: `<h2>XML検証とは？</h2><p>XML検証は、XML文書が<strong>well-formed（整形式）</strong>（正しい基本構文）か、さらに<strong>valid（有効）</strong>（DTD・XSDスキーマに準拠）かを確認するプロセスです。整形式XMLはすべてのタグが適切に開閉し、属性値が引用符で囲まれ、ルート要素がちょうど1つ存在します。設定ファイル、APIレスポンス、サイトマップ、RSSフィードなどのXMLエラーを早期に発見するのに役立ちます。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>XML検証とは何ですか？</summary><p>XML検証はXML文書がwell-formed（パーサーがエラーなく解析できる）か、さらにDTD・XSDスキーマに適合しているか（valid）を確認します。このツールはブラウザ内蔵のDOMParserを使って整形式かどうかを即座に確認し、構文エラーの正確な位置を報告します。</p></details>
+<details class="faq-item"><summary>well-formed XMLとvalid XMLの違いは？</summary><p>well-formed XMLは基本的なXML文法に従う文書です。すべての開始タグに対応する終了タグがあり、属性値が引用符で囲まれ、ルート要素がちょうど1つ存在します。valid XMLはさらにDTDまたはXSDスキーマで定義された構造・要素名・属性制約・データ型にも準拠します。</p></details>
+<details class="faq-item"><summary>XSDスキーマとは何ですか？</summary><p>XSD（XML Schema Definition）はXML文書の構造、データ型、要素の順序、属性制約を定義するスキーマ言語です。DTDより表現力が高く、XML形式で記述されます。例えばsitemap.xmlはsitemaps.orgが定義したXSDに従います。</p></details>
+<details class="faq-item"><summary>XML名前空間とは何ですか？</summary><p>XML名前空間は異なるXML語彙間での要素名の衝突を防ぐ仕組みです。xmlns属性で宣言し、xmlns:prefixで接頭辞を付けて複数の語彙を1つの文書内で混在させることができます。例：&lt;urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"&gt;</p></details>
+<details class="faq-item"><summary>DTDとは何ですか？</summary><p>DTD（Document Type Definition）はXML文書の構造を定義する初期のスキーマ言語です。&lt;!DOCTYPE&gt;宣言で参照するか、インラインで記述します。現在はXSDやRelaxNGに移行が進んでいますが、HTMLや一部のレガシーシステムでは引き続き使用されています。</p></details>
+<details class="faq-item"><summary>CDATAセクションはいつ使いますか？</summary><p>CDATAセクション（&lt;![CDATA[ ... ]]&gt;）は&lt;・&gt;・&amp;などのXML特殊文字をエスケープなしでそのまま含める必要がある場合に使います。JavaScriptコードやHTMLフラグメントなど特殊文字が多いコンテンツをXMLに埋め込む際に便利です。</p></details>
+<details class="faq-item"><summary>XMLパーサーとHTMLパーサーの違いは？</summary><p>XMLパーサーは厳格モードで動作し、構文エラーがあると即座に停止します。HTMLパーサーは誤ったマークアップも可能な限りレンダリングするよう寛容に処理します。XHTMLはXMLパーサーで処理されるため完全にwell-formedである必要があり、HTML5とは異なります。</p></details>
+<details class="faq-item"><summary>エンコーディング宣言はなぜ重要ですか？</summary><p>&lt;?xml version="1.0" encoding="UTF-8"?&gt;宣言はパーサーに文字エンコーディングを伝えます。宣言と実際のエンコーディングが異なるとパースエラーや文字化けが発生します。UTF-8は多言語対応で強く推奨されます。BOM（バイトオーダーマーク）付きUTF-8は一部のパーサーでエラーを起こすためBOMなしUTF-8を使用してください。</p></details>`
+  }
+};
+
+const LANGS = ['ko','en','zh','ja'];
+let _lang = 'ko';
+let _lastValid = false;
+
+function detectLang(){
+  const u = new URLSearchParams(location.search).get('lang');
+  if(u && _i18n[u]) return u;
+  const s = localStorage.getItem('modoo_lang');
+  if(s && _i18n[s]) return s;
+  const n = (navigator.language||'').slice(0,2);
+  return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';
+}
+
+function cycleLang(){
+  const idx = LANGS.indexOf(_lang);
+  _lang = LANGS[(idx+1) % LANGS.length];
+  localStorage.setItem('modoo_lang', _lang);
+  const url = new URL(location.href);
+  url.searchParams.set('lang', _lang);
+  history.replaceState({},'',url);
+  applyLang();
+}
+
+function applyLang(){
+  const t = _i18n[_lang];
+  document.documentElement.lang = _lang;
+  document.title = t.pageTitle;
+  document.getElementById('h1El').innerHTML = t.h1;
+  document.getElementById('subEl').textContent = t.sub;
+  document.getElementById('backLink').textContent = t.backLink;
+  document.getElementById('langBtn').textContent = t.langBtn;
+  document.getElementById('btnValidate').textContent = t.btnValidate;
+  document.getElementById('btnFormat').textContent = t.btnFormat;
+  document.getElementById('btnClear').textContent = t.btnClear;
+  document.getElementById('btnSample').textContent = t.btnSample;
+  document.getElementById('btnUpload').textContent = t.btnUpload;
+  document.getElementById('outputLabel').textContent = t.outputLabel;
+  document.getElementById('btnCopy').textContent = t.btnCopy;
+  document.getElementById('statElementsLbl').textContent = t.statElementsLbl;
+  document.getElementById('statAttrsLbl').textContent = t.statAttrsLbl;
+  document.getElementById('statDepthLbl').textContent = t.statDepthLbl;
+  document.getElementById('seoDiv').innerHTML = t.seoHtml;
+}
+
+function onInput(){
+  // Hide results when user edits input
+  document.getElementById('resultBanner').style.display = 'none';
+  document.getElementById('statsRow').style.display = 'none';
+  document.getElementById('outputSection').style.display = 'none';
+}
+
+function parseXml(xml){
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(xml, 'application/xml');
+  const err = doc.querySelector('parsererror');
+  if(err) return {valid: false, message: err.textContent.trim(), doc: null};
+  return {valid: true, message: '', doc};
+}
+
+function prettyXml(xml){
+  try {
+    let formatted = '';
+    let indent = 0;
+    // Normalize newlines between tags
+    const normalized = xml.replace(/>\s*</g, '>\n<');
+    const lines = normalized.split('\n');
+    lines.forEach(raw => {
+      const line = raw.trim();
+      if(!line) return;
+      // Closing tag: decrease indent before printing
+      if(line.match(/^<\/[^>]+>/)) indent = Math.max(0, indent - 1);
+      formatted += '  '.repeat(indent) + line + '\n';
+      // Opening tag that is not self-closing and not a declaration: increase indent
+      if(line.match(/^<[^/?!][^>]*>$/) && !line.match(/\/>/)) {
+        // Check if it also has a closing tag on same line
+        const tagName = line.match(/^<([^\s>/]+)/)?.[1];
+        if(tagName && !line.includes('</' + tagName + '>')) {
+          indent++;
+        }
+      }
+    });
+    return formatted.trimEnd();
+  } catch(e) {
+    return xml;
+  }
+}
+
+function countElements(doc){
+  return doc.getElementsByTagName('*').length;
+}
+
+function countAttributes(doc){
+  let count = 0;
+  const all = doc.getElementsByTagName('*');
+  for(let i=0;i<all.length;i++) count += all[i].attributes.length;
+  return count;
+}
+
+function maxDepth(node, depth){
+  if(!node.children || node.children.length === 0) return depth;
+  let max = depth;
+  for(let i=0;i<node.children.length;i++){
+    const d = maxDepth(node.children[i], depth+1);
+    if(d > max) max = d;
+  }
+  return max;
+}
+
+function validate(){
+  const xml = document.getElementById('inputTa').value.trim();
+  if(!xml) return;
+  const t = _i18n[_lang];
+  const banner = document.getElementById('resultBanner');
+  const resultText = document.getElementById('resultText');
+  const errorDetail = document.getElementById('errorDetail');
+  const statsRow = document.getElementById('statsRow');
+  const outputSection = document.getElementById('outputSection');
+
+  const result = parseXml(xml);
+  banner.style.display = 'block';
+
+  if(result.valid){
+    banner.className = 'result-banner valid';
+    resultText.textContent = t.resultValid;
+    errorDetail.textContent = '';
+    _lastValid = true;
+
+    // Stats
+    const elCount = countElements(result.doc);
+    const attrCount = countAttributes(result.doc);
+    const depth = maxDepth(result.doc.documentElement, 0);
+    document.getElementById('statElements').textContent = elCount;
+    document.getElementById('statAttrs').textContent = attrCount;
+    document.getElementById('statDepth').textContent = depth;
+    statsRow.style.display = 'flex';
+
+    // Pretty-print
+    const pretty = prettyXml(xml);
+    document.getElementById('outputTa').value = pretty;
+    outputSection.style.display = 'block';
+  } else {
+    banner.className = 'result-banner invalid';
+    resultText.textContent = t.resultInvalid;
+    errorDetail.textContent = result.message;
+    statsRow.style.display = 'none';
+    outputSection.style.display = 'none';
+    _lastValid = false;
+  }
+}
+
+function formatXml(){
+  const xml = document.getElementById('inputTa').value.trim();
+  if(!xml) return;
+  const result = parseXml(xml);
+  if(!result.valid){ validate(); return; }
+  const pretty = prettyXml(xml);
+  document.getElementById('inputTa').value = pretty;
+  validate();
+}
+
+function loadSample(){
+  document.getElementById('inputTa').value = SAMPLE_XML;
+  onInput();
+}
+
+function clearAll(){
+  document.getElementById('inputTa').value = '';
+  document.getElementById('resultBanner').style.display = 'none';
+  document.getElementById('statsRow').style.display = 'none';
+  document.getElementById('outputSection').style.display = 'none';
+  document.getElementById('outputTa').value = '';
+  _lastValid = false;
+}
+
+function loadFile(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    document.getElementById('inputTa').value = e.target.result;
+    onInput();
+    validate();
+  };
+  reader.readAsText(file, 'UTF-8');
+  event.target.value = '';
+}
+
+function copyOutput(){
+  const text = document.getElementById('outputTa').value;
+  if(!text) return;
+  const t = _i18n[_lang];
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn = document.getElementById('btnCopy');
+    btn.textContent = t.copyDone;
+    btn.style.background = 'var(--green)';
+    btn.style.borderColor = 'var(--green)';
+    btn.style.color = '#000';
+    setTimeout(()=>{
+      btn.textContent = t.btnCopy;
+      btn.style.background = '';
+      btn.style.borderColor = '';
+      btn.style.color = '';
+    }, 2000);
+  }).catch(()=>{
+    document.getElementById('outputTa').select();
+    document.execCommand('copy');
+  });
+}
+
+_lang = detectLang();
+applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

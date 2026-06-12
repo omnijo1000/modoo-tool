@@ -3,8 +3,8 @@
 ## 프로젝트 개요
 - **사이트**: https://modoohub.com
 - **구성**: 단일 HTML 파일 집합 (SPA 아님, 각 툴마다 별도 .html)
-- **현재 툴 수**: 161개 (index.html footer 카운터 기준)
-- **sitemap.xml**: 229 URL 항목
+- **현재 툴 수**: 172개 (index.html footer 카운터 기준)
+- **sitemap.xml**: 240 URL 항목
 
 ## 필수 코드 (모든 새 HTML 파일에 공통)
 
@@ -216,11 +216,29 @@ csv-viewer, markdown-to-html, html-to-markdown, webp-to-png, png-to-jpg
 ### 배치 5 ✅
 pdf-compressor, pdf-page-counter, ai-cost-calculator, chatgpt-token-counter, utm-builder
 
-### 배치 6 (대기 중)
+### 배치 6 ✅
 robots-txt-generator, meta-tag-generator, color-contrast-checker, hex-to-rgb, rgb-to-hex
 
-### 배치 7 (대기 중)
+### 배치 7 ✅
 ip-address-lookup
+
+### 배치 8 ✅
+sitemap-generator, xml-validator, robots-txt-validator, meta-tag-analyzer, open-graph-generator
+
+### 배치 9 (대기 중)
+twitter-card-generator, schema-markup-generator, schema-validator, hreflang-generator, canonical-tag-checker
+
+### 배치 10 (대기 중)
+keyword-clustering-tool, keyword-grouping-tool, redirect-checker, http-header-checker, user-agent-parser
+
+### 배치 11 (대기 중)
+dns-lookup, whois-lookup, ssl-checker, ssl-decoder, csr-generator
+
+### 배치 12 (대기 중)
+htaccess-generator, nginx-config-generator, apache-config-generator, csp-generator, csp-validator
+
+### 배치 13 (대기 중)
+cors-header-checker, mime-type-finder, website-speed-estimator, sitemap-validator, favicon-generator
 
 ## JS 문자열 이스케이프 주의사항
 

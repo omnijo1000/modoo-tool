@@ -107,6 +107,9 @@
     'color-converter':           { ko: '색상 변환기',          en: 'Color Converter',            zh: '颜色转换器',          ja: 'カラー変換器',         icon: '🎨' },
     'color-palette':             { ko: '컬러 팔레트',          en: 'Color Palette',              zh: '调色板',              ja: 'カラーパレット',       icon: '🖌️' },
     'color-picker':              { ko: '컬러 피커',            en: 'Color Picker',               zh: '颜色选择器',          ja: 'カラーピッカー',       icon: '🎨' },
+    'color-contrast-checker':    { ko: '색상 대비 검사기',     en: 'Color Contrast Checker',     zh: '色彩对比检查器',      ja: 'カラーコントラストチェッカー', icon: '♿' },
+    'hex-to-rgb':                { ko: 'HEX → RGB',            en: 'HEX to RGB',                 zh: 'HEX转RGB',            ja: 'HEX → RGB',            icon: '#→R' },
+    'rgb-to-hex':                { ko: 'RGB → HEX',            en: 'RGB to HEX',                 zh: 'RGB转HEX',            ja: 'RGB → HEX',            icon: 'R→#' },
     /* ── 개발자: 이미지 ── */
     'image-compressor':          { ko: '이미지 압축기',        en: 'Image Compressor',           zh: '图片压缩',            ja: '画像圧縮',             icon: '🗜️' },
     'image-resizer':             { ko: '이미지 리사이저',      en: 'Image Resizer',              zh: '图片调整大小',        ja: '画像リサイズ',         icon: '↔️' },
@@ -125,6 +128,12 @@
     'ai-cost-calculator':        { ko: 'AI API 비용 계산기',   en: 'AI API Cost Calculator',     zh: 'AI API费用计算器',    ja: 'AI APIコスト計算機',   icon: '💰' },
     'chatgpt-token-counter':     { ko: 'ChatGPT 토큰 카운터',  en: 'ChatGPT Token Counter',      zh: 'ChatGPT Token计数器', ja: 'ChatGPTトークンカウンター', icon: 'GPT' },
     'utm-builder':               { ko: 'UTM 빌더',             en: 'UTM Builder',                zh: 'UTM生成器',           ja: 'UTMビルダー',          icon: '🔗' },
+    'ip-address-lookup':         { ko: 'IP 주소 조회',         en: 'IP Address Lookup',          zh: 'IP地址查询',          ja: 'IPアドレス照会',       icon: '🌐' },
+    'sitemap-generator':         { ko: '사이트맵 생성기',      en: 'Sitemap Generator',          zh: '站点地图生成器',      ja: 'サイトマップジェネレーター', icon: '🗺️' },
+    'xml-validator':             { ko: 'XML 검증기',           en: 'XML Validator',              zh: 'XML验证器',           ja: 'XMLバリデーター',      icon: 'XML' },
+    'robots-txt-validator':      { ko: 'Robots.txt 검증기',   en: 'Robots.txt Validator',       zh: 'Robots.txt验证器',   ja: 'Robots.txtバリデーター', icon: '🔍' },
+    'meta-tag-analyzer':         { ko: 'Meta 태그 분석기',    en: 'Meta Tag Analyzer',          zh: 'Meta标签分析器',      ja: 'Metaタグ分析器',       icon: '🔎' },
+    'open-graph-generator':      { ko: '오픈 그래프 생성기',  en: 'Open Graph Generator',       zh: 'Open Graph生成器',   ja: 'OGジェネレーター',     icon: '📣' },
     'robots-txt-generator':      { ko: 'Robots.txt 생성기',   en: 'Robots.txt Generator',       zh: 'Robots.txt生成器',    ja: 'Robots.txtジェネレーター', icon: '🤖' },
     'meta-tag-generator':        { ko: 'Meta 태그 생성기',    en: 'Meta Tag Generator',         zh: 'Meta标签生成器',      ja: 'メタタグジェネレーター', icon: '<M>' },
     'prompt-formatter':          { ko: '프롬프트 포맷터',      en: 'Prompt Formatter',           zh: '提示词格式化',        ja: 'プロンプトフォーマッター', icon: '💬' },
@@ -224,7 +233,7 @@
     // 개발자: 변환
     ['number-converter','unit-converter','timezone-converter','case-converter','json-to-csv','csv-to-json'],
     // 개발자: 색상
-    ['color-converter','color-palette','color-picker'],
+    ['color-converter','color-palette','color-picker','color-contrast-checker','hex-to-rgb','rgb-to-hex'],
     // 개발자: 이미지
     ['image-compressor','image-resizer','image-to-webp','webp-to-png','png-to-jpg','base64-image'],
     ['markdown-preview','markdown-to-html','html-to-markdown','html-encoder','html-decoder'],
@@ -235,6 +244,10 @@
     ['ai-token-counter','ai-cost-calculator','chatgpt-token-counter','prompt-formatter','word-counter','character-counter'],
     ['utm-builder','slug-generator','url-encoder','url-decoder','qr-generator'],
     ['robots-txt-generator','meta-tag-generator','utm-builder','slug-generator','html-encoder','url-encoder'],
+    ['ip-address-lookup','utm-builder','robots-txt-generator','url-encoder','url-decoder'],
+    ['sitemap-generator','robots-txt-generator','robots-txt-validator','xml-validator','sitemap-validator'],
+    ['meta-tag-analyzer','meta-tag-generator','open-graph-generator','robots-txt-validator','canonical-tag-checker'],
+    ['open-graph-generator','meta-tag-generator','twitter-card-generator','meta-tag-analyzer','utm-builder'],
     // 텍스트: 분석·카운팅
     ['word-counter','character-counter','line-counter','sentence-counter','read-time-calculator','keyword-density'],
     // 텍스트: 편집·클리닝
@@ -330,11 +343,16 @@
     'image-compressor':'image-tools','image-resizer':'image-tools','webp-to-png':'image-tools','png-to-jpg':'image-tools',
     'image-to-webp':'image-tools','base64-image':'image-tools',
     'color-picker':'image-tools','color-palette':'image-tools','color-converter':'image-tools',
+    'color-contrast-checker':'image-tools','hex-to-rgb':'image-tools','rgb-to-hex':'image-tools',
     // PDF
     'pdf-merge':'pdf-tools','pdf-split':'pdf-tools','pdf-compressor':'pdf-tools','pdf-page-counter':'pdf-tools',
     'pdf-to-image':'pdf-tools','image-to-pdf':'pdf-tools',
     'utm-builder':'generator-tools',
     'robots-txt-generator':'generator-tools','meta-tag-generator':'generator-tools',
+    'ip-address-lookup':'developer-tools',
+    'sitemap-generator':'generator-tools','xml-validator':'developer-tools',
+    'robots-txt-validator':'developer-tools','meta-tag-analyzer':'developer-tools',
+    'open-graph-generator':'generator-tools',
     // Generator
     'uuid-generator':'generator-tools','qr-generator':'generator-tools',
     'barcode-generator':'generator-tools',

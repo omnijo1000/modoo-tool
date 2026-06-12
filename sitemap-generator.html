@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sitemap Generator - XML 사이트맵 생성기 | MODOO HUB</title>
+<meta name="description" content="XML 사이트맵을 시각적으로 생성하세요. URL별 priority·changefreq·lastmod 설정, 실시간 XML 미리보기, sitemap.xml 다운로드 지원.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/sitemap-generator.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/sitemap-generator.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/sitemap-generator.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/sitemap-generator.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/sitemap-generator.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/sitemap-generator.html">
+<meta property="og:title" content="Sitemap Generator - XML 사이트맵 생성기">
+<meta property="og:description" content="XML 사이트맵을 시각적으로 생성하세요. URL별 priority·changefreq 설정, 실시간 미리보기, sitemap.xml 다운로드.">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<meta property="og:url" content="https://modoohub.com/sitemap-generator.html">
+<meta property="og:type" content="website">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;font-family:'DM Mono',monospace;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;font-family:'DM Mono',monospace;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:960px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:20px;line-height:1.6;}
+.tool-layout{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:700px){.tool-layout{grid-template-columns:1fr;}}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;}
+.panel-title{font-size:11px;font-family:'DM Mono',monospace;color:var(--text-dim);letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px;}
+.field-row{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
+.field-label{font-size:11px;color:var(--text-dim);letter-spacing:.06em;text-transform:uppercase;font-family:'DM Mono',monospace;}
+.field-input,.field-select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 11px;color:var(--text);font-size:13px;outline:none;font-family:'Noto Sans KR',sans-serif;transition:border-color .15s;}
+.field-input:focus,.field-select:focus{border-color:var(--accent);}
+.field-select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;}
+.add-row{display:grid;grid-template-columns:1fr 90px 110px 120px auto;gap:6px;align-items:end;margin-bottom:10px;}
+@media(max-width:900px){.add-row{grid-template-columns:1fr 1fr;}}
+.btn-add{padding:9px 14px;background:var(--accent);border:none;border-radius:8px;color:#000;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'Noto Sans KR',sans-serif;transition:opacity .15s;height:38px;}
+.btn-add:hover{opacity:.85;}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.chip{padding:4px 10px;border:1px solid var(--border);border-radius:14px;font-size:11px;font-family:'DM Mono',monospace;cursor:pointer;color:var(--text-dim);background:none;transition:all .15s;}
+.chip:hover{border-color:var(--accent);color:var(--accent);background:rgba(251,191,36,.06);}
+.url-list{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;min-height:40px;max-height:260px;overflow-y:auto;}
+.url-item{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-size:12px;font-family:'DM Mono',monospace;}
+.url-loc{flex:1;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.url-meta{color:var(--text-dim);font-size:11px;white-space:nowrap;}
+.url-del{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:14px;padding:2px 4px;line-height:1;transition:color .15s;flex-shrink:0;}
+.url-del:hover{color:var(--red);}
+.empty-list{font-size:12px;color:var(--text-dim);text-align:center;padding:16px 0;font-family:'DM Mono',monospace;}
+.stats{font-size:12px;color:var(--text-dim);font-family:'DM Mono',monospace;margin-bottom:6px;}
+.stats span{color:var(--accent);}
+.output-ta{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;resize:vertical;min-height:280px;outline:none;line-height:1.7;}
+.output-ta:focus{border-color:var(--border);}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+.btn{padding:8px 16px;border:1px solid var(--border);border-radius:7px;font-size:13px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;background:none;color:var(--text-muted);transition:all .15s;}
+.btn:hover{border-color:var(--accent);color:var(--accent);}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;}
+.btn.primary:hover{opacity:.85;}
+.btn.danger:hover{border-color:var(--red);color:var(--red);}
+.chips-label{font-size:11px;color:var(--text-dim);letter-spacing:.06em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:6px;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item summary::before{content:'Q. ';color:var(--accent);}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:32px;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebApplication",
+  "name":"Sitemap Generator",
+  "url":"https://modoohub.com/sitemap-generator.html",
+  "applicationCategory":"UtilitiesApplication",
+  "operatingSystem":"Any",
+  "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},
+  "description":"Generate XML sitemaps visually. Add URLs with priority, changefreq, and lastmod settings. Live XML preview and one-click sitemap.xml download."
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"FAQPage",
+  "mainEntity":[
+    {"@type":"Question","name":"XML 사이트맵이란 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"XML 사이트맵은 웹사이트의 모든 URL 목록을 담은 파일로, 검색 엔진 크롤러가 사이트 구조를 파악하고 중요한 페이지를 빠짐없이 발견할 수 있도록 안내합니다. Google, Bing 등 주요 검색 엔진이 지원합니다."}},
+    {"@type":"Question","name":"priority 값은 어떻게 설정하나요?","acceptedAnswer":{"@type":"Answer","text":"priority는 0.0~1.0 사이 값으로, 같은 사이트 내 URL의 상대적 중요도를 나타냅니다. 홈페이지는 1.0, 주요 카테고리 페이지는 0.8, 일반 콘텐츠는 0.5를 권장합니다. 검색 엔진이 이 값을 절대 기준으로 보장하지는 않습니다."}}
+  ]
+}
+</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1 id="h1El">사이트맵 <span>생성기</span></h1>
+  <p class="sub" id="subEl">XML 사이트맵 시각적 생성·미리보기</p>
+
+  <div class="tool-layout">
+    <!-- Left: URL Builder -->
+    <div class="panel">
+      <div class="panel-title" id="builderTitle">URL BUILDER</div>
+
+      <div class="field-row">
+        <label class="field-label" for="baseUrl" id="labelBaseUrl">Base URL</label>
+        <input type="url" id="baseUrl" class="field-input" placeholder="https://example.com" oninput="onBaseUrlInput()">
+      </div>
+
+      <div class="chips-label" id="quickAddLabel">Quick add</div>
+      <div class="chips" id="quickChips"></div>
+
+      <div class="field-label" id="addRowLabel" style="margin-bottom:6px;">URL 추가</div>
+      <div class="add-row" id="addRow">
+        <div class="field-row" style="margin-bottom:0">
+          <input type="text" id="pathInput" class="field-input" placeholder="/about" onkeydown="if(event.key==='Enter')addUrl()" style="height:38px;padding:8px 11px;">
+        </div>
+        <div class="field-row" style="margin-bottom:0">
+          <select id="prioritySelect" class="field-select" style="height:38px;padding:8px 11px;">
+            <option value="1.0">1.0</option>
+            <option value="0.9">0.9</option>
+            <option value="0.8" selected>0.8</option>
+            <option value="0.7">0.7</option>
+            <option value="0.6">0.6</option>
+            <option value="0.5">0.5</option>
+            <option value="0.4">0.4</option>
+            <option value="0.3">0.3</option>
+            <option value="0.2">0.2</option>
+            <option value="0.1">0.1</option>
+          </select>
+        </div>
+        <div class="field-row" style="margin-bottom:0">
+          <select id="changefreqSelect" class="field-select" style="height:38px;padding:8px 11px;">
+            <option value="always">always</option>
+            <option value="hourly">hourly</option>
+            <option value="daily">daily</option>
+            <option value="weekly" selected>weekly</option>
+            <option value="monthly">monthly</option>
+            <option value="yearly">yearly</option>
+            <option value="never">never</option>
+          </select>
+        </div>
+        <div class="field-row" style="margin-bottom:0">
+          <input type="date" id="lastmodInput" class="field-input" style="height:38px;padding:8px 11px;">
+        </div>
+        <button class="btn-add" onclick="addUrl()" id="btnAdd">+ Add</button>
+      </div>
+
+      <div class="btn-row" style="margin-top:0;margin-bottom:12px;">
+        <button class="btn" onclick="autoGenerate()" id="btnAutoGen">자동 생성</button>
+        <button class="btn danger" onclick="clearAll()" id="btnClear">초기화</button>
+      </div>
+
+      <div class="stats" id="statsEl">0 URLs</div>
+      <div class="url-list" id="urlList"></div>
+    </div>
+
+    <!-- Right: XML Preview -->
+    <div class="panel">
+      <div class="panel-title" id="outputLabel">XML PREVIEW</div>
+      <textarea id="outputTa" class="output-ta" readonly spellcheck="false"></textarea>
+      <div class="btn-row">
+        <button class="btn primary" onclick="copyXml()" id="btnCopyXml">XML 복사</button>
+        <button class="btn" onclick="downloadSitemap()" id="btnDownload">sitemap.xml 다운로드</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="seo" id="seoDiv"></div>
+  <footer>Sitemap Generator · Free Online Tool · modoohub.com</footer>
+</main>
+<script>
+const QUICK_PATHS = ['/', '/about', '/blog', '/contact', '/sitemap.xml'];
+const AUTO_PATHS = [
+  {path:'/', priority:'1.0', changefreq:'daily'},
+  {path:'/about', priority:'0.8', changefreq:'monthly'},
+  {path:'/blog', priority:'0.8', changefreq:'weekly'},
+  {path:'/contact', priority:'0.7', changefreq:'monthly'},
+  {path:'/sitemap.xml', priority:'0.5', changefreq:'monthly'},
+];
+
+const _i18n = {
+  ko: {
+    pageTitle: 'Sitemap Generator - XML 사이트맵 생성기 | MODOO HUB',
+    h1: '사이트맵 <span>생성기</span>',
+    sub: 'XML 사이트맵 시각적 생성·미리보기',
+    backLink: '← 모두의 툴',
+    langBtn: '🌐 EN',
+    builderTitle: 'URL BUILDER',
+    labelBaseUrl: 'Base URL',
+    addRowLabel: 'URL 추가',
+    quickAddLabel: '빠른 경로 추가',
+    labelPath: '경로',
+    labelPriority: 'Priority',
+    labelChangefreq: 'Changefreq',
+    labelLastmod: 'Lastmod',
+    btnAdd: '+ 추가',
+    btnAutoGen: '자동 생성',
+    btnClear: '초기화',
+    btnCopyXml: 'XML 복사',
+    copyDone: '복사됨 ✓',
+    btnDownload: 'sitemap.xml 다운로드',
+    outputLabel: 'XML PREVIEW',
+    statsLabel: 'URL 수',
+    statsText: (n) => `<span>${n}</span> URL 추가됨`,
+    emptyList: 'URL이 없습니다. 위에서 추가하세요.',
+    placeholderPath: '/about',
+    seoHtml: `<h2>XML 사이트맵이란?</h2><p>XML 사이트맵은 웹사이트의 모든 URL 목록을 담은 파일로, <strong>검색 엔진 크롤러가 사이트 구조를 파악하고 중요한 페이지를 빠짐없이 발견</strong>할 수 있도록 안내합니다. Google, Bing 등 주요 검색 엔진이 지원하며, 사이트맵을 제출하면 새 콘텐츠가 더 빠르게 인덱싱됩니다. 각 URL에 priority(중요도), changefreq(변경 빈도), lastmod(최종 수정일)를 명시해 크롤러에게 추가 정보를 제공할 수 있습니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>XML 사이트맵이란 무엇인가요?</summary><p>XML 사이트맵은 사이트에 포함된 URL 목록을 XML 형식으로 정리한 파일입니다. 검색 엔진은 이 파일을 읽어 어떤 페이지가 존재하는지, 언제 업데이트되었는지 파악합니다. 특히 내부 링크가 적거나 사이트 규모가 큰 경우 크롤링 효율을 높이는 데 효과적입니다.</p></details>
+<details class="faq-item"><summary>priority 값은 어떻게 설정하나요?</summary><p>priority는 0.0~1.0 사이 값으로, 동일 사이트 내 URL의 상대적 중요도를 나타냅니다. 홈페이지는 1.0, 주요 카테고리·서비스 페이지는 0.8, 일반 콘텐츠는 0.5, 아카이브나 태그 페이지는 0.3 이하를 권장합니다. Google이 이 값을 절대적 기준으로 따르지는 않지만 크롤링 우선순위에 참고합니다.</p></details>
+<details class="faq-item"><summary>changefreq는 무엇을 의미하나요?</summary><p>changefreq는 해당 페이지가 얼마나 자주 업데이트되는지 크롤러에게 알려주는 힌트입니다. always, hourly, daily, weekly, monthly, yearly, never 중 선택합니다. 뉴스나 블로그 최신 글은 daily, 정적 페이지는 monthly를 권장합니다. 실제 업데이트 빈도와 크게 다르면 크롤러 신뢰도가 낮아질 수 있습니다.</p></details>
+<details class="faq-item"><summary>Google Search Console에 사이트맵을 제출하는 방법은?</summary><p>Google Search Console → 색인 → Sitemaps 메뉴에서 사이트맵 URL(예: https://example.com/sitemap.xml)을 입력하고 제출합니다. 또는 robots.txt에 Sitemap: https://example.com/sitemap.xml 을 추가하면 Googlebot이 자동으로 발견합니다.</p></details>
+<details class="faq-item"><summary>사이트맵 인덱스(Sitemap Index)란?</summary><p>사이트맵 인덱스는 여러 사이트맵 파일을 하나로 묶는 상위 사이트맵입니다. 단일 사이트맵은 최대 50,000개 URL, 50MB 제한이 있으므로 대형 사이트는 사이트맵을 분할하고 인덱스 파일로 연결합니다. &lt;sitemapindex&gt; 태그를 사용합니다.</p></details>
+<details class="faq-item"><summary>robots.txt에 사이트맵을 선언해야 하나요?</summary><p>필수는 아니지만 권장합니다. robots.txt 하단에 Sitemap: https://example.com/sitemap.xml 을 추가하면 Googlebot, Bingbot 등이 robots.txt를 파싱할 때 사이트맵을 자동으로 발견합니다. Search Console에 제출하는 방법과 병행하면 더욱 효과적입니다.</p></details>
+<details class="faq-item"><summary>동적 사이트맵과 정적 사이트맵의 차이는?</summary><p>정적 사이트맵은 미리 생성한 XML 파일로, 소규모 사이트나 변경이 적은 사이트에 적합합니다. 동적 사이트맵은 서버에서 실시간으로 생성되므로 콘텐츠가 자주 업데이트되는 대형 사이트(뉴스, 쇼핑몰 등)에 적합하며, 항상 최신 URL 목록을 유지할 수 있습니다.</p></details>
+<details class="faq-item"><summary>사이트맵에 포함할 수 있는 최대 URL 수는?</summary><p>단일 XML 사이트맵 파일은 최대 50,000개 URL, 파일 크기는 비압축 기준 50MB를 초과할 수 없습니다. URL이 더 많으면 사이트맵을 여러 파일로 분할하고 sitemapindex 파일을 만들어 각 파일을 참조하게 합니다.</p></details>`
+  },
+  en: {
+    pageTitle: 'Sitemap Generator - Create XML Sitemaps Visually | MODOO HUB',
+    h1: 'Sitemap <span>Generator</span>',
+    sub: 'Visually build and preview your XML sitemap',
+    backLink: '← All Tools',
+    langBtn: '🌐 中文',
+    builderTitle: 'URL BUILDER',
+    labelBaseUrl: 'Base URL',
+    addRowLabel: 'Add URL',
+    quickAddLabel: 'Quick add paths',
+    labelPath: 'Path',
+    labelPriority: 'Priority',
+    labelChangefreq: 'Changefreq',
+    labelLastmod: 'Lastmod',
+    btnAdd: '+ Add',
+    btnAutoGen: 'Auto-generate',
+    btnClear: 'Clear',
+    btnCopyXml: 'Copy XML',
+    copyDone: 'Copied ✓',
+    btnDownload: 'Download sitemap.xml',
+    outputLabel: 'XML PREVIEW',
+    statsLabel: 'URLs',
+    statsText: (n) => `<span>${n}</span> URL${n===1?'':'s'} added`,
+    emptyList: 'No URLs yet. Add some above.',
+    placeholderPath: '/about',
+    seoHtml: `<h2>What is an XML Sitemap?</h2><p>An XML sitemap is a file that lists all the URLs on your website, helping <strong>search engine crawlers discover and index every important page efficiently</strong>. Major search engines like Google and Bing support XML sitemaps. Submitting a sitemap speeds up indexing of new content and ensures pages with few inbound links are still found. Each URL can include priority, changefreq, and lastmod attributes to give crawlers additional context.</p>
+<h2 class="seo-sub">Frequently Asked Questions</h2>
+<details class="faq-item"><summary>What is an XML sitemap?</summary><p>An XML sitemap is a structured list of your site\'s URLs in XML format. Search engines read this file to understand your site structure, identify when pages were last updated, and prioritize crawling. It is especially useful for large sites, sites with weak internal linking, or new sites that need faster indexing.</p></details>
+<details class="faq-item"><summary>How should I set the priority value?</summary><p>Priority ranges from 0.0 to 1.0 and indicates the relative importance of a URL within your site. Use 1.0 for the homepage, 0.8 for key category or service pages, 0.5 for regular content, and 0.3 or below for archive or tag pages. Google treats this as a hint, not an absolute directive.</p></details>
+<details class="faq-item"><summary>What does changefreq mean?</summary><p>changefreq hints at how often a page is updated: always, hourly, daily, weekly, monthly, yearly, or never. Use daily for news or blogs, monthly for mostly static pages. If the declared frequency differs greatly from reality, crawlers may learn to distrust it over time.</p></details>
+<details class="faq-item"><summary>How do I submit a sitemap to Google Search Console?</summary><p>Go to Google Search Console → Indexing → Sitemaps, enter your sitemap URL (e.g., https://example.com/sitemap.xml), and click Submit. Alternatively, add Sitemap: https://example.com/sitemap.xml to your robots.txt so Googlebot auto-discovers it.</p></details>
+<details class="faq-item"><summary>What is a Sitemap Index file?</summary><p>A Sitemap Index is a parent XML file that references multiple individual sitemap files. Since a single sitemap is limited to 50,000 URLs and 50 MB, large sites split their URLs across multiple sitemaps and list them all in a &lt;sitemapindex&gt; index file.</p></details>
+<details class="faq-item"><summary>Should I declare my sitemap in robots.txt?</summary><p>It is recommended. Add Sitemap: https://example.com/sitemap.xml at the bottom of your robots.txt. When Googlebot and Bingbot parse robots.txt, they auto-discover and process the declared sitemap — complementing a manual Search Console submission.</p></details>
+<details class="faq-item"><summary>Dynamic vs. static sitemaps — which should I use?</summary><p>Static sitemaps are pre-generated XML files, suitable for small or infrequently updated sites. Dynamic sitemaps are generated server-side in real time and are ideal for large, frequently updated sites such as news portals or e-commerce stores, ensuring the URL list is always current.</p></details>
+<details class="faq-item"><summary>What is the maximum number of URLs in a sitemap?</summary><p>A single XML sitemap file may contain up to 50,000 URLs and must not exceed 50 MB (uncompressed). For larger sites, split URLs across multiple sitemap files and reference them in a sitemapindex file submitted to Search Console.</p></details>`
+  },
+  zh: {
+    pageTitle: 'Sitemap 生成器 - 可视化创建XML站点地图 | MODOO HUB',
+    h1: '站点地图<span>生成器</span>',
+    sub: '可视化创建和预览XML站点地图',
+    backLink: '← 所有工具',
+    langBtn: '🌐 日本語',
+    builderTitle: 'URL 构建',
+    labelBaseUrl: '基础 URL',
+    addRowLabel: '添加 URL',
+    quickAddLabel: '快速添加路径',
+    labelPath: '路径',
+    labelPriority: '优先级',
+    labelChangefreq: '更新频率',
+    labelLastmod: '最后修改',
+    btnAdd: '+ 添加',
+    btnAutoGen: '自动生成',
+    btnClear: '清空',
+    btnCopyXml: '复制 XML',
+    copyDone: '已复制 ✓',
+    btnDownload: '下载 sitemap.xml',
+    outputLabel: 'XML 预览',
+    statsLabel: 'URL 数量',
+    statsText: (n) => `已添加 <span>${n}</span> 个 URL`,
+    emptyList: '暂无URL，请在上方添加。',
+    placeholderPath: '/about',
+    seoHtml: `<h2>什么是XML站点地图？</h2><p>XML站点地图是列出网站所有URL的文件，帮助<strong>搜索引擎爬虫高效发现和索引每个重要页面</strong>。Google、Bing等主流搜索引擎均支持XML站点地图。提交站点地图可加快新内容的索引速度，确保内部链接较少的页面也能被发现。每个URL可添加priority（优先级）、changefreq（更新频率）和lastmod（最后修改日期）属性。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>XML站点地图是什么？</summary><p>XML站点地图是以XML格式整理的网站URL列表文件。搜索引擎通过读取该文件了解网站结构、页面更新时间并安排爬取优先级。对于大型网站、内部链接较少的网站或需要快速索引的新网站尤为有效。</p></details>
+<details class="faq-item"><summary>如何设置priority值？</summary><p>priority取值0.0~1.0，表示URL在站内的相对重要性。首页建议1.0，重要分类或服务页面0.8，普通内容0.5，归档或标签页0.3以下。Google将此值视为参考提示，不作为绝对标准。</p></details>
+<details class="faq-item"><summary>changefreq代表什么意思？</summary><p>changefreq提示爬虫页面的更新频率，可选值为always、hourly、daily、weekly、monthly、yearly、never。新闻或博客建议daily，静态页面建议monthly。若声明频率与实际差异过大，爬虫可能降低对该值的信任度。</p></details>
+<details class="faq-item"><summary>如何向Google Search Console提交站点地图？</summary><p>进入Google Search Console → 索引 → 站点地图，输入站点地图URL（如https://example.com/sitemap.xml）并提交。也可在robots.txt中添加Sitemap: https://example.com/sitemap.xml，Googlebot在解析robots.txt时会自动发现。</p></details>
+<details class="faq-item"><summary>什么是站点地图索引文件？</summary><p>站点地图索引是引用多个单独站点地图文件的父级XML文件。由于单个站点地图最多包含50,000个URL且不超过50MB，大型网站需将URL分散到多个站点地图，并用&lt;sitemapindex&gt;索引文件统一引用。</p></details>
+<details class="faq-item"><summary>需要在robots.txt中声明站点地图吗？</summary><p>建议这样做。在robots.txt末尾添加Sitemap: https://example.com/sitemap.xml，Googlebot和Bingbot解析robots.txt时会自动发现并处理站点地图，与Search Console手动提交配合效果更佳。</p></details>
+<details class="faq-item"><summary>动态站点地图和静态站点地图有何区别？</summary><p>静态站点地图是预先生成的XML文件，适合小型或更新较少的网站。动态站点地图由服务器实时生成，适合内容频繁更新的大型网站（如新闻、电商），可确保URL列表始终是最新的。</p></details>
+<details class="faq-item"><summary>站点地图最多可包含多少个URL？</summary><p>单个XML站点地图文件最多包含50,000个URL，未压缩大小不超过50MB。URL更多时，需将其拆分到多个站点地图文件，并通过sitemapindex文件统一引用后提交至Search Console。</p></details>`
+  },
+  ja: {
+    pageTitle: 'Sitemap Generator - XMLサイトマップ作成ツール | MODOO HUB',
+    h1: 'サイトマップ<span>ジェネレーター</span>',
+    sub: 'XMLサイトマップをビジュアルで作成・プレビュー',
+    backLink: '← ホーム',
+    langBtn: '🌐 한국어',
+    builderTitle: 'URL ビルダー',
+    labelBaseUrl: 'ベース URL',
+    addRowLabel: 'URL 追加',
+    quickAddLabel: 'クイック追加',
+    labelPath: 'パス',
+    labelPriority: '優先度',
+    labelChangefreq: '更新頻度',
+    labelLastmod: '最終更新日',
+    btnAdd: '+ 追加',
+    btnAutoGen: '自動生成',
+    btnClear: 'クリア',
+    btnCopyXml: 'XML コピー',
+    copyDone: 'コピー完了 ✓',
+    btnDownload: 'sitemap.xml ダウンロード',
+    outputLabel: 'XML プレビュー',
+    statsLabel: 'URL 数',
+    statsText: (n) => `<span>${n}</span> URL 追加済み`,
+    emptyList: 'URLがありません。上から追加してください。',
+    placeholderPath: '/about',
+    seoHtml: `<h2>XMLサイトマップとは？</h2><p>XMLサイトマップはウェブサイト上のすべてのURLをリストアップしたファイルで、<strong>検索エンジンクローラーがサイト構造を把握し、重要なページを漏れなく発見</strong>できるよう案内します。Google・Bingなど主要な検索エンジンが対応しており、サイトマップを提出することで新しいコンテンツのインデックスが早まります。各URLにpriority（重要度）、changefreq（更新頻度）、lastmod（最終更新日）を指定できます。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>XMLサイトマップとは何ですか？</summary><p>XMLサイトマップはサイトのURL一覧をXML形式でまとめたファイルです。検索エンジンはこのファイルを読み込んでサイト構造やページの更新日を把握し、クロールの優先順位を決めます。内部リンクが少ないサイトや大規模サイト、新しいサイトの早期インデックスに特に有効です。</p></details>
+<details class="faq-item"><summary>priority値はどう設定すればよいですか？</summary><p>priorityは0.0〜1.0の値で、サイト内URLの相対的な重要度を示します。トップページは1.0、主要カテゴリ・サービスページは0.8、通常コンテンツは0.5、アーカイブやタグページは0.3以下が目安です。Googleはこの値をあくまで参考として扱います。</p></details>
+<details class="faq-item"><summary>changefreqはどういう意味ですか？</summary><p>changefreqはページの更新頻度をクローラーに伝えるヒントです。always・hourly・daily・weekly・monthly・yearly・neverから選択します。ニュースやブログはdaily、静的ページはmonthlyが一般的です。実際の更新頻度と大きく異なると、クローラーの信頼性が下がる場合があります。</p></details>
+<details class="faq-item"><summary>Google Search Consoleへのサイトマップ提出方法は？</summary><p>Google Search Console → インデックス → サイトマップ でサイトマップURL（例：https://example.com/sitemap.xml）を入力して送信します。またはrobots.txtにSitemap: https://example.com/sitemap.xmlを追加するとGooglebotが自動検出します。</p></details>
+<details class="faq-item"><summary>サイトマップインデックスとは？</summary><p>サイトマップインデックスは複数のサイトマップファイルをまとめる親XMLファイルです。1つのサイトマップは最大50,000 URL・50MBまでのため、大規模サイトではURLを分割し&lt;sitemapindex&gt;ファイルで参照します。</p></details>
+<details class="faq-item"><summary>robots.txtにサイトマップを宣言すべきですか？</summary><p>推奨します。robots.txtの末尾にSitemap: https://example.com/sitemap.xmlを追加すると、Googlebot・BingbotがR robots.txtを解析する際にサイトマップを自動検出します。Search Consoleへの手動提出と併用するとさらに効果的です。</p></details>
+<details class="faq-item"><summary>動的サイトマップと静的サイトマップの違いは？</summary><p>静的サイトマップは事前に生成したXMLファイルで、小規模・更新の少ないサイトに適しています。動的サイトマップはサーバーがリアルタイムで生成するため、ニュースやECサイトなど頻繁に更新される大規模サイトに適しており、常に最新のURL一覧を維持できます。</p></details>
+<details class="faq-item"><summary>サイトマップに含められるURLの最大数は？</summary><p>1つのXMLサイトマップは最大50,000 URL、非圧縮で50MBを超えてはなりません。URLがそれ以上の場合は複数ファイルに分割し、sitemapindexファイルでまとめてSearch Consoleに提出します。</p></details>`
+  }
+};
+
+const LANGS = ['ko','en','zh','ja'];
+let _lang = 'ko';
+let urls = []; // {loc, priority, changefreq, lastmod}
+
+function detectLang(){
+  const u = new URLSearchParams(location.search).get('lang');
+  if(u && _i18n[u]) return u;
+  const s = localStorage.getItem('modoo_lang');
+  if(s && _i18n[s]) return s;
+  const n = (navigator.language||'').slice(0,2);
+  return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';
+}
+
+function cycleLang(){
+  const idx = LANGS.indexOf(_lang);
+  _lang = LANGS[(idx+1) % LANGS.length];
+  localStorage.setItem('modoo_lang', _lang);
+  const url = new URL(location.href);
+  url.searchParams.set('lang', _lang);
+  history.replaceState({},'',url);
+  applyLang();
+}
+
+function applyLang(){
+  const t = _i18n[_lang];
+  document.documentElement.lang = _lang;
+  document.title = t.pageTitle;
+  document.getElementById('h1El').innerHTML = t.h1;
+  document.getElementById('subEl').textContent = t.sub;
+  document.getElementById('backLink').textContent = t.backLink;
+  document.getElementById('langBtn').textContent = t.langBtn;
+  document.getElementById('builderTitle').textContent = t.builderTitle;
+  document.getElementById('labelBaseUrl').textContent = t.labelBaseUrl;
+  document.getElementById('addRowLabel').textContent = t.addRowLabel;
+  document.getElementById('quickAddLabel').textContent = t.quickAddLabel;
+  document.getElementById('btnAdd').textContent = t.btnAdd;
+  document.getElementById('btnAutoGen').textContent = t.btnAutoGen;
+  document.getElementById('btnClear').textContent = t.btnClear;
+  document.getElementById('btnCopyXml').textContent = t.btnCopyXml;
+  document.getElementById('btnDownload').textContent = t.btnDownload;
+  document.getElementById('outputLabel').textContent = t.outputLabel;
+  document.getElementById('pathInput').placeholder = t.placeholderPath;
+  document.getElementById('seoDiv').innerHTML = t.seoHtml;
+  renderStats();
+  renderUrlList();
+  renderQuickChips();
+}
+
+function renderQuickChips(){
+  document.getElementById('quickChips').innerHTML = QUICK_PATHS.map(p =>
+    `<button class="chip" onclick="addQuickPath('${p}')">${p}</button>`
+  ).join('');
+}
+
+function onBaseUrlInput(){
+  generateXml();
+}
+
+function getBaseUrl(){
+  return document.getElementById('baseUrl').value.trim().replace(/\/+$/,'');
+}
+
+function addQuickPath(path){
+  const base = getBaseUrl();
+  if(!base){ document.getElementById('baseUrl').focus(); return; }
+  const loc = base + path;
+  if(urls.find(u=>u.loc===loc)) return;
+  const lastmod = todayStr();
+  const prio = path==='/'?'1.0':'0.8';
+  const freq = path==='/'?'daily':'monthly';
+  urls.push({loc, priority:prio, changefreq:freq, lastmod});
+  renderUrlList();
+  renderStats();
+  generateXml();
+}
+
+function addUrl(){
+  const base = getBaseUrl();
+  const path = document.getElementById('pathInput').value.trim();
+  if(!base){ document.getElementById('baseUrl').focus(); return; }
+  if(!path){ document.getElementById('pathInput').focus(); return; }
+  const loc = base + (path.startsWith('/')?path:'/'+path);
+  if(urls.find(u=>u.loc===loc)) return;
+  const priority = document.getElementById('prioritySelect').value;
+  const changefreq = document.getElementById('changefreqSelect').value;
+  const lastmod = document.getElementById('lastmodInput').value;
+  urls.push({loc, priority, changefreq, lastmod});
+  document.getElementById('pathInput').value = '';
+  renderUrlList();
+  renderStats();
+  generateXml();
+}
+
+function autoGenerate(){
+  const base = getBaseUrl();
+  if(!base){ document.getElementById('baseUrl').focus(); return; }
+  const today = todayStr();
+  AUTO_PATHS.forEach(({path, priority, changefreq}) => {
+    const loc = base + path;
+    if(!urls.find(u=>u.loc===loc)){
+      urls.push({loc, priority, changefreq, lastmod: today});
+    }
+  });
+  renderUrlList();
+  renderStats();
+  generateXml();
+}
+
+function deleteUrl(idx){
+  urls.splice(idx,1);
+  renderUrlList();
+  renderStats();
+  generateXml();
+}
+
+function renderUrlList(){
+  const container = document.getElementById('urlList');
+  if(urls.length===0){
+    container.innerHTML = `<div class="empty-list">${_i18n[_lang].emptyList}</div>`;
+    return;
+  }
+  container.innerHTML = urls.map((u,i) => `
+    <div class="url-item">
+      <span class="url-loc" title="${escHtml(u.loc)}">${escHtml(u.loc)}</span>
+      <span class="url-meta">${u.priority} · ${u.changefreq}${u.lastmod?' · '+u.lastmod:''}</span>
+      <button class="url-del" onclick="deleteUrl(${i})" title="Delete">×</button>
+    </div>
+  `).join('');
+}
+
+function renderStats(){
+  document.getElementById('statsEl').innerHTML = _i18n[_lang].statsText(urls.length);
+}
+
+function generateXml(){
+  let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+  xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+  urls.forEach(u => {
+    xml += '  <url>\n';
+    xml += `    <loc>${escXml(u.loc)}</loc>\n`;
+    if(u.lastmod) xml += `    <lastmod>${u.lastmod}</lastmod>\n`;
+    if(u.changefreq) xml += `    <changefreq>${u.changefreq}</changefreq>\n`;
+    if(u.priority) xml += `    <priority>${u.priority}</priority>\n`;
+    xml += '  </url>\n';
+  });
+  xml += '</urlset>';
+  document.getElementById('outputTa').value = xml;
+  return xml;
+}
+
+function escXml(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');
+}
+
+function escHtml(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function copyXml(){
+  const text = document.getElementById('outputTa').value;
+  if(!text) return;
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn = document.getElementById('btnCopyXml');
+    const t = _i18n[_lang];
+    btn.textContent = t.copyDone;
+    btn.style.background = 'var(--green)';
+    btn.style.borderColor = 'var(--green)';
+    btn.style.color = '#000';
+    setTimeout(()=>{
+      btn.textContent = t.btnCopyXml;
+      btn.style.background = '';
+      btn.style.borderColor = '';
+      btn.style.color = '';
+    }, 2000);
+  }).catch(()=>{
+    document.getElementById('outputTa').select();
+    document.execCommand('copy');
+  });
+}
+
+function downloadSitemap(){
+  const text = document.getElementById('outputTa').value;
+  if(!text) return;
+  const blob = new Blob([text], {type:'application/xml'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'sitemap.xml';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function clearAll(){
+  urls = [];
+  document.getElementById('baseUrl').value = '';
+  document.getElementById('pathInput').value = '';
+  document.getElementById('outputTa').value = '';
+  renderUrlList();
+  renderStats();
+}
+
+function todayStr(){
+  return new Date().toISOString().slice(0,10);
+}
+
+// Set default lastmod to today
+document.addEventListener('DOMContentLoaded', ()=>{
+  document.getElementById('lastmodInput').value = todayStr();
+});
+
+_lang = detectLang();
+applyLang();
+generateXml();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

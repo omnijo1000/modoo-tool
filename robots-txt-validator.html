@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Robots.txt 검증기 - 문법 검사 & URL 크롤링 허용 여부 테스트 | MODOO HUB</title>
+<meta name="description" content="robots.txt 문법을 검사하고 특정 URL의 크롤링 허용 여부를 테스트하세요. User-agent별 규칙 분석, Sitemap 확인, 문법 오류 감지.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/robots-txt-validator.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/robots-txt-validator.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/robots-txt-validator.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/robots-txt-validator.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/robots-txt-validator.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/robots-txt-validator.html">
+<meta property="og:title" content="Robots.txt 검증기 - 문법 검사 & URL 크롤링 허용 여부 테스트">
+<meta property="og:description" content="robots.txt 문법을 검사하고 특정 URL의 크롤링 허용 여부를 테스트하세요.">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<meta property="og:url" content="https://modoohub.com/robots-txt-validator.html">
+<meta property="og:type" content="website">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;font-family:'DM Mono',monospace;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;font-family:'DM Mono',monospace;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:960px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;line-height:1.6;}
+.layout{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+@media(max-width:700px){.layout{grid-template-columns:1fr;}}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;}
+.panel-label{font-size:11px;color:var(--text-dim);letter-spacing:.07em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:10px;}
+textarea.main-ta{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;resize:vertical;min-height:220px;outline:none;line-height:1.6;}
+textarea.main-ta:focus{border-color:var(--accent);}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.btn{padding:7px 14px;border:1px solid var(--border);border-radius:7px;font-size:12px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;background:none;color:var(--text-muted);transition:all .15s;}
+.btn:hover{border-color:var(--accent);color:var(--accent);}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;}
+.btn.primary:hover{opacity:.85;}
+.tester-section{margin-top:18px;padding-top:14px;border-top:1px solid var(--border);}
+.tester-label{font-size:11px;color:var(--text-dim);letter-spacing:.07em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:8px;}
+.tester-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px;}
+.tester-select,.tester-input{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--text);font-size:12px;font-family:'DM Mono',monospace;outline:none;}
+.tester-select:focus,.tester-input:focus{border-color:var(--accent);}
+.tester-select{min-width:160px;}
+.tester-input{flex:1;min-width:140px;}
+.test-result{margin-top:10px;padding:10px 14px;border-radius:8px;font-size:13px;font-family:'DM Mono',monospace;display:none;}
+.test-result.allowed{background:rgba(74,222,128,.1);border:1px solid var(--green);color:var(--green);}
+.test-result.disallowed{background:rgba(248,113,113,.1);border:1px solid var(--red);color:var(--red);}
+.result-rule{font-size:11px;color:var(--text-dim);margin-top:4px;}
+.agent-block{margin-bottom:14px;}
+.agent-name{font-size:12px;font-family:'DM Mono',monospace;color:var(--accent);font-weight:700;margin-bottom:6px;}
+.rules-list{display:flex;flex-direction:column;gap:4px;}
+.rule-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:14px;font-size:11px;font-family:'DM Mono',monospace;}
+.rule-chip.allow{background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.3);color:var(--green);}
+.rule-chip.disallow{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);color:var(--red);}
+.rule-chip.crawl-delay{background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.3);color:var(--blue);}
+.sitemaps-section{margin-top:14px;padding-top:12px;border-top:1px solid var(--border);}
+.issues-section{margin-top:14px;padding-top:12px;border-top:1px solid var(--border);}
+.section-title{font-size:11px;color:var(--text-dim);letter-spacing:.07em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:8px;}
+.sitemap-url{font-size:11px;font-family:'DM Mono',monospace;color:var(--blue);word-break:break-all;margin-bottom:4px;}
+.issue-item{font-size:11px;font-family:'DM Mono',monospace;color:var(--red);margin-bottom:4px;}
+.issue-item .line-no{color:var(--text-dim);}
+.no-issues{font-size:12px;color:var(--green);font-family:'DM Mono',monospace;}
+.empty-state{font-size:12px;color:var(--text-dim);font-family:'DM Mono',monospace;padding:20px 0;text-align:center;}
+.fetch-row{display:flex;gap:8px;margin-bottom:10px;}
+.fetch-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--text);font-size:12px;font-family:'DM Mono',monospace;outline:none;}
+.fetch-input:focus{border-color:var(--accent);}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:32px;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebApplication",
+  "name":"Robots.txt Validator",
+  "url":"https://modoohub.com/robots-txt-validator.html",
+  "applicationCategory":"UtilitiesApplication",
+  "operatingSystem":"Any",
+  "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},
+  "description":"Validate robots.txt syntax and test URL crawling permissions. Parse User-agent rules, check Allow/Disallow directives, detect syntax errors."
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"FAQPage",
+  "mainEntity":[
+    {"@type":"Question","name":"robots.txt 검증이란 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"robots.txt 검증은 파일의 문법 오류를 검사하고 각 User-agent별 크롤링 규칙이 올바르게 작성되었는지 확인하는 과정입니다."}},
+    {"@type":"Question","name":"User-agent *는 무엇을 의미하나요?","acceptedAnswer":{"@type":"Answer","text":"User-agent: *는 모든 검색 엔진 크롤러에 적용되는 규칙을 정의합니다. 특정 크롤러(예: Googlebot)에 대한 규칙이 없을 때 이 블록의 규칙이 적용됩니다."}},
+    {"@type":"Question","name":"Disallow: /와 Disallow: (빈값)의 차이는?","acceptedAnswer":{"@type":"Answer","text":"Disallow: /는 전체 사이트 크롤링을 차단합니다. Disallow: (빈 값)은 아무것도 차단하지 않아 모든 크롤링을 허용하는 의미입니다."}},
+    {"@type":"Question","name":"robots.txt는 대소문자를 구분하나요?","acceptedAnswer":{"@type":"Answer","text":"디렉티브(User-agent, Disallow 등)는 대소문자를 구분하지 않지만, 경로 값은 대소문자를 구분합니다. /Admin과 /admin은 다른 경로로 처리됩니다."}}
+  ]
+}
+</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1 id="h1El">Robots.txt <span id="h1Span">검증기</span></h1>
+  <p class="sub" id="subEl">robots.txt 문법 검사·URL 크롤링 허용 여부 테스트</p>
+
+  <div class="layout">
+    <!-- Left Panel -->
+    <div>
+      <div class="panel">
+        <div class="panel-label" id="labelInput">robots.txt 내용 붙여넣기</div>
+        <div class="fetch-row">
+          <input type="text" class="fetch-input" id="fetchUrl" placeholder="https://example.com">
+          <button class="btn" id="btnFetch" onclick="fetchRobots()">Load from URL</button>
+        </div>
+        <textarea class="main-ta" id="robotsTa" placeholder="User-agent: *&#10;Disallow: /admin/&#10;Allow: /&#10;Sitemap: https://example.com/sitemap.xml"></textarea>
+        <div class="btn-row">
+          <button class="btn primary" id="btnValidate" onclick="doValidate()">Validate</button>
+          <button class="btn" id="btnSample" onclick="loadSample()">Sample</button>
+          <button class="btn" id="btnClear" onclick="doClear()">Clear</button>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:14px;">
+        <div class="tester-label" id="labelTester">URL 크롤링 허용 여부 테스트</div>
+        <div class="tester-row">
+          <select class="tester-select" id="agentSelect">
+            <option value="*">* (모든 봇)</option>
+            <option value="Googlebot">Googlebot</option>
+            <option value="Bingbot">Bingbot</option>
+            <option value="Yandexbot">Yandexbot</option>
+          </select>
+        </div>
+        <div class="tester-row">
+          <input type="text" class="tester-input" id="testUrlInput" placeholder="/path/to/page">
+          <button class="btn primary" id="btnTest" onclick="doTest()">Test</button>
+        </div>
+        <div class="test-result" id="testResult">
+          <div id="testResultText"></div>
+          <div class="result-rule" id="testResultRule"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Panel -->
+    <div class="panel">
+      <div class="panel-label" id="labelParsed">파싱된 규칙</div>
+      <div id="parsedOutput"><div class="empty-state" id="emptyState">robots.txt를 붙여넣고 Validate를 누르세요</div></div>
+
+      <div class="sitemaps-section" id="sitemapsSection" style="display:none;">
+        <div class="section-title" id="labelSitemaps">Sitemap URLs</div>
+        <div id="sitemapsOutput"></div>
+      </div>
+
+      <div class="issues-section">
+        <div class="section-title" id="labelIssues">검증 결과</div>
+        <div id="issuesOutput"><div class="no-issues" id="noIssuesEl" style="display:none;"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="seo" id="seoDiv"></div>
+  <footer>Robots.txt Validator · Free Online Tool · modoohub.com</footer>
+</main>
+<script>
+const SAMPLE_ROBOTS=`User-agent: *
+Disallow: /admin/
+Disallow: /private/
+Allow: /public/
+Crawl-delay: 10
+
+User-agent: Googlebot
+Allow: /
+Disallow: /tmp/
+
+Sitemap: https://example.com/sitemap.xml
+Sitemap: https://example.com/sitemap-news.xml`;
+
+const _i18n={
+  ko:{
+    pageTitle:'Robots.txt 검증기 - 문법 검사 & URL 크롤링 허용 여부 테스트 | MODOO HUB',
+    h1:'Robots.txt',h1Span:'검증기',
+    sub:'robots.txt 문법 검사·URL 크롤링 허용 여부 테스트',
+    backLink:'← 모두의 툴',langBtn:'🌐 EN',
+    labelInput:'robots.txt 내용 붙여넣기',
+    btnValidate:'검증하기',btnFetch:'URL에서 불러오기',btnSample:'샘플',btnClear:'지우기',
+    fetchPlaceholder:'https://example.com',
+    taPh:'User-agent: *\nDisallow: /admin/\nAllow: /\nSitemap: https://example.com/sitemap.xml',
+    labelTester:'URL 크롤링 허용 여부 테스트',
+    labelAgent:'User-agent',labelUrl:'테스트할 URL 경로',
+    btnTest:'테스트',
+    resultAllowed:'✓ 크롤링 허용',resultDisallowed:'✗ 크롤링 차단',
+    labelParsed:'파싱된 규칙',labelSitemaps:'Sitemap URL',labelIssues:'검증 결과',
+    noIssues:'✓ 문법 오류 없음',
+    emptyState:'robots.txt를 붙여넣고 검증하기를 누르세요',
+    allAgents:'* (모든 봇)',
+    agentLabel:'User-agent:',
+    ruleMatched:'매칭 규칙:',ruleDefault:'기본값 (매칭 규칙 없음)',
+    lineLabel:'줄',unknownDir:'알 수 없는 디렉티브:',
+    fetchError:'robots.txt를 불러올 수 없습니다. CORS 정책으로 인해 직접 붙여넣기를 사용하세요.',
+    seoHtml:`<h2>robots.txt 검증이란?</h2><p>robots.txt는 검색 엔진 크롤러에게 어떤 페이지를 수집해도 되는지 알려주는 파일입니다. 이 도구는 <strong>robots.txt 문법 오류를 자동으로 검사</strong>하고, 특정 URL이 특정 봇에 대해 허용되는지 차단되는지 즉시 테스트할 수 있습니다. 운영 전 반드시 검증하여 의도치 않은 크롤링 차단을 방지하세요.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>robots.txt 검증이 왜 중요한가요?</summary><p>robots.txt의 문법 오류 하나로 전체 사이트가 크롤링 차단될 수 있습니다. 또한 의도치 않게 중요 페이지를 차단하면 Google 검색 결과에서 사라질 수 있습니다. 배포 전 검증이 필수입니다.</p></details>
+<details class="faq-item"><summary>흔한 robots.txt 문법 오류 유형은?</summary><p>대표적인 오류로는 ①알 수 없는 디렉티브 사용, ②User-agent 없이 Disallow 먼저 작성, ③경로에 와일드카드(*) 오용, ④여러 User-agent를 한 줄에 작성하는 경우가 있습니다. 각 User-agent는 별도 줄에 작성해야 합니다.</p></details>
+<details class="faq-item"><summary>User-agent: *는 무엇을 의미하나요?</summary><p>모든 검색 엔진 크롤러에 적용되는 기본 규칙입니다. 특정 봇(예: Googlebot)에 별도 규칙이 있으면 그 규칙이 우선 적용되고, 없으면 * 규칙이 적용됩니다.</p></details>
+<details class="faq-item"><summary>Disallow: '' (빈값)과 Disallow: /의 차이는?</summary><p>Disallow: (빈 값)은 아무것도 차단하지 않아 전체 허용을 의미합니다. Disallow: /는 루트부터 모든 경로를 차단하여 전체 사이트 크롤링을 막습니다. 두 값의 의미가 완전히 반대이므로 주의가 필요합니다.</p></details>
+<details class="faq-item"><summary>더 구체적인 규칙이 우선 적용되나요?</summary><p>Google은 Allow와 Disallow가 충돌할 경우 더 구체적인(경로가 긴) 규칙을 우선 적용합니다. 길이가 같다면 Allow가 우선입니다. 이 도구는 순서 기반으로 마지막으로 매칭된 규칙을 적용하는 방식으로 동작합니다.</p></details>
+<details class="faq-item"><summary>robots.txt 경로는 대소문자를 구분하나요?</summary><p>네. 경로 값은 대소문자를 구분합니다. Disallow: /Admin/은 /admin/을 차단하지 않습니다. 반드시 실제 URL과 정확히 일치하는 대소문자를 사용하세요.</p></details>
+<details class="faq-item"><summary>Sitemap은 robots.txt 어디에 선언해야 하나요?</summary><p>Sitemap 디렉티브는 User-agent 블록 밖에 독립적으로 선언하는 것을 권장합니다. 파일 맨 아래에 작성하는 것이 일반적이며, 여러 Sitemap을 선언할 수 있습니다.</p></details>
+<details class="faq-item"><summary>Google 공식 robots.txt 테스터도 있나요?</summary><p>네. Google Search Console에서 robots.txt 테스터를 제공합니다. 실제 Googlebot의 동작을 확인하려면 Search Console을 사용하세요. 이 도구는 오프라인 검증과 빠른 URL 테스트에 적합합니다.</p></details>`
+  },
+  en:{
+    pageTitle:'Robots.txt Validator - Syntax Check & URL Crawl Tester | MODOO HUB',
+    h1:'Robots.txt',h1Span:'Validator',
+    sub:'Validate robots.txt syntax · Test URL crawling permissions',
+    backLink:'← All Tools',langBtn:'🌐 中文',
+    labelInput:'Paste robots.txt content',
+    btnValidate:'Validate',btnFetch:'Load from URL',btnSample:'Sample',btnClear:'Clear',
+    fetchPlaceholder:'https://example.com',
+    taPh:'User-agent: *\nDisallow: /admin/\nAllow: /\nSitemap: https://example.com/sitemap.xml',
+    labelTester:'URL Crawl Permission Tester',
+    labelAgent:'User-agent',labelUrl:'URL path to test',
+    btnTest:'Test',
+    resultAllowed:'✓ Allowed',resultDisallowed:'✗ Disallowed',
+    labelParsed:'Parsed Rules',labelSitemaps:'Sitemap URLs',labelIssues:'Validation Results',
+    noIssues:'✓ No syntax errors found',
+    emptyState:'Paste robots.txt content and click Validate',
+    allAgents:'* (all bots)',
+    agentLabel:'User-agent:',
+    ruleMatched:'Matched rule:',ruleDefault:'default (no matching rule)',
+    lineLabel:'Line',unknownDir:'Unknown directive:',
+    fetchError:'Could not load robots.txt. CORS policy may block direct fetching — please paste the content manually.',
+    seoHtml:`<h2>What is Robots.txt Validation?</h2><p>The robots.txt file tells search engine crawlers which pages they can or cannot access. This tool <strong>automatically checks robots.txt syntax errors</strong> and lets you instantly test whether a specific URL is allowed or blocked for any given user-agent. Always validate before deploying to avoid accidental crawl blocks.</p>
+<h2 class="seo-sub">Frequently Asked Questions</h2>
+<details class="faq-item"><summary>Why is robots.txt validation important?</summary><p>A single syntax error in robots.txt can accidentally block your entire site from being crawled. Unintentionally blocking important pages can cause them to disappear from Google search results. Always validate before publishing your robots.txt file.</p></details>
+<details class="faq-item"><summary>What are common robots.txt syntax errors?</summary><p>Common errors include: ①using unknown directives, ②writing Disallow before a User-agent declaration, ③misusing wildcards (*) in paths, ④listing multiple user-agents on one line. Each User-agent must be on its own separate line.</p></details>
+<details class="faq-item"><summary>What does User-agent: * mean?</summary><p>User-agent: * defines default rules that apply to all crawlers. If a specific bot (e.g., Googlebot) has its own block, those rules take priority. Otherwise, the * rules apply.</p></details>
+<details class="faq-item"><summary>What is the difference between Disallow: (empty) and Disallow: /?</summary><p>Disallow: (empty value) means nothing is blocked — all crawling is allowed. Disallow: / blocks everything from the root, preventing the entire site from being crawled. These two values have completely opposite meanings.</p></details>
+<details class="faq-item"><summary>Do more specific rules take priority?</summary><p>Google applies the more specific (longer path) rule when Allow and Disallow conflict. If equal length, Allow wins. This tool applies the last matching rule in order, which is the behavior used by most crawlers.</p></details>
+<details class="faq-item"><summary>Are robots.txt paths case-sensitive?</summary><p>Yes. Path values are case-sensitive. Disallow: /Admin/ does not block /admin/. Always use the exact same case as in your actual URLs.</p></details>
+<details class="faq-item"><summary>Where should I declare Sitemap in robots.txt?</summary><p>Sitemap directives should be declared outside any User-agent block. Placing them at the bottom of the file is common practice, and you can declare multiple Sitemaps.</p></details>
+<details class="faq-item"><summary>Is there an official Google robots.txt tester?</summary><p>Yes. Google Search Console provides a robots.txt tester to verify actual Googlebot behavior. Use this tool for quick offline validation and URL testing; use Search Console for production verification.</p></details>`
+  },
+  zh:{
+    pageTitle:'Robots.txt 验证器 - 语法检查 & URL 爬取权限测试 | MODOO HUB',
+    h1:'Robots.txt',h1Span:'验证器',
+    sub:'验证robots.txt语法·测试URL爬取许可',
+    backLink:'← 所有工具',langBtn:'🌐 日本語',
+    labelInput:'粘贴robots.txt内容',
+    btnValidate:'验证',btnFetch:'从URL加载',btnSample:'示例',btnClear:'清除',
+    fetchPlaceholder:'https://example.com',
+    taPh:'User-agent: *\nDisallow: /admin/\nAllow: /\nSitemap: https://example.com/sitemap.xml',
+    labelTester:'URL爬取权限测试',
+    labelAgent:'User-agent',labelUrl:'测试URL路径',
+    btnTest:'测试',
+    resultAllowed:'✓ 允许爬取',resultDisallowed:'✗ 禁止爬取',
+    labelParsed:'解析规则',labelSitemaps:'Sitemap URLs',labelIssues:'验证结果',
+    noIssues:'✓ 未发现语法错误',
+    emptyState:'粘贴robots.txt内容后点击验证',
+    allAgents:'* (所有机器人)',
+    agentLabel:'User-agent:',
+    ruleMatched:'匹配规则:',ruleDefault:'默认（无匹配规则）',
+    lineLabel:'行',unknownDir:'未知指令:',
+    fetchError:'无法加载robots.txt。CORS策略可能阻止直接获取，请手动粘贴内容。',
+    seoHtml:`<h2>什么是robots.txt验证？</h2><p>robots.txt文件告诉搜索引擎爬虫哪些页面可以或不可以访问。本工具<strong>自动检查robots.txt语法错误</strong>，并可即时测试特定URL是否对指定User-agent开放爬取。部署前务必验证，避免意外屏蔽重要页面。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>为什么robots.txt验证很重要？</summary><p>robots.txt中的一个语法错误可能意外阻止整个网站被爬取。无意中屏蔽重要页面会导致其从Google搜索结果中消失。发布前务必验证robots.txt文件。</p></details>
+<details class="faq-item"><summary>常见的robots.txt语法错误有哪些？</summary><p>常见错误包括：①使用未知指令、②在User-agent声明之前写Disallow、③路径中误用通配符(*)、④在同一行列出多个user-agent。每个User-agent必须单独占一行。</p></details>
+<details class="faq-item"><summary>User-agent: *是什么意思？</summary><p>User-agent: *定义了适用于所有爬虫的默认规则。如果特定机器人（如Googlebot）有自己的规则块，则优先应用其规则，否则适用*规则。</p></details>
+<details class="faq-item"><summary>Disallow:（空值）和Disallow: /有什么区别？</summary><p>Disallow:（空值）表示不屏蔽任何内容，允许全部爬取。Disallow: /从根目录屏蔽所有路径，阻止整个网站被爬取。这两个值含义完全相反。</p></details>
+<details class="faq-item"><summary>更具体的规则优先级更高吗？</summary><p>Google在Allow和Disallow冲突时，应用更具体（路径更长）的规则。长度相同时，Allow优先。本工具采用顺序匹配方式，应用最后匹配到的规则。</p></details>
+<details class="faq-item"><summary>robots.txt路径区分大小写吗？</summary><p>是的。路径值区分大小写。Disallow: /Admin/不会屏蔽/admin/。请确保与实际URL大小写完全一致。</p></details>
+<details class="faq-item"><summary>Sitemap应在robots.txt的哪里声明？</summary><p>建议在任何User-agent块之外独立声明Sitemap指令。通常放在文件末尾，可以声明多个Sitemap。</p></details>
+<details class="faq-item"><summary>Google有官方robots.txt测试工具吗？</summary><p>有。Google Search Console提供robots.txt测试工具，可验证实际Googlebot的行为。使用本工具进行快速离线验证；生产环境验证请使用Search Console。</p></details>`
+  },
+  ja:{
+    pageTitle:'Robots.txt バリデーター - 構文チェック & URLクロール権限テスト | MODOO HUB',
+    h1:'Robots.txt',h1Span:'バリデーター',
+    sub:'robots.txt構文チェック・URLクロール許可テスト',
+    backLink:'← ホーム',langBtn:'🌐 한국어',
+    labelInput:'robots.txtの内容を貼り付け',
+    btnValidate:'検証',btnFetch:'URLから読み込み',btnSample:'サンプル',btnClear:'クリア',
+    fetchPlaceholder:'https://example.com',
+    taPh:'User-agent: *\nDisallow: /admin/\nAllow: /\nSitemap: https://example.com/sitemap.xml',
+    labelTester:'URLクロール許可テスター',
+    labelAgent:'User-agent',labelUrl:'テストするURLパス',
+    btnTest:'テスト',
+    resultAllowed:'✓ クロール許可',resultDisallowed:'✗ クロール不可',
+    labelParsed:'解析済みルール',labelSitemaps:'Sitemap URL',labelIssues:'検証結果',
+    noIssues:'✓ 構文エラーなし',
+    emptyState:'robots.txtを貼り付けて検証ボタンを押してください',
+    allAgents:'* (全ボット)',
+    agentLabel:'User-agent:',
+    ruleMatched:'マッチしたルール:',ruleDefault:'デフォルト（一致するルールなし）',
+    lineLabel:'行',unknownDir:'不明なディレクティブ:',
+    fetchError:'robots.txtを読み込めませんでした。CORSポリシーにより直接取得がブロックされる場合があります。手動で貼り付けてください。',
+    seoHtml:`<h2>robots.txt検証とは</h2><p>robots.txtは検索エンジンのクローラーにどのページにアクセスしてよいかを伝えるファイルです。このツールは<strong>robots.txtの構文エラーを自動チェック</strong>し、特定のURLが特定のユーザーエージェントに対して許可・拒否されているかを即座にテストできます。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>robots.txt検証はなぜ重要ですか？</summary><p>robots.txtの構文エラー一つでサイト全体のクロールが誤ってブロックされる可能性があります。重要なページを誤ってブロックするとGoogle検索結果から消える恐れがあります。公開前に必ず検証してください。</p></details>
+<details class="faq-item"><summary>よくあるrobots.txt構文エラーは？</summary><p>代表的なエラー：①未知のディレクティブの使用、②User-agent宣言なしにDisallowを記述、③パスでのワイルドカード(*)の誤用、④複数のUser-agentを1行に記述。各User-agentは個別の行に記述する必要があります。</p></details>
+<details class="faq-item"><summary>User-agent: *は何を意味しますか？</summary><p>すべてのクローラーに適用されるデフォルトルールを定義します。特定のボット（例：Googlebot）に独自のブロックがある場合はそのルールが優先され、なければ*のルールが適用されます。</p></details>
+<details class="faq-item"><summary>Disallow:（空値）とDisallow: /の違いは？</summary><p>Disallow:（空値）は何もブロックせず全クロールを許可します。Disallow: /はルートから全パスをブロックしサイト全体のクロールを禁止します。両者は完全に逆の意味です。</p></details>
+<details class="faq-item"><summary>より具体的なルールが優先されますか？</summary><p>GoogleはAllowとDisallowが競合する場合、より具体的（パスが長い）なルールを優先します。同じ長さの場合はAllowが優先されます。このツールは順序ベースで最後にマッチしたルールを適用します。</p></details>
+<details class="faq-item"><summary>robots.txtのパスは大文字・小文字を区別しますか？</summary><p>はい。パス値は大文字・小文字を区別します。Disallow: /Admin/は/admin/をブロックしません。実際のURLと完全に一致する大文字・小文字を使用してください。</p></details>
+<details class="faq-item"><summary>SitemapはどこでrOBOTS.TXTに宣言すべきですか？</summary><p>SitemapディレクティブはUser-agentブロックの外に独立して宣言することを推奨します。ファイルの末尾に記述するのが一般的で、複数のSitemapを宣言できます。</p></details>
+<details class="faq-item"><summary>Google公式のrobots.txtテスターはありますか？</summary><p>あります。Google Search ConsoleにはRobots.txtテスターが搭載されています。実際のGooglebotの動作を確認するにはSearch Consoleを使用し、クイックオフライン検証にはこのツールをご利用ください。</p></details>`
+  }
+};
+
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko';
+let _parsed=null;
+
+function detectLang(){
+  const u=new URLSearchParams(location.search).get('lang');
+  if(u&&_i18n[u])return u;
+  const s=localStorage.getItem('modoo_lang');
+  if(s&&_i18n[s])return s;
+  const n=navigator.language?.slice(0,2);
+  return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';
+}
+
+function cycleLang(){
+  const idx=LANGS.indexOf(_lang);
+  _lang=LANGS[(idx+1)%LANGS.length];
+  localStorage.setItem('modoo_lang',_lang);
+  const url=new URL(location.href);
+  url.searchParams.set('lang',_lang);
+  history.replaceState({},'',url);
+  applyLang();
+}
+
+function applyLang(){
+  const t=_i18n[_lang];
+  document.documentElement.lang=_lang;
+  document.title=t.pageTitle;
+  document.getElementById('h1El').childNodes[0].textContent=t.h1+' ';
+  document.getElementById('h1Span').textContent=t.h1Span;
+  document.getElementById('subEl').textContent=t.sub;
+  document.getElementById('backLink').textContent=t.backLink;
+  document.getElementById('langBtn').textContent=t.langBtn;
+  document.getElementById('labelInput').textContent=t.labelInput;
+  document.getElementById('btnValidate').textContent=t.btnValidate;
+  document.getElementById('btnFetch').textContent=t.btnFetch;
+  document.getElementById('btnSample').textContent=t.btnSample;
+  document.getElementById('btnClear').textContent=t.btnClear;
+  document.getElementById('fetchUrl').placeholder=t.fetchPlaceholder;
+  document.getElementById('robotsTa').placeholder=t.taPh;
+  document.getElementById('labelTester').textContent=t.labelTester;
+  document.getElementById('btnTest').textContent=t.btnTest;
+  document.getElementById('labelParsed').textContent=t.labelParsed;
+  document.getElementById('labelSitemaps').textContent=t.labelSitemaps;
+  document.getElementById('labelIssues').textContent=t.labelIssues;
+  document.getElementById('noIssuesEl').textContent=t.noIssues;
+  document.getElementById('emptyState').textContent=t.emptyState;
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+  updateAgentSelect();
+}
+
+function updateAgentSelect(){
+  const t=_i18n[_lang];
+  const sel=document.getElementById('agentSelect');
+  const cur=sel.value;
+  const agents=_parsed?[...new Set(_parsed.blocks.map(b=>b.agent))]:[];
+  const fixed=['*','Googlebot','Bingbot','Yandexbot'];
+  const all=[...new Set([...fixed,...agents])];
+  sel.innerHTML=all.map(a=>`<option value="${a}">${a==='*'?t.allAgents:a}</option>`).join('');
+  if(all.includes(cur))sel.value=cur;
+}
+
+function parseRobots(text){
+  const blocks=[];
+  let current=null;
+  const sitemaps=[];
+  const issues=[];
+  text.split('\n').forEach((rawLine,i)=>{
+    const line=rawLine.trim();
+    if(!line||line.startsWith('#'))return;
+    const colonIdx=line.indexOf(':');
+    if(colonIdx===-1){issues.push({line:i+1,msg:(_i18n[_lang].unknownDir)+' '+line});return;}
+    const dir=line.slice(0,colonIdx).trim().toLowerCase();
+    const val=line.slice(colonIdx+1).trim();
+    if(dir==='user-agent'){current={agent:val,rules:[]};blocks.push(current);}
+    else if(dir==='disallow'&&current)current.rules.push({type:'disallow',path:val});
+    else if(dir==='allow'&&current)current.rules.push({type:'allow',path:val});
+    else if(dir==='crawl-delay'&&current)current.rules.push({type:'crawl-delay',value:val});
+    else if(dir==='sitemap')sitemaps.push(val);
+    else if(dir!=='host')issues.push({line:i+1,msg:(_i18n[_lang].unknownDir)+' '+line.slice(0,colonIdx)});
+  });
+  return{blocks,sitemaps,issues};
+}
+
+function testUrl(parsedBlocks,agent,url){
+  const specific=parsedBlocks.filter(b=>b.agent.toLowerCase()===agent.toLowerCase());
+  const wildcard=parsedBlocks.filter(b=>b.agent==='*');
+  const blocksToCheck=specific.length>0?specific:wildcard;
+  for(const block of blocksToCheck){
+    for(const rule of [...block.rules].reverse()){
+      if(rule.type==='allow'||rule.type==='disallow'){
+        if(rule.path===''||url.startsWith(rule.path)){
+          return{allowed:rule.type==='allow',rule:`${rule.type}: ${rule.path||'(empty)'}`,agent:block.agent};
+        }
+      }
+    }
+  }
+  return{allowed:true,rule:_i18n[_lang].ruleDefault};
+}
+
+function doValidate(){
+  const text=document.getElementById('robotsTa').value;
+  if(!text.trim())return;
+  _parsed=parseRobots(text);
+  renderParsed();
+  updateAgentSelect();
+  const el=document.getElementById('testResult');
+  el.style.display='none';
+}
+
+function renderParsed(){
+  const t=_i18n[_lang];
+  const out=document.getElementById('parsedOutput');
+  if(!_parsed||_parsed.blocks.length===0){
+    out.innerHTML=`<div class="empty-state">${t.emptyState}</div>`;
+    document.getElementById('sitemapsSection').style.display='none';
+    document.getElementById('noIssuesEl').style.display='none';
+    document.getElementById('issuesOutput').innerHTML='';
+    return;
+  }
+  out.innerHTML=_parsed.blocks.map(b=>`
+    <div class="agent-block">
+      <div class="agent-name">${t.agentLabel} ${escHtml(b.agent)}</div>
+      <div class="rules-list">
+        ${b.rules.map(r=>{
+          if(r.type==='crawl-delay')return`<span class="rule-chip crawl-delay">crawl-delay: ${escHtml(r.value)}</span>`;
+          return`<span class="rule-chip ${r.type}">${r.type}: ${escHtml(r.path||'(empty)') }</span>`;
+        }).join('')}
+        ${b.rules.length===0?'<span style="font-size:11px;color:var(--text-dim);font-family:\'DM Mono\',monospace;">(no rules)</span>':''}
+      </div>
+    </div>
+  `).join('');
+
+  if(_parsed.sitemaps.length>0){
+    document.getElementById('sitemapsSection').style.display='block';
+    document.getElementById('sitemapsOutput').innerHTML=_parsed.sitemaps.map(s=>`<div class="sitemap-url">${escHtml(s)}</div>`).join('');
+  } else {
+    document.getElementById('sitemapsSection').style.display='none';
+  }
+
+  const issuesOut=document.getElementById('issuesOutput');
+  const noIss=document.getElementById('noIssuesEl');
+  if(_parsed.issues.length===0){
+    noIss.style.display='block';
+    issuesOut.innerHTML='';
+    issuesOut.appendChild(noIss);
+  } else {
+    noIss.style.display='none';
+    issuesOut.innerHTML=_parsed.issues.map(iss=>`<div class="issue-item"><span class="line-no">[${t.lineLabel} ${iss.line}]</span> ${escHtml(iss.msg)}</div>`).join('');
+  }
+}
+
+function doTest(){
+  const t=_i18n[_lang];
+  if(!_parsed){doValidate();}
+  if(!_parsed||_parsed.blocks.length===0)return;
+  const agent=document.getElementById('agentSelect').value;
+  const url=document.getElementById('testUrlInput').value.trim();
+  if(!url)return;
+  const res=testUrl(_parsed.blocks,agent,url);
+  const el=document.getElementById('testResult');
+  const textEl=document.getElementById('testResultText');
+  const ruleEl=document.getElementById('testResultRule');
+  el.className='test-result '+(res.allowed?'allowed':'disallowed');
+  textEl.textContent=res.allowed?t.resultAllowed:t.resultDisallowed;
+  ruleEl.textContent=`${t.ruleMatched} ${res.rule}`;
+  el.style.display='block';
+}
+
+function loadSample(){
+  document.getElementById('robotsTa').value=SAMPLE_ROBOTS;
+  doValidate();
+}
+
+function doClear(){
+  document.getElementById('robotsTa').value='';
+  _parsed=null;
+  const t=_i18n[_lang];
+  document.getElementById('parsedOutput').innerHTML=`<div class="empty-state">${t.emptyState}</div>`;
+  document.getElementById('sitemapsSection').style.display='none';
+  document.getElementById('issuesOutput').innerHTML='';
+  document.getElementById('noIssuesEl').style.display='none';
+  document.getElementById('testResult').style.display='none';
+  updateAgentSelect();
+}
+
+async function fetchRobots(){
+  const t=_i18n[_lang];
+  let domain=document.getElementById('fetchUrl').value.trim();
+  if(!domain)return;
+  if(!/^https?:\/\//i.test(domain))domain='https://'+domain;
+  try{
+    const url=new URL(domain);
+    const robotsUrl=url.origin+'/robots.txt';
+    const resp=await fetch(robotsUrl,{mode:'no-cors'});
+    if(resp.type==='opaque'){
+      // no-cors returns opaque; try cors proxy
+      throw new Error('opaque');
+    }
+    const text=await resp.text();
+    document.getElementById('robotsTa').value=text;
+    doValidate();
+  } catch(e){
+    // try cors proxy fallback
+    try{
+      const url=new URL(domain);
+      const robotsUrl=url.origin+'/robots.txt';
+      const proxyUrl='https://api.allorigins.win/get?url='+encodeURIComponent(robotsUrl);
+      const resp2=await fetch(proxyUrl);
+      const json=await resp2.json();
+      if(json.contents){
+        document.getElementById('robotsTa').value=json.contents;
+        doValidate();
+      } else {
+        alert(t.fetchError);
+      }
+    } catch(e2){
+      alert(t.fetchError);
+    }
+  }
+}
+
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+_lang=detectLang();
+applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

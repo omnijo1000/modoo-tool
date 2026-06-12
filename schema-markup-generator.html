@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>스키마 마크업 생성기 - JSON-LD 구조화 데이터 생성 & 구글 리치 스니펫 | MODOO HUB</title>
+<meta name="description" content="JSON-LD 구조화 데이터(스키마 마크업)를 쉽게 생성하세요. Article, Product, FAQ, LocalBusiness, Event 등 10가지 타입 지원. 구글 리치 스니펫 최적화.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/schema-markup-generator.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/schema-markup-generator.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/schema-markup-generator.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/schema-markup-generator.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/schema-markup-generator.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/schema-markup-generator.html">
+<meta property="og:title" content="스키마 마크업 생성기 - JSON-LD 구조화 데이터 생성">
+<meta property="og:description" content="JSON-LD 구조화 데이터를 쉽게 생성하세요. Article, Product, FAQ, LocalBusiness, Event 등 10가지 타입 지원.">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<meta property="og:url" content="https://modoohub.com/schema-markup-generator.html">
+<meta property="og:type" content="website">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;font-family:'DM Mono',monospace;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;font-family:'DM Mono',monospace;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:960px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;line-height:1.6;}
+/* Type selector grid */
+.type-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:20px;}
+@media(max-width:700px){.type-grid{grid-template-columns:repeat(2,1fr);}}
+.type-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 8px;text-align:center;cursor:pointer;transition:all .15s;font-size:11px;font-family:'DM Mono',monospace;color:var(--text-muted);}
+.type-card .type-icon{font-size:20px;margin-bottom:4px;}
+.type-card:hover{border-color:var(--accent);color:var(--accent);}
+.type-card.active{border-color:var(--accent);color:var(--accent);background:rgba(251,191,36,.06);}
+.layout{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+@media(max-width:700px){.layout{grid-template-columns:1fr;}}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;}
+.panel-label{font-size:11px;color:var(--text-dim);letter-spacing:.07em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:14px;}
+.form-group{margin-bottom:12px;}
+.field-label{font-size:11px;color:var(--text-dim);letter-spacing:.06em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:5px;display:flex;justify-content:space-between;align-items:center;}
+.field-req{color:var(--red);font-size:9px;margin-left:4px;}
+.field-input,.field-select,.field-ta{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:8px 10px;color:var(--text);font-size:12px;font-family:'DM Mono',monospace;outline:none;transition:border-color .15s;}
+.field-input:focus,.field-select:focus,.field-ta:focus{border-color:var(--accent);}
+.field-select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;}
+.field-ta{resize:vertical;min-height:60px;line-height:1.6;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+/* Dynamic pairs */
+.pair-row{display:flex;gap:6px;align-items:flex-start;margin-bottom:8px;}
+.pair-row .field-input{flex:1;}
+.pair-row .field-ta{flex:2;min-height:40px;}
+.btn-remove{background:none;border:1px solid var(--border);color:var(--text-dim);border-radius:5px;width:28px;height:28px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
+.btn-remove:hover{border-color:var(--red);color:var(--red);}
+.output-ta{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;resize:vertical;min-height:280px;outline:none;line-height:1.7;word-break:break-all;}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.btn{padding:8px 16px;border:1px solid var(--border);border-radius:7px;font-size:12px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;background:none;color:var(--text-muted);transition:all .15s;}
+.btn:hover{border-color:var(--accent);color:var(--accent);}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;}
+.btn.primary:hover{opacity:.85;}
+.btn.external{color:var(--blue);border-color:var(--blue);}
+.btn.external:hover{background:rgba(96,165,250,.08);}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:32px;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebApplication",
+  "name":"Schema Markup Generator",
+  "url":"https://modoohub.com/schema-markup-generator.html",
+  "applicationCategory":"UtilitiesApplication",
+  "operatingSystem":"Any",
+  "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},
+  "description":"Generate JSON-LD schema markup for Google rich snippets. Supports Article, Product, FAQ, LocalBusiness, Event, Person, Organization, Recipe, Review, and BreadcrumbList."
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"FAQPage",
+  "mainEntity":[
+    {"@type":"Question","name":"JSON-LD란 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"JSON-LD(JavaScript Object Notation for Linked Data)는 구조화 데이터를 JSON 형식으로 표현하는 방법으로, 구글이 권장하는 스키마 마크업 구현 방식입니다."}},
+    {"@type":"Question","name":"리치 스니펫이란 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"리치 스니펫은 구조화 데이터가 적용된 페이지에서 구글 검색 결과에 별점, 가격, FAQ 등 추가 정보가 표시되는 기능입니다. 클릭률 향상에 도움이 됩니다."}},
+    {"@type":"Question","name":"JSON-LD는 어디에 삽입하나요?","acceptedAnswer":{"@type":"Answer","text":"HTML의 head 또는 body 어디에나 삽입 가능하지만, head 내 script type=application/ld+json 태그 안에 넣는 것을 구글이 권장합니다."}}
+  ]
+}
+</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1 id="h1El">스키마 마크업 <span>생성기</span></h1>
+  <p class="sub" id="subEl">JSON-LD 구조화 데이터 생성·구글 리치 스니펫</p>
+
+  <!-- Type selector -->
+  <div class="type-grid" id="typeGrid">
+    <div class="type-card active" onclick="selectType('article',this)"><div class="type-icon">📰</div>Article</div>
+    <div class="type-card" onclick="selectType('product',this)"><div class="type-icon">🛍️</div>Product</div>
+    <div class="type-card" onclick="selectType('faq',this)"><div class="type-icon">❓</div>FAQ</div>
+    <div class="type-card" onclick="selectType('localbusiness',this)"><div class="type-icon">🏪</div>LocalBusiness</div>
+    <div class="type-card" onclick="selectType('breadcrumb',this)"><div class="type-icon">🔗</div>BreadcrumbList</div>
+    <div class="type-card" onclick="selectType('event',this)"><div class="type-icon">📅</div>Event</div>
+    <div class="type-card" onclick="selectType('person',this)"><div class="type-icon">👤</div>Person</div>
+    <div class="type-card" onclick="selectType('organization',this)"><div class="type-icon">🏢</div>Organization</div>
+    <div class="type-card" onclick="selectType('recipe',this)"><div class="type-icon">🍳</div>Recipe</div>
+    <div class="type-card" onclick="selectType('review',this)"><div class="type-icon">⭐</div>Review</div>
+  </div>
+
+  <div class="layout">
+    <!-- Left: Dynamic Form -->
+    <div class="panel">
+      <div class="panel-label" id="formLabel">필드 입력</div>
+      <div id="dynForm"></div>
+      <div class="btn-row">
+        <button class="btn" id="btnAddPair" onclick="addPair()" style="display:none">+ 항목 추가</button>
+        <button class="btn" id="btnClear" onclick="doClear()">초기화</button>
+      </div>
+    </div>
+
+    <!-- Right: Output -->
+    <div class="panel">
+      <div class="panel-label" id="outputLabel">JSON-LD 출력</div>
+      <textarea class="output-ta" id="outputTa" readonly></textarea>
+      <div class="btn-row">
+        <button class="btn primary" id="btnCopy" onclick="copyOutput()">복사</button>
+        <button class="btn external" id="btnValidate" onclick="openValidate()">구글에서 검증</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="seo" id="seoDiv"></div>
+  <footer>Schema Markup Generator · Free Online Tool · modoohub.com</footer>
+</main>
+<script>
+const _i18n={
+  ko:{
+    pageTitle:'스키마 마크업 생성기 - JSON-LD 구조화 데이터 생성 & 구글 리치 스니펫 | MODOO HUB',
+    h1:'스키마 마크업 <span>생성기</span>',
+    sub:'JSON-LD 구조화 데이터 생성·구글 리치 스니펫',
+    backLink:'← 모두의 툴',langBtn:'🌐 EN',
+    formLabel:'필드 입력',outputLabel:'JSON-LD 출력',
+    btnCopy:'복사',copyDone:'복사됨 ✓',btnClear:'초기화',
+    btnValidate:'구글에서 검증',btnAddPair:'+ 항목 추가',
+    seoHtml:`<h2>JSON-LD 스키마 마크업이란?</h2><p>JSON-LD(JavaScript Object Notation for Linked Data)는 <strong>구조화 데이터를 JSON 형식으로 표현</strong>하는 방법입니다. 구글이 웹페이지의 내용을 더 잘 이해하도록 도와주며, 검색 결과에 별점·가격·FAQ·이벤트 등의 리치 스니펫을 표시할 수 있게 합니다. HTML에 직접 섞이지 않아 유지보수가 쉽고 구글이 공식 권장하는 방식입니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>JSON-LD란 무엇인가요?</summary><p>JSON-LD는 JSON 형식의 Linked Data 구현 방법으로, HTML head 또는 body에 script type="application/ld+json" 태그로 삽입합니다. 콘텐츠와 마크업이 분리되어 유지보수가 쉽고, 구글이 가장 선호하는 구조화 데이터 형식입니다.</p></details>
+<details class="faq-item"><summary>리치 스니펫이란 무엇인가요?</summary><p>리치 스니펫은 구글 검색 결과에서 일반 텍스트 외에 별점, 가격 범위, 요리 시간, FAQ 드롭다운 등 추가 정보가 표시되는 기능입니다. 클릭률(CTR)을 평균 20~30% 향상시키는 것으로 알려져 있습니다.</p></details>
+<details class="faq-item"><summary>구조화 데이터 필수 필드는?</summary><p>각 타입마다 다르지만 공통적으로 @context("https://schema.org")와 @type이 필수입니다. Article은 headline·author·datePublished, Product은 name, FAQPage는 mainEntity, Event는 name·startDate·location이 필수입니다.</p></details>
+<details class="faq-item"><summary>구조화 데이터는 어떻게 테스트하나요?</summary><p>구글 리치 결과 테스트(search.google.com/test/rich-results)에서 URL 또는 코드를 직접 입력해 오류 여부를 확인합니다. 또한 구글 서치 콘솔의 "리치 결과" 보고서에서 실제 색인 상태를 모니터링할 수 있습니다.</p></details>
+<details class="faq-item"><summary>Microdata vs JSON-LD 중 어느 것이 낫나요?</summary><p>구글은 JSON-LD를 공식 권장합니다. Microdata는 HTML 태그에 직접 속성을 추가하므로 유지보수가 어렵고 동적 콘텐츠 처리가 복잡합니다. JSON-LD는 별도 script 블록으로 관리해 훨씬 깔끔합니다.</p></details>
+<details class="faq-item"><summary>잘못된 스키마를 사용하면 패널티가 있나요?</summary><p>구글은 잘못된 구조화 데이터에 대해 리치 스니펫을 표시하지 않을 수 있지만, 검색 순위 하락 같은 직접적인 패널티는 없습니다. 단, 스팸성 또는 오해를 유발하는 마크업은 수동 조치 대상이 될 수 있습니다.</p></details>
+<details class="faq-item"><summary>구글 서치 콘솔에서 어떻게 확인하나요?</summary><p>구글 서치 콘솔 → 개선사항 메뉴에서 리치 결과 유형별 현황을 확인할 수 있습니다. 오류, 경고, 유효한 항목 수를 확인하고 영향받은 URL 목록도 볼 수 있습니다.</p></details>
+<details class="faq-item"><summary>가장 효과적인 스키마 유형은?</summary><p>FAQ 스키마는 검색 결과에서 질문·답변이 바로 표시되어 CTR 향상에 가장 효과적입니다. Product 스키마의 별점·가격, Recipe 스키마의 요리 정보, Event 스키마의 날짜·장소도 매우 효과적입니다.</p></details>`
+  },
+  en:{
+    pageTitle:'Schema Markup Generator - JSON-LD Structured Data & Google Rich Snippets | MODOO HUB',
+    h1:'Schema Markup <span>Generator</span>',
+    sub:'Generate JSON-LD structured data · Google rich snippets',
+    backLink:'← All Tools',langBtn:'🌐 中文',
+    formLabel:'Enter Fields',outputLabel:'JSON-LD Output',
+    btnCopy:'Copy',copyDone:'Copied ✓',btnClear:'Clear',
+    btnValidate:'Validate on Google',btnAddPair:'+ Add Item',
+    seoHtml:`<h2>What is JSON-LD Schema Markup?</h2><p>JSON-LD (JavaScript Object Notation for Linked Data) is a method for expressing <strong>structured data in JSON format</strong>. It helps Google understand your page content and enables rich snippets — star ratings, prices, FAQs, events — in search results. Since it&apos;s separate from your HTML, it&apos;s easy to maintain. Google officially recommends JSON-LD over other formats.</p>
+<h2 class="seo-sub">Frequently Asked Questions</h2>
+<details class="faq-item"><summary>What is JSON-LD?</summary><p>JSON-LD is a Linked Data implementation in JSON format, inserted via a script tag with type="application/ld+json". It keeps structured data separate from your HTML content, making it easy to maintain and update. It is Google&apos;s preferred structured data format.</p></details>
+<details class="faq-item"><summary>What are rich snippets?</summary><p>Rich snippets are enhanced search result listings that show extra information such as star ratings, price ranges, cooking times, and FAQ dropdowns. They are known to increase click-through rates by an average of 20–30%.</p></details>
+<details class="faq-item"><summary>What are the required fields for structured data?</summary><p>All types require @context ("https://schema.org") and @type. Article requires headline, author, and datePublished. Product requires name. FAQPage requires mainEntity. Event requires name, startDate, and location.</p></details>
+<details class="faq-item"><summary>How do I test structured data?</summary><p>Use Google&apos;s Rich Results Test (search.google.com/test/rich-results) to paste code or enter a URL. You can also monitor your structured data status in Google Search Console under the Enhancements section.</p></details>
+<details class="faq-item"><summary>Microdata vs JSON-LD — which is better?</summary><p>Google officially recommends JSON-LD. Microdata requires adding attributes directly to HTML tags, making it harder to maintain and complex with dynamic content. JSON-LD lives in a separate script block and is much cleaner to manage.</p></details>
+<details class="faq-item"><summary>Is there a penalty for incorrect schema?</summary><p>Google may not show rich snippets for incorrect structured data, but there is no direct ranking penalty. However, spammy or misleading markup can trigger a manual action, so keep your schema accurate and honest.</p></details>
+<details class="faq-item"><summary>How do I check my schema in Google Search Console?</summary><p>Go to Google Search Console → Enhancements to see a breakdown of rich result types, including errors, warnings, and valid items. You can click through to see the affected URLs.</p></details>
+<details class="faq-item"><summary>Which schema types are most effective?</summary><p>FAQ schema is highly effective as it displays questions and answers directly in search results, boosting CTR. Product schema with star ratings and prices, Recipe schema with cooking details, and Event schema with dates and locations are also very impactful.</p></details>`
+  },
+  zh:{
+    pageTitle:'Schema标记生成器 - JSON-LD结构化数据 & 谷歌富媒体摘要 | MODOO HUB',
+    h1:'Schema标记 <span>生成器</span>',
+    sub:'生成JSON-LD结构化数据·谷歌富媒体摘要',
+    backLink:'← 所有工具',langBtn:'🌐 日本語',
+    formLabel:'输入字段',outputLabel:'JSON-LD输出',
+    btnCopy:'复制',copyDone:'已复制 ✓',btnClear:'清除',
+    btnValidate:'在谷歌验证',btnAddPair:'+ 添加条目',
+    seoHtml:`<h2>什么是JSON-LD Schema标记？</h2><p>JSON-LD（JavaScript Object Notation for Linked Data）是一种以JSON格式表达<strong>结构化数据</strong>的方法。它帮助谷歌更好地理解页面内容，并在搜索结果中显示星级评分、价格、FAQ等富媒体摘要。由于与HTML代码分离，便于维护。谷歌官方推荐使用JSON-LD格式。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>什么是JSON-LD？</summary><p>JSON-LD是JSON格式的关联数据实现方式，通过type="application/ld+json"的script标签插入页面。结构化数据与HTML内容分离，便于维护更新。这是谷歌首选的结构化数据格式。</p></details>
+<details class="faq-item"><summary>什么是富媒体摘要？</summary><p>富媒体摘要是谷歌搜索结果中除普通文字外还显示星级评分、价格区间、烹饪时间、FAQ下拉等额外信息的功能，已知可将点击率平均提升20-30%。</p></details>
+<details class="faq-item"><summary>结构化数据必填字段有哪些？</summary><p>所有类型都需要@context("https://schema.org")和@type。Article需要headline、author、datePublished；Product需要name；FAQPage需要mainEntity；Event需要name、startDate、location。</p></details>
+<details class="faq-item"><summary>如何测试结构化数据？</summary><p>使用谷歌富媒体结果测试工具（search.google.com/test/rich-results），粘贴代码或输入URL进行验证。也可在谷歌搜索控制台的"增强功能"部分监控结构化数据状态。</p></details>
+<details class="faq-item"><summary>Microdata和JSON-LD哪个更好？</summary><p>谷歌官方推荐JSON-LD。Microdata需要在HTML标签上直接添加属性，维护困难且动态内容处理复杂。JSON-LD放在独立的script块中，管理更简洁。</p></details>
+<details class="faq-item"><summary>错误的Schema会有惩罚吗？</summary><p>谷歌可能不会为错误的结构化数据显示富媒体摘要，但不会有直接的排名惩罚。不过，垃圾或误导性的标记可能触发人工处理，请确保Schema准确无误。</p></details>
+<details class="faq-item"><summary>如何在谷歌搜索控制台检查Schema？</summary><p>进入谷歌搜索控制台→增强功能，可查看各类富媒体结果的错误、警告和有效条目，并可点击查看受影响的URL列表。</p></details>
+<details class="faq-item"><summary>哪种Schema类型最有效？</summary><p>FAQ Schema效果最显著，可直接在搜索结果中展示问题和答案，大幅提升点击率。带有星级和价格的Product Schema、带有烹饪信息的Recipe Schema、带有日期地点的Event Schema同样效果突出。</p></details>`
+  },
+  ja:{
+    pageTitle:'スキーママークアップジェネレーター - JSON-LD構造化データ & Googleリッチスニペット | MODOO HUB',
+    h1:'スキーママークアップ <span>ジェネレーター</span>',
+    sub:'JSON-LD構造化データ生成・Googleリッチスニペット',
+    backLink:'← ホーム',langBtn:'🌐 한국어',
+    formLabel:'フィールド入力',outputLabel:'JSON-LD出力',
+    btnCopy:'コピー',copyDone:'コピー完了 ✓',btnClear:'クリア',
+    btnValidate:'Googleで検証',btnAddPair:'+ 項目追加',
+    seoHtml:`<h2>JSON-LDスキーママークアップとは</h2><p>JSON-LD（JavaScript Object Notation for Linked Data）はJSON形式で<strong>構造化データを表現</strong>する方法です。Googleがページ内容をより深く理解するのを助け、検索結果に星評価・価格・FAQ・イベント等のリッチスニペットを表示できます。HTMLと分離しているため保守が容易で、Googleが公式に推奨する形式です。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>JSON-LDとは何ですか？</summary><p>JSON-LDはJSON形式のLinked Data実装で、type="application/ld+json"のscriptタグで挿入します。コンテンツとマークアップが分離しており保守が容易で、Googleが最も推奨する構造化データ形式です。</p></details>
+<details class="faq-item"><summary>リッチスニペットとは何ですか？</summary><p>リッチスニペットは、Google検索結果で星評価・価格帯・調理時間・FAQドロップダウンなどの追加情報が表示される機能です。クリック率を平均20〜30%向上させるといわれています。</p></details>
+<details class="faq-item"><summary>構造化データの必須フィールドは？</summary><p>全タイプに@context("https://schema.org")と@typeが必須です。Articleはheadline・author・datePublished、Productはname、FAQPageはmainEntity、EventはnameとstartDateとlocationが必須です。</p></details>
+<details class="faq-item"><summary>構造化データのテスト方法は？</summary><p>Googleリッチリザルトテスト（search.google.com/test/rich-results）でコードやURLを入力して検証します。GoogleサーチコンソールのEnhancementsセクションで実際のインデックス状況も確認できます。</p></details>
+<details class="faq-item"><summary>MicrodataとJSON-LDどちらが良いですか？</summary><p>GoogleはJSON-LDを公式推奨しています。MicrodataはHTMLタグに直接属性を追加するため保守が難しく、動的コンテンツの扱いも複雑です。JSON-LDは独立したscriptブロックで管理でき、はるかに整理しやすいです。</p></details>
+<details class="faq-item"><summary>誤ったスキーマを使うとペナルティがありますか？</summary><p>Googleは誤った構造化データに対してリッチスニペットを表示しない場合がありますが、ランキング低下などの直接ペナルティはありません。ただし、スパム性・誤解を招くマークアップは手動対処の対象になる可能性があります。</p></details>
+<details class="faq-item"><summary>GoogleサーチコンソールでSchemaを確認するには？</summary><p>GoogleサーチコンソールのEnhancementsメニューで、リッチリザルトタイプ別のエラー・警告・有効件数を確認できます。影響を受けるURLリストも参照できます。</p></details>
+<details class="faq-item"><summary>最も効果的なスキーマタイプは？</summary><p>FAQスキーマは検索結果に質問と回答が直接表示されCTR向上に最も効果的です。星評価・価格のProductスキーマ、調理情報のRecipeスキーマ、日時・場所のEventスキーマも非常に効果的です。</p></details>`
+  }
+};
+
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko';
+let _type='article';
+let _pairs=[];// for faq/breadcrumb/recipe ingredients+instructions
+
+function detectLang(){
+  const u=new URLSearchParams(location.search).get('lang');
+  if(u&&_i18n[u])return u;
+  const s=localStorage.getItem('modoo_lang');
+  if(s&&_i18n[s])return s;
+  const n=navigator.language?.slice(0,2);
+  return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';
+}
+
+function cycleLang(){
+  const idx=LANGS.indexOf(_lang);
+  _lang=LANGS[(idx+1)%LANGS.length];
+  localStorage.setItem('modoo_lang',_lang);
+  const url=new URL(location.href);
+  url.searchParams.set('lang',_lang);
+  history.replaceState({},'',url);
+  applyLang();
+}
+
+function applyLang(){
+  const t=_i18n[_lang];
+  document.documentElement.lang=_lang;
+  document.title=t.pageTitle;
+  document.getElementById('h1El').innerHTML=t.h1;
+  document.getElementById('subEl').textContent=t.sub;
+  document.getElementById('backLink').textContent=t.backLink;
+  document.getElementById('langBtn').textContent=t.langBtn;
+  document.getElementById('formLabel').textContent=t.formLabel;
+  document.getElementById('outputLabel').textContent=t.outputLabel;
+  document.getElementById('btnCopy').textContent=t.btnCopy;
+  document.getElementById('btnClear').textContent=t.btnClear;
+  document.getElementById('btnValidate').textContent=t.btnValidate;
+  document.getElementById('btnAddPair').textContent=t.btnAddPair;
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+  renderForm();
+}
+
+function selectType(type, el){
+  _type=type;
+  _pairs=[];
+  document.querySelectorAll('.type-card').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderForm();
+  generate();
+}
+
+function inp(id,label,placeholder,type='text',req=false){
+  return `<div class="form-group"><div class="field-label">${label}${req?'<span class="field-req">*필수</span>':''}</div><input type="${type}" class="field-input" id="${id}" oninput="generate()" placeholder="${placeholder}"></div>`;
+}
+function ta(id,label,placeholder,req=false){
+  return `<div class="form-group"><div class="field-label">${label}${req?'<span class="field-req">*필수</span>':''}</div><textarea class="field-ta" id="${id}" oninput="generate()" placeholder="${placeholder}"></textarea></div>`;
+}
+function sel(id,label,options){
+  const opts=options.map(o=>`<option value="${o.v}">${o.l}</option>`).join('');
+  return `<div class="form-group"><div class="field-label">${label}</div><select class="field-select" id="${id}" onchange="generate()"><option value="">— select —</option>${opts}</select></div>`;
+}
+function two(a,b){return `<div class="two-col">${a}${b}</div>`;}
+
+function renderForm(){
+  const f=document.getElementById('dynForm');
+  const add=document.getElementById('btnAddPair');
+  add.style.display='none';
+  switch(_type){
+    case 'article':
+      f.innerHTML=inp('f_headline','Headline (title)*','Article title',undefined,true)+inp('f_authorName','Author Name*','John Doe',undefined,true)+inp('f_datePublished','Date Published*','','date',true)+inp('f_dateModified','Date Modified','','date')+ta('f_description','Description','Article summary...')+inp('f_image','Image URL','https://...')+inp('f_publisherName','Publisher Name','My Site');
+      break;
+    case 'product':
+      f.innerHTML=inp('f_name','Name*','Product name',undefined,true)+ta('f_description','Description','Product description...')+inp('f_image','Image URL','https://...')+inp('f_brand','Brand','Nike')+inp('f_sku','SKU','ABC-123')+two(inp('f_price','Price','29.99'),inp('f_priceCurrency','Currency','USD'))+sel('f_availability','Availability',[{v:'InStock',l:'InStock'},{v:'OutOfStock',l:'OutOfStock'},{v:'PreOrder',l:'PreOrder'}])+two(inp('f_ratingValue','Rating Value','4.5'),inp('f_ratingCount','Rating Count','123'));
+      break;
+    case 'faq':
+      add.style.display='';
+      if(_pairs.length===0)_pairs=[{q:'',a:''}];
+      f.innerHTML=renderPairs();
+      break;
+    case 'localbusiness':
+      f.innerHTML=inp('f_name','Business Name*','My Business',undefined,true)+ta('f_description','Description','About this business...')+inp('f_street','Street Address','123 Main St')+two(inp('f_city','City','Seoul'),inp('f_postal','Postal Code','12345'))+inp('f_country','Country','KR')+inp('f_phone','Phone','+82-2-1234-5678')+inp('f_url','Website URL','https://mybusiness.com')+inp('f_hours','Opening Hours','Mo-Fr 09:00-18:00');
+      break;
+    case 'breadcrumb':
+      add.style.display='';
+      if(_pairs.length===0)_pairs=[{q:'Home',a:'https://example.com'},{q:'Category',a:'https://example.com/cat'}];
+      f.innerHTML=renderPairsBC();
+      break;
+    case 'event':
+      f.innerHTML=inp('f_name','Event Name*','My Event',undefined,true)+inp('f_startDate','Start Date*','','datetime-local',true)+inp('f_endDate','End Date','','datetime-local')+ta('f_description','Description','Event details...')+inp('f_locationName','Location Name','Conference Center')+inp('f_locationAddress','Location Address','123 Street, City')+inp('f_organizer','Organizer Name','Organizer Inc.')+sel('f_eventStatus','Event Status',[{v:'EventScheduled',l:'Scheduled'},{v:'EventCancelled',l:'Cancelled'},{v:'EventPostponed',l:'Postponed'},{v:'EventMovedOnline',l:'Moved Online'}])+sel('f_attendanceMode','Attendance Mode',[{v:'OfflineEventAttendanceMode',l:'Offline'},{v:'OnlineEventAttendanceMode',l:'Online'},{v:'MixedEventAttendanceMode',l:'Mixed'}]);
+      break;
+    case 'person':
+      f.innerHTML=inp('f_name','Name*','Jane Doe',undefined,true)+inp('f_url','Profile URL','https://janedoe.com')+inp('f_jobTitle','Job Title','Software Engineer')+inp('f_worksFor','Works For','ACME Corp')+ta('f_sameAs','Social URLs (one per line)','https://twitter.com/jane\nhttps://github.com/jane');
+      break;
+    case 'organization':
+      f.innerHTML=inp('f_name','Name*','ACME Corp',undefined,true)+inp('f_url','Website URL','https://acme.com')+inp('f_logo','Logo URL','https://acme.com/logo.png')+ta('f_description','Description','About this organization...')+ta('f_sameAs','Social URLs (one per line)','https://twitter.com/acme');
+      break;
+    case 'recipe':
+      add.style.display='';
+      if(_pairs.length===0)_pairs=[{q:'ingredient',a:''},{q:'step',a:''}];
+      f.innerHTML=inp('f_name','Recipe Name*','Chocolate Cake',undefined,true)+inp('f_author','Author','Chef Name')+ta('f_description','Description','Delicious recipe...')+two(inp('f_prepTime','Prep Time (ISO 8601)','PT15M'),inp('f_cookTime','Cook Time','PT30M'))+inp('f_recipeYield','Yield','8 servings')+renderPairsRecipe();
+      break;
+    case 'review':
+      f.innerHTML=inp('f_itemName','Item Reviewed Name*','Product/Book/Movie',undefined,true)+sel('f_itemType','Item Type',[{v:'Product',l:'Product'},{v:'Book',l:'Book'},{v:'Movie',l:'Movie'},{v:'LocalBusiness',l:'LocalBusiness'},{v:'Organization',l:'Organization'}])+inp('f_author','Author Name*','Review Author',undefined,true)+ta('f_reviewBody','Review Body','My review...')+two(inp('f_ratingValue','Rating Value (1-5)','4.5'),inp('f_bestRating','Best Rating','5'));
+      break;
+  }
+  bindPairEvents();
+}
+
+function renderPairs(){
+  return _pairs.map((p,i)=>`<div class="pair-row" data-i="${i}"><input type="text" class="field-input" placeholder="Question" value="${esc(p.q)}" oninput="pairChange(${i},'q',this.value)"><input type="text" class="field-input" placeholder="Answer" value="${esc(p.a)}" oninput="pairChange(${i},'a',this.value)"><button class="btn-remove" onclick="removePair(${i})">×</button></div>`).join('');
+}
+function renderPairsBC(){
+  return _pairs.map((p,i)=>`<div class="pair-row" data-i="${i}"><input type="text" class="field-input" placeholder="Name" value="${esc(p.q)}" oninput="pairChange(${i},'q',this.value)"><input type="text" class="field-input" placeholder="URL" value="${esc(p.a)}" oninput="pairChange(${i},'a',this.value)"><button class="btn-remove" onclick="removePair(${i})">×</button></div>`).join('');
+}
+function renderPairsRecipe(){
+  const ingr=_pairs.filter(p=>p.q==='ingredient');
+  const steps=_pairs.filter(p=>p.q==='step');
+  let html='<div class="form-group"><div class="field-label">Ingredients</div>';
+  ingr.forEach((p,idx)=>{
+    const gi=_pairs.indexOf(p);
+    html+=`<div class="pair-row"><input type="text" class="field-input" placeholder="1 cup flour" value="${esc(p.a)}" oninput="pairChange(${gi},'a',this.value)"><button class="btn-remove" onclick="removePair(${gi})">×</button></div>`;
+  });
+  html+=`</div><div class="form-group"><div class="field-label">Instructions</div>`;
+  steps.forEach((p,idx)=>{
+    const gi=_pairs.indexOf(p);
+    html+=`<div class="pair-row"><input type="text" class="field-input" placeholder="Step ${idx+1}" value="${esc(p.a)}" oninput="pairChange(${gi},'a',this.value)"><button class="btn-remove" onclick="removePair(${gi})">×</button></div>`;
+  });
+  html+=`</div>`;
+  return html;
+}
+
+function bindPairEvents(){}
+
+function pairChange(i,k,v){_pairs[i][k]=v;generate();}
+function removePair(i){_pairs.splice(i,1);if(_pairs.length===0&&(_type==='faq'||_type==='breadcrumb'))_pairs=[{q:'',a:''}];renderForm();generate();}
+function addPair(){
+  if(_type==='faq'||_type==='breadcrumb')_pairs.push({q:'',a:''});
+  else if(_type==='recipe'){
+    const hasIngr=_pairs.some(p=>p.q==='ingredient');
+    _pairs.push({q: hasIngr?'step':'ingredient',a:''});
+  }
+  renderForm();generate();
+}
+
+function v(id){return (document.getElementById(id)?.value||'').trim();}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function filterEmpty(obj){
+  const r={};
+  Object.entries(obj).forEach(([k,val])=>{
+    if(val===undefined||val===null||val==='')return;
+    if(Array.isArray(val)&&val.length===0)return;
+    r[k]=val;
+  });
+  return r;
+}
+
+function generate(){
+  let obj={};
+  switch(_type){
+    case 'article':
+      obj={'@context':'https://schema.org','@type':'Article',
+        headline:v('f_headline')||undefined,
+        author:v('f_authorName')?{'@type':'Person',name:v('f_authorName')}:undefined,
+        datePublished:v('f_datePublished')||undefined,
+        dateModified:v('f_dateModified')||undefined,
+        description:v('f_description')||undefined,
+        image:v('f_image')||undefined,
+        publisher:v('f_publisherName')?{'@type':'Organization',name:v('f_publisherName')}:undefined
+      };
+      break;
+    case 'product':
+      const rating=v('f_ratingValue');
+      obj={'@context':'https://schema.org','@type':'Product',
+        name:v('f_name')||undefined,
+        description:v('f_description')||undefined,
+        image:v('f_image')||undefined,
+        brand:v('f_brand')?{'@type':'Brand',name:v('f_brand')}:undefined,
+        sku:v('f_sku')||undefined,
+        offers:v('f_price')?{'@type':'Offer',price:v('f_price'),priceCurrency:v('f_priceCurrency')||'USD',availability:v('f_availability')?`https://schema.org/${v('f_availability')}`:undefined}:undefined,
+        aggregateRating:rating?{'@type':'AggregateRating',ratingValue:rating,reviewCount:v('f_ratingCount')||undefined}:undefined
+      };
+      break;
+    case 'faq':
+      obj={'@context':'https://schema.org','@type':'FAQPage',
+        mainEntity:_pairs.filter(p=>p.q||p.a).map(p=>({'@type':'Question',name:p.q,acceptedAnswer:{'@type':'Answer',text:p.a}}))
+      };
+      break;
+    case 'localbusiness':
+      const addr=v('f_street')||v('f_city')?{'@type':'PostalAddress',streetAddress:v('f_street')||undefined,addressLocality:v('f_city')||undefined,postalCode:v('f_postal')||undefined,addressCountry:v('f_country')||undefined}:undefined;
+      obj={'@context':'https://schema.org','@type':'LocalBusiness',
+        name:v('f_name')||undefined,description:v('f_description')||undefined,
+        address:addr,telephone:v('f_phone')||undefined,url:v('f_url')||undefined,
+        openingHours:v('f_hours')||undefined
+      };
+      break;
+    case 'breadcrumb':
+      obj={'@context':'https://schema.org','@type':'BreadcrumbList',
+        itemListElement:_pairs.map((p,i)=>({'@type':'ListItem',position:i+1,name:p.q,item:p.a}))
+      };
+      break;
+    case 'event':
+      obj={'@context':'https://schema.org','@type':'Event',
+        name:v('f_name')||undefined,
+        startDate:v('f_startDate')||undefined,
+        endDate:v('f_endDate')||undefined,
+        description:v('f_description')||undefined,
+        location:v('f_locationName')?{'@type':'Place',name:v('f_locationName'),address:v('f_locationAddress')||undefined}:undefined,
+        organizer:v('f_organizer')?{'@type':'Organization',name:v('f_organizer')}:undefined,
+        eventStatus:v('f_eventStatus')?`https://schema.org/${v('f_eventStatus')}`:undefined,
+        eventAttendanceMode:v('f_attendanceMode')?`https://schema.org/${v('f_attendanceMode')}`:undefined
+      };
+      break;
+    case 'person':
+      const sameAs=v('f_sameAs')?v('f_sameAs').split('\n').map(s=>s.trim()).filter(Boolean):undefined;
+      obj={'@context':'https://schema.org','@type':'Person',
+        name:v('f_name')||undefined,url:v('f_url')||undefined,
+        jobTitle:v('f_jobTitle')||undefined,
+        worksFor:v('f_worksFor')?{'@type':'Organization',name:v('f_worksFor')}:undefined,
+        sameAs
+      };
+      break;
+    case 'organization':
+      const sameAsOrg=v('f_sameAs')?v('f_sameAs').split('\n').map(s=>s.trim()).filter(Boolean):undefined;
+      obj={'@context':'https://schema.org','@type':'Organization',
+        name:v('f_name')||undefined,url:v('f_url')||undefined,
+        logo:v('f_logo')||undefined,description:v('f_description')||undefined,
+        sameAs:sameAsOrg
+      };
+      break;
+    case 'recipe':
+      const ingredients=_pairs.filter(p=>p.q==='ingredient').map(p=>p.a).filter(Boolean);
+      const steps=_pairs.filter(p=>p.q==='step').map((p,i)=>({'@type':'HowToStep',text:p.a,position:i+1})).filter(s=>s.text);
+      obj={'@context':'https://schema.org','@type':'Recipe',
+        name:v('f_name')||undefined,
+        author:v('f_author')?{'@type':'Person',name:v('f_author')}:undefined,
+        description:v('f_description')||undefined,
+        prepTime:v('f_prepTime')||undefined,
+        cookTime:v('f_cookTime')||undefined,
+        recipeYield:v('f_recipeYield')||undefined,
+        recipeIngredient:ingredients.length?ingredients:undefined,
+        recipeInstructions:steps.length?steps:undefined
+      };
+      break;
+    case 'review':
+      obj={'@context':'https://schema.org','@type':'Review',
+        itemReviewed:v('f_itemName')?{'@type':v('f_itemType')||'Product',name:v('f_itemName')}:undefined,
+        author:v('f_author')?{'@type':'Person',name:v('f_author')}:undefined,
+        reviewBody:v('f_reviewBody')||undefined,
+        reviewRating:v('f_ratingValue')?{'@type':'Rating',ratingValue:v('f_ratingValue'),bestRating:v('f_bestRating')||'5'}:undefined
+      };
+      break;
+  }
+  // Remove undefined values
+  const clean=JSON.parse(JSON.stringify(obj));
+  const output=`<script type="application/ld+json">\n${JSON.stringify(clean,null,2)}\n<\/script>`;
+  document.getElementById('outputTa').value=output;
+}
+
+function copyOutput(){
+  const t=_i18n[_lang];
+  const text=document.getElementById('outputTa').value;
+  if(!text)return;
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn=document.getElementById('btnCopy');
+    btn.textContent=t.copyDone;
+    btn.style.background='var(--green)';
+    btn.style.borderColor='var(--green)';
+    btn.style.color='#000';
+    setTimeout(()=>{btn.textContent=t.btnCopy;btn.style.background='';btn.style.borderColor='';btn.style.color='';},2000);
+  }).catch(()=>{document.getElementById('outputTa').select();document.execCommand('copy');});
+}
+
+function openValidate(){
+  window.open('https://search.google.com/test/rich-results','_blank');
+}
+
+function doClear(){
+  _pairs=[];
+  renderForm();
+  generate();
+}
+
+_lang=detectLang();
+applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

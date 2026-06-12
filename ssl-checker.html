@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SSL 검사기 — 모두의 툴</title>
+<meta name="description" content="도메인 SSL 인증서 유효성, 만료일, 발급자, SAN 도메인을 무료로 확인하세요.">
+<link rel="canonical" href="https://modoohub.com/ssl-checker.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/ssl-checker.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/ssl-checker.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/ssl-checker.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/ssl-checker.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/ssl-checker.html">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!-- GA -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<!-- AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"SSL Checker","url":"https://modoohub.com/ssl-checker.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free SSL certificate checker. Verify SSL validity, expiry date, issuer, and SANs for any domain using certificate transparency logs."}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"SSL이란 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"SSL(Secure Sockets Layer)은 인터넷 통신을 암호화하는 보안 프로토콜입니다. 현재는 TLS(Transport Layer Security)로 대체되었지만 SSL이라는 명칭이 관습적으로 사용됩니다. HTTPS 웹사이트는 SSL/TLS 인증서를 사용합니다."}},{"@type":"Question","name":"SSL 인증서 만료 시 어떤 영향이 있나요?","acceptedAnswer":{"@type":"Answer","text":"SSL 인증서가 만료되면 브라우저가 보안 경고를 표시하고 사용자가 사이트 접근을 차단당할 수 있습니다. SEO 순위가 하락하고 사용자 신뢰가 떨어집니다. 만료 전 갱신이 필수입니다."}}]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;padding:20px;}
+.top-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;}
+.back-link{color:var(--text-muted);text-decoration:none;font-size:14px;}
+.back-link:hover{color:var(--accent);}
+.lang-btn{background:none;border:1px solid var(--border);color:var(--text-muted);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:13px;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+h1{font-size:clamp(22px,4vw,32px);font-weight:700;margin-bottom:8px;}
+h1 span{color:var(--accent);}
+.sub{color:var(--text-muted);font-size:14px;margin-bottom:24px;}
+.search-box{display:flex;gap:10px;margin-bottom:24px;max-width:560px;}
+.search-box input{flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:12px 16px;border-radius:8px;font-size:14px;font-family:'DM Mono',monospace;outline:none;}
+.search-box input:focus{border-color:var(--accent);}
+.search-box input::placeholder{color:var(--text-dim);}
+.btn{padding:10px 20px;border-radius:8px;border:none;cursor:pointer;font-size:14px;font-weight:600;font-family:inherit;transition:.15s;}
+.btn-primary{background:var(--accent);color:#000;}
+.btn-primary:hover{background:var(--accent2);}
+.loading{display:flex;align-items:center;gap:10px;color:var(--text-muted);font-size:14px;margin-bottom:16px;}
+.spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.error-msg{color:var(--red);background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);border-radius:8px;padding:12px 16px;font-size:13px;margin-bottom:16px;}
+.hidden{display:none;}
+.status-banner{border-radius:10px;padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;gap:14px;}
+.status-valid{background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.2);}
+.status-expired{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);}
+.status-warn{background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.2);}
+.status-icon{font-size:28px;}
+.status-text{flex:1;}
+.status-label{font-size:16px;font-weight:700;}
+.status-label-valid{color:var(--green);}
+.status-label-expired{color:var(--red);}
+.status-label-warn{color:var(--accent);}
+.days-pill{display:inline-block;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:700;margin-left:10px;}
+.pill-green{background:rgba(74,222,128,.15);color:var(--green);}
+.pill-yellow{background:rgba(251,191,36,.15);color:var(--accent);}
+.pill-red{background:rgba(248,113,113,.15);color:var(--red);}
+.info-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:16px;}
+.info-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+.info-label{font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;}
+.info-value{font-size:13px;color:var(--text);font-weight:600;font-family:'DM Mono',monospace;word-break:break-all;}
+.san-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;}
+.san-tag{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:2px 8px;font-size:11px;font-family:'DM Mono',monospace;color:var(--text-muted);}
+.note-box{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 16px;font-size:12px;color:var(--text-dim);line-height:1.7;margin-top:8px;}
+.note-box strong{color:var(--text-muted);}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+</head>
+<body>
+<div class="top-nav">
+  <a href="index.html" class="back-link" data-i18n="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="toggleLang()" data-i18n="langBtn">🌐 EN</button>
+</div>
+<h1 data-i18n="h1">SSL <span>검사기</span></h1>
+<p class="sub" data-i18n="sub">도메인 SSL 인증서 유효성·만료일·발급자 확인</p>
+
+<div class="search-box">
+  <input type="text" id="domainInput" placeholder="예: google.com" autocomplete="off" spellcheck="false">
+  <button class="btn btn-primary" onclick="doCheck()" data-i18n="btnCheck">검사</button>
+</div>
+
+<div id="loadingDiv" class="loading hidden">
+  <div class="spinner"></div>
+  <span data-i18n="loading">검사 중...</span>
+</div>
+<div id="errorDiv" class="error-msg hidden"></div>
+
+<div id="resultsSection" class="hidden">
+  <div id="statusBanner" class="status-banner"></div>
+  <div class="info-grid" id="infoGrid"></div>
+  <div id="sanSection" class="info-card" style="margin-bottom:16px;">
+    <div class="info-label" data-i18n="labelSan">Subject Alternative Names</div>
+    <div class="san-list" id="sanList"></div>
+  </div>
+</div>
+
+<div class="note-box" id="noteBox" data-i18n="noteSource">데이터 출처: crt.sh (인증서 투명성 로그). 최신 인증서를 기준으로 표시됩니다.</div>
+
+<div class="seo"><div id="seoArea"></div></div>
+
+<script>
+function normalizeDomain(raw) {
+  return raw.trim().replace(/^https?:\/\//i,'').replace(/\/.*$/,'').replace(/:\d+$/,'').toLowerCase();
+}
+
+async function checkSsl(domain) {
+  const r = await fetch(`https://crt.sh/?q=${encodeURIComponent(domain)}&output=json`);
+  if (!r.ok) throw new Error('NETWORK');
+  const certs = await r.json();
+  if (!certs || certs.length === 0) throw new Error('NOT_FOUND');
+  // Sort by not_after descending — get most recent valid cert
+  const sorted = certs.sort((a, b) => new Date(b.not_after) - new Date(a.not_after));
+  const latest = sorted[0];
+  const dnsNames = (latest.name_value || '').split(/\n|,/).map(s => s.trim()).filter(s => s && !s.startsWith('*') === false || s).filter(Boolean);
+  // Get unique SANs
+  const allNames = [...new Set(
+    certs.slice(0, 5).flatMap(c => (c.name_value || '').split(/\n|,/).map(s => s.trim()).filter(Boolean))
+  )].slice(0, 30);
+  return {
+    commonName: latest.common_name || latest.name_value?.split('\n')[0] || domain,
+    issuer: latest.issuer_name || '—',
+    notBefore: latest.not_before,
+    notAfter: latest.not_after,
+    dnsNames: allNames,
+    serial: latest.serial_number || '',
+    id: latest.id
+  };
+}
+
+function daysUntil(dateStr) {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  if (isNaN(d)) return null;
+  return Math.ceil((d - Date.now()) / 86400000);
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '—';
+  const d = new Date(dateStr);
+  if (isNaN(d)) return dateStr;
+  return d.toISOString().split('T')[0];
+}
+
+function showLoading(show) {
+  document.getElementById('loadingDiv').classList.toggle('hidden', !show);
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorDiv');
+  el.textContent = msg;
+  el.classList.remove('hidden');
+  document.getElementById('resultsSection').classList.add('hidden');
+}
+
+function hideError() {
+  document.getElementById('errorDiv').classList.add('hidden');
+}
+
+function renderResults(info) {
+  const t = _i18n[currentLang] || _i18n.ko;
+  const days = daysUntil(info.notAfter);
+  const now = new Date();
+  const expiry = new Date(info.notAfter);
+  const isExpired = expiry < now;
+
+  // Status banner
+  const banner = document.getElementById('statusBanner');
+  let bannerClass, iconText, labelClass, labelText, pillClass = '', pillText = '';
+  if (isExpired) {
+    bannerClass = 'status-expired'; iconText = '✗'; labelClass = 'status-label-expired';
+    labelText = t.labelExpiredCert || 'Expired';
+    pillClass = 'pill-red'; pillText = `${Math.abs(days)}d ${t.ago || 'ago'}`;
+  } else if (days < 30) {
+    bannerClass = 'status-warn'; iconText = '⚠'; labelClass = 'status-label-warn';
+    labelText = t.labelValidCert || 'Valid';
+    pillClass = 'pill-red'; pillText = `${days}d ${t.left || 'left'}`;
+  } else if (days < 90) {
+    bannerClass = 'status-warn'; iconText = '✓'; labelClass = 'status-label-warn';
+    labelText = t.labelValidCert || 'Valid';
+    pillClass = 'pill-yellow'; pillText = `${days}d ${t.left || 'left'}`;
+  } else {
+    bannerClass = 'status-valid'; iconText = '✓'; labelClass = 'status-label-valid';
+    labelText = t.labelValidCert || 'Valid';
+    pillClass = 'pill-green'; pillText = `${days}d ${t.left || 'left'}`;
+  }
+  banner.className = `status-banner ${bannerClass}`;
+  banner.innerHTML = `<div class="status-icon">${iconText}</div><div class="status-text"><span class="status-label ${labelClass}">${labelText}</span><span class="days-pill ${pillClass}">${pillText}</span></div>`;
+
+  // Extract issuer CN
+  const issuerMatch = info.issuer.match(/CN=([^,]+)/);
+  const issuerCn = issuerMatch ? issuerMatch[1] : info.issuer;
+
+  document.getElementById('infoGrid').innerHTML = `
+    <div class="info-card">
+      <div class="info-label" data-i18n-text="labelCn">${t.labelCn || 'Common Name'}</div>
+      <div class="info-value">${escHtml(info.commonName)}</div>
+    </div>
+    <div class="info-card">
+      <div class="info-label">${t.labelIssuer || 'Issuer'}</div>
+      <div class="info-value">${escHtml(issuerCn)}</div>
+    </div>
+    <div class="info-card">
+      <div class="info-label">${t.labelValidFrom || 'Valid From'}</div>
+      <div class="info-value">${formatDate(info.notBefore)}</div>
+    </div>
+    <div class="info-card">
+      <div class="info-label">${t.labelExpiry || 'Expires'}</div>
+      <div class="info-value">${formatDate(info.notAfter)}</div>
+    </div>
+  `;
+
+  const sanList = document.getElementById('sanList');
+  if (info.dnsNames.length > 0) {
+    sanList.innerHTML = info.dnsNames.map(n => `<span class="san-tag">${escHtml(n)}</span>`).join('');
+  } else {
+    sanList.innerHTML = `<span style="font-size:12px;color:var(--text-dim);">—</span>`;
+  }
+
+  document.getElementById('resultsSection').classList.remove('hidden');
+}
+
+function escHtml(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+async function doCheck() {
+  const raw = document.getElementById('domainInput').value;
+  if (!raw.trim()) return;
+  const domain = normalizeDomain(raw);
+  hideError();
+  showLoading(true);
+  document.getElementById('resultsSection').classList.add('hidden');
+  try {
+    const info = await checkSsl(domain);
+    showLoading(false);
+    renderResults(info);
+  } catch(e) {
+    showLoading(false);
+    const t = _i18n[currentLang] || _i18n.ko;
+    if (e.message === 'NOT_FOUND') showError(t.errNotFound || 'No SSL certificate found for this domain.');
+    else showError(t.errNetwork);
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.target === document.getElementById('domainInput') && e.key === 'Enter') doCheck();
+});
+
+const _i18n = {
+  ko: {
+    pageTitle: 'SSL 검사기 — 모두의 툴',
+    h1: 'SSL <span>검사기</span>',
+    sub: '도메인 SSL 인증서 유효성·만료일·발급자 확인',
+    backLink: '← 모두의 툴', langBtn: '🌐 EN',
+    btnCheck: '검사',
+    labelCn: 'Common Name', labelIssuer: '발급자 (CA)', labelValidFrom: '유효 시작일',
+    labelExpiry: '만료일', labelDaysLeft: '남은 일수', labelSan: 'Subject Alternative Names',
+    labelValidCert: '유효', labelExpiredCert: '만료됨',
+    left: '일 남음', ago: '일 경과',
+    loading: '검사 중...',
+    noteSource: '데이터 출처: crt.sh (인증서 투명성 로그). 최신 인증서를 기준으로 표시됩니다.',
+    errNotFound: '해당 도메인의 SSL 인증서를 찾을 수 없습니다.',
+    errNetwork: '검사에 실패했습니다. 도메인을 확인하고 다시 시도하세요.',
+    seoHtml:`<h2>SSL이란 무엇인가요?</h2><p><strong>SSL(Secure Sockets Layer)/TLS(Transport Layer Security)</strong>은 인터넷 통신을 암호화하여 데이터를 보호하는 보안 프로토콜입니다. HTTPS 웹사이트는 SSL/TLS 인증서를 사용하여 브라우저와 서버 간의 통신을 암호화합니다. 이 도구는 crt.sh 인증서 투명성 로그를 통해 도메인의 SSL 인증서 상태, 만료일, 발급자(CA), SAN 도메인을 확인합니다. 인증서 만료 전에 갱신하면 서비스 중단과 보안 경고를 방지할 수 있습니다.</p><h2 class="seo-sub">자주 묻는 질문</h2><details class="faq-item"><summary>Q. SSL이란 무엇인가요?</summary><p>A. SSL(Secure Sockets Layer)은 인터넷 통신을 암호화하는 보안 프로토콜입니다. 현재는 TLS(Transport Layer Security)로 대체되었지만 관습적으로 SSL이라 부릅니다. HTTPS 웹사이트에서 자물쇠 아이콘이 SSL/TLS 인증서를 의미합니다.</p></details><details class="faq-item"><summary>Q. TLS와 SSL의 차이는?</summary><p>A. SSL은 더 이상 사용되지 않는 구 버전의 프로토콜이며, TLS가 현재 사용되는 표준입니다. TLS 1.3이 가장 최신 버전으로 가장 안전합니다. 일반적으로 둘을 혼용해서 SSL/TLS로 표현합니다.</p></details><details class="faq-item"><summary>Q. DV, OV, EV 인증서의 차이는?</summary><p>A. DV(Domain Validation): 도메인 소유권만 확인, 가장 빠르고 저렴. OV(Organization Validation): 조직 정보도 검증, 기업용. EV(Extended Validation): 엄격한 기업 실사, 브라우저 주소창에 회사명 표시(일부 브라우저에서). EV가 가장 신뢰도 높습니다.</p></details><details class="faq-item"><summary>Q. 무료 SSL Let's Encrypt란?</summary><p>A. Let's Encrypt는 ISRG(Internet Security Research Group)에서 운영하는 무료 CA(인증기관)입니다. DV 인증서를 무료로 발급하며 자동 갱신을 지원합니다. 현재 수억 개의 웹사이트가 사용 중입니다.</p></details><details class="faq-item"><summary>Q. SSL 인증서 만료 시 어떤 영향이 있나요?</summary><p>A. 인증서가 만료되면 브라우저가 "연결이 안전하지 않음" 경고를 표시하고 사용자가 차단됩니다. SEO 순위가 떨어지고 Google 검색에서 불이익을 받습니다. 만료 30일 전부터 갱신 준비를 권장합니다.</p></details><details class="faq-item"><summary>Q. HTTPS 전환이 SEO에 미치는 영향은?</summary><p>A. Google은 HTTPS를 공식 순위 요소로 사용합니다. HTTP 사이트보다 HTTPS 사이트가 검색 순위에서 우대받습니다. 또한 크롬은 HTTP 사이트에 "주의 요함" 경고를 표시하여 사용자 이탈을 유발합니다.</p></details><details class="faq-item"><summary>Q. 인증서 체인이란 무엇인가요?</summary><p>A. 인증서 체인은 서버 인증서 → 중간 CA 인증서 → 루트 CA 인증서로 이어지는 신뢰 체계입니다. 브라우저는 루트 CA까지의 신뢰 체인을 검증합니다. 중간 인증서가 누락되면 일부 환경에서 오류가 발생합니다.</p></details><details class="faq-item"><summary>Q. Wildcard 인증서란?</summary><p>A. Wildcard(와일드카드) 인증서는 *.example.com 형태로 한 도메인의 모든 서브도메인에 적용됩니다. www, api, mail 등 여러 서브도메인을 하나의 인증서로 커버할 수 있습니다. 단, 두 단계 이상의 서브도메인(a.b.example.com)에는 적용되지 않습니다.</p></details>`
+  },
+  en: {
+    pageTitle: 'SSL Checker — Modoo Tool',
+    h1: 'SSL <span>Checker</span>',
+    sub: 'Check SSL certificate validity, expiry, issuer, and SANs',
+    backLink: '← All Tools', langBtn: '🌐 中文',
+    btnCheck: 'Check',
+    labelCn: 'Common Name', labelIssuer: 'Issuer (CA)', labelValidFrom: 'Valid From',
+    labelExpiry: 'Expires', labelDaysLeft: 'Days Left', labelSan: 'Subject Alternative Names',
+    labelValidCert: 'Valid', labelExpiredCert: 'Expired',
+    left: 'days left', ago: 'days ago',
+    loading: 'Checking...',
+    noteSource: 'Data source: crt.sh (Certificate Transparency logs). Shows the most recent certificate.',
+    errNotFound: 'No SSL certificate found for this domain.',
+    errNetwork: 'Check failed. Please verify the domain and try again.',
+    seoHtml:`<h2>What is an SSL Certificate Checker?</h2><p>An <strong>SSL certificate checker</strong> lets you verify whether a domain has a valid SSL/TLS certificate, when it expires, who issued it (the Certificate Authority), and which domains it covers (SANs). This tool queries the <strong>crt.sh Certificate Transparency log</strong> — a public database of all issued certificates — to provide up-to-date certificate information without needing to connect to the server directly.</p><h2 class="seo-sub">FAQ</h2><details class="faq-item"><summary>Q. What is SSL?</summary><p>A. SSL (Secure Sockets Layer) is a security protocol that encrypts internet communications. It has been superseded by TLS (Transport Layer Security), but the term SSL is still widely used. HTTPS websites use SSL/TLS certificates, shown by the padlock icon in browsers.</p></details><details class="faq-item"><summary>Q. What is the difference between TLS and SSL?</summary><p>A. SSL is an older, deprecated protocol. TLS is its modern successor and what actually runs on the internet today. TLS 1.3 is the current standard. The terms are often used interchangeably as "SSL/TLS."</p></details><details class="faq-item"><summary>Q. What are DV, OV, and EV certificates?</summary><p>A. DV (Domain Validation) only verifies domain ownership — fastest and cheapest. OV (Organization Validation) also verifies the organization&apos;s identity. EV (Extended Validation) requires the most rigorous vetting and shows the company name in some browsers. Higher validation = more trust.</p></details><details class="faq-item"><summary>Q. What is Let&apos;s Encrypt (free SSL)?</summary><p>A. Let&apos;s Encrypt is a free, automated Certificate Authority run by the ISRG nonprofit. It issues free DV certificates with 90-day validity and supports auto-renewal via ACME protocol. Used by hundreds of millions of websites.</p></details><details class="faq-item"><summary>Q. What happens when an SSL certificate expires?</summary><p>A. Browsers show a "Not Secure" or "Your connection is not private" warning, blocking most users. SEO rankings drop, and Google may demote the site. Always renew at least 30 days before expiry.</p></details><details class="faq-item"><summary>Q. Does switching to HTTPS improve SEO?</summary><p>A. Yes. Google officially uses HTTPS as a ranking signal. HTTP sites receive a "Not Secure" warning in Chrome, increasing bounce rates. HTTPS is now considered a basic requirement for any website.</p></details><details class="faq-item"><summary>Q. What is a certificate chain?</summary><p>A. A certificate chain is the hierarchy from your server certificate → intermediate CA certificate(s) → root CA certificate. Browsers verify this chain of trust up to a trusted root CA. Missing intermediate certificates cause errors in some environments.</p></details><details class="faq-item"><summary>Q. What is a Wildcard certificate?</summary><p>A. A wildcard certificate (*.example.com) covers all first-level subdomains of a domain — www, api, mail, etc. — with a single certificate. It doesn&apos;t cover second-level subdomains (a.b.example.com) or the root domain itself unless explicitly included.</p></details>`
+  },
+  zh: {
+    pageTitle: 'SSL检查器 — 模都工具',
+    h1: 'SSL <span>检查器</span>',
+    sub: '验证域名SSL证书有效性·到期日期·颁发者',
+    backLink: '← 首页', langBtn: '🌐 日本語',
+    btnCheck: '检查',
+    labelCn: '通用名称', labelIssuer: '颁发者 (CA)', labelValidFrom: '生效日期',
+    labelExpiry: '到期日期', labelDaysLeft: '剩余天数', labelSan: '主题备用名称',
+    labelValidCert: '有效', labelExpiredCert: '已过期',
+    left: '天后到期', ago: '天前到期',
+    loading: '检查中...',
+    noteSource: '数据来源：crt.sh（证书透明度日志）。显示最新证书信息。',
+    errNotFound: '未找到该域名的SSL证书。',
+    errNetwork: '检查失败，请确认域名后重试。',
+    seoHtml:`<h2>什么是SSL证书检查器？</h2><p><strong>SSL证书检查器</strong>可验证域名是否具有有效的SSL/TLS证书、证书何时到期、由哪个证书颁发机构(CA)颁发，以及证书覆盖哪些域名（SAN）。本工具查询<strong>crt.sh证书透明度日志</strong>——所有已颁发证书的公开数据库——无需直接连接服务器即可提供最新证书信息。</p><h2 class="seo-sub">常见问题</h2><details class="faq-item"><summary>Q. 什么是SSL？</summary><p>A. SSL（安全套接层）是加密互联网通信的安全协议。现已被TLS（传输层安全性）取代，但"SSL"这一术语仍被广泛使用。HTTPS网站使用SSL/TLS证书，浏览器中显示为锁形图标。</p></details><details class="faq-item"><summary>Q. TLS和SSL有什么区别？</summary><p>A. SSL是旧版已废弃的协议，TLS是其现代继承者，也是互联网上实际运行的版本。TLS 1.3是当前标准。两者通常统称为"SSL/TLS"。</p></details><details class="faq-item"><summary>Q. DV、OV和EV证书有什么区别？</summary><p>A. DV（域名验证）仅验证域名所有权，最快最便宜；OV（组织验证）还验证组织身份；EV（扩展验证）需要最严格的审查，在某些浏览器中显示公司名称。验证级别越高，可信度越高。</p></details><details class="faq-item"><summary>Q. 什么是Let&apos;s Encrypt（免费SSL）？</summary><p>A. Let&apos;s Encrypt是由ISRG非营利组织运营的免费自动化证书颁发机构，颁发有效期90天的免费DV证书，并通过ACME协议支持自动续期，已被数亿个网站使用。</p></details><details class="faq-item"><summary>Q. SSL证书过期会有什么影响？</summary><p>A. 浏览器会显示"不安全"或"您的连接不是私密连接"警告，阻止大多数用户访问。SEO排名下降，Google可能降低网站排名。建议至少在到期前30天续期。</p></details><details class="faq-item"><summary>Q. 切换到HTTPS能改善SEO吗？</summary><p>A. 能。Google官方将HTTPS作为排名信号。HTTP网站在Chrome中显示"不安全"警告，增加跳出率。HTTPS现在被认为是任何网站的基本要求。</p></details><details class="faq-item"><summary>Q. 什么是证书链？</summary><p>A. 证书链是从服务器证书→中间CA证书→根CA证书的信任层次结构。浏览器验证直至受信任根CA的信任链。缺少中间证书会在某些环境中导致错误。</p></details><details class="faq-item"><summary>Q. 什么是通配符证书？</summary><p>A. 通配符证书（*.example.com）用单个证书覆盖域名的所有一级子域名（www、api、mail等）。不覆盖二级子域名（a.b.example.com）或根域名本身（除非明确包含）。</p></details>`
+  },
+  ja: {
+    pageTitle: 'SSL検査ツール — モドゥツール',
+    h1: 'SSL <span>検査ツール</span>',
+    sub: 'ドメインのSSL証明書の有効性·有効期限·発行者を確認',
+    backLink: '← ホーム', langBtn: '🌐 한국어',
+    btnCheck: '検査',
+    labelCn: 'コモンネーム', labelIssuer: '発行者 (CA)', labelValidFrom: '有効開始日',
+    labelExpiry: '有効期限', labelDaysLeft: '残り日数', labelSan: 'サブジェクト代替名',
+    labelValidCert: '有効', labelExpiredCert: '期限切れ',
+    left: '日残り', ago: '日経過',
+    loading: '検査中...',
+    noteSource: 'データソース：crt.sh（証明書透明性ログ）。最新の証明書情報を表示します。',
+    errNotFound: 'このドメインのSSL証明書が見つかりません。',
+    errNetwork: '検査に失敗しました。ドメインを確認して再試行してください。',
+    seoHtml:`<h2>SSL証明書検査とは？</h2><p><strong>SSL証明書検査ツール</strong>はドメインの有効なSSL/TLS証明書の有無、有効期限、発行者（CA）、カバーするドメイン（SAN）を確認します。このツールは<strong>crt.sh証明書透明性ログ</strong>（発行されたすべての証明書の公開データベース）を照会し、サーバーに直接接続せずに最新の証明書情報を提供します。</p><h2 class="seo-sub">よくある質問</h2><details class="faq-item"><summary>Q. SSLとは何ですか？</summary><p>A. SSL（セキュアソケットレイヤー）はインターネット通信を暗号化するセキュリティプロトコルです。現在はTLS（トランスポートレイヤーセキュリティ）に置き換えられていますが、"SSL"という用語は今も広く使われています。HTTPSウェブサイトはSSL/TLS証明書を使用し、ブラウザの鍵アイコンで示されます。</p></details><details class="faq-item"><summary>Q. TLSとSSLの違いは？</summary><p>A. SSLは廃止された旧プロトコルで、TLSがその現代的な後継者で、実際にインターネットで動作しています。TLS 1.3が現在の標準です。両者は通常"SSL/TLS"として一緒に言及されます。</p></details><details class="faq-item"><summary>Q. DV、OV、EV証明書の違いは？</summary><p>A. DV（ドメイン検証）はドメイン所有権のみ確認、最も速くて安価。OV（組織検証）は組織の実在性も検証。EV（拡張検証）は最も厳格な審査が必要で、一部ブラウザでは会社名が表示されます。検証レベルが高いほど信頼性が高くなります。</p></details><details class="faq-item"><summary>Q. Let&apos;s Encrypt（無料SSL）とは？</summary><p>A. Let&apos;s EncryptはISRG非営利団体が運営する無料の自動化CAです。有効期限90日の無料DV証明書を発行し、ACMEプロトコルによる自動更新をサポートします。数億のウェブサイトで使用されています。</p></details><details class="faq-item"><summary>Q. SSL証明書の有効期限が切れるとどうなりますか？</summary><p>A. ブラウザが「接続がプライベートではありません」などの警告を表示し、ほとんどのユーザーがブロックされます。SEOランキングが下がり、Googleがサイトを降格する可能性があります。有効期限の少なくとも30日前に更新することをお勧めします。</p></details><details class="faq-item"><summary>Q. HTTPSへの移行はSEOに影響しますか？</summary><p>A. はい。GoogleはHTTPSを公式のランキング要素として使用しています。HTTPサイトはChromeで「保護されていない通信」の警告が表示され、直帰率が上がります。HTTPSは現在あらゆるウェブサイトの基本要件とされています。</p></details><details class="faq-item"><summary>Q. 証明書チェーンとは何ですか？</summary><p>A. 証明書チェーンはサーバー証明書→中間CA証明書→ルートCA証明書という信頼の階層です。ブラウザは信頼できるルートCAまでの信頼チェーンを検証します。中間証明書が欠けていると一部の環境でエラーが発生します。</p></details><details class="faq-item"><summary>Q. ワイルドカード証明書とは？</summary><p>A. ワイルドカード証明書（*.example.com）は1つの証明書でドメインのすべての第1レベルサブドメイン（www、api、mailなど）をカバーします。第2レベルサブドメイン（a.b.example.com）やルートドメイン自体（明示的に含まれない限り）はカバーされません。</p></details>`
+  }
+};
+
+let currentLang = detectLang();
+function detectLang(){
+  const p=new URLSearchParams(location.search).get('lang');
+  if(p&&_i18n[p])return p;
+  const s=localStorage.getItem('modoo_lang');
+  if(s&&_i18n[s])return s;
+  const n=navigator.language||'';
+  if(n.startsWith('zh'))return 'zh';
+  if(n.startsWith('ja'))return 'ja';
+  if(n.startsWith('ko'))return 'ko';
+  return 'en';
+}
+function applyLang(l){
+  const t=_i18n[l]||_i18n.ko;
+  document.documentElement.lang=l;
+  document.title=t.pageTitle;
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const v=t[el.dataset.i18n];
+    if(v!==undefined)el.innerHTML=v;
+  });
+  const inp=document.getElementById('domainInput');
+  if(inp)inp.placeholder=l==='ko'?'예: google.com':'e.g. google.com';
+  document.getElementById('seoArea').innerHTML=t.seoHtml;
+}
+function toggleLang(){
+  const order=['ko','en','zh','ja'];
+  const next=order[(order.indexOf(currentLang)+1)%order.length];
+  currentLang=next;
+  localStorage.setItem('modoo_lang',next);
+  const url=new URL(location.href);
+  url.searchParams.set('lang',next);
+  history.replaceState(null,'',url);
+  applyLang(next);
+}
+document.addEventListener('DOMContentLoaded',()=>applyLang(currentLang));
+</script>
+<script src="related.js"></script>
+</body>
+</html>

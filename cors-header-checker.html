@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CORS Header Checker - CORS 헤더 검사기 | MODOO HUB</title>
+<meta name="description" content="CORS 응답 헤더를 붙여넣고 Access-Control-Allow-Origin, Methods, Credentials 값을 분석하세요. 교차 출처 정책 오류 원인을 즉시 진단합니다.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/cors-header-checker.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/cors-header-checker.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/cors-header-checker.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/cors-header-checker.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/cors-header-checker.html">
+<link rel="canonical" href="https://modoohub.com/cors-header-checker.html">
+<meta property="og:title" content="CORS Header Checker - CORS 헤더 검사기">
+<meta property="og:description" content="CORS 응답 헤더 분석, Access-Control-* 값 검사, 교차 출처 요청 성공 여부 즉시 확인.">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<meta property="og:url" content="https://modoohub.com/cors-header-checker.html">
+<meta property="og:type" content="website">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;font-family:'DM Mono',monospace;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;font-family:'DM Mono',monospace;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:900px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;line-height:1.6;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+@media(max-width:680px){.two-col{grid-template-columns:1fr;}}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:12px;}
+.panel-title{font-size:11px;color:var(--text-dim);letter-spacing:.08em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:2px;}
+label{font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;font-family:'DM Mono',monospace;}
+textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;resize:vertical;min-height:160px;outline:none;line-height:1.6;}
+textarea:focus{border-color:var(--accent);}
+input[type=text],input[type=url]{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-size:13px;outline:none;font-family:'DM Mono',monospace;}
+input[type=text]:focus,input[type=url]:focus{border-color:var(--accent);}
+select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-size:13px;outline:none;font-family:'DM Mono',monospace;cursor:pointer;}
+select:focus{border-color:var(--accent);}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;}
+.btn{padding:8px 16px;border:1px solid var(--border);border-radius:7px;font-size:13px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;background:none;color:var(--text-muted);transition:all .15s;}
+.btn:hover{border-color:var(--accent);color:var(--accent);}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;}
+.btn.primary:hover{opacity:.85;}
+.result-item{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;}
+.result-label{font-size:10px;color:var(--text-dim);font-family:'DM Mono',monospace;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px;}
+.result-value{font-size:13px;font-family:'DM Mono',monospace;color:var(--text);word-break:break-all;}
+.result-value.missing{color:var(--text-dim);font-style:italic;}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-family:'DM Mono',monospace;font-weight:700;margin-left:6px;}
+.badge.pass{background:rgba(74,222,128,.12);color:var(--green);border:1px solid rgba(74,222,128,.25);}
+.badge.fail{background:rgba(248,113,113,.12);color:var(--red);border:1px solid rgba(248,113,113,.25);}
+.badge.warn{background:rgba(251,191,36,.12);color:var(--accent);border:1px solid rgba(251,191,36,.25);}
+.badge.info{background:rgba(96,165,250,.12);color:var(--blue);border:1px solid rgba(96,165,250,.25);}
+.overall-banner{border-radius:10px;padding:16px 20px;text-align:center;font-size:15px;font-weight:700;margin-bottom:4px;display:none;}
+.overall-banner.success{background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.3);color:var(--green);}
+.overall-banner.fail{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);color:var(--red);}
+.warn-box{background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.2);border-radius:7px;padding:10px 14px;font-size:12px;color:var(--accent);line-height:1.6;display:none;}
+.empty-state{text-align:center;padding:40px 20px;color:var(--text-dim);font-size:13px;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:32px;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebApplication",
+  "name":"CORS Header Checker",
+  "url":"https://modoohub.com/cors-header-checker.html",
+  "applicationCategory":"UtilitiesApplication",
+  "operatingSystem":"Any",
+  "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},
+  "description":"Analyze CORS response headers. Paste headers from DevTools to check Access-Control-Allow-Origin, Methods, Credentials and detect misconfigurations instantly."
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"FAQPage",
+  "mainEntity":[
+    {"@type":"Question","name":"CORS란 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"CORS(Cross-Origin Resource Sharing)는 브라우저가 한 출처(Origin)에서 다른 출처의 리소스에 접근할 수 있도록 허용하는 HTTP 헤더 기반 메커니즘입니다. 서버가 특정 출처를 허용한다고 명시해야 브라우저가 응답을 허용합니다."}},
+    {"@type":"Question","name":"Same-Origin Policy란 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"동일 출처 정책(Same-Origin Policy)은 브라우저 보안 정책으로, 스크립트가 자신의 출처와 다른 출처의 리소스에 접근하는 것을 기본적으로 차단합니다. 출처는 프로토콜·호스트·포트의 조합으로 결정됩니다."}},
+    {"@type":"Question","name":"Preflight 요청이란 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"Preflight 요청은 브라우저가 실제 요청 전에 OPTIONS 메서드로 서버에 보내는 사전 확인 요청입니다. PUT, DELETE, PATCH 메서드나 커스텀 헤더가 포함된 요청에서 발생합니다. 서버는 Access-Control-Allow-Methods와 Access-Control-Allow-Headers로 응답해야 합니다."}},
+    {"@type":"Question","name":"credentials 포함 요청은 어떻게 처리하나요?","acceptedAnswer":{"@type":"Answer","text":"쿠키·인증 헤더를 포함한 요청에는 fetch의 credentials:include 옵션을 사용합니다. 이때 서버는 Access-Control-Allow-Origin을 와일드카드(*)가 아닌 명시적 출처로, Access-Control-Allow-Credentials를 true로 설정해야 합니다."}},
+    {"@type":"Question","name":"Access-Control-Allow-Origin: * 와 credentials를 함께 사용할 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"아니요. 브라우저 보안 정책상 Access-Control-Allow-Origin이 *이면 Access-Control-Allow-Credentials: true를 함께 사용할 수 없습니다. credentials를 포함한 요청에는 반드시 명시적인 출처를 지정해야 합니다."}},
+    {"@type":"Question","name":"서버에서 CORS를 어떻게 설정하나요?","acceptedAnswer":{"@type":"Answer","text":"서버에서 응답 헤더에 Access-Control-Allow-Origin(허용 출처), Access-Control-Allow-Methods(허용 메서드), Access-Control-Allow-Headers(허용 헤더)를 추가합니다. Express.js의 경우 cors 미들웨어, Spring은 @CrossOrigin 어노테이션, Nginx는 add_header 지시어를 사용합니다."}},
+    {"@type":"Question","name":"CORS 에러를 어떻게 디버그하나요?","acceptedAnswer":{"@type":"Answer","text":"브라우저 개발자 도구의 Network 탭에서 실패한 요청을 선택하고 Response Headers를 확인합니다. Access-Control-Allow-Origin 헤더가 없거나 요청 출처와 다르면 CORS 오류입니다. 이 도구에 헤더를 붙여넣으면 문제를 즉시 진단할 수 있습니다."}},
+    {"@type":"Question","name":"OPTIONS 메서드는 왜 필요한가요?","acceptedAnswer":{"@type":"Answer","text":"OPTIONS 메서드는 Preflight 요청에 사용됩니다. 서버가 OPTIONS 요청에 올바른 CORS 헤더로 응답하지 않으면 실제 요청이 차단됩니다. 서버 라우팅에서 OPTIONS 메서드를 명시적으로 처리하고 200 또는 204 상태코드로 응답해야 합니다."}}
+  ]
+}
+</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="toggleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1 id="h1El">CORS 헤더 <span>검사기</span></h1>
+  <p class="sub" id="subEl">CORS 응답 헤더 분석·교차 출처 정책 검사</p>
+
+  <div class="two-col">
+    <div class="panel">
+      <div class="panel-title" id="panelInputTitle">입력</div>
+      <div>
+        <label id="labelHeaders">응답 헤더 (DevTools에서 붙여넣기)</label>
+        <textarea id="headersInput" placeholder="Access-Control-Allow-Origin: https://mysite.com&#10;Access-Control-Allow-Methods: GET, POST, PUT&#10;Access-Control-Allow-Headers: Content-Type, Authorization&#10;Access-Control-Allow-Credentials: true&#10;Access-Control-Max-Age: 86400"></textarea>
+      </div>
+      <div>
+        <label id="labelOrigin">요청 Origin (예: https://mysite.com)</label>
+        <input type="url" id="originInput" placeholder="https://mysite.com">
+      </div>
+      <div>
+        <label id="labelMethod">요청 메서드</label>
+        <select id="methodSelect">
+          <option>GET</option>
+          <option>POST</option>
+          <option>PUT</option>
+          <option>DELETE</option>
+          <option>PATCH</option>
+          <option>OPTIONS</option>
+        </select>
+      </div>
+      <div class="btn-row">
+        <button class="btn primary" onclick="analyze()" id="btnAnalyze">분석</button>
+        <button class="btn" onclick="loadSample()" id="btnSample">예시</button>
+        <button class="btn" onclick="clearAll()" id="btnClear">초기화</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title" id="panelResultTitle">분석 결과</div>
+      <div class="overall-banner" id="overallBanner"></div>
+      <div id="resultsContainer">
+        <div class="empty-state" id="emptyState">헤더를 붙여넣고 분석 버튼을 누르세요</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="seo" id="seoDiv"></div>
+  <footer>CORS Header Checker · Free Online Tool · modoohub.com</footer>
+</main>
+<script>
+const _i18n = {
+  ko: {
+    pageTitle: 'CORS Header Checker - CORS 헤더 검사기 | MODOO HUB',
+    h1: 'CORS 헤더 <span>검사기</span>',
+    sub: 'CORS 응답 헤더 분석·교차 출처 정책 검사',
+    backLink: '← 모두의 툴', langBtn: '🌐 EN',
+    labelHeaders: '응답 헤더 (DevTools에서 붙여넣기)',
+    labelOrigin: '요청 Origin (예: https://mysite.com)',
+    labelMethod: '요청 메서드',
+    btnAnalyze: '분석', btnSample: '예시', btnClear: '초기화',
+    panelInputTitle: '입력', panelResultTitle: '분석 결과',
+    emptyState: '헤더를 붙여넣고 분석 버튼을 누르세요',
+    labelAllowOrigin: 'Access-Control-Allow-Origin',
+    labelAllowMethods: 'Access-Control-Allow-Methods',
+    labelAllowHeaders: 'Access-Control-Allow-Headers',
+    labelCredentials: 'Access-Control-Allow-Credentials',
+    labelMaxAge: 'Access-Control-Max-Age',
+    labelPreflight: 'Preflight 필요',
+    resultSuccess: '✓ 요청이 허용됩니다',
+    resultBlocked: '✗ CORS 차단됨',
+    warnCredentials: '⚠ Allow-Origin이 *이면서 Credentials:true는 브라우저에서 거부됩니다',
+    notSet: '(설정 안 됨)',
+    yes: '예', no: '아니오',
+    originMatch: '출처 일치', originNoMatch: '출처 불일치',
+    methodOk: '메서드 허용', methodBlock: '메서드 차단',
+    seoHtml: `<h2>CORS Header Checker 사용 가이드</h2>
+<p>CORS(Cross-Origin Resource Sharing)는 웹 보안의 핵심 메커니즘입니다. 브라우저 개발자 도구 Network 탭에서 응답 헤더를 복사해 붙여넣으면 <strong>Access-Control-Allow-Origin</strong>, <strong>Access-Control-Allow-Methods</strong> 등의 값을 즉시 분석하고 요청이 실제로 허용되는지 확인할 수 있습니다. 서버 설정 전 사전 검증이나 CORS 오류 디버깅에 활용하세요.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>Q. CORS란 무엇인가요?</summary><p>A. CORS(Cross-Origin Resource Sharing)는 브라우저가 한 출처에서 다른 출처의 리소스에 접근할 수 있도록 허용하는 HTTP 헤더 기반 메커니즘입니다. 서버가 특정 출처를 허용한다고 명시해야 브라우저가 응답을 허용합니다.</p></details>
+<details class="faq-item"><summary>Q. Same-Origin Policy란 무엇인가요?</summary><p>A. 동일 출처 정책(Same-Origin Policy)은 스크립트가 자신의 출처와 다른 출처의 리소스에 접근하는 것을 기본적으로 차단하는 브라우저 보안 정책입니다. 출처는 프로토콜·호스트·포트의 조합으로 결정됩니다.</p></details>
+<details class="faq-item"><summary>Q. Preflight 요청이란 무엇인가요?</summary><p>A. Preflight 요청은 브라우저가 실제 요청 전에 OPTIONS 메서드로 서버에 보내는 사전 확인 요청입니다. PUT, DELETE, PATCH 메서드나 커스텀 헤더가 포함된 요청에서 발생합니다.</p></details>
+<details class="faq-item"><summary>Q. credentials 포함 요청은 어떻게 처리하나요?</summary><p>A. 쿠키·인증 헤더를 포함한 요청에는 fetch의 credentials:include 옵션을 사용합니다. 서버는 Access-Control-Allow-Origin을 명시적 출처로, Access-Control-Allow-Credentials를 true로 설정해야 합니다.</p></details>
+<details class="faq-item"><summary>Q. Allow-Origin: *와 Credentials를 함께 쓸 수 있나요?</summary><p>A. 아니요. Allow-Origin이 와일드카드(*)이면 Credentials:true를 함께 사용할 수 없습니다. credentials 포함 요청에는 반드시 명시적인 출처를 지정해야 합니다.</p></details>
+<details class="faq-item"><summary>Q. 서버에서 CORS를 어떻게 설정하나요?</summary><p>A. 응답 헤더에 Access-Control-Allow-Origin, Access-Control-Allow-Methods, Access-Control-Allow-Headers를 추가합니다. Express.js는 cors 미들웨어, Spring은 @CrossOrigin 어노테이션, Nginx는 add_header 지시어를 사용합니다.</p></details>
+<details class="faq-item"><summary>Q. CORS 에러를 어떻게 디버그하나요?</summary><p>A. 브라우저 개발자 도구 Network 탭에서 실패한 요청의 Response Headers를 확인합니다. Access-Control-Allow-Origin이 없거나 요청 출처와 다르면 CORS 오류입니다. 헤더를 이 도구에 붙여넣어 즉시 진단하세요.</p></details>
+<details class="faq-item"><summary>Q. OPTIONS 메서드는 왜 중요한가요?</summary><p>A. OPTIONS 메서드는 Preflight 요청에 사용됩니다. 서버가 OPTIONS에 올바른 CORS 헤더로 응답하지 않으면 실제 요청이 차단됩니다. 서버 라우팅에서 OPTIONS를 명시적으로 처리하고 200 또는 204로 응답해야 합니다.</p></details>`
+  },
+  en: {
+    pageTitle: 'CORS Header Checker - Analyze CORS Response Headers | MODOO HUB',
+    h1: 'CORS Header <span>Checker</span>',
+    sub: 'Analyze CORS response headers · cross-origin policy inspector',
+    backLink: '← All Tools', langBtn: '🌐 中文',
+    labelHeaders: 'Response Headers (paste from DevTools)',
+    labelOrigin: 'Request Origin (e.g. https://mysite.com)',
+    labelMethod: 'Request Method',
+    btnAnalyze: 'Analyze', btnSample: 'Sample', btnClear: 'Clear',
+    panelInputTitle: 'Input', panelResultTitle: 'Analysis Result',
+    emptyState: 'Paste headers and click Analyze',
+    labelAllowOrigin: 'Access-Control-Allow-Origin',
+    labelAllowMethods: 'Access-Control-Allow-Methods',
+    labelAllowHeaders: 'Access-Control-Allow-Headers',
+    labelCredentials: 'Access-Control-Allow-Credentials',
+    labelMaxAge: 'Access-Control-Max-Age',
+    labelPreflight: 'Preflight Required',
+    resultSuccess: '✓ Request would succeed',
+    resultBlocked: '✗ CORS blocked',
+    warnCredentials: '⚠ Allow-Origin:* with Credentials:true is rejected by browsers',
+    notSet: '(not set)',
+    yes: 'Yes', no: 'No',
+    originMatch: 'Origin match', originNoMatch: 'Origin mismatch',
+    methodOk: 'Method allowed', methodBlock: 'Method blocked',
+    seoHtml: `<h2>CORS Header Checker Guide</h2>
+<p>Paste response headers from your browser's DevTools Network tab to instantly analyze <strong>Access-Control-Allow-Origin</strong>, methods, and credentials settings. Diagnose CORS errors before they reach production.</p>
+<h2 class="seo-sub">Frequently Asked Questions</h2>
+<details class="faq-item"><summary>Q. What is CORS?</summary><p>A. CORS (Cross-Origin Resource Sharing) is an HTTP header-based mechanism that allows or restricts web applications running at one origin from requesting resources from a different origin.</p></details>
+<details class="faq-item"><summary>Q. What is Same-Origin Policy?</summary><p>A. The Same-Origin Policy is a browser security feature that restricts scripts from accessing resources from a different origin (protocol + host + port combination) by default.</p></details>
+<details class="faq-item"><summary>Q. What is a preflight request?</summary><p>A. A preflight request is an OPTIONS request sent by the browser before the actual request to check if the server allows the cross-origin request. It occurs for PUT, DELETE, PATCH, or requests with custom headers.</p></details>
+<details class="faq-item"><summary>Q. How do I send requests with credentials?</summary><p>A. Use fetch with credentials:&apos;include&apos;. The server must set Access-Control-Allow-Origin to a specific origin (not *) and Access-Control-Allow-Credentials to true.</p></details>
+<details class="faq-item"><summary>Q. Can I use Allow-Origin:* with credentials?</summary><p>A. No. Browsers reject responses with Access-Control-Allow-Origin:* when credentials are included. Always specify the exact origin when using credentials.</p></details>
+<details class="faq-item"><summary>Q. How do I configure CORS on my server?</summary><p>A. Add Access-Control-Allow-Origin, Methods, and Headers to responses. Use the cors middleware for Express.js, @CrossOrigin for Spring, or add_header directives for Nginx.</p></details>
+<details class="faq-item"><summary>Q. How do I debug CORS errors?</summary><p>A. Open DevTools Network tab, find the failing request, check Response Headers for Access-Control-Allow-Origin. Paste the headers here for instant diagnosis.</p></details>
+<details class="faq-item"><summary>Q. Why is the OPTIONS method important?</summary><p>A. OPTIONS handles preflight requests. If the server doesn&apos;t respond to OPTIONS with proper CORS headers, the actual request gets blocked. Handle OPTIONS in your routing and respond with 200 or 204.</p></details>`
+  },
+  zh: {
+    pageTitle: 'CORS 标头检查器 - 分析跨域响应标头 | MODOO HUB',
+    h1: 'CORS 标头 <span>检查器</span>',
+    sub: '分析 CORS 响应标头·跨域策略检查',
+    backLink: '← 首页', langBtn: '🌐 日本語',
+    labelHeaders: '响应标头（从 DevTools 粘贴）',
+    labelOrigin: '请求 Origin（如 https://mysite.com）',
+    labelMethod: '请求方法',
+    btnAnalyze: '分析', btnSample: '示例', btnClear: '清空',
+    panelInputTitle: '输入', panelResultTitle: '分析结果',
+    emptyState: '粘贴标头后点击分析',
+    labelAllowOrigin: 'Access-Control-Allow-Origin',
+    labelAllowMethods: 'Access-Control-Allow-Methods',
+    labelAllowHeaders: 'Access-Control-Allow-Headers',
+    labelCredentials: 'Access-Control-Allow-Credentials',
+    labelMaxAge: 'Access-Control-Max-Age',
+    labelPreflight: '需要预检',
+    resultSuccess: '✓ 请求将成功',
+    resultBlocked: '✗ CORS 被阻止',
+    warnCredentials: '⚠ Allow-Origin:* 与 Credentials:true 组合将被浏览器拒绝',
+    notSet: '（未设置）',
+    yes: '是', no: '否',
+    originMatch: '源匹配', originNoMatch: '源不匹配',
+    methodOk: '方法允许', methodBlock: '方法被阻止',
+    seoHtml: `<h2>CORS 标头检查器使用指南</h2>
+<p>将浏览器开发者工具 Network 标签中的响应标头粘贴到此处，即可立即分析 <strong>Access-Control-Allow-Origin</strong>、方法和凭据设置，快速诊断跨域问题。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>Q. 什么是 CORS？</summary><p>A. CORS（跨域资源共享）是一种基于 HTTP 标头的机制，允许或限制一个源的 Web 应用访问另一个源的资源。</p></details>
+<details class="faq-item"><summary>Q. 什么是同源策略？</summary><p>A. 同源策略是浏览器安全功能，默认阻止脚本访问不同源（协议+主机+端口组合）的资源。</p></details>
+<details class="faq-item"><summary>Q. 什么是预检请求？</summary><p>A. 预检请求是浏览器在实际请求前发送的 OPTIONS 请求，用于检查服务器是否允许跨域请求。</p></details>
+<details class="faq-item"><summary>Q. 如何发送带凭据的请求？</summary><p>A. 使用 fetch 时设置 credentials:&apos;include&apos;，服务器必须将 Allow-Origin 设为具体源而非 *，并将 Allow-Credentials 设为 true。</p></details>
+<details class="faq-item"><summary>Q. Allow-Origin:* 可以与 credentials 一起使用吗？</summary><p>A. 不可以。浏览器会拒绝 Allow-Origin 为 * 且包含凭据的响应，必须指定明确的源。</p></details>
+<details class="faq-item"><summary>Q. 如何在服务器上配置 CORS？</summary><p>A. 在响应中添加 Allow-Origin、Allow-Methods、Allow-Headers 标头。Express.js 使用 cors 中间件，Spring 使用 @CrossOrigin，Nginx 使用 add_header。</p></details>
+<details class="faq-item"><summary>Q. 如何调试 CORS 错误？</summary><p>A. 打开 DevTools Network 标签，找到失败的请求，检查响应标头中的 Access-Control-Allow-Origin，将标头粘贴到此工具即可立即诊断。</p></details>
+<details class="faq-item"><summary>Q. OPTIONS 方法为什么重要？</summary><p>A. OPTIONS 处理预检请求，若服务器未正确响应 OPTIONS，实际请求将被阻止。需在路由中处理 OPTIONS 并返回 200 或 204。</p></details>`
+  },
+  ja: {
+    pageTitle: 'CORS ヘッダーチェッカー - クロスオリジンポリシー検査 | MODOO HUB',
+    h1: 'CORS ヘッダー <span>チェッカー</span>',
+    sub: 'CORSレスポンスヘッダー分析・クロスオリジンポリシー検査',
+    backLink: '← ホーム', langBtn: '🌐 한국어',
+    labelHeaders: 'レスポンスヘッダー（DevToolsから貼り付け）',
+    labelOrigin: 'リクエストOrigin（例: https://mysite.com）',
+    labelMethod: 'リクエストメソッド',
+    btnAnalyze: '分析', btnSample: 'サンプル', btnClear: 'クリア',
+    panelInputTitle: '入力', panelResultTitle: '分析結果',
+    emptyState: 'ヘッダーを貼り付けて分析ボタンを押してください',
+    labelAllowOrigin: 'Access-Control-Allow-Origin',
+    labelAllowMethods: 'Access-Control-Allow-Methods',
+    labelAllowHeaders: 'Access-Control-Allow-Headers',
+    labelCredentials: 'Access-Control-Allow-Credentials',
+    labelMaxAge: 'Access-Control-Max-Age',
+    labelPreflight: 'プリフライト必要',
+    resultSuccess: '✓ リクエストは許可されます',
+    resultBlocked: '✗ CORSブロック',
+    warnCredentials: '⚠ Allow-Origin:*とCredentials:trueの組み合わせはブラウザに拒否されます',
+    notSet: '（未設定）',
+    yes: 'はい', no: 'いいえ',
+    originMatch: 'オリジン一致', originNoMatch: 'オリジン不一致',
+    methodOk: 'メソッド許可', methodBlock: 'メソッドブロック',
+    seoHtml: `<h2>CORSヘッダーチェッカー使用ガイド</h2>
+<p>ブラウザのDevTools Networkタブからレスポンスヘッダーを貼り付けることで、<strong>Access-Control-Allow-Origin</strong>やメソッド、認証情報の設定を即座に分析できます。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>Q. CORSとは何ですか？</summary><p>A. CORS（クロスオリジンリソース共有）は、あるオリジンのWebアプリが別のオリジンのリソースにアクセスできるようにするHTTPヘッダーベースのメカニズムです。</p></details>
+<details class="faq-item"><summary>Q. 同一オリジンポリシーとは？</summary><p>A. 同一オリジンポリシーはブラウザのセキュリティ機能で、スクリプトが異なるオリジン（プロトコル+ホスト+ポートの組み合わせ）のリソースにアクセスするのをデフォルトで制限します。</p></details>
+<details class="faq-item"><summary>Q. プリフライトリクエストとは？</summary><p>A. プリフライトリクエストは、ブラウザが実際のリクエスト前にOPTIONSメソッドで送る事前確認リクエストです。PUT、DELETE、PATCHメソッドやカスタムヘッダーを含むリクエストで発生します。</p></details>
+<details class="faq-item"><summary>Q. 認証情報付きリクエストの処理方法は？</summary><p>A. fetchでcredentials:&apos;include&apos;を使用し、サーバーはAllow-Originを具体的なオリジンに、Allow-Credentialsをtrueに設定する必要があります。</p></details>
+<details class="faq-item"><summary>Q. Allow-Origin:*とcredentialsは併用できますか？</summary><p>A. できません。Allow-Originが*の場合、credentials付きレスポンスはブラウザに拒否されます。明示的なオリジンを指定してください。</p></details>
+<details class="faq-item"><summary>Q. サーバーでCORSを設定するには？</summary><p>A. レスポンスにAllow-Origin、Allow-Methods、Allow-Headersヘッダーを追加します。Express.jsはcorsミドルウェア、Springは@CrossOrigin、Nginxはadd_headerを使用します。</p></details>
+<details class="faq-item"><summary>Q. CORSエラーのデバッグ方法は？</summary><p>A. DevToolsのNetworkタブで失敗したリクエストを選択し、Response HeadersでAccess-Control-Allow-Originを確認します。このツールにヘッダーを貼り付けて即座に診断できます。</p></details>
+<details class="faq-item"><summary>Q. OPTIONSメソッドはなぜ重要ですか？</summary><p>A. OPTIONSはプリフライトリクエストを処理します。サーバーがOPTIONSに適切なCORSヘッダーで応答しないと実際のリクエストがブロックされます。ルーティングでOPTIONSを処理し200または204で応答してください。</p></details>`
+  }
+};
+
+function parseHeaders(raw) {
+  const map = {};
+  raw.split('\n').forEach(line => {
+    const idx = line.indexOf(':');
+    if (idx < 0) return;
+    const key = line.slice(0, idx).trim().toLowerCase();
+    const val = line.slice(idx + 1).trim();
+    if (key) map[key] = val;
+  });
+  return map;
+}
+
+function analyzeCors(headers, origin, method) {
+  const map = parseHeaders(headers);
+  const allowOrigin = map['access-control-allow-origin'] || '';
+  const allowMethodsRaw = map['access-control-allow-methods'] || '';
+  const allowMethods = allowMethodsRaw.split(',').map(s => s.trim()).filter(Boolean);
+  const allowHeaders = map['access-control-allow-headers'] || '';
+  const allowCredentials = (map['access-control-allow-credentials'] || '').toLowerCase() === 'true';
+  const maxAge = map['access-control-max-age'] || '';
+
+  const originOk = allowOrigin === '*' || (!!origin && allowOrigin === origin);
+  const methodOk = allowMethods.length === 0 || allowMethods.includes(method) || allowMethods.includes('*');
+  const credentialIssue = allowCredentials && allowOrigin === '*';
+  const needsPreflight = ['PUT', 'DELETE', 'PATCH'].includes(method);
+
+  return { allowOrigin, allowMethods, allowHeaders, allowCredentials, maxAge, originOk, methodOk, credentialIssue, needsPreflight, success: originOk && methodOk && !credentialIssue };
+}
+
+function analyze() {
+  const t = _i18n[currentLang] || _i18n.ko;
+  const headers = document.getElementById('headersInput').value.trim();
+  const origin = document.getElementById('originInput').value.trim();
+  const method = document.getElementById('methodSelect').value;
+
+  if (!headers) { alert(currentLang === 'ko' ? '헤더를 입력하세요' : 'Please enter headers'); return; }
+
+  const r = analyzeCors(headers, origin, method);
+  const banner = document.getElementById('overallBanner');
+  banner.style.display = 'block';
+  banner.className = 'overall-banner ' + (r.success ? 'success' : 'fail');
+  banner.textContent = r.success ? t.resultSuccess : t.resultBlocked;
+
+  const items = [
+    { label: t.labelAllowOrigin, value: r.allowOrigin || t.notSet, badge: r.allowOrigin ? (r.originOk ? {cls:'pass',txt:t.originMatch} : {cls:'fail',txt:t.originNoMatch}) : {cls:'warn',txt:t.notSet} },
+    { label: t.labelAllowMethods, value: r.allowMethods.length ? r.allowMethods.join(', ') : t.notSet, badge: r.methodOk ? {cls:'pass',txt:t.methodOk} : {cls:'fail',txt:t.methodBlock} },
+    { label: t.labelAllowHeaders, value: r.allowHeaders || t.notSet },
+    { label: t.labelCredentials, value: String(r.allowCredentials), badge: r.credentialIssue ? {cls:'fail',txt:'⚠ conflict'} : null },
+    { label: t.labelMaxAge, value: r.maxAge ? r.maxAge + 's' : t.notSet },
+    { label: t.labelPreflight, value: r.needsPreflight ? t.yes : t.no, badge: r.needsPreflight ? {cls:'info',txt:'OPTIONS'} : null },
+  ];
+
+  let html = items.map(item => `
+    <div class="result-item">
+      <div class="result-label">${item.label}</div>
+      <div class="result-value${!item.value || item.value === t.notSet ? ' missing' : ''}">${item.value}${item.badge ? `<span class="badge ${item.badge.cls}">${item.badge.txt}</span>` : ''}</div>
+    </div>`).join('');
+
+  if (r.credentialIssue) {
+    html += `<div class="warn-box" style="display:block">${t.warnCredentials}</div>`;
+  }
+
+  document.getElementById('resultsContainer').innerHTML = html;
+  document.getElementById('emptyState') && (document.getElementById('emptyState').style.display = 'none');
+}
+
+function loadSample() {
+  document.getElementById('headersInput').value = `Access-Control-Allow-Origin: https://mysite.com\nAccess-Control-Allow-Methods: GET, POST, PUT, DELETE\nAccess-Control-Allow-Headers: Content-Type, Authorization\nAccess-Control-Allow-Credentials: true\nAccess-Control-Max-Age: 86400`;
+  document.getElementById('originInput').value = 'https://mysite.com';
+  document.getElementById('methodSelect').value = 'PUT';
+  analyze();
+}
+
+function clearAll() {
+  document.getElementById('headersInput').value = '';
+  document.getElementById('originInput').value = '';
+  document.getElementById('methodSelect').value = 'GET';
+  document.getElementById('overallBanner').style.display = 'none';
+  document.getElementById('resultsContainer').innerHTML = '<div class="empty-state" id="emptyState">' + ((_i18n[currentLang] || _i18n.ko).emptyState) + '</div>';
+}
+
+function applyLang(l) {
+  const t = _i18n[l] || _i18n.ko;
+  document.title = t.pageTitle;
+  document.documentElement.lang = l === 'zh' ? 'zh-Hans' : l;
+  document.getElementById('h1El').innerHTML = t.h1;
+  document.getElementById('subEl').textContent = t.sub;
+  document.getElementById('backLink').textContent = t.backLink;
+  document.getElementById('langBtn').textContent = t.langBtn;
+  document.getElementById('btnAnalyze').textContent = t.btnAnalyze;
+  document.getElementById('btnSample').textContent = t.btnSample;
+  document.getElementById('btnClear').textContent = t.btnClear;
+  document.getElementById('panelInputTitle').textContent = t.panelInputTitle;
+  document.getElementById('panelResultTitle').textContent = t.panelResultTitle;
+  const es = document.getElementById('emptyState');
+  if (es) es.textContent = t.emptyState;
+  const lblH = document.querySelector('label[id="labelHeaders"]') || document.querySelectorAll('label')[0];
+  document.querySelectorAll('label')[0].textContent = t.labelHeaders;
+  document.querySelectorAll('label')[1].textContent = t.labelOrigin;
+  document.querySelectorAll('label')[2].textContent = t.labelMethod;
+  document.getElementById('seoDiv').innerHTML = t.seoHtml;
+}
+
+function detectLang() {
+  const p = new URLSearchParams(location.search).get('lang');
+  if (p && _i18n[p]) return p;
+  const s = localStorage.getItem('modoo_lang');
+  if (s && _i18n[s]) return s;
+  const n = navigator.language || '';
+  if (n.startsWith('zh')) return 'zh';
+  if (n.startsWith('ja')) return 'ja';
+  if (n.startsWith('ko')) return 'ko';
+  return 'en';
+}
+
+function toggleLang() {
+  const order = ['ko', 'en', 'zh', 'ja'];
+  const next = order[(order.indexOf(currentLang) + 1) % order.length];
+  currentLang = next;
+  localStorage.setItem('modoo_lang', next);
+  const url = new URL(location.href);
+  url.searchParams.set('lang', next);
+  history.replaceState(null, '', url);
+  applyLang(next);
+}
+
+let currentLang = detectLang();
+document.addEventListener('DOMContentLoaded', () => applyLang(currentLang));
+</script>
+<script src="related.js"></script>
+</body>
+</html>

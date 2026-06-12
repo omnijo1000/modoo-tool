@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>스키마 검증기 - JSON-LD 구조화 데이터 검증·필수 필드 확인 | MODOO HUB</title>
+<meta name="description" content="JSON-LD 구조화 데이터를 즉시 검증하세요. 필수 필드 누락 확인, JSON 파싱 오류 감지, 권장 필드 경고, 구글 리치 결과 테스트 연동.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/schema-validator.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/schema-validator.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/schema-validator.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/schema-validator.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/schema-validator.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/schema-validator.html">
+<meta property="og:title" content="스키마 검증기 - JSON-LD 구조화 데이터 검증·필수 필드 확인">
+<meta property="og:description" content="JSON-LD 구조화 데이터를 즉시 검증하세요. 필수 필드 누락 확인, JSON 파싱 오류 감지, 구글 리치 결과 테스트 연동.">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<meta property="og:url" content="https://modoohub.com/schema-validator.html">
+<meta property="og:type" content="website">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;font-family:'DM Mono',monospace;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;font-family:'DM Mono',monospace;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:960px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;line-height:1.6;}
+.layout{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+@media(max-width:700px){.layout{grid-template-columns:1fr;}}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;}
+.panel-label{font-size:11px;color:var(--text-dim);letter-spacing:.07em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:12px;}
+.input-ta{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;resize:vertical;min-height:320px;outline:none;line-height:1.7;word-break:break-all;}
+.input-ta:focus{border-color:var(--accent);}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.btn{padding:8px 16px;border:1px solid var(--border);border-radius:7px;font-size:12px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;background:none;color:var(--text-muted);transition:all .15s;}
+.btn:hover{border-color:var(--accent);color:var(--accent);}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;}
+.btn.primary:hover{opacity:.85;}
+.btn.external{color:var(--blue);border-color:var(--blue);}
+.btn.external:hover{background:rgba(96,165,250,.08);}
+/* Result */
+.result-empty{color:var(--text-dim);font-size:13px;text-align:center;padding:40px 0;}
+.result-status{display:flex;align-items:center;gap:10px;padding:14px 16px;border-radius:8px;margin-bottom:14px;font-size:13px;font-weight:700;}
+.result-status.valid{background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.3);color:var(--green);}
+.result-status.invalid{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.3);color:var(--red);}
+.result-status.error{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.3);color:var(--red);}
+.status-icon{font-size:18px;}
+.type-badge{display:inline-block;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);color:var(--accent);font-family:'DM Mono',monospace;font-size:11px;padding:2px 10px;border-radius:20px;margin-bottom:12px;}
+.result-section{margin-bottom:14px;}
+.result-section-title{font-size:11px;color:var(--text-dim);letter-spacing:.06em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:8px;}
+.check-list{list-style:none;}
+.check-list li{display:flex;align-items:center;gap:8px;font-size:12px;font-family:'DM Mono',monospace;padding:4px 0;border-bottom:1px solid var(--border);}
+.check-list li:last-child{border-bottom:none;}
+.check-icon{font-size:13px;width:16px;text-align:center;}
+.check-ok{color:var(--green);}
+.check-fail{color:var(--red);}
+.warn-icon{color:var(--accent);}
+.error-box{background:rgba(248,113,113,.07);border:1px solid rgba(248,113,113,.2);border-radius:7px;padding:10px 14px;font-family:'DM Mono',monospace;font-size:11px;color:var(--red);line-height:1.7;word-break:break-all;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:32px;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebApplication",
+  "name":"Schema Validator",
+  "url":"https://modoohub.com/schema-validator.html",
+  "applicationCategory":"UtilitiesApplication",
+  "operatingSystem":"Any",
+  "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},
+  "description":"Validate JSON-LD schema markup instantly. Check required fields, detect parse errors, see warnings for recommended fields, and link to Google Rich Results Test."
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"FAQPage",
+  "mainEntity":[
+    {"@type":"Question","name":"JSON-LD 검증이 왜 중요한가요?","acceptedAnswer":{"@type":"Answer","text":"잘못된 구조화 데이터는 구글이 리치 스니펫을 표시하지 않게 만듭니다. 검증을 통해 필수 필드 누락이나 JSON 문법 오류를 사전에 발견할 수 있습니다."}},
+    {"@type":"Question","name":"필수 필드와 권장 필드의 차이는?","acceptedAnswer":{"@type":"Answer","text":"필수 필드가 없으면 구글이 해당 스키마 타입의 리치 스니펫을 표시하지 않습니다. 권장 필드는 없어도 오류는 아니지만 더 풍부한 리치 스니펫 표시를 위해 추가를 권장합니다."}}
+  ]
+}
+</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1 id="h1El">스키마 <span>검증기</span></h1>
+  <p class="sub" id="subEl">JSON-LD 구조화 데이터 검증·필수 필드 확인</p>
+
+  <div class="layout">
+    <!-- Left: Input -->
+    <div class="panel">
+      <div class="panel-label" id="inputLabel">JSON-LD 또는 HTML 붙여넣기</div>
+      <textarea class="input-ta" id="inputTa" placeholder='{"@context":"https://schema.org","@type":"Article","headline":"My Article",...}'></textarea>
+      <div class="btn-row">
+        <button class="btn primary" id="btnValidate" onclick="doValidate()">검증</button>
+        <button class="btn" id="btnExtract" onclick="doExtract()">HTML에서 추출</button>
+        <button class="btn" id="btnSample" onclick="loadSample()">샘플</button>
+        <button class="btn" id="btnClear" onclick="doClear()">초기화</button>
+      </div>
+    </div>
+
+    <!-- Right: Results -->
+    <div class="panel">
+      <div class="panel-label" id="resultLabel">검증 결과</div>
+      <div id="resultDiv"><div class="result-empty" id="emptyMsg">JSON-LD를 입력하고 검증 버튼을 누르세요</div></div>
+      <div class="btn-row" style="margin-top:14px;">
+        <button class="btn external" id="btnGoogleTest" onclick="openGoogle()">구글 리치 결과 테스트</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="seo" id="seoDiv"></div>
+  <footer>Schema Validator · Free Online Tool · modoohub.com</footer>
+</main>
+<script>
+const REQUIRED_FIELDS={
+  Article:['headline','author','datePublished'],
+  Product:['name'],
+  FAQPage:['mainEntity'],
+  LocalBusiness:['name','address'],
+  Event:['name','startDate','location'],
+  BreadcrumbList:['itemListElement'],
+  Recipe:['name','recipeIngredient','recipeInstructions'],
+  Review:['itemReviewed','author','reviewRating'],
+  Person:['name'],
+  Organization:['name'],
+  NewsArticle:['headline','author','datePublished'],
+  BlogPosting:['headline','author','datePublished'],
+  WebPage:['name'],
+  SoftwareApplication:['name','applicationCategory'],
+  VideoObject:['name','description','thumbnailUrl','uploadDate'],
+};
+const RECOMMENDED_FIELDS={
+  Article:['description','image','publisher'],
+  Product:['description','image','offers','aggregateRating'],
+  Event:['endDate','description','organizer','image'],
+  LocalBusiness:['url','telephone','openingHours'],
+  Recipe:['description','cookTime','prepTime','recipeYield','image'],
+  Review:['reviewBody'],
+};
+
+const _i18n={
+  ko:{
+    pageTitle:'스키마 검증기 - JSON-LD 구조화 데이터 검증·필수 필드 확인 | MODOO HUB',
+    h1:'스키마 <span>검증기</span>',
+    sub:'JSON-LD 구조화 데이터 검증·필수 필드 확인',
+    backLink:'← 모두의 툴',langBtn:'🌐 EN',
+    inputLabel:'JSON-LD 또는 HTML 붙여넣기',
+    resultLabel:'검증 결과',
+    btnValidate:'검증',btnExtract:'HTML에서 추출',btnSample:'샘플',btnClear:'초기화',
+    btnGoogleTest:'구글 리치 결과 테스트',
+    emptyMsg:'JSON-LD를 입력하고 검증 버튼을 누르세요',
+    resultValid:'유효한 스키마',resultInvalid:'필수 필드 누락',
+    resultError:'JSON 파싱 오류',
+    labelType:'감지된 타입',labelRequired:'필수 필드',labelWarnings:'권장 필드 (누락)',labelErrors:'오류',
+    noContext:'@context 누락 — https://schema.org 필요',
+    unknownType:'알 수 없는 @type — 리치 스니펫이 지원되지 않을 수 있습니다',
+    extractFail:'JSON-LD script 태그를 찾을 수 없습니다',
+    multipleFound:'%n개의 JSON-LD 블록 발견 — 첫 번째를 표시합니다',
+    seoHtml:`<h2>JSON-LD 검증이 왜 중요한가요?</h2><p>구조화 데이터(JSON-LD)는 구글이 웹페이지 내용을 이해하고 검색 결과에 <strong>리치 스니펫을 표시</strong>하는 데 사용됩니다. 잘못된 JSON-LD는 파싱 오류나 필수 필드 누락으로 리치 스니펫이 표시되지 않을 수 있습니다. 배포 전 반드시 검증하여 SEO 기회를 극대화하세요.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>JSON-LD 검증이 왜 중요한가요?</summary><p>잘못된 구조화 데이터는 구글이 리치 스니펫을 표시하지 않게 만듭니다. JSON 문법 오류, 필수 필드 누락, 잘못된 값 형식 등이 흔한 문제입니다. 검증을 통해 게시 전에 이런 문제를 발견하고 수정할 수 있습니다.</p></details>
+<details class="faq-item"><summary>필수 필드와 권장 필드의 차이는?</summary><p>필수 필드가 없으면 구글이 해당 스키마 타입의 리치 스니펫을 표시하지 않습니다. 권장 필드는 없어도 오류는 아니지만 더 풍부한 리치 스니펫 표시를 위해 추가를 권장합니다. 예를 들어 Article에서 image는 권장 필드이지만 있으면 이미지 리치 스니펫이 표시됩니다.</p></details>
+<details class="faq-item"><summary>JSON 파싱 오류는 어떻게 해결하나요?</summary><p>1) 중괄호/대괄호 열림·닫힘 짝 확인, 2) 문자열은 반드시 큰따옴표 사용, 3) 마지막 항목 뒤 쉼표 제거, 4) 특수문자(백슬래시, 따옴표)는 이스케이프 처리. JSONLint 같은 도구로 전체 JSON 구조를 먼저 검사하세요.</p></details>
+<details class="faq-item"><summary>@context는 꼭 필요한가요?</summary><p>네, 필수입니다. "@context": "https://schema.org"가 없으면 구글이 스키마를 올바르게 해석하지 못합니다. 모든 JSON-LD 블록의 최상위에 반드시 포함해야 합니다.</p></details>
+<details class="faq-item"><summary>한 페이지에 여러 스키마를 넣을 수 있나요?</summary><p>네. 여러 개의 별도 script type="application/ld+json" 태그를 사용하거나, 하나의 태그 안에 배열([{...},{...}])로 넣는 방식 모두 가능합니다. 구글은 페이지 내 모든 JSON-LD를 인식합니다.</p></details>
+<details class="faq-item"><summary>구글 공식 테스트 도구는 어떻게 사용하나요?</summary><p>구글 리치 결과 테스트(search.google.com/test/rich-results)에서 URL을 입력하거나 코드를 직접 붙여넣기 해서 검증합니다. 실제 구글 크롤러 결과를 반영하므로 가장 정확한 검증 방법입니다.</p></details>
+<details class="faq-item"><summary>스키마는 얼마나 자주 업데이트해야 하나요?</summary><p>콘텐츠가 변경될 때마다 스키마도 업데이트해야 합니다. 특히 Product의 가격/재고, Event의 날짜/장소, Article의 수정일 등은 실제 정보와 일치해야 합니다. schema.org 스펙 변경 시 주기적으로 확인하세요.</p></details>
+<details class="faq-item"><summary>잘못된 스키마가 검색 색인에 영향을 주나요?</summary><p>직접적인 순위 하락 페널티는 없지만, 리치 스니펫이 표시되지 않아 CTR이 낮아질 수 있습니다. 오해를 유발하거나 실제 콘텐츠와 다른 스팸성 마크업은 구글의 수동 조치 대상이 될 수 있습니다.</p></details>`
+  },
+  en:{
+    pageTitle:'Schema Validator - JSON-LD Structured Data Validator & Field Checker | MODOO HUB',
+    h1:'Schema <span>Validator</span>',
+    sub:'Validate JSON-LD structured data · Check required fields',
+    backLink:'← All Tools',langBtn:'🌐 中文',
+    inputLabel:'Paste JSON-LD or HTML',
+    resultLabel:'Validation Result',
+    btnValidate:'Validate',btnExtract:'Extract from HTML',btnSample:'Sample',btnClear:'Clear',
+    btnGoogleTest:'Google Rich Results Test',
+    emptyMsg:'Paste JSON-LD and click Validate',
+    resultValid:'Valid Schema',resultInvalid:'Missing Required Fields',
+    resultError:'JSON Parse Error',
+    labelType:'Detected Type',labelRequired:'Required Fields',labelWarnings:'Recommended Fields (missing)',labelErrors:'Errors',
+    noContext:'Missing @context — https://schema.org required',
+    unknownType:'Unknown @type — rich snippets may not be supported',
+    extractFail:'No JSON-LD script tag found',
+    multipleFound:'%n JSON-LD blocks found — showing first',
+    seoHtml:`<h2>Why validate JSON-LD schema markup?</h2><p>Structured data (JSON-LD) helps Google understand page content and display <strong>rich snippets in search results</strong>. Incorrect JSON-LD — parse errors or missing required fields — prevents rich snippets from appearing. Always validate before deploying to maximize your SEO opportunities.</p>
+<h2 class="seo-sub">Frequently Asked Questions</h2>
+<details class="faq-item"><summary>Why is JSON-LD validation important?</summary><p>Invalid structured data prevents Google from displaying rich snippets. Common issues include JSON syntax errors, missing required fields, and incorrect value formats. Validating before publishing helps you catch and fix these problems early.</p></details>
+<details class="faq-item"><summary>What is the difference between required and recommended fields?</summary><p>Without required fields, Google will not display rich snippets for that schema type. Recommended fields are optional but add more detail to your rich snippet — for example, an image field on an Article can trigger image-rich results.</p></details>
+<details class="faq-item"><summary>How do I fix JSON parse errors?</summary><p>1) Check that all braces and brackets are properly opened and closed. 2) Use double quotes for all strings. 3) Remove trailing commas after the last item. 4) Escape special characters (backslashes, quotes). Use a tool like JSONLint to check the overall JSON structure.</p></details>
+<details class="faq-item"><summary>Is @context required?</summary><p>Yes, it is mandatory. Without "@context": "https://schema.org", Google cannot correctly interpret the schema. It must be present at the top level of every JSON-LD block.</p></details>
+<details class="faq-item"><summary>Can I have multiple schemas on one page?</summary><p>Yes. You can use multiple separate script tags with type="application/ld+json", or put an array ([{...},{...}]) inside a single script tag. Google recognizes all JSON-LD blocks on a page.</p></details>
+<details class="faq-item"><summary>How do I use Google&apos;s official testing tool?</summary><p>Go to the Google Rich Results Test (search.google.com/test/rich-results), enter a URL or paste code directly. It reflects actual Google crawler behavior and is the most authoritative validation method.</p></details>
+<details class="faq-item"><summary>How often should I update my schema?</summary><p>Update your schema whenever content changes — especially Product price/availability, Event dates/locations, and Article modification dates. These must match the actual page content. Periodically review schema.org for spec updates.</p></details>
+<details class="faq-item"><summary>Does incorrect schema affect search indexing?</summary><p>There is no direct ranking penalty, but missing rich snippets can lower your CTR. Spammy or misleading markup that misrepresents actual content can trigger a manual action from Google.</p></details>`
+  },
+  zh:{
+    pageTitle:'Schema验证器 - JSON-LD结构化数据验证·必填字段检查 | MODOO HUB',
+    h1:'Schema <span>验证器</span>',
+    sub:'验证JSON-LD结构化数据·必填字段检查',
+    backLink:'← 所有工具',langBtn:'🌐 日本語',
+    inputLabel:'粘贴JSON-LD或HTML',
+    resultLabel:'验证结果',
+    btnValidate:'验证',btnExtract:'从HTML提取',btnSample:'示例',btnClear:'清除',
+    btnGoogleTest:'谷歌富媒体结果测试',
+    emptyMsg:'粘贴JSON-LD并点击验证',
+    resultValid:'有效Schema',resultInvalid:'缺少必填字段',
+    resultError:'JSON解析错误',
+    labelType:'检测到的类型',labelRequired:'必填字段',labelWarnings:'推荐字段（缺失）',labelErrors:'错误',
+    noContext:'缺少@context — 需要https://schema.org',
+    unknownType:'未知@type — 可能不支持富媒体摘要',
+    extractFail:'未找到JSON-LD script标签',
+    multipleFound:'发现%n个JSON-LD块 — 显示第一个',
+    seoHtml:`<h2>为什么要验证JSON-LD Schema标记？</h2><p>结构化数据（JSON-LD）帮助谷歌理解页面内容并在搜索结果中显示<strong>富媒体摘要</strong>。错误的JSON-LD——解析错误或缺少必填字段——会导致富媒体摘要无法显示。在发布前务必验证，以最大化SEO效果。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>JSON-LD验证为什么重要？</summary><p>无效的结构化数据会导致谷歌不显示富媒体摘要。常见问题包括JSON语法错误、缺少必填字段和值格式不正确。在发布前进行验证可以及早发现并修复这些问题。</p></details>
+<details class="faq-item"><summary>必填字段和推荐字段的区别是什么？</summary><p>缺少必填字段，谷歌将不会显示该Schema类型的富媒体摘要。推荐字段是可选的，但可以丰富富媒体摘要的展示效果——例如Article中的image字段可以触发图片富媒体结果。</p></details>
+<details class="faq-item"><summary>如何修复JSON解析错误？</summary><p>1) 检查所有花括号和方括号是否正确开闭；2) 所有字符串使用双引号；3) 删除最后一项后的多余逗号；4) 对特殊字符（反斜杠、引号）进行转义。可以使用JSONLint等工具检查整体JSON结构。</p></details>
+<details class="faq-item"><summary>@context是必须的吗？</summary><p>是的，@context是强制要求的。没有"@context": "https://schema.org"，谷歌无法正确解释Schema。每个JSON-LD块的顶层必须包含此字段。</p></details>
+<details class="faq-item"><summary>一个页面可以有多个Schema吗？</summary><p>可以。可以使用多个独立的script type="application/ld+json"标签，也可以在一个标签内放置数组（[{...},{...}]）。谷歌会识别页面上的所有JSON-LD块。</p></details>
+<details class="faq-item"><summary>如何使用谷歌官方测试工具？</summary><p>前往谷歌富媒体结果测试（search.google.com/test/rich-results），输入URL或直接粘贴代码进行验证。它反映了实际的谷歌爬虫行为，是最权威的验证方法。</p></details>
+<details class="faq-item"><summary>Schema应该多久更新一次？</summary><p>内容发生变化时应同步更新Schema——特别是Product的价格/库存、Event的日期/地点、Article的修改日期。这些信息必须与实际页面内容一致。还要定期查看schema.org的规范更新。</p></details>
+<details class="faq-item"><summary>错误的Schema会影响搜索索引吗？</summary><p>不会有直接的排名惩罚，但缺少富媒体摘要可能降低点击率。误导性或与实际内容不符的垃圾标记可能触发谷歌的人工处理。</p></details>`
+  },
+  ja:{
+    pageTitle:'スキーマバリデーター - JSON-LD構造化データ検証·必須フィールド確認 | MODOO HUB',
+    h1:'スキーマ <span>バリデーター</span>',
+    sub:'JSON-LD構造化データ検証・必須フィールド確認',
+    backLink:'← ホーム',langBtn:'🌐 한국어',
+    inputLabel:'JSON-LDまたはHTMLを貼り付け',
+    resultLabel:'検証結果',
+    btnValidate:'検証',btnExtract:'HTMLから抽出',btnSample:'サンプル',btnClear:'クリア',
+    btnGoogleTest:'Googleリッチリザルトテスト',
+    emptyMsg:'JSON-LDを入力して検証ボタンを押してください',
+    resultValid:'有効なスキーマ',resultInvalid:'必須フィールド不足',
+    resultError:'JSONパースエラー',
+    labelType:'検出されたタイプ',labelRequired:'必須フィールド',labelWarnings:'推奨フィールド（不足）',labelErrors:'エラー',
+    noContext:'@contextがありません — https://schema.org が必要です',
+    unknownType:'不明な@type — リッチスニペットがサポートされない場合があります',
+    extractFail:'JSON-LD scriptタグが見つかりません',
+    multipleFound:'%n個のJSON-LDブロックを発見 — 最初のものを表示します',
+    seoHtml:`<h2>JSON-LDスキーマ検証がなぜ重要か</h2><p>構造化データ（JSON-LD）はGoogleがページ内容を理解し、検索結果に<strong>リッチスニペットを表示</strong>するために使われます。JSONパースエラーや必須フィールドの不足があるとリッチスニペットが表示されません。公開前に必ず検証してSEO効果を最大化しましょう。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>JSON-LD検証がなぜ重要ですか？</summary><p>無効な構造化データはGoogleがリッチスニペットを表示しない原因になります。JSON文法エラー・必須フィールド不足・値フォーマットの誤りが主な問題です。公開前に検証することで早期発見・修正できます。</p></details>
+<details class="faq-item"><summary>必須フィールドと推奨フィールドの違いは？</summary><p>必須フィールドがないとGoogleはそのスキーマタイプのリッチスニペットを表示しません。推奨フィールドはなくてもエラーではありませんが、より豊富なリッチスニペットを表示するために追加を推奨します。</p></details>
+<details class="faq-item"><summary>JSONパースエラーはどう直しますか？</summary><p>1) 全ての波括弧・角括弧の対応を確認、2) 文字列は必ずダブルクォート、3) 最後の項目後のカンマを削除、4) 特殊文字のエスケープ処理。JSONLintなどのツールで全体的なJSON構造を確認してください。</p></details>
+<details class="faq-item"><summary>@contextは必須ですか？</summary><p>はい、必須です。"@context": "https://schema.org"がないとGoogleはスキーマを正しく解釈できません。全てのJSON-LDブロックの最上位に必ず含めてください。</p></details>
+<details class="faq-item"><summary>1ページに複数のスキーマを入れられますか？</summary><p>可能です。複数の別々のscript type="application/ld+json"タグを使うか、1つのタグ内に配列([{...},{...}])で入れる方法どちらでも問題ありません。Googleはページ内の全JSON-LDブロックを認識します。</p></details>
+<details class="faq-item"><summary>Googleの公式テストツールはどう使いますか？</summary><p>Googleリッチリザルトテスト（search.google.com/test/rich-results）でURLを入力するかコードを直接貼り付けて検証します。実際のGoogleクローラーの動作を反映する最も正確な検証方法です。</p></details>
+<details class="faq-item"><summary>スキーマはどのくらいの頻度で更新すべきですか？</summary><p>コンテンツが変更されるたびにスキーマも更新しましょう。特にProductの価格・在庫、Eventの日時・場所、Articleの更新日は実際の内容と一致させる必要があります。schema.orgの仕様変更も定期的に確認してください。</p></details>
+<details class="faq-item"><summary>誤ったスキーマは検索インデックスに影響しますか？</summary><p>直接のランキング低下ペナルティはありませんが、リッチスニペットが表示されずCTRが下がる可能性があります。実際のコンテンツと異なる誤解を招くマークアップはGoogleの手動対処対象になる場合があります。</p></details>`
+  }
+};
+
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko';
+
+const SAMPLE_JSON=`{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "How to Write Great JSON-LD",
+  "author": {
+    "@type": "Person",
+    "name": "Jane Smith"
+  },
+  "datePublished": "2026-06-12",
+  "description": "A guide to writing effective structured data."
+}`;
+
+function detectLang(){
+  const u=new URLSearchParams(location.search).get('lang');
+  if(u&&_i18n[u])return u;
+  const s=localStorage.getItem('modoo_lang');
+  if(s&&_i18n[s])return s;
+  const n=navigator.language?.slice(0,2);
+  return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';
+}
+
+function cycleLang(){
+  const idx=LANGS.indexOf(_lang);
+  _lang=LANGS[(idx+1)%LANGS.length];
+  localStorage.setItem('modoo_lang',_lang);
+  const url=new URL(location.href);
+  url.searchParams.set('lang',_lang);
+  history.replaceState({},'',url);
+  applyLang();
+}
+
+function applyLang(){
+  const t=_i18n[_lang];
+  document.documentElement.lang=_lang;
+  document.title=t.pageTitle;
+  document.getElementById('h1El').innerHTML=t.h1;
+  document.getElementById('subEl').textContent=t.sub;
+  document.getElementById('backLink').textContent=t.backLink;
+  document.getElementById('langBtn').textContent=t.langBtn;
+  document.getElementById('inputLabel').textContent=t.inputLabel;
+  document.getElementById('resultLabel').textContent=t.resultLabel;
+  document.getElementById('btnValidate').textContent=t.btnValidate;
+  document.getElementById('btnExtract').textContent=t.btnExtract;
+  document.getElementById('btnSample').textContent=t.btnSample;
+  document.getElementById('btnClear').textContent=t.btnClear;
+  document.getElementById('btnGoogleTest').textContent=t.btnGoogleTest;
+  document.getElementById('emptyMsg').textContent=t.emptyMsg;
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+}
+
+function extractJsonLd(text){
+  const parser=new DOMParser();
+  const doc=parser.parseFromString(text,'text/html');
+  const scripts=Array.from(doc.querySelectorAll('script[type="application/ld+json"]'));
+  return scripts.map(s=>s.textContent.trim());
+}
+
+function doExtract(){
+  const t=_i18n[_lang];
+  const raw=document.getElementById('inputTa').value.trim();
+  if(!raw)return;
+  const blocks=extractJsonLd(raw);
+  if(!blocks.length){alert(t.extractFail);return;}
+  if(blocks.length>1){
+    const msg=t.multipleFound.replace('%n',blocks.length);
+    document.getElementById('inputTa').value=blocks[0];
+    showToast(msg);
+  } else {
+    document.getElementById('inputTa').value=blocks[0];
+  }
+}
+
+function doValidate(){
+  const t=_i18n[_lang];
+  const raw=document.getElementById('inputTa').value.trim();
+  if(!raw){document.getElementById('resultDiv').innerHTML=`<div class="result-empty">${t.emptyMsg}</div>`;return;}
+  // Try extracting from HTML first if it looks like HTML
+  let jsonStr=raw;
+  if(raw.includes('<')){
+    const blocks=extractJsonLd(raw);
+    if(blocks.length>0)jsonStr=blocks[0];
+  }
+  // Try parsing
+  let obj;
+  try{obj=JSON.parse(jsonStr);}
+  catch(e){
+    document.getElementById('resultDiv').innerHTML=`
+      <div class="result-status error"><span class="status-icon">✕</span>${t.resultError}</div>
+      <div class="result-section"><div class="result-section-title">${t.labelErrors}</div><div class="error-box">${escHtml(e.message)}</div></div>`;
+    return;
+  }
+  // Handle array
+  const schemas=Array.isArray(obj)?obj:[obj];
+  let html='';
+  schemas.forEach((schema,si)=>{
+    html+=renderResult(schema,t,si,schemas.length);
+  });
+  document.getElementById('resultDiv').innerHTML=html;
+}
+
+function renderResult(obj,t,idx,total){
+  const type=obj['@type']||'Unknown';
+  const context=obj['@context']||'';
+  const required=REQUIRED_FIELDS[type]||[];
+  const recommended=RECOMMENDED_FIELDS[type]||[];
+  const missing=required.filter(f=>!(f in obj)||obj[f]===null||obj[f]==='');
+  const warnings=recommended.filter(f=>!(f in obj)||obj[f]===null||obj[f]==='');
+  const issues=[];
+  if(!context.includes('schema.org'))issues.push(t.noContext);
+  if(!REQUIRED_FIELDS[type]&&type!=='Unknown')issues.push(t.unknownType);
+  const isValid=missing.length===0&&issues.length===0;
+
+  let html='';
+  if(total>1)html+=`<div style="font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;margin-bottom:8px;">[${idx+1}/${total}]</div>`;
+  html+=`<div class="result-status ${isValid?'valid':'invalid'}"><span class="status-icon">${isValid?'✓':'✕'}</span>${isValid?t.resultValid:t.resultInvalid}</div>`;
+  html+=`<span class="type-badge">@type: ${escHtml(type)}</span>`;
+
+  if(issues.length){
+    html+=`<div class="result-section"><div class="result-section-title">${t.labelErrors}</div><ul class="check-list">`;
+    issues.forEach(i=>html+=`<li><span class="check-icon check-fail">✕</span>${escHtml(i)}</li>`);
+    html+=`</ul></div>`;
+  }
+
+  if(required.length){
+    html+=`<div class="result-section"><div class="result-section-title">${t.labelRequired}</div><ul class="check-list">`;
+    required.forEach(f=>{
+      const ok=f in obj&&obj[f]!==null&&obj[f]!=='';
+      html+=`<li><span class="check-icon ${ok?'check-ok':'check-fail'}">${ok?'✓':'✕'}</span>${escHtml(f)}</li>`;
+    });
+    html+=`</ul></div>`;
+  }
+
+  if(warnings.length){
+    html+=`<div class="result-section"><div class="result-section-title">${t.labelWarnings}</div><ul class="check-list">`;
+    warnings.forEach(f=>html+=`<li><span class="check-icon warn-icon">⚠</span>${escHtml(f)}</li>`);
+    html+=`</ul></div>`;
+  }
+
+  return html;
+}
+
+function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function showToast(msg){
+  const t=document.createElement('div');
+  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a1a1a;border:1px solid #252525;color:#f5f5f5;padding:10px 20px;border-radius:8px;font-size:13px;z-index:9999;';
+  t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),3000);
+}
+
+function loadSample(){document.getElementById('inputTa').value=SAMPLE_JSON;}
+function doClear(){document.getElementById('inputTa').value='';document.getElementById('resultDiv').innerHTML=`<div class="result-empty" id="emptyMsg">${_i18n[_lang].emptyMsg}</div>`;}
+function openGoogle(){window.open('https://search.google.com/test/rich-results','_blank');}
+
+_lang=detectLang();
+applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

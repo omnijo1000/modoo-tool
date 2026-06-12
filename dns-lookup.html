@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DNS 조회 — 모두의 툴</title>
+<meta name="description" content="도메인 DNS 레코드를 무료로 조회하세요. A, AAAA, MX, NS, TXT, CNAME, SOA, PTR 레코드 확인.">
+<link rel="canonical" href="https://modoohub.com/dns-lookup.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/dns-lookup.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/dns-lookup.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/dns-lookup.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/dns-lookup.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/dns-lookup.html">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!-- GA -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<!-- AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"DNS Lookup","url":"https://modoohub.com/dns-lookup.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free online DNS lookup tool. Query A, AAAA, MX, NS, TXT, CNAME, SOA, PTR records for any domain using Cloudflare DNS over HTTPS."}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"DNS란 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"DNS(Domain Name System)는 도메인 이름을 IP 주소로 변환하는 인터넷 전화번호부입니다. 사람이 읽을 수 있는 도메인(google.com)을 컴퓨터가 이해하는 IP 주소로 매핑합니다."}},{"@type":"Question","name":"A 레코드란 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"A 레코드는 도메인 이름을 IPv4 주소에 매핑하는 DNS 레코드입니다. 가장 기본적인 DNS 레코드 유형으로, 도메인 방문 시 실제 서버 IP를 알려줍니다."}}]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;padding:20px;}
+.top-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;}
+.back-link{color:var(--text-muted);text-decoration:none;font-size:14px;}
+.back-link:hover{color:var(--accent);}
+.lang-btn{background:none;border:1px solid var(--border);color:var(--text-muted);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:13px;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+h1{font-size:clamp(22px,4vw,32px);font-weight:700;margin-bottom:8px;}
+h1 span{color:var(--accent);}
+.sub{color:var(--text-muted);font-size:14px;margin-bottom:24px;}
+.input-row{display:flex;gap:10px;margin-bottom:12px;max-width:680px;flex-wrap:wrap;}
+.input-row input{flex:1;min-width:200px;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:12px 16px;border-radius:8px;font-size:14px;font-family:'DM Mono',monospace;outline:none;}
+.input-row input:focus{border-color:var(--accent);}
+.input-row input::placeholder{color:var(--text-dim);}
+.input-row select{background:var(--surface);border:1px solid var(--border);color:var(--text);padding:12px 14px;border-radius:8px;font-size:14px;outline:none;cursor:pointer;min-width:110px;}
+.input-row select:focus{border-color:var(--accent);}
+.btn{padding:10px 20px;border-radius:8px;border:none;cursor:pointer;font-size:14px;font-weight:600;font-family:inherit;transition:.15s;}
+.btn-primary{background:var(--accent);color:#000;}
+.btn-primary:hover{background:var(--accent2);}
+.btn-secondary{background:var(--surface);color:var(--text-muted);border:1px solid var(--border);}
+.btn-secondary:hover{color:var(--text);border-color:var(--accent);}
+.preset-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;}
+.chip{background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);padding:5px 12px;border-radius:16px;font-size:12px;font-family:'DM Mono',monospace;cursor:pointer;}
+.chip:hover{border-color:var(--accent);color:var(--accent);}
+.loading{display:flex;align-items:center;gap:10px;color:var(--text-muted);font-size:14px;margin-bottom:16px;}
+.spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.error-msg{color:var(--red);background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);border-radius:8px;padding:12px 16px;font-size:13px;margin-bottom:16px;}
+.hidden{display:none;}
+.results-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
+.results-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.results-title{font-size:14px;font-weight:700;color:var(--text-muted);}
+.record-count{font-size:12px;color:var(--text-dim);background:var(--surface2);padding:3px 8px;border-radius:4px;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{text-align:left;padding:8px 12px;color:var(--text-dim);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);}
+td{padding:10px 12px;border-bottom:1px solid rgba(37,37,37,.5);vertical-align:top;word-break:break-all;}
+td:first-child{font-family:'DM Mono',monospace;font-size:12px;color:var(--text-muted);}
+td:last-child{font-family:'DM Mono',monospace;font-size:12px;color:var(--text);}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,.02);}
+.type-tag{display:inline-block;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:700;font-family:'DM Mono',monospace;}
+.tag-A{background:rgba(74,222,128,.12);color:var(--green);}
+.tag-AAAA{background:rgba(96,165,250,.12);color:var(--blue);}
+.tag-MX{background:rgba(251,191,36,.12);color:var(--accent);}
+.tag-NS{background:rgba(192,132,252,.12);color:var(--purple);}
+.tag-TXT{background:rgba(248,113,113,.12);color:var(--red);}
+.tag-CNAME{background:rgba(74,222,128,.12);color:var(--green);}
+.tag-SOA{background:rgba(96,165,250,.12);color:var(--blue);}
+.tag-PTR{background:rgba(192,132,252,.12);color:var(--purple);}
+.no-results{text-align:center;padding:32px;color:var(--text-dim);font-size:13px;}
+.ttl-cell{color:var(--text-dim);font-family:'DM Mono',monospace;font-size:12px;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+</head>
+<body>
+<div class="top-nav">
+  <a href="index.html" class="back-link" data-i18n="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="toggleLang()" data-i18n="langBtn">🌐 EN</button>
+</div>
+<h1 data-i18n="h1">DNS <span>조회</span></h1>
+<p class="sub" data-i18n="sub">도메인 DNS 레코드 조회 (A/MX/NS/TXT/CNAME)</p>
+
+<div class="input-row">
+  <input type="text" id="domainInput" placeholder="예: google.com" autocomplete="off" spellcheck="false">
+  <select id="typeSelect">
+    <option value="ALL">ALL</option>
+    <option value="A">A</option>
+    <option value="AAAA">AAAA</option>
+    <option value="CNAME">CNAME</option>
+    <option value="MX">MX</option>
+    <option value="NS">NS</option>
+    <option value="TXT">TXT</option>
+    <option value="SOA">SOA</option>
+    <option value="PTR">PTR</option>
+  </select>
+  <button class="btn btn-primary" onclick="doLookup()" data-i18n="btnLookup">조회</button>
+  <button class="btn btn-secondary" onclick="useMyDomain()" data-i18n="btnMyDomain">내 도메인</button>
+</div>
+
+<div class="preset-chips">
+  <span class="chip" onclick="setPreset('google.com')">google.com</span>
+  <span class="chip" onclick="setPreset('cloudflare.com')">cloudflare.com</span>
+  <span class="chip" onclick="setPreset('github.com')">github.com</span>
+</div>
+
+<div id="loadingDiv" class="loading hidden">
+  <div class="spinner"></div>
+  <span data-i18n="loading">조회 중...</span>
+</div>
+<div id="errorDiv" class="error-msg hidden"></div>
+
+<div id="resultsCard" class="results-card hidden">
+  <div class="results-header">
+    <span class="results-title" id="resultsTitle">DNS Records</span>
+    <span class="record-count" id="recordCount"></span>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th data-i18n="labelName">Name</th>
+        <th data-i18n="labelType2">Type</th>
+        <th data-i18n="labelTtl">TTL</th>
+        <th data-i18n="labelValue">Value</th>
+      </tr>
+    </thead>
+    <tbody id="resultsBody"></tbody>
+  </table>
+  <div id="noResultsDiv" class="no-results hidden" data-i18n="noResults">레코드가 없습니다.</div>
+</div>
+
+<div class="seo"><div id="seoArea"></div></div>
+
+<script>
+const typeMap = {1:'A',28:'AAAA',5:'CNAME',15:'MX',2:'NS',16:'TXT',6:'SOA',12:'PTR',33:'SRV',255:'ANY'};
+
+async function dnsLookup(domain, type) {
+  const types = type === 'ALL' ? ['A','AAAA','MX','NS','TXT','CNAME'] : [type];
+  const results = [];
+  for (const t of types) {
+    try {
+      const r = await fetch(`https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(domain)}&type=${t}`, {
+        headers: {'Accept': 'application/dns-json'}
+      });
+      if (!r.ok) continue;
+      const data = await r.json();
+      if (data.Answer) {
+        data.Answer.forEach(rec => results.push({
+          name: rec.name,
+          type: typeMap[rec.type] || String(rec.type),
+          ttl: rec.TTL,
+          data: rec.data
+        }));
+      }
+    } catch(e) { /* skip individual type errors */ }
+  }
+  return results;
+}
+
+function normalizeDomain(raw) {
+  return raw.trim().replace(/^https?:\/\//i,'').replace(/\/.*$/,'').toLowerCase();
+}
+
+function showLoading(show) {
+  document.getElementById('loadingDiv').classList.toggle('hidden', !show);
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorDiv');
+  el.textContent = msg;
+  el.classList.remove('hidden');
+  document.getElementById('resultsCard').classList.add('hidden');
+}
+
+function hideError() {
+  document.getElementById('errorDiv').classList.add('hidden');
+}
+
+function renderResults(records, domain, type) {
+  const t = _i18n[currentLang] || _i18n.ko;
+  document.getElementById('resultsTitle').textContent = `${domain} — ${type}`;
+  document.getElementById('recordCount').textContent = `${records.length} ${t.recordsUnit || 'records'}`;
+  const tbody = document.getElementById('resultsBody');
+  const noDiv = document.getElementById('noResultsDiv');
+  if (records.length === 0) {
+    tbody.innerHTML = '';
+    noDiv.classList.remove('hidden');
+  } else {
+    noDiv.classList.add('hidden');
+    tbody.innerHTML = records.map(rec => {
+      const tagClass = `tag-${rec.type}`;
+      return `<tr>
+        <td>${rec.name}</td>
+        <td><span class="type-tag ${tagClass}">${rec.type}</span></td>
+        <td class="ttl-cell">${rec.ttl}</td>
+        <td>${escHtml(rec.data)}</td>
+      </tr>`;
+    }).join('');
+  }
+  document.getElementById('resultsCard').classList.remove('hidden');
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+async function doLookup() {
+  const raw = document.getElementById('domainInput').value;
+  if (!raw.trim()) return;
+  const domain = normalizeDomain(raw);
+  const type = document.getElementById('typeSelect').value;
+  hideError();
+  showLoading(true);
+  document.getElementById('resultsCard').classList.add('hidden');
+  try {
+    const records = await dnsLookup(domain, type);
+    showLoading(false);
+    renderResults(records, domain, type);
+  } catch(e) {
+    showLoading(false);
+    const t = _i18n[currentLang] || _i18n.ko;
+    showError(t.errNetwork);
+  }
+}
+
+function setPreset(domain) {
+  document.getElementById('domainInput').value = domain;
+  doLookup();
+}
+
+function useMyDomain() {
+  const host = location.hostname;
+  if (host && host !== 'localhost' && host !== '127.0.0.1') {
+    document.getElementById('domainInput').value = host;
+    doLookup();
+  } else {
+    const t = _i18n[currentLang] || _i18n.ko;
+    showError(t.errMyDomain || 'Could not detect domain from current URL.');
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.target === document.getElementById('domainInput') && e.key === 'Enter') doLookup();
+});
+
+const _i18n = {
+  ko: {
+    pageTitle: 'DNS 조회 — 모두의 툴',
+    h1: 'DNS <span>조회</span>',
+    sub: '도메인 DNS 레코드 조회 (A/MX/NS/TXT/CNAME)',
+    backLink: '← 모두의 툴', langBtn: '🌐 EN',
+    btnLookup: '조회', btnMyDomain: '내 도메인',
+    labelName: 'Name', labelType2: 'Type', labelTtl: 'TTL', labelValue: 'Value',
+    loading: '조회 중...', noResults: '해당 레코드가 없습니다.',
+    recordsUnit: '개 레코드',
+    errNetwork: '조회에 실패했습니다. 도메인을 확인하고 다시 시도하세요.',
+    errMyDomain: '현재 URL에서 도메인을 감지할 수 없습니다.',
+    seoHtml:`<h2>DNS란 무엇인가요?</h2><p><strong>DNS(Domain Name System)</strong>는 도메인 이름을 IP 주소로 변환해주는 인터넷의 핵심 인프라입니다. 사람이 기억하기 쉬운 도메인명(예: google.com)을 서버가 인식하는 숫자 IP 주소(예: 142.250.196.14)로 매핑합니다. 이 도구는 Cloudflare DNS over HTTPS API를 사용하여 빠르고 정확하게 DNS 레코드를 조회합니다. A, AAAA, MX, NS, TXT, CNAME, SOA, PTR 레코드를 한 번에 확인할 수 있어 도메인 설정 검증, 이메일 서버 확인, DNS 전파 확인 등에 활용됩니다.</p><h2 class="seo-sub">자주 묻는 질문</h2><details class="faq-item"><summary>Q. DNS란 무엇인가요?</summary><p>A. DNS(Domain Name System)는 도메인 이름을 IP 주소로 변환하는 인터넷 전화번호부입니다. google.com을 입력하면 DNS 서버가 해당 도메인의 IP 주소를 알려주어 실제 서버에 연결됩니다.</p></details><details class="faq-item"><summary>Q. A 레코드란 무엇인가요?</summary><p>A. A 레코드는 도메인 이름을 IPv4 주소(예: 93.184.216.34)에 매핑하는 가장 기본적인 DNS 레코드입니다. 웹사이트 접속 시 브라우저가 가장 먼저 조회하는 레코드입니다.</p></details><details class="faq-item"><summary>Q. MX 레코드는 이메일과 어떤 관련이 있나요?</summary><p>A. MX(Mail Exchange) 레코드는 도메인으로 오는 이메일을 어느 메일 서버로 전달할지 지정합니다. 이메일 수신이 되지 않을 때 MX 레코드를 확인하세요. 우선순위(Priority) 숫자가 낮을수록 먼저 시도됩니다.</p></details><details class="faq-item"><summary>Q. CNAME과 A 레코드의 차이는?</summary><p>A. A 레코드는 도메인을 직접 IP에 연결하고, CNAME(Canonical Name)은 도메인을 다른 도메인에 별칭으로 연결합니다. 예를 들어 www.example.com을 example.com의 CNAME으로 설정하면 www 트래픽이 루트 도메인으로 전달됩니다.</p></details><details class="faq-item"><summary>Q. TTL은 무슨 의미인가요?</summary><p>A. TTL(Time To Live)은 DNS 레코드가 캐시에 저장되는 시간(초)입니다. TTL이 3600이면 1시간 동안 DNS 서버가 레코드를 캐시합니다. DNS 레코드 변경 전 TTL을 낮추면 전파 속도를 빠르게 할 수 있습니다.</p></details><details class="faq-item"><summary>Q. NS 레코드란 무엇인가요?</summary><p>A. NS(Name Server) 레코드는 도메인의 권한 있는 DNS 서버를 지정합니다. 도메인 등록기관에서 설정하며, DNS 레코드 관리를 어느 서버에서 할지 결정합니다.</p></details><details class="faq-item"><summary>Q. TXT 레코드는 SPF/DKIM과 어떤 관련인가요?</summary><p>A. TXT 레코드는 텍스트 정보를 저장하는 범용 레코드입니다. SPF(발신 서버 허가), DKIM(이메일 서명), DMARC(이메일 인증 정책) 같은 이메일 보안 설정이 TXT 레코드로 저장됩니다. 도메인 소유권 인증에도 사용됩니다.</p></details><details class="faq-item"><summary>Q. DNS 전파 시간은 얼마나 걸리나요?</summary><p>A. DNS 변경 후 전 세계에 전파되는 데 보통 1~48시간이 걸립니다. TTL 값에 따라 다르며, TTL을 300초(5분)로 설정하면 최대 5분 내 전파됩니다. 전파 확인은 여러 DNS 서버에서 조회해야 합니다.</p></details>`
+  },
+  en: {
+    pageTitle: 'DNS Lookup — Modoo Tool',
+    h1: 'DNS <span>Lookup</span>',
+    sub: 'Query A, AAAA, MX, NS, TXT, CNAME, SOA, PTR DNS records',
+    backLink: '← All Tools', langBtn: '🌐 中文',
+    btnLookup: 'Lookup', btnMyDomain: 'My Domain',
+    labelName: 'Name', labelType2: 'Type', labelTtl: 'TTL', labelValue: 'Value',
+    loading: 'Looking up...', noResults: 'No records found.',
+    recordsUnit: 'records',
+    errNetwork: 'Lookup failed. Please check the domain and try again.',
+    errMyDomain: 'Could not detect domain from current URL.',
+    seoHtml:`<h2>What is DNS Lookup?</h2><p><strong>DNS (Domain Name System) Lookup</strong> queries the DNS records for any domain, revealing how it's configured. This tool uses Cloudflare's DNS over HTTPS API to retrieve A, AAAA, MX, NS, TXT, CNAME, SOA, and PTR records instantly. Use it to verify DNS configuration, troubleshoot email delivery, confirm DNS propagation, and inspect domain settings without installing any software.</p><h2 class="seo-sub">FAQ</h2><details class="faq-item"><summary>Q. What is DNS?</summary><p>A. DNS (Domain Name System) is the internet&apos;s phone book — it translates human-readable domain names like google.com into machine-readable IP addresses, allowing browsers and servers to find each other on the internet.</p></details><details class="faq-item"><summary>Q. What is an A record?</summary><p>A. An A record maps a domain name to an IPv4 address (e.g., 93.184.216.34). It&apos;s the most fundamental DNS record type, telling browsers which server to connect to when visiting a website.</p></details><details class="faq-item"><summary>Q. How does MX record relate to email?</summary><p>A. MX (Mail Exchange) records specify which mail servers handle email for a domain. When someone sends email to user@example.com, the sending server looks up the MX records to find the right mail server. Lower priority numbers are tried first.</p></details><details class="faq-item"><summary>Q. What is the difference between CNAME and A record?</summary><p>A. An A record directly maps a domain to an IP address. A CNAME (Canonical Name) creates an alias — it maps one domain name to another domain name. For example, www.example.com can be a CNAME pointing to example.com.</p></details><details class="faq-item"><summary>Q. What does TTL mean?</summary><p>A. TTL (Time To Live) is the number of seconds a DNS record is cached. A TTL of 3600 means resolvers cache the record for 1 hour. Lowering TTL before making DNS changes helps propagate updates faster.</p></details><details class="faq-item"><summary>Q. What is an NS record?</summary><p>A. NS (Name Server) records specify the authoritative DNS servers for a domain. They tell the internet which servers have the official DNS records for that domain, set at your domain registrar.</p></details><details class="faq-item"><summary>Q. How do TXT records relate to SPF and DKIM?</summary><p>A. TXT records store arbitrary text data. SPF (sender policy), DKIM (email signing keys), and DMARC (email authentication policy) are all stored as TXT records. They&apos;re also used for domain ownership verification by Google, AWS, etc.</p></details><details class="faq-item"><summary>Q. How long does DNS propagation take?</summary><p>A. DNS changes typically propagate worldwide within 1–48 hours, depending on TTL values. Setting a low TTL (e.g., 300 seconds) before changes speeds up propagation. Use multiple DNS checkers to verify global propagation.</p></details>`
+  },
+  zh: {
+    pageTitle: 'DNS查询 — 模都工具',
+    h1: 'DNS <span>查询</span>',
+    sub: '查询域名DNS记录 (A/MX/NS/TXT/CNAME)',
+    backLink: '← 首页', langBtn: '🌐 日本語',
+    btnLookup: '查询', btnMyDomain: '我的域名',
+    labelName: '名称', labelType2: '类型', labelTtl: 'TTL', labelValue: '值',
+    loading: '查询中...', noResults: '未找到记录。',
+    recordsUnit: '条记录',
+    errNetwork: '查询失败，请检查域名后重试。',
+    errMyDomain: '无法从当前URL检测域名。',
+    seoHtml:`<h2>什么是DNS查询？</h2><p><strong>DNS（域名系统）查询</strong>可以检索任何域名的DNS记录，揭示其配置方式。本工具使用Cloudflare DNS over HTTPS API，即时获取A、AAAA、MX、NS、TXT、CNAME、SOA和PTR记录。可用于验证DNS配置、排查邮件投递问题、确认DNS传播状态，无需安装任何软件。</p><h2 class="seo-sub">常见问题</h2><details class="faq-item"><summary>Q. 什么是DNS？</summary><p>A. DNS（域名系统）是互联网的电话簿，将人类可读的域名（如google.com）转换为机器可读的IP地址，使浏览器和服务器能够在互联网上相互找到。</p></details><details class="faq-item"><summary>Q. 什么是A记录？</summary><p>A. A记录将域名映射到IPv4地址（如93.184.216.34），是最基本的DNS记录类型，告诉浏览器访问网站时应连接哪台服务器。</p></details><details class="faq-item"><summary>Q. MX记录与电子邮件有什么关系？</summary><p>A. MX（邮件交换）记录指定处理域名邮件的邮件服务器。发件服务器通过查询MX记录找到正确的邮件服务器。优先级数字越小越先尝试。</p></details><details class="faq-item"><summary>Q. CNAME和A记录有什么区别？</summary><p>A. A记录直接将域名映射到IP地址；CNAME（规范名称）创建别名，将一个域名映射到另一个域名。例如www.example.com可以是指向example.com的CNAME。</p></details><details class="faq-item"><summary>Q. TTL是什么意思？</summary><p>A. TTL（生存时间）是DNS记录被缓存的秒数。TTL为3600表示解析器缓存该记录1小时。在更改DNS之前降低TTL可加快更新传播速度。</p></details><details class="faq-item"><summary>Q. NS记录是什么？</summary><p>A. NS（名称服务器）记录指定域名的权威DNS服务器，告知互联网哪些服务器保存该域名的官方DNS记录，在域名注册商处设置。</p></details><details class="faq-item"><summary>Q. TXT记录与SPF和DKIM有什么关系？</summary><p>A. TXT记录存储任意文本数据。SPF（发件策略）、DKIM（邮件签名密钥）和DMARC（邮件认证策略）均以TXT记录形式存储，也用于Google、AWS等的域名所有权验证。</p></details><details class="faq-item"><summary>Q. DNS传播需要多长时间？</summary><p>A. DNS更改通常在1至48小时内在全球传播，具体取决于TTL值。在更改前将TTL设置为较低值（如300秒）可加快传播。建议使用多个DNS检查工具验证全球传播情况。</p></details>`
+  },
+  ja: {
+    pageTitle: 'DNS照会 — モドゥツール',
+    h1: 'DNS <span>照会</span>',
+    sub: 'ドメインのDNSレコードを照会 (A/MX/NS/TXT/CNAME)',
+    backLink: '← ホーム', langBtn: '🌐 한국어',
+    btnLookup: '照会', btnMyDomain: '自分のドメイン',
+    labelName: '名前', labelType2: 'タイプ', labelTtl: 'TTL', labelValue: '値',
+    loading: '照会中...', noResults: 'レコードが見つかりません。',
+    recordsUnit: '件のレコード',
+    errNetwork: '照会に失敗しました。ドメインを確認して再試行してください。',
+    errMyDomain: '現在のURLからドメインを検出できません。',
+    seoHtml:`<h2>DNS照会とは？</h2><p><strong>DNS（ドメインネームシステム）照会</strong>は、任意のドメインのDNSレコードを取得し、その設定を確認するツールです。CloudflareのDNS over HTTPS APIを使用して、A、AAAA、MX、NS、TXT、CNAME、SOA、PTRレコードを即座に取得します。DNS設定の検証、メール配信トラブルシューティング、DNS伝播の確認など、ソフトウェアのインストールなしで利用できます。</p><h2 class="seo-sub">よくある質問</h2><details class="faq-item"><summary>Q. DNSとは何ですか？</summary><p>A. DNS（ドメインネームシステム）はインターネットの電話帳で、人間が読めるドメイン名（例：google.com）をマシンが読めるIPアドレスに変換し、ブラウザとサーバーがインターネット上で互いを見つけられるようにします。</p></details><details class="faq-item"><summary>Q. Aレコードとは何ですか？</summary><p>A. Aレコードはドメイン名をIPv4アドレス（例：93.184.216.34）にマッピングする最も基本的なDNSレコードタイプです。ウェブサイト訪問時にブラウザが最初に照会するレコードです。</p></details><details class="faq-item"><summary>Q. MXレコードはメールとどう関係しますか？</summary><p>A. MX（メール交換）レコードはドメインのメールを処理するメールサーバーを指定します。送信サーバーはMXレコードを照会して正しいメールサーバーを見つけます。優先度の数字が小さいほど先に試されます。</p></details><details class="faq-item"><summary>Q. CNAMEとAレコードの違いは？</summary><p>A. AレコードはドメインをIPアドレスに直接マッピングし、CNAME（正規名）は一つのドメインを別のドメインへの別名としてマッピングします。例えば、www.example.comをexample.comのCNAMEに設定できます。</p></details><details class="faq-item"><summary>Q. TTLはどういう意味ですか？</summary><p>A. TTL（Time To Live）はDNSレコードがキャッシュされる秒数です。TTLが3600なら1時間キャッシュされます。DNS変更前にTTLを下げると更新の伝播が速くなります。</p></details><details class="faq-item"><summary>Q. NSレコードとは何ですか？</summary><p>A. NS（ネームサーバー）レコードはドメインの権威DNSサーバーを指定します。ドメインレジストラで設定し、どのサーバーがそのドメインの公式DNSレコードを保持するかをインターネットに伝えます。</p></details><details class="faq-item"><summary>Q. TXTレコードはSPF/DKIMとどう関係しますか？</summary><p>A. TXTレコードは任意のテキストデータを格納します。SPF（送信ポリシー）、DKIM（メール署名キー）、DMARC（メール認証ポリシー）はすべてTXTレコードとして保存されます。Googleなどのドメイン所有権確認にも使用されます。</p></details><details class="faq-item"><summary>Q. DNS伝播にはどれくらい時間がかかりますか？</summary><p>A. DNS変更は通常1〜48時間で世界中に伝播します。TTL値に依存し、TTLを低く（例：300秒）設定すると伝播が速くなります。複数のDNSチェッカーで全世界への伝播を確認することをお勧めします。</p></details>`
+  }
+};
+
+let currentLang = detectLang();
+function detectLang(){
+  const p=new URLSearchParams(location.search).get('lang');
+  if(p&&_i18n[p])return p;
+  const s=localStorage.getItem('modoo_lang');
+  if(s&&_i18n[s])return s;
+  const n=navigator.language||'';
+  if(n.startsWith('zh'))return 'zh';
+  if(n.startsWith('ja'))return 'ja';
+  if(n.startsWith('ko'))return 'ko';
+  return 'en';
+}
+function applyLang(l){
+  const t=_i18n[l]||_i18n.ko;
+  document.documentElement.lang=l;
+  document.title=t.pageTitle;
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const v=t[el.dataset.i18n];
+    if(v!==undefined)el.innerHTML=v;
+  });
+  const inp=document.getElementById('domainInput');
+  if(inp)inp.placeholder=l==='ko'?'예: google.com':'e.g. google.com';
+  document.getElementById('seoArea').innerHTML=t.seoHtml;
+}
+function toggleLang(){
+  const order=['ko','en','zh','ja'];
+  const next=order[(order.indexOf(currentLang)+1)%order.length];
+  currentLang=next;
+  localStorage.setItem('modoo_lang',next);
+  const url=new URL(location.href);
+  url.searchParams.set('lang',next);
+  history.replaceState(null,'',url);
+  applyLang(next);
+}
+document.addEventListener('DOMContentLoaded',()=>applyLang(currentLang));
+</script>
+<script src="related.js"></script>
+</body>
+</html>

@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meta 태그 분석기 - SEO 점수 & 누락 태그 검사 | MODOO HUB</title>
+<meta name="description" content="웹페이지 메타 태그를 분석하고 SEO 점수를 확인하세요. OG 태그, Twitter Card, canonical, viewport 등 누락된 태그를 검사합니다.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/meta-tag-analyzer.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/meta-tag-analyzer.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/meta-tag-analyzer.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/meta-tag-analyzer.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/meta-tag-analyzer.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/meta-tag-analyzer.html">
+<meta property="og:title" content="Meta 태그 분석기 - SEO 점수 & 누락 태그 검사">
+<meta property="og:description" content="웹페이지 메타 태그를 분석하고 SEO 점수를 확인하세요.">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<meta property="og:url" content="https://modoohub.com/meta-tag-analyzer.html">
+<meta property="og:type" content="website">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;font-family:'DM Mono',monospace;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;font-family:'DM Mono',monospace;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:860px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;line-height:1.6;}
+.tabs{display:flex;gap:0;margin-bottom:16px;border:1px solid var(--border);border-radius:8px;overflow:hidden;width:fit-content;}
+.tab-btn{padding:8px 20px;font-size:12px;font-family:'DM Mono',monospace;cursor:pointer;background:none;border:none;color:var(--text-dim);transition:all .15s;}
+.tab-btn.active{background:var(--accent);color:#000;font-weight:700;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+.input-row{display:flex;gap:8px;margin-bottom:10px;}
+.url-input,.html-ta{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-size:13px;font-family:'DM Mono',monospace;outline:none;transition:border-color .15s;}
+.url-input:focus,.html-ta:focus{border-color:var(--accent);}
+.url-input{flex:1;}
+.html-ta{width:100%;resize:vertical;min-height:160px;line-height:1.6;}
+.btn{padding:8px 16px;border:1px solid var(--border);border-radius:7px;font-size:13px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;background:none;color:var(--text-muted);transition:all .15s;}
+.btn:hover{border-color:var(--accent);color:var(--accent);}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;}
+.btn.primary:hover{opacity:.85;}
+.cors-warn{font-size:11px;color:var(--accent);font-family:'DM Mono',monospace;margin-top:6px;padding:8px 12px;background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.2);border-radius:6px;}
+.results{margin-top:24px;display:none;}
+.score-section{display:flex;align-items:center;gap:24px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
+.score-ring{position:relative;width:80px;height:80px;flex-shrink:0;}
+.score-ring svg{transform:rotate(-90deg);}
+.score-ring-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;}
+.score-num{font-size:22px;font-weight:900;font-family:'DM Mono',monospace;}
+.score-num.green{color:var(--green);}
+.score-num.yellow{color:var(--accent);}
+.score-num.red{color:var(--red);}
+.score-label{font-size:9px;color:var(--text-dim);font-family:'DM Mono',monospace;}
+.score-breakdown{flex:1;}
+.score-title{font-size:14px;font-weight:700;margin-bottom:12px;}
+.check-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+@media(max-width:500px){.check-grid{grid-template-columns:1fr;}}
+.check-item{display:flex;align-items:center;gap:8px;font-size:12px;font-family:'DM Mono',monospace;}
+.check-icon{font-size:14px;flex-shrink:0;}
+.check-icon.pass{color:var(--green);}
+.check-icon.fail{color:var(--red);}
+.check-icon.warn{color:var(--accent);}
+.tags-section{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:16px;}
+.section-title{font-size:11px;color:var(--text-dim);letter-spacing:.07em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:12px;}
+.tag-group{margin-bottom:14px;}
+.tag-group-title{font-size:12px;font-weight:700;color:var(--text-muted);margin-bottom:6px;font-family:'DM Mono',monospace;}
+.tag-row{display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px;font-family:'DM Mono',monospace;align-items:flex-start;}
+.tag-row:last-child{border-bottom:none;}
+.tag-name{color:var(--accent);min-width:140px;flex-shrink:0;font-size:11px;}
+.tag-value{color:var(--text-muted);word-break:break-all;line-height:1.5;}
+.tag-value.missing{color:var(--text-dim);font-style:italic;}
+.tag-len{font-size:10px;color:var(--text-dim);margin-left:auto;flex-shrink:0;}
+.tag-len.warn{color:var(--accent);}
+.warnings-section{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:16px;}
+.warn-item{display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px;font-family:'DM Mono',monospace;}
+.warn-item:last-child{border-bottom:none;}
+.warn-dot{color:var(--red);flex-shrink:0;}
+.rec-item{display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px;font-family:'DM Mono',monospace;}
+.rec-item:last-child{border-bottom:none;}
+.rec-dot{color:var(--blue);flex-shrink:0;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:32px;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebApplication",
+  "name":"Meta Tag Analyzer",
+  "url":"https://modoohub.com/meta-tag-analyzer.html",
+  "applicationCategory":"UtilitiesApplication",
+  "operatingSystem":"Any",
+  "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},
+  "description":"Analyze webpage meta tags for SEO quality. Check title, description, Open Graph, Twitter Card, canonical, viewport tags and get an SEO score."
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"FAQPage",
+  "mainEntity":[
+    {"@type":"Question","name":"Meta 태그 분석이란 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"Meta 태그 분석은 웹페이지의 HTML에서 title, description, OG, Twitter Card 등의 메타 태그를 추출하고 SEO 관점에서 최적화 수준을 평가하는 과정입니다."}},
+    {"@type":"Question","name":"SEO에서 가장 중요한 메타 태그는?","acceptedAnswer":{"@type":"Answer","text":"title 태그와 meta description이 가장 중요합니다. 그 다음으로 canonical, og:image, viewport, charset 순서로 중요도가 높습니다."}},
+    {"@type":"Question","name":"title 태그 최적 길이는?","acceptedAnswer":{"@type":"Answer","text":"Google 검색 결과에서 표시되는 title은 일반적으로 50-60자 이내입니다. 60자를 초과하면 잘려서 표시될 수 있습니다."}},
+    {"@type":"Question","name":"meta description 최적 길이는?","acceptedAnswer":{"@type":"Answer","text":"meta description의 권장 길이는 120-160자입니다. 160자를 초과하면 검색 결과에서 잘려 표시됩니다."}}
+  ]
+}
+</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>Meta Tag <span id="h1Span">분석기</span></h1>
+  <p class="sub" id="subEl">웹페이지 메타 태그 분석·SEO 점수·누락 태그 검사</p>
+
+  <div class="tabs">
+    <button class="tab-btn active" id="tabUrlBtn" onclick="switchTab('url')">URL 입력</button>
+    <button class="tab-btn" id="tabHtmlBtn" onclick="switchTab('html')">HTML 붙여넣기</button>
+  </div>
+
+  <div class="tab-panel active" id="tabUrl">
+    <div class="input-row">
+      <input type="text" class="url-input" id="urlInput" placeholder="https://example.com">
+      <button class="btn primary" id="btnAnalyzeUrl" onclick="analyzeFromUrl()">Analyze</button>
+    </div>
+    <div class="cors-warn" id="corsWarn"></div>
+  </div>
+
+  <div class="tab-panel" id="tabHtml">
+    <textarea class="html-ta" id="htmlInput" placeholder="<!DOCTYPE html><html>..."></textarea>
+    <div style="margin-top:8px;">
+      <button class="btn primary" id="btnAnalyzeHtml" onclick="analyzeFromHtml()">Analyze</button>
+    </div>
+  </div>
+
+  <div class="results" id="results">
+    <!-- Score -->
+    <div class="score-section">
+      <div class="score-ring">
+        <svg width="80" height="80" viewBox="0 0 80 80">
+          <circle cx="40" cy="40" r="32" fill="none" stroke="var(--border)" stroke-width="8"/>
+          <circle cx="40" cy="40" r="32" fill="none" id="scoreArc" stroke-width="8" stroke-linecap="round" stroke-dasharray="201" stroke-dashoffset="201"/>
+        </svg>
+        <div class="score-ring-text">
+          <div class="score-num" id="scoreNum">0</div>
+          <div class="score-label">/ 100</div>
+        </div>
+      </div>
+      <div class="score-breakdown">
+        <div class="score-title" id="labelScore">SEO Score</div>
+        <div class="check-grid" id="checkGrid"></div>
+      </div>
+    </div>
+
+    <!-- Tags Found -->
+    <div class="tags-section">
+      <div class="section-title" id="labelBasic">Basic SEO Tags</div>
+      <div id="basicTags"></div>
+      <div class="tag-group-title" id="ogLabel" style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);">Open Graph</div>
+      <div id="ogTags"></div>
+      <div class="tag-group-title" id="twLabel" style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);">Twitter Card</div>
+      <div id="twTags"></div>
+      <div class="tag-group-title" id="otherLabel" style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);">Other</div>
+      <div id="otherTags"></div>
+    </div>
+
+    <!-- Warnings & Recommendations -->
+    <div class="warnings-section" id="warningsSection">
+      <div class="section-title" id="labelWarnings">Warnings</div>
+      <div id="warningsOut"></div>
+      <div class="section-title" style="margin-top:14px;" id="labelRec">Recommendations</div>
+      <div id="recsOut"></div>
+    </div>
+  </div>
+
+  <div class="seo" id="seoDiv"></div>
+  <footer>Meta Tag Analyzer · Free Online Tool · modoohub.com</footer>
+</main>
+<script>
+const _i18n={
+  ko:{
+    pageTitle:'Meta 태그 분석기 - SEO 점수 & 누락 태그 검사 | MODOO HUB',
+    h1Span:'분석기',
+    sub:'웹페이지 메타 태그 분석·SEO 점수·누락 태그 검사',
+    backLink:'← 모두의 툴',langBtn:'🌐 EN',
+    tabUrl:'URL 입력',tabHtml:'HTML 붙여넣기',
+    btnAnalyze:'분석하기',
+    placeholderUrl:'https://example.com',
+    placeholderHtml:'<!DOCTYPE html><html>...',
+    corsWarn:'⚠ CORS 정책으로 인해 대부분의 사이트에서 URL 직접 분석이 차단됩니다. HTML을 복사해 붙여넣기 탭을 사용하거나, CORS Anywhere 등 프록시를 이용하세요.',
+    labelScore:'SEO 점수',
+    labelChecks:'항목 체크',
+    labelBasic:'기본 SEO 태그',
+    labelOg:'Open Graph',
+    labelTw:'Twitter Card',
+    labelOther:'기타',
+    labelWarnings:'경고',
+    labelRec:'권장 사항',
+    checks:{
+      title:'title 태그',titleLen:'title 길이 (≤60)',
+      desc:'meta description',descLen:'description 길이 (≤160)',
+      ogAll:'OG 태그 (3종)',twCard:'Twitter Card',
+      canonical:'canonical',viewport:'viewport',charset:'charset'
+    },
+    missing:'(없음)',
+    warningTitleLong:'title이 60자를 초과합니다.',
+    warningDescLong:'meta description이 160자를 초과합니다.',
+    warningNoTitle:'title 태그가 없습니다.',
+    warningNoDesc:'meta description이 없습니다.',
+    warningNoOg:'OG 태그(og:title, og:description, og:image)가 없습니다.',
+    warningNoCanonical:'canonical URL이 없습니다.',
+    warningNoViewport:'viewport 태그가 없습니다. 모바일 표시 오류의 원인이 됩니다.',
+    recAddDesc:'meta description을 추가하면 검색 결과 클릭률(CTR)이 향상됩니다.',
+    recAddOg:'OG 태그를 추가하면 SNS 공유 시 미리보기가 표시됩니다.',
+    recAddTw:'Twitter Card를 추가하면 트위터 공유 미리보기가 개선됩니다.',
+    recAddCanonical:'canonical 태그로 중복 콘텐츠 문제를 방지하세요.',
+    recTitleLen:'title을 50~60자 이내로 줄이세요.',
+    recDescLen:'description을 120~160자 이내로 줄이세요.',
+    fetchError:'URL에서 가져오기 실패. HTML 탭에서 직접 붙여넣기를 이용하세요.',
+    seoHtml:`<h2>Meta 태그 분석이란?</h2><p>Meta 태그 분석은 웹페이지 HTML에서 title, meta description, Open Graph, Twitter Card 등의 태그를 추출하여 <strong>SEO 최적화 수준을 점수로 평가</strong>하는 과정입니다. 누락된 태그, 길이 초과, OG 이미지 누락 등을 즉시 발견하고 개선할 수 있습니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>Meta 태그 분석이 SEO에 왜 중요한가요?</summary><p>title과 meta description은 Google 검색 결과 스니펫에 직접 표시됩니다. OG 태그가 없으면 SNS 공유 시 이미지가 나타나지 않고, viewport 태그 부재는 모바일 페이지 오작동의 원인이 됩니다.</p></details>
+<details class="faq-item"><summary>SEO에서 가장 중요한 메타 태그 순위는?</summary><p>① title ② meta description ③ canonical ④ og:image ⑤ viewport ⑥ charset 순서로 중요합니다. title과 description은 검색 클릭률에 직접 영향을 주므로 최우선으로 최적화하세요.</p></details>
+<details class="faq-item"><summary>title 태그 최적 길이는?</summary><p>Google 검색 결과에서 표시되는 title은 일반적으로 50~60자 이내입니다. 픽셀 폭 기준(600px)이므로 영문은 60자, 한글은 30자 내외가 적합합니다.</p></details>
+<details class="faq-item"><summary>meta description 최적 길이는?</summary><p>권장 길이는 120~160자입니다. 160자를 초과하면 "..." 처리되어 잘립니다. 핵심 키워드를 앞에 배치하고 클릭 유도 문구를 포함하세요.</p></details>
+<details class="faq-item"><summary>OG 이미지 권장 크기는?</summary><p>1200×630px(가로세로 비율 1.91:1)이 표준입니다. Facebook, LinkedIn, KakaoTalk 공유 미리보기에 최적화되어 있습니다. 최소 600×315px 이상을 사용하세요.</p></details>
+<details class="faq-item"><summary>Twitter Card와 OG 태그의 차이는?</summary><p>OG 태그는 Facebook이 만든 표준으로 대부분의 SNS에서 사용합니다. Twitter Card는 Twitter 전용 태그로 twitter:card, twitter:title, twitter:description, twitter:image를 사용합니다. 둘 다 설정하는 것을 권장합니다.</p></details>
+<details class="faq-item"><summary>canonical 태그의 중요성은?</summary><p>canonical 태그는 동일 콘텐츠의 여러 URL이 있을 때(예: www와 non-www, http와 https) 기준 URL을 검색 엔진에 알립니다. 누락 시 중복 콘텐츠 페널티를 받을 수 있습니다.</p></details>
+<details class="faq-item"><summary>robots 메타 태그 값의 의미는?</summary><p>index,follow(기본) / noindex,nofollow(크롤링+인덱싱 차단) / noindex,follow(인덱싱 차단, 링크 수집 허용) / index,nofollow(인덱싱 허용, 링크 차단)의 조합으로 사용합니다.</p></details>`
+  },
+  en:{
+    pageTitle:'Meta Tag Analyzer - SEO Score & Missing Tag Checker | MODOO HUB',
+    h1Span:'Analyzer',
+    sub:'Analyze webpage meta tags · SEO score · missing tag check',
+    backLink:'← All Tools',langBtn:'🌐 中文',
+    tabUrl:'URL Input',tabHtml:'Paste HTML',
+    btnAnalyze:'Analyze',
+    placeholderUrl:'https://example.com',
+    placeholderHtml:'<!DOCTYPE html><html>...',
+    corsWarn:'⚠ CORS policy blocks direct URL analysis for most sites. Copy the page HTML and use the Paste HTML tab instead.',
+    labelScore:'SEO Score',
+    labelChecks:'Checks',
+    labelBasic:'Basic SEO Tags',
+    labelOg:'Open Graph',
+    labelTw:'Twitter Card',
+    labelOther:'Other',
+    labelWarnings:'Warnings',
+    labelRec:'Recommendations',
+    checks:{
+      title:'title tag',titleLen:'title length (≤60)',
+      desc:'meta description',descLen:'description length (≤160)',
+      ogAll:'OG tags (3)',twCard:'Twitter Card',
+      canonical:'canonical',viewport:'viewport',charset:'charset'
+    },
+    missing:'(missing)',
+    warningTitleLong:'Title exceeds 60 characters.',
+    warningDescLong:'Meta description exceeds 160 characters.',
+    warningNoTitle:'No title tag found.',
+    warningNoDesc:'No meta description found.',
+    warningNoOg:'Missing OG tags (og:title, og:description, og:image).',
+    warningNoCanonical:'No canonical URL found.',
+    warningNoViewport:'No viewport tag. This causes mobile display issues.',
+    recAddDesc:'Add a meta description to improve click-through rates (CTR).',
+    recAddOg:'Add OG tags for social media sharing previews.',
+    recAddTw:'Add Twitter Card tags for better Twitter share previews.',
+    recAddCanonical:'Add a canonical tag to prevent duplicate content issues.',
+    recTitleLen:'Shorten title to 50-60 characters.',
+    recDescLen:'Shorten description to 120-160 characters.',
+    fetchError:'Failed to fetch URL. Use the Paste HTML tab instead.',
+    seoHtml:`<h2>What is Meta Tag Analysis?</h2><p>Meta tag analysis extracts title, meta description, Open Graph, Twitter Card and other tags from a webpage's HTML and <strong>scores SEO optimization quality</strong>. Instantly identify missing tags, oversized values, missing OG images, and more to improve your page's search and social presence.</p>
+<h2 class="seo-sub">Frequently Asked Questions</h2>
+<details class="faq-item"><summary>Why does meta tag analysis matter for SEO?</summary><p>Title and meta description appear directly in Google search snippets. Missing OG tags mean no preview image when shared on social media. A missing viewport tag causes mobile layout failures, all of which hurt rankings and CTR.</p></details>
+<details class="faq-item"><summary>Which meta tags are most important for SEO?</summary><p>Priority order: ① title ② meta description ③ canonical ④ og:image ⑤ viewport ⑥ charset. Title and description have the most direct impact on click-through rate, so optimize them first.</p></details>
+<details class="faq-item"><summary>What is the ideal title tag length?</summary><p>Google generally displays titles up to 600px wide, which is roughly 50-60 characters. Longer titles get truncated. Place primary keywords near the front of the title.</p></details>
+<details class="faq-item"><summary>What is the ideal meta description length?</summary><p>Recommended length is 120-160 characters. Descriptions over 160 characters get truncated with "...". Place key keywords early and include a clear call to action.</p></details>
+<details class="faq-item"><summary>What is the recommended OG image size?</summary><p>1200×630px (aspect ratio 1.91:1) is the standard. This is optimized for Facebook, LinkedIn, and KakaoTalk share previews. Use at least 600×315px minimum.</p></details>
+<details class="faq-item"><summary>What is the difference between Twitter Card and OG tags?</summary><p>OG tags are the Facebook-created standard used by most social platforms. Twitter Card tags (twitter:card, twitter:title, twitter:description, twitter:image) are Twitter-specific. Implement both for full coverage.</p></details>
+<details class="faq-item"><summary>Why is the canonical tag important?</summary><p>Canonical tags tell search engines which URL is the authoritative version when multiple URLs serve the same content (e.g., www vs non-www, HTTP vs HTTPS). Missing canonical can cause duplicate content penalties.</p></details>
+<details class="faq-item"><summary>What do robots meta tag values mean?</summary><p>Common values: index,follow (default) / noindex,nofollow (block crawling and indexing) / noindex,follow (block indexing, allow link crawling) / index,nofollow (allow indexing, block link following).</p></details>`
+  },
+  zh:{
+    pageTitle:'Meta标签分析器 - SEO评分 & 缺失标签检查 | MODOO HUB',
+    h1Span:'分析器',
+    sub:'分析网页Meta标签·SEO评分·缺失标签检查',
+    backLink:'← 所有工具',langBtn:'🌐 日本語',
+    tabUrl:'URL输入',tabHtml:'粘贴HTML',
+    btnAnalyze:'分析',
+    placeholderUrl:'https://example.com',
+    placeholderHtml:'<!DOCTYPE html><html>...',
+    corsWarn:'⚠ CORS策略会阻止大多数网站的直接URL分析。请复制页面HTML，使用"粘贴HTML"标签页。',
+    labelScore:'SEO评分',
+    labelChecks:'检查项目',
+    labelBasic:'基本SEO标签',
+    labelOg:'Open Graph',
+    labelTw:'Twitter Card',
+    labelOther:'其他',
+    labelWarnings:'警告',
+    labelRec:'建议',
+    checks:{
+      title:'title标签',titleLen:'title长度 (≤60)',
+      desc:'meta description',descLen:'description长度 (≤160)',
+      ogAll:'OG标签 (3项)',twCard:'Twitter Card',
+      canonical:'canonical',viewport:'viewport',charset:'charset'
+    },
+    missing:'（缺失）',
+    warningTitleLong:'title超过60个字符。',
+    warningDescLong:'meta description超过160个字符。',
+    warningNoTitle:'未找到title标签。',
+    warningNoDesc:'未找到meta description。',
+    warningNoOg:'缺少OG标签（og:title、og:description、og:image）。',
+    warningNoCanonical:'未找到canonical URL。',
+    warningNoViewport:'缺少viewport标签，会导致移动端显示异常。',
+    recAddDesc:'添加meta description可提升搜索点击率(CTR)。',
+    recAddOg:'添加OG标签以在社交媒体分享时显示预览图。',
+    recAddTw:'添加Twitter Card标签改善Twitter分享预览。',
+    recAddCanonical:'添加canonical标签防止重复内容问题。',
+    recTitleLen:'将title缩短至50-60个字符。',
+    recDescLen:'将description缩短至120-160个字符。',
+    fetchError:'URL获取失败，请使用"粘贴HTML"标签页。',
+    seoHtml:`<h2>什么是Meta标签分析？</h2><p>Meta标签分析从网页HTML中提取title、meta description、Open Graph、Twitter Card等标签，并<strong>对SEO优化质量进行评分</strong>。快速发现缺失标签、内容过长、OG图片缺失等问题，提升搜索和社交媒体表现。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>Meta标签分析对SEO为什么重要？</summary><p>title和meta description直接显示在Google搜索结果中。缺少OG标签意味着社交分享时无预览图，缺少viewport标签会导致移动端布局错误，这些都会影响排名和点击率。</p></details>
+<details class="faq-item"><summary>SEO中最重要的Meta标签顺序？</summary><p>重要性排序：①title ②meta description ③canonical ④og:image ⑤viewport ⑥charset。title和description对点击率影响最大，应优先优化。</p></details>
+<details class="faq-item"><summary>title标签的最佳长度是多少？</summary><p>Google通常显示最多600px宽度的title，约50-60个英文字符。超出部分会被截断。请将主要关键词放在title前面。</p></details>
+<details class="faq-item"><summary>meta description最佳长度是多少？</summary><p>建议长度为120-160个字符。超过160个字符会被截断显示"..."。将关键词放在前面，并加入明确的行动号召。</p></details>
+<details class="faq-item"><summary>OG图片推荐尺寸是多少？</summary><p>1200×630px（宽高比1.91:1）是标准尺寸，适用于Facebook、LinkedIn等平台分享预览。最小不低于600×315px。</p></details>
+<details class="faq-item"><summary>Twitter Card和OG标签有什么区别？</summary><p>OG标签是Facebook创建的标准，大多数社交平台支持。Twitter Card是Twitter专用标签（twitter:card、twitter:title等）。建议两者都设置。</p></details>
+<details class="faq-item"><summary>canonical标签为什么重要？</summary><p>当多个URL提供相同内容时（如www与非www、HTTP与HTTPS），canonical标签告知搜索引擎哪个是权威URL。缺少canonical可能导致重复内容惩罚。</p></details>
+<details class="faq-item"><summary>robots meta标签的值代表什么？</summary><p>常用值：index,follow（默认）/noindex,nofollow（禁止抓取和收录）/noindex,follow（禁止收录，允许跟踪链接）/index,nofollow（允许收录，禁止跟踪链接）。</p></details>`
+  },
+  ja:{
+    pageTitle:'Metaタグアナライザー - SEOスコア & 不足タグチェック | MODOO HUB',
+    h1Span:'アナライザー',
+    sub:'Webページのmetaタグ分析・SEOスコア・不足タグ検査',
+    backLink:'← ホーム',langBtn:'🌐 한국어',
+    tabUrl:'URL入力',tabHtml:'HTML貼り付け',
+    btnAnalyze:'分析',
+    placeholderUrl:'https://example.com',
+    placeholderHtml:'<!DOCTYPE html><html>...',
+    corsWarn:'⚠ CORSポリシーにより多くのサイトで直接URL分析がブロックされます。ページのHTMLをコピーして貼り付けタブをご利用ください。',
+    labelScore:'SEOスコア',
+    labelChecks:'チェック項目',
+    labelBasic:'基本SEOタグ',
+    labelOg:'Open Graph',
+    labelTw:'Twitter Card',
+    labelOther:'その他',
+    labelWarnings:'警告',
+    labelRec:'推奨事項',
+    checks:{
+      title:'titleタグ',titleLen:'title長さ (≤60)',
+      desc:'meta description',descLen:'description長さ (≤160)',
+      ogAll:'OGタグ (3種)',twCard:'Twitter Card',
+      canonical:'canonical',viewport:'viewport',charset:'charset'
+    },
+    missing:'（なし）',
+    warningTitleLong:'titleが60文字を超えています。',
+    warningDescLong:'meta descriptionが160文字を超えています。',
+    warningNoTitle:'titleタグが見つかりません。',
+    warningNoDesc:'meta descriptionが見つかりません。',
+    warningNoOg:'OGタグ（og:title、og:description、og:image）がありません。',
+    warningNoCanonical:'canonical URLが見つかりません。',
+    warningNoViewport:'viewportタグがありません。モバイル表示に問題が生じます。',
+    recAddDesc:'meta descriptionを追加して検索クリック率(CTR)を向上させましょう。',
+    recAddOg:'OGタグを追加してSNSシェア時のプレビューを有効にしましょう。',
+    recAddTw:'Twitter Cardタグを追加してTwitterシェアプレビューを改善しましょう。',
+    recAddCanonical:'canonicalタグで重複コンテンツの問題を防ぎましょう。',
+    recTitleLen:'titleを50〜60文字以内に短縮してください。',
+    recDescLen:'descriptionを120〜160文字以内に短縮してください。',
+    fetchError:'URL取得に失敗しました。HTML貼り付けタブをご利用ください。',
+    seoHtml:`<h2>Metaタグ分析とは</h2><p>MetaタグはWebページのHTMLからtitle・meta description・Open Graph・Twitter Cardなどを抽出し、<strong>SEO最適化レベルをスコアで評価</strong>します。不足タグ・長さ超過・OG画像の欠如などをすぐに発見して改善できます。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>MetaタグはなぜSEOに重要ですか？</summary><p>titleとmeta descriptionはGoogle検索結果のスニペットに直接表示されます。OGタグがないとSNSシェア時にプレビュー画像が表示されず、viewportタグの欠如はモバイルレイアウト崩れの原因となります。</p></details>
+<details class="faq-item"><summary>SEOで最も重要なMetaタグの順序は？</summary><p>重要度順：①title ②meta description ③canonical ④og:image ⑤viewport ⑥charset。titleとdescriptionはCTRに最も直接的な影響があるため最優先で最適化してください。</p></details>
+<details class="faq-item"><summary>titleタグの最適な長さは？</summary><p>Googleは通常600px幅（英字60文字程度）を表示します。超えると省略されます。主要キーワードをtitleの先頭に配置してください。</p></details>
+<details class="faq-item"><summary>meta descriptionの最適な長さは？</summary><p>推奨長は120〜160文字です。160文字を超えると「...」で省略されます。重要キーワードを前に配置し、明確なCTAを含めましょう。</p></details>
+<details class="faq-item"><summary>OG画像の推奨サイズは？</summary><p>1200×630px（アスペクト比1.91:1）が標準です。Facebook・LinkedIn等のシェアプレビューに最適化されています。最低でも600×315px以上にしてください。</p></details>
+<details class="faq-item"><summary>Twitter CardとOGタグの違いは？</summary><p>OGタグはFacebookが作成した標準で多くのSNSが採用しています。Twitter Cardはtwitter:card等のTwitter専用タグです。両方設定することを推奨します。</p></details>
+<details class="faq-item"><summary>canonicalタグの重要性は？</summary><p>同一コンテンツに複数URL（www・非www、HTTP・HTTPS等）が存在する場合、canonicalタグで正規URLを検索エンジンに伝えます。不在だと重複コンテンツのペナルティを受ける可能性があります。</p></details>
+<details class="faq-item"><summary>robots metaタグの値の意味は？</summary><p>index,follow（デフォルト）/ noindex,nofollow（クロール・インデックス禁止）/ noindex,follow（インデックス禁止・リンク収集許可）/ index,nofollow（インデックス許可・リンク禁止）の組み合わせで使用します。</p></details>`
+  }
+};
+
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko';
+let _activeTab='url';
+
+function detectLang(){
+  const u=new URLSearchParams(location.search).get('lang');
+  if(u&&_i18n[u])return u;
+  const s=localStorage.getItem('modoo_lang');
+  if(s&&_i18n[s])return s;
+  const n=navigator.language?.slice(0,2);
+  return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';
+}
+
+function cycleLang(){
+  const idx=LANGS.indexOf(_lang);
+  _lang=LANGS[(idx+1)%LANGS.length];
+  localStorage.setItem('modoo_lang',_lang);
+  const url=new URL(location.href);
+  url.searchParams.set('lang',_lang);
+  history.replaceState({},'',url);
+  applyLang();
+}
+
+function applyLang(){
+  const t=_i18n[_lang];
+  document.documentElement.lang=_lang;
+  document.title=t.pageTitle;
+  document.getElementById('h1Span').textContent=t.h1Span;
+  document.getElementById('subEl').textContent=t.sub;
+  document.getElementById('backLink').textContent=t.backLink;
+  document.getElementById('langBtn').textContent=t.langBtn;
+  document.getElementById('tabUrlBtn').textContent=t.tabUrl;
+  document.getElementById('tabHtmlBtn').textContent=t.tabHtml;
+  document.getElementById('btnAnalyzeUrl').textContent=t.btnAnalyze;
+  document.getElementById('btnAnalyzeHtml').textContent=t.btnAnalyze;
+  document.getElementById('urlInput').placeholder=t.placeholderUrl;
+  document.getElementById('htmlInput').placeholder=t.placeholderHtml;
+  document.getElementById('corsWarn').textContent=t.corsWarn;
+  document.getElementById('labelScore').textContent=t.labelScore;
+  document.getElementById('labelBasic').textContent=t.labelBasic;
+  document.getElementById('ogLabel').textContent=t.labelOg;
+  document.getElementById('twLabel').textContent=t.labelTw;
+  document.getElementById('otherLabel').textContent=t.labelOther;
+  document.getElementById('labelWarnings').textContent=t.labelWarnings;
+  document.getElementById('labelRec').textContent=t.labelRec;
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+}
+
+function switchTab(tab){
+  _activeTab=tab;
+  document.getElementById('tabUrlBtn').className='tab-btn'+(tab==='url'?' active':'');
+  document.getElementById('tabHtmlBtn').className='tab-btn'+(tab==='html'?' active':'');
+  document.getElementById('tabUrl').className='tab-panel'+(tab==='url'?' active':'');
+  document.getElementById('tabHtml').className='tab-panel'+(tab==='html'?' active':'');
+}
+
+function analyzeMeta(html){
+  const parser=new DOMParser();
+  const doc=parser.parseFromString(html,'text/html');
+  const getMeta=n=>doc.querySelector(`meta[name="${n}"]`)?.content||'';
+  const getProp=p=>doc.querySelector(`meta[property="${p}"]`)?.content||'';
+  const title=doc.querySelector('title')?.textContent||'';
+  const desc=getMeta('description');
+  const canonical=doc.querySelector('link[rel="canonical"]')?.href||doc.querySelector('link[rel="canonical"]')?.getAttribute('href')||'';
+  const ogTitle=getProp('og:title');
+  const ogDesc=getProp('og:description');
+  const ogImage=getProp('og:image');
+  const ogUrl=getProp('og:url');
+  const ogType=getProp('og:type');
+  const ogSite=getProp('og:site_name');
+  const twCard=getMeta('twitter:card');
+  const twTitle=getMeta('twitter:title');
+  const twDesc=getMeta('twitter:description');
+  const twImage=getMeta('twitter:image');
+  const viewport=getMeta('viewport');
+  const charset=doc.querySelector('meta[charset]')?.getAttribute('charset')||getMeta('charset')||'';
+  const robots=getMeta('robots');
+  const lang=doc.documentElement.getAttribute('lang')||'';
+  const author=getMeta('author');
+  const keywords=getMeta('keywords');
+  const checks={
+    title:!!title,titleLen:title.length>0&&title.length<=60,
+    desc:!!desc,descLen:desc.length>0&&desc.length<=160,
+    ogAll:!!ogTitle&&!!ogDesc&&!!ogImage,
+    twCard:!!twCard,canonical:!!canonical,viewport:!!viewport,charset:!!charset
+  };
+  let score=0;
+  if(checks.title)score+=20;
+  if(checks.titleLen)score+=5;
+  if(checks.desc)score+=15;
+  if(checks.descLen)score+=5;
+  if(checks.ogAll)score+=20;
+  if(checks.twCard)score+=10;
+  if(checks.canonical)score+=10;
+  if(checks.viewport)score+=10;
+  if(checks.charset)score+=5;
+  return{title,desc,canonical,ogTitle,ogDesc,ogImage,ogUrl,ogType,ogSite,twCard,twTitle,twDesc,twImage,viewport,charset,robots,lang,author,keywords,checks,score};
+}
+
+function renderResults(data){
+  const t=_i18n[_lang];
+  document.getElementById('results').style.display='block';
+  // Score
+  const sc=data.score;
+  const scoreEl=document.getElementById('scoreNum');
+  scoreEl.textContent=sc;
+  scoreEl.className='score-num '+(sc>=80?'green':sc>=50?'yellow':'red');
+  const arc=document.getElementById('scoreArc');
+  const circ=2*Math.PI*32;
+  arc.setAttribute('stroke-dashoffset',circ-(circ*sc/100));
+  arc.setAttribute('stroke',sc>=80?'#4ade80':sc>=50?'#fbbf24':'#f87171');
+  // Check grid
+  const ck=data.checks;
+  const checkDefs=[
+    ['title',ck.title],['titleLen',ck.titleLen||!ck.title],
+    ['desc',ck.desc],['descLen',ck.descLen||!ck.desc],
+    ['ogAll',ck.ogAll],['twCard',ck.twCard],
+    ['canonical',ck.canonical],['viewport',ck.viewport],['charset',ck.charset]
+  ];
+  document.getElementById('checkGrid').innerHTML=checkDefs.map(([k,v])=>`
+    <div class="check-item">
+      <span class="check-icon ${v?'pass':'fail'}">${v?'✓':'✗'}</span>
+      <span>${t.checks[k]||k}</span>
+    </div>
+  `).join('');
+  // Basic tags
+  const basicRows=[
+    ['title',data.title,60],
+    ['meta description',data.desc,160],
+    ['canonical',data.canonical,0],
+    ['viewport',data.viewport,0],
+    ['charset',data.charset,0],
+    ['robots',data.robots,0],
+    ['lang',data.lang,0],
+    ['author',data.author,0],
+    ['keywords',data.keywords,0],
+  ];
+  document.getElementById('basicTags').innerHTML=basicRows.map(([n,v,lim])=>`
+    <div class="tag-row">
+      <span class="tag-name">${n}</span>
+      <span class="tag-value${v?'':' missing'}">${v?escHtml(v):t.missing}</span>
+      ${v&&lim>0?`<span class="tag-len${v.length>lim?' warn':''}">${v.length}/${lim}</span>`:''}
+    </div>
+  `).join('');
+  // OG tags
+  const ogRows=[
+    ['og:title',data.ogTitle],['og:description',data.ogDesc],['og:image',data.ogImage],
+    ['og:url',data.ogUrl],['og:type',data.ogType],['og:site_name',data.ogSite]
+  ];
+  document.getElementById('ogTags').innerHTML=ogRows.map(([n,v])=>`
+    <div class="tag-row">
+      <span class="tag-name">${n}</span>
+      <span class="tag-value${v?'':' missing'}">${v?escHtml(v):t.missing}</span>
+    </div>
+  `).join('');
+  // TW tags
+  const twRows=[
+    ['twitter:card',data.twCard],['twitter:title',data.twTitle],
+    ['twitter:description',data.twDesc],['twitter:image',data.twImage]
+  ];
+  document.getElementById('twTags').innerHTML=twRows.map(([n,v])=>`
+    <div class="tag-row">
+      <span class="tag-name">${n}</span>
+      <span class="tag-value${v?'':' missing'}">${v?escHtml(v):t.missing}</span>
+    </div>
+  `).join('');
+  document.getElementById('otherTags').innerHTML='<div class="tag-row"><span class="tag-name" style="color:var(--text-dim)">—</span></div>';
+  // Warnings
+  const warns=[];
+  if(!data.checks.title)warns.push(t.warningNoTitle);
+  if(data.title&&data.title.length>60)warns.push(t.warningTitleLong);
+  if(!data.checks.desc)warns.push(t.warningNoDesc);
+  if(data.desc&&data.desc.length>160)warns.push(t.warningDescLong);
+  if(!data.checks.ogAll)warns.push(t.warningNoOg);
+  if(!data.checks.canonical)warns.push(t.warningNoCanonical);
+  if(!data.checks.viewport)warns.push(t.warningNoViewport);
+  document.getElementById('warningsOut').innerHTML=warns.length?warns.map(w=>`<div class="warn-item"><span class="warn-dot">⚠</span><span>${w}</span></div>`).join(''):'<div style="font-size:12px;color:var(--green);font-family:\'DM Mono\',monospace;">✓ No warnings</div>';
+  // Recs
+  const recs=[];
+  if(!data.checks.desc)recs.push(t.recAddDesc);
+  if(!data.checks.ogAll)recs.push(t.recAddOg);
+  if(!data.checks.twCard)recs.push(t.recAddTw);
+  if(!data.checks.canonical)recs.push(t.recAddCanonical);
+  if(data.title&&data.title.length>60)recs.push(t.recTitleLen);
+  if(data.desc&&data.desc.length>160)recs.push(t.recDescLen);
+  document.getElementById('recsOut').innerHTML=recs.length?recs.map(r=>`<div class="rec-item"><span class="rec-dot">→</span><span>${r}</span></div>`).join(''):'<div style="font-size:12px;color:var(--green);font-family:\'DM Mono\',monospace;">✓ Looking good!</div>';
+}
+
+async function analyzeFromUrl(){
+  const t=_i18n[_lang];
+  const url=document.getElementById('urlInput').value.trim();
+  if(!url)return;
+  try{
+    const proxyUrl='https://api.allorigins.win/get?url='+encodeURIComponent(url);
+    const resp=await fetch(proxyUrl);
+    const json=await resp.json();
+    if(json.contents){
+      const data=analyzeMeta(json.contents);
+      renderResults(data);
+    } else {
+      alert(t.fetchError);
+    }
+  } catch(e){
+    alert(t.fetchError);
+  }
+}
+
+function analyzeFromHtml(){
+  const html=document.getElementById('htmlInput').value.trim();
+  if(!html)return;
+  const data=analyzeMeta(html);
+  renderResults(data);
+}
+
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+_lang=detectLang();
+applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WHOIS 조회 — 모두의 툴</title>
+<meta name="description" content="도메인 WHOIS 정보를 무료로 조회하세요. 등록일, 만료일, 등록기관, 네임서버 정보 확인.">
+<link rel="canonical" href="https://modoohub.com/whois-lookup.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/whois-lookup.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/whois-lookup.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/whois-lookup.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/whois-lookup.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/whois-lookup.html">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!-- GA -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<!-- AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"WHOIS Lookup","url":"https://modoohub.com/whois-lookup.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free WHOIS domain lookup. Check registrar, registration date, expiry date, nameservers, and domain status via RDAP protocol."}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"WHOIS란 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"WHOIS는 도메인 이름의 등록 정보(등록자, 등록기관, 등록일, 만료일 등)를 조회하는 프로토콜입니다. 도메인 소유자 확인, 만료 도메인 추적, 스팸 신고 등에 사용됩니다."}},{"@type":"Question","name":"RDAP와 WHOIS의 차이는?","acceptedAnswer":{"@type":"Answer","text":"RDAP(Registration Data Access Protocol)는 WHOIS의 현대적 대안으로 JSON 형식의 구조화된 데이터를 제공합니다. HTTPS를 사용하고 국제화를 지원하며 GDPR 준수 기능이 포함되어 있습니다."}}]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;padding:20px;}
+.top-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;}
+.back-link{color:var(--text-muted);text-decoration:none;font-size:14px;}
+.back-link:hover{color:var(--accent);}
+.lang-btn{background:none;border:1px solid var(--border);color:var(--text-muted);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:13px;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+h1{font-size:clamp(22px,4vw,32px);font-weight:700;margin-bottom:8px;}
+h1 span{color:var(--accent);}
+.sub{color:var(--text-muted);font-size:14px;margin-bottom:24px;}
+.search-box{display:flex;gap:10px;margin-bottom:24px;max-width:560px;}
+.search-box input{flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:12px 16px;border-radius:8px;font-size:14px;font-family:'DM Mono',monospace;outline:none;}
+.search-box input:focus{border-color:var(--accent);}
+.search-box input::placeholder{color:var(--text-dim);}
+.btn{padding:10px 20px;border-radius:8px;border:none;cursor:pointer;font-size:14px;font-weight:600;font-family:inherit;transition:.15s;}
+.btn-primary{background:var(--accent);color:#000;}
+.btn-primary:hover{background:var(--accent2);}
+.btn-secondary{background:var(--surface);color:var(--text-muted);border:1px solid var(--border);}
+.btn-secondary:hover{color:var(--text);border-color:var(--accent);}
+.loading{display:flex;align-items:center;gap:10px;color:var(--text-muted);font-size:14px;margin-bottom:16px;}
+.spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.error-msg{color:var(--red);background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);border-radius:8px;padding:12px 16px;font-size:13px;margin-bottom:16px;}
+.hidden{display:none;}
+.result-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:16px;}
+.info-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px;}
+.info-label{font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;}
+.info-value{font-size:14px;color:var(--text);font-weight:600;word-break:break-all;}
+.info-value.mono{font-family:'DM Mono',monospace;font-size:13px;}
+.info-value.domain{font-family:'DM Mono',monospace;font-size:15px;color:var(--accent);}
+.expiry-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;margin-left:8px;vertical-align:middle;}
+.badge-danger{background:rgba(248,113,113,.15);color:var(--red);}
+.badge-warn{background:rgba(251,191,36,.15);color:var(--accent);}
+.badge-ok{background:rgba(74,222,128,.15);color:var(--green);}
+.status-active{color:var(--green);}
+.status-expired{color:var(--red);}
+.ns-list{list-style:none;margin-top:4px;}
+.ns-list li{font-family:'DM Mono',monospace;font-size:12px;color:var(--text-muted);padding:2px 0;}
+.ns-list li::before{content:'▸ ';color:var(--text-dim);}
+.raw-section{margin-top:8px;}
+.raw-toggle{background:var(--surface);border:1px solid var(--border);border-radius:8px;width:100%;}
+.raw-toggle summary{padding:10px 16px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;display:flex;align-items:center;gap:8px;}
+.raw-toggle summary::-webkit-details-marker{display:none;}
+.raw-toggle[open] summary{border-bottom:1px solid var(--border);}
+.raw-content{padding:14px 16px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim);line-height:1.6;white-space:pre-wrap;word-break:break-all;max-height:300px;overflow-y:auto;}
+.privacy-note{font-size:12px;color:var(--text-dim);margin-top:8px;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+</head>
+<body>
+<div class="top-nav">
+  <a href="index.html" class="back-link" data-i18n="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="toggleLang()" data-i18n="langBtn">🌐 EN</button>
+</div>
+<h1 data-i18n="h1">WHOIS <span>조회</span></h1>
+<p class="sub" data-i18n="sub">도메인 WHOIS 정보 조회·등록일·만료일·등록기관</p>
+
+<div class="search-box">
+  <input type="text" id="domainInput" placeholder="예: google.com" autocomplete="off" spellcheck="false">
+  <button class="btn btn-primary" onclick="doLookup()" data-i18n="btnLookup">조회</button>
+</div>
+
+<div id="loadingDiv" class="loading hidden">
+  <div class="spinner"></div>
+  <span data-i18n="loading">조회 중...</span>
+</div>
+<div id="errorDiv" class="error-msg hidden"></div>
+
+<div id="resultsSection" class="hidden">
+  <div class="result-grid" id="infoGrid"></div>
+  <div class="raw-section">
+    <details class="raw-toggle" id="rawToggle">
+      <summary>📄 <span data-i18n="labelRaw">Raw WHOIS / RDAP 데이터</span></summary>
+      <pre class="raw-content" id="rawContent"></pre>
+    </details>
+  </div>
+</div>
+
+<p class="privacy-note" data-i18n="privacyNote">RDAP 프로토콜 사용. GDPR에 의해 일부 정보가 비공개일 수 있습니다.</p>
+
+<div class="seo"><div id="seoArea"></div></div>
+
+<script>
+function normalizeDomain(raw) {
+  return raw.trim().replace(/^https?:\/\//i,'').replace(/\/.*$/,'').toLowerCase();
+}
+
+function parseRdap(data) {
+  const events = {};
+  (data.events || []).forEach(e => { events[e.eventAction] = e.eventDate; });
+  const nameservers = (data.nameservers || []).map(ns => ns.ldhName || ns.unicodeName || '').filter(Boolean);
+  const status = (data.status || []).join(', ');
+  let registrar = '—';
+  if (data.entities) {
+    const reg = data.entities.find(e => e.roles && e.roles.includes('registrar'));
+    if (reg) {
+      const vcard = reg.vcardArray && reg.vcardArray[1];
+      if (vcard) {
+        const fn = vcard.find(v => v[0] === 'fn');
+        if (fn) registrar = fn[3] || '—';
+      }
+      if (registrar === '—' && reg.handle) registrar = reg.handle;
+    }
+  }
+  return {
+    domain: data.ldhName || data.unicodeName || '',
+    registrar,
+    registered: events['registration'] || events['Registration'] || '—',
+    expires: events['expiration'] || events['Expiration'] || '—',
+    updated: events['last changed'] || events['Last Changed'] || '—',
+    status,
+    nameservers,
+    raw: JSON.stringify(data, null, 2)
+  };
+}
+
+function daysUntil(dateStr) {
+  if (!dateStr || dateStr === '—') return null;
+  const d = new Date(dateStr);
+  if (isNaN(d)) return null;
+  return Math.ceil((d - Date.now()) / 86400000);
+}
+
+function formatDate(dateStr) {
+  if (!dateStr || dateStr === '—') return '—';
+  const d = new Date(dateStr);
+  if (isNaN(d)) return dateStr;
+  return d.toISOString().split('T')[0];
+}
+
+function showLoading(show) {
+  document.getElementById('loadingDiv').classList.toggle('hidden', !show);
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorDiv');
+  el.textContent = msg;
+  el.classList.remove('hidden');
+  document.getElementById('resultsSection').classList.add('hidden');
+}
+
+function hideError() {
+  document.getElementById('errorDiv').classList.add('hidden');
+}
+
+function renderResults(info) {
+  const t = _i18n[currentLang] || _i18n.ko;
+  const days = daysUntil(info.expires);
+  let expiryBadge = '';
+  if (days !== null) {
+    if (days < 0) expiryBadge = `<span class="expiry-badge badge-danger">${t.expired || 'EXPIRED'}</span>`;
+    else if (days < 30) expiryBadge = `<span class="expiry-badge badge-danger">${days}d</span>`;
+    else if (days < 90) expiryBadge = `<span class="expiry-badge badge-warn">${days}d</span>`;
+    else expiryBadge = `<span class="expiry-badge badge-ok">${days}d</span>`;
+  }
+
+  const isActive = info.status.toLowerCase().includes('active') || info.status.toLowerCase().includes('ok');
+  const statusClass = isActive ? 'status-active' : (info.status.toLowerCase().includes('expir') ? 'status-expired' : '');
+
+  const nsHtml = info.nameservers.length
+    ? `<ul class="ns-list">${info.nameservers.map(ns => `<li>${ns}</li>`).join('')}</ul>`
+    : '<span class="info-value mono">—</span>';
+
+  document.getElementById('infoGrid').innerHTML = `
+    <div class="info-card" style="grid-column:1/-1;">
+      <div class="info-label">${t.labelDomain || 'Domain'}</div>
+      <div class="info-value domain">${escHtml(info.domain) || '—'}</div>
+    </div>
+    <div class="info-card">
+      <div class="info-label">${t.labelRegistrar}</div>
+      <div class="info-value">${escHtml(info.registrar)}</div>
+    </div>
+    <div class="info-card">
+      <div class="info-label">${t.labelRegistered}</div>
+      <div class="info-value mono">${formatDate(info.registered)}</div>
+    </div>
+    <div class="info-card">
+      <div class="info-label">${t.labelExpires}</div>
+      <div class="info-value mono">${formatDate(info.expires)}${expiryBadge}</div>
+    </div>
+    <div class="info-card">
+      <div class="info-label">${t.labelUpdated}</div>
+      <div class="info-value mono">${formatDate(info.updated)}</div>
+    </div>
+    <div class="info-card">
+      <div class="info-label">${t.labelStatus}</div>
+      <div class="info-value ${statusClass}">${escHtml(info.status) || '—'}</div>
+    </div>
+    <div class="info-card" style="grid-column:1/-1;">
+      <div class="info-label">${t.labelNameservers}</div>
+      ${nsHtml}
+    </div>
+  `;
+
+  document.getElementById('rawContent').textContent = info.raw;
+  document.getElementById('resultsSection').classList.remove('hidden');
+}
+
+function escHtml(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+async function doLookup() {
+  const raw = document.getElementById('domainInput').value;
+  if (!raw.trim()) return;
+  const domain = normalizeDomain(raw);
+  hideError();
+  showLoading(true);
+  document.getElementById('resultsSection').classList.add('hidden');
+  try {
+    const r = await fetch(`https://rdap.org/domain/${encodeURIComponent(domain)}`);
+    if (!r.ok) {
+      if (r.status === 404) throw new Error('NOT_FOUND');
+      throw new Error('NETWORK');
+    }
+    const data = await r.json();
+    showLoading(false);
+    const info = parseRdap(data);
+    renderResults(info);
+  } catch(e) {
+    showLoading(false);
+    const t = _i18n[currentLang] || _i18n.ko;
+    if (e.message === 'NOT_FOUND') showError(t.errNotFound || 'Domain not found or WHOIS data unavailable.');
+    else showError(t.errNetwork);
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.target === document.getElementById('domainInput') && e.key === 'Enter') doLookup();
+});
+
+const _i18n = {
+  ko: {
+    pageTitle: 'WHOIS 조회 — 모두의 툴',
+    h1: 'WHOIS <span>조회</span>',
+    sub: '도메인 WHOIS 정보 조회·등록일·만료일·등록기관',
+    backLink: '← 모두의 툴', langBtn: '🌐 EN',
+    btnLookup: '조회',
+    labelDomain: '도메인', labelRegistrar: '등록기관', labelRegistered: '등록일',
+    labelExpires: '만료일', labelUpdated: '수정일', labelStatus: '상태',
+    labelNameservers: '네임서버', labelRaw: 'Raw WHOIS / RDAP 데이터',
+    loading: '조회 중...', expired: '만료됨',
+    errNetwork: '조회에 실패했습니다. 도메인을 확인하고 다시 시도하세요.',
+    errNotFound: '도메인을 찾을 수 없거나 WHOIS 데이터를 사용할 수 없습니다.',
+    privacyNote: 'RDAP 프로토콜 사용. GDPR에 의해 일부 정보가 비공개일 수 있습니다.',
+    seoHtml:`<h2>WHOIS란 무엇인가요?</h2><p><strong>WHOIS</strong>는 도메인 이름의 등록 정보를 조회하는 프로토콜입니다. 도메인 소유자(등록자), 등록기관, 등록일, 만료일, 네임서버, 도메인 상태 등을 확인할 수 있습니다. 이 도구는 현대적 RDAP(Registration Data Access Protocol)를 사용하여 구조화된 JSON 형식으로 도메인 정보를 제공합니다. 도메인 구입 전 소유권 확인, 만료 예정 도메인 추적, 스팸/피싱 신고 등 다양한 용도로 활용됩니다.</p><h2 class="seo-sub">자주 묻는 질문</h2><details class="faq-item"><summary>Q. WHOIS란 무엇인가요?</summary><p>A. WHOIS는 도메인 이름, IP 주소, 자율 시스템 번호(ASN) 등의 등록 정보를 조회하는 인터넷 프로토콜입니다. 도메인의 등록자, 등록기관, 등록일, 만료일, 네임서버 정보를 확인할 수 있습니다.</p></details><details class="faq-item"><summary>Q. RDAP와 WHOIS의 차이는 무엇인가요?</summary><p>A. RDAP(Registration Data Access Protocol)는 WHOIS의 현대적 대안입니다. HTTPS를 통해 JSON 형식의 구조화된 데이터를 제공하고, 국제화와 접근 제어를 지원합니다. 현재 대부분의 레지스트리가 RDAP를 지원합니다.</p></details><details class="faq-item"><summary>Q. 도메인 개인정보 보호(Privacy Protection)란?</summary><p>A. 도메인 등록 시 등록자 개인정보(이름, 이메일, 전화번호 등)를 숨기는 서비스입니다. GDPR 시행 이후 많은 레지스트라가 기본으로 적용하며, 등록자 정보 대신 프록시 정보가 표시됩니다.</p></details><details class="faq-item"><summary>Q. 만료된 도메인을 구입할 수 있나요?</summary><p>A. 네. 도메인 만료 후 일정 기간(보통 30~75일)의 유예 기간이 있습니다. 유예 기간 내에는 기존 소유자가 갱신할 수 있고, 이후에는 경매나 일반 등록을 통해 구입할 수 있습니다.</p></details><details class="faq-item"><summary>Q. 도메인 소유자를 확인하는 방법은?</summary><p>A. WHOIS/RDAP 조회로 등록자 정보를 확인할 수 있습니다. 단, 개인정보 보호 서비스가 적용된 경우 실제 소유자 정보는 표시되지 않으며, 이 경우 도메인 이름의 이메일로 연락하거나 법적 절차를 통해 레지스트라에 요청해야 합니다.</p></details><details class="faq-item"><summary>Q. WHOIS 정보를 수정하려면?</summary><p>A. 도메인을 구매한 레지스트라(가비아, 후이즈, GoDaddy 등)의 관리 패널에서 수정할 수 있습니다. 일부 정보는 본인 인증이 필요하며, 연락처 정보는 항상 최신 상태로 유지하는 것이 중요합니다.</p></details><details class="faq-item"><summary>Q. GDPR과 WHOIS의 관계는?</summary><p>A. 2018년 GDPR(일반 개인정보 보호 규정) 시행 이후, 유럽 도메인 등록자의 개인정보가 WHOIS에서 제한되기 시작했습니다. 현재는 전 세계적으로 많은 레지스트라가 개인정보를 기본 비공개로 처리합니다.</p></details><details class="faq-item"><summary>Q. 도메인 상태 코드의 의미는?</summary><p>A. 주요 도메인 상태: active(정상), clientTransferProhibited(이관 금지), pendingDelete(삭제 대기), redemptionPeriod(복구 가능 기간), serverHold(DNS 비활성화). 각 상태에 따라 도메인 이관이나 갱신이 제한될 수 있습니다.</p></details>`
+  },
+  en: {
+    pageTitle: 'WHOIS Lookup — Modoo Tool',
+    h1: 'WHOIS <span>Lookup</span>',
+    sub: 'Domain WHOIS info — registrar, registration & expiry dates, nameservers',
+    backLink: '← All Tools', langBtn: '🌐 中文',
+    btnLookup: 'Lookup',
+    labelDomain: 'Domain', labelRegistrar: 'Registrar', labelRegistered: 'Registered',
+    labelExpires: 'Expires', labelUpdated: 'Updated', labelStatus: 'Status',
+    labelNameservers: 'Nameservers', labelRaw: 'Raw WHOIS / RDAP Data',
+    loading: 'Looking up...', expired: 'EXPIRED',
+    errNetwork: 'Lookup failed. Please check the domain and try again.',
+    errNotFound: 'Domain not found or WHOIS data unavailable.',
+    privacyNote: 'Uses RDAP protocol. Some data may be hidden due to GDPR/privacy protection.',
+    seoHtml:`<h2>What is WHOIS Lookup?</h2><p><strong>WHOIS</strong> is a protocol for querying domain registration information. It reveals who registered a domain, when it was registered, when it expires, the registrar, nameservers, and domain status. This tool uses the modern <strong>RDAP (Registration Data Access Protocol)</strong> for structured, reliable data. Use it to check domain ownership, track expiring domains, investigate spam, or verify registrar details before purchasing a domain.</p><h2 class="seo-sub">FAQ</h2><details class="faq-item"><summary>Q. What is WHOIS?</summary><p>A. WHOIS is an internet protocol for querying registration information for domain names, IP addresses, and ASNs. It shows who registered a domain, when, when it expires, the registrar, and nameservers.</p></details><details class="faq-item"><summary>Q. What is RDAP vs WHOIS?</summary><p>A. RDAP (Registration Data Access Protocol) is the modern replacement for the older WHOIS protocol. It provides structured JSON responses over HTTPS, supports internationalization, and includes access controls for privacy compliance.</p></details><details class="faq-item"><summary>Q. What is domain privacy protection?</summary><p>A. Privacy protection (WHOIS privacy) hides your personal details (name, email, phone) in public WHOIS records, replacing them with proxy information. After GDPR, many registrars now include this by default.</p></details><details class="faq-item"><summary>Q. Can I buy an expired domain?</summary><p>A. Yes. After a domain expires, there&apos;s typically a grace period (30–75 days) where the original owner can renew it. After that, it may go to auction or become available for general registration.</p></details><details class="faq-item"><summary>Q. How do I find a domain&apos;s owner?</summary><p>A. WHOIS/RDAP lookup shows registrant info. If privacy protection is active, the real owner is hidden — contact the domain&apos;s email or go through legal channels to get the registrar to disclose the registrant.</p></details><details class="faq-item"><summary>Q. How do I update WHOIS information?</summary><p>A. Log in to your domain registrar&apos;s control panel to update contact information. Keep it accurate — outdated contact info can cause issues with domain renewal notices and transfer authorization.</p></details><details class="faq-item"><summary>Q. How does GDPR affect WHOIS?</summary><p>A. Since GDPR (2018), European domain registrants&apos; personal data must be protected. Most registrars now redact personal details globally, making public WHOIS records show proxy/redacted information instead of real owner data.</p></details><details class="faq-item"><summary>Q. What do domain status codes mean?</summary><p>A. Common statuses: active (normal), clientTransferProhibited (transfer locked), pendingDelete (queued for deletion), redemptionPeriod (still recoverable), serverHold (DNS deactivated by registry). These affect what operations are allowed on the domain.</p></details>`
+  },
+  zh: {
+    pageTitle: 'WHOIS查询 — 模都工具',
+    h1: 'WHOIS <span>查询</span>',
+    sub: '域名WHOIS信息查询·注册日期·到期日期·注册商',
+    backLink: '← 首页', langBtn: '🌐 日本語',
+    btnLookup: '查询',
+    labelDomain: '域名', labelRegistrar: '注册商', labelRegistered: '注册日期',
+    labelExpires: '到期日期', labelUpdated: '更新日期', labelStatus: '状态',
+    labelNameservers: '域名服务器', labelRaw: '原始WHOIS/RDAP数据',
+    loading: '查询中...', expired: '已过期',
+    errNetwork: '查询失败，请检查域名后重试。',
+    errNotFound: '未找到域名或WHOIS数据不可用。',
+    privacyNote: '使用RDAP协议。部分信息可能因GDPR/隐私保护而不可见。',
+    seoHtml:`<h2>什么是WHOIS查询？</h2><p><strong>WHOIS</strong>是查询域名注册信息的协议，可查看域名注册者、注册时间、到期时间、注册商、域名服务器和域名状态。本工具使用现代<strong>RDAP（注册数据访问协议）</strong>提供结构化、可靠的数据。可用于检查域名所有权、追踪即将到期的域名、调查垃圾邮件或在购买域名前验证注册商详情。</p><h2 class="seo-sub">常见问题</h2><details class="faq-item"><summary>Q. 什么是WHOIS？</summary><p>A. WHOIS是查询域名、IP地址和ASN注册信息的互联网协议，显示域名的注册者、注册时间、到期时间、注册商和域名服务器等信息。</p></details><details class="faq-item"><summary>Q. RDAP和WHOIS有什么区别？</summary><p>A. RDAP是旧版WHOIS协议的现代替代品，通过HTTPS提供结构化JSON响应，支持国际化，并包含隐私合规的访问控制。</p></details><details class="faq-item"><summary>Q. 什么是域名隐私保护？</summary><p>A. 隐私保护（WHOIS隐私）在公共WHOIS记录中隐藏您的个人信息（姓名、邮箱、电话），用代理信息替代。GDPR实施后，许多注册商现已默认提供此功能。</p></details><details class="faq-item"><summary>Q. 可以购买已过期的域名吗？</summary><p>A. 可以。域名过期后通常有一段宽限期（30-75天），原所有者可在此期间续费。之后域名可能进入拍卖或开放注册。</p></details><details class="faq-item"><summary>Q. 如何查找域名所有者？</summary><p>A. WHOIS/RDAP查询可显示注册人信息。如果启用了隐私保护，真实所有者将被隐藏，需通过域名邮箱联系或通过法律途径要求注册商披露注册人信息。</p></details><details class="faq-item"><summary>Q. 如何更新WHOIS信息？</summary><p>A. 登录域名注册商的控制面板更新联系信息。请保持信息准确，过时的联系信息可能导致续费通知丢失和域名转移授权问题。</p></details><details class="faq-item"><summary>Q. GDPR对WHOIS有什么影响？</summary><p>A. 自2018年GDPR实施以来，欧洲域名注册人的个人数据必须受到保护。大多数注册商现已全球性地屏蔽个人信息，公共WHOIS记录显示代理/屏蔽信息而非真实所有者数据。</p></details><details class="faq-item"><summary>Q. 域名状态代码的含义是什么？</summary><p>A. 常见状态：active（正常）、clientTransferProhibited（禁止转移）、pendingDelete（等待删除）、redemptionPeriod（仍可恢复）、serverHold（注册局停用DNS）。这些状态影响域名可执行的操作。</p></details>`
+  },
+  ja: {
+    pageTitle: 'WHOIS照会 — モドゥツール',
+    h1: 'WHOIS <span>照会</span>',
+    sub: 'ドメインのWHOIS情報·登録日·有効期限·レジストラを確認',
+    backLink: '← ホーム', langBtn: '🌐 한국어',
+    btnLookup: '照会',
+    labelDomain: 'ドメイン', labelRegistrar: 'レジストラ', labelRegistered: '登録日',
+    labelExpires: '有効期限', labelUpdated: '更新日', labelStatus: 'ステータス',
+    labelNameservers: 'ネームサーバー', labelRaw: '生のWHOIS/RDAPデータ',
+    loading: '照会中...', expired: '期限切れ',
+    errNetwork: '照会に失敗しました。ドメインを確認して再試行してください。',
+    errNotFound: 'ドメインが見つからないか、WHOISデータが利用できません。',
+    privacyNote: 'RDAPプロトコルを使用。GDPR/プライバシー保護により一部情報が非公開の場合があります。',
+    seoHtml:`<h2>WHOIS照会とは？</h2><p><strong>WHOIS</strong>はドメイン名の登録情報を照会するプロトコルです。ドメインの登録者、登録機関、登録日、有効期限、ネームサーバー、ドメインステータスを確認できます。このツールは現代的な<strong>RDAP（登録データアクセスプロトコル）</strong>を使用して構造化された信頼性の高いデータを提供します。ドメイン所有権の確認、期限切れ間近のドメイン追跡、スパムの調査、ドメイン購入前の検証などに役立ちます。</p><h2 class="seo-sub">よくある質問</h2><details class="faq-item"><summary>Q. WHOISとは何ですか？</summary><p>A. WHOISはドメイン名、IPアドレス、ASNの登録情報を照会するインターネットプロトコルです。ドメインの登録者、登録日、有効期限、レジストラ、ネームサーバー情報を確認できます。</p></details><details class="faq-item"><summary>Q. RDAPとWHOISの違いは？</summary><p>A. RDAP（登録データアクセスプロトコル）は旧来のWHOISプロトコルの現代的な代替品です。HTTPSを通じて構造化されたJSON応答を提供し、国際化とプライバシーコンプライアンスのためのアクセス制御をサポートします。</p></details><details class="faq-item"><summary>Q. ドメインプライバシー保護とは？</summary><p>A. プライバシー保護（WHOIS保護）は、公開WHOISレコードであなたの個人情報（名前、メール、電話番号）を隠し、プロキシ情報に置き換えるサービスです。GDPR施行後、多くのレジストラがデフォルトで提供しています。</p></details><details class="faq-item"><summary>Q. 期限切れドメインを購入できますか？</summary><p>A. はい。ドメイン期限切れ後、通常30〜75日の猶予期間があり、元の所有者が更新できます。その後、オークションや一般登録で購入可能になります。</p></details><details class="faq-item"><summary>Q. ドメインの所有者を確認する方法は？</summary><p>A. WHOIS/RDAP照会で登録者情報を確認できます。プライバシー保護が有効な場合、実際の所有者は非表示になり、ドメインのメールアドレスへの連絡や法的手続きを通じてレジストラに開示を求める必要があります。</p></details><details class="faq-item"><summary>Q. WHOIS情報を更新するには？</summary><p>A. ドメインレジストラの管理パネルにログインして連絡先情報を更新します。情報を常に最新の状態に保つことが重要です。古い情報は更新通知の見逃しや移管承認の問題を引き起こす可能性があります。</p></details><details class="faq-item"><summary>Q. GDPRとWHOISの関係は？</summary><p>A. 2018年のGDPR施行以来、欧州のドメイン登録者の個人データは保護される必要があります。現在、多くのレジストラがグローバルに個人情報を非公開にしており、公開WHOISレコードには実際の所有者データの代わりにプロキシ/編集済み情報が表示されます。</p></details><details class="faq-item"><summary>Q. ドメインステータスコードの意味は？</summary><p>A. 主なステータス：active（正常）、clientTransferProhibited（移管禁止）、pendingDelete（削除待ち）、redemptionPeriod（まだ回復可能）、serverHold（レジストリによるDNS無効化）。これらはドメインで許可される操作に影響します。</p></details>`
+  }
+};
+
+let currentLang = detectLang();
+function detectLang(){
+  const p=new URLSearchParams(location.search).get('lang');
+  if(p&&_i18n[p])return p;
+  const s=localStorage.getItem('modoo_lang');
+  if(s&&_i18n[s])return s;
+  const n=navigator.language||'';
+  if(n.startsWith('zh'))return 'zh';
+  if(n.startsWith('ja'))return 'ja';
+  if(n.startsWith('ko'))return 'ko';
+  return 'en';
+}
+function applyLang(l){
+  const t=_i18n[l]||_i18n.ko;
+  document.documentElement.lang=l;
+  document.title=t.pageTitle;
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const v=t[el.dataset.i18n];
+    if(v!==undefined)el.innerHTML=v;
+  });
+  const inp=document.getElementById('domainInput');
+  if(inp)inp.placeholder=l==='ko'?'예: google.com':'e.g. google.com';
+  document.getElementById('seoArea').innerHTML=t.seoHtml;
+}
+function toggleLang(){
+  const order=['ko','en','zh','ja'];
+  const next=order[(order.indexOf(currentLang)+1)%order.length];
+  currentLang=next;
+  localStorage.setItem('modoo_lang',next);
+  const url=new URL(location.href);
+  url.searchParams.set('lang',next);
+  history.replaceState(null,'',url);
+  applyLang(next);
+}
+document.addEventListener('DOMContentLoaded',()=>applyLang(currentLang));
+</script>
+<script src="related.js"></script>
+</body>
+</html>

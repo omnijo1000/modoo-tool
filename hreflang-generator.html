@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hreflang 생성기 - 다국어 SEO hreflang 태그 생성 | MODOO HUB</title>
+<meta name="description" content="다국어 SEO를 위한 hreflang 태그를 쉽게 생성하세요. 언어·지역 코드 선택, URL 입력, HTML 태그·XML 사이트맵·HTTP 헤더 형식으로 출력.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/hreflang-generator.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/hreflang-generator.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/hreflang-generator.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/hreflang-generator.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/hreflang-generator.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/hreflang-generator.html">
+<meta property="og:title" content="Hreflang 생성기 - 다국어 SEO hreflang 태그 생성">
+<meta property="og:description" content="다국어 SEO hreflang 태그를 쉽게 생성하세요. HTML·XML 사이트맵·HTTP 헤더 형식 출력 지원.">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<meta property="og:url" content="https://modoohub.com/hreflang-generator.html">
+<meta property="og:type" content="website">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;font-family:'DM Mono',monospace;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;font-family:'DM Mono',monospace;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:960px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;line-height:1.6;}
+.layout{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+@media(max-width:700px){.layout{grid-template-columns:1fr;}}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;}
+.panel-label{font-size:11px;color:var(--text-dim);letter-spacing:.07em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:14px;}
+.field-label{font-size:11px;color:var(--text-dim);letter-spacing:.06em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:5px;}
+.form-group{margin-bottom:12px;}
+.field-input,.field-select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:8px 10px;color:var(--text);font-size:12px;font-family:'DM Mono',monospace;outline:none;transition:border-color .15s;}
+.field-input:focus,.field-select:focus{border-color:var(--accent);}
+.field-select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;}
+.add-row{display:flex;gap:8px;align-items:flex-end;margin-bottom:12px;}
+.add-row .field-select{width:140px;flex-shrink:0;}
+.add-row .field-input{flex:1;}
+.btn-add{padding:8px 14px;background:var(--accent);border:none;border-radius:7px;color:#000;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'Noto Sans KR',sans-serif;transition:opacity .15s;}
+.btn-add:hover{opacity:.85;}
+/* Entries list */
+.entries-list{max-height:260px;overflow-y:auto;margin-bottom:12px;}
+.entry-row{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--surface2);border-radius:7px;margin-bottom:6px;font-size:11px;font-family:'DM Mono',monospace;}
+.entry-lang{color:var(--accent);min-width:60px;font-weight:700;}
+.entry-url{color:var(--text-muted);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.btn-del{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:14px;padding:0 4px;transition:color .15s;}
+.btn-del:hover{color:var(--red);}
+.divider{height:1px;background:var(--border);margin:12px 0;}
+.xdefault-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.xdefault-row input[type="checkbox"]{accent-color:var(--accent);width:14px;height:14px;cursor:pointer;}
+.xdefault-row label{font-size:12px;color:var(--text-muted);cursor:pointer;white-space:nowrap;}
+/* Tabs */
+.tabs{display:flex;gap:4px;margin-bottom:12px;}
+.tab{padding:6px 14px;border:1px solid var(--border);border-radius:7px;font-size:11px;font-family:'DM Mono',monospace;color:var(--text-dim);cursor:pointer;background:none;transition:all .15s;}
+.tab:hover{border-color:var(--accent);color:var(--accent);}
+.tab.active{border-color:var(--accent);color:var(--accent);background:rgba(251,191,36,.06);}
+.output-ta{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;resize:vertical;min-height:280px;outline:none;line-height:1.7;word-break:break-all;}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.btn{padding:8px 16px;border:1px solid var(--border);border-radius:7px;font-size:12px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;background:none;color:var(--text-muted);transition:all .15s;}
+.btn:hover{border-color:var(--accent);color:var(--accent);}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;}
+.btn.primary:hover{opacity:.85;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:32px;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebApplication",
+  "name":"Hreflang Generator",
+  "url":"https://modoohub.com/hreflang-generator.html",
+  "applicationCategory":"UtilitiesApplication",
+  "operatingSystem":"Any",
+  "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},
+  "description":"Generate hreflang tags for multilingual SEO. Add language/region and URL pairs, output HTML link tags, XML sitemap format, or HTTP header format."
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"FAQPage",
+  "mainEntity":[
+    {"@type":"Question","name":"hreflang이란 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"hreflang은 구글에게 다국어 또는 지역별 버전 페이지가 있음을 알리는 HTML 속성입니다. 적절한 언어의 페이지를 해당 언어 사용자에게 검색 결과로 보여주는 데 사용됩니다."}},
+    {"@type":"Question","name":"x-default는 무엇을 의미하나요?","acceptedAnswer":{"@type":"Answer","text":"x-default는 지정된 언어가 없거나 일치하는 언어 버전이 없는 사용자에게 표시할 기본 페이지를 지정합니다. 주로 언어 선택 페이지나 가장 일반적인 버전에 사용합니다."}}
+  ]
+}
+</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1 id="h1El">Hreflang <span>생성기</span></h1>
+  <p class="sub" id="subEl">다국어 SEO hreflang 태그 생성</p>
+
+  <div class="layout">
+    <!-- Left: Input -->
+    <div class="panel">
+      <div class="panel-label" id="addLabel">언어·URL 추가</div>
+
+      <div class="add-row">
+        <select class="field-select" id="langSelect">
+          <option value="en">en</option>
+          <option value="en-US">en-US</option>
+          <option value="en-GB">en-GB</option>
+          <option value="ko" selected>ko</option>
+          <option value="ko-KR">ko-KR</option>
+          <option value="ja">ja</option>
+          <option value="ja-JP">ja-JP</option>
+          <option value="zh">zh</option>
+          <option value="zh-CN">zh-CN</option>
+          <option value="zh-TW">zh-TW</option>
+          <option value="zh-HK">zh-HK</option>
+          <option value="fr">fr</option>
+          <option value="fr-FR">fr-FR</option>
+          <option value="de">de</option>
+          <option value="de-DE">de-DE</option>
+          <option value="es">es</option>
+          <option value="es-ES">es-ES</option>
+          <option value="es-MX">es-MX</option>
+          <option value="pt">pt</option>
+          <option value="pt-BR">pt-BR</option>
+          <option value="it">it</option>
+          <option value="nl">nl</option>
+          <option value="ru">ru</option>
+          <option value="ar">ar</option>
+          <option value="hi">hi</option>
+          <option value="th">th</option>
+          <option value="vi">vi</option>
+          <option value="id">id</option>
+          <option value="ms">ms</option>
+          <option value="tr">tr</option>
+          <option value="pl">pl</option>
+          <option value="sv">sv</option>
+          <option value="da">da</option>
+          <option value="fi">fi</option>
+          <option value="nb">nb</option>
+        </select>
+        <input type="text" class="field-input" id="urlInput" placeholder="https://example.com/ko/page">
+        <button class="btn-add" id="btnAdd" onclick="addEntry()">+ 추가</button>
+      </div>
+
+      <div class="entries-list" id="entriesList"></div>
+
+      <div class="divider"></div>
+
+      <div class="xdefault-row">
+        <input type="checkbox" id="xdefaultCheck" onchange="generate()">
+        <label for="xdefaultCheck" id="labelXDefault">x-default 포함</label>
+      </div>
+      <div class="form-group" id="xdefaultGroup" style="display:none;">
+        <div class="field-label" id="labelXDefaultUrl">x-default URL</div>
+        <input type="text" class="field-input" id="xdefaultUrl" placeholder="https://example.com/page" oninput="generate()">
+      </div>
+
+      <div class="btn-row">
+        <button class="btn" id="btnClear" onclick="doClear()">초기화</button>
+      </div>
+    </div>
+
+    <!-- Right: Output -->
+    <div class="panel">
+      <div class="tabs">
+        <button class="tab active" id="tabHtml" onclick="setTab('html',this)">HTML</button>
+        <button class="tab" id="tabXml" onclick="setTab('xml',this)">XML Sitemap</button>
+        <button class="tab" id="tabHttp" onclick="setTab('http',this)">HTTP Header</button>
+      </div>
+      <div class="panel-label" id="outputLabel">생성된 태그</div>
+      <textarea class="output-ta" id="outputTa" readonly></textarea>
+      <div class="btn-row">
+        <button class="btn primary" id="btnCopy" onclick="copyOutput()">복사</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="seo" id="seoDiv"></div>
+  <footer>Hreflang Generator · Free Online Tool · modoohub.com</footer>
+</main>
+<script>
+const _i18n={
+  ko:{
+    pageTitle:'Hreflang 생성기 - 다국어 SEO hreflang 태그 생성 | MODOO HUB',
+    h1:'Hreflang <span>생성기</span>',
+    sub:'다국어 SEO hreflang 태그 생성',
+    backLink:'← 모두의 툴',langBtn:'🌐 EN',
+    addLabel:'언어·URL 추가',
+    labelLang:'언어 코드',labelUrl:'URL',
+    btnAdd:'+ 추가',btnCopy:'복사',copyDone:'복사됨 ✓',btnClear:'초기화',
+    labelXDefault:'x-default 포함',labelXDefaultUrl:'x-default URL',
+    tabHtml:'HTML 태그',tabXml:'XML 사이트맵',tabHttp:'HTTP 헤더',
+    outputLabel:'생성된 태그',
+    seoHtml:`<h2>hreflang이란?</h2><p>hreflang은 구글에게 <strong>동일한 콘텐츠의 다국어 또는 지역별 버전이 있음</strong>을 알려주는 HTML link 태그 속성입니다. 올바른 언어 버전의 페이지를 해당 언어 사용자에게 검색 결과로 보여주며, 중복 콘텐츠 문제를 방지합니다. 국제 SEO의 핵심 요소입니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>hreflang이란 무엇인가요?</summary><p>hreflang은 HTML head 또는 XML 사이트맵에 추가하는 태그로, 구글에게 페이지의 언어 및 지역 버전을 알립니다. 예를 들어 영어 사용자에게는 /en/ 페이지를, 한국어 사용자에게는 /ko/ 페이지를 검색 결과에 표시하도록 안내합니다.</p></details>
+<details class="faq-item"><summary>x-default는 무엇을 의미하나요?</summary><p>x-default는 지정된 언어와 일치하지 않는 사용자에게 표시할 기본 페이지를 지정합니다. 예를 들어 한국어, 영어, 중국어만 있고 프랑스어 사용자가 방문하면 x-default URL이 표시됩니다. 일반적으로 언어 선택 페이지나 기본 언어 페이지에 사용합니다.</p></details>
+<details class="faq-item"><summary>언어 코드 vs 지역 코드 차이는?</summary><p>언어만 지정: "en"은 모든 영어 사용자에게 적용됩니다. 언어+지역 지정: "en-US"는 미국 영어, "en-GB"는 영국 영어 사용자에게만 적용됩니다. 지역별로 다른 콘텐츠(가격, 단위 등)가 있을 때 언어+지역 코드를 사용합니다.</p></details>
+<details class="faq-item"><summary>잘못된 hreflang 설정 시 문제는?</summary><p>잘못된 hreflang은 구글이 무시합니다. 순위 하락 패널티는 없지만 의도한 언어 타겟팅 효과를 얻지 못합니다. 양방향 참조가 없거나 URL 오타, 자기 참조 누락 등이 흔한 오류입니다.</p></details>
+<details class="faq-item"><summary>양방향 참조가 필요한 이유는?</summary><p>페이지 A에서 페이지 B를 hreflang으로 가리키면, 페이지 B도 페이지 A를 가리켜야 합니다. 이를 양방향 참조라고 하며, 구글이 hreflang 설정을 신뢰하는 데 필수입니다. 단방향만 있으면 구글이 무시할 수 있습니다.</p></details>
+<details class="faq-item"><summary>모든 페이지에 hreflang을 추가해야 하나요?</summary><p>다국어 버전이 있는 모든 페이지에 추가해야 합니다. head 태그, XML 사이트맵, HTTP 응답 헤더 중 하나의 방법으로 구현할 수 있습니다. 사이트맵 방식은 동적으로 페이지 수가 많을 때 관리가 쉽습니다.</p></details>
+<details class="faq-item"><summary>사이트맵 vs head 태그 중 어느 방법이 낫나요?</summary><p>페이지 수가 적으면 head 태그가 직관적입니다. 수백~수천 페이지라면 XML 사이트맵이 중앙 관리에 유리합니다. HTTP 헤더 방식은 PDF 등 비HTML 파일에 사용합니다. 구글은 세 가지 방법 모두 동등하게 처리합니다.</p></details>
+<details class="faq-item"><summary>zh-CN과 zh의 차이는?</summary><p>"zh"는 언어만 지정하는 반면 "zh-CN"은 중국 본토, "zh-TW"는 대만, "zh-HK"는 홍콩 지역을 지정합니다. 간체자(중국 본토)와 번체자(대만·홍콩)로 나뉘기 때문에 실제 콘텐츠가 다르다면 지역 코드까지 포함하는 것이 좋습니다.</p></details>`
+  },
+  en:{
+    pageTitle:'Hreflang Generator - Multilingual SEO Hreflang Tag Generator | MODOO HUB',
+    h1:'Hreflang <span>Generator</span>',
+    sub:'Generate multilingual SEO hreflang tags',
+    backLink:'← All Tools',langBtn:'🌐 中文',
+    addLabel:'Add Language & URL',
+    labelLang:'Language Code',labelUrl:'URL',
+    btnAdd:'+ Add',btnCopy:'Copy',copyDone:'Copied ✓',btnClear:'Clear',
+    labelXDefault:'Include x-default',labelXDefaultUrl:'x-default URL',
+    tabHtml:'HTML Tags',tabXml:'XML Sitemap',tabHttp:'HTTP Header',
+    outputLabel:'Generated Tags',
+    seoHtml:`<h2>What is hreflang?</h2><p>Hreflang is an HTML link tag attribute that tells Google <strong>about multilingual or regional versions of the same content</strong>. It ensures the correct language version of a page is shown to the right users in search results and prevents duplicate content issues — a core element of international SEO.</p>
+<h2 class="seo-sub">Frequently Asked Questions</h2>
+<details class="faq-item"><summary>What is hreflang?</summary><p>Hreflang tags are added to the HTML head, XML sitemap, or HTTP headers to tell Google which language and regional version a page belongs to. For example, they direct English users to /en/ and Korean users to /ko/ in search results.</p></details>
+<details class="faq-item"><summary>What does x-default mean?</summary><p>x-default specifies the default page to show users whose language does not match any of the specified hreflang values. For instance, if only Korean, English, and Chinese versions exist, French users would see the x-default page. It is commonly used for language selector pages or the primary language version.</p></details>
+<details class="faq-item"><summary>What is the difference between language codes and region codes?</summary><p>Language only: "en" applies to all English speakers. Language + region: "en-US" applies to US English speakers and "en-GB" to UK English speakers. Use language+region codes when the content differs by region (prices, units of measure, etc.).</p></details>
+<details class="faq-item"><summary>What happens with incorrect hreflang settings?</summary><p>Google simply ignores invalid hreflang tags — there is no ranking penalty. However, you lose the intended language targeting benefit. Common errors include missing reciprocal links, URL typos, and forgetting self-referencing tags.</p></details>
+<details class="faq-item"><summary>Why are reciprocal references required?</summary><p>If page A points to page B via hreflang, page B must also point back to page A. This reciprocal linking signals to Google that the relationship is intentional and trustworthy. One-way hreflang tags may be ignored by Google.</p></details>
+<details class="faq-item"><summary>Do I need hreflang on every page?</summary><p>Add hreflang to every page that has multilingual versions. You can implement it via the HTML head, XML sitemap, or HTTP response headers. The sitemap method is easiest to manage for large sites with many pages.</p></details>
+<details class="faq-item"><summary>Sitemap vs head tag — which method is better?</summary><p>For small sites, head tags are straightforward. For hundreds or thousands of pages, the XML sitemap offers centralized management. HTTP headers are used for non-HTML files like PDFs. Google treats all three methods equally.</p></details>
+<details class="faq-item"><summary>What is the difference between zh-CN and zh?</summary><p>"zh" specifies only the language. "zh-CN" targets mainland China (Simplified Chinese), "zh-TW" targets Taiwan, and "zh-HK" targets Hong Kong. If your content differs between Simplified and Traditional Chinese, use the full language-region code.</p></details>`
+  },
+  zh:{
+    pageTitle:'Hreflang生成器 - 多语言SEO hreflang标签生成 | MODOO HUB',
+    h1:'Hreflang <span>生成器</span>',
+    sub:'生成多语言SEO hreflang标签',
+    backLink:'← 所有工具',langBtn:'🌐 日本語',
+    addLabel:'添加语言和URL',
+    labelLang:'语言代码',labelUrl:'URL',
+    btnAdd:'+ 添加',btnCopy:'复制',copyDone:'已复制 ✓',btnClear:'清除',
+    labelXDefault:'包含x-default',labelXDefaultUrl:'x-default URL',
+    tabHtml:'HTML标签',tabXml:'XML站点地图',tabHttp:'HTTP头',
+    outputLabel:'生成的标签',
+    seoHtml:`<h2>什么是hreflang？</h2><p>hreflang是一种HTML link标签属性，用于告知谷歌<strong>同一内容存在多语言或地区版本</strong>。它确保搜索结果向正确的用户显示对应语言的页面，并防止重复内容问题，是国际SEO的核心要素。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>什么是hreflang？</summary><p>hreflang标签添加在HTML head、XML站点地图或HTTP响应头中，告知谷歌页面所属的语言和地区版本。例如，引导英语用户访问/en/页面，引导韩语用户访问/ko/页面。</p></details>
+<details class="faq-item"><summary>x-default是什么意思？</summary><p>x-default指定当用户语言与任何hreflang值不匹配时显示的默认页面。例如只有韩语、英语、中文版本时，法语用户将看到x-default页面。通常用于语言选择页面或主语言页面。</p></details>
+<details class="faq-item"><summary>语言代码和地区代码有什么区别？</summary><p>仅语言："en"适用于所有英语用户。语言+地区："en-US"适用于美国英语用户，"en-GB"适用于英国英语用户。当内容因地区不同而有所差异（价格、单位等）时，使用语言+地区代码。</p></details>
+<details class="faq-item"><summary>hreflang设置错误会有什么问题？</summary><p>谷歌会忽略无效的hreflang标签，不会有排名惩罚。但你将失去预期的语言定向效果。常见错误包括缺少双向引用、URL拼写错误和遗漏自引用标签。</p></details>
+<details class="faq-item"><summary>为什么需要双向引用？</summary><p>如果页面A通过hreflang指向页面B，页面B也必须反过来指向页面A。这种双向链接向谷歌表明关系是有意为之且可信的。单向hreflang标签可能被谷歌忽略。</p></details>
+<details class="faq-item"><summary>是否需要在每个页面上添加hreflang？</summary><p>需要在所有有多语言版本的页面上添加hreflang。可以通过HTML head、XML站点地图或HTTP响应头三种方式实现。对于页面数量多的大型网站，站点地图方式更便于集中管理。</p></details>
+<details class="faq-item"><summary>站点地图vs head标签，哪种方式更好？</summary><p>小型网站使用head标签更直观。数百或数千个页面的网站使用XML站点地图便于集中管理。HTTP头方式用于PDF等非HTML文件。谷歌对三种方式一视同仁。</p></details>
+<details class="faq-item"><summary>zh-CN和zh有什么区别？</summary><p>"zh"仅指定语言，"zh-CN"针对中国大陆（简体中文），"zh-TW"针对台湾，"zh-HK"针对香港。如果简体中文和繁体中文内容不同，建议使用完整的语言-地区代码。</p></details>`
+  },
+  ja:{
+    pageTitle:'Hreflangジェネレーター - 多言語SEO hreflangタグ生成 | MODOO HUB',
+    h1:'Hreflang <span>ジェネレーター</span>',
+    sub:'多言語SEO hreflangタグ生成',
+    backLink:'← ホーム',langBtn:'🌐 한국어',
+    addLabel:'言語とURLを追加',
+    labelLang:'言語コード',labelUrl:'URL',
+    btnAdd:'+ 追加',btnCopy:'コピー',copyDone:'コピー完了 ✓',btnClear:'クリア',
+    labelXDefault:'x-defaultを含める',labelXDefaultUrl:'x-default URL',
+    tabHtml:'HTMLタグ',tabXml:'XMLサイトマップ',tabHttp:'HTTPヘッダー',
+    outputLabel:'生成されたタグ',
+    seoHtml:`<h2>hreflangとは</h2><p>hreflangはHTML link タグの属性で、<strong>同じコンテンツの多言語・地域別バージョンが存在することをGoogleに伝えます</strong>。適切な言語版ページを該当言語ユーザーの検索結果に表示し、重複コンテンツ問題を防ぎます。国際SEOの核心要素です。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>hreflangとは何ですか？</summary><p>hreflangタグはHTML head、XMLサイトマップ、またはHTTPヘッダーに追加し、ページが属する言語と地域バージョンをGoogleに伝えます。例えば英語ユーザーには/en/、日本語ユーザーには/ja/ページを検索結果に誘導します。</p></details>
+<details class="faq-item"><summary>x-defaultとは何を意味しますか？</summary><p>x-defaultは、指定された言語に一致しないユーザーに表示するデフォルトページを指定します。例えば韓国語・英語・中国語のみ存在する場合、フランス語ユーザーにはx-defaultのURLが表示されます。言語選択ページやデフォルト言語ページに一般的に使います。</p></details>
+<details class="faq-item"><summary>言語コードと地域コードの違いは？</summary><p>言語のみ：「en」は全ての英語ユーザーに適用されます。言語＋地域：「en-US」は米国英語、「en-GB」は英国英語のユーザーのみに適用されます。地域によってコンテンツが異なる（価格・単位など）場合は言語＋地域コードを使います。</p></details>
+<details class="faq-item"><summary>hreflangの設定が誤っている場合の問題は？</summary><p>Googleは無効なhreflangタグを無視します。ランキング低下ペナルティはありませんが、意図した言語ターゲティングの効果が得られません。双方向参照の欠如、URLのタイポ、自己参照の抜けが主なエラーです。</p></details>
+<details class="faq-item"><summary>双方向参照が必要な理由は？</summary><p>ページAがhreflangでページBを指す場合、ページBもページAを参照する必要があります。この相互リンクはGoogleがhreflangの関係を信頼するために必須です。一方向のみのhreflangはGoogleに無視される場合があります。</p></details>
+<details class="faq-item"><summary>全てのページにhreflangを追加すべきですか？</summary><p>多言語バージョンがある全ページに追加する必要があります。HTML head、XMLサイトマップ、HTTPレスポンスヘッダーのいずれかの方法で実装できます。ページ数が多い場合はサイトマップ方式が管理しやすいです。</p></details>
+<details class="faq-item"><summary>サイトマップとheadタグどちらが良いですか？</summary><p>ページ数が少なければheadタグが直感的です。数百〜数千ページの場合はXMLサイトマップで一元管理できます。HTTPヘッダーはPDFなど非HTMLファイルに使います。Googleは3つの方法を同等に扱います。</p></details>
+<details class="faq-item"><summary>zh-CNとzhの違いは？</summary><p>「zh」は言語のみ指定します。「zh-CN」は中国本土（簡体字）、「zh-TW」は台湾、「zh-HK」は香港を対象とします。簡体字と繁体字でコンテンツが異なる場合は言語-地域コードまで含めることを推奨します。</p></details>`
+  }
+};
+
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko';
+let _entries=[];
+let _tab='html';
+
+function detectLang(){
+  const u=new URLSearchParams(location.search).get('lang');
+  if(u&&_i18n[u])return u;
+  const s=localStorage.getItem('modoo_lang');
+  if(s&&_i18n[s])return s;
+  const n=navigator.language?.slice(0,2);
+  return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';
+}
+
+function cycleLang(){
+  const idx=LANGS.indexOf(_lang);
+  _lang=LANGS[(idx+1)%LANGS.length];
+  localStorage.setItem('modoo_lang',_lang);
+  const url=new URL(location.href);
+  url.searchParams.set('lang',_lang);
+  history.replaceState({},'',url);
+  applyLang();
+}
+
+function applyLang(){
+  const t=_i18n[_lang];
+  document.documentElement.lang=_lang;
+  document.title=t.pageTitle;
+  document.getElementById('h1El').innerHTML=t.h1;
+  document.getElementById('subEl').textContent=t.sub;
+  document.getElementById('backLink').textContent=t.backLink;
+  document.getElementById('langBtn').textContent=t.langBtn;
+  document.getElementById('addLabel').textContent=t.addLabel;
+  document.getElementById('btnAdd').textContent=t.btnAdd;
+  document.getElementById('btnCopy').textContent=t.btnCopy;
+  document.getElementById('btnClear').textContent=t.btnClear;
+  document.getElementById('labelXDefault').textContent=t.labelXDefault;
+  document.getElementById('labelXDefaultUrl').textContent=t.labelXDefaultUrl;
+  document.getElementById('tabHtml').textContent=t.tabHtml;
+  document.getElementById('tabXml').textContent=t.tabXml;
+  document.getElementById('tabHttp').textContent=t.tabHttp;
+  document.getElementById('outputLabel').textContent=t.outputLabel;
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+  renderEntries();
+  generate();
+}
+
+function setTab(tab,el){
+  _tab=tab;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  generate();
+}
+
+function addEntry(){
+  const lang=document.getElementById('langSelect').value;
+  const url=document.getElementById('urlInput').value.trim();
+  if(!url)return;
+  _entries.push({lang,url});
+  document.getElementById('urlInput').value='';
+  renderEntries();
+  generate();
+}
+
+function removeEntry(i){
+  _entries.splice(i,1);
+  renderEntries();
+  generate();
+}
+
+function escAttr(s){return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function renderEntries(){
+  const list=document.getElementById('entriesList');
+  if(_entries.length===0){list.innerHTML='';return;}
+  list.innerHTML=_entries.map((e,i)=>`<div class="entry-row"><span class="entry-lang">${escAttr(e.lang)}</span><span class="entry-url" title="${escAttr(e.url)}">${escAttr(e.url)}</span><button class="btn-del" onclick="removeEntry(${i})">×</button></div>`).join('');
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('xdefaultCheck').addEventListener('change',function(){
+    document.getElementById('xdefaultGroup').style.display=this.checked?'':'none';
+    generate();
+  });
+});
+
+function generate(){
+  const useXDefault=document.getElementById('xdefaultCheck').checked;
+  const xdefaultUrl=document.getElementById('xdefaultUrl').value.trim();
+  const all=[..._entries];
+  if(useXDefault&&xdefaultUrl)all.push({lang:'x-default',url:xdefaultUrl});
+
+  let out='';
+  if(_tab==='html'){
+    out=all.map(e=>`<link rel="alternate" hreflang="${escAttr(e.lang)}" href="${escAttr(e.url)}">`).join('\n');
+  } else if(_tab==='xml'){
+    out=all.map(e=>`<xhtml:link rel="alternate" hreflang="${escAttr(e.lang)}" href="${escAttr(e.url)}"/>`).join('\n');
+  } else {
+    out=all.map(e=>`Link: <${escAttr(e.url)}>; rel="alternate"; hreflang="${escAttr(e.lang)}"`).join('\n');
+  }
+  document.getElementById('outputTa').value=out;
+}
+
+function copyOutput(){
+  const t=_i18n[_lang];
+  const text=document.getElementById('outputTa').value;
+  if(!text)return;
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn=document.getElementById('btnCopy');
+    btn.textContent=t.copyDone;
+    btn.style.background='var(--green)';
+    btn.style.borderColor='var(--green)';
+    btn.style.color='#000';
+    setTimeout(()=>{btn.textContent=t.btnCopy;btn.style.background='';btn.style.borderColor='';btn.style.color='';},2000);
+  }).catch(()=>{document.getElementById('outputTa').select();document.execCommand('copy');});
+}
+
+function doClear(){
+  _entries=[];
+  document.getElementById('urlInput').value='';
+  document.getElementById('xdefaultCheck').checked=false;
+  document.getElementById('xdefaultUrl').value='';
+  document.getElementById('xdefaultGroup').style.display='none';
+  renderEntries();
+  generate();
+}
+
+_lang=detectLang();
+document.addEventListener('DOMContentLoaded',()=>applyLang());
+applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

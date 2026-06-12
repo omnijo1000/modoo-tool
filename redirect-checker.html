@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>리다이렉트 체인 검사기 - URL 301 302 리다이렉트 분석 | MODOO HUB</title>
+<meta name="description" content="URL 리다이렉트 체인을 시각적으로 분석합니다. 301, 302, 307, 308 리다이렉트 유형과 최종 목적지 URL을 확인하고 SEO 이슈를 진단하세요.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/redirect-checker.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/redirect-checker.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/redirect-checker.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/redirect-checker.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/redirect-checker.html">
+<link rel="canonical" href="https://modoohub.com/redirect-checker.html">
+<meta property="og:title" content="리다이렉트 체인 검사기 - URL 301 302 분석 | MODOO HUB">
+<meta property="og:description" content="URL 리다이렉트 체인을 시각적으로 분석. 301/302/307/308 유형 확인 및 SEO 이슈 진단.">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<meta property="og:url" content="https://modoohub.com/redirect-checker.html">
+<meta property="og:type" content="website">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;font-family:'DM Mono',monospace;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;font-family:'DM Mono',monospace;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:760px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;line-height:1.6;}
+.input-row{display:flex;gap:8px;margin-bottom:12px;}
+.url-input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-size:13px;font-family:'DM Mono',monospace;outline:none;}
+.url-input:focus{border-color:var(--accent);}
+.btn{padding:8px 16px;border:1px solid var(--border);border-radius:7px;font-size:13px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;background:none;color:var(--text-muted);transition:all .15s;}
+.btn:hover{border-color:var(--accent);color:var(--accent);}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;}
+.btn.primary:hover{opacity:.85;}
+.btn.danger:hover{border-color:var(--red);color:var(--red);}
+.cors-note{background:var(--surface);border:1px solid #60a5fa44;border-radius:8px;padding:12px 14px;font-size:12px;color:var(--blue);line-height:1.7;margin-bottom:20px;font-family:'DM Mono',monospace;}
+.section-title{font-size:12px;font-family:'DM Mono',monospace;color:var(--text-dim);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px;}
+.hops-container{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;}
+.hop-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+.hop-url-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-size:12px;font-family:'DM Mono',monospace;outline:none;}
+.hop-url-input:focus{border-color:var(--accent);}
+.hop-status{width:80px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 6px;color:var(--text);font-size:12px;font-family:'DM Mono',monospace;outline:none;}
+.hop-status:focus{border-color:var(--accent);}
+.hop-remove{width:28px;height:28px;border:1px solid var(--border);border-radius:6px;background:none;color:var(--text-dim);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.hop-remove:hover{border-color:var(--red);color:var(--red);}
+.add-hop-btn{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-dim);background:none;border:1px dashed var(--border);border-radius:6px;padding:7px 14px;cursor:pointer;font-family:'DM Mono',monospace;width:100%;justify-content:center;margin-top:6px;}
+.add-hop-btn:hover{border-color:var(--accent);color:var(--accent);}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+.redirect-chain{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:16px 0;padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;}
+.redirect-hop{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 12px;font-family:'DM Mono',monospace;font-size:11px;word-break:break-all;max-width:220px;color:var(--text-muted);}
+.redirect-arrow{color:var(--text-dim);font-size:18px;flex-shrink:0;}
+.status-label{font-size:10px;font-family:'DM Mono',monospace;padding:2px 6px;border-radius:3px;margin-left:4px;}
+.status-301{color:#f59e0b;}.status-301-bg{background:#f59e0b22;}
+.status-302{color:#60a5fa;}.status-302-bg{background:#60a5fa22;}
+.status-307{color:#c084fc;}.status-307-bg{background:#c084fc22;}
+.status-308{color:#fbbf24;}.status-308-bg{background:#fbbf2422;}
+.status-200{color:#4ade80;}.status-200-bg{background:#4ade8022;}
+.status-other{color:var(--text-dim);}
+.analysis-panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;}
+.analysis-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.analysis-row:last-child{border-bottom:none;}
+.analysis-label{color:var(--text-dim);}
+.analysis-value{font-family:'DM Mono',monospace;color:var(--text-muted);}
+.final-url{word-break:break-all;color:var(--green);font-size:12px;}
+.issues-list{margin-top:8px;display:flex;flex-direction:column;gap:6px;}
+.issue-item{display:flex;align-items:flex-start;gap:8px;padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;font-size:12px;}
+.issue-icon{font-size:14px;flex-shrink:0;}
+.issue-text{color:var(--text-muted);line-height:1.6;}
+.issue-ok{color:var(--green);}
+.ref-table{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:24px;}
+.ref-head{display:grid;grid-template-columns:70px 80px 1fr;padding:9px 14px;background:var(--surface2);font-size:10px;font-family:'DM Mono',monospace;color:var(--text-dim);letter-spacing:.06em;}
+.ref-row{display:grid;grid-template-columns:70px 80px 1fr;padding:10px 14px;border-top:1px solid var(--border);font-size:12px;align-items:start;}
+.ref-row:hover{background:var(--surface2);}
+.ref-code{font-family:'DM Mono',monospace;font-weight:700;}
+.ref-perm{font-size:11px;}
+.ref-desc{font-size:12px;color:var(--text-muted);line-height:1.5;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:32px;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebApplication",
+  "name":"Redirect Checker",
+  "url":"https://modoohub.com/redirect-checker.html",
+  "applicationCategory":"UtilitiesApplication",
+  "operatingSystem":"Any",
+  "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},
+  "description":"Visualize and analyze URL redirect chains. Check 301, 302, 307, 308 redirect types, detect redirect loops, and identify SEO issues."
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"FAQPage",
+  "mainEntity":[
+    {"@type":"Question","name":"리다이렉트란 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"리다이렉트는 서버가 특정 URL에 접근한 사용자를 다른 URL로 자동 전환하는 HTTP 메커니즘입니다. 3xx 상태 코드(301, 302, 307, 308)로 구현되며 URL 구조 변경, HTTPS 전환, 도메인 이전 등에 사용됩니다."}},
+    {"@type":"Question","name":"301과 302 리다이렉트의 차이는?","acceptedAnswer":{"@type":"Answer","text":"301은 영구 리다이렉트로 SEO 권위도(PageRank)가 거의 100% 새 URL로 전달됩니다. 302는 임시 리다이렉트로 권위도가 완전히 전달되지 않습니다. SEO 관점에서는 원칙적으로 301을 사용합니다."}}
+  ]
+}
+</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1 id="h1El">리다이렉트 <span>검사기</span></h1>
+  <p class="sub" id="subEl">URL 리다이렉트 체인 분석·최종 목적지 확인</p>
+
+  <div class="cors-note" id="corsNote">⚠ 브라우저 보안 정책(CORS)으로 인해 직접 서버 요청은 불가합니다. 아래 수동 체인 입력 모드를 사용하거나, 실제 서버 응답은 Chrome DevTools → Network 탭에서 확인하세요.</div>
+
+  <div class="section-title" id="sectionManual">수동 리다이렉트 체인 입력</div>
+  <div class="hops-container" id="hopsContainer"></div>
+
+  <div class="btn-row">
+    <button class="btn primary" onclick="analyzeChain()" id="btnAnalyze">체인 분석</button>
+    <button class="btn" onclick="loadSample()" id="btnSample">샘플</button>
+    <button class="btn danger" onclick="clearChain()" id="btnClear">지우기</button>
+  </div>
+
+  <div id="chainVisual" style="display:none">
+    <div class="section-title" id="labelChain">리다이렉트 체인</div>
+    <div class="redirect-chain" id="chainEl"></div>
+
+    <div class="analysis-panel" id="analysisPanel">
+      <div class="analysis-row">
+        <span class="analysis-label" id="labelHops">총 홉 수</span>
+        <span class="analysis-value" id="hopsCount">0</span>
+      </div>
+      <div class="analysis-row">
+        <span class="analysis-label" id="labelFinal">최종 URL</span>
+        <span class="analysis-value final-url" id="finalUrl"></span>
+      </div>
+    </div>
+
+    <div class="section-title" id="labelIssues">이슈 분석</div>
+    <div class="issues-list" id="issuesList"></div>
+  </div>
+
+  <div style="margin-top:24px">
+    <div class="section-title" id="labelRefTable">리다이렉트 상태 코드 참조</div>
+    <div class="ref-table" id="refTableEl"></div>
+  </div>
+
+  <div class="seo" id="seoDiv"></div>
+  <footer>Redirect Checker · Free Online Tool · modoohub.com</footer>
+</main>
+<script>
+let hopCount = 0;
+
+const _i18n = {
+  ko: {
+    pageTitle: '리다이렉트 체인 검사기 - URL 301 302 분석 | MODOO HUB',
+    h1: '리다이렉트 <span>검사기</span>',
+    sub: 'URL 리다이렉트 체인 분석·최종 목적지 확인',
+    backLink: '← 모두의 툴', langBtn: '🌐 EN',
+    corsNote: '⚠ 브라우저 보안 정책(CORS)으로 인해 직접 서버 요청은 불가합니다. 아래 수동 체인 입력 모드를 사용하거나, 실제 서버 응답은 Chrome DevTools → Network 탭에서 확인하세요.',
+    sectionManual: '수동 리다이렉트 체인 입력',
+    btnAnalyze: '체인 분석', btnSample: '샘플', btnClear: '지우기',
+    labelChain: '리다이렉트 체인', labelHops: '총 홉 수',
+    labelFinal: '최종 URL', labelIssues: '이슈 분석',
+    labelRefTable: '리다이렉트 상태 코드 참조',
+    addHop: '+ 홉 추가',
+    urlPlaceholder: 'https://example.com/old-page',
+    noIssues: '이슈 없음 — 리다이렉트 체인이 올바릅니다.',
+    issueLoop: '리다이렉트 루프 감지! 동일 URL이 체인에 2회 이상 등장합니다.',
+    issueTooMany: '리다이렉트가 5개를 초과합니다. 검색엔진은 5~10개 이상의 리다이렉트를 중단할 수 있습니다.',
+    issueMixedProto: 'HTTP → HTTPS → HTTP 혼합 프로토콜 전환이 감지됩니다.',
+    issueWww: 'www/non-www 불일치가 감지됩니다.',
+    issueTemp: '302/307 임시 리다이렉트가 포함되어 있습니다. 영구 이동이라면 301을 사용하세요.',
+    refHead: ['코드','유형','설명'],
+    refRows: [
+      {code:'301', type:'영구', cls:'status-301', desc:'영구 리다이렉트. PageRank가 새 URL로 전달됩니다. HTTPS 전환, URL 구조 변경에 사용.'},
+      {code:'302', type:'임시', cls:'status-302', desc:'임시 리다이렉트. PageRank 전달이 보장되지 않음. A/B 테스트, 임시 점검 페이지에 사용.'},
+      {code:'307', type:'임시', cls:'status-307', desc:'302와 유사하나 HTTP 메서드(POST 등)가 변경되지 않음. 보안상 302보다 권장.'},
+      {code:'308', type:'영구', cls:'status-308', desc:'301과 유사하나 HTTP 메서드가 변경되지 않음. 301의 현대적 대안.'},
+      {code:'200', type:'최종', cls:'status-200', desc:'리다이렉트 체인의 최종 목적지. 콘텐츠가 정상 반환됩니다.'},
+    ],
+    seoHtml: `<h2>리다이렉트란?</h2><p>리다이렉트는 서버가 특정 URL을 요청한 사용자와 봇을 다른 URL로 자동 전환하는 HTTP 메커니즘입니다. 3xx 상태 코드로 구현되며, <strong>URL 구조 변경, HTTP→HTTPS 전환, www/non-www 통일, 도메인 이전</strong> 등 다양한 목적으로 사용됩니다. 잘못된 리다이렉트 설정은 PageRank 손실, 검색엔진 색인 오류, 사용자 경험 저하를 초래합니다. 리다이렉트 체인 분석을 통해 이런 이슈를 사전에 예방하세요.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>Q. 리다이렉트란 무엇인가요?</summary><p>A. 리다이렉트는 서버가 특정 URL로 접근한 클라이언트(브라우저, 검색봇)를 다른 URL로 자동 안내하는 HTTP 응답입니다. 3xx 상태 코드 중 어느 것을 사용하느냐에 따라 영구/임시 여부, HTTP 메서드 유지 여부가 결정됩니다. 올바른 리다이렉트 설정은 SEO와 사용자 경험 모두에 직결됩니다.</p></details>
+<details class="faq-item"><summary>Q. 301과 302 리다이렉트의 차이는?</summary><p>A. 301은 "영구 이동"으로 구글이 PageRank(링크 권위도)를 거의 100% 새 URL로 전달합니다. 302는 "임시 이동"으로 원본 URL에 PageRank가 남아있고 새 URL로 권위도가 완전히 전달되지 않습니다. 콘텐츠가 영구 이전했다면 반드시 301을 사용하세요. A/B 테스트나 임시 공사 중 페이지에는 302를 사용합니다.</p></details>
+<details class="faq-item"><summary>Q. 307과 308은 302, 301과 무엇이 다른가요?</summary><p>A. 307은 302와 마찬가지로 임시 리다이렉트이지만, 원본 HTTP 요청 메서드(GET, POST 등)를 변경하지 않습니다. 308은 301의 현대적 대안으로 영구 리다이렉트이면서 메서드를 보존합니다. API 엔드포인트처럼 POST 요청을 처리하는 URL을 리다이렉트할 때 307/308이 중요합니다.</p></details>
+<details class="faq-item"><summary>Q. 리다이렉트 체인이 SEO에 미치는 영향은?</summary><p>A. 리다이렉트 체인(A→B→C)이 길어질수록 PageRank가 각 홉에서 조금씩 손실됩니다. Googlebot은 크롤 예산을 절약하기 위해 5~10개 이상의 리다이렉트 체인을 중단할 수 있습니다. 이상적인 체인 길이는 최대 3단계이며, 가능하면 A→C로 직접 리다이렉트하는 것이 좋습니다.</p></details>
+<details class="faq-item"><summary>Q. 리다이렉트를 통해 PageRank가 전달되나요?</summary><p>A. 301 리다이렉트를 통해 PageRank가 거의 완전히 전달됩니다(과거에는 약간 손실된다고 알려졌으나 Google은 현재 301과 302 모두 PageRank를 전달한다고 공식 발표했습니다). 다만 리다이렉트 체인이 길수록 각 단계에서 작은 손실이 누적됩니다. 백링크를 보유한 구 URL에서 신 URL로 301 리다이렉트는 링크 자산 보존에 필수입니다.</p></details>
+<details class="faq-item"><summary>Q. 리다이렉트 루프란 무엇인가요?</summary><p>A. 리다이렉트 루프는 A→B→A 또는 A→B→C→A처럼 리다이렉트가 순환하는 상황입니다. 브라우저와 검색봇이 무한 루프에 빠져 페이지를 렌더링하지 못합니다. .htaccess나 nginx 설정 오류, CMS 설정 충돌로 주로 발생합니다. 체인에서 동일 URL이 2회 이상 등장하면 루프가 의심됩니다.</p></details>
+<details class="faq-item"><summary>Q. HTTPS 마이그레이션 시 리다이렉트 설정은?</summary><p>A. HTTP → HTTPS 전환 시 반드시 301 영구 리다이렉트를 사용해야 합니다. www와 non-www 중 하나를 정규 버전으로 선택하고 나머지는 정규 버전으로 301 리다이렉트합니다. 이상적 체인: http://www → https://www (301), 또는 http://example → https://example (301). HSTS 헤더도 함께 설정하면 보안성을 높일 수 있습니다.</p></details>
+<details class="faq-item"><summary>Q. 최대 리다이렉트 수는 몇 개가 적당한가요?</summary><p>A. SEO 모범 사례는 최대 2~3단계 리다이렉트입니다. 5단계 이상은 Google이 크롤을 중단할 수 있으며, Chrome은 기본적으로 20번의 리다이렉트 후 ERR_TOO_MANY_REDIRECTS 오류를 표시합니다. 구 URL에서 현 URL로 직접 리다이렉트하는 것이 항상 최선입니다.</p></details>`,
+  },
+  en: {
+    pageTitle: 'Redirect Checker - URL Redirect Chain Analyzer | MODOO HUB',
+    h1: 'Redirect <span>Checker</span>',
+    sub: 'Analyze URL redirect chains · Identify 301/302/307/308 hops · Find SEO issues',
+    backLink: '← All Tools', langBtn: '🌐 中文',
+    corsNote: '⚠ Browser CORS policy prevents direct server requests. Use the manual chain builder below, or check real server redirects in Chrome DevTools → Network tab.',
+    sectionManual: 'Manual Redirect Chain Builder',
+    btnAnalyze: 'Analyze Chain', btnSample: 'Sample', btnClear: 'Clear',
+    labelChain: 'Redirect Chain', labelHops: 'Total Hops',
+    labelFinal: 'Final URL', labelIssues: 'Issues',
+    labelRefTable: 'Redirect Status Code Reference',
+    addHop: '+ Add Hop',
+    urlPlaceholder: 'https://example.com/old-page',
+    noIssues: 'No issues found — redirect chain looks healthy.',
+    issueLoop: 'Redirect loop detected! The same URL appears more than once in the chain.',
+    issueTooMany: 'More than 5 redirects. Search engines may stop following chains longer than 5–10 hops.',
+    issueMixedProto: 'Mixed protocol detected: HTTP → HTTPS → HTTP back and forth.',
+    issueWww: 'www/non-www mismatch detected in the chain.',
+    issueTemp: '302/307 temporary redirect detected. Use 301 if this is a permanent move.',
+    refHead: ['Code','Type','Description'],
+    refRows: [
+      {code:'301', type:'Permanent', cls:'status-301', desc:'Permanent redirect. PageRank passes to new URL. Use for HTTPS migration, URL restructuring.'},
+      {code:'302', type:'Temporary', cls:'status-302', desc:'Temporary redirect. PageRank retention not guaranteed. Use for A/B tests, maintenance pages.'},
+      {code:'307', type:'Temporary', cls:'status-307', desc:'Like 302 but preserves HTTP method (POST etc.). Preferred over 302 for security.'},
+      {code:'308', type:'Permanent', cls:'status-308', desc:'Like 301 but preserves HTTP method. Modern alternative to 301 for non-GET requests.'},
+      {code:'200', type:'Final', cls:'status-200', desc:'End of the redirect chain. Content is returned normally.'},
+    ],
+    seoHtml: `<h2>What are URL Redirects?</h2><p>URL redirects are HTTP responses (3xx status codes) that instruct browsers and search bots to fetch a different URL than the one requested. Common uses include <strong>HTTP-to-HTTPS migration, www canonicalization, URL restructuring, and domain moves</strong>. Misconfigured redirects cause PageRank loss, crawl budget waste, and indexing errors. Analyzing your redirect chain helps prevent these issues before they impact rankings.</p>
+<h2 class="seo-sub">Frequently Asked Questions</h2>
+<details class="faq-item"><summary>Q. What is a URL redirect?</summary><p>A. A redirect is an HTTP response (3xx status code) that tells the requesting client — browser or search bot — to fetch a different URL. The response includes a Location header with the destination URL. Which status code you use determines whether the redirect is permanent or temporary and whether the original HTTP method is preserved.</p></details>
+<details class="faq-item"><summary>Q. What is the difference between 301 and 302?</summary><p>A. 301 (Moved Permanently) signals that the resource has moved forever — Google passes nearly 100% of PageRank to the new URL. 302 (Found / Moved Temporarily) suggests the move is temporary, so PageRank stays associated with the original URL. Always use 301 for permanent content moves; use 302 for A/B tests or temporary maintenance pages.</p></details>
+<details class="faq-item"><summary>Q. What is the difference between 307 and 308 vs 302 and 301?</summary><p>A. 307 (Temporary Redirect) is like 302 but guarantees the original HTTP method (e.g., POST) is not changed to GET. 308 (Permanent Redirect) is like 301 but also preserves the HTTP method. 307 and 308 matter when redirecting API endpoints or form POST requests where changing the method would break functionality.</p></details>
+<details class="faq-item"><summary>Q. How do redirect chains affect SEO?</summary><p>A. Each hop in a redirect chain (A→B→C) introduces a small PageRank dilution. Googlebot may also stop following chains longer than 5–10 hops to conserve crawl budget, leaving downstream URLs unindexed. Ideal chains are 1–2 hops; whenever possible, update old redirects to point directly to the final destination URL.</p></details>
+<details class="faq-item"><summary>Q. Does PageRank pass through redirects?</summary><p>A. Yes. Google officially confirmed that both 301 and 302 redirects pass PageRank. However, each additional hop in a chain introduces a small compounding loss. Redirects from link-bearing old URLs to new URLs are essential for preserving link equity after site migrations.</p></details>
+<details class="faq-item"><summary>Q. What is a redirect loop?</summary><p>A. A redirect loop occurs when URL A redirects to B, and B redirects back to A (or through a longer cycle). Both browsers and bots get stuck in an infinite loop and cannot render the page. Chrome shows ERR_TOO_MANY_REDIRECTS after ~20 hops. Loops usually stem from misconfigured .htaccess rules, nginx configs, or CMS settings.</p></details>
+<details class="faq-item"><summary>Q. How should I set up redirects during HTTPS migration?</summary><p>A. Redirect all HTTP URLs to their HTTPS equivalents using 301. Choose one canonical version (www or non-www) and redirect the other with 301. Ideal chain: http://example.com → https://example.com (301). Add HSTS headers on the HTTPS response to prevent future HTTP access. Avoid chains like http:// → http://www → https://www — flatten to a single hop.</p></details>
+<details class="faq-item"><summary>Q. What is the maximum recommended redirect chain length?</summary><p>A. SEO best practice is a maximum of 2–3 hops. Google may stop crawling chains longer than 5–10 redirects. Chrome displays ERR_TOO_MANY_REDIRECTS after 20 hops. The safest approach is to update old redirect rules to point directly to the current final URL, eliminating intermediate hops entirely.</p></details>`,
+  },
+  zh: {
+    pageTitle: '重定向检查器 - URL重定向链分析 | MODOO HUB',
+    h1: '重定向<span>检查器</span>',
+    sub: 'URL重定向链分析·识别301/302/307/308跳转·发现SEO问题',
+    backLink: '← 首页', langBtn: '🌐 日本語',
+    corsNote: '⚠ 浏览器CORS策略阻止直接服务器请求。请使用下方手动链条构建器，或通过Chrome DevTools → Network标签查看真实服务器重定向。',
+    sectionManual: '手动重定向链构建器',
+    btnAnalyze: '分析链条', btnSample: '示例', btnClear: '清空',
+    labelChain: '重定向链', labelHops: '总跳转数',
+    labelFinal: '最终URL', labelIssues: '问题分析',
+    labelRefTable: '重定向状态码参考',
+    addHop: '+ 添加跳转',
+    urlPlaceholder: 'https://example.com/old-page',
+    noIssues: '未发现问题——重定向链状态正常。',
+    issueLoop: '检测到重定向循环！同一URL在链条中出现超过一次。',
+    issueTooMany: '重定向超过5次。搜索引擎可能在5-10次跳转后停止跟随。',
+    issueMixedProto: '检测到混合协议：HTTP → HTTPS → HTTP来回切换。',
+    issueWww: '链条中检测到www/non-www不一致。',
+    issueTemp: '检测到302/307临时重定向。如果是永久移动，请使用301。',
+    refHead: ['代码','类型','说明'],
+    refRows: [
+      {code:'301', type:'永久', cls:'status-301', desc:'永久重定向。PageRank传递到新URL。用于HTTPS迁移、URL结构调整。'},
+      {code:'302', type:'临时', cls:'status-302', desc:'临时重定向。PageRank不保证完全传递。用于A/B测试、维护页面。'},
+      {code:'307', type:'临时', cls:'status-307', desc:'类似302但保留HTTP方法（如POST）。安全性优于302。'},
+      {code:'308', type:'永久', cls:'status-308', desc:'类似301但保留HTTP方法。适用于非GET请求的永久重定向。'},
+      {code:'200', type:'最终', cls:'status-200', desc:'重定向链的终点。正常返回内容。'},
+    ],
+    seoHtml: `<h2>什么是URL重定向？</h2><p>URL重定向是HTTP响应（3xx状态码），指示浏览器和搜索机器人获取与请求不同的URL。常见用途包括<strong>HTTP转HTTPS、www规范化、URL结构调整和域名迁移</strong>。配置错误的重定向会导致PageRank损失、爬取预算浪费和索引错误。分析重定向链有助于在影响排名之前发现并修复这些问题。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>Q. URL重定向是什么？</summary><p>A. 重定向是HTTP响应（3xx状态码），告知请求客户端（浏览器或搜索机器人）获取不同的URL。响应中包含带有目标URL的Location头。使用哪种状态码决定了重定向是永久还是临时的，以及原始HTTP方法是否被保留。</p></details>
+<details class="faq-item"><summary>Q. 301和302有什么区别？</summary><p>A. 301（永久移动）表示资源已永久移动——Google将几乎100%的PageRank传递到新URL。302（临时移动）表示移动是临时的，PageRank与原始URL保持关联。永久内容迁移始终使用301；A/B测试或临时维护页面使用302。</p></details>
+<details class="faq-item"><summary>Q. 307、308与302、301有什么不同？</summary><p>A. 307（临时重定向）类似302，但保证原始HTTP方法（如POST）不变。308（永久重定向）类似301，但也保留HTTP方法。重定向API端点或表单POST请求时，307和308很重要，因为改变方法会破坏功能。</p></details>
+<details class="faq-item"><summary>Q. 重定向链如何影响SEO？</summary><p>A. 重定向链（A→B→C）中每一跳都会引入微小的PageRank稀释。Googlebot也可能在超过5-10跳后停止跟随链条以节省爬取预算，导致后续URL无法被索引。理想的链条长度为1-2跳；尽可能更新旧重定向规则，直接指向最终目标URL。</p></details>
+<details class="faq-item"><summary>Q. PageRank能通过重定向传递吗？</summary><p>A. 可以。Google官方确认301和302重定向都能传递PageRank。但链条中每增加一跳都会引入微小的累积损失。将含有反向链接的旧URL重定向到新URL对于保留链接权益至关重要。</p></details>
+<details class="faq-item"><summary>Q. 什么是重定向循环？</summary><p>A. 重定向循环是URL A重定向到B，B又重定向回A的情况（或更长的循环）。浏览器和机器人都会陷入无限循环，无法渲染页面。Chrome在约20跳后显示ERR_TOO_MANY_REDIRECTS。循环通常源于.htaccess规则、nginx配置错误或CMS设置冲突。</p></details>
+<details class="faq-item"><summary>Q. HTTPS迁移时如何设置重定向？</summary><p>A. 使用301将所有HTTP URL重定向到对应的HTTPS地址。选择一个规范版本（www或non-www），用301将另一个重定向过去。理想链条：http://example.com → https://example.com（301）。在HTTPS响应上添加HSTS头以防止未来的HTTP访问。</p></details>
+<details class="faq-item"><summary>Q. 建议的最大重定向链长度是多少？</summary><p>A. SEO最佳实践是最多2-3跳。Google可能在超过5-10次重定向后停止爬取。Chrome在20跳后显示ERR_TOO_MANY_REDIRECTS。最安全的做法是更新旧重定向规则，直接指向当前最终URL，完全消除中间跳转。</p></details>`,
+  },
+  ja: {
+    pageTitle: 'リダイレクトチェッカー - URLリダイレクトチェーン分析 | MODOO HUB',
+    h1: 'リダイレクト<span>チェッカー</span>',
+    sub: 'URLリダイレクトチェーン分析·301/302/307/308の確認·SEO問題の検出',
+    backLink: '← ホーム', langBtn: '🌐 한국어',
+    corsNote: '⚠ ブラウザのCORSポリシーにより直接サーバーリクエストはできません。下のマニュアルチェーンビルダーをご利用いただくか、実際のサーバーレスポンスはChrome DevTools → Networkタブで確認してください。',
+    sectionManual: '手動リダイレクトチェーンビルダー',
+    btnAnalyze: 'チェーン分析', btnSample: 'サンプル', btnClear: 'クリア',
+    labelChain: 'リダイレクトチェーン', labelHops: '合計ホップ数',
+    labelFinal: '最終URL', labelIssues: '問題分析',
+    labelRefTable: 'リダイレクトステータスコード参照',
+    addHop: '+ ホップ追加',
+    urlPlaceholder: 'https://example.com/old-page',
+    noIssues: '問題なし — リダイレクトチェーンは正常です。',
+    issueLoop: 'リダイレクトループを検出！同じURLがチェーンに2回以上出現しています。',
+    issueTooMany: 'リダイレクトが5回を超えています。検索エンジンは5〜10ホップ以上のチェーンを追跡しない場合があります。',
+    issueMixedProto: '混合プロトコルを検出：HTTP → HTTPS → HTTPの往来が見られます。',
+    issueWww: 'www/non-wwwの不一致をチェーン内に検出しました。',
+    issueTemp: '302/307一時リダイレクトが検出されました。永久移動の場合は301を使用してください。',
+    refHead: ['コード','タイプ','説明'],
+    refRows: [
+      {code:'301', type:'永久', cls:'status-301', desc:'永久リダイレクト。PageRankが新URLに伝達。HTTPS移行、URL構造変更に使用。'},
+      {code:'302', type:'一時', cls:'status-302', desc:'一時リダイレクト。PageRank伝達が保証されない。A/Bテスト、メンテナンスページに使用。'},
+      {code:'307', type:'一時', cls:'status-307', desc:'302と同様だがHTTPメソッド（POSTなど）を変更しない。セキュリティ上302より推奨。'},
+      {code:'308', type:'永久', cls:'status-308', desc:'301と同様だがHTTPメソッドを保持。非GETリクエストの永久リダイレクトに使用。'},
+      {code:'200', type:'最終', cls:'status-200', desc:'リダイレクトチェーンの終点。コンテンツが正常に返される。'},
+    ],
+    seoHtml: `<h2>URLリダイレクトとは</h2><p>URLリダイレクトはHTTPレスポンス（3xxステータスコード）で、ブラウザや検索ボットにリクエストしたURL以外のURLを取得するよう指示します。主な用途は<strong>HTTP→HTTPS移行、www正規化、URL構造変更、ドメイン移転</strong>です。誤設定のリダイレクトはPageRank損失、クロールバジェット無駄遣い、インデックスエラーを引き起こします。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>Q. URLリダイレクトとは何ですか？</summary><p>A. リダイレクトはHTTPレスポンス（3xxステータスコード）で、リクエストクライアント（ブラウザまたは検索ボット）に別のURLを取得するよう指示します。どのステータスコードを使うかで、永久/一時および元のHTTPメソッドが保持されるかどうかが決まります。</p></details>
+<details class="faq-item"><summary>Q. 301と302の違いは？</summary><p>A. 301（永久移動）はリソースが永久に移動したことを示し、GoogleはPageRankをほぼ100%新URLに伝達します。302（一時移動）は一時的な移動を示し、PageRankは元URLに関連付けられたままです。永久的なコンテンツ移転には必ず301を使用し、A/Bテストや一時メンテナンスには302を使います。</p></details>
+<details class="faq-item"><summary>Q. 307・308と302・301の違いは？</summary><p>A. 307（一時リダイレクト）は302と同様ですが、元のHTTPメソッド（POSTなど）が変更されません。308（永久リダイレクト）は301と同様ですがHTTPメソッドを保持します。APIエンドポイントやフォームのPOSTリクエストをリダイレクトする際に307/308が重要です。</p></details>
+<details class="faq-item"><summary>Q. リダイレクトチェーンがSEOに与える影響は？</summary><p>A. リダイレクトチェーン（A→B→C）の各ホップでPageRankが微量ずつ損失します。Googlebotはクロールバジェット節約のため、5〜10ホップ以上のチェーンを追跡しない場合があり、末端URLがインデックスされないことがあります。理想的なチェーン長は1〜2ホップです。</p></details>
+<details class="faq-item"><summary>Q. リダイレクトでPageRankは伝達されますか？</summary><p>A. はい。GoogleはPageRankが301と302の両方で伝達されることを公式に確認しています。ただし、チェーンのホップが増えるほど微小な損失が累積されます。被リンクを持つ旧URLから新URLへの301リダイレクトはリンク資産保全に不可欠です。</p></details>
+<details class="faq-item"><summary>Q. リダイレクトループとは何ですか？</summary><p>A. リダイレクトループはURL AがBにリダイレクトし、BがAに戻る（またはより長いサイクル）状況です。ブラウザとボット両方が無限ループに陥り、ページをレンダリングできません。ChromeはERR_TOO_MANY_REDIRECTSエラーを約20ホップ後に表示します。</p></details>
+<details class="faq-item"><summary>Q. HTTPS移行時のリダイレクト設定は？</summary><p>A. HTTPからHTTPSへ301リダイレクトを使用します。wwwかnon-wwwのどちらかを正規バージョンに選択し、もう一方を301でリダイレクトします。理想的なチェーン：http://example.com → https://example.com（301）。HTTPSレスポンスにHSTSヘッダーも追加してください。</p></details>
+<details class="faq-item"><summary>Q. リダイレクトの最大推奨ホップ数は？</summary><p>A. SEOのベストプラクティスは最大2〜3ホップです。Googleは5〜10ホップ以上でクロールを止める可能性があります。Chromeは20ホップ後にERR_TOO_MANY_REDIRECTSを表示します。最も安全なアプローチは古いリダイレクトルールを更新して現在の最終URLに直接向けることです。</p></details>`,
+  },
+};
+
+const LANGS = ['ko','en','zh','ja'];
+let _lang = 'ko';
+
+function detectLang(){
+  const u = new URLSearchParams(location.search).get('lang');
+  if(u && _i18n[u]) return u;
+  const s = localStorage.getItem('modoo_lang');
+  if(s && _i18n[s]) return s;
+  const n = navigator.language?.slice(0,2);
+  return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';
+}
+
+function cycleLang(){
+  const idx = LANGS.indexOf(_lang);
+  _lang = LANGS[(idx+1) % LANGS.length];
+  localStorage.setItem('modoo_lang', _lang);
+  const url = new URL(location.href);
+  url.searchParams.set('lang', _lang);
+  history.replaceState({}, '', url);
+  applyLang();
+}
+
+function applyLang(){
+  const t = _i18n[_lang];
+  document.documentElement.lang = _lang;
+  document.title = t.pageTitle;
+  document.getElementById('h1El').innerHTML = t.h1;
+  document.getElementById('subEl').textContent = t.sub;
+  document.getElementById('backLink').textContent = t.backLink;
+  document.getElementById('langBtn').textContent = t.langBtn;
+  document.getElementById('corsNote').textContent = t.corsNote;
+  document.getElementById('sectionManual').textContent = t.sectionManual;
+  document.getElementById('btnAnalyze').textContent = t.btnAnalyze;
+  document.getElementById('btnSample').textContent = t.btnSample;
+  document.getElementById('btnClear').textContent = t.btnClear;
+  document.getElementById('labelChain').textContent = t.labelChain;
+  document.getElementById('labelHops').textContent = t.labelHops;
+  document.getElementById('labelFinal').textContent = t.labelFinal;
+  document.getElementById('labelIssues').textContent = t.labelIssues;
+  document.getElementById('labelRefTable').textContent = t.labelRefTable;
+  document.getElementById('seoDiv').innerHTML = t.seoHtml;
+  renderRefTable(t);
+  document.querySelectorAll('.add-hop-text').forEach(el => el.textContent = t.addHop);
+  document.querySelectorAll('.hop-url-input').forEach(el => el.placeholder = t.urlPlaceholder);
+}
+
+function addHop(url='', status='301'){
+  const t = _i18n[_lang];
+  const container = document.getElementById('hopsContainer');
+  const addBtn = container.querySelector('.add-hop-btn');
+  const row = document.createElement('div');
+  row.className = 'hop-row';
+  row.dataset.id = ++hopCount;
+  row.innerHTML = `
+    <input type="text" class="hop-url-input" value="${url}" placeholder="${t.urlPlaceholder}">
+    <select class="hop-status">
+      <option value="301"${status==='301'?' selected':''}>301</option>
+      <option value="302"${status==='302'?' selected':''}>302</option>
+      <option value="307"${status==='307'?' selected':''}>307</option>
+      <option value="308"${status==='308'?' selected':''}>308</option>
+      <option value="200"${status==='200'?' selected':''}>200</option>
+    </select>
+    <button class="hop-remove" onclick="removeHop(this)" title="Remove">×</button>
+  `;
+  container.insertBefore(row, addBtn);
+}
+
+function removeHop(btn){
+  btn.closest('.hop-row').remove();
+}
+
+function loadSample(){
+  clearChain();
+  addHop('http://example.com/', '301');
+  addHop('https://example.com/', '301');
+  addHop('https://www.example.com/', '200');
+}
+
+function clearChain(){
+  const container = document.getElementById('hopsContainer');
+  container.querySelectorAll('.hop-row').forEach(r => r.remove());
+  document.getElementById('chainVisual').style.display = 'none';
+  hopCount = 0;
+}
+
+function analyzeChain(){
+  const rows = document.querySelectorAll('.hop-row');
+  if(rows.length === 0) return;
+  const hops = Array.from(rows).map(r => ({
+    url: r.querySelector('.hop-url-input').value.trim(),
+    status: r.querySelector('.hop-status').value,
+  })).filter(h => h.url.length > 0);
+  if(hops.length === 0) return;
+
+  const t = _i18n[_lang];
+
+  // Build chain visual
+  let chainHtml = '';
+  hops.forEach((hop, i) => {
+    const statusCls = `status-${hop.status}`;
+    const statusBg = `status-${hop.status}-bg`;
+    chainHtml += `<div class="redirect-hop"><span class="${statusCls} status-label ${statusBg}">${hop.status}</span><br>${hop.url}</div>`;
+    if(i < hops.length - 1) chainHtml += `<span class="redirect-arrow">→</span>`;
+  });
+  document.getElementById('chainEl').innerHTML = chainHtml;
+
+  // Final URL & hops count
+  const finalHop = hops[hops.length - 1];
+  document.getElementById('hopsCount').textContent = (hops.length - 1) + ' hops';
+  document.getElementById('finalUrl').textContent = finalHop.url;
+
+  // Issues
+  const issues = [];
+  // Loop detection
+  const urls = hops.map(h => h.url);
+  const seen = new Set();
+  let hasLoop = false;
+  urls.forEach(u => { if(seen.has(u)) hasLoop = true; seen.add(u); });
+  if(hasLoop) issues.push({icon:'🔴', text: t.issueLoop});
+  // Too many redirects
+  if(hops.length - 1 > 5) issues.push({icon:'🟡', text: t.issueTooMany});
+  // Mixed protocols
+  const protos = hops.map(h => h.url.startsWith('https') ? 'https' : 'http');
+  let mixedProto = false;
+  for(let i = 1; i < protos.length - 1; i++){
+    if(protos[i] !== protos[i-1] && protos[i] !== protos[i+1]) { mixedProto = true; break; }
+  }
+  if(mixedProto) issues.push({icon:'🟡', text: t.issueMixedProto});
+  // www mismatch
+  const hasWww = hops.some(h => h.url.includes('://www.'));
+  const hasNonWww = hops.some(h => !h.url.includes('://www.') && (h.url.startsWith('http://') || h.url.startsWith('https://')));
+  if(hasWww && hasNonWww) issues.push({icon:'🟡', text: t.issueWww});
+  // Temp redirects
+  if(hops.some(h => h.status === '302' || h.status === '307') && hops.length > 1)
+    issues.push({icon:'🔵', text: t.issueTemp});
+
+  const issuesList = document.getElementById('issuesList');
+  if(issues.length === 0){
+    issuesList.innerHTML = `<div class="issue-item"><span class="issue-icon">✅</span><span class="issue-text issue-ok">${t.noIssues}</span></div>`;
+  } else {
+    issuesList.innerHTML = issues.map(i => `<div class="issue-item"><span class="issue-icon">${i.icon}</span><span class="issue-text">${i.text}</span></div>`).join('');
+  }
+
+  document.getElementById('chainVisual').style.display = 'block';
+}
+
+function renderRefTable(t){
+  const rows = t.refRows.map(r => `
+    <div class="ref-row">
+      <span class="ref-code ${r.cls}">${r.code}</span>
+      <span class="ref-perm ${r.cls}">${r.type}</span>
+      <span class="ref-desc">${r.desc}</span>
+    </div>
+  `).join('');
+  document.getElementById('refTableEl').innerHTML = `
+    <div class="ref-head">
+      <span>${t.refHead[0]}</span>
+      <span>${t.refHead[1]}</span>
+      <span>${t.refHead[2]}</span>
+    </div>
+    ${rows}
+  `;
+}
+
+// Initialize
+_lang = detectLang();
+// Build initial hops container with add button
+document.getElementById('hopsContainer').innerHTML = `<button class="add-hop-btn" onclick="addHop()"><span class="add-hop-text">+ 홉 추가</span></button>`;
+addHop('', '301');
+addHop('', '200');
+applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>
