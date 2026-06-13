@@ -343,6 +343,35 @@
     'javascript-minifier':       { ko: 'JS 압축기',            en: 'JS Minifier',                zh: 'JS压缩器',             ja: 'JSミニファイアー',      icon: '⚡' },
     'javascript-beautifier':     { ko: 'JS 포매터',            en: 'JS Beautifier',              zh: 'JS格式化器',           ja: 'JSフォーマッター',      icon: '✨' },
     'css-beautifier':            { ko: 'CSS 포매터',           en: 'CSS Beautifier',             zh: 'CSS格式化器',          ja: 'CSSフォーマッター',     icon: '🖌️' },
+    'token-estimator':           { ko: 'AI 토큰 추정기',       en: 'AI Token Estimator',         zh: 'AI Token估算器',       ja: 'AIトークン推定器',      icon: '🔢' },
+    'prompt-template-library':   { ko: '프롬프트 템플릿 라이브러리', en: 'Prompt Template Library', zh: '提示词模板库',        ja: 'プロンプトテンプレートライブラリ', icon: '📚' },
+    'image-prompt-generator':    { ko: '이미지 프롬프트 생성기', en: 'Image Prompt Generator',   zh: '图像提示词生成器',     ja: '画像プロンプトジェネレーター', icon: '🎨' },
+    'youtube-script-generator':  { ko: '유튜브 스크립트 생성기', en: 'YouTube Script Generator', zh: 'YouTube脚本生成器',    ja: 'YouTubeスクリプトジェネレーター', icon: '🎬' },
+    'prompt-improver':           { ko: 'AI 프롬프트 개선기', en: 'AI Prompt Improver', zh: 'AI提示词改进器', ja: 'AIプロンプト改善器', icon: '✨' },
+    'prompt-optimizer':          { ko: 'AI 프롬프트 최적화기', en: 'AI Prompt Optimizer', zh: 'AI提示词优化器', ja: 'AIプロンプト最適化器', icon: '⚡' },
+    'system-prompt-generator':   { ko: 'AI 시스템 프롬프트 생성기', en: 'AI System Prompt Generator', zh: 'AI系统提示词生成器', ja: 'AIシステムプロンプトジェネレーター', icon: '🤖' },
+    'ai-email-generator':        { ko: 'AI 이메일 생성기', en: 'AI Email Generator', zh: 'AI邮件生成器', ja: 'AIメールジェネレーター', icon: '📧' },
+    'ai-resume-generator':       { ko: 'AI 이력서 생성기', en: 'AI Resume Generator', zh: 'AI简历生成器', ja: 'AI履歴書ジェネレーター', icon: '📄' },
+    'ai-cover-letter-generator': { ko: 'AI 자기소개서 생성기', en: 'AI Cover Letter Generator', zh: 'AI求职信生成器', ja: 'AIカバーレタージェネレーター', icon: '✍️' },
+    'ai-product-description-generator': { ko: 'AI 제품 설명 생성기', en: 'AI Product Description Generator', zh: 'AI产品描述生成器', ja: 'AI商品説明ジェネレーター', icon: '🛍️' },
+    'ai-blog-title-generator':   { ko: 'AI 블로그 제목 생성기', en: 'AI Blog Title Generator', zh: 'AI博客标题生成器', ja: 'AIブログタイトルジェネレーター', icon: '📝' },
+    'ai-youtube-title-generator':{ ko: 'AI 유튜브 제목 생성기', en: 'AI YouTube Title Generator', zh: 'AIYouTube标题生成器', ja: 'AIYouTubeタイトルジェネレーター', icon: '▶️' },
+    'ai-thumbnail-title-generator':{ ko: 'AI 썸네일 문구 생성기', en: 'AI Thumbnail Title Generator', zh: 'AI缩略图文字生成器', ja: 'AIサムネイルテキストジェネレーター', icon: '🖼️' },
+    'ai-tweet-generator':        { ko: 'AI 트윗 생성기', en: 'AI Tweet Generator', zh: 'AI推文生成器', ja: 'AIツイートジェネレーター', icon: '🐦' },
+    'ai-linkedin-post-generator':{ ko: 'AI 링크드인 포스트 생성기', en: 'AI LinkedIn Post Generator', zh: 'AI领英帖子生成器', ja: 'AILinkedInポストジェネレーター', icon: '💼' },
+    'jwt-expiration-checker':    { ko: 'JWT 만료 확인기', en: 'JWT Expiration Checker', zh: 'JWT过期检查器', ja: 'JWT有効期限チェッカー', icon: '⏱️' },
+    'json-schema-generator':     { ko: 'JSON 스키마 생성기', en: 'JSON Schema Generator', zh: 'JSON Schema生成器', ja: 'JSON Schemaジェネレーター', icon: '📐' },
+    'json-schema-validator':     { ko: 'JSON 스키마 검증기', en: 'JSON Schema Validator', zh: 'JSON Schema验证器', ja: 'JSON Schemaバリデーター', icon: '✅' },
+    'xml-beautifier':            { ko: 'XML Beautifier', en: 'XML Beautifier', zh: 'XML美化器', ja: 'XML Beautifier', icon: 'XML' },
+    'yaml-diff-checker':         { ko: 'YAML Diff 비교기', en: 'YAML Diff Checker', zh: 'YAML Diff比较器', ja: 'YAML Diff比較器', icon: '⟷' },
+    'csv-diff-checker':          { ko: 'CSV Diff 비교기', en: 'CSV Diff Checker', zh: 'CSV Diff比较器', ja: 'CSV Diff比較器', icon: 'CSV' },
+    'sql-query-explainer':       { ko: 'SQL 쿼리 설명기', en: 'SQL Query Explainer', zh: 'SQL查询解释器', ja: 'SQLクエリ解説器', icon: 'SQL?' },
+    'regex-extractor':           { ko: '정규식 추출기', en: 'Regex Extractor', zh: '正则表达式提取器', ja: '正規表現抽出器', icon: '.*↑' },
+    'regex-replace-tester':      { ko: '정규식 치환 테스터', en: 'Regex Replace Tester', zh: '正则表达式替换测试器', ja: '正規表現置換テスター', icon: '.*→' },
+    'epoch-converter':           { ko: '에포크 변환기', en: 'Epoch Converter', zh: '纪元时间转换器', ja: 'エポックコンバーター', icon: '🕐' },
+    'uuid-bulk-generator':       { ko: 'UUID 대량 생성기', en: 'UUID Bulk Generator', zh: 'UUID批量生成器', ja: 'UUID一括生成器', icon: '🔢' },
+    'uuid-extractor':            { ko: 'UUID 추출기', en: 'UUID Extractor', zh: 'UUID提取器', ja: 'UUID抽出器', icon: 'UUID↑' },
+    'api-response-viewer':       { ko: 'API 응답 뷰어', en: 'API Response Viewer', zh: 'API响应查看器', ja: 'APIレスポンスビューア', icon: '🔍' },
   };
 
   // ── 토픽 클러스터 ────────────────────────────────────────────────
@@ -419,6 +448,36 @@
     ['html-minifier','css-minifier','javascript-minifier','sql-minifier','json-minifier'],
     // 배치 20: 포매터
     ['javascript-beautifier','css-beautifier','json-viewer','graphql-formatter','sql-validator'],
+    // 배치 21: AI 토큰/비용
+    ['token-estimator','prompt-token-estimator','openai-cost-estimator','claude-cost-estimator','gemini-cost-estimator','ai-cost-calculator'],
+    // 배치 21: AI 프롬프트 도구
+    ['prompt-template-library','image-prompt-generator','youtube-script-generator','prompt-cleaner','prompt-template-generator'],
+    // 배치 22: AI 프롬프트 개선/최적화
+    ['prompt-improver','prompt-optimizer','system-prompt-generator','prompt-template-library','prompt-cleaner'],
+    // 배치 22: AI 콘텐츠 생성 (텍스트)
+    ['ai-email-generator','ai-resume-generator','ai-cover-letter-generator','ai-product-description-generator'],
+    // 배치 22: AI 소셜/콘텐츠 제목
+    ['ai-blog-title-generator','ai-youtube-title-generator','ai-thumbnail-title-generator','ai-tweet-generator','ai-linkedin-post-generator'],
+    // 배치 22: 유튜브 콘텐츠 도구
+    ['ai-youtube-title-generator','ai-thumbnail-title-generator','youtube-script-generator','image-prompt-generator'],
+    // 배치 23: JWT/토큰 도구
+    ['jwt-expiration-checker','jwt-validator','jwt-inspector'],
+    // 배치 23: JSON 스키마
+    ['json-schema-generator','json-schema-validator','json-validator','json-diff','json-flattener'],
+    // 배치 23: XML 도구
+    ['xml-beautifier','xml-validator','xml-to-json','json-to-xml'],
+    // 배치 23: Diff 도구
+    ['yaml-diff-checker','csv-diff-checker','json-diff','text-diff-checker'],
+    // 배치 23: SQL 도구
+    ['sql-query-explainer','sql-validator','sql-minifier','sql-to-json','sql-formatter'],
+    // 배치 23: 정규식 도구
+    ['regex-extractor','regex-replace-tester','regex-generator','regex-cheatsheet'],
+    // 배치 23: 시간/날짜 도구
+    ['epoch-converter','timestamp','cron-parser'],
+    // 배치 23: UUID 도구
+    ['uuid-bulk-generator','uuid-extractor','uuid-converter','uuid-validator','ulid-generator','nanoid-generator'],
+    // 배치 23: API 도구
+    ['api-response-viewer','api-tester','http-request-builder','curl-generator','curl-parser','webhook-tester'],
     // AI 도구
     ['ai-token-counter','ai-cost-calculator','chatgpt-token-counter','prompt-formatter','word-counter','character-counter'],
     ['utm-builder','slug-generator','url-encoder','url-decoder','qr-generator'],
@@ -630,6 +689,22 @@
     'yaml-validator':'developer-tools','json-to-xml':'developer-tools',
     'html-minifier':'developer-tools','css-minifier':'developer-tools',
     'javascript-minifier':'developer-tools','javascript-beautifier':'developer-tools','css-beautifier':'developer-tools',
+    'token-estimator':'ai-tools','prompt-template-library':'ai-tools',
+    'image-prompt-generator':'ai-tools','youtube-script-generator':'generator-tools',
+    'prompt-improver':'ai-tools','prompt-optimizer':'ai-tools','system-prompt-generator':'ai-tools',
+    'ai-email-generator':'generator-tools','ai-resume-generator':'generator-tools','ai-cover-letter-generator':'generator-tools',
+    'ai-product-description-generator':'generator-tools',
+    'ai-blog-title-generator':'generator-tools','ai-youtube-title-generator':'generator-tools',
+    'ai-thumbnail-title-generator':'generator-tools','ai-tweet-generator':'generator-tools','ai-linkedin-post-generator':'generator-tools',
+    'jwt-expiration-checker':'security-tools',
+    'json-schema-generator':'developer-tools','json-schema-validator':'developer-tools',
+    'xml-beautifier':'developer-tools',
+    'yaml-diff-checker':'developer-tools','csv-diff-checker':'developer-tools',
+    'sql-query-explainer':'developer-tools',
+    'regex-extractor':'developer-tools','regex-replace-tester':'developer-tools',
+    'epoch-converter':'date-time-tools',
+    'uuid-bulk-generator':'developer-tools','uuid-extractor':'developer-tools',
+    'api-response-viewer':'developer-tools',
     'utm-builder':'generator-tools',
     'robots-txt-generator':'generator-tools','meta-tag-generator':'generator-tools',
     'ip-address-lookup':'developer-tools',

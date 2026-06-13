@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>API 응답 뷰어 - API Response Viewer | MODOO HUB</title>
+<meta name="description" content="JSON, XML, HTML API 응답을 예쁘게 포맷팅하고 분석합니다. 트리 뷰, 경로 추출, 헤더 분석. 무료 온라인 API Response Viewer.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/api-response-viewer.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/api-response-viewer.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/api-response-viewer.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/api-response-viewer.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/api-response-viewer.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/api-response-viewer.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:1000px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:16px;}
+.tabs{display:flex;gap:0;margin-bottom:14px;border:1px solid var(--border);border-radius:8px;overflow:hidden;width:fit-content;}
+.tab{padding:6px 16px;font-size:12px;cursor:pointer;background:none;border:none;color:var(--text-dim);font-family:'DM Mono',monospace;}
+.tab.active{background:var(--surface2);color:var(--accent);}
+.tab:hover:not(.active){color:var(--text-muted);}
+.status-row{display:flex;gap:10px;align-items:center;margin-bottom:10px;flex-wrap:wrap;}
+.status-inp{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:5px 10px;color:var(--text);font-size:12px;font-family:'DM Mono',monospace;width:80px;outline:none;}
+.status-inp:focus{border-color:var(--accent);}
+.status-badge{padding:3px 10px;border-radius:4px;font-size:11px;font-weight:700;font-family:'DM Mono',monospace;}
+.s2xx{background:rgba(74,222,128,.2);color:var(--green);}
+.s3xx{background:rgba(96,165,250,.2);color:var(--blue);}
+.s4xx{background:rgba(251,191,36,.2);color:var(--accent);}
+.s5xx{background:rgba(248,113,113,.2);color:var(--red);}
+textarea{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text);font-size:12px;font-family:'DM Mono',monospace;min-height:200px;resize:vertical;outline:none;margin-bottom:10px;}
+textarea:focus{border-color:var(--accent);}
+.btn-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.btn{padding:7px 16px;border-radius:7px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:'Noto Sans KR',sans-serif;}
+.btn-primary{background:var(--accent);color:#000;}
+.btn-primary:hover{background:#f59e0b;}
+.btn-sec{background:var(--surface2);color:var(--text-muted);border:1px solid var(--border);}
+.btn-sec:hover{border-color:var(--accent);}
+.view-tabs{display:flex;gap:0;margin-bottom:10px;border:1px solid var(--border);border-radius:8px;overflow:hidden;width:fit-content;}
+.vtab{padding:5px 14px;font-size:11px;cursor:pointer;background:none;border:none;color:var(--text-dim);font-family:'DM Mono',monospace;}
+.vtab.active{background:var(--surface2);color:var(--accent);}
+.output-panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;min-height:300px;max-height:500px;overflow:auto;font-size:12px;font-family:'DM Mono',monospace;}
+.json-key{color:var(--blue);}
+.json-str{color:var(--green);}
+.json-num{color:var(--accent);}
+.json-bool{color:var(--purple);}
+.json-null{color:var(--text-dim);}
+.tree-item{line-height:1.9;}
+.tree-toggle{cursor:pointer;color:var(--text-dim);user-select:none;}
+.tree-children{margin-left:16px;border-left:1px solid var(--border);padding-left:10px;}
+.path-bar{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:11px;font-family:'DM Mono',monospace;color:var(--accent);margin-bottom:8px;cursor:pointer;}
+.info-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;}
+.info-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;}
+.info-label{font-size:10px;color:var(--text-dim);margin-bottom:3px;}
+.info-val{font-size:12px;font-family:'DM Mono',monospace;color:var(--text-muted);}
+.err-msg{color:var(--red);font-size:12px;font-family:'DM Mono',monospace;padding:8px 12px;background:rgba(248,113,113,.08);border-radius:6px;margin-bottom:8px;display:none;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"API Response Viewer","url":"https://modoohub.com/api-response-viewer.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"API 응답을 포맷팅하고 분석하는 무료 온라인 도구."}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>API <span id="h1Accent">응답 뷰어</span></h1>
+  <p class="sub" id="subEl">API 응답을 붙여넣어 포맷팅하고 구조를 분석합니다</p>
+  <div class="status-row">
+    <span style="font-size:12px;color:var(--text-muted);" id="lblStatus">상태코드:</span>
+    <input class="status-inp" id="statusIn" placeholder="200" type="number" oninput="updateStatus()">
+    <span class="status-badge" id="statusBadge"></span>
+    <span style="font-size:11px;color:var(--text-muted);" id="lblType">타입:</span>
+    <select style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 8px;color:var(--text);font-size:11px;font-family:'DM Mono',monospace;outline:none;" id="typeSel">
+      <option value="auto">자동 감지</option>
+      <option value="json">JSON</option>
+      <option value="xml">XML</option>
+      <option value="text">텍스트</option>
+    </select>
+  </div>
+  <textarea id="bodyIn" placeholder="API 응답 바디를 여기에 붙여넣으세요..." oninput="autoView()"></textarea>
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="viewResponse()" id="btnView">분석</button>
+    <button class="btn btn-sec" onclick="copyFormatted()" id="btnCopy">포맷 복사</button>
+    <button class="btn btn-sec" onclick="loadSampleJson()" id="btnSampleJson">JSON 샘플</button>
+    <button class="btn btn-sec" onclick="clearAll()" id="btnClear">초기화</button>
+  </div>
+  <div id="errMsg" class="err-msg"></div>
+  <div class="view-tabs" id="viewTabsEl">
+    <button class="vtab active" id="vt-pretty" onclick="setVTab('pretty')" id="vtPretty">Pretty</button>
+    <button class="vtab" id="vt-tree" onclick="setVTab('tree')">Tree</button>
+    <button class="vtab" id="vt-raw" onclick="setVTab('raw')">Raw</button>
+    <button class="vtab" id="vt-info" onclick="setVTab('info')">Info</button>
+  </div>
+  <div class="output-panel" id="outPanel"></div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const LANGS=['ko','en','zh','ja'];let _lang='ko';let _parsed=null;let _rawStr='';let _vTab='pretty';let _type='auto';
+const HTTP_STATUS={200:'OK',201:'Created',204:'No Content',301:'Moved Permanently',302:'Found',304:'Not Modified',400:'Bad Request',401:'Unauthorized',403:'Forbidden',404:'Not Found',405:'Method Not Allowed',409:'Conflict',422:'Unprocessable Entity',429:'Too Many Requests',500:'Internal Server Error',502:'Bad Gateway',503:'Service Unavailable',504:'Gateway Timeout'};
+const _i18n={
+  ko:{h1Accent:'응답 뷰어',sub:'API 응답을 붙여넣어 포맷팅하고 구조를 분석합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',lblStatus:'상태코드:',lblType:'타입:',btnView:'분석',btnCopy:'포맷 복사',btnSampleJson:'JSON 샘플',btnClear:'초기화',copied:'복사됨!',
+    infoLabels:{type:'타입',size:'크기',lines:'줄 수',keys:'최상위 키',depth:'깊이'},
+    seoHtml:`<h2>API 응답 뷰어</h2><p>JSON, XML, 텍스트 형식의 API 응답을 붙여넣어 보기 좋게 포맷팅하고 구조를 분석합니다. Pretty Print, 트리 뷰, 상태 코드 해석 기능을 제공합니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>어떤 응답 형식을 지원하나요?</summary><p>JSON, XML, 일반 텍스트를 지원합니다. 형식을 자동으로 감지합니다.</p></details>
+<details class="faq-item"><summary>트리 뷰는 어떻게 작동하나요?</summary><p>JSON 객체의 계층 구조를 트리 형태로 표시합니다. 노드를 클릭하여 접고 펼 수 있습니다.</p></details>
+<details class="faq-item"><summary>HTTP 상태 코드를 해석해주나요?</summary><p>예, 200 OK, 404 Not Found 등 일반적인 상태 코드의 의미를 표시합니다.</p></details>
+<details class="faq-item"><summary>API 요청을 직접 보낼 수 있나요?</summary><p>이 도구는 응답 분석에 초점을 맞춥니다. 실제 API 요청은 API Tester를 이용하세요.</p></details>
+<details class="faq-item"><summary>큰 JSON 응답도 처리할 수 있나요?</summary><p>브라우저 메모리 내에서 처리하므로 매우 큰 응답(수 MB 이상)은 느릴 수 있습니다.</p></details>
+<details class="faq-item"><summary>포맷팅된 결과를 복사할 수 있나요?</summary><p>예, "포맷 복사" 버튼으로 들여쓰기된 JSON을 클립보드에 복사합니다.</p></details>
+<details class="faq-item"><summary>응답 헤더도 분석할 수 있나요?</summary><p>현재는 바디 분석에 집중합니다. 상태 코드는 별도로 입력할 수 있습니다.</p></details>
+<details class="faq-item"><summary>서버로 데이터가 전송되나요?</summary><p>아니오, 모든 처리는 브라우저에서만 이루어집니다.</p></details>`
+  },
+  en:{h1Accent:'Response Viewer',sub:'Paste API responses to format and analyze their structure',backLink:'← All Tools',langBtn:'🌐 中文',lblStatus:'Status:',lblType:'Type:',btnView:'Analyze',btnCopy:'Copy formatted',btnSampleJson:'JSON sample',btnClear:'Clear',copied:'Copied!',
+    infoLabels:{type:'Type',size:'Size',lines:'Lines',keys:'Top-level keys',depth:'Depth'},
+    seoHtml:`<h2>API Response Viewer</h2><p>Paste JSON, XML, or text API responses to format and analyze their structure. Features pretty printing, tree view, and HTTP status code interpretation.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>What response formats are supported?</summary><p>JSON, XML, and plain text. Format is auto-detected.</p></details>
+<details class="faq-item"><summary>How does tree view work?</summary><p>Displays JSON object hierarchy as a tree. Click nodes to collapse/expand.</p></details>
+<details class="faq-item"><summary>Are HTTP status codes interpreted?</summary><p>Yes — 200 OK, 404 Not Found, etc. are annotated.</p></details>
+<details class="faq-item"><summary>Can I send API requests from here?</summary><p>This tool focuses on response analysis. For live requests, use API Tester.</p></details>
+<details class="faq-item"><summary>Can it handle large JSON responses?</summary><p>Processed in-browser — very large responses (several MB) may be slow.</p></details>
+<details class="faq-item"><summary>Can I copy the formatted result?</summary><p>Yes — "Copy formatted" copies the indented JSON to clipboard.</p></details>
+<details class="faq-item"><summary>Can response headers be analyzed?</summary><p>Currently focuses on body analysis. Status code can be entered separately.</p></details>
+<details class="faq-item"><summary>Is data sent to a server?</summary><p>No — all processing happens in your browser only.</p></details>`
+  },
+  zh:{h1Accent:'响应查看器',sub:'粘贴API响应以格式化并分析其结构',backLink:'← 所有工具',langBtn:'🌐 日本語',lblStatus:'状态码:',lblType:'类型:',btnView:'分析',btnCopy:'复制格式化',btnSampleJson:'JSON示例',btnClear:'清除',copied:'已复制!',
+    infoLabels:{type:'类型',size:'大小',lines:'行数',keys:'顶级键',depth:'深度'},
+    seoHtml:`<h2>API响应查看器</h2><p>粘贴JSON、XML或文本API响应以格式化并分析其结构。提供美化打印、树形视图和HTTP状态码解释功能。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>支持哪些响应格式？</summary><p>JSON、XML和纯文本。格式会自动检测。</p></details>
+<details class="faq-item"><summary>树形视图如何工作？</summary><p>以树形显示JSON对象层次结构，点击节点可折叠/展开。</p></details>
+<details class="faq-item"><summary>会解释HTTP状态码吗？</summary><p>是的，200 OK、404 Not Found等状态码都会被标注。</p></details>
+<details class="faq-item"><summary>可以从这里发送API请求吗？</summary><p>此工具专注于响应分析，实时请求请使用API测试器。</p></details>
+<details class="faq-item"><summary>能处理大型JSON响应吗？</summary><p>在浏览器内处理，非常大的响应（几MB以上）可能较慢。</p></details>
+<details class="faq-item"><summary>可以复制格式化结果吗？</summary><p>是的，"复制格式化"将缩进的JSON复制到剪贴板。</p></details>
+<details class="faq-item"><summary>可以分析响应头吗？</summary><p>目前专注于正文分析，状态码可以单独输入。</p></details>
+<details class="faq-item"><summary>数据会发送到服务器吗？</summary><p>不会，所有处理仅在浏览器中进行。</p></details>`
+  },
+  ja:{h1Accent:'レスポンスビューア',sub:'APIレスポンスを貼り付けてフォーマットし構造を分析します',backLink:'← ホーム',langBtn:'🌐 한국어',lblStatus:'ステータス:',lblType:'タイプ:',btnView:'分析',btnCopy:'フォーマットコピー',btnSampleJson:'JSONサンプル',btnClear:'クリア',copied:'コピー済み!',
+    infoLabels:{type:'タイプ',size:'サイズ',lines:'行数',keys:'トップレベルキー',depth:'深さ'},
+    seoHtml:`<h2>APIレスポンスビューア</h2><p>JSON、XML、テキスト形式のAPIレスポンスを貼り付けて整形し構造を分析します。プリティプリント、ツリービュー、HTTPステータスコード解釈機能を提供します。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>どのレスポンス形式をサポートしていますか？</summary><p>JSON、XML、プレーンテキスト。形式は自動検出されます。</p></details>
+<details class="faq-item"><summary>ツリービューはどう機能しますか？</summary><p>JSONオブジェクトの階層をツリー形式で表示。ノードをクリックして折りたたみ/展開できます。</p></details>
+<details class="faq-item"><summary>HTTPステータスコードを解釈しますか？</summary><p>はい、200 OK、404 Not Foundなどが注釈されます。</p></details>
+<details class="faq-item"><summary>ここからAPIリクエストを送れますか？</summary><p>このツールはレスポンス分析に焦点を当てています。実際のリクエストにはAPIテスターをご利用ください。</p></details>
+<details class="faq-item"><summary>大きなJSONレスポンスでも使えますか？</summary><p>ブラウザ内で処理されるため、非常に大きなレスポンス(数MB以上)は遅くなる場合があります。</p></details>
+<details class="faq-item"><summary>フォーマット結果をコピーできますか？</summary><p>はい、「フォーマットコピー」でインデントされたJSONをクリップボードにコピーします。</p></details>
+<details class="faq-item"><summary>レスポンスヘッダーも分析できますか？</summary><p>現在はボディ分析に集中しています。ステータスコードは別途入力できます。</p></details>
+<details class="faq-item"><summary>データはサーバーに送られますか？</summary><p>いいえ、すべての処理はブラウザ内のみで行われます。</p></details>`
+  }
+};
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){
+  const t=_i18n[_lang];document.documentElement.lang=_lang;
+  ['h1Accent','subEl','backLink','langBtn','lblStatus','lblType','btnView','btnCopy','btnSampleJson','btnClear'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id]||el.textContent;});
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+}
+function updateStatus(){
+  const v=parseInt(document.getElementById('statusIn').value);const badge=document.getElementById('statusBadge');
+  if(!v){badge.textContent='';badge.className='status-badge';return;}
+  const cls=v<300?'s2xx':v<400?'s3xx':v<500?'s4xx':'s5xx';
+  badge.textContent=v+(HTTP_STATUS[v]?' — '+HTTP_STATUS[v]:'');badge.className='status-badge '+cls;
+}
+function setVTab(t){_vTab=t;document.querySelectorAll('.vtab').forEach(e=>e.classList.remove('active'));document.getElementById('vt-'+t).classList.add('active');renderView();}
+function detectType(s){if(!s.trim())return 'text';if(s.trimStart()[0]==='{')return 'json';if(s.trimStart()[0]==='[')return 'json';if(s.trimStart()[0]==='<')return 'xml';return 'text';}
+function escH(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function colorize(obj,indent=2){return JSON.stringify(obj,null,indent).replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,m=>{let cls='json-num';if(/^"/.test(m)){if(/:$/.test(m))cls='json-key';else cls='json-str';}else if(/true|false/.test(m))cls='json-bool';else if(/null/.test(m))cls='json-null';return`<span class="${cls}">${escH(m.slice(0,m.endsWith(':')?-1:undefined))}</span>${m.endsWith(':')?':':''}`;}).replace(/\n/g,'<br>').replace(/ {2}/g,'&nbsp;&nbsp;');}
+function getDepth(obj,d=0){if(typeof obj!=='object'||obj===null)return d;return Math.max(...Object.values(obj).map(v=>getDepth(v,d+1)),d);}
+function buildTree(val,key){
+  const id='t'+Math.random().toString(36).slice(2,8);
+  if(typeof val==='object'&&val!==null){
+    const isArr=Array.isArray(val);const keys=Object.keys(val);
+    const toggle=`<span class="tree-toggle" onclick="toggleTree('${id}')">▾</span> `;
+    const label=key!==null?`<span class="json-key">"${escH(key)}"</span>: `:'';
+    const open=isArr?'[':'{';const close=isArr?']':'}';
+    const children=keys.map(k=>buildTree(val[k],k)).join('');
+    return`<div class="tree-item">${toggle}${label}<span>${open}</span><div class="tree-children" id="${id}">${children}</div><span>${close}</span></div>`;
+  }
+  const keyHtml=key!==null?`<span class="json-key">"${escH(key)}"</span>: `:'';
+  const valHtml=typeof val==='string'?`<span class="json-str">"${escH(val)}"</span>`:typeof val==='boolean'?`<span class="json-bool">${val}</span>`:val===null?`<span class="json-null">null</span>`:`<span class="json-num">${val}</span>`;
+  return`<div class="tree-item">${keyHtml}${valHtml}</div>`;
+}
+function toggleTree(id){const el=document.getElementById(id);if(el)el.style.display=el.style.display==='none'?'':'none';}
+function renderView(){
+  const t=_i18n[_lang];const panel=document.getElementById('outPanel');
+  if(!_rawStr){panel.innerHTML='';return;}
+  const type=document.getElementById('typeSel').value==='auto'?detectType(_rawStr):document.getElementById('typeSel').value;
+  if(_vTab==='raw'){panel.textContent=_rawStr;return;}
+  if(_vTab==='info'){
+    const lines=_rawStr.split('\n').length;const size=new Blob([_rawStr]).size;
+    const lbl=t.infoLabels;
+    const topKeys=_parsed&&typeof _parsed==='object'?Object.keys(_parsed).length:'—';
+    const depth=_parsed&&typeof _parsed==='object'?getDepth(_parsed):'—';
+    panel.innerHTML=`<div class="info-grid"><div class="info-card"><div class="info-label">${lbl.type}</div><div class="info-val">${type.toUpperCase()}</div></div><div class="info-card"><div class="info-label">${lbl.size}</div><div class="info-val">${size<1024?size+'B':Math.round(size/1024)+'KB'}</div></div><div class="info-card"><div class="info-label">${lbl.lines}</div><div class="info-val">${lines}</div></div><div class="info-card"><div class="info-label">${lbl.keys}</div><div class="info-val">${topKeys}</div></div><div class="info-card"><div class="info-label">${lbl.depth}</div><div class="info-val">${depth}</div></div></div>`;
+    return;
+  }
+  if(type==='json'){
+    if(!_parsed){panel.innerHTML=`<span style="color:var(--red)">Invalid JSON</span>`;return;}
+    if(_vTab==='tree'){panel.innerHTML=buildTree(_parsed,null);return;}
+    panel.innerHTML=`<pre style="white-space:pre-wrap;word-break:break-all;">${colorize(_parsed)}</pre>`;
+  }else if(type==='xml'){
+    try{const p=new DOMParser();const d=p.parseFromString(_rawStr,'application/xml');const e=d.querySelector('parseerror');if(e){panel.innerHTML=`<span style="color:var(--red)">XML parse error</span>`;return;}const s=new XMLSerializer();let out=s.serializeToString(d);panel.textContent=out;}catch{panel.textContent=_rawStr;}
+  }else{panel.textContent=_rawStr;}
+}
+function viewResponse(){
+  const raw=document.getElementById('bodyIn').value;
+  document.getElementById('errMsg').style.display='none';_rawStr=raw;_parsed=null;
+  const type=document.getElementById('typeSel').value==='auto'?detectType(raw):document.getElementById('typeSel').value;
+  if(type==='json'){try{_parsed=JSON.parse(raw);}catch(e){document.getElementById('errMsg').textContent=e.message;document.getElementById('errMsg').style.display='block';}}
+  renderView();
+}
+let _autoT=null;function autoView(){clearTimeout(_autoT);_autoT=setTimeout(viewResponse,400);}
+function copyFormatted(){const t=_i18n[_lang];const txt=_parsed?JSON.stringify(_parsed,null,2):_rawStr;navigator.clipboard.writeText(txt).then(()=>{const btn=document.getElementById('btnCopy');const o=btn.textContent;btn.textContent=t.copied;setTimeout(()=>btn.textContent=t.btnCopy,1500);});}
+function loadSampleJson(){document.getElementById('statusIn').value='200';updateStatus();document.getElementById('typeSel').value='json';document.getElementById('bodyIn').value='{"user":{"id":"550e8400-e29b-41d4-a716-446655440000","name":"Alice","email":"alice@example.com","roles":["admin","editor"],"profile":{"age":30,"location":"Seoul","verified":true}},"meta":{"timestamp":1718236800,"version":"2.1","total":1}}';viewResponse();}
+function clearAll(){document.getElementById('bodyIn').value='';document.getElementById('statusIn').value='';document.getElementById('statusBadge').textContent='';_rawStr='';_parsed=null;document.getElementById('outPanel').innerHTML='';document.getElementById('errMsg').style.display='none';}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

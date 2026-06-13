@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JWT 만료 확인기 - JWT Expiration Checker | MODOO HUB</title>
+<meta name="description" content="JWT 토큰의 만료 시간을 즉시 확인합니다. exp, iat, nbf 클레임을 파싱하여 남은 시간, 만료 여부, 발행 시간을 표시합니다. 무료 온라인 JWT 만료 체커.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/jwt-expiration-checker.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/jwt-expiration-checker.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/jwt-expiration-checker.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/jwt-expiration-checker.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/jwt-expiration-checker.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/jwt-expiration-checker.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--yellow:#fbbf24;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:760px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:20px;}
+.input-area{position:relative;margin-bottom:12px;}
+textarea{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text);font-size:13px;font-family:'DM Mono',monospace;min-height:100px;resize:vertical;outline:none;}
+textarea:focus{border-color:var(--accent);}
+.btn-row{display:flex;gap:8px;margin-bottom:18px;}
+.btn{padding:7px 18px;border-radius:7px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:'Noto Sans KR',sans-serif;}
+.btn-primary{background:var(--accent);color:#000;}
+.btn-primary:hover{background:#f59e0b;}
+.btn-sec{background:var(--surface2);color:var(--text-muted);border:1px solid var(--border);}
+.status-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:700;margin-bottom:16px;}
+.badge-valid{background:rgba(74,222,128,.15);border:1px solid var(--green);color:var(--green);}
+.badge-expired{background:rgba(248,113,113,.15);border:1px solid var(--red);color:var(--red);}
+.badge-warn{background:rgba(251,191,36,.15);border:1px solid var(--yellow);color:var(--yellow);}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+@media(max-width:560px){.info-grid{grid-template-columns:1fr;}}
+.info-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;}
+.info-label{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;margin-bottom:4px;}
+.info-value{font-size:14px;color:var(--text-muted);font-family:'DM Mono',monospace;word-break:break-all;}
+.info-value.big{font-size:18px;font-weight:700;}
+.info-value.green{color:var(--green);}
+.info-value.red{color:var(--red);}
+.info-value.yellow{color:var(--yellow);}
+.claims-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:16px;}
+.claims-title{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;margin-bottom:8px;}
+.claims-row{display:flex;gap:12px;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px;font-family:'DM Mono',monospace;}
+.claims-row:last-child{border-bottom:none;}
+.claims-key{color:var(--blue);min-width:60px;}
+.claims-val{color:var(--text-muted);word-break:break-all;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"JWT 만료 확인기","url":"https://modoohub.com/jwt-expiration-checker.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"JWT 토큰의 만료 시간과 유효성을 즉시 확인하는 무료 온라인 도구."}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>JWT <span id="h1Accent">만료 확인기</span></h1>
+  <p class="sub" id="subEl">JWT 토큰을 붙여넣으면 만료 시간, 남은 시간, 클레임을 즉시 분석합니다</p>
+
+  <textarea id="jwtIn" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiZXhwIjoxNzAwMDAwMDAwfQ.abc" oninput="checkJwt()"></textarea>
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="checkJwt()" id="btnCheck">만료 확인</button>
+    <button class="btn btn-sec" onclick="clearAll()" id="btnClear">초기화</button>
+    <button class="btn btn-sec" onclick="loadSample()" id="btnSample">샘플 로드</button>
+  </div>
+
+  <div id="resultArea" style="display:none;">
+    <div id="statusBadge"></div>
+    <div class="info-grid">
+      <div class="info-card">
+        <div class="info-label" id="lblExpiry">만료 시간</div>
+        <div class="info-value" id="valExpiry">—</div>
+      </div>
+      <div class="info-card">
+        <div class="info-label" id="lblRemain">남은 시간</div>
+        <div class="info-value big" id="valRemain">—</div>
+      </div>
+      <div class="info-card">
+        <div class="info-label" id="lblIssued">발행 시간 (iat)</div>
+        <div class="info-value" id="valIssued">—</div>
+      </div>
+      <div class="info-card">
+        <div class="info-label" id="lblNotBefore">유효 시작 (nbf)</div>
+        <div class="info-value" id="valNotBefore">—</div>
+      </div>
+    </div>
+    <div class="claims-box" id="claimsBox">
+      <div class="claims-title" id="lblClaims">페이로드 클레임</div>
+      <div id="claimsList"></div>
+    </div>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko';
+const _i18n={
+  ko:{h1Accent:'만료 확인기',sub:'JWT 토큰을 붙여넣으면 만료 시간, 남은 시간, 클레임을 즉시 분석합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',
+    btnCheck:'만료 확인',btnClear:'초기화',btnSample:'샘플 로드',
+    lblExpiry:'만료 시간 (exp)',lblRemain:'남은 시간',lblIssued:'발행 시간 (iat)',lblNotBefore:'유효 시작 (nbf)',lblClaims:'페이로드 클레임',
+    statusValid:'✓ 유효한 토큰',statusExpired:'✗ 만료된 토큰',statusWarn:'⚠ 곧 만료 (1시간 내)',statusNoExp:'— exp 클레임 없음',
+    remainFmt:(s)=>{if(s<0)return'만료됨';const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;if(h>24)return`${Math.floor(h/24)}일 ${h%24}시간`;if(h>0)return`${h}시간 ${m}분`;return`${m}분 ${sec}초`;},
+    noExp:'exp 없음',none:'없음',invalid:'유효하지 않은 JWT 형식입니다.',
+    seoHtml:`<h2>JWT 만료 확인기</h2><p>JWT(JSON Web Token) 토큰을 붙여넣으면 exp(만료), iat(발행), nbf(유효 시작) 클레임을 파싱하여 만료 여부와 남은 시간을 즉시 표시합니다. 서버 없이 브라우저에서 직접 디코딩하므로 토큰이 외부로 전송되지 않습니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>JWT의 exp 클레임이란?</summary><p>exp(Expiration Time)은 Unix 타임스탬프(초)로 토큰의 만료 시간을 나타냅니다.</p></details>
+<details class="faq-item"><summary>JWT 만료 후 어떻게 해야 하나요?</summary><p>Refresh Token을 사용해 새 Access Token을 발급받거나, 다시 로그인해야 합니다.</p></details>
+<details class="faq-item"><summary>JWT 토큰이 외부로 전송되나요?</summary><p>아니요, 모든 디코딩이 브라우저 내 JavaScript로 처리되어 서버로 전송되지 않습니다.</p></details>
+<details class="faq-item"><summary>iat와 exp의 차이는?</summary><p>iat(Issued At)는 토큰 발행 시간, exp(Expiration)는 만료 시간입니다.</p></details>
+<details class="faq-item"><summary>nbf 클레임이란?</summary><p>Not Before - 이 시간 이전에는 토큰이 유효하지 않음을 나타냅니다.</p></details>
+<details class="faq-item"><summary>JWT 서명은 검증하나요?</summary><p>이 도구는 페이로드만 디코딩합니다. 서명 검증은 서버 측 비밀키가 필요합니다.</p></details>
+<details class="faq-item"><summary>만료 시간을 늘릴 수 있나요?</summary><p>아니요, JWT는 서버에서 서명하므로 클라이언트에서 수정 불가합니다.</p></details>
+<details class="faq-item"><summary>토큰 길이가 너무 긴 이유는?</summary><p>JWT는 Base64 인코딩된 헤더.페이로드.서명 3부분으로 구성되어 길게 보입니다.</p></details>`
+  },
+  en:{h1Accent:'Expiration Checker',sub:'Paste a JWT token to instantly analyze expiry time, remaining time, and claims',backLink:'← All Tools',langBtn:'🌐 中文',
+    btnCheck:'Check Expiry',btnClear:'Clear',btnSample:'Load Sample',
+    lblExpiry:'Expiration (exp)',lblRemain:'Time Remaining',lblIssued:'Issued At (iat)',lblNotBefore:'Not Before (nbf)',lblClaims:'Payload Claims',
+    statusValid:'✓ Valid Token',statusExpired:'✗ Token Expired',statusWarn:'⚠ Expiring Soon (< 1hr)',statusNoExp:'— No exp claim',
+    remainFmt:(s)=>{if(s<0)return'Expired';const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;if(h>24)return`${Math.floor(h/24)}d ${h%24}h`;if(h>0)return`${h}h ${m}m`;return`${m}m ${sec}s`;},
+    noExp:'No exp',none:'None',invalid:'Invalid JWT format.',
+    seoHtml:`<h2>JWT Expiration Checker</h2><p>Paste a JWT token to instantly decode the exp (expiration), iat (issued at), and nbf (not before) claims and see remaining validity. All decoding happens in-browser — your token is never sent to a server.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>What is the JWT exp claim?</summary><p>exp (Expiration Time) is a Unix timestamp (seconds) indicating when the token expires.</p></details>
+<details class="faq-item"><summary>What to do after JWT expiration?</summary><p>Use a Refresh Token to get a new Access Token, or log in again.</p></details>
+<details class="faq-item"><summary>Is my token sent to a server?</summary><p>No — all decoding happens in-browser via JavaScript. Nothing is transmitted.</p></details>
+<details class="faq-item"><summary>Difference between iat and exp?</summary><p>iat (Issued At) is when the token was created; exp is when it expires.</p></details>
+<details class="faq-item"><summary>What is the nbf claim?</summary><p>Not Before — the token is invalid before this timestamp.</p></details>
+<details class="faq-item"><summary>Does this verify the signature?</summary><p>No — this tool only decodes the payload. Signature verification requires the server-side secret.</p></details>
+<details class="faq-item"><summary>Can I extend the expiration?</summary><p>No — JWTs are server-signed so clients cannot modify them.</p></details>
+<details class="faq-item"><summary>Why are JWTs so long?</summary><p>JWT = Base64-encoded header.payload.signature — three parts joined by dots.</p></details>`
+  },
+  zh:{h1Accent:'过期检查器',sub:'粘贴JWT令牌即时分析过期时间、剩余时间和声明',backLink:'← 所有工具',langBtn:'🌐 日本語',
+    btnCheck:'检查过期',btnClear:'清除',btnSample:'加载示例',
+    lblExpiry:'过期时间 (exp)',lblRemain:'剩余时间',lblIssued:'发行时间 (iat)',lblNotBefore:'生效时间 (nbf)',lblClaims:'载荷声明',
+    statusValid:'✓ 有效令牌',statusExpired:'✗ 令牌已过期',statusWarn:'⚠ 即将过期（1小时内）',statusNoExp:'— 无exp声明',
+    remainFmt:(s)=>{if(s<0)return'已过期';const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;if(h>24)return`${Math.floor(h/24)}天${h%24}小时`;if(h>0)return`${h}小时${m}分`;return`${m}分${sec}秒`;},
+    noExp:'无exp',none:'无',invalid:'无效的JWT格式。',
+    seoHtml:`<h2>JWT过期检查器</h2><p>粘贴JWT令牌即时解码exp（过期）、iat（发行）和nbf（生效）声明，查看剩余有效期。所有解码在浏览器内完成，令牌不会发送到服务器。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>JWT的exp声明是什么？</summary><p>exp（过期时间）是Unix时间戳（秒），表示令牌何时过期。</p></details>
+<details class="faq-item"><summary>JWT过期后怎么办？</summary><p>使用刷新令牌获取新的访问令牌，或重新登录。</p></details>
+<details class="faq-item"><summary>我的令牌会发送到服务器吗？</summary><p>不会，所有解码通过JavaScript在浏览器内完成，不传输任何数据。</p></details>
+<details class="faq-item"><summary>iat和exp的区别？</summary><p>iat（发行时间）是令牌创建时间，exp是过期时间。</p></details>
+<details class="faq-item"><summary>nbf声明是什么？</summary><p>Not Before - 在此时间戳之前令牌无效。</p></details>
+<details class="faq-item"><summary>这个工具验证签名吗？</summary><p>不，此工具只解码载荷，签名验证需要服务器端密钥。</p></details>
+<details class="faq-item"><summary>可以延长过期时间吗？</summary><p>不能，JWT由服务器签名，客户端无法修改。</p></details>
+<details class="faq-item"><summary>为什么JWT这么长？</summary><p>JWT = Base64编码的头部.载荷.签名三部分，用点连接。</p></details>`
+  },
+  ja:{h1Accent:'有効期限チェッカー',sub:'JWTトークンを貼り付けると有効期限・残り時間・クレームを即時分析します',backLink:'← ホーム',langBtn:'🌐 한국어',
+    btnCheck:'有効期限確認',btnClear:'クリア',btnSample:'サンプル読込',
+    lblExpiry:'有効期限 (exp)',lblRemain:'残り時間',lblIssued:'発行時刻 (iat)',lblNotBefore:'有効開始 (nbf)',lblClaims:'ペイロードクレーム',
+    statusValid:'✓ 有効なトークン',statusExpired:'✗ 期限切れトークン',statusWarn:'⚠ 間もなく期限切れ（1時間以内）',statusNoExp:'— expクレームなし',
+    remainFmt:(s)=>{if(s<0)return'期限切れ';const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;if(h>24)return`${Math.floor(h/24)}日${h%24}時間`;if(h>0)return`${h}時間${m}分`;return`${m}分${sec}秒`;},
+    noExp:'expなし',none:'なし',invalid:'無効なJWT形式です。',
+    seoHtml:`<h2>JWT有効期限チェッカー</h2><p>JWTトークンを貼り付けるとexp（有効期限）、iat（発行時刻）、nbf（有効開始）クレームを解析し、残り有効時間を即座に表示します。すべてブラウザ内で処理されます。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>JWTのexpクレームとは？</summary><p>exp（Expiration Time）はトークンの有効期限をUnixタイムスタンプ（秒）で示します。</p></details>
+<details class="faq-item"><summary>JWT期限切れ後はどうすればよいですか？</summary><p>リフレッシュトークンで新しいアクセストークンを取得するか、再ログインしてください。</p></details>
+<details class="faq-item"><summary>トークンはサーバーに送信されますか？</summary><p>いいえ、すべてのデコードはブラウザ内JavaScriptで処理されます。</p></details>
+<details class="faq-item"><summary>iatとexpの違いは？</summary><p>iat（Issued At）はトークン生成時刻、expは有効期限です。</p></details>
+<details class="faq-item"><summary>nbfクレームとは？</summary><p>Not Before — このタイムスタンプ以前はトークンが無効です。</p></details>
+<details class="faq-item"><summary>署名の検証はしますか？</summary><p>いいえ、このツールはペイロードのデコードのみです。署名検証にはサーバー側の秘密鍵が必要です。</p></details>
+<details class="faq-item"><summary>有効期限を延長できますか？</summary><p>いいえ、JWTはサーバーで署名されるためクライアントでは変更できません。</p></details>
+<details class="faq-item"><summary>JWTが長い理由は？</summary><p>JWT = Base64エンコードされたヘッダー.ペイロード.署名の3部分をドットで繋げたものです。</p></details>`
+  }
+};
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){
+  const t=_i18n[_lang];document.documentElement.lang=_lang;
+  ['h1Accent','subEl','backLink','langBtn','btnCheck','btnClear','btnSample','lblExpiry','lblRemain','lblIssued','lblNotBefore','lblClaims'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id]||el.textContent;});
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+}
+function b64decode(str){str=str.replace(/-/g,'+').replace(/_/g,'/');while(str.length%4)str+='=';try{return JSON.parse(decodeURIComponent(escape(atob(str))));}catch(e){return null;}}
+function fmtTime(ts){if(!ts)return null;return new Date(ts*1000).toLocaleString();}
+function checkJwt(){
+  const t=_i18n[_lang];
+  const raw=document.getElementById('jwtIn').value.trim();
+  if(!raw){document.getElementById('resultArea').style.display='none';return;}
+  const parts=raw.split('.');
+  if(parts.length!==3){document.getElementById('resultArea').style.display='none';alert(t.invalid);return;}
+  const payload=b64decode(parts[1]);
+  if(!payload){document.getElementById('resultArea').style.display='none';alert(t.invalid);return;}
+  document.getElementById('resultArea').style.display='block';
+  const now=Math.floor(Date.now()/1000);
+  const exp=payload.exp;
+  const iat=payload.iat;
+  const nbf=payload.nbf;
+  document.getElementById('valExpiry').textContent=exp?fmtTime(exp):t.noExp;
+  document.getElementById('valIssued').textContent=iat?fmtTime(iat):t.none;
+  document.getElementById('valNotBefore').textContent=nbf?fmtTime(nbf):t.none;
+  const badge=document.getElementById('statusBadge');
+  const remain=document.getElementById('valRemain');
+  if(!exp){
+    badge.className='status-badge badge-warn';badge.textContent=t.statusNoExp;
+    remain.textContent=t.noExp;remain.className='info-value';
+  } else {
+    const diff=exp-now;
+    remain.textContent=t.remainFmt(diff);
+    if(diff<0){badge.className='status-badge badge-expired';badge.textContent=t.statusExpired;remain.className='info-value red';}
+    else if(diff<3600){badge.className='status-badge badge-warn';badge.textContent=t.statusWarn;remain.className='info-value yellow';}
+    else{badge.className='status-badge badge-valid';badge.textContent=t.statusValid;remain.className='info-value big green';}
+  }
+  const list=document.getElementById('claimsList');
+  list.innerHTML=Object.entries(payload).map(([k,v])=>{
+    let disp=typeof v==='object'?JSON.stringify(v):String(v);
+    if((k==='exp'||k==='iat'||k==='nbf')&&typeof v==='number')disp+=` (${fmtTime(v)})`;
+    return `<div class="claims-row"><span class="claims-key">${k}</span><span class="claims-val">${disp}</span></div>`;
+  }).join('');
+}
+function clearAll(){document.getElementById('jwtIn').value='';document.getElementById('resultArea').style.display='none';}
+function loadSample(){
+  const exp=Math.floor(Date.now()/1000)+3600;
+  const header=btoa(JSON.stringify({alg:'HS256',typ:'JWT'})).replace(/=/g,'').replace(/\+/g,'-').replace(/\//g,'_');
+  const payload=btoa(JSON.stringify({sub:'1234567890',name:'John Doe',iat:Math.floor(Date.now()/1000),exp})).replace(/=/g,'').replace(/\+/g,'-').replace(/\//g,'_');
+  document.getElementById('jwtIn').value=`${header}.${payload}.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c`;
+  checkJwt();
+}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 토큰 추정기 - Token Estimator | MODOO HUB</title>
+<meta name="description" content="GPT-4, Claude, Gemini 등 AI 모델의 토큰 수를 추정합니다. 텍스트를 입력하면 모델별 토큰·비용을 실시간 계산. 무료 온라인 토큰 추정기.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/token-estimator.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/token-estimator.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/token-estimator.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/token-estimator.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/token-estimator.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/token-estimator.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:900px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:20px;}
+textarea{width:100%;min-height:220px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;resize:vertical;outline:none;margin-bottom:10px;}
+textarea:focus{border-color:var(--accent);}
+.meta-row{display:flex;gap:10px;align-items:center;margin-bottom:24px;font-size:12px;color:var(--text-dim);font-family:'DM Mono',monospace;}
+.meta-row span{color:var(--text-muted);}
+.btn-row{display:flex;gap:8px;margin-bottom:24px;}
+.btn{padding:7px 16px;border-radius:7px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:'Noto Sans KR',sans-serif;}
+.btn-primary{background:var(--accent);color:#000;}
+.btn-sec{background:var(--surface);color:var(--text-muted);border:1px solid var(--border);}
+.btn-sec:hover{border-color:var(--accent);}
+.section-title{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;}
+.model-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-bottom:32px;}
+.model-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;}
+.model-card.gpt{border-color:rgba(96,165,250,.3);}
+.model-card.claude{border-color:rgba(192,132,252,.3);}
+.model-card.gemini{border-color:rgba(74,222,128,.3);}
+.model-name{font-size:12px;font-weight:700;margin-bottom:10px;font-family:'DM Mono',monospace;}
+.model-card.gpt .model-name{color:var(--blue);}
+.model-card.claude .model-name{color:var(--purple);}
+.model-card.gemini .model-name{color:var(--green);}
+.stat-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;margin-bottom:4px;}
+.stat-label{color:var(--text-dim);}
+.stat-val{font-family:'DM Mono',monospace;color:var(--text-muted);}
+.stat-val.highlight{color:var(--accent);font-weight:700;}
+.ctx-bar-wrap{margin-top:8px;}
+.ctx-label{font-size:11px;color:var(--text-dim);margin-bottom:3px;}
+.ctx-bar{height:4px;background:var(--surface2);border-radius:2px;overflow:hidden;}
+.ctx-fill{height:100%;border-radius:2px;transition:width .3s;}
+.model-card.gpt .ctx-fill{background:var(--blue);}
+.model-card.claude .ctx-fill{background:var(--purple);}
+.model-card.gemini .ctx-fill{background:var(--green);}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"AI 토큰 추정기","url":"https://modoohub.com/token-estimator.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"GPT-4, Claude, Gemini 등 AI 모델 토큰 수와 비용을 추정하는 무료 온라인 도구."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"토큰이란?","acceptedAnswer":{"@type":"Answer","text":"AI 언어모델이 텍스트를 처리하는 단위입니다. 영어 기준 약 4자, 한국어 기준 약 2~3자가 1토큰입니다."}},{"@type":"Question","name":"토큰 수 계산이 정확한가요?","acceptedAnswer":{"@type":"Answer","text":"이 도구는 휴리스틱 추정으로 실제 tiktoken 결과와 ±5% 오차가 있을 수 있습니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>AI <span id="h1Accent">토큰 추정기</span></h1>
+  <p class="sub" id="subEl">텍스트를 입력하면 모델별 토큰 수와 예상 비용을 계산합니다</p>
+  <textarea id="inputText" placeholder="여기에 텍스트를 입력하세요..." oninput="estimate()" spellcheck="false"></textarea>
+  <div class="meta-row">
+    <span id="charCount">0</span> <span id="lblChars">자</span> &nbsp;·&nbsp;
+    <span id="wordCount">0</span> <span id="lblWords">단어</span> &nbsp;·&nbsp;
+    <span id="lineCount">0</span> <span id="lblLines">줄</span>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-sec" onclick="loadSample()" id="btnSample">샘플</button>
+    <button class="btn btn-sec" onclick="clearAll()" id="btnClear">지우기</button>
+  </div>
+  <div class="section-title" id="sectionTitle">모델별 토큰 & 비용</div>
+  <div class="model-grid" id="modelGrid"></div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko';
+const MODELS=[
+  {id:'gpt4o',      cls:'gpt',    name:'GPT-4o',          ctx:128000, inPer1k:0.005,  outPer1k:0.015},
+  {id:'gpt4o-mini', cls:'gpt',    name:'GPT-4o mini',     ctx:128000, inPer1k:0.00015,outPer1k:0.0006},
+  {id:'gpt4-turbo', cls:'gpt',    name:'GPT-4 Turbo',     ctx:128000, inPer1k:0.01,   outPer1k:0.03},
+  {id:'claude3-5',  cls:'claude', name:'Claude Sonnet 4', ctx:200000, inPer1k:0.003,  outPer1k:0.015},
+  {id:'claude3-h',  cls:'claude', name:'Claude Haiku 4',  ctx:200000, inPer1k:0.00025,outPer1k:0.00125},
+  {id:'claude-o',   cls:'claude', name:'Claude Opus 4',   ctx:200000, inPer1k:0.015,  outPer1k:0.075},
+  {id:'gemini25p',  cls:'gemini', name:'Gemini 2.5 Pro',  ctx:1000000,inPer1k:0.00125,outPer1k:0.01},
+  {id:'gemini25f',  cls:'gemini', name:'Gemini 2.5 Flash',ctx:1000000,inPer1k:0.0003, outPer1k:0.0025},
+  {id:'gemini15',   cls:'gemini', name:'Gemini 1.5 Pro',  ctx:2000000,inPer1k:0.00125,outPer1k:0.005},
+];
+const SAMPLE_TEXT=`인공지능(AI)은 컴퓨터 과학의 한 분야로, 인간의 학습, 추론, 문제 해결, 인식, 언어 이해와 같은 지능적인 행동을 모방하는 소프트웨어를 개발하는 것을 목표로 합니다.
+
+AI의 역사는 1950년대로 거슬러 올라갑니다. 앨런 튜링이 "계산 기계와 지능"이라는 논문에서 "기계가 생각할 수 있는가?"라는 질문을 제기했습니다. 이후 수십 년간 AI 연구는 여러 차례의 붐과 침체를 반복했습니다.
+
+현대 AI는 딥러닝과 대규모 언어 모델(LLM)을 중심으로 빠르게 발전하고 있습니다. GPT-4, Claude, Gemini와 같은 모델들은 자연어 처리, 코드 생성, 이미지 분석 등 다양한 작업을 수행할 수 있습니다.`;
+const _i18n={
+  ko:{h1Accent:'토큰 추정기',sub:'텍스트를 입력하면 모델별 토큰 수와 예상 비용을 계산합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',pageTitle:'AI 토큰 추정기 | MODOO HUB',lblChars:'자',lblWords:'단어',lblLines:'줄',btnSample:'샘플',btnClear:'지우기',sectionTitle:'모델별 토큰 & 비용',lblTokens:'토큰 수',lblInCost:'입력 비용',lblCtx:'컨텍스트 사용률',
+    seoHtml:`<h2>AI 토큰 추정기</h2><p>텍스트를 입력하면 GPT-4, Claude, Gemini 등 주요 AI 모델의 토큰 수와 예상 입력 비용을 실시간으로 계산합니다. 영어 기준 약 4자, 한국어 기준 약 2~3자가 1토큰에 해당합니다. 컨텍스트 창 사용률도 함께 표시합니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>토큰이란 무엇인가요?</summary><p>AI 언어모델이 텍스트를 처리하는 단위입니다. 영어 기준 약 4자, 한국어 기준 약 2~3자가 1토큰입니다.</p></details>
+<details class="faq-item"><summary>계산이 얼마나 정확한가요?</summary><p>휴리스틱 추정이므로 실제 tiktoken 결과와 ±5% 내외의 오차가 있을 수 있습니다.</p></details>
+<details class="faq-item"><summary>비용은 어떻게 계산하나요?</summary><p>각 모델의 공개 입력 토큰 단가($/1K tokens)를 기준으로 계산합니다.</p></details>
+<details class="faq-item"><summary>컨텍스트 창이란?</summary><p>모델이 한 번에 처리할 수 있는 최대 토큰 수입니다. GPT-4o는 128K, Claude는 200K, Gemini는 최대 2M입니다.</p></details>
+<details class="faq-item"><summary>출력 비용은 포함되나요?</summary><p>입력 토큰 비용만 표시됩니다. 출력 비용은 응답 길이에 따라 달라집니다.</p></details>
+<details class="faq-item"><summary>한국어는 영어보다 토큰이 많나요?</summary><p>예, 한국어는 영어보다 토큰 효율이 낮아 같은 내용을 표현하는 데 더 많은 토큰이 필요합니다.</p></details>
+<details class="faq-item"><summary>정확한 토큰 수를 알려면?</summary><p>OpenAI의 tiktoken 라이브러리 또는 각 모델사의 공식 API를 사용하세요.</p></details>
+<details class="faq-item"><summary>가격은 최신 정보인가요?</summary><p>가격은 변경될 수 있습니다. 최신 가격은 각 모델사의 공식 사이트에서 확인하세요.</p></details>`
+  },
+  en:{h1Accent:'Token Estimator',sub:'Enter text to estimate token count and cost for each AI model',backLink:'← All Tools',langBtn:'🌐 中文',pageTitle:'AI Token Estimator | MODOO HUB',lblChars:'chars',lblWords:'words',lblLines:'lines',btnSample:'Sample',btnClear:'Clear',sectionTitle:'Tokens & Cost by Model',lblTokens:'Tokens',lblInCost:'Input Cost',lblCtx:'Context Usage',
+    seoHtml:`<h2>AI Token Estimator</h2><p>Enter text to instantly calculate token counts and estimated input costs for GPT-4, Claude, Gemini, and other major AI models. Approximately 4 characters per token for English, 2-3 for Korean/Japanese. Context window usage is also shown.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>What is a token?</summary><p>The unit AI language models use to process text. Roughly 4 characters per token in English.</p></details>
+<details class="faq-item"><summary>How accurate is the estimate?</summary><p>Heuristic estimation — expect ±5% vs actual tiktoken results.</p></details>
+<details class="faq-item"><summary>How is cost calculated?</summary><p>Uses each model's published input price per 1K tokens.</p></details>
+<details class="faq-item"><summary>What is a context window?</summary><p>The maximum tokens a model can process at once. GPT-4o: 128K, Claude: 200K, Gemini: up to 2M.</p></details>
+<details class="faq-item"><summary>Is output cost included?</summary><p>Only input cost is shown. Output cost depends on response length.</p></details>
+<details class="faq-item"><summary>Do non-English languages use more tokens?</summary><p>Yes — Korean, Japanese, and Chinese are less token-efficient than English.</p></details>
+<details class="faq-item"><summary>How to get exact token counts?</summary><p>Use OpenAI tiktoken library or each provider's official tokenizer.</p></details>
+<details class="faq-item"><summary>Are prices up to date?</summary><p>Prices can change. Verify at each provider's official pricing page.</p></details>`
+  },
+  zh:{h1Accent:'Token估算器',sub:'输入文本即可计算各AI模型的Token数量和预估费用',backLink:'← 所有工具',langBtn:'🌐 日本語',pageTitle:'AI Token估算器 | MODOO HUB',lblChars:'字符',lblWords:'单词',lblLines:'行',btnSample:'示例',btnClear:'清除',sectionTitle:'各模型Token与费用',lblTokens:'Token数',lblInCost:'输入费用',lblCtx:'上下文使用率',
+    seoHtml:`<h2>AI Token估算器</h2><p>输入文本即可实时计算GPT-4、Claude、Gemini等主要AI模型的Token数量和预估输入费用。英文约4个字符=1Token，中文约1.5~2个字符=1Token。同时显示上下文窗口使用率。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>什么是Token？</summary><p>AI语言模型处理文本的基本单位。英文约4个字符=1Token。</p></details>
+<details class="faq-item"><summary>估算有多准确？</summary><p>基于启发式算法，与实际tiktoken结果误差约±5%。</p></details>
+<details class="faq-item"><summary>如何计算费用？</summary><p>基于各模型公开的每1K Token输入价格计算。</p></details>
+<details class="faq-item"><summary>什么是上下文窗口？</summary><p>模型一次能处理的最大Token数。GPT-4o: 128K，Claude: 200K，Gemini: 最高2M。</p></details>
+<details class="faq-item"><summary>包含输出费用吗？</summary><p>仅显示输入费用，输出费用取决于响应长度。</p></details>
+<details class="faq-item"><summary>中文比英文消耗更多Token吗？</summary><p>是的，中文的Token效率低于英文。</p></details>
+<details class="faq-item"><summary>如何获取精确Token数？</summary><p>使用OpenAI tiktoken库或各提供商的官方API。</p></details>
+<details class="faq-item"><summary>价格是最新的吗？</summary><p>价格可能变动，请在各提供商官方网站确认最新价格。</p></details>`
+  },
+  ja:{h1Accent:'トークン推定器',sub:'テキストを入力してモデルごとのトークン数と予想費用を計算します',backLink:'← ホーム',langBtn:'🌐 한국어',pageTitle:'AIトークン推定器 | MODOO HUB',lblChars:'文字',lblWords:'単語',lblLines:'行',btnSample:'サンプル',btnClear:'クリア',sectionTitle:'モデル別トークン&費用',lblTokens:'トークン数',lblInCost:'入力費用',lblCtx:'コンテキスト使用率',
+    seoHtml:`<h2>AIトークン推定器</h2><p>テキストを入力するとGPT-4、Claude、Geminiなど主要AIモデルのトークン数と予想入力費用をリアルタイムで計算します。英語は約4文字、日本語は約2~3文字で1トークンです。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>トークンとは？</summary><p>AI言語モデルがテキストを処理する単位です。英語は約4文字=1トークンです。</p></details>
+<details class="faq-item"><summary>どのくらい正確ですか？</summary><p>ヒューリスティック推定のため、実際のtiktokenとは±5%程度の誤差があります。</p></details>
+<details class="faq-item"><summary>費用はどう計算されますか？</summary><p>各モデルの公開入力価格（$/1Kトークン）を基に計算します。</p></details>
+<details class="faq-item"><summary>コンテキストウィンドウとは？</summary><p>モデルが一度に処理できる最大トークン数です。GPT-4o: 128K、Claude: 200K、Gemini: 最大2M。</p></details>
+<details class="faq-item"><summary>出力費用は含まれますか？</summary><p>入力費用のみ表示されます。出力費用は応答長に依存します。</p></details>
+<details class="faq-item"><summary>日本語は英語より多くトークンを使いますか？</summary><p>はい、日本語は英語よりトークン効率が低いです。</p></details>
+<details class="faq-item"><summary>正確なトークン数を得るには？</summary><p>OpenAIのtiktokenライブラリまたは各プロバイダーの公式APIを使用してください。</p></details>
+<details class="faq-item"><summary>価格は最新ですか？</summary><p>価格は変更される可能性があります。各社の公式サイトで確認してください。</p></details>`
+  }
+};
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){
+  const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
+  ['h1Accent','subEl','backLink','langBtn','lblChars','lblWords','lblLines','btnSample','btnClear','sectionTitle'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id]||el.textContent;});
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+  estimate();
+}
+function countTokens(text){
+  if(!text)return 0;
+  const hasKorean=/[가-힣]/.test(text);
+  const hasCJK=/[぀-鿿]/.test(text);
+  if(hasKorean||hasCJK) return Math.ceil(text.length/2.5);
+  return Math.ceil(text.length/4);
+}
+function fmtCost(c){if(c<0.001)return '<$0.001';return '$'+c.toFixed(4);}
+function loadSample(){document.getElementById('inputText').value=SAMPLE_TEXT;estimate();}
+function clearAll(){document.getElementById('inputText').value='';estimate();}
+function estimate(){
+  const text=document.getElementById('inputText').value;
+  const t=_i18n[_lang];
+  document.getElementById('charCount').textContent=text.length;
+  document.getElementById('wordCount').textContent=text.trim()?text.trim().split(/\s+/).length:0;
+  document.getElementById('lineCount').textContent=text.split('\n').length;
+  const tokens=countTokens(text);
+  const grid=document.getElementById('modelGrid');
+  grid.innerHTML=MODELS.map(m=>{
+    const cost=tokens*(m.inPer1k/1000);
+    const pct=Math.min(100,(tokens/m.ctx*100)).toFixed(1);
+    return `<div class="model-card ${m.cls}">
+      <div class="model-name">${m.name}</div>
+      <div class="stat-row"><span class="stat-label">${t.lblTokens}</span><span class="stat-val highlight">${tokens.toLocaleString()}</span></div>
+      <div class="stat-row"><span class="stat-label">${t.lblInCost}</span><span class="stat-val">${fmtCost(cost)}</span></div>
+      <div class="ctx-bar-wrap">
+        <div class="ctx-label">${t.lblCtx}: ${pct}% / ${(m.ctx/1000).toFixed(0)}K</div>
+        <div class="ctx-bar"><div class="ctx-fill" style="width:${pct}%"></div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

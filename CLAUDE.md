@@ -3,8 +3,8 @@
 ## 프로젝트 개요
 - **사이트**: https://modoohub.com
 - **구성**: 단일 HTML 파일 집합 (SPA 아님, 각 툴마다 별도 .html)
-- **현재 툴 수**: 306개 (index.html footer 카운터 기준)
-- **sitemap.xml**: 312 URL 항목
+- **현재 툴 수**: 335개 (index.html footer 카운터 기준)
+- **sitemap.xml**: 341 URL 항목
 
 ## 필수 코드 (모든 새 HTML 파일에 공통)
 
@@ -260,6 +260,15 @@ word-to-minute-converter, typing-speed-test, cps-calculator, wpm-calculator, rea
 
 ### 배치 20 ✅
 yaml-validator, json-to-xml, html-minifier, css-minifier, javascript-minifier, javascript-beautifier, css-beautifier
+
+### 배치 21 ✅
+token-estimator, prompt-template-library, image-prompt-generator, youtube-script-generator
+
+### 배치 22 ✅
+prompt-improver, prompt-optimizer, system-prompt-generator, ai-email-generator, ai-resume-generator, ai-cover-letter-generator, ai-product-description-generator, ai-blog-title-generator, ai-youtube-title-generator, ai-thumbnail-title-generator, ai-tweet-generator, ai-linkedin-post-generator
+
+### 배치 23 ✅
+jwt-expiration-checker, json-schema-generator, json-schema-validator, xml-beautifier, yaml-diff-checker, csv-diff-checker, sql-query-explainer, regex-extractor, regex-replace-tester, epoch-converter, uuid-bulk-generator, uuid-extractor, api-response-viewer
 
 ## JS 문자열 이스케이프 주의사항
 

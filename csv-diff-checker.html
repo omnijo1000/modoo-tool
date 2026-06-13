@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSV Diff 비교기 - CSV Diff Checker | MODOO HUB</title>
+<meta name="description" content="두 CSV 파일의 차이점을 즉시 비교합니다. 추가·삭제·변경된 행을 색상으로 구분하여 시각적으로 표시합니다. 무료 온라인 CSV Diff 비교 도구.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/csv-diff-checker.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/csv-diff-checker.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/csv-diff-checker.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/csv-diff-checker.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/csv-diff-checker.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/csv-diff-checker.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--yellow:#fbbf24;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:1000px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:20px;}
+.opts{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:12px;font-size:12px;color:var(--text-muted);align-items:center;}
+.opts label{display:flex;align-items:center;gap:5px;cursor:pointer;}
+.opts select,.opts input{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 8px;color:var(--text);font-size:12px;font-family:'DM Mono',monospace;outline:none;}
+.top-layout{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+@media(max-width:680px){.top-layout{grid-template-columns:1fr;}}
+.pane-label{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;margin-bottom:5px;}
+textarea{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text);font-size:12px;font-family:'DM Mono',monospace;min-height:200px;resize:vertical;outline:none;}
+textarea:focus{border-color:var(--accent);}
+.btn-row{display:flex;gap:8px;margin-bottom:12px;}
+.btn{padding:7px 18px;border-radius:7px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:'Noto Sans KR',sans-serif;}
+.btn-primary{background:var(--accent);color:#000;}
+.btn-primary:hover{background:#f59e0b;}
+.btn-sec{background:var(--surface2);color:var(--text-muted);border:1px solid var(--border);}
+.btn-sec:hover{border-color:var(--accent);}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;margin-bottom:10px;}
+.legend-item{display:flex;align-items:center;gap:5px;color:var(--text-dim);}
+.dot{width:10px;height:10px;border-radius:2px;}
+.dot-add{background:rgba(74,222,128,.3);border:1px solid var(--green);}
+.dot-del{background:rgba(248,113,113,.3);border:1px solid var(--red);}
+.dot-chg{background:rgba(251,191,36,.2);border:1px solid var(--yellow);}
+.diff-table-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--border);border-radius:10px;}
+table{width:100%;border-collapse:collapse;font-size:12px;font-family:'DM Mono',monospace;}
+th{padding:8px 12px;background:var(--surface2);color:var(--text-dim);text-align:left;font-weight:600;border-bottom:1px solid var(--border);}
+td{padding:6px 12px;border-bottom:1px solid rgba(37,37,37,.5);white-space:nowrap;}
+tr.row-add td{background:rgba(74,222,128,.08);color:var(--green);}
+tr.row-del td{background:rgba(248,113,113,.08);color:var(--red);}
+tr.row-chg td{background:rgba(251,191,36,.06);color:var(--yellow);}
+tr.row-same td{color:var(--text-dim);}
+.stats-bar{padding:10px 14px;border-top:1px solid var(--border);font-size:11px;font-family:'DM Mono',monospace;display:flex;gap:14px;}
+.stat-add{color:var(--green);}
+.stat-del{color:var(--red);}
+.stat-chg{color:var(--yellow);}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"CSV Diff 비교기","url":"https://modoohub.com/csv-diff-checker.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"두 CSV 파일의 차이점을 즉시 비교하는 무료 온라인 도구."}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>CSV <span id="h1Accent">Diff 비교기</span></h1>
+  <p class="sub" id="subEl">두 CSV를 입력하면 추가·삭제·변경된 행을 테이블로 시각화합니다</p>
+
+  <div class="opts">
+    <span id="lblDelim">구분자:</span>
+    <select id="delim"><option value=",">,  (쉼표)</option><option value="	">⇥  (탭)</option><option value=";">; (세미콜론)</option></select>
+    <label><input type="checkbox" id="optHeader" checked> <span id="lblHeader">첫 행이 헤더</span></label>
+    <label><input type="checkbox" id="optIgnoreCase"> <span id="lblIgnoreCase">대소문자 무시</span></label>
+  </div>
+  <div class="top-layout">
+    <div>
+      <div class="pane-label" id="lblLeft">CSV A (원본)</div>
+      <textarea id="csvA" placeholder="id,name,score&#10;1,Alice,90&#10;2,Bob,85&#10;3,Carol,92"></textarea>
+    </div>
+    <div>
+      <div class="pane-label" id="lblRight">CSV B (수정본)</div>
+      <textarea id="csvB" placeholder="id,name,score&#10;1,Alice,95&#10;2,Bob,85&#10;4,Dave,88"></textarea>
+    </div>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="compare()" id="btnDiff">비교</button>
+    <button class="btn btn-sec" onclick="loadSample()" id="btnSample">샘플</button>
+    <button class="btn btn-sec" onclick="clearAll()" id="btnClear">초기화</button>
+  </div>
+  <div id="legendEl" class="legend" style="display:none;">
+    <span class="legend-item"><span class="dot dot-add"></span><span id="lgAdd">추가된 행</span></span>
+    <span class="legend-item"><span class="dot dot-del"></span><span id="lgDel">삭제된 행</span></span>
+    <span class="legend-item"><span class="dot dot-chg"></span><span id="lgChg">변경된 행</span></span>
+  </div>
+  <div class="diff-table-wrap" id="diffWrap" style="display:none;">
+    <table id="diffTable"></table>
+    <div class="stats-bar" id="statsBar"></div>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko';
+const _i18n={
+  ko:{h1Accent:'Diff 비교기',sub:'두 CSV를 입력하면 추가·삭제·변경된 행을 테이블로 시각화합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',
+    lblDelim:'구분자:',lblHeader:'첫 행이 헤더',lblIgnoreCase:'대소문자 무시',lblLeft:'CSV A (원본)',lblRight:'CSV B (수정본)',
+    btnDiff:'비교',btnSample:'샘플',btnClear:'초기화',lgAdd:'추가된 행',lgDel:'삭제된 행',lgChg:'변경된 행',
+    hdrType:'변경',hdrRow:'행',stats:(a,d,c,s)=>`+${a} 추가  -${d} 삭제  ~${c} 변경  =${s} 동일`,
+    typeAdd:'추가',typeDel:'삭제',typeChg:'변경',typeSame:'동일',
+    seoHtml:`<h2>CSV Diff 비교기</h2><p>두 CSV 파일을 붙여넣으면 추가, 삭제, 변경된 행을 색상으로 구분하여 테이블 형태로 비교합니다. 데이터 마이그레이션, 버전 비교, 데이터 품질 검사에 유용합니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>CSV Diff는 어디에 활용하나요?</summary><p>데이터 마이그레이션 검증, 스프레드시트 버전 비교, 데이터 품질 감사, API 응답 데이터 비교에 사용합니다.</p></details>
+<details class="faq-item"><summary>구분자를 변경할 수 있나요?</summary><p>예, 쉼표(,), 탭(⇥), 세미콜론(;)을 지원합니다.</p></details>
+<details class="faq-item"><summary>행 비교 기준은 무엇인가요?</summary><p>첫 번째 열을 키로 사용하여 행을 매칭합니다.</p></details>
+<details class="faq-item"><summary>대용량 CSV도 지원하나요?</summary><p>브라우저 내에서 처리하므로 수천 행까지 지원하나, 매우 큰 파일은 느릴 수 있습니다.</p></details>
+<details class="faq-item"><summary>헤더 없는 CSV도 비교 가능한가요?</summary><p>예, "첫 행이 헤더" 옵션을 해제하면 헤더 없이 비교합니다.</p></details>
+<details class="faq-item"><summary>셀 내 쉼표가 있는 경우는?</summary><p>따옴표로 감싸진 필드(예: "값,포함")는 올바르게 파싱됩니다.</p></details>
+<details class="faq-item"><summary>엑셀 파일도 비교할 수 있나요?</summary><p>엑셀 파일을 CSV로 저장한 후 붙여넣기 하세요.</p></details>
+<details class="faq-item"><summary>결과를 CSV로 내보낼 수 있나요?</summary><p>현재 직접 내보내기는 지원하지 않습니다. 결과를 복사하여 사용하세요.</p></details>`
+  },
+  en:{h1Accent:'Diff Checker',sub:'Enter two CSVs to visualize added, deleted, and changed rows as a table',backLink:'← All Tools',langBtn:'🌐 中文',
+    lblDelim:'Delimiter:',lblHeader:'First row is header',lblIgnoreCase:'Ignore case',lblLeft:'CSV A (original)',lblRight:'CSV B (modified)',
+    btnDiff:'Compare',btnSample:'Sample',btnClear:'Clear',lgAdd:'Added rows',lgDel:'Deleted rows',lgChg:'Changed rows',
+    hdrType:'Type',hdrRow:'Row',stats:(a,d,c,s)=>`+${a} added  -${d} deleted  ~${c} changed  =${s} same`,
+    typeAdd:'ADD',typeDel:'DEL',typeChg:'CHG',typeSame:'SAME',
+    seoHtml:`<h2>CSV Diff Checker</h2><p>Paste two CSV files to compare and color-highlight added, deleted, and changed rows in a table view. Useful for data migration validation, spreadsheet version comparison, and data quality audits.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>Where is CSV Diff useful?</summary><p>Data migration validation, spreadsheet version comparison, data quality audits, API response comparisons.</p></details>
+<details class="faq-item"><summary>Can I change the delimiter?</summary><p>Yes — supports comma (,), tab (⇥), and semicolon (;).</p></details>
+<details class="faq-item"><summary>How are rows matched?</summary><p>The first column is used as a key to match rows between the two CSVs.</p></details>
+<details class="faq-item"><summary>Large CSV files?</summary><p>Processed in-browser — supports thousands of rows but very large files may be slow.</p></details>
+<details class="faq-item"><summary>CSV without headers?</summary><p>Yes — uncheck "First row is header" to compare without headers.</p></details>
+<details class="faq-item"><summary>Fields with commas inside?</summary><p>Quoted fields (e.g. "value,with,commas") are correctly parsed.</p></details>
+<details class="faq-item"><summary>Can I compare Excel files?</summary><p>Save Excel as CSV first, then paste the content here.</p></details>
+<details class="faq-item"><summary>Can I export results as CSV?</summary><p>Direct export is not supported — copy the results to use them.</p></details>`
+  },
+  zh:{h1Accent:'Diff比较器',sub:'输入两个CSV以表格形式可视化添加、删除和更改的行',backLink:'← 所有工具',langBtn:'🌐 日本語',
+    lblDelim:'分隔符:',lblHeader:'第一行为标题',lblIgnoreCase:'忽略大小写',lblLeft:'CSV A（原始）',lblRight:'CSV B（修改）',
+    btnDiff:'比较',btnSample:'示例',btnClear:'清除',lgAdd:'已添加行',lgDel:'已删除行',lgChg:'已更改行',
+    hdrType:'类型',hdrRow:'行',stats:(a,d,c,s)=>`+${a} 添加  -${d} 删除  ~${c} 更改  =${s} 相同`,
+    typeAdd:'添加',typeDel:'删除',typeChg:'更改',typeSame:'相同',
+    seoHtml:`<h2>CSV Diff比较器</h2><p>粘贴两个CSV文件，以表格形式对比并用颜色标出添加、删除和更改的行。适用于数据迁移验证、电子表格版本比较和数据质量审计。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>CSV Diff在哪里使用？</summary><p>数据迁移验证、电子表格版本比较、数据质量审计、API响应数据比较。</p></details>
+<details class="faq-item"><summary>可以更改分隔符吗？</summary><p>是的，支持逗号(,)、制表符(⇥)和分号(;)。</p></details>
+<details class="faq-item"><summary>行匹配的依据是什么？</summary><p>使用第一列作为键来匹配两个CSV之间的行。</p></details>
+<details class="faq-item"><summary>支持大型CSV文件吗？</summary><p>在浏览器中处理，支持数千行，但非常大的文件可能较慢。</p></details>
+<details class="faq-item"><summary>没有标题的CSV可以比较吗？</summary><p>可以，取消选中"第一行为标题"即可。</p></details>
+<details class="faq-item"><summary>字段内有逗号怎么办？</summary><p>带引号的字段（如"值,包含"）会被正确解析。</p></details>
+<details class="faq-item"><summary>可以比较Excel文件吗？</summary><p>先将Excel另存为CSV，然后在此粘贴内容。</p></details>
+<details class="faq-item"><summary>可以将结果导出为CSV吗？</summary><p>目前不支持直接导出，请复制结果使用。</p></details>`
+  },
+  ja:{h1Accent:'Diff比較器',sub:'2つのCSVを入力して追加・削除・変更された行をテーブルで可視化します',backLink:'← ホーム',langBtn:'🌐 한국어',
+    lblDelim:'区切り文字:',lblHeader:'最初の行がヘッダー',lblIgnoreCase:'大文字小文字を無視',lblLeft:'CSV A（元）',lblRight:'CSV B（変更後）',
+    btnDiff:'比較',btnSample:'サンプル',btnClear:'クリア',lgAdd:'追加された行',lgDel:'削除された行',lgChg:'変更された行',
+    hdrType:'種別',hdrRow:'行',stats:(a,d,c,s)=>`+${a} 追加  -${d} 削除  ~${c} 変更  =${s} 同一`,
+    typeAdd:'追加',typeDel:'削除',typeChg:'変更',typeSame:'同一',
+    seoHtml:`<h2>CSV Diff比較器</h2><p>2つのCSVファイルを貼り付けて追加・削除・変更された行をテーブル形式で色分けして比較します。データ移行の検証、スプレッドシートのバージョン比較、データ品質監査に便利です。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>CSV Diffはどこで使いますか？</summary><p>データ移行の検証、スプレッドシートのバージョン比較、データ品質監査、API応答データの比較に使用します。</p></details>
+<details class="faq-item"><summary>区切り文字を変更できますか？</summary><p>はい、カンマ(,)、タブ(⇥)、セミコロン(;)をサポートしています。</p></details>
+<details class="faq-item"><summary>行のマッチングの基準は？</summary><p>最初の列をキーとして2つのCSV間の行をマッチングします。</p></details>
+<details class="faq-item"><summary>大きなCSVファイルでも使えますか？</summary><p>ブラウザ内で処理されるため、数千行までサポートしますが、非常に大きなファイルは遅くなる場合があります。</p></details>
+<details class="faq-item"><summary>ヘッダーなしのCSVも比較できますか？</summary><p>はい、「最初の行がヘッダー」のチェックを外してください。</p></details>
+<details class="faq-item"><summary>フィールド内にカンマがある場合は？</summary><p>引用符で囲まれたフィールド（例："値,含む"）は正しく解析されます。</p></details>
+<details class="faq-item"><summary>Excelファイルも比較できますか？</summary><p>ExcelをCSVとして保存してからここに貼り付けてください。</p></details>
+<details class="faq-item"><summary>結果をCSVとしてエクスポートできますか？</summary><p>現在、直接エクスポートはサポートされていません。結果をコピーして使用してください。</p></details>`
+  }
+};
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){
+  const t=_i18n[_lang];document.documentElement.lang=_lang;
+  ['h1Accent','subEl','backLink','langBtn','lblDelim','lblHeader','lblIgnoreCase','lblLeft','lblRight','btnDiff','btnSample','btnClear','lgAdd','lgDel','lgChg'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id]||el.textContent;});
+  const sel=document.getElementById('delim');
+  if(sel){sel.options[0].text=',  (쉼표)';sel.options[1].text='⇥  (탭)';sel.options[2].text='; (세미콜론)';}
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+}
+function parseCSV(text,delim){
+  const rows=[];
+  text.split('\n').forEach(line=>{
+    if(!line.trim())return;
+    const cells=[];let cur='',inQ=false;
+    for(let i=0;i<line.length;i++){
+      const c=line[i];
+      if(c==='"'){inQ=!inQ;}
+      else if(c===delim&&!inQ){cells.push(cur);cur='';}
+      else cur+=c;
+    }
+    cells.push(cur);
+    rows.push(cells.map(c=>c.trim()));
+  });
+  return rows;
+}
+function compare(){
+  const t=_i18n[_lang];
+  const delim=document.getElementById('delim').value;
+  const hasHeader=document.getElementById('optHeader').checked;
+  const ignoreCase=document.getElementById('optIgnoreCase').checked;
+  const norm=v=>ignoreCase?v.toLowerCase():v;
+  let rowsA=parseCSV(document.getElementById('csvA').value,delim);
+  let rowsB=parseCSV(document.getElementById('csvB').value,delim);
+  if(!rowsA.length||!rowsB.length)return;
+  let headers=[];
+  if(hasHeader){headers=rowsA[0];rowsA=rowsA.slice(1);rowsB=rowsB.slice(1);}
+  const mapA=new Map(rowsA.map(r=>[norm(r[0]),r]));
+  const mapB=new Map(rowsB.map(r=>[norm(r[0]),r]));
+  const allKeys=new Set([...mapA.keys(),...mapB.keys()]);
+  const results=[];let addC=0,delC=0,chgC=0,sameC=0;
+  [...allKeys].forEach(k=>{
+    const a=mapA.get(k),b=mapB.get(k);
+    if(!a){results.push({type:'add',row:b});addC++;}
+    else if(!b){results.push({type:'del',row:a});delC++;}
+    else if(a.join('|')!==b.join('|')){results.push({type:'chg',row:b,old:a});chgC++;}
+    else{results.push({type:'same',row:a});sameC++;}
+  });
+  const colN=headers.length||Math.max(...results.map(r=>r.row.length));
+  const thead=headers.length?`<tr><th>${t.hdrType}</th>${headers.map(h=>`<th>${h}</th>`).join('')}</tr>`:
+    `<tr><th>${t.hdrType}</th>${Array.from({length:colN},(_,i)=>`<th>Col ${i+1}</th>`).join('')}</tr>`;
+  const tbody=results.map(r=>{
+    const cls=r.type==='add'?'row-add':r.type==='del'?'row-del':r.type==='chg'?'row-chg':'row-same';
+    const typeLabel=r.type==='add'?t.typeAdd:r.type==='del'?t.typeDel:r.type==='chg'?t.typeChg:t.typeSame;
+    const cells=r.row.map((c,i)=>{
+      if(r.type==='chg'&&r.old&&r.old[i]!==undefined&&r.old[i]!==c)return`<td title="was: ${r.old[i]}">${c} ←${r.old[i]}</td>`;
+      return`<td>${c}</td>`;
+    }).join('');
+    return`<tr class="${cls}"><td>${typeLabel}</td>${cells}</tr>`;
+  }).join('');
+  document.getElementById('diffTable').innerHTML=`<thead>${thead}</thead><tbody>${tbody}</tbody>`;
+  document.getElementById('statsBar').innerHTML=`<span class="stat-add">+${addC}</span><span class="stat-del">-${delC}</span><span class="stat-chg">~${chgC}</span><span style="color:var(--text-dim)">${t.stats(addC,delC,chgC,sameC).split('  ')[3]}</span>`;
+  document.getElementById('legendEl').style.display='flex';
+  document.getElementById('diffWrap').style.display='block';
+}
+function loadSample(){
+  document.getElementById('csvA').value=`id,name,email,score\n1,Alice,alice@a.com,90\n2,Bob,bob@b.com,85\n3,Carol,carol@c.com,92`;
+  document.getElementById('csvB').value=`id,name,email,score\n1,Alice,alice@new.com,95\n2,Bob,bob@b.com,85\n4,Dave,dave@d.com,88`;
+  compare();
+}
+function clearAll(){['csvA','csvB'].forEach(id=>document.getElementById(id).value='');document.getElementById('diffWrap').style.display='none';document.getElementById('legendEl').style.display='none';}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SQL 쿼리 설명기 - SQL Query Explainer | MODOO HUB</title>
+<meta name="description" content="SQL 쿼리를 분석하여 각 절(SELECT, FROM, WHERE, JOIN 등)의 의미를 한국어로 설명합니다. SQL 학습과 쿼리 이해에 도움이 되는 무료 온라인 도구.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/sql-query-explainer.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/sql-query-explainer.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/sql-query-explainer.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/sql-query-explainer.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/sql-query-explainer.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/sql-query-explainer.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:900px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:20px;}
+textarea{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;color:var(--text);font-size:13px;font-family:'DM Mono',monospace;min-height:140px;resize:vertical;outline:none;margin-bottom:12px;}
+textarea:focus{border-color:var(--accent);}
+.btn-row{display:flex;gap:8px;margin-bottom:24px;}
+.btn{padding:7px 18px;border-radius:7px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:'Noto Sans KR',sans-serif;}
+.btn-primary{background:var(--accent);color:#000;}
+.btn-primary:hover{background:#f59e0b;}
+.btn-sec{background:var(--surface2);color:var(--text-muted);border:1px solid var(--border);}
+.btn-sec:hover{border-color:var(--accent);}
+.clause-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;gap:14px;align-items:flex-start;}
+.clause-badge{padding:3px 10px;border-radius:4px;font-size:11px;font-weight:700;font-family:'DM Mono',monospace;white-space:nowrap;flex-shrink:0;}
+.clause-body{flex:1;}
+.clause-code{font-size:11px;font-family:'DM Mono',monospace;color:var(--text-dim);margin-bottom:5px;word-break:break-all;}
+.clause-desc{font-size:13px;color:var(--text-muted);line-height:1.7;}
+.clause-detail{font-size:11px;color:var(--text-dim);margin-top:4px;line-height:1.6;}
+.badge-select{background:rgba(96,165,250,.2);color:var(--blue);}
+.badge-from{background:rgba(74,222,128,.2);color:var(--green);}
+.badge-join{background:rgba(192,132,252,.2);color:var(--purple);}
+.badge-where{background:rgba(251,191,36,.2);color:var(--accent);}
+.badge-group{background:rgba(248,113,113,.2);color:var(--red);}
+.badge-having{background:rgba(248,113,113,.15);color:var(--red);}
+.badge-order{background:rgba(96,165,250,.15);color:var(--blue);}
+.badge-limit{background:rgba(74,222,128,.15);color:var(--green);}
+.badge-insert{background:rgba(192,132,252,.2);color:var(--purple);}
+.badge-update{background:rgba(251,191,36,.2);color:var(--accent);}
+.badge-delete{background:rgba(248,113,113,.2);color:var(--red);}
+.badge-create{background:rgba(74,222,128,.2);color:var(--green);}
+.badge-subq{background:rgba(96,165,250,.2);color:var(--blue);}
+.badge-other{background:var(--surface2);color:var(--text-muted);}
+.empty-msg{text-align:center;padding:40px;color:var(--text-dim);font-size:13px;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"SQL Query Explainer","url":"https://modoohub.com/sql-query-explainer.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"SQL 쿼리를 분석하여 각 절의 의미를 설명하는 무료 온라인 도구."}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>SQL <span id="h1Accent">쿼리 설명기</span></h1>
+  <p class="sub" id="subEl">SQL 쿼리를 입력하면 각 절의 역할을 단계별로 설명합니다</p>
+  <textarea id="sqlIn" placeholder="SELECT u.name, COUNT(o.id) AS order_count&#10;FROM users u&#10;JOIN orders o ON u.id = o.user_id&#10;WHERE u.active = 1&#10;GROUP BY u.id&#10;HAVING COUNT(o.id) > 5&#10;ORDER BY order_count DESC&#10;LIMIT 10" oninput="autoExplain()"></textarea>
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="explain()" id="btnExplain">설명</button>
+    <button class="btn btn-sec" onclick="loadSample()" id="btnSample">샘플</button>
+    <button class="btn btn-sec" onclick="clearAll()" id="btnClear">초기화</button>
+  </div>
+  <div id="resultArea"></div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const LANGS=['ko','en','zh','ja'];let _lang='ko';
+const _i18n={
+  ko:{h1Accent:'쿼리 설명기',sub:'SQL 쿼리를 입력하면 각 절의 역할을 단계별로 설명합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',btnExplain:'설명',btnSample:'샘플',btnClear:'초기화',emptyMsg:'SQL 쿼리를 입력하고 설명 버튼을 클릭하세요',
+    clauses:{
+      SELECT:{label:'SELECT',desc:(v)=>`조회할 컬럼을 지정합니다: ${v}`,detail:(v)=>v.includes('*')?'* 는 모든 컬럼을 의미합니다.':v.includes('COUNT')||v.includes('SUM')||v.includes('AVG')||v.includes('MAX')||v.includes('MIN')?'집계 함수가 포함되어 있습니다.':''},
+      FROM:{label:'FROM',desc:(v)=>`데이터를 가져올 테이블: ${v}`,detail:()=>'쿼리의 기본 테이블입니다.'},
+      JOIN:{label:'JOIN',desc:(v)=>`다른 테이블과 결합: ${v}`,detail:(v)=>v.toUpperCase().startsWith('LEFT')?'LEFT JOIN: 왼쪽 테이블의 모든 행을 유지합니다.':v.toUpperCase().startsWith('RIGHT')?'RIGHT JOIN: 오른쪽 테이블의 모든 행을 유지합니다.':v.toUpperCase().startsWith('INNER')||v.toUpperCase().startsWith('JOIN')?'INNER JOIN: 양쪽에 일치하는 행만 반환합니다.':''},
+      WHERE:{label:'WHERE',desc:(v)=>`행 필터 조건: ${v}`,detail:(v)=>v.includes('AND')||v.includes('OR')?'복합 조건이 포함되어 있습니다.':v.includes('LIKE')?'패턴 매칭(LIKE)을 사용합니다.':v.includes('IN')?'IN 조건: 여러 값 중 하나와 일치하는 행을 반환합니다.':''},
+      'GROUP BY':{label:'GROUP BY',desc:(v)=>`그룹화 기준 컬럼: ${v}`,detail:()=>'집계 함수(COUNT, SUM 등)와 함께 사용됩니다.'},
+      HAVING:{label:'HAVING',desc:(v)=>`그룹 필터 조건: ${v}`,detail:()=>'WHERE는 행을, HAVING은 그룹화 후의 집계 결과를 필터링합니다.'},
+      'ORDER BY':{label:'ORDER BY',desc:(v)=>`정렬 기준: ${v}`,detail:(v)=>v.toUpperCase().includes('DESC')?'내림차순으로 정렬합니다.':'오름차순(기본값)으로 정렬합니다.'},
+      LIMIT:{label:'LIMIT',desc:(v)=>`반환할 최대 행 수: ${v}`,detail:()=>'성능 최적화와 페이지네이션에 사용됩니다.'},
+      OFFSET:{label:'OFFSET',desc:(v)=>`건너뛸 행 수: ${v}`,detail:()=>'페이지네이션에서 LIMIT와 함께 사용됩니다.'},
+      INSERT:{label:'INSERT',desc:(v)=>`데이터 삽입: ${v}`,detail:()=>'테이블에 새 행을 추가합니다.'},
+      UPDATE:{label:'UPDATE',desc:(v)=>`데이터 수정: ${v}`,detail:()=>'기존 행의 값을 업데이트합니다.'},
+      DELETE:{label:'DELETE',desc:(v)=>`데이터 삭제: ${v}`,detail:()=>'테이블에서 행을 삭제합니다.'},
+      CREATE:{label:'CREATE',desc:(v)=>`생성: ${v}`,detail:()=>'새 테이블 또는 인덱스를 생성합니다.'},
+    },
+    seoHtml:`<h2>SQL 쿼리 설명기</h2><p>복잡한 SQL 쿼리를 입력하면 SELECT, FROM, WHERE, JOIN, GROUP BY 등 각 절의 역할과 의미를 단계별로 설명합니다. SQL을 학습하거나 복잡한 쿼리를 이해할 때 유용한 무료 온라인 도구입니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>어떤 SQL 문을 지원하나요?</summary><p>SELECT, INSERT, UPDATE, DELETE, CREATE 등 주요 DML/DDL 문을 지원합니다.</p></details>
+<details class="faq-item"><summary>서브쿼리도 설명하나요?</summary><p>기본적인 구조 분석을 제공하며, 중첩 서브쿼리는 별도로 표시합니다.</p></details>
+<details class="faq-item"><summary>JOIN 종류를 구분하나요?</summary><p>예, INNER JOIN, LEFT JOIN, RIGHT JOIN을 구분하여 설명합니다.</p></details>
+<details class="faq-item"><summary>GROUP BY와 HAVING의 차이를 설명하나요?</summary><p>예, WHERE는 행 필터, HAVING은 집계 후 그룹 필터라고 설명합니다.</p></details>
+<details class="faq-item"><summary>MySQL, PostgreSQL, Oracle 모두 지원하나요?</summary><p>표준 SQL 문법을 기반으로 설명하므로 대부분의 RDBMS에 적용할 수 있습니다.</p></details>
+<details class="faq-item"><summary>집계 함수를 인식하나요?</summary><p>COUNT, SUM, AVG, MAX, MIN 등을 인식하여 설명에 반영합니다.</p></details>
+<details class="faq-item"><summary>쿼리 오류를 수정해주나요?</summary><p>오류 수정은 제공하지 않으며, 구조 분석 및 설명에 초점을 맞춥니다.</p></details>
+<details class="faq-item"><summary>무료인가요?</summary><p>예, 완전히 무료이며 서버로 데이터를 전송하지 않습니다.</p></details>`
+  },
+  en:{h1Accent:'Query Explainer',sub:'Enter a SQL query and get a step-by-step explanation of each clause',backLink:'← All Tools',langBtn:'🌐 中文',btnExplain:'Explain',btnSample:'Sample',btnClear:'Clear',emptyMsg:'Enter a SQL query and click Explain',
+    clauses:{
+      SELECT:{label:'SELECT',desc:(v)=>`Columns to retrieve: ${v}`,detail:(v)=>v.includes('*')?'* returns all columns.':v.match(/COUNT|SUM|AVG|MAX|MIN/)?'Contains aggregate functions.':''},
+      FROM:{label:'FROM',desc:(v)=>`Source table(s): ${v}`,detail:()=>'The primary table for the query.'},
+      JOIN:{label:'JOIN',desc:(v)=>`Join with another table: ${v}`,detail:(v)=>v.toUpperCase().startsWith('LEFT')?'LEFT JOIN: keeps all rows from the left table.':v.toUpperCase().startsWith('RIGHT')?'RIGHT JOIN: keeps all rows from the right table.':'INNER JOIN: returns only matching rows from both tables.'},
+      WHERE:{label:'WHERE',desc:(v)=>`Row filter condition: ${v}`,detail:(v)=>v.includes('AND')||v.includes('OR')?'Compound condition.':v.includes('LIKE')?'Pattern matching with LIKE.':v.includes('IN')?'IN clause: matches any value in a list.':''},
+      'GROUP BY':{label:'GROUP BY',desc:(v)=>`Group by columns: ${v}`,detail:()=>'Used with aggregate functions (COUNT, SUM, etc.).'},
+      HAVING:{label:'HAVING',desc:(v)=>`Group filter condition: ${v}`,detail:()=>'WHERE filters rows; HAVING filters aggregated groups.'},
+      'ORDER BY':{label:'ORDER BY',desc:(v)=>`Sort by: ${v}`,detail:(v)=>v.toUpperCase().includes('DESC')?'Sorted in descending order.':'Sorted in ascending order (default).'},
+      LIMIT:{label:'LIMIT',desc:(v)=>`Max rows to return: ${v}`,detail:()=>'Used for performance and pagination.'},
+      OFFSET:{label:'OFFSET',desc:(v)=>`Rows to skip: ${v}`,detail:()=>'Used with LIMIT for pagination.'},
+      INSERT:{label:'INSERT',desc:(v)=>`Insert data: ${v}`,detail:()=>'Adds new rows to the table.'},
+      UPDATE:{label:'UPDATE',desc:(v)=>`Update data: ${v}`,detail:()=>'Modifies existing row values.'},
+      DELETE:{label:'DELETE',desc:(v)=>`Delete data: ${v}`,detail:()=>'Removes rows from the table.'},
+      CREATE:{label:'CREATE',desc:(v)=>`Create: ${v}`,detail:()=>'Creates a new table or index.'},
+    },
+    seoHtml:`<h2>SQL Query Explainer</h2><p>Enter a complex SQL query and get a step-by-step breakdown of each clause — SELECT, FROM, WHERE, JOIN, GROUP BY, HAVING, ORDER BY, and more. Great for learning SQL or understanding unfamiliar queries.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>What SQL statements are supported?</summary><p>SELECT, INSERT, UPDATE, DELETE, CREATE and other major DML/DDL statements.</p></details>
+<details class="faq-item"><summary>Does it explain subqueries?</summary><p>Basic structural analysis is provided; nested subqueries are highlighted separately.</p></details>
+<details class="faq-item"><summary>Does it distinguish JOIN types?</summary><p>Yes — INNER JOIN, LEFT JOIN, and RIGHT JOIN are each described differently.</p></details>
+<details class="faq-item"><summary>Does it explain GROUP BY vs HAVING?</summary><p>Yes — WHERE filters rows; HAVING filters aggregated groups.</p></details>
+<details class="faq-item"><summary>MySQL, PostgreSQL, Oracle — all supported?</summary><p>Based on standard SQL syntax — applies to most RDBMS.</p></details>
+<details class="faq-item"><summary>Does it recognize aggregate functions?</summary><p>COUNT, SUM, AVG, MAX, MIN are detected and noted in the explanation.</p></details>
+<details class="faq-item"><summary>Will it fix SQL errors?</summary><p>No — the focus is structural analysis and explanation, not error correction.</p></details>
+<details class="faq-item"><summary>Is it free?</summary><p>Yes, fully free — no data is sent to any server.</p></details>`
+  },
+  zh:{h1Accent:'查询解释器',sub:'输入SQL查询，逐步解释每个子句的作用',backLink:'← 所有工具',langBtn:'🌐 日本語',btnExplain:'解释',btnSample:'示例',btnClear:'清除',emptyMsg:'请输入SQL查询并点击解释',
+    clauses:{
+      SELECT:{label:'SELECT',desc:(v)=>`要检索的列: ${v}`,detail:(v)=>v.includes('*')?'* 返回所有列。':v.match(/COUNT|SUM|AVG|MAX|MIN/)?'包含聚合函数。':''},
+      FROM:{label:'FROM',desc:(v)=>`源表: ${v}`,detail:()=>'查询的主表。'},
+      JOIN:{label:'JOIN',desc:(v)=>`与其他表连接: ${v}`,detail:(v)=>v.toUpperCase().startsWith('LEFT')?'LEFT JOIN: 保留左表的所有行。':v.toUpperCase().startsWith('RIGHT')?'RIGHT JOIN: 保留右表的所有行。':'INNER JOIN: 仅返回两表中匹配的行。'},
+      WHERE:{label:'WHERE',desc:(v)=>`行过滤条件: ${v}`,detail:(v)=>v.includes('AND')||v.includes('OR')?'复合条件。':v.includes('LIKE')?'使用LIKE进行模式匹配。':v.includes('IN')?'IN子句: 匹配列表中的任意值。':''},
+      'GROUP BY':{label:'GROUP BY',desc:(v)=>`按列分组: ${v}`,detail:()=>'与聚合函数(COUNT、SUM等)一起使用。'},
+      HAVING:{label:'HAVING',desc:(v)=>`组过滤条件: ${v}`,detail:()=>'WHERE过滤行；HAVING过滤聚合后的组。'},
+      'ORDER BY':{label:'ORDER BY',desc:(v)=>`排序依据: ${v}`,detail:(v)=>v.toUpperCase().includes('DESC')?'降序排列。':'升序排列（默认）。'},
+      LIMIT:{label:'LIMIT',desc:(v)=>`最大返回行数: ${v}`,detail:()=>'用于性能优化和分页。'},
+      OFFSET:{label:'OFFSET',desc:(v)=>`跳过的行数: ${v}`,detail:()=>'与LIMIT一起用于分页。'},
+      INSERT:{label:'INSERT',desc:(v)=>`插入数据: ${v}`,detail:()=>'向表中添加新行。'},
+      UPDATE:{label:'UPDATE',desc:(v)=>`更新数据: ${v}`,detail:()=>'修改现有行的值。'},
+      DELETE:{label:'DELETE',desc:(v)=>`删除数据: ${v}`,detail:()=>'从表中删除行。'},
+      CREATE:{label:'CREATE',desc:(v)=>`创建: ${v}`,detail:()=>'创建新表或索引。'},
+    },
+    seoHtml:`<h2>SQL查询解释器</h2><p>输入复杂的SQL查询，逐步分解每个子句——SELECT、FROM、WHERE、JOIN、GROUP BY、HAVING、ORDER BY等。非常适合学习SQL或理解不熟悉的查询。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>支持哪些SQL语句？</summary><p>SELECT、INSERT、UPDATE、DELETE、CREATE等主要DML/DDL语句。</p></details>
+<details class="faq-item"><summary>支持子查询解释吗？</summary><p>提供基本结构分析，嵌套子查询会单独标注。</p></details>
+<details class="faq-item"><summary>能区分JOIN类型吗？</summary><p>是的，INNER JOIN、LEFT JOIN和RIGHT JOIN各有不同的描述。</p></details>
+<details class="faq-item"><summary>能解释GROUP BY和HAVING的区别吗？</summary><p>是的，WHERE过滤行；HAVING过滤聚合后的组。</p></details>
+<details class="faq-item"><summary>MySQL、PostgreSQL、Oracle都支持吗？</summary><p>基于标准SQL语法，适用于大多数RDBMS。</p></details>
+<details class="faq-item"><summary>能识别聚合函数吗？</summary><p>COUNT、SUM、AVG、MAX、MIN会被识别并在解释中体现。</p></details>
+<details class="faq-item"><summary>会修复SQL错误吗？</summary><p>不会，重点是结构分析和解释，而非错误修正。</p></details>
+<details class="faq-item"><summary>免费吗？</summary><p>是的，完全免费，数据不会发送到任何服务器。</p></details>`
+  },
+  ja:{h1Accent:'クエリ解説器',sub:'SQLクエリを入力すると各句の役割をステップごとに説明します',backLink:'← ホーム',langBtn:'🌐 한국어',btnExplain:'解説',btnSample:'サンプル',btnClear:'クリア',emptyMsg:'SQLクエリを入力して解説ボタンをクリックしてください',
+    clauses:{
+      SELECT:{label:'SELECT',desc:(v)=>`取得する列: ${v}`,detail:(v)=>v.includes('*')?'* はすべての列を返します。':v.match(/COUNT|SUM|AVG|MAX|MIN/)?'集計関数が含まれています。':''},
+      FROM:{label:'FROM',desc:(v)=>`ソーステーブル: ${v}`,detail:()=>'クエリの基本テーブルです。'},
+      JOIN:{label:'JOIN',desc:(v)=>`他のテーブルと結合: ${v}`,detail:(v)=>v.toUpperCase().startsWith('LEFT')?'LEFT JOIN: 左テーブルのすべての行を保持します。':v.toUpperCase().startsWith('RIGHT')?'RIGHT JOIN: 右テーブルのすべての行を保持します。':'INNER JOIN: 両テーブルで一致する行のみを返します。'},
+      WHERE:{label:'WHERE',desc:(v)=>`行フィルター条件: ${v}`,detail:(v)=>v.includes('AND')||v.includes('OR')?'複合条件が含まれています。':v.includes('LIKE')?'LIKEによるパターンマッチングを使用します。':v.includes('IN')?'IN句: リスト内の値のいずれかに一致する行を返します。':''},
+      'GROUP BY':{label:'GROUP BY',desc:(v)=>`グループ化の基準列: ${v}`,detail:()=>'集計関数(COUNT、SUM等)と一緒に使用されます。'},
+      HAVING:{label:'HAVING',desc:(v)=>`グループフィルター条件: ${v}`,detail:()=>'WHEREは行を、HAVINGは集計後のグループをフィルタリングします。'},
+      'ORDER BY':{label:'ORDER BY',desc:(v)=>`ソート基準: ${v}`,detail:(v)=>v.toUpperCase().includes('DESC')?'降順でソートします。':'昇順（デフォルト）でソートします。'},
+      LIMIT:{label:'LIMIT',desc:(v)=>`返す最大行数: ${v}`,detail:()=>'パフォーマンスとページネーションに使用されます。'},
+      OFFSET:{label:'OFFSET',desc:(v)=>`スキップする行数: ${v}`,detail:()=>'LIMITと一緒にページネーションに使用されます。'},
+      INSERT:{label:'INSERT',desc:(v)=>`データ挿入: ${v}`,detail:()=>'テーブルに新しい行を追加します。'},
+      UPDATE:{label:'UPDATE',desc:(v)=>`データ更新: ${v}`,detail:()=>'既存の行の値を更新します。'},
+      DELETE:{label:'DELETE',desc:(v)=>`データ削除: ${v}`,detail:()=>'テーブルから行を削除します。'},
+      CREATE:{label:'CREATE',desc:(v)=>`作成: ${v}`,detail:()=>'新しいテーブルまたはインデックスを作成します。'},
+    },
+    seoHtml:`<h2>SQLクエリ解説器</h2><p>複雑なSQLクエリを入力すると、SELECT、FROM、WHERE、JOIN、GROUP BY、HAVING、ORDER BYなど各句の役割と意味をステップごとに解説します。SQLを学習したり、複雑なクエリを理解するのに役立つ無料のオンラインツールです。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>どのようなSQL文をサポートしていますか？</summary><p>SELECT、INSERT、UPDATE、DELETE、CREATEなどの主要なDML/DDL文をサポートしています。</p></details>
+<details class="faq-item"><summary>サブクエリも解説しますか？</summary><p>基本的な構造分析を提供し、ネストされたサブクエリは個別に表示します。</p></details>
+<details class="faq-item"><summary>JOINの種類を区別しますか？</summary><p>はい、INNER JOIN、LEFT JOIN、RIGHT JOINをそれぞれ異なる説明で解説します。</p></details>
+<details class="faq-item"><summary>GROUP BYとHAVINGの違いを説明しますか？</summary><p>はい、WHEREは行をフィルタリングし、HAVINGは集計後のグループをフィルタリングすると説明します。</p></details>
+<details class="faq-item"><summary>MySQL、PostgreSQL、Oracleすべてに対応していますか？</summary><p>標準SQL構文に基づいているため、ほとんどのRDBMSに適用できます。</p></details>
+<details class="faq-item"><summary>集計関数を認識しますか？</summary><p>COUNT、SUM、AVG、MAX、MINを認識し、解説に反映します。</p></details>
+<details class="faq-item"><summary>SQLエラーを修正してくれますか？</summary><p>いいえ、構造分析と解説に焦点を当てており、エラー修正は行いません。</p></details>
+<details class="faq-item"><summary>無料ですか？</summary><p>はい、完全に無料で、データはどのサーバーにも送信されません。</p></details>`
+  }
+};
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){const t=_i18n[_lang];document.documentElement.lang=_lang;['h1Accent','subEl','backLink','langBtn','btnExplain','btnSample','btnClear'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id]||el.textContent;});document.getElementById('seoDiv').innerHTML=t.seoHtml;if(!document.getElementById('sqlIn').value)document.getElementById('resultArea').innerHTML='';}
+const CLAUSE_ORDER=['WITH','CREATE','INSERT','UPDATE','DELETE','SELECT','FROM','JOIN','LEFT JOIN','RIGHT JOIN','INNER JOIN','WHERE','GROUP BY','HAVING','ORDER BY','LIMIT','OFFSET'];
+const CLAUSE_BADGE={'SELECT':'badge-select','FROM':'badge-from','JOIN':'badge-join','LEFT JOIN':'badge-join','RIGHT JOIN':'badge-join','INNER JOIN':'badge-join','WHERE':'badge-where','GROUP BY':'badge-group','HAVING':'badge-having','ORDER BY':'badge-order','LIMIT':'badge-limit','OFFSET':'badge-limit','INSERT':'badge-insert','UPDATE':'badge-update','DELETE':'badge-delete','CREATE':'badge-create','WITH':'badge-other'};
+function parseSQL(sql){
+  const norm=sql.replace(/\s+/g,' ').trim();
+  const results=[];
+  const re=new RegExp(`\\b(${CLAUSE_ORDER.map(c=>c.replace(' ','\\s+')).join('|')})\\b`,'gi');
+  const matches=[];let m;while((m=re.exec(norm))!==null)matches.push({key:m[1].toUpperCase().replace(/\s+/,' '),idx:m.index});
+  for(let i=0;i<matches.length;i++){
+    const {key,idx}=matches[i];const end=i+1<matches.length?matches[i+1].idx:norm.length;
+    const raw=norm.slice(idx+key.length,end).trim();
+    results.push({key,val:raw||'—'});
+  }
+  return results;
+}
+function explain(){
+  const t=_i18n[_lang];const sql=document.getElementById('sqlIn').value.trim();
+  if(!sql){document.getElementById('resultArea').innerHTML=`<div class="empty-msg">${t.emptyMsg}</div>`;return;}
+  const clauses=parseSQL(sql);
+  if(!clauses.length){document.getElementById('resultArea').innerHTML=`<div class="empty-msg">${t.emptyMsg}</div>`;return;}
+  const html=clauses.map(({key,val})=>{
+    const cdef=t.clauses[key]||{label:key,desc:(v)=>v,detail:()=>''};
+    const badge=CLAUSE_BADGE[key]||'badge-other';
+    const desc=cdef.desc(val);const detail=cdef.detail(val);
+    return`<div class="clause-card"><span class="clause-badge ${badge}">${cdef.label||key}</span><div class="clause-body"><div class="clause-code">${val}</div><div class="clause-desc">${desc}</div>${detail?`<div class="clause-detail">${detail}</div>`:''}</div></div>`;
+  }).join('');
+  document.getElementById('resultArea').innerHTML=html;
+}
+let _autoTimer=null;
+function autoExplain(){clearTimeout(_autoTimer);_autoTimer=setTimeout(explain,500);}
+function loadSample(){document.getElementById('sqlIn').value=`SELECT u.name, COUNT(o.id) AS order_count\nFROM users u\nLEFT JOIN orders o ON u.id = o.user_id\nWHERE u.active = 1\nGROUP BY u.id\nHAVING COUNT(o.id) > 5\nORDER BY order_count DESC\nLIMIT 10`;explain();}
+function clearAll(){document.getElementById('sqlIn').value='';document.getElementById('resultArea').innerHTML='';}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

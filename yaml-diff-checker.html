@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YAML Diff 비교기 - YAML Diff Checker | MODOO HUB</title>
+<meta name="description" content="두 YAML 파일의 차이점을 즉시 비교합니다. 추가·삭제·변경된 키를 색상으로 구분하여 시각적으로 표시합니다. 무료 온라인 YAML Diff 도구.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/yaml-diff-checker.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/yaml-diff-checker.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/yaml-diff-checker.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/yaml-diff-checker.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/yaml-diff-checker.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/yaml-diff-checker.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--yellow:#fbbf24;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:1000px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:20px;}
+.top-layout{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+@media(max-width:680px){.top-layout{grid-template-columns:1fr;}}
+.pane-label{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;margin-bottom:5px;}
+textarea{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text);font-size:12px;font-family:'DM Mono',monospace;min-height:220px;resize:vertical;outline:none;}
+textarea:focus{border-color:var(--accent);}
+.btn-row{display:flex;gap:8px;margin-bottom:12px;}
+.btn{padding:7px 18px;border-radius:7px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:'Noto Sans KR',sans-serif;}
+.btn-primary{background:var(--accent);color:#000;}
+.btn-primary:hover{background:#f59e0b;}
+.btn-sec{background:var(--surface2);color:var(--text-muted);border:1px solid var(--border);}
+.btn-sec:hover{border-color:var(--accent);}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;margin-bottom:12px;}
+.legend-item{display:flex;align-items:center;gap:5px;color:var(--text-dim);}
+.dot{width:10px;height:10px;border-radius:2px;}
+.dot-add{background:rgba(74,222,128,.3);border:1px solid var(--green);}
+.dot-del{background:rgba(248,113,113,.3);border:1px solid var(--red);}
+.dot-chg{background:rgba(251,191,36,.2);border:1px solid var(--yellow);}
+.diff-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.diff-line{padding:3px 14px;font-size:12px;font-family:'DM Mono',monospace;line-height:1.7;white-space:pre;}
+.diff-add{background:rgba(74,222,128,.1);color:var(--green);}
+.diff-del{background:rgba(248,113,113,.1);color:var(--red);}
+.diff-chg{background:rgba(251,191,36,.08);color:var(--yellow);}
+.diff-same{color:var(--text-dim);}
+.stats-bar{padding:10px 14px;border-top:1px solid var(--border);display:flex;gap:16px;font-size:11px;font-family:'DM Mono',monospace;}
+.stat-add{color:var(--green);}
+.stat-del{color:var(--red);}
+.stat-chg{color:var(--yellow);}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"YAML Diff 비교기","url":"https://modoohub.com/yaml-diff-checker.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"두 YAML 파일의 차이점을 즉시 비교하는 무료 온라인 도구."}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>YAML <span id="h1Accent">Diff 비교기</span></h1>
+  <p class="sub" id="subEl">두 YAML을 입력하면 추가·삭제·변경된 항목을 색상으로 구분하여 표시합니다</p>
+
+  <div class="top-layout">
+    <div>
+      <div class="pane-label" id="lblLeft">YAML A (원본)</div>
+      <textarea id="yamlA" placeholder="name: alice&#10;version: 1.0&#10;debug: true"></textarea>
+    </div>
+    <div>
+      <div class="pane-label" id="lblRight">YAML B (수정본)</div>
+      <textarea id="yamlB" placeholder="name: alice&#10;version: 2.0&#10;debug: false&#10;newKey: added"></textarea>
+    </div>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="diff()" id="btnDiff">비교</button>
+    <button class="btn btn-sec" onclick="loadSample()" id="btnSample">샘플</button>
+    <button class="btn btn-sec" onclick="clearAll()" id="btnClear">초기화</button>
+  </div>
+  <div id="legendEl" class="legend" style="display:none;">
+    <span class="legend-item"><span class="dot dot-add"></span><span id="lgAdd">추가됨</span></span>
+    <span class="legend-item"><span class="dot dot-del"></span><span id="lgDel">삭제됨</span></span>
+    <span class="legend-item"><span class="dot dot-chg"></span><span id="lgChg">변경됨</span></span>
+  </div>
+  <div class="diff-box" id="diffBox" style="display:none;">
+    <div id="diffLines"></div>
+    <div class="stats-bar" id="statsBar"></div>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko';
+const _i18n={
+  ko:{h1Accent:'Diff 비교기',sub:'두 YAML을 입력하면 추가·삭제·변경된 항목을 색상으로 구분하여 표시합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',
+    lblLeft:'YAML A (원본)',lblRight:'YAML B (수정본)',btnDiff:'비교',btnSample:'샘플',btnClear:'초기화',
+    lgAdd:'추가됨',lgDel:'삭제됨',lgChg:'변경됨',
+    stats:(a,d,c)=>`+${a} 추가  -${d} 삭제  ~${c} 변경`,
+    seoHtml:`<h2>YAML Diff 비교기</h2><p>두 YAML 파일을 나란히 입력하면 추가, 삭제, 변경된 키와 값을 색상으로 구분하여 즉시 비교합니다. Kubernetes 설정, Docker Compose, CI/CD 파이프라인 YAML 비교에 유용합니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>YAML Diff는 어디에 활용하나요?</summary><p>Kubernetes 매니페스트 변경, Helm 차트 값 비교, CI/CD 파이프라인 업데이트 확인에 사용합니다.</p></details>
+<details class="faq-item"><summary>들여쓰기 차이도 감지하나요?</summary><p>이 도구는 YAML을 파싱하여 시맨틱 차이를 비교하므로, 들여쓰기 스타일만 다른 경우 차이로 표시되지 않습니다.</p></details>
+<details class="faq-item"><summary>중첩 YAML 구조도 비교하나요?</summary><p>예, 점 표기법으로 중첩 키의 차이도 표시합니다.</p></details>
+<details class="faq-item"><summary>YAML 배열 비교는?</summary><p>배열은 JSON 문자열로 변환하여 값의 변경을 감지합니다.</p></details>
+<details class="faq-item"><summary>대용량 YAML 파일도 지원하나요?</summary><p>브라우저 내에서 처리하므로 매우 큰 파일은 느릴 수 있습니다.</p></details>
+<details class="faq-item"><summary>JSON Diff와 차이점은?</summary><p>YAML Diff는 YAML 형식을 직접 입력받아 비교하며, JSON Diff는 JSON 형식에 특화됩니다.</p></details>
+<details class="faq-item"><summary>YAML 파싱 오류가 발생하면?</summary><p>이 도구는 간단한 key: value 형식을 지원합니다. 복잡한 앵커/별칭은 지원이 제한됩니다.</p></details>
+<details class="faq-item"><summary>결과를 내보낼 수 있나요?</summary><p>예, 브라우저의 인쇄 기능으로 PDF로 저장하거나 텍스트를 복사할 수 있습니다.</p></details>`
+  },
+  en:{h1Accent:'Diff Checker',sub:'Enter two YAMLs to compare and highlight added, deleted, and changed items',backLink:'← All Tools',langBtn:'🌐 中文',
+    lblLeft:'YAML A (original)',lblRight:'YAML B (modified)',btnDiff:'Compare',btnSample:'Sample',btnClear:'Clear',
+    lgAdd:'Added',lgDel:'Deleted',lgChg:'Changed',
+    stats:(a,d,c)=>`+${a} added  -${d} deleted  ~${c} changed`,
+    seoHtml:`<h2>YAML Diff Checker</h2><p>Enter two YAML files to instantly compare and color-highlight added, deleted, and changed keys and values. Useful for Kubernetes manifests, Helm charts, Docker Compose, and CI/CD YAML comparisons.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>Where is YAML Diff useful?</summary><p>Kubernetes manifest changes, Helm chart value comparison, CI/CD pipeline update review.</p></details>
+<details class="faq-item"><summary>Does it detect indentation differences?</summary><p>This tool parses YAML semantically, so indentation-only differences won\'t show up.</p></details>
+<details class="faq-item"><summary>Are nested structures compared?</summary><p>Yes — nested key differences are shown with dot notation.</p></details>
+<details class="faq-item"><summary>What about YAML arrays?</summary><p>Arrays are converted to JSON strings for change detection.</p></details>
+<details class="faq-item"><summary>Large YAML files?</summary><p>Processed in-browser, so very large files may be slow.</p></details>
+<details class="faq-item"><summary>Difference from JSON Diff?</summary><p>YAML Diff accepts YAML format directly; JSON Diff is specialized for JSON.</p></details>
+<details class="faq-item"><summary>What if YAML fails to parse?</summary><p>This tool supports simple key: value format. Complex anchors/aliases have limited support.</p></details>
+<details class="faq-item"><summary>Can I export results?</summary><p>Yes — use browser print to save as PDF or copy the text.</p></details>`
+  },
+  zh:{h1Accent:'Diff比较器',sub:'输入两个YAML即时比较并高亮显示添加、删除和更改的项目',backLink:'← 所有工具',langBtn:'🌐 日本語',
+    lblLeft:'YAML A（原始）',lblRight:'YAML B（修改）',btnDiff:'比较',btnSample:'示例',btnClear:'清除',
+    lgAdd:'已添加',lgDel:'已删除',lgChg:'已更改',
+    stats:(a,d,c)=>`+${a} 添加  -${d} 删除  ~${c} 更改`,
+    seoHtml:`<h2>YAML Diff比较器</h2><p>输入两个YAML文件即时比较，用颜色标出添加、删除和更改的键值。适用于Kubernetes清单、Helm图表、Docker Compose和CI/CD YAML比较。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>YAML Diff在哪里使用？</summary><p>Kubernetes清单变更、Helm图表值比较、CI/CD流水线更新检查。</p></details>
+<details class="faq-item"><summary>会检测缩进差异吗？</summary><p>此工具按语义解析YAML，仅有缩进风格不同时不会显示差异。</p></details>
+<details class="faq-item"><summary>是否比较嵌套结构？</summary><p>是的，嵌套键的差异用点表示法显示。</p></details>
+<details class="faq-item"><summary>YAML数组如何比较？</summary><p>数组转换为JSON字符串进行变更检测。</p></details>
+<details class="faq-item"><summary>支持大型YAML文件吗？</summary><p>在浏览器中处理，非常大的文件可能较慢。</p></details>
+<details class="faq-item"><summary>与JSON Diff的区别？</summary><p>YAML Diff直接接受YAML格式，JSON Diff专用于JSON格式。</p></details>
+<details class="faq-item"><summary>如果YAML解析失败？</summary><p>此工具支持简单的key: value格式，复杂的锚点/别名支持有限。</p></details>
+<details class="faq-item"><summary>可以导出结果吗？</summary><p>可以，使用浏览器打印功能另存为PDF或复制文本。</p></details>`
+  },
+  ja:{h1Accent:'Diff比較器',sub:'2つのYAMLを入力して追加・削除・変更された項目を色分けして表示します',backLink:'← ホーム',langBtn:'🌐 한국어',
+    lblLeft:'YAML A（元）',lblRight:'YAML B（変更後）',btnDiff:'比較',btnSample:'サンプル',btnClear:'クリア',
+    lgAdd:'追加',lgDel:'削除',lgChg:'変更',
+    stats:(a,d,c)=>`+${a} 追加  -${d} 削除  ~${c} 変更`,
+    seoHtml:`<h2>YAML Diff比較器</h2><p>2つのYAMLファイルを入力して追加・削除・変更されたキーと値を色分けして即座に比較します。KubernetesマニフェスF、Helmチャート、Docker Compose、CI/CD YAML比較に便利です。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>YAML Diffはどこで使いますか？</summary><p>Kubernetesマニフェスト変更、Helmチャート値比較、CI/CDパイプライン更新確認に使用します。</p></details>
+<details class="faq-item"><summary>インデントの違いも検出しますか？</summary><p>このツールはYAMLをセマンティックに解析するため、インデントスタイルのみの違いは表示されません。</p></details>
+<details class="faq-item"><summary>ネストされた構造も比較されますか？</summary><p>はい、ネストされたキーの差異はドット記法で表示されます。</p></details>
+<details class="faq-item"><summary>YAML配列はどう比較されますか？</summary><p>配列はJSON文字列に変換して変更を検出します。</p></details>
+<details class="faq-item"><summary>大きなYAMLファイルでも使えますか？</summary><p>ブラウザ内で処理されるため、非常に大きなファイルは遅くなる場合があります。</p></details>
+<details class="faq-item"><summary>JSON Diffとの違いは？</summary><p>YAML DiffはYAML形式を直接受け付け、JSON DiffはJSON形式に特化しています。</p></details>
+<details class="faq-item"><summary>YAMLの解析に失敗した場合は？</summary><p>このツールは単純なkey: value形式をサポートします。複雑なアンカー/エイリアスはサポートが限られます。</p></details>
+<details class="faq-item"><summary>結果をエクスポートできますか？</summary><p>ブラウザの印刷機能でPDFに保存するか、テキストをコピーできます。</p></details>`
+  }
+};
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){
+  const t=_i18n[_lang];document.documentElement.lang=_lang;
+  ['h1Accent','subEl','backLink','langBtn','lblLeft','lblRight','btnDiff','btnSample','btnClear','lgAdd','lgDel','lgChg'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id]||el.textContent;});
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+}
+function parseSimpleYaml(str){
+  const obj={};
+  str.split('\n').forEach(line=>{
+    const m=line.match(/^(\s*)([\w.\-]+)\s*:\s*(.*)$/);
+    if(m){const key=m[2].trim(),val=m[3].trim();obj[key]=val===''?{}:isNaN(val)?val==='true'?true:val==='false'?false:val:Number(val);}
+  });
+  return obj;
+}
+function flattenObj(obj,prefix=''){
+  const res={};
+  for(const [k,v] of Object.entries(obj)){
+    const key=prefix?`${prefix}.${k}`:k;
+    if(v&&typeof v==='object'&&!Array.isArray(v))Object.assign(res,flattenObj(v,key));
+    else res[key]=JSON.stringify(v);
+  }
+  return res;
+}
+function diff(){
+  const t=_i18n[_lang];
+  const a=flattenObj(parseSimpleYaml(document.getElementById('yamlA').value));
+  const b=flattenObj(parseSimpleYaml(document.getElementById('yamlB').value));
+  const allKeys=new Set([...Object.keys(a),...Object.keys(b)]);
+  const lines=[];let addC=0,delC=0,chgC=0;
+  [...allKeys].sort().forEach(k=>{
+    if(!(k in a)){lines.push({cls:'diff-add',text:`+ ${k}: ${b[k]}`});addC++;}
+    else if(!(k in b)){lines.push({cls:'diff-del',text:`- ${k}: ${a[k]}`});delC++;}
+    else if(a[k]!==b[k]){lines.push({cls:'diff-chg',text:`~ ${k}: ${a[k]} → ${b[k]}`});chgC++;}
+    else lines.push({cls:'diff-same',text:`  ${k}: ${a[k]}`});
+  });
+  document.getElementById('legendEl').style.display='flex';
+  document.getElementById('diffBox').style.display='block';
+  document.getElementById('diffLines').innerHTML=lines.map(l=>`<div class="diff-line ${l.cls}">${l.text}</div>`).join('');
+  document.getElementById('statsBar').innerHTML=`<span class="stat-add">${t.stats(addC,0,0).split('  ')[0]}</span><span class="stat-del">${t.stats(0,delC,0).split('  ')[1]}</span><span class="stat-chg">${t.stats(0,0,chgC).split('  ')[2]}</span>`;
+}
+function loadSample(){
+  document.getElementById('yamlA').value=`name: my-app\nversion: 1.0.0\ndebug: true\nreplicas: 2\ndatabase:\n  host: localhost\n  port: 5432`;
+  document.getElementById('yamlB').value=`name: my-app\nversion: 2.0.0\ndebug: false\nreplicas: 4\nnewFeature: enabled\ndatabase:\n  host: prod-db.example.com\n  port: 5432`;
+  diff();
+}
+function clearAll(){document.getElementById('yamlA').value='';document.getElementById('yamlB').value='';document.getElementById('diffBox').style.display='none';document.getElementById('legendEl').style.display='none';}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>
