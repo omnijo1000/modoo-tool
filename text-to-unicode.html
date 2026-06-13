@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>텍스트 → 유니코드 변환 - 문자를 U+코드·\uXXXX로 변환 | MODOO HUB</title>
+<meta name="description" content="텍스트를 유니코드 이스케이프 시퀀스(\uXXXX)로 변환. ASCII 전용, BMP 전용 등 다양한 출력 형식 지원. 무료 온라인 텍스트-유니코드 변환기.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/text-to-unicode.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/text-to-unicode.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/text-to-unicode.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/text-to-unicode.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/text-to-unicode.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/text-to-unicode.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--blue:#60a5fa;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:760px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;}
+.label{font-size:11px;color:var(--text-dim);letter-spacing:.07em;text-transform:uppercase;font-family:'DM Mono',monospace;display:block;margin-bottom:8px;}
+textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;resize:vertical;outline:none;min-height:100px;line-height:1.6;}
+textarea:focus{border-color:var(--accent);}
+.opts{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px;}
+.opt-label{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-muted);cursor:pointer;}
+.opt-label input[type=radio]{accent-color:var(--accent);}
+.opt-label input[type=checkbox]{accent-color:var(--accent);}
+select{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:5px 10px;color:var(--text);font-size:12px;outline:none;}
+select:focus{border-color:var(--accent);}
+.panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.copy-btn{padding:5px 12px;border:1px solid var(--border);border-radius:6px;font-size:11px;cursor:pointer;background:none;color:var(--text-dim);}
+.copy-btn:hover{border-color:var(--accent);color:var(--accent);}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Text to Unicode","url":"https://modoohub.com/text-to-unicode.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Convert any text to Unicode escape sequences (\\uXXXX). Supports ASCII-only mode, full Unicode, and various output formats."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"텍스트를 유니코드로 변환하면 어디에 쓰나요?","acceptedAnswer":{"@type":"Answer","text":"JavaScript, Java, Python 소스코드에 특수문자나 비ASCII 문자를 안전하게 삽입할 때 사용합니다."}},{"@type":"Question","name":"ASCII 전용 모드란?","acceptedAnswer":{"@type":"Answer","text":"ASCII 문자(0-127)는 그대로 유지하고 나머지 문자만 \\uXXXX로 변환하는 모드입니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>텍스트 → <span id="h1b">유니코드</span></h1>
+  <p class="sub" id="subEl">문자를 \uXXXX 유니코드 이스케이프 시퀀스로 변환</p>
+  <div class="panel">
+    <label class="label" id="inputLabel">텍스트 입력</label>
+    <textarea id="inputArea" placeholder="변환할 텍스트 입력 (Hello 안녕 🎉)" oninput="convert()"></textarea>
+    <div class="opts" style="margin-top:10px">
+      <label class="opt-label"><input type="radio" name="mode" value="all" checked onchange="convert()"> <span id="modeAll">전체 변환</span></label>
+      <label class="opt-label"><input type="radio" name="mode" value="nonascii" onchange="convert()"> <span id="modeNonAscii">비ASCII만 변환</span></label>
+      <label class="opt-label"><input type="checkbox" id="optUpper" checked onchange="convert()"> <span id="lblUpper">대문자 HEX</span></label>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-header">
+      <label class="label" id="outJsLabel">\uXXXX (JavaScript/JSON)</label>
+      <button class="copy-btn" onclick="copyId('outJs')">Copy</button>
+    </div>
+    <textarea id="outJs" readonly></textarea>
+    <div class="panel-header" style="margin-top:12px">
+      <label class="label" id="outULabel">U+XXXX (유니코드 표기)</label>
+      <button class="copy-btn" onclick="copyId('outU')">Copy</button>
+    </div>
+    <textarea id="outU" readonly style="min-height:60px"></textarea>
+    <div class="panel-header" style="margin-top:12px">
+      <label class="label" id="outPyLabel">\uXXXX (Python)</label>
+      <button class="copy-btn" onclick="copyId('outPy')">Copy</button>
+    </div>
+    <textarea id="outPy" readonly style="min-height:60px"></textarea>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko';
+const _i18n={
+  ko:{pageTitle:'텍스트 → 유니코드 변환 | MODOO HUB',h1b:'유니코드',sub:'문자를 \\uXXXX 유니코드 이스케이프 시퀀스로 변환',backLink:'← 모두의 툴',langBtn:'🌐 EN',inputLabel:'텍스트 입력',modeAll:'전체 변환',modeNonAscii:'비ASCII만 변환',lblUpper:'대문자 HEX',outJsLabel:'\\uXXXX (JavaScript/JSON)',outULabel:'U+XXXX (유니코드 표기)',outPyLabel:'\\uXXXX (Python)',placeholder:'변환할 텍스트 입력 (Hello 안녕 🎉)',
+    seoHtml:`<h2>텍스트 → 유니코드 변환이란?</h2><p>텍스트를 <strong>JavaScript, JSON, Java, Python에서 사용하는 \\uXXXX 유니코드 이스케이프 시퀀스</strong>로 변환합니다. 비ASCII 문자만 변환하거나 전체를 변환하는 옵션을 지원합니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>언제 유니코드 이스케이프가 필요한가요?</summary><p>JSON 파일에 비ASCII 문자를 안전하게 저장하거나, ASCII 전용 시스템에 특수문자를 전달할 때 필요합니다.</p></details>
+<details class="faq-item"><summary>비ASCII만 변환 모드는?</summary><p>영문, 숫자, 기본 기호는 그대로 두고 한글, 이모지, 특수문자만 \\uXXXX로 변환합니다.</p></details>
+<details class="faq-item"><summary>Python과 JavaScript의 차이는?</summary><p>U+10000 이상 문자에서 JavaScript는 \\u{1F389}, Python 3은 \\U0001F389 형식을 사용합니다.</p></details>
+<details class="faq-item"><summary>이모지는 어떻게 변환되나요?</summary><p>🎉는 U+1F389로, JavaScript에서는 \\u{1F389}로 변환됩니다.</p></details>
+<details class="faq-item"><summary>줄바꿈은 어떻게 처리되나요?</summary><p>줄바꿈(LF)은 \\u000A, 캐리지 리턴(CR)은 \\u000D로 변환됩니다.</p></details>
+<details class="faq-item"><summary>역방향 변환(유니코드→텍스트)은?</summary><p>유니코드 to 텍스트 변환기 도구를 사용하세요.</p></details>
+<details class="faq-item"><summary>대소문자를 선택할 수 있나요?</summary><p>네, 대문자 HEX(\\uAC00) 또는 소문자 HEX(\\uac00)를 선택할 수 있습니다.</p></details>
+<details class="faq-item"><summary>Java에서 사용할 수 있나요?</summary><p>네, \\uXXXX 형식은 Java와 완전히 호환됩니다.</p></details>`
+  },
+  en:{pageTitle:'Text to Unicode - Convert Text to \\uXXXX Escape Sequences | MODOO HUB',h1b:'Unicode',sub:'Convert characters to \\uXXXX Unicode escape sequences',backLink:'← All Tools',langBtn:'🌐 中文',inputLabel:'Input Text',modeAll:'Escape all',modeNonAscii:'Non-ASCII only',lblUpper:'Uppercase HEX',outJsLabel:'\\uXXXX (JavaScript/JSON)',outULabel:'U+XXXX (Unicode notation)',outPyLabel:'\\uXXXX (Python)',placeholder:'Enter text to convert (Hello 안녕 🎉)',
+    seoHtml:`<h2>Text to Unicode</h2><p>Convert text to <strong>\\uXXXX Unicode escape sequences</strong> for use in JavaScript, JSON, Java, and Python. Supports non-ASCII-only mode and uppercase/lowercase hex options.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>When do I need Unicode escapes?</summary><p>To safely store non-ASCII characters in JSON, or pass special characters to ASCII-only systems.</p></details>
+<details class="faq-item"><summary>What is non-ASCII only mode?</summary><p>Keeps English letters, digits, and basic symbols as-is; converts Korean, emoji, and special chars to \\uXXXX.</p></details>
+<details class="faq-item"><summary>Python vs JavaScript difference?</summary><p>For U+10000+ chars, JavaScript uses \\u{1F389}, Python 3 uses \\U0001F389.</p></details>
+<details class="faq-item"><summary>How are emoji converted?</summary><p>🎉 (U+1F389) → \\u{1F389} in JavaScript format.</p></details>
+<details class="faq-item"><summary>How are newlines handled?</summary><p>LF → \\u000A, CR → \\u000D.</p></details>
+<details class="faq-item"><summary>How do I decode back to text?</summary><p>Use the Unicode to Text converter tool.</p></details>
+<details class="faq-item"><summary>Can I choose uppercase/lowercase?</summary><p>Yes — toggle between \\uAC00 and \\uac00.</p></details>
+<details class="faq-item"><summary>Is it Java-compatible?</summary><p>Yes — the \\uXXXX format is fully compatible with Java.</p></details>`
+  },
+  zh:{pageTitle:'文本转Unicode - 将文本转换为\\uXXXX转义序列 | MODOO HUB',h1b:'Unicode',sub:'将字符转换为\\uXXXX Unicode转义序列',backLink:'← 所有工具',langBtn:'🌐 日本語',inputLabel:'输入文本',modeAll:'全部转义',modeNonAscii:'仅非ASCII',lblUpper:'大写HEX',outJsLabel:'\\uXXXX（JavaScript/JSON）',outULabel:'U+XXXX（Unicode标准表示）',outPyLabel:'\\uXXXX（Python）',placeholder:'输入要转换的文本（Hello 안녕 🎉）',
+    seoHtml:`<h2>文本转Unicode</h2><p>将文本转换为<strong>JavaScript、JSON、Java、Python使用的\\uXXXX Unicode转义序列</strong>，支持仅非ASCII模式和大小写十六进制选项。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>什么时候需要Unicode转义？</summary><p>在JSON文件中安全存储非ASCII字符，或向仅支持ASCII的系统传递特殊字符时需要。</p></details>
+<details class="faq-item"><summary>什么是仅非ASCII模式？</summary><p>保留英文字母、数字和基本符号不变，只将中文、表情符号和特殊字符转换为\\uXXXX。</p></details>
+<details class="faq-item"><summary>Python和JavaScript的区别？</summary><p>对于U+10000以上的字符，JavaScript使用\\u{1F389}，Python 3使用\\U0001F389。</p></details>
+<details class="faq-item"><summary>表情符号如何转换？</summary><p>🎉（U+1F389）→ JavaScript格式中的\\u{1F389}。</p></details>
+<details class="faq-item"><summary>换行符如何处理？</summary><p>LF→\\u000A，CR→\\u000D。</p></details>
+<details class="faq-item"><summary>如何反向转换（Unicode→文本）？</summary><p>使用Unicode转文本工具。</p></details>
+<details class="faq-item"><summary>可以选择大小写吗？</summary><p>是的，可以在\\uAC00和\\uac00之间切换。</p></details>
+<details class="faq-item"><summary>与Java兼容吗？</summary><p>是的，\\uXXXX格式与Java完全兼容。</p></details>`
+  },
+  ja:{pageTitle:'テキストからUnicode変換 - \\uXXXXエスケープシーケンスに変換 | MODOO HUB',h1b:'Unicode',sub:'文字を\\uXXXX Unicodeエスケープシーケンスに変換',backLink:'← ホーム',langBtn:'🌐 한국어',inputLabel:'テキスト入力',modeAll:'全て変換',modeNonAscii:'非ASCIIのみ',lblUpper:'大文字HEX',outJsLabel:'\\uXXXX（JavaScript/JSON）',outULabel:'U+XXXX（Unicode標準表記）',outPyLabel:'\\uXXXX（Python）',placeholder:'変換するテキストを入力（Hello 안녕 🎉）',
+    seoHtml:`<h2>テキストからUnicode変換とは</h2><p>テキストをJavaScript、JSON、Java、Pythonで使用する<strong>\\uXXXXユニコードエスケープシーケンス</strong>に変換します。非ASCIIのみモードと大文字/小文字16進数オプションをサポートします。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>いつUnicodeエスケープが必要ですか？</summary><p>JSONファイルに非ASCII文字を安全に保存したり、ASCII専用システムに特殊文字を渡す際に必要です。</p></details>
+<details class="faq-item"><summary>非ASCIIのみモードとは？</summary><p>英字・数字・基本記号はそのまま保持し、日本語・絵文字・特殊文字のみ\\uXXXXに変換します。</p></details>
+<details class="faq-item"><summary>PythonとJavaScriptの違いは？</summary><p>U+10000以上の文字では、JavaScriptは\\u{1F389}、Python 3は\\U0001F389形式を使います。</p></details>
+<details class="faq-item"><summary>絵文字はどう変換されますか？</summary><p>🎉（U+1F389）→ JavaScriptでは\\u{1F389}に変換されます。</p></details>
+<details class="faq-item"><summary>改行はどう処理されますか？</summary><p>LF→\\u000A、CR→\\u000Dに変換されます。</p></details>
+<details class="faq-item"><summary>逆変換（Unicode→テキスト）は？</summary><p>Unicode to Textコンバーターツールを使ってください。</p></details>
+<details class="faq-item"><summary>大文字小文字を選べますか？</summary><p>はい、\\uAC00と\\uac00を切り替えられます。</p></details>
+<details class="faq-item"><summary>Javaで使えますか？</summary><p>はい、\\uXXXX形式はJavaと完全互換です。</p></details>`
+  }
+};
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function toHex(n,len){const h=n.toString(16);const r=document.getElementById('optUpper').checked?h.toUpperCase():h;return r.padStart(len,'0');}
+function convert(){
+  const raw=document.getElementById('inputArea').value;
+  const nonAscii=document.querySelector('input[name=mode]:checked').value==='nonascii';
+  const chars=[...raw];
+  const jsArr=chars.map(c=>{
+    const cp=c.codePointAt(0);
+    if(nonAscii&&cp<128)return c;
+    return cp<=0xFFFF?'\\u'+toHex(cp,4):'\\u{'+toHex(cp,4)+'}';
+  });
+  const uArr=chars.map(c=>{
+    const cp=c.codePointAt(0);
+    if(nonAscii&&cp<128)return c;
+    return 'U+'+toHex(cp,4);
+  });
+  const pyArr=chars.map(c=>{
+    const cp=c.codePointAt(0);
+    if(nonAscii&&cp<128)return c;
+    return cp<=0xFFFF?'\\u'+toHex(cp,4):'\\U'+toHex(cp,8);
+  });
+  document.getElementById('outJs').value=jsArr.join('');
+  document.getElementById('outU').value=uArr.join(' ');
+  document.getElementById('outPy').value=pyArr.join('');
+}
+function copyId(id){navigator.clipboard.writeText(document.getElementById(id).value);}
+function applyLang(){
+  const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
+  document.getElementById('h1b').textContent=t.h1b;document.getElementById('subEl').textContent=t.sub;
+  document.getElementById('backLink').textContent=t.backLink;document.getElementById('langBtn').textContent=t.langBtn;
+  document.getElementById('inputLabel').textContent=t.inputLabel;document.getElementById('modeAll').textContent=t.modeAll;
+  document.getElementById('modeNonAscii').textContent=t.modeNonAscii;document.getElementById('lblUpper').textContent=t.lblUpper;
+  document.getElementById('outJsLabel').textContent=t.outJsLabel;document.getElementById('outULabel').textContent=t.outULabel;
+  document.getElementById('outPyLabel').textContent=t.outPyLabel;document.getElementById('inputArea').placeholder=t.placeholder;
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;convert();
+}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

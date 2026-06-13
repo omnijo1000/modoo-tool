@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>이미지 자르기 - 온라인 무료 이미지 크롭 | MODOO HUB</title>
+<meta name="description" content="이미지를 드래그로 영역 선택 후 잘라내기. PNG/JPG/WebP 지원, 고정 비율 옵션. 무료 온라인 이미지 크롭 도구.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/image-cropper.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/image-cropper.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/image-cropper.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/image-cropper.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/image-cropper.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/image-cropper.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:800px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:20px;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
+.drop-zone{border:2px dashed var(--border);border-radius:10px;padding:40px 20px;text-align:center;cursor:pointer;transition:.2s;}
+.drop-zone:hover,.drop-zone.drag{border-color:var(--accent);}
+.drop-zone p{font-size:13px;color:var(--text-muted);}
+.drop-zone .ico{font-size:36px;margin-bottom:10px;}
+input[type=file]{display:none;}
+.section-label{font-size:11px;color:var(--text-dim);margin-bottom:10px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em;}
+.crop-area{position:relative;display:inline-block;overflow:hidden;cursor:crosshair;user-select:none;}
+.crop-area canvas{display:block;}
+.selection{position:absolute;border:2px solid var(--accent);box-shadow:0 0 0 9999px rgba(0,0,0,.5);pointer-events:none;}
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px;}
+.field{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);}
+input[type=number]{width:72px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:5px 8px;color:var(--text);font-size:12px;font-family:'DM Mono',monospace;outline:none;}
+input[type=number]:focus{border-color:var(--accent);}
+select{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:5px 10px;color:var(--text);font-size:12px;outline:none;}
+select:focus{border-color:var(--accent);}
+label.chk{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);cursor:pointer;}
+input[type=checkbox]{accent-color:var(--accent);width:14px;height:14px;}
+.btn{padding:8px 20px;background:var(--accent);color:#000;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;}
+.btn:hover{opacity:.85;}
+.canvas-wrap{overflow:auto;max-height:60vh;border:1px solid var(--border);border-radius:8px;background:repeating-conic-gradient(#222 0% 25%,#1a1a1a 0% 50%) 0 0/20px 20px;}
+.info-bar{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;margin-top:6px;}
+.preview-box img{max-width:100%;border-radius:8px;border:1px solid var(--border);}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Image Cropper","url":"https://modoohub.com/image-cropper.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Crop images by dragging to select an area. Supports PNG/JPG/WebP with aspect ratio lock. Free online image cropper."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"어떤 이미지 형식을 지원하나요?","acceptedAnswer":{"@type":"Answer","text":"PNG, JPG, WebP, GIF 등 브라우저에서 지원하는 모든 이미지 형식을 지원합니다."}},{"@type":"Question","name":"가로세로 비율을 고정할 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"비율 선택 옵션에서 1:1, 4:3, 16:9, 3:2 등 다양한 비율을 선택하거나 자유롭게 선택할 수 있습니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1><span id="h1a">이미지</span> <span>자르기</span></h1>
+  <p class="sub" id="subEl">드래그로 영역을 선택하여 이미지를 잘라냅니다</p>
+  <div class="box">
+    <div class="drop-zone" id="dz" onclick="document.getElementById('fileIn').click()">
+      <div class="ico">✂️</div>
+      <p id="dzText">이미지를 드래그하거나 클릭하여 업로드</p>
+    </div>
+    <input type="file" id="fileIn" accept="image/*">
+  </div>
+  <div class="box" id="editorBox" style="display:none;">
+    <div class="controls">
+      <div class="field"><span id="lblAspect">비율</span>
+        <select id="aspectSel">
+          <option value="free" id="optFree">자유</option>
+          <option value="1:1">1:1</option>
+          <option value="4:3">4:3</option>
+          <option value="3:4">3:4</option>
+          <option value="16:9">16:9</option>
+          <option value="9:16">9:16</option>
+          <option value="3:2">3:2</option>
+          <option value="2:3">2:3</option>
+        </select>
+      </div>
+      <div class="field"><span>X</span><input type="number" id="cropX" value="0" min="0"></div>
+      <div class="field"><span>Y</span><input type="number" id="cropY" value="0" min="0"></div>
+      <div class="field"><span id="lblW">W</span><input type="number" id="cropW" value="100" min="1"></div>
+      <div class="field"><span id="lblH">H</span><input type="number" id="cropH" value="100" min="1"></div>
+    </div>
+    <div class="canvas-wrap"><div class="crop-area" id="cropArea"><canvas id="dispCvs"></canvas><div class="selection" id="selBox" style="display:none;"></div></div></div>
+    <div class="info-bar" id="infoBar"></div>
+    <div style="margin-top:12px;"><button class="btn" id="btnCrop" onclick="cropImg()">자르기</button></div>
+  </div>
+  <div class="box" id="outBox" style="display:none;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <div class="section-label" id="lblOut">크롭 결과</div>
+      <button class="btn" id="btnDl" onclick="download()">다운로드</button>
+    </div>
+    <div class="preview-box"><img id="resultImg" src="" alt="crop result"></div>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko';
+let _origImg=null,_scale=1,_dragging=false,_sx=0,_sy=0,_sel={x:0,y:0,w:0,h:0};
+const _i18n={
+  ko:{h1a:'이미지',sub:'드래그로 영역을 선택하여 이미지를 잘라냅니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',pageTitle:'이미지 자르기 | MODOO HUB',dzText:'이미지를 드래그하거나 클릭하여 업로드',lblAspect:'비율',optFree:'자유',lblW:'너비',lblH:'높이',btnCrop:'자르기',lblOut:'크롭 결과',btnDl:'다운로드',
+    seoHtml:`<h2>이미지 자르기</h2><p>이미지를 드래그하여 원하는 영역을 선택하고 잘라낼 수 있습니다. <strong>비율 고정</strong>(1:1, 4:3, 16:9 등) 옵션을 지원하여 SNS 썸네일, 프로필 사진 등 특정 규격에 맞게 자를 수 있습니다. 결과는 PNG로 다운로드됩니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>어떤 형식이 지원되나요?</summary><p>PNG, JPG, WebP, GIF 등 브라우저에서 지원하는 모든 이미지 형식을 지원합니다.</p></details>
+<details class="faq-item"><summary>비율을 고정하려면?</summary><p>비율 드롭다운에서 원하는 비율을 선택하세요. 드래그 시 자동으로 비율이 유지됩니다.</p></details>
+<details class="faq-item"><summary>정확한 픽셀로 자를 수 있나요?</summary><p>X, Y, W, H 입력란에 직접 좌표와 크기를 입력하여 정밀하게 자를 수 있습니다.</p></details>
+<details class="faq-item"><summary>파일이 서버로 전송되나요?</summary><p>아니요. 모두 브라우저 로컬에서 처리됩니다.</p></details>
+<details class="faq-item"><summary>결과 형식은?</summary><p>PNG로 다운로드됩니다.</p></details>
+<details class="faq-item"><summary>큰 이미지도 되나요?</summary><p>브라우저 메모리 한도 내에서 처리됩니다.</p></details>
+<details class="faq-item"><summary>자유 비율이란?</summary><p>비율 제한 없이 드래그하는 방향으로 자유롭게 영역을 선택합니다.</p></details>
+<details class="faq-item"><summary>GIF 이미지도 자를 수 있나요?</summary><p>정지 프레임(첫 프레임)으로 크롭합니다. 애니메이션은 유지되지 않습니다.</p></details>`
+  },
+  en:{h1a:'Image',sub:'Drag to select a region and crop the image',backLink:'← All Tools',langBtn:'🌐 中文',pageTitle:'Image Cropper | MODOO HUB',dzText:'Drag & drop image or click to upload',lblAspect:'Ratio',optFree:'Free',lblW:'Width',lblH:'Height',btnCrop:'Crop',lblOut:'Crop result',btnDl:'Download',
+    seoHtml:`<h2>Image Cropper</h2><p>Drag to select a region and crop your image. Supports <strong>aspect ratio lock</strong> (1:1, 4:3, 16:9, etc.) for SNS thumbnails, profile photos, and other standard sizes. Result downloads as PNG.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>Supported formats?</summary><p>PNG, JPG, WebP, GIF — any browser-supported image.</p></details>
+<details class="faq-item"><summary>How to lock aspect ratio?</summary><p>Select a ratio from the dropdown; the selection will snap to that ratio while dragging.</p></details>
+<details class="faq-item"><summary>Can I enter exact pixel values?</summary><p>Yes — type X, Y, W, H values directly into the input fields.</p></details>
+<details class="faq-item"><summary>Is my file sent to a server?</summary><p>No — all processing is local in the browser.</p></details>
+<details class="faq-item"><summary>Output format?</summary><p>PNG.</p></details>
+<details class="faq-item"><summary>Large images?</summary><p>Limited by browser memory.</p></details>
+<details class="faq-item"><summary>What is free ratio?</summary><p>No constraint — drag freely in any direction.</p></details>
+<details class="faq-item"><summary>GIF support?</summary><p>Only the first frame is cropped; animation is not preserved.</p></details>`
+  },
+  zh:{h1a:'图像',sub:'拖动选择区域后裁剪图片',backLink:'← 所有工具',langBtn:'🌐 日本語',pageTitle:'图像裁剪工具 | MODOO HUB',dzText:'拖拽图片或点击上传',lblAspect:'比例',optFree:'自由',lblW:'宽度',lblH:'高度',btnCrop:'裁剪',lblOut:'裁剪结果',btnDl:'下载',
+    seoHtml:`<h2>图像裁剪工具</h2><p>拖动选择区域后裁剪图片。支持<strong>宽高比锁定</strong>（1:1、4:3、16:9等），适合社交媒体缩略图、头像等标准尺寸。结果以PNG格式下载。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>支持哪些格式？</summary><p>PNG、JPG、WebP、GIF等浏览器支持的所有图像格式。</p></details>
+<details class="faq-item"><summary>如何锁定宽高比？</summary><p>从下拉菜单选择比例，拖动时会自动保持该比例。</p></details>
+<details class="faq-item"><summary>可以输入精确像素值吗？</summary><p>可以，直接在X、Y、W、H输入框中输入坐标和尺寸。</p></details>
+<details class="faq-item"><summary>文件会上传服务器吗？</summary><p>不会，所有处理在浏览器本地完成。</p></details>
+<details class="faq-item"><summary>输出格式？</summary><p>PNG格式。</p></details>
+<details class="faq-item"><summary>支持大图像吗？</summary><p>受浏览器内存限制。</p></details>
+<details class="faq-item"><summary>自由比例是什么？</summary><p>不限制比例，自由拖动选择任意区域。</p></details>
+<details class="faq-item"><summary>支持GIF吗？</summary><p>仅裁剪第一帧，不保留动画。</p></details>`
+  },
+  ja:{h1a:'画像',sub:'ドラッグで領域を選択して画像を切り取ります',backLink:'← ホーム',langBtn:'🌐 한국어',pageTitle:'画像トリミング | MODOO HUB',dzText:'画像をドラッグまたはクリックしてアップロード',lblAspect:'比率',optFree:'フリー',lblW:'幅',lblH:'高さ',btnCrop:'切り取り',lblOut:'切り取り結果',btnDl:'ダウンロード',
+    seoHtml:`<h2>画像トリミングツール</h2><p>ドラッグで領域を選択して画像を切り取ります。<strong>アスペクト比ロック</strong>（1:1・4:3・16:9など）に対応し、SNSサムネイルやプロフィール画像など標準サイズに合わせてトリミングできます。結果はPNGでダウンロードされます。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>対応フォーマットは？</summary><p>PNG・JPG・WebP・GIFなどブラウザがサポートするすべての画像形式。</p></details>
+<details class="faq-item"><summary>アスペクト比をロックするには？</summary><p>ドロップダウンから比率を選択してください。ドラッグ時に自動的に比率が維持されます。</p></details>
+<details class="faq-item"><summary>正確なピクセル値で切り取れますか？</summary><p>はい、X・Y・W・H入力欄に直接座標とサイズを入力できます。</p></details>
+<details class="faq-item"><summary>ファイルはサーバーに送信されますか？</summary><p>いいえ、すべてブラウザのローカルで処理されます。</p></details>
+<details class="faq-item"><summary>出力形式は？</summary><p>PNG。</p></details>
+<details class="faq-item"><summary>大きな画像は？</summary><p>ブラウザのメモリに依存します。</p></details>
+<details class="faq-item"><summary>フリー比率とは？</summary><p>制約なく自由にドラッグして領域を選択します。</p></details>
+<details class="faq-item"><summary>GIF対応は？</summary><p>最初のフレームのみ切り取り、アニメーションは保持されません。</p></details>`
+  }
+};
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){
+  const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
+  ['h1a','subEl','backLink','langBtn','dzText','lblAspect','optFree','lblW','lblH','btnCrop','lblOut','btnDl'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id];});
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+}
+const dz=document.getElementById('dz');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag');loadFile(e.dataTransfer.files[0]);});
+document.getElementById('fileIn').addEventListener('change',e=>loadFile(e.target.files[0]));
+['cropX','cropY','cropW','cropH'].forEach(id=>document.getElementById(id).addEventListener('input',syncFromInputs));
+function loadFile(file){
+  if(!file||!file.type.startsWith('image/'))return;
+  const url=URL.createObjectURL(file);
+  const img=new Image();
+  img.onload=()=>{
+    _origImg=img;
+    const MAX=680;_scale=Math.min(1,MAX/Math.max(img.naturalWidth,img.naturalHeight));
+    const cvs=document.getElementById('dispCvs');
+    cvs.width=Math.round(img.naturalWidth*_scale);cvs.height=Math.round(img.naturalHeight*_scale);
+    const ctx=cvs.getContext('2d');ctx.drawImage(img,0,0,cvs.width,cvs.height);
+    _sel={x:0,y:0,w:cvs.width,h:cvs.height};
+    document.getElementById('editorBox').style.display='block';
+    document.getElementById('outBox').style.display='none';
+    updateInfoBar();syncToInputs();drawSel();
+    URL.revokeObjectURL(url);
+  };
+  img.src=url;
+}
+function getAspect(){const v=document.getElementById('aspectSel').value;if(v==='free')return null;const[a,b]=v.split(':').map(Number);return a/b;}
+const ca=document.getElementById('cropArea');
+ca.addEventListener('mousedown',e=>{if(!_origImg)return;const r=e.target.getBoundingClientRect();_sx=e.clientX-r.left;_sy=e.clientY-r.top;_dragging=true;_sel={x:_sx,y:_sy,w:0,h:0};});
+ca.addEventListener('mousemove',e=>{if(!_dragging)return;const r=e.target.getBoundingClientRect();let ex=e.clientX-r.left,ey=e.clientY-r.top;const cvs=document.getElementById('dispCvs');ex=Math.max(0,Math.min(ex,cvs.width));ey=Math.max(0,Math.min(ey,cvs.height));let w=ex-_sx,h=ey-_sy;const asp=getAspect();if(asp){const aw=Math.abs(w);const ah=Math.abs(h);if(aw/ah>asp)h=Math.sign(h)*aw/asp;else w=Math.sign(w)*ah*asp;}
+_sel={x:Math.min(_sx,_sx+w),y:Math.min(_sy,_sy+h),w:Math.abs(w),h:Math.abs(h)};syncToInputs();drawSel();});
+ca.addEventListener('mouseup',()=>{_dragging=false;});
+ca.addEventListener('mouseleave',()=>{_dragging=false;});
+function drawSel(){const s=document.getElementById('selBox');if(!_sel.w||!_sel.h){s.style.display='none';return;}s.style.display='block';s.style.left=_sel.x+'px';s.style.top=_sel.y+'px';s.style.width=_sel.w+'px';s.style.height=_sel.h+'px';}
+function syncToInputs(){const p=1/_scale;document.getElementById('cropX').value=Math.round(_sel.x*p);document.getElementById('cropY').value=Math.round(_sel.y*p);document.getElementById('cropW').value=Math.max(1,Math.round(_sel.w*p));document.getElementById('cropH').value=Math.max(1,Math.round(_sel.h*p));updateInfoBar();}
+function syncFromInputs(){if(!_origImg)return;const s=_scale;_sel.x=parseInt(document.getElementById('cropX').value)*s;_sel.y=parseInt(document.getElementById('cropY').value)*s;_sel.w=parseInt(document.getElementById('cropW').value)*s;_sel.h=parseInt(document.getElementById('cropH').value)*s;drawSel();updateInfoBar();}
+function updateInfoBar(){const p=1/_scale;document.getElementById('infoBar').textContent=`${Math.round(_sel.x*p)}, ${Math.round(_sel.y*p)}  /  ${Math.round(_sel.w*p)} × ${Math.round(_sel.h*p)} px`;}
+function cropImg(){
+  if(!_origImg)return;
+  const p=1/_scale;const x=Math.round(_sel.x*p),y=Math.round(_sel.y*p),w=Math.max(1,Math.round(_sel.w*p)),h=Math.max(1,Math.round(_sel.h*p));
+  const cvs=document.createElement('canvas');cvs.width=w;cvs.height=h;
+  cvs.getContext('2d').drawImage(_origImg,x,y,w,h,0,0,w,h);
+  const url=cvs.toDataURL('image/png');
+  document.getElementById('resultImg').src=url;
+  document.getElementById('outBox').style.display='block';
+}
+function download(){
+  const a=document.createElement('a');a.href=document.getElementById('resultImg').src;a.download='cropped.png';a.click();
+}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

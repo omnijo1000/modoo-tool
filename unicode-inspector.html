@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>유니코드 인스펙터 - 문자별 코드포인트·UTF-8·HTML 엔티티 분석 | MODOO HUB</title>
+<meta name="description" content="텍스트 각 문자의 유니코드 코드포인트, UTF-8 바이트, HTML 엔티티를 한눈에 확인. 특수문자·이모지·한글 분석. 무료 유니코드 인스펙터.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/unicode-inspector.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/unicode-inspector.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/unicode-inspector.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/unicode-inspector.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/unicode-inspector.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/unicode-inspector.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:1000px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;}
+.label{font-size:11px;color:var(--text-dim);letter-spacing:.07em;text-transform:uppercase;font-family:'DM Mono',monospace;display:block;margin-bottom:8px;}
+textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;resize:vertical;outline:none;min-height:80px;line-height:1.6;}
+textarea:focus{border-color:var(--accent);}
+.char-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;max-height:500px;overflow-y:auto;}
+.char-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px;cursor:pointer;transition:.15s;}
+.char-card:hover{border-color:var(--accent);}
+.char-glyph{font-size:24px;text-align:center;margin-bottom:6px;min-height:30px;line-height:1;}
+.char-rows{font-size:10px;font-family:'DM Mono',monospace;color:var(--text-dim);}
+.char-row{display:flex;gap:4px;margin-bottom:2px;}
+.char-key{color:var(--text-dim);min-width:36px;}
+.char-val{color:var(--text-muted);}
+.char-val.cp{color:var(--accent);}
+.char-val.utf{color:var(--blue);}
+.char-val.html{color:var(--purple);}
+.stat-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+.chip{font-size:11px;font-family:'DM Mono',monospace;padding:3px 10px;border-radius:4px;background:var(--surface2);border:1px solid var(--border);color:var(--text-dim);}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Unicode Inspector","url":"https://modoohub.com/unicode-inspector.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Inspect each character in text to see its Unicode code point, UTF-8 bytes, HTML entity, and block name."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"유니코드 코드포인트란?","acceptedAnswer":{"@type":"Answer","text":"각 문자에 할당된 고유 번호로, U+0041처럼 표현합니다. 'A'는 U+0041입니다."}},{"@type":"Question","name":"UTF-8과 UTF-16의 차이는?","acceptedAnswer":{"@type":"Answer","text":"UTF-8은 가변 길이(1~4바이트), UTF-16은 2~4바이트 인코딩입니다. 웹에서는 UTF-8이 표준입니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>유니코드 <span id="h1b">인스펙터</span></h1>
+  <p class="sub" id="subEl">문자별 코드포인트·UTF-8 바이트·HTML 엔티티 분석</p>
+  <div class="panel">
+    <label class="label" id="inputLabel">텍스트 입력</label>
+    <textarea id="inputArea" placeholder="분석할 텍스트를 입력하세요 (Hello 안녕 🎉)..." oninput="inspect()"></textarea>
+  </div>
+  <div class="panel">
+    <div class="stat-chips" id="statChips"></div>
+    <label class="label" id="charLabel">문자 분석 결과</label>
+    <div class="char-grid" id="charGrid"><div style="font-size:12px;color:var(--text-dim);text-align:center;padding:20px" id="emptyMsg">텍스트를 입력하면 문자별 유니코드 정보가 표시됩니다.</div></div>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko';
+const _i18n={
+  ko:{pageTitle:'유니코드 인스펙터 - 문자별 코드포인트·UTF-8 분석 | MODOO HUB',h1b:'인스펙터',sub:'문자별 코드포인트·UTF-8 바이트·HTML 엔티티 분석',backLink:'← 모두의 툴',langBtn:'🌐 EN',inputLabel:'텍스트 입력',charLabel:'문자 분석 결과',placeholder:'분석할 텍스트를 입력하세요 (Hello 안녕 🎉)...',emptyMsg:'텍스트를 입력하면 문자별 유니코드 정보가 표시됩니다.',hChars:'자',hBytes:'바이트',hCodePts:'코드포인트',
+    seoHtml:`<h2>유니코드 인스펙터란?</h2><p>텍스트의 각 문자에 대해 <strong>유니코드 코드포인트(U+XXXX), UTF-8 바이트 시퀀스, HTML 엔티티</strong>를 한눈에 분석합니다. 특수문자, 이모지, 한글, CJK 문자 디버깅에 필수 도구입니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>유니코드 코드포인트란?</summary><p>각 문자에 할당된 고유 번호입니다. 'A'는 U+0041, '가'는 U+AC00입니다.</p></details>
+<details class="faq-item"><summary>UTF-8 바이트란?</summary><p>유니코드 문자를 인코딩한 실제 바이트 값입니다. 영문은 1바이트, 한글은 3바이트입니다.</p></details>
+<details class="faq-item"><summary>HTML 엔티티란?</summary><p>HTML에서 특수문자를 표현하는 방법입니다. '&lt;'는 &amp;lt;, '>'는 &amp;gt;입니다.</p></details>
+<details class="faq-item"><summary>이모지는 몇 바이트인가요?</summary><p>대부분의 이모지는 UTF-8에서 4바이트, 일부 복합 이모지는 더 많은 바이트를 차지합니다.</p></details>
+<details class="faq-item"><summary>BOM(Byte Order Mark)이란?</summary><p>UTF-8 파일 시작에 붙는 특수 바이트 시퀀스(EF BB BF)로, 파일 인코딩을 나타냅니다.</p></details>
+<details class="faq-item"><summary>제어 문자가 포함된 경우 어떻게 되나요?</summary><p>탭(U+0009), 줄바꿈(U+000A) 등 제어 문자도 코드포인트와 함께 표시됩니다.</p></details>
+<details class="faq-item"><summary>특수문자를 복사할 수 있나요?</summary><p>네, 각 문자 카드를 클릭하면 해당 문자를 클립보드에 복사합니다.</p></details>
+<details class="faq-item"><summary>최대 몇 자까지 분석 가능한가요?</summary><p>브라우저 성능을 고려해 500자 이내를 권장합니다.</p></details>`
+  },
+  en:{pageTitle:'Unicode Inspector - Code Point, UTF-8, HTML Entity per Character | MODOO HUB',h1b:'Inspector',sub:'Inspect code points, UTF-8 bytes, and HTML entities per character',backLink:'← All Tools',langBtn:'🌐 中文',inputLabel:'Input Text',charLabel:'Character Analysis',placeholder:'Enter text to analyze (Hello 안녕 🎉)...',emptyMsg:'Enter text to see per-character Unicode information.',hChars:'chars',hBytes:'bytes',hCodePts:'code points',
+    seoHtml:`<h2>Unicode Inspector</h2><p>Analyze each character in text to show its <strong>Unicode code point (U+XXXX), UTF-8 byte sequence, and HTML entity</strong>. Essential for debugging special characters, emoji, and CJK text.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>What is a Unicode code point?</summary><p>A unique number assigned to each character. 'A' is U+0041; '가' is U+AC00.</p></details>
+<details class="faq-item"><summary>What are UTF-8 bytes?</summary><p>The actual byte values encoding a Unicode character. ASCII chars use 1 byte; Korean chars use 3 bytes.</p></details>
+<details class="faq-item"><summary>What are HTML entities?</summary><p>A way to represent special characters in HTML. '&lt;' becomes &amp;lt;, '>' becomes &amp;gt;.</p></details>
+<details class="faq-item"><summary>How many bytes does an emoji use?</summary><p>Most emoji use 4 UTF-8 bytes; compound emoji (with ZWJ) use more.</p></details>
+<details class="faq-item"><summary>What is BOM?</summary><p>Byte Order Mark — a special byte sequence (EF BB BF) at the start of a UTF-8 file indicating encoding.</p></details>
+<details class="faq-item"><summary>Are control characters shown?</summary><p>Yes — tab (U+0009), newline (U+000A) and other control characters are shown with their code points.</p></details>
+<details class="faq-item"><summary>Can I copy individual characters?</summary><p>Yes — click any character card to copy it to the clipboard.</p></details>
+<details class="faq-item"><summary>What is the character limit?</summary><p>We recommend under 500 characters for best browser performance.</p></details>`
+  },
+  zh:{pageTitle:'Unicode检查器 - 每字符代码点·UTF-8·HTML实体分析 | MODOO HUB',h1b:'检查器',sub:'分析每个字符的Unicode代码点·UTF-8字节·HTML实体',backLink:'← 所有工具',langBtn:'🌐 日本語',inputLabel:'输入文本',charLabel:'字符分析结果',placeholder:'输入要分析的文本（Hello 안녕 🎉）...',emptyMsg:'输入文本后将显示每个字符的Unicode信息。',hChars:'字符',hBytes:'字节',hCodePts:'代码点',
+    seoHtml:`<h2>Unicode检查器</h2><p>分析文本中每个字符的<strong>Unicode代码点(U+XXXX)、UTF-8字节序列和HTML实体</strong>，是调试特殊字符、表情符号和CJK文本的必备工具。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>什么是Unicode代码点？</summary><p>分配给每个字符的唯一编号。'A'是U+0041，'가'是U+AC00。</p></details>
+<details class="faq-item"><summary>什么是UTF-8字节？</summary><p>编码Unicode字符的实际字节值。ASCII字符用1字节，中文字符用3字节。</p></details>
+<details class="faq-item"><summary>什么是HTML实体？</summary><p>在HTML中表示特殊字符的方法。'&lt;'写作&amp;lt;，'>'写作&amp;gt;。</p></details>
+<details class="faq-item"><summary>表情符号占几个字节？</summary><p>大多数表情符号占4个UTF-8字节，复合表情（含ZWJ）可能更多。</p></details>
+<details class="faq-item"><summary>什么是BOM？</summary><p>字节顺序标记——UTF-8文件开头的特殊字节序列(EF BB BF)，表示文件编码。</p></details>
+<details class="faq-item"><summary>会显示控制字符吗？</summary><p>是的，制表符(U+0009)、换行符(U+000A)等控制字符也会显示其代码点。</p></details>
+<details class="faq-item"><summary>可以复制单个字符吗？</summary><p>是的，点击任意字符卡片即可将其复制到剪贴板。</p></details>
+<details class="faq-item"><summary>字符数量有限制吗？</summary><p>为保证浏览器性能，建议不超过500个字符。</p></details>`
+  },
+  ja:{pageTitle:'Unicodeインスペクター - 文字ごとのコードポイント·UTF-8·HTMLエンティティ分析 | MODOO HUB',h1b:'インスペクター',sub:'文字ごとのコードポイント・UTF-8バイト・HTMLエンティティを分析',backLink:'← ホーム',langBtn:'🌐 한국어',inputLabel:'テキスト入力',charLabel:'文字分析結果',placeholder:'分析するテキストを入力（Hello 안녕 🎉）...',emptyMsg:'テキストを入力すると文字ごとのUnicode情報が表示されます。',hChars:'文字',hBytes:'バイト',hCodePts:'コードポイント',
+    seoHtml:`<h2>Unicodeインスペクターとは</h2><p>テキストの各文字について<strong>Unicodeコードポイント(U+XXXX)、UTF-8バイトシーケンス、HTMLエンティティ</strong>を一覧表示します。特殊文字、絵文字、CJK文字のデバッグに欠かせないツールです。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>Unicodeコードポイントとは？</summary><p>各文字に割り当てられた固有の番号です。'A'はU+0041、'가'はU+AC00です。</p></details>
+<details class="faq-item"><summary>UTF-8バイトとは？</summary><p>Unicode文字をエンコードした実際のバイト値です。ASCII文字は1バイト、日本語文字は3バイトです。</p></details>
+<details class="faq-item"><summary>HTMLエンティティとは？</summary><p>HTMLで特殊文字を表現する方法です。'&lt;'は&amp;lt;、'>'は&amp;gt;と書きます。</p></details>
+<details class="faq-item"><summary>絵文字は何バイトですか？</summary><p>ほとんどの絵文字はUTF-8で4バイトです。ZWJを含む複合絵文字はさらに多くなります。</p></details>
+<details class="faq-item"><summary>BOMとは何ですか？</summary><p>バイトオーダーマーク — UTF-8ファイルの先頭にある特殊バイト列(EF BB BF)でエンコーディングを示します。</p></details>
+<details class="faq-item"><summary>制御文字も表示されますか？</summary><p>はい、タブ(U+0009)、改行(U+000A)などの制御文字もコードポイントと共に表示されます。</p></details>
+<details class="faq-item"><summary>個々の文字をコピーできますか？</summary><p>はい、文字カードをクリックするとその文字をクリップボードにコピーします。</p></details>
+<details class="faq-item"><summary>文字数制限はありますか？</summary><p>ブラウザのパフォーマンスを考慮し、500文字以内を推奨します。</p></details>`
+  }
+};
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function toUtf8Hex(cp){
+  if(cp<0x80)return [cp].map(b=>b.toString(16).padStart(2,'0').toUpperCase()).join(' ');
+  const bytes=[];let c=cp;
+  if(c<0x800){bytes.push(0xC0|(c>>6));bytes.push(0x80|(c&0x3F));}
+  else if(c<0x10000){bytes.push(0xE0|(c>>12));bytes.push(0x80|((c>>6)&0x3F));bytes.push(0x80|(c&0x3F));}
+  else{bytes.push(0xF0|(c>>18));bytes.push(0x80|((c>>12)&0x3F));bytes.push(0x80|((c>>6)&0x3F));bytes.push(0x80|(c&0x3F));}
+  return bytes.map(b=>b.toString(16).padStart(2,'0').toUpperCase()).join(' ');
+}
+function escHtmlChar(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function inspect(){
+  const t=_i18n[_lang];const raw=document.getElementById('inputArea').value;
+  const chars=[...raw];
+  if(!chars.length){document.getElementById('statChips').innerHTML='';document.getElementById('charGrid').innerHTML=`<div style="font-size:12px;color:var(--text-dim);text-align:center;padding:20px">${t.emptyMsg}</div>`;return;}
+  const byteTotal=new TextEncoder().encode(raw).length;
+  const cpSet=new Set(chars.map(c=>c.codePointAt(0)));
+  document.getElementById('statChips').innerHTML=`<span class="chip">${chars.length} ${t.hChars}</span><span class="chip">${byteTotal} ${t.hBytes}</span><span class="chip">${cpSet.size} ${t.hCodePts}</span>`;
+  const grid=document.getElementById('charGrid');
+  grid.innerHTML=chars.slice(0,500).map(ch=>{
+    const cp=ch.codePointAt(0);
+    const cpStr='U+'+cp.toString(16).toUpperCase().padStart(4,'0');
+    const utf8=toUtf8Hex(cp);
+    const dec=cp;
+    const htmlEnt=cp>127?`&#${dec};`:escHtmlChar(ch);
+    const jsEsc=cp<=0xFFFF?`\\u${cp.toString(16).padStart(4,'0').toUpperCase()}`:`\\u{${cp.toString(16).toUpperCase()}}`;
+    const glyph=cp<0x20?'[ctrl]':escHtmlChar(ch);
+    return `<div class="char-card" onclick="navigator.clipboard.writeText('${ch.replace(/'/g,"\\u0027")}')">
+      <div class="char-glyph">${glyph}</div>
+      <div class="char-rows">
+        <div class="char-row"><span class="char-key">CP</span><span class="char-val cp">${cpStr}</span></div>
+        <div class="char-row"><span class="char-key">UTF8</span><span class="char-val utf">${utf8}</span></div>
+        <div class="char-row"><span class="char-key">HTML</span><span class="char-val html">${htmlEnt}</span></div>
+        <div class="char-row"><span class="char-key">JS</span><span class="char-val">${jsEsc}</span></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function applyLang(){const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;document.getElementById('h1b').textContent=t.h1b;document.getElementById('subEl').textContent=t.sub;document.getElementById('backLink').textContent=t.backLink;document.getElementById('langBtn').textContent=t.langBtn;document.getElementById('inputLabel').textContent=t.inputLabel;document.getElementById('charLabel').textContent=t.charLabel;document.getElementById('inputArea').placeholder=t.placeholder;document.getElementById('seoDiv').innerHTML=t.seoHtml;inspect();}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

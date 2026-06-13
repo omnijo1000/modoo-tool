@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WPM 계산기 - 분당 단어 수 계산 | MODOO HUB</title>
+<meta name="description" content="단어 수와 소요 시간으로 WPM(분당 단어)을 계산하거나, WPM과 시간으로 필요한 단어 수를 역산합니다. 무료 온라인 WPM 계산기.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/wpm-calculator.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/wpm-calculator.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/wpm-calculator.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/wpm-calculator.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/wpm-calculator.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/wpm-calculator.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:660px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
+.tab-row{display:flex;gap:4px;margin-bottom:20px;background:var(--surface);border-radius:10px;padding:4px;}
+.tab{flex:1;padding:9px;text-align:center;cursor:pointer;border-radius:7px;font-size:13px;color:var(--text-muted);transition:.15s;}
+.tab.active{background:var(--accent);color:#000;font-weight:700;}
+.panel{display:none;}
+.panel.show{display:block;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:14px;}
+.section-label{font-size:11px;color:var(--text-dim);margin-bottom:10px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em;}
+.input-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.input-group label{font-size:11px;color:var(--text-dim);display:block;margin-bottom:4px;}
+.input-group input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:'DM Mono',monospace;font-size:15px;outline:none;}
+.input-group input:focus{border-color:var(--accent);}
+.time-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;}
+.time-input-group label{font-size:11px;color:var(--text-dim);display:block;margin-bottom:4px;}
+.time-input-group input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 8px;color:var(--text);font-family:'DM Mono',monospace;font-size:15px;outline:none;text-align:center;}
+.time-input-group input:focus{border-color:var(--accent);}
+.btn-calc{width:100%;padding:12px;background:var(--accent);color:#000;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;}
+.btn-calc:hover{background:#f59e0b;}
+.result-big{text-align:center;padding:24px;background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:14px;}
+.result-num{font-size:56px;font-weight:900;font-family:'DM Mono',monospace;color:var(--accent);}
+.result-unit{font-size:14px;color:var(--text-muted);margin-top:4px;}
+.bench-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.bench-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;}
+.bench-val{font-size:16px;font-weight:700;font-family:'DM Mono',monospace;color:var(--text);}
+.bench-label{font-size:10px;color:var(--text-dim);margin-top:3px;}
+.textarea-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;resize:vertical;min-height:80px;outline:none;}
+.textarea-input:focus{border-color:var(--accent);}
+.word-count-note{font-size:11px;color:var(--text-dim);margin-top:4px;font-family:'DM Mono',monospace;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"WPM 계산기","url":"https://modoohub.com/wpm-calculator.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"WPM(분당 단어 수)를 계산하는 무료 온라인 도구. 단어 수와 시간으로 WPM 계산 또는 역산."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"WPM이란?","acceptedAnswer":{"@type":"Answer","text":"WPM(Words Per Minute)은 분당 처리하는 단어 수로 읽기·타이핑·말하기 속도를 측정하는 표준 지표입니다."}},{"@type":"Question","name":"평균 독서 WPM은?","acceptedAnswer":{"@type":"Answer","text":"성인 평균 독서 속도는 200~250 WPM입니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>WPM <span id="h1b">계산기</span></h1>
+  <p class="sub" id="subEl">단어 수와 시간으로 WPM을 계산합니다</p>
+
+  <div class="tab-row">
+    <div class="tab active" id="tab0" onclick="switchTab(0)" data-i18n="tab0">WPM 계산</div>
+    <div class="tab" id="tab1" onclick="switchTab(1)" data-i18n="tab1">단어 수 역산</div>
+    <div class="tab" id="tab2" onclick="switchTab(2)" data-i18n="tab2">텍스트 분석</div>
+  </div>
+
+  <!-- Tab 0: calc WPM from words + time -->
+  <div class="panel show" id="panel0">
+    <div class="box">
+      <div class="section-label" id="lbl0">단어 수와 시간 입력</div>
+      <div class="input-grid">
+        <div class="input-group"><label id="lblWords0">단어 수</label><input type="number" id="words0" min="1" value="500" oninput="calcWpm()"></div>
+        <div class="input-group" style="opacity:0"></div>
+      </div>
+      <div class="time-row">
+        <div class="time-input-group"><label id="lblHour">시간 (h)</label><input type="number" id="h0" min="0" value="0" oninput="calcWpm()"></div>
+        <div class="time-input-group"><label id="lblMin">분 (min)</label><input type="number" id="m0" min="0" value="5" oninput="calcWpm()"></div>
+        <div class="time-input-group"><label id="lblSec">초 (sec)</label><input type="number" id="s0" min="0" value="0" oninput="calcWpm()"></div>
+      </div>
+    </div>
+    <div class="result-big" id="result0">
+      <div class="result-num" id="wpmResult">0</div>
+      <div class="result-unit">WPM</div>
+    </div>
+    <div class="bench-grid">
+      <div class="bench-card"><div class="bench-val" id="bRead">—</div><div class="bench-label" id="bReadLabel">독서 기준</div></div>
+      <div class="bench-card"><div class="bench-val" id="bSpeak">—</div><div class="bench-label" id="bSpeakLabel">말하기 기준</div></div>
+      <div class="bench-card"><div class="bench-val" id="bType">—</div><div class="bench-label" id="bTypeLabel">타이핑 기준</div></div>
+    </div>
+  </div>
+
+  <!-- Tab 1: calc words from WPM + time -->
+  <div class="panel" id="panel1">
+    <div class="box">
+      <div class="section-label" id="lbl1">WPM과 시간 입력</div>
+      <div class="input-grid">
+        <div class="input-group"><label id="lblWpm1">WPM</label><input type="number" id="wpm1" min="1" value="200" oninput="calcWords()"></div>
+        <div class="input-group" style="opacity:0"></div>
+      </div>
+      <div class="time-row">
+        <div class="time-input-group"><label id="lblHour1">시간 (h)</label><input type="number" id="h1" min="0" value="0" oninput="calcWords()"></div>
+        <div class="time-input-group"><label id="lblMin1">분 (min)</label><input type="number" id="m1" min="0" value="5" oninput="calcWords()"></div>
+        <div class="time-input-group"><label id="lblSec1">초 (sec)</label><input type="number" id="s1" min="0" value="0" oninput="calcWords()"></div>
+      </div>
+    </div>
+    <div class="result-big">
+      <div class="result-num" id="wordsResult">0</div>
+      <div class="result-unit" id="wordsUnit">단어</div>
+    </div>
+  </div>
+
+  <!-- Tab 2: analyze text -->
+  <div class="panel" id="panel2">
+    <div class="box">
+      <div class="section-label" id="lbl2">텍스트 붙여넣기</div>
+      <textarea class="textarea-input" id="textInput2" placeholder="..." oninput="analyzeText()"></textarea>
+      <div class="word-count-note" id="textStats2"></div>
+    </div>
+    <div class="bench-grid" style="margin-bottom:14px;">
+      <div class="bench-card"><div class="bench-val" id="t2words">0</div><div class="bench-label" id="t2wLabel">단어</div></div>
+      <div class="bench-card"><div class="bench-val" id="t2chars">0</div><div class="bench-label" id="t2cLabel">글자</div></div>
+      <div class="bench-card"><div class="bench-val" id="t2sents">0</div><div class="bench-label" id="t2sLabel">문장</div></div>
+    </div>
+    <div class="bench-grid">
+      <div class="bench-card"><div class="bench-val" id="t2slow">—</div><div class="bench-label" id="t2slowL">느린 독자</div></div>
+      <div class="bench-card"><div class="bench-val" id="t2avg">—</div><div class="bench-label" id="t2avgL">평균 독자</div></div>
+      <div class="bench-card"><div class="bench-val" id="t2fast">—</div><div class="bench-label" id="t2fastL">빠른 독자</div></div>
+    </div>
+  </div>
+
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko',_curTab=0;
+const _i18n={
+  ko:{h1b:'계산기',sub:'단어 수와 시간으로 WPM을 계산합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',pageTitle:'WPM 계산기 | MODOO HUB',tab0:'WPM 계산',tab1:'단어 수 역산',tab2:'텍스트 분석',lbl0:'단어 수와 시간 입력',lbl1:'WPM과 시간 입력',lbl2:'텍스트 붙여넣기',lblWords0:'단어 수',lblHour:'시간 (h)',lblMin:'분 (min)',lblSec:'초 (sec)',lblWpm1:'WPM',lblHour1:'시간 (h)',lblMin1:'분 (min)',lblSec1:'초 (sec)',bReadLabel:'독서 기준',bSpeakLabel:'말하기 기준',bTypeLabel:'타이핑 기준',wordsUnit:'단어',t2wLabel:'단어',t2cLabel:'글자',t2sLabel:'문장',t2slowL:'느린 독자',t2avgL:'평균 독자',t2fastL:'빠른 독자',txtPh2:'여기에 텍스트를 붙여넣으세요...',fmtMin:(m)=>m<1?'<1분':`${Math.floor(m)}분${m%1?` ${Math.round((m%1)*60)}초`:''}`,
+    seoHtml:`<h2>WPM 계산기</h2><p><strong>WPM(Words Per Minute)</strong>은 분당 처리하는 단어 수로 읽기·타이핑·말하기 속도를 나타냅니다. 단어 수와 소요 시간을 입력하면 WPM이 계산됩니다. 역산 기능으로 WPM과 시간에서 필요한 단어 수도 구할 수 있습니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>WPM이란?</summary><p>Words Per Minute — 분당 단어 수. 읽기·타이핑·말하기 속도 지표입니다.</p></details>
+<details class="faq-item"><summary>평균 독서 WPM은?</summary><p>성인 평균 200~250 WPM입니다.</p></details>
+<details class="faq-item"><summary>평균 타이핑 WPM은?</summary><p>일반인 평균 40~60 WPM, 전문 타이피스트는 80~100+ WPM입니다.</p></details>
+<details class="faq-item"><summary>빠른 독자 WPM은?</summary><p>숙련 독자는 300~400 WPM, 속독 훈련자는 그 이상입니다.</p></details>
+<details class="faq-item"><summary>말하기 평균 WPM은?</summary><p>자연스러운 대화 속도는 분당 120~150단어입니다.</p></details>
+<details class="faq-item"><summary>1000단어 읽는 시간은?</summary><p>평균 속도(200 WPM) 기준 5분입니다.</p></details>
+<details class="faq-item"><summary>소설 한 권(80,000단어) 읽는 시간은?</summary><p>평균 속도로 약 400분(6.7시간)입니다.</p></details>
+<details class="faq-item"><summary>WPM을 높이려면?</summary><p>집중 독서 훈련, 묵독 습관, 타이핑 연습으로 WPM을 높일 수 있습니다.</p></details>`
+  },
+  en:{h1b:'Calculator',sub:'Calculate WPM from word count and time',backLink:'← All Tools',langBtn:'🌐 中文',pageTitle:'WPM Calculator | MODOO HUB',tab0:'Calc WPM',tab1:'Calc Words',tab2:'Analyze Text',lbl0:'Enter words and time',lbl1:'Enter WPM and time',lbl2:'Paste text',lblWords0:'Word Count',lblHour:'Hours',lblMin:'Minutes',lblSec:'Seconds',lblWpm1:'WPM',lblHour1:'Hours',lblMin1:'Minutes',lblSec1:'Seconds',bReadLabel:'Reading avg',bSpeakLabel:'Speaking avg',bTypeLabel:'Typing avg',wordsUnit:'words',t2wLabel:'Words',t2cLabel:'Characters',t2sLabel:'Sentences',t2slowL:'Slow Reader',t2avgL:'Avg Reader',t2fastL:'Fast Reader',txtPh2:'Paste your text here...',fmtMin:(m)=>m<1?'<1 min':`${Math.floor(m)}m${m%1?` ${Math.round((m%1)*60)}s`:''}`,
+    seoHtml:`<h2>WPM Calculator</h2><p><strong>WPM (Words Per Minute)</strong> measures reading, typing, and speaking speed. Enter word count and time to get WPM, or reverse-calculate words from WPM and time. Analyze pasted text to see reading time at multiple speeds.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>What is WPM?</summary><p>Words Per Minute — standard measure of reading, typing, or speaking speed.</p></details>
+<details class="faq-item"><summary>Average reading WPM?</summary><p>Adult average is 200–250 WPM.</p></details>
+<details class="faq-item"><summary>Average typing WPM?</summary><p>General public: 40–60 WPM; professionals: 80–100+ WPM.</p></details>
+<details class="faq-item"><summary>Fast reader WPM?</summary><p>Skilled readers reach 300–400 WPM.</p></details>
+<details class="faq-item"><summary>Average speaking WPM?</summary><p>Natural conversation runs about 120–150 WPM.</p></details>
+<details class="faq-item"><summary>Time to read 1000 words?</summary><p>About 5 minutes at average speed (200 WPM).</p></details>
+<details class="faq-item"><summary>Time to read a novel (80,000 words)?</summary><p>About 400 minutes (6.7 hours) at average speed.</p></details>
+<details class="faq-item"><summary>How to improve WPM?</summary><p>Focused reading practice, silent reading habits, and typing drills all help.</p></details>`
+  },
+  zh:{h1b:'计算器',sub:'通过单词数和时间计算WPM',backLink:'← 所有工具',langBtn:'🌐 日本語',pageTitle:'WPM计算器 | MODOO HUB',tab0:'计算WPM',tab1:'反算单词',tab2:'分析文本',lbl0:'输入单词数和时间',lbl1:'输入WPM和时间',lbl2:'粘贴文本',lblWords0:'单词数',lblHour:'小时',lblMin:'分钟',lblSec:'秒',lblWpm1:'WPM',lblHour1:'小时',lblMin1:'分钟',lblSec1:'秒',bReadLabel:'阅读参考',bSpeakLabel:'说话参考',bTypeLabel:'打字参考',wordsUnit:'单词',t2wLabel:'单词',t2cLabel:'字符',t2sLabel:'句子',t2slowL:'慢速读者',t2avgL:'平均读者',t2fastL:'快速读者',txtPh2:'在此粘贴文本...',fmtMin:(m)=>m<1?'<1分':`${Math.floor(m)}分${m%1?`${Math.round((m%1)*60)}秒`:''}`,
+    seoHtml:`<h2>WPM计算器</h2><p><strong>WPM(每分钟单词数)</strong>是衡量阅读、打字和说话速度的标准指标。输入单词数和时间即可计算WPM，也可以反算所需单词数。支持文本分析功能。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>WPM是什么？</summary><p>Words Per Minute — 每分钟单词数，衡量阅读、打字和说话速度。</p></details>
+<details class="faq-item"><summary>平均阅读WPM？</summary><p>成人平均200~250 WPM。</p></details>
+<details class="faq-item"><summary>平均打字WPM？</summary><p>普通人40~60 WPM，专业打字员80~100+ WPM。</p></details>
+<details class="faq-item"><summary>快速阅读者的WPM？</summary><p>熟练读者可达300~400 WPM。</p></details>
+<details class="faq-item"><summary>说话平均WPM？</summary><p>自然对话速度约120~150 WPM。</p></details>
+<details class="faq-item"><summary>阅读1000个单词需要多长时间？</summary><p>以平均速度(200 WPM)约需5分钟。</p></details>
+<details class="faq-item"><summary>阅读一本小说(80,000字)需要多长时间？</summary><p>以平均速度约需400分钟(6.7小时)。</p></details>
+<details class="faq-item"><summary>如何提高WPM？</summary><p>专注阅读练习、默读习惯和打字训练都有帮助。</p></details>`
+  },
+  ja:{h1b:'計算ツール',sub:'単語数と時間からWPMを計算します',backLink:'← ホーム',langBtn:'🌐 한국어',pageTitle:'WPM計算ツール | MODOO HUB',tab0:'WPM計算',tab1:'単語数逆算',tab2:'テキスト分析',lbl0:'単語数と時間を入力',lbl1:'WPMと時間を入力',lbl2:'テキストを貼り付け',lblWords0:'単語数',lblHour:'時間 (h)',lblMin:'分 (min)',lblSec:'秒 (sec)',lblWpm1:'WPM',lblHour1:'時間 (h)',lblMin1:'分 (min)',lblSec1:'秒 (sec)',bReadLabel:'読書参考',bSpeakLabel:'スピーキング参考',bTypeLabel:'タイピング参考',wordsUnit:'単語',t2wLabel:'単語',t2cLabel:'文字',t2sLabel:'文',t2slowL:'ゆっくり読者',t2avgL:'平均読者',t2fastL:'速い読者',txtPh2:'ここにテキストを貼り付け...',fmtMin:(m)=>m<1?'<1分':`${Math.floor(m)}分${m%1?`${Math.round((m%1)*60)}秒`:''}`,
+    seoHtml:`<h2>WPM計算ツール</h2><p><strong>WPM(Words Per Minute)</strong>は読書・タイピング・スピーキングの速度を表す標準指標です。単語数と時間を入力するとWPMが計算されます。逆算機能でWPMと時間から必要な単語数も求められます。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>WPMとは？</summary><p>Words Per Minute — 1分間の単語数で読書・タイピング・スピーキングの速度指標です。</p></details>
+<details class="faq-item"><summary>平均読書WPMは？</summary><p>成人平均は200〜250 WPMです。</p></details>
+<details class="faq-item"><summary>平均タイピングWPMは？</summary><p>一般的に40〜60 WPM、プロは80〜100+ WPMです。</p></details>
+<details class="faq-item"><summary>速読者のWPMは？</summary><p>熟練読者は300〜400 WPMに達します。</p></details>
+<details class="faq-item"><summary>スピーキングの平均WPMは？</summary><p>自然な会話は120〜150 WPMです。</p></details>
+<details class="faq-item"><summary>1000単語を読む時間は？</summary><p>平均速度(200 WPM)で約5分です。</p></details>
+<details class="faq-item"><summary>小説1冊(80,000語)を読む時間は？</summary><p>平均速度で約400分(6.7時間)です。</p></details>
+<details class="faq-item"><summary>WPMを上げるには？</summary><p>集中読書練習、黙読習慣、タイピング練習が有効です。</p></details>`
+  }
+};
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){
+  const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
+  const ids=['h1b','subEl','backLink','langBtn','tab0','tab1','tab2','lbl0','lbl1','lbl2','lblWords0','lblHour','lblMin','lblSec','lblWpm1','lblHour1','lblMin1','lblSec1','bReadLabel','bSpeakLabel','bTypeLabel','wordsUnit','t2wLabel','t2cLabel','t2sLabel','t2slowL','t2avgL','t2fastL'];
+  ids.forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id]||el.textContent;});
+  document.getElementById('textInput2').placeholder=t.txtPh2;
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+  calcWpm();calcWords();analyzeText();
+}
+function switchTab(n){
+  _curTab=n;
+  [0,1,2].forEach(i=>{document.getElementById('tab'+i).classList.toggle('active',i===n);document.getElementById('panel'+i).classList.toggle('show',i===n);});
+}
+function getTotalMins(h,m,s){return (parseInt(h)||0)*60+(parseInt(m)||0)+(parseInt(s)||0)/60;}
+function calcWpm(){
+  const w=parseInt(document.getElementById('words0').value)||0;
+  const mins=getTotalMins(document.getElementById('h0').value,document.getElementById('m0').value,document.getElementById('s0').value);
+  const wpm=mins>0?Math.round(w/mins):0;
+  document.getElementById('wpmResult').textContent=wpm;
+  const t=_i18n[_lang];
+  document.getElementById('bRead').textContent=wpm>0?(wpm>=200?'🟢 빠름':'wpm<100'?'🔴 느림':'🟡 평균'):'—';
+  document.getElementById('bSpeak').textContent=wpm>0?(wpm>=150?'빠름':'wpm<80'?'느림':'적정'):'—';
+  document.getElementById('bType').textContent=wpm>0?(wpm>=80?'전문가':'wpm<40'?'초급':'보통'):'—';
+}
+function calcWords(){
+  const wpm=parseInt(document.getElementById('wpm1').value)||0;
+  const mins=getTotalMins(document.getElementById('h1').value,document.getElementById('m1').value,document.getElementById('s1').value);
+  const words=Math.round(wpm*mins);
+  document.getElementById('wordsResult').textContent=words.toLocaleString();
+}
+function analyzeText(){
+  const txt=document.getElementById('textInput2').value.trim();
+  if(!txt){['t2words','t2chars','t2sents','t2slow','t2avg','t2fast'].forEach(id=>document.getElementById(id).textContent='0');return;}
+  const words=txt.split(/\s+/).filter(Boolean).length;
+  const chars=txt.length;
+  const sents=txt.split(/[.!?]+/).filter(s=>s.trim()).length;
+  document.getElementById('t2words').textContent=words.toLocaleString();
+  document.getElementById('t2chars').textContent=chars.toLocaleString();
+  document.getElementById('t2sents').textContent=sents.toLocaleString();
+  const fmt=_i18n[_lang].fmtMin;
+  document.getElementById('t2slow').textContent=fmt(words/150);
+  document.getElementById('t2avg').textContent=fmt(words/238);
+  document.getElementById('t2fast').textContent=fmt(words/350);
+}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

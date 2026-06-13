@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>유니코드 → 텍스트 변환 - \uXXXX·U+코드·HTML엔티티 디코딩 | MODOO HUB</title>
+<meta name="description" content="\uXXXX, U+XXXX, &#XXXX; 등 유니코드 이스케이프를 원래 텍스트로 복원. JavaScript·Java·Python·HTML 형식 자동 인식. 무료 유니코드 디코더.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/unicode-to-text.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/unicode-to-text.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/unicode-to-text.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/unicode-to-text.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/unicode-to-text.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/unicode-to-text.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:760px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;}
+.label{font-size:11px;color:var(--text-dim);letter-spacing:.07em;text-transform:uppercase;font-family:'DM Mono',monospace;display:block;margin-bottom:8px;}
+textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;resize:vertical;outline:none;min-height:110px;line-height:1.6;}
+textarea:focus{border-color:var(--accent);}
+.panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.copy-btn{padding:5px 12px;border:1px solid var(--border);border-radius:6px;font-size:11px;cursor:pointer;background:none;color:var(--text-dim);}
+.copy-btn:hover{border-color:var(--accent);color:var(--accent);}
+.format-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+.ftag{font-size:10px;font-family:'DM Mono',monospace;padding:2px 8px;border-radius:3px;background:var(--surface2);border:1px solid var(--border);color:var(--text-dim);}
+.ftag.detected{border-color:var(--green);color:var(--green);background:rgba(74,222,128,.08);}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Unicode to Text","url":"https://modoohub.com/unicode-to-text.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Decode Unicode escape sequences back to readable text. Supports \\uXXXX, \\u{XXXXX}, U+XXXX, &#XXXX;, and \\UXXXXXXXX formats."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"\\uXXXX를 텍스트로 변환하는 방법은?","acceptedAnswer":{"@type":"Answer","text":"입력창에 \\uXXXX 형식의 유니코드 이스케이프를 붙여넣으면 자동으로 원래 텍스트로 변환됩니다."}},{"@type":"Question","name":"여러 형식을 혼합해서 입력할 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"네, \\uXXXX, U+XXXX, &#XXXX; 형식을 혼합해서 입력하면 모두 자동으로 변환됩니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>유니코드 → <span id="h1b">텍스트</span></h1>
+  <p class="sub" id="subEl">\uXXXX·U+XXXX·HTML엔티티 자동 감지 후 원래 텍스트로 복원</p>
+  <div class="panel">
+    <label class="label" id="inputLabel">유니코드 입력</label>
+    <textarea id="inputArea" oninput="decode()" placeholder="가나다 or U+AC00 or &#44032;"></textarea>
+    <div class="format-tags" id="formatTags" style="margin-top:8px"></div>
+  </div>
+  <div class="panel">
+    <div class="panel-header">
+      <label class="label" id="outputLabel">변환 결과</label>
+      <button class="copy-btn" id="copyBtn" onclick="copyOut()">Copy</button>
+    </div>
+    <textarea id="outputArea" readonly style="font-size:14px;min-height:80px"></textarea>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko';
+const FORMATS=[
+  {key:'jsEsc', label:'\\uXXXX', re:/\\u[0-9a-fA-F]{4}/},
+  {key:'jsExt', label:'\\u{XXXXX}', re:/\\u\{[0-9a-fA-F]+\}/},
+  {key:'uPlus', label:'U+XXXX', re:/U\+[0-9a-fA-F]{4,6}/},
+  {key:'htmlDec', label:'&#XXXX;', re:/&#\d+;/},
+  {key:'htmlHex', label:'&#xXXXX;', re:/&#x[0-9a-fA-F]+;/},
+  {key:'pyLong', label:'\\UXXXXXXXX', re:/\\U[0-9a-fA-F]{8}/},
+];
+const _i18n={
+  ko:{pageTitle:'유니코드 → 텍스트 변환 - \\uXXXX 디코딩 | MODOO HUB',h1b:'텍스트',sub:'\\uXXXX·U+XXXX·HTML엔티티 자동 감지 후 원래 텍스트로 복원',backLink:'← 모두의 툴',langBtn:'🌐 EN',inputLabel:'유니코드 입력',outputLabel:'변환 결과',placeholder:'\\uAC00\\uB098\\ub2e4 or U+AC00 or &#44032;',copied:'✓ 복사됨',
+    seoHtml:`<h2>유니코드 → 텍스트 변환이란?</h2><p><strong>\\uXXXX, \\u{XXXXX}, U+XXXX, &#XXXX;, \\UXXXXXXXX</strong> 등 다양한 유니코드 이스케이프 형식을 자동으로 감지하고 원래 텍스트로 복원합니다. 여러 형식을 혼합해서 입력해도 됩니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>어떤 형식을 지원하나요?</summary><p>\\uXXXX (JS/Java), \\u{XXXXX} (ES6+), U+XXXX (유니코드 표준), &#XXXX; (HTML 10진수), &#xXXXX; (HTML 16진수), \\UXXXXXXXX (Python) 형식을 지원합니다.</p></details>
+<details class="faq-item"><summary>형식을 혼합해서 입력해도 되나요?</summary><p>네, 여러 형식을 한 텍스트에 섞어서 입력하면 모두 변환됩니다.</p></details>
+<details class="faq-item"><summary>변환에 실패하는 경우는?</summary><p>유효하지 않은 코드포인트(예: U+110000 이상)는 변환되지 않습니다.</p></details>
+<details class="faq-item"><summary>JSON에서 복사한 \\uXXXX를 붙여넣을 수 있나요?</summary><p>네, JSON에서 복사한 유니코드 이스케이프를 그대로 붙여넣으면 변환됩니다.</p></details>
+<details class="faq-item"><summary>이모지도 복원되나요?</summary><p>네, \\u{1F389}를 붙여넣으면 🎉로 변환됩니다.</p></details>
+<details class="faq-item"><summary>역방향(텍스트→유니코드)은?</summary><p>텍스트 to 유니코드 변환기 도구를 사용하세요.</p></details>
+<details class="faq-item"><summary>HTML 엔티티 이름(&amp;nbsp;, &amp;lt;)도 지원하나요?</summary><p>숫자 형식(&#XXXX;)만 지원합니다. 이름 형식은 지원하지 않습니다.</p></details>
+<details class="faq-item"><summary>결과를 복사할 수 있나요?</summary><p>네, Copy 버튼으로 클립보드에 복사합니다.</p></details>`
+  },
+  en:{pageTitle:'Unicode to Text - Decode \\uXXXX Escape Sequences | MODOO HUB',h1b:'Text',sub:'Auto-detect \\uXXXX · U+XXXX · HTML entities and decode to original text',backLink:'← All Tools',langBtn:'🌐 中文',inputLabel:'Unicode Input',outputLabel:'Decoded Text',placeholder:'\\uAC00\\uB098\\ub2e4 or U+AC00 or &#44032;',copied:'✓ Copied',
+    seoHtml:`<h2>Unicode to Text</h2><p>Automatically detect and decode <strong>\\uXXXX, \\u{XXXXX}, U+XXXX, &#XXXX;, and \\UXXXXXXXX</strong> Unicode escape formats back to readable text. Mixed formats in one input are supported.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>What formats are supported?</summary><p>\\uXXXX (JS/Java), \\u{XXXXX} (ES6+), U+XXXX (Unicode standard), &#XXXX; (HTML decimal), &#xXXXX; (HTML hex), \\UXXXXXXXX (Python).</p></details>
+<details class="faq-item"><summary>Can I mix formats in one input?</summary><p>Yes — multiple formats can be mixed in a single input and all will be decoded.</p></details>
+<details class="faq-item"><summary>When does conversion fail?</summary><p>Invalid code points (U+110000 and above) will not convert.</p></details>
+<details class="faq-item"><summary>Can I paste \\uXXXX from JSON?</summary><p>Yes — paste JSON Unicode escapes directly and they will be decoded.</p></details>
+<details class="faq-item"><summary>Are emoji decoded?</summary><p>Yes — \\u{1F389} decodes to 🎉.</p></details>
+<details class="faq-item"><summary>How do I encode text to Unicode?</summary><p>Use the Text to Unicode converter tool.</p></details>
+<details class="faq-item"><summary>Are HTML named entities (&amp;nbsp;) supported?</summary><p>Only numeric forms (&#XXXX;) are supported — not named entities.</p></details>
+<details class="faq-item"><summary>Can I copy the result?</summary><p>Yes — click Copy to copy to clipboard.</p></details>`
+  },
+  zh:{pageTitle:'Unicode转文本 - 解码\\uXXXX转义序列 | MODOO HUB',h1b:'文本',sub:'自动识别\\uXXXX·U+XXXX·HTML实体并解码为原始文本',backLink:'← 所有工具',langBtn:'🌐 日本語',inputLabel:'Unicode输入',outputLabel:'解码结果',placeholder:'\\uAC00\\uB098\\ub2e4 或 U+AC00 或 &#44032;',copied:'✓ 已复制',
+    seoHtml:`<h2>Unicode转文本</h2><p>自动检测并解码<strong>\\uXXXX、\\u{XXXXX}、U+XXXX、&#XXXX;和\\UXXXXXXXX</strong>等Unicode转义格式为可读文本，支持混合多种格式输入。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>支持哪些格式？</summary><p>\\uXXXX (JS/Java)、\\u{XXXXX} (ES6+)、U+XXXX (Unicode标准)、&#XXXX; (HTML十进制)、&#xXXXX; (HTML十六进制)、\\UXXXXXXXX (Python)。</p></details>
+<details class="faq-item"><summary>可以混合多种格式吗？</summary><p>是的，一个输入中可以混合多种格式，都会被解码。</p></details>
+<details class="faq-item"><summary>什么情况下转换会失败？</summary><p>无效的代码点（U+110000及以上）不会被转换。</p></details>
+<details class="faq-item"><summary>可以粘贴JSON中的\\uXXXX吗？</summary><p>是的，直接粘贴JSON Unicode转义即可解码。</p></details>
+<details class="faq-item"><summary>表情符号也能解码吗？</summary><p>是的，\\u{1F389}解码为🎉。</p></details>
+<details class="faq-item"><summary>如何将文本编码为Unicode？</summary><p>使用文本转Unicode工具。</p></details>
+<details class="faq-item"><summary>支持HTML命名实体（&amp;nbsp;）吗？</summary><p>仅支持数字形式（&#XXXX;），不支持命名实体。</p></details>
+<details class="faq-item"><summary>可以复制结果吗？</summary><p>是的，点击Copy按钮复制到剪贴板。</p></details>`
+  },
+  ja:{pageTitle:'UnicodeからText変換 - \\uXXXXエスケープをデコード | MODOO HUB',h1b:'テキスト',sub:'\\uXXXX·U+XXXX·HTMLエンティティを自動検出して元のテキストに復元',backLink:'← ホーム',langBtn:'🌐 한국어',inputLabel:'Unicode入力',outputLabel:'デコード結果',placeholder:'\\uAC00\\uB098\\ub2e4 または U+AC00 または &#44032;',copied:'✓ コピー済み',
+    seoHtml:`<h2>UnicodeからText変換とは</h2><p><strong>\\uXXXX、\\u{XXXXX}、U+XXXX、&#XXXX;、\\UXXXXXXXX</strong>などのUnicodeエスケープ形式を自動検出して読み取れるテキストに復元します。複数の形式を混在させた入力もサポートします。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>どの形式をサポートしていますか？</summary><p>\\uXXXX (JS/Java)、\\u{XXXXX} (ES6+)、U+XXXX (Unicode標準)、&#XXXX; (HTML 10進数)、&#xXXXX; (HTML 16進数)、\\UXXXXXXXX (Python)。</p></details>
+<details class="faq-item"><summary>複数の形式を混在できますか？</summary><p>はい、1つの入力に複数の形式を混在させてもすべてデコードされます。</p></details>
+<details class="faq-item"><summary>変換が失敗する場合は？</summary><p>無効なコードポイント（U+110000以上）は変換されません。</p></details>
+<details class="faq-item"><summary>JSONの\\uXXXXをそのまま貼り付けられますか？</summary><p>はい、JSONのUnicodeエスケープをそのまま貼り付けるとデコードされます。</p></details>
+<details class="faq-item"><summary>絵文字もデコードできますか？</summary><p>はい、\\u{1F389}を貼り付けると🎉に変換されます。</p></details>
+<details class="faq-item"><summary>テキストをUnicodeに変換するには？</summary><p>Text to Unicodeコンバーターツールを使ってください。</p></details>
+<details class="faq-item"><summary>HTMLの名前付きエンティティ（&amp;nbsp;）はサポートされますか？</summary><p>数値形式（&#XXXX;）のみサポートしています。名前付きエンティティはサポートしていません。</p></details>
+<details class="faq-item"><summary>結果をコピーできますか？</summary><p>はい、Copyボタンでクリップボードにコピーします。</p></details>`
+  }
+};
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function decode(){
+  const raw=document.getElementById('inputArea').value;
+  let out=raw;
+  out=out.replace(/\\u\{([0-9a-fA-F]+)\}/g,(_,h)=>{try{return String.fromCodePoint(parseInt(h,16));}catch{return _;}});
+  out=out.replace(/\\u([0-9a-fA-F]{4})/g,(_,h)=>String.fromCodePoint(parseInt(h,16)));
+  out=out.replace(/\\U([0-9a-fA-F]{8})/g,(_,h)=>{try{return String.fromCodePoint(parseInt(h,16));}catch{return _;}});
+  out=out.replace(/U\+([0-9a-fA-F]{4,6})/g,(_,h)=>{try{return String.fromCodePoint(parseInt(h,16));}catch{return _;}});
+  out=out.replace(/&#([0-9]+);/g,(_,d)=>{try{return String.fromCodePoint(parseInt(d,10));}catch{return _;}});
+  out=out.replace(/&#x([0-9a-fA-F]+);/g,(_,h)=>{try{return String.fromCodePoint(parseInt(h,16));}catch{return _;}});
+  document.getElementById('outputArea').value=out;
+  const tags=document.getElementById('formatTags');
+  tags.innerHTML=FORMATS.map(f=>`<span class="ftag${f.re.test(raw)?' detected':''}">${f.label}</span>`).join('');
+}
+function copyOut(){navigator.clipboard.writeText(document.getElementById('outputArea').value);}
+function applyLang(){
+  const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
+  document.getElementById('h1b').textContent=t.h1b;document.getElementById('subEl').textContent=t.sub;
+  document.getElementById('backLink').textContent=t.backLink;document.getElementById('langBtn').textContent=t.langBtn;
+  document.getElementById('inputLabel').textContent=t.inputLabel;document.getElementById('outputLabel').textContent=t.outputLabel;
+  document.getElementById('inputArea').placeholder=t.placeholder;document.getElementById('seoDiv').innerHTML=t.seoHtml;decode();
+}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

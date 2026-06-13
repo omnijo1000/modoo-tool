@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI API 가격 비교 - OpenAI·Anthropic·Google 요금 비교표 | MODOO HUB</title>
+<meta name="description" content="OpenAI, Anthropic, Google Gemini API 가격을 한눈에 비교. 입력·출력 토큰 단가, 배치 할인, 무료 티어 정보 제공. 무료 AI 가격 비교 도구.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/ai-pricing-comparison.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/ai-pricing-comparison.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/ai-pricing-comparison.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/ai-pricing-comparison.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/ai-pricing-comparison.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/ai-pricing-comparison.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--blue:#60a5fa;--purple:#c084fc;--red:#f87171;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:1100px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
+.calc-panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;}
+.calc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:12px;}
+.field label{display:block;font-size:11px;color:var(--text-dim);margin-bottom:4px;font-family:'DM Mono',monospace;text-transform:uppercase;}
+.field input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;outline:none;}
+.field input:focus{border-color:var(--accent);}
+.section-title{font-size:12px;color:var(--text-muted);font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.tbl-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--border);}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+th{background:var(--surface);padding:10px 12px;text-align:left;font-size:11px;color:var(--text-dim);letter-spacing:.06em;text-transform:uppercase;font-family:'DM Mono',monospace;border-bottom:1px solid var(--border);white-space:nowrap;}
+td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr.section-row td{background:var(--surface);font-size:11px;font-weight:700;color:var(--text-dim);letter-spacing:.07em;text-transform:uppercase;font-family:'DM Mono',monospace;padding:6px 12px;}
+tr:hover:not(.section-row) td{background:rgba(255,255,255,.02);}
+.brand-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;font-family:'DM Mono',monospace;padding:2px 8px;border-radius:4px;}
+.oai{background:rgba(16,163,127,.15);color:#10a37f;}
+.ant{background:rgba(251,191,36,.12);color:var(--accent);}
+.goo{background:rgba(96,165,250,.12);color:var(--blue);}
+.price-in{color:var(--green);font-family:'DM Mono',monospace;}
+.price-out{color:var(--blue);font-family:'DM Mono',monospace;}
+.cost-cell{font-family:'DM Mono',monospace;font-size:12px;}
+.free-badge{font-size:10px;font-family:'DM Mono',monospace;padding:1px 6px;border-radius:3px;background:rgba(74,222,128,.12);color:var(--green);}
+.cheapest{background:rgba(74,222,128,.06);}
+.note{font-size:11px;color:var(--text-dim);margin-top:12px;line-height:1.7;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"AI Pricing Comparison","url":"https://modoohub.com/ai-pricing-comparison.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Compare API pricing for OpenAI, Anthropic, and Google Gemini models. Input tokens, output tokens, batch discounts, and free tiers all in one table."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"AI API 가격은 어떻게 산정되나요?","acceptedAnswer":{"@type":"Answer","text":"입력 토큰과 출력 토큰을 별도로 과금합니다. 일반적으로 출력이 입력보다 3~5배 비쌉니다."}},{"@type":"Question","name":"배치 API 할인이란?","acceptedAnswer":{"@type":"Answer","text":"OpenAI와 Anthropic은 비동기 배치 처리 시 최대 50% 할인을 제공합니다. 실시간 응답이 필요없는 대량 작업에 적합합니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>AI API <span id="h1b">가격 비교</span></h1>
+  <p class="sub" id="subEl">OpenAI · Anthropic · Google — 입력·출력 토큰 요금 상세 비교</p>
+  <div class="calc-panel">
+    <div class="section-title" id="calcTitle">사용량 기준 비용 계산</div>
+    <div class="calc-grid">
+      <div class="field"><label id="lblIn">입력 토큰 (1일)</label><input type="number" id="inTok" value="100000" oninput="recalc()"></div>
+      <div class="field"><label id="lblOut">출력 토큰 (1일)</label><input type="number" id="outTok" value="30000" oninput="recalc()"></div>
+    </div>
+  </div>
+  <div class="tbl-wrap">
+    <table id="mainTable">
+      <thead id="tblHead"></thead>
+      <tbody id="tblBody"></tbody>
+    </table>
+  </div>
+  <p class="note" id="noteEl"></p>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const MODELS=[
+  {brand:'oai',name:'GPT-4o',pIn:2.50,pOut:10.00,batch:true,free:false,ctx:'128K'},
+  {brand:'oai',name:'GPT-4o mini',pIn:0.15,pOut:0.60,batch:true,free:false,ctx:'128K'},
+  {brand:'oai',name:'GPT-4 Turbo',pIn:10.00,pOut:30.00,batch:true,free:false,ctx:'128K'},
+  {brand:'oai',name:'o1',pIn:15.00,pOut:60.00,batch:false,free:false,ctx:'200K'},
+  {brand:'oai',name:'o3-mini',pIn:1.10,pOut:4.40,batch:false,free:false,ctx:'200K'},
+  {brand:'ant',name:'Claude Opus 4.8',pIn:15.00,pOut:75.00,batch:true,free:false,ctx:'200K'},
+  {brand:'ant',name:'Claude Sonnet 4.6',pIn:3.00,pOut:15.00,batch:true,free:false,ctx:'200K'},
+  {brand:'ant',name:'Claude Haiku 4.5',pIn:0.80,pOut:4.00,batch:true,free:false,ctx:'200K'},
+  {brand:'ant',name:'Claude Opus 3',pIn:15.00,pOut:75.00,batch:true,free:false,ctx:'200K'},
+  {brand:'ant',name:'Claude Haiku 3',pIn:0.25,pOut:1.25,batch:true,free:false,ctx:'200K'},
+  {brand:'goo',name:'Gemini 1.5 Pro',pIn:3.50,pOut:10.50,batch:false,free:true,ctx:'1M'},
+  {brand:'goo',name:'Gemini 1.5 Flash',pIn:0.075,pOut:0.30,batch:false,free:true,ctx:'1M'},
+  {brand:'goo',name:'Gemini 1.5 Flash-8B',pIn:0.0375,pOut:0.15,batch:false,free:true,ctx:'1M'},
+  {brand:'goo',name:'Gemini 2.0 Flash',pIn:0.10,pOut:0.40,batch:false,free:true,ctx:'1M'},
+  {brand:'goo',name:'Gemini 2.0 Pro',pIn:2.50,pOut:10.00,batch:false,free:false,ctx:'2M'},
+];
+const BRANDS={oai:'OpenAI',ant:'Anthropic',goo:'Google'};
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko';
+const _i18n={
+  ko:{pageTitle:'AI API 가격 비교 - OpenAI·Anthropic·Google 요금 비교표 | MODOO HUB',h1b:'가격 비교',sub:'OpenAI · Anthropic · Google — 입력·출력 토큰 요금 상세 비교',backLink:'← 모두의 툴',langBtn:'🌐 EN',
+    calcTitle:'사용량 기준 비용 계산',lblIn:'입력 토큰 (1일)',lblOut:'출력 토큰 (1일)',
+    hModel:'모델',hCtx:'컨텍스트',hPriceIn:'입력 ($/1M)',hPriceOut:'출력 ($/1M)',hBatch:'배치 할인',hFree:'무료 티어',hDayCost:'일 비용',hMonthCost:'월 비용',
+    yes:'✓ 50%',no:'—',freeTier:'있음',noTier:'—',
+    note:'* 가격 2025년 기준, 변동 가능. 배치 API는 OpenAI/Anthropic 제공 (50% 할인). Gemini는 분당 무료 요청 한도 있음.',
+    seoHtml:`<h2>AI API 가격 비교란?</h2><p>OpenAI, Anthropic, Google의 <strong>AI API 입력·출력 토큰 단가를 한눈에 비교</strong>합니다. 사용량 기반 비용 계산기로 일간·월간 예상 비용을 즉시 확인하세요. 배치 API 할인 여부와 무료 티어 정보도 포함합니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>입력과 출력 가격이 다른 이유는?</summary><p>출력 토큰은 모델이 직접 생성하는 과정에 더 많은 연산이 필요해 입력보다 3~5배 비싸게 책정됩니다.</p></details>
+<details class="faq-item"><summary>배치 API 할인이란?</summary><p>OpenAI와 Anthropic은 비동기 배치 처리 시 최대 50% 할인을 제공합니다. 실시간 응답이 불필요한 대량 작업에 적합합니다.</p></details>
+<details class="faq-item"><summary>가장 저렴한 모델은?</summary><p>Gemini 1.5 Flash-8B가 입력 $0.0375/1M으로 가장 저렴합니다.</p></details>
+<details class="faq-item"><summary>Google Gemini 무료 티어 제한은?</summary><p>분당 요청 수(RPM)와 일일 요청 수(RPD) 제한이 있습니다. 소규모 프로젝트나 테스트에 적합합니다.</p></details>
+<details class="faq-item"><summary>토큰 수를 어떻게 예측하나요?</summary><p>영어는 약 4자=1토큰, 한국어는 약 2자=1토큰입니다. 프롬프트 토큰 추정기 도구를 활용하세요.</p></details>
+<details class="faq-item"><summary>캐싱으로 비용을 줄일 수 있나요?</summary><p>Anthropic은 프롬프트 캐싱 기능으로 반복 입력 토큰 비용을 최대 90% 절감할 수 있습니다.</p></details>
+<details class="faq-item"><summary>Claude의 배치 API는 어디서 사용하나요?</summary><p>Anthropic Message Batches API를 통해 배치 처리가 가능합니다. 24시간 내 처리 보장이 아님에 유의하세요.</p></details>
+<details class="faq-item"><summary>가격은 얼마나 자주 변경되나요?</summary><p>AI 모델 가격은 경쟁 심화로 점점 낮아지는 추세입니다. 최신 가격은 각 공식 문서에서 확인하세요.</p></details>`
+  },
+  en:{pageTitle:'AI API Pricing Comparison - OpenAI·Anthropic·Google Rates | MODOO HUB',h1b:'Pricing',sub:'OpenAI · Anthropic · Google — detailed input/output token rate comparison',backLink:'← All Tools',langBtn:'🌐 中文',
+    calcTitle:'Cost Calculator by Usage',lblIn:'Input tokens (per day)',lblOut:'Output tokens (per day)',
+    hModel:'Model',hCtx:'Context',hPriceIn:'Input ($/1M)',hPriceOut:'Output ($/1M)',hBatch:'Batch Discount',hFree:'Free Tier',hDayCost:'Day Cost',hMonthCost:'Month Cost',
+    yes:'✓ 50%',no:'—',freeTier:'Yes',noTier:'—',
+    note:'* Prices as of 2025, subject to change. Batch API: OpenAI/Anthropic offer 50% off. Gemini has per-minute free request limits.',
+    seoHtml:`<h2>AI API Pricing Comparison</h2><p>Compare <strong>input and output token prices across OpenAI, Anthropic, and Google Gemini APIs</strong> in one table. Use the calculator to estimate daily and monthly costs based on your usage volume.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>Why are output tokens more expensive?</summary><p>Output tokens require more compute — the model generates each token sequentially, making output 3–5× more expensive than input.</p></details>
+<details class="faq-item"><summary>What is the Batch API discount?</summary><p>OpenAI and Anthropic offer up to 50% off for asynchronous batch processing. Best for non-realtime high-volume tasks.</p></details>
+<details class="faq-item"><summary>Which model is cheapest?</summary><p>Gemini 1.5 Flash-8B at $0.0375/1M input tokens is the cheapest among major models.</p></details>
+<details class="faq-item"><summary>What are Gemini&apos;s free tier limits?</summary><p>Rate limits by requests per minute (RPM) and requests per day (RPD) apply. Suitable for small projects and testing.</p></details>
+<details class="faq-item"><summary>How do I estimate token count?</summary><p>~4 chars = 1 token in English, ~2 chars ≈ 1 token in Korean/Japanese. Use the Prompt Token Estimator tool.</p></details>
+<details class="faq-item"><summary>Can caching reduce costs?</summary><p>Anthropic&apos;s prompt caching can cut repeated input token costs by up to 90%.</p></details>
+<details class="faq-item"><summary>How do I use Claude&apos;s Batch API?</summary><p>Via the Anthropic Message Batches API. Note: processing within 24 hours is not guaranteed.</p></details>
+<details class="faq-item"><summary>How often do prices change?</summary><p>AI model prices have been declining due to competition. Always verify current pricing in official docs.</p></details>`
+  },
+  zh:{pageTitle:'AI API价格比较 - OpenAI·Anthropic·Google收费对比 | MODOO HUB',h1b:'价格比较',sub:'OpenAI · Anthropic · Google — 输入/输出token价格详细对比',backLink:'← 所有工具',langBtn:'🌐 日本語',
+    calcTitle:'用量成本计算',lblIn:'输入tokens（每天）',lblOut:'输出tokens（每天）',
+    hModel:'模型',hCtx:'上下文',hPriceIn:'输入 ($/1M)',hPriceOut:'输出 ($/1M)',hBatch:'批量折扣',hFree:'免费层',hDayCost:'每日成本',hMonthCost:'每月成本',
+    yes:'✓ 50%',no:'—',freeTier:'有',noTier:'—',
+    note:'* 价格基于2025年，可能变动。批量API：OpenAI/Anthropic提供50%折扣。Gemini有每分钟免费请求限制。',
+    seoHtml:`<h2>AI API价格比较</h2><p>在一张表中比较<strong>OpenAI、Anthropic和Google Gemini API的输入/输出token价格</strong>。使用计算器根据使用量估算每日和每月成本。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>为什么输出token更贵？</summary><p>输出token需要更多计算——模型逐个生成每个token，因此输出比输入贵3-5倍。</p></details>
+<details class="faq-item"><summary>什么是批量API折扣？</summary><p>OpenAI和Anthropic为异步批量处理提供最高50%折扣，适合不需要实时响应的大量任务。</p></details>
+<details class="faq-item"><summary>哪个模型最便宜？</summary><p>Gemini 1.5 Flash-8B输入仅$0.0375/1M tokens，是主要模型中最便宜的。</p></details>
+<details class="faq-item"><summary>Gemini免费层有什么限制？</summary><p>有每分钟请求数(RPM)和每日请求数(RPD)限制，适合小项目和测试。</p></details>
+<details class="faq-item"><summary>如何估算token数量？</summary><p>英文约4字符=1 token，中文约2字符≈1 token。</p></details>
+<details class="faq-item"><summary>缓存能降低成本吗？</summary><p>Anthropic的提示词缓存可将重复输入token成本降低最多90%。</p></details>
+<details class="faq-item"><summary>如何使用Claude的批量API？</summary><p>通过Anthropic Message Batches API。注意：不保证24小时内完成处理。</p></details>
+<details class="faq-item"><summary>价格多久变化一次？</summary><p>由于竞争加剧，AI模型价格持续下降。请在官方文档中确认最新价格。</p></details>`
+  },
+  ja:{pageTitle:'AI API料金比較 - OpenAI·Anthropic·Google価格一覧 | MODOO HUB',h1b:'料金比較',sub:'OpenAI · Anthropic · Google — 入力/出力トークン料金の詳細比較',backLink:'← ホーム',langBtn:'🌐 한국어',
+    calcTitle:'使用量別コスト計算',lblIn:'入力トークン（1日）',lblOut:'出力トークン（1日）',
+    hModel:'モデル',hCtx:'コンテキスト',hPriceIn:'入力 ($/1M)',hPriceOut:'出力 ($/1M)',hBatch:'バッチ割引',hFree:'無料プラン',hDayCost:'1日コスト',hMonthCost:'月コスト',
+    yes:'✓ 50%',no:'—',freeTier:'あり',noTier:'—',
+    note:'* 2025年基準の価格、変動あり。バッチAPI：OpenAI/Anthropicが50%オフ。Geminiは1分あたりの無料リクエスト制限あり。',
+    seoHtml:`<h2>AI API料金比較とは</h2><p>OpenAI、Anthropic、Google GeminiのAPIの<strong>入力・出力トークン単価を一覧で比較</strong>します。使用量ベースのコスト計算機で日次・月次の推定コストをすぐに確認できます。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>出力トークンが高い理由は？</summary><p>出力トークンはモデルが逐次生成するため、より多くの計算が必要です。入力より3〜5倍高くなります。</p></details>
+<details class="faq-item"><summary>バッチAPI割引とは？</summary><p>OpenAIとAnthropicは非同期バッチ処理に最大50%オフを提供します。リアルタイム応答が不要な大量処理に最適です。</p></details>
+<details class="faq-item"><summary>最も安いモデルは？</summary><p>Gemini 1.5 Flash-8Bが入力$0.0375/1Mトークンで最安値です。</p></details>
+<details class="faq-item"><summary>Geminiの無料プランの制限は？</summary><p>1分あたりのリクエスト数(RPM)と1日あたりのリクエスト数(RPD)の制限があります。</p></details>
+<details class="faq-item"><summary>トークン数の見積もり方は？</summary><p>英語は約4文字=1トークン、日本語は約2文字≈1トークンです。</p></details>
+<details class="faq-item"><summary>キャッシングでコストを削減できますか？</summary><p>Anthropicのプロンプトキャッシングで繰り返し入力トークンコストを最大90%削減できます。</p></details>
+<details class="faq-item"><summary>ClaudeのバッチAPIはどこで使えますか？</summary><p>Anthropic Message Batches APIを通じて利用できます。24時間以内の処理は保証されないことに注意してください。</p></details>
+<details class="faq-item"><summary>価格はどのくらい変わりますか？</summary><p>競争激化によりAIモデルの価格は下降傾向にあります。最新価格は公式ドキュメントで確認してください。</p></details>`
+  }
+};
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const idx=['ko','en','zh','ja'].indexOf(_lang);_lang=['ko','en','zh','ja'][(idx+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);render();}
+function fmt(n){return n<0.01?n.toFixed(4):n<1?n.toFixed(3):n.toFixed(2);}
+function fmtCost(n){return n<0.001?'< $0.001':n<1?`$${n.toFixed(4)}`:`$${n.toFixed(2)}`;}
+function recalc(){render();}
+function render(){
+  const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
+  document.getElementById('h1b').textContent=t.h1b;document.getElementById('subEl').textContent=t.sub;
+  document.getElementById('backLink').textContent=t.backLink;document.getElementById('langBtn').textContent=t.langBtn;
+  document.getElementById('calcTitle').textContent=t.calcTitle;
+  document.getElementById('lblIn').textContent=t.lblIn;document.getElementById('lblOut').textContent=t.lblOut;
+  document.getElementById('noteEl').textContent=t.note;document.getElementById('seoDiv').innerHTML=t.seoHtml;
+  const inTok=parseFloat(document.getElementById('inTok').value)||0;
+  const outTok=parseFloat(document.getElementById('outTok').value)||0;
+  document.getElementById('tblHead').innerHTML=`<tr><th>${t.hModel}</th><th>${t.hCtx}</th><th>${t.hPriceIn}</th><th>${t.hPriceOut}</th><th>${t.hBatch}</th><th>${t.hFree}</th><th>${t.hDayCost}</th><th>${t.hMonthCost}</th></tr>`;
+  let lastBrand='';
+  const rows=MODELS.map(m=>{
+    const dayCost=(inTok/1e6*m.pIn)+(outTok/1e6*m.pOut);
+    const monCost=dayCost*30;
+    let s='';
+    if(m.brand!==lastBrand){lastBrand=m.brand;s=`<tr class="section-row"><td colspan="8">${BRANDS[m.brand]}</td></tr>`;}
+    return s+`<tr>
+      <td><span class="brand-badge ${m.brand}">${BRANDS[m.brand].slice(0,3)}</span> ${m.name}${m.free?` <span class="free-badge">FREE</span>`:''}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:11px">${m.ctx}</td>
+      <td><span class="price-in">$${fmt(m.pIn)}</span></td>
+      <td><span class="price-out">$${fmt(m.pOut)}</span></td>
+      <td style="text-align:center;font-size:11px;color:${m.batch?'var(--green)':'var(--text-dim)'}">${m.batch?t.yes:t.no}</td>
+      <td style="text-align:center;font-size:11px;color:${m.free?'var(--green)':'var(--text-dim)'}">${m.free?t.freeTier:t.noTier}</td>
+      <td class="cost-cell">${fmtCost(dayCost)}</td>
+      <td class="cost-cell">${fmtCost(monCost)}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('tblBody').innerHTML=rows;
+}
+_lang=detectLang();render();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>불용어 제거기 - 텍스트에서 Stopword 자동 제거 | MODOO HUB</title>
+<meta name="description" content="영어 텍스트에서 the, a, is 등 불용어를 자동으로 제거. 커스텀 불용어 추가, 단어 강조 표시, 제거 통계 확인. 무료 온라인 stopword remover.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto Sans KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/stopword-remover.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/stopword-remover.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/stopword-remover.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/stopword-remover.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/stopword-remover.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/stopword-remover.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--red:#f87171;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:760px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:20px;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
+.section-label{font-size:11px;color:var(--text-dim);margin-bottom:8px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em;}
+textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;resize:vertical;min-height:120px;outline:none;}
+textarea:focus{border-color:var(--accent);}
+input.custom-stop{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;outline:none;margin-top:8px;}
+input.custom-stop:focus{border-color:var(--accent);}
+.opts{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px;}
+label.chk{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);cursor:pointer;}
+input[type=checkbox]{accent-color:var(--accent);width:14px;height:14px;}
+.stat-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
+.stat-chip{padding:5px 12px;background:var(--surface2);border-radius:8px;font-size:12px;color:var(--text-dim);font-family:'DM Mono',monospace;}
+.stat-chip span{color:var(--accent);font-weight:700;}
+.preview-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px;font-size:13px;line-height:1.9;word-break:break-word;min-height:80px;}
+.preview-box .stop{color:var(--red);text-decoration:line-through;opacity:.5;}
+.output-ta{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;resize:vertical;min-height:100px;outline:none;}
+.btn{padding:7px 16px;background:var(--accent);color:#000;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;}
+.btn:hover{opacity:.85;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Stopword Remover","url":"https://modoohub.com/stopword-remover.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Remove stopwords from English text. Custom stopword addition, word highlighting, and removal statistics."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"불용어(stopword)란 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"텍스트 분석 시 의미가 없어 제거하는 단어입니다. 영어에서는 the, a, is, are 등이 대표적입니다."}},{"@type":"Question","name":"커스텀 불용어를 추가할 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"쉼표로 구분하여 커스텀 불용어를 추가할 수 있습니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>불용어 <span id="h1b">제거기</span></h1>
+  <p class="sub" id="subEl">텍스트에서 Stopword 자동 제거 · 커스텀 불용어 · 강조 미리보기</p>
+  <div class="box">
+    <div class="section-label" id="lblInput">텍스트 입력</div>
+    <textarea id="input" placeholder="불용어를 제거할 텍스트를 입력하세요..." oninput="process()"></textarea>
+    <div class="opts">
+      <label class="chk"><input type="checkbox" id="optBuiltin" checked onchange="process()"><span id="lblBuiltin">기본 불용어 사용</span></label>
+      <label class="chk"><input type="checkbox" id="optCase" checked onchange="process()"><span id="lblCase">대소문자 무시</span></label>
+    </div>
+    <div class="section-label" style="margin-top:12px;" id="lblCustom">커스텀 불용어 (쉼표 구분)</div>
+    <input class="custom-stop" id="customStop" placeholder="예: hello, world, foo" oninput="process()">
+  </div>
+  <div id="outputBox" class="box" style="display:none;">
+    <div class="stat-row" id="statRow"></div>
+    <div class="section-label" id="lblPreview">강조 미리보기</div>
+    <div class="preview-box" id="previewBox"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin:12px 0 6px;">
+      <div class="section-label" id="lblOutput">결과 텍스트</div>
+      <button class="btn" onclick="copyOutput()" id="btnCopy">복사</button>
+    </div>
+    <textarea class="output-ta" id="outputTa" readonly></textarea>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const BASE_STOP=new Set(['a','an','the','and','or','but','in','on','at','to','for','of','with','is','are','was','were','be','been','being','have','has','had','do','does','did','will','would','could','should','may','might','this','that','these','those','i','you','he','she','it','we','they','me','him','her','us','them','my','your','his','its','our','their','from','by','about','as','into','through','during','before','after','not','no','if','then','than','so','also','there','here','when','where','how','what','who','which','all','each','every','some','any','few','more','most','other','such','very','now','only','even','own','same','too']);
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko';
+const _i18n={
+  ko:{h1b:'제거기',sub:'텍스트에서 Stopword 자동 제거 · 커스텀 불용어 · 강조 미리보기',backLink:'← 모두의 툴',langBtn:'🌐 EN',pageTitle:'불용어 제거기 | MODOO HUB',lblInput:'텍스트 입력',lblBuiltin:'기본 불용어 사용',lblCase:'대소문자 무시',lblCustom:'커스텀 불용어 (쉼표 구분)',lblPreview:'강조 미리보기',lblOutput:'결과 텍스트',btnCopy:'복사',copied:'복사됨!',statBefore:'입력',statAfter:'결과',statRemoved:'제거됨',
+    seoHtml:`<h2>불용어 제거기</h2><p><strong>불용어(Stopword)</strong>는 텍스트 분석 시 의미가 없어 제거하는 단어입니다. 영어에서 the, a, is, are 등이 대표적입니다. 이 도구는 기본 불용어 제거 외에도 커스텀 불용어를 추가하고, 제거된 단어를 강조 표시로 미리 확인할 수 있습니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>불용어란?</summary><p>텍스트 분석 시 의미가 없어 제거하는 단어. 영어 기준 the, a, is, are 등이 해당됩니다.</p></details>
+<details class="faq-item"><summary>커스텀 불용어 추가 방법은?</summary><p>쉼표로 구분하여 입력하면 기본 불용어에 추가됩니다.</p></details>
+<details class="faq-item"><summary>강조 미리보기는 어떻게 사용하나요?</summary><p>제거될 단어가 빨간색 취소선으로 표시됩니다.</p></details>
+<details class="faq-item"><summary>한국어 불용어도 제거할 수 있나요?</summary><p>기본 불용어는 영어 전용이지만, 커스텀 불용어로 한국어 단어를 직접 추가할 수 있습니다.</p></details>
+<details class="faq-item"><summary>대소문자 무시 옵션이란?</summary><p>The, THE 등을 모두 the로 처리하여 불용어로 인식합니다.</p></details>
+<details class="faq-item"><summary>NLP/머신러닝에 어떻게 활용하나요?</summary><p>훈련 데이터나 분석 대상 텍스트에서 불필요한 단어를 미리 제거하는 전처리 단계에 활용합니다.</p></details>
+<details class="faq-item"><summary>결과에서 빈 칸이 여러 개 생기면?</summary><p>단어 사이 공백이 여러 개 남을 수 있습니다. 필요시 직접 편집하세요.</p></details>
+<details class="faq-item"><summary>구두점도 제거되나요?</summary><p>현재는 단어만 제거하며 구두점은 보존됩니다.</p></details>`
+  },
+  en:{h1b:'Remover',sub:'Auto-remove stopwords from text · custom stopwords · highlighted preview',backLink:'← All Tools',langBtn:'🌐 中文',pageTitle:'Stopword Remover | MODOO HUB',lblInput:'Input text',lblBuiltin:'Use built-in stopwords',lblCase:'Ignore case',lblCustom:'Custom stopwords (comma-separated)',lblPreview:'Highlighted preview',lblOutput:'Output text',btnCopy:'Copy',copied:'Copied!',statBefore:'Input',statAfter:'Output',statRemoved:'Removed',
+    seoHtml:`<h2>Stopword Remover</h2><p><strong>Stopwords</strong> are common words (the, a, is, are) filtered out during text analysis because they carry little meaning. This tool removes them instantly with a highlighted preview, custom stopword support, and removal statistics.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>What are stopwords?</summary><p>Common words like the, a, is, are that are filtered from text analysis tasks.</p></details>
+<details class="faq-item"><summary>How do I add custom stopwords?</summary><p>Enter words comma-separated in the custom field — they are added to the built-in list.</p></details>
+<details class="faq-item"><summary>What does the highlighted preview show?</summary><p>Words that will be removed are shown with a red strikethrough.</p></details>
+<details class="faq-item"><summary>Does it work for non-English text?</summary><p>The built-in list is English only, but you can add custom words for any language.</p></details>
+<details class="faq-item"><summary>What does ignore case do?</summary><p>Treats The, THE, the all as the same stopword.</p></details>
+<details class="faq-item"><summary>NLP use case?</summary><p>Pre-process training data or analysis text to remove noise before feature extraction.</p></details>
+<details class="faq-item"><summary>Multiple spaces in output?</summary><p>Removing words may leave extra spaces — edit as needed.</p></details>
+<details class="faq-item"><summary>Are punctuation marks removed too?</summary><p>Only words are removed; punctuation is preserved.</p></details>`
+  },
+  zh:{h1b:'去除器',sub:'从文本中自动去除停用词 · 自定义停用词 · 高亮预览',backLink:'← 所有工具',langBtn:'🌐 日本語',pageTitle:'停用词去除器 | MODOO HUB',lblInput:'输入文本',lblBuiltin:'使用内置停用词',lblCase:'忽略大小写',lblCustom:'自定义停用词（逗号分隔）',lblPreview:'高亮预览',lblOutput:'输出文本',btnCopy:'复制',copied:'已复制！',statBefore:'输入',statAfter:'输出',statRemoved:'已删除',
+    seoHtml:`<h2>停用词去除器</h2><p><strong>停用词</strong>是在文本分析中被过滤的常见词（如the、a、is、are），因为它们几乎不含语义。本工具即时去除停用词，支持高亮预览、自定义停用词和删除统计。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>什么是停用词？</summary><p>文本分析中被过滤的常见词，如the、a、is、are。</p></details>
+<details class="faq-item"><summary>如何添加自定义停用词？</summary><p>在自定义字段中用逗号分隔输入，会添加到内置列表中。</p></details>
+<details class="faq-item"><summary>高亮预览显示什么？</summary><p>将被删除的单词以红色删除线标示。</p></details>
+<details class="faq-item"><summary>支持中文吗？</summary><p>内置列表仅限英语，但可以通过自定义停用词添加中文词汇。</p></details>
+<details class="faq-item"><summary>"忽略大小写"是什么意思？</summary><p>将The、THE、the都视为相同的停用词处理。</p></details>
+<details class="faq-item"><summary>NLP用途？</summary><p>在特征提取前预处理训练数据或分析文本，去除噪声。</p></details>
+<details class="faq-item"><summary>输出中有多余空格怎么办？</summary><p>删除词语可能留下多余空格，请根据需要手动编辑。</p></details>
+<details class="faq-item"><summary>标点符号也会被删除吗？</summary><p>只删除单词，标点符号保留。</p></details>`
+  },
+  ja:{h1b:'リムーバー',sub:'テキストからストップワードを自動除去 · カスタムストップワード · ハイライトプレビュー',backLink:'← ホーム',langBtn:'🌐 한국어',pageTitle:'ストップワードリムーバー | MODOO HUB',lblInput:'テキスト入力',lblBuiltin:'組み込みストップワード使用',lblCase:'大文字小文字を無視',lblCustom:'カスタムストップワード（カンマ区切り）',lblPreview:'ハイライトプレビュー',lblOutput:'出力テキスト',btnCopy:'コピー',copied:'コピー済み！',statBefore:'入力',statAfter:'出力',statRemoved:'削除済み',
+    seoHtml:`<h2>ストップワードリムーバーとは</h2><p><strong>ストップワード</strong>はthe、a、is、areなどテキスト分析で除外される一般的な単語です。本ツールはストップワードを即座に除去し、ハイライトプレビュー・カスタムストップワード・削除統計をサポートします。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>ストップワードとは？</summary><p>the、a、is、areなどテキスト分析でフィルタリングされる一般的な単語です。</p></details>
+<details class="faq-item"><summary>カスタムストップワードの追加方法は？</summary><p>カンマ区切りでカスタムフィールドに入力すると組み込みリストに追加されます。</p></details>
+<details class="faq-item"><summary>ハイライトプレビューは何を示しますか？</summary><p>削除される単語が赤い取り消し線で表示されます。</p></details>
+<details class="faq-item"><summary>日本語に対応していますか？</summary><p>組み込みリストは英語専用ですが、カスタムストップワードで日本語も追加できます。</p></details>
+<details class="faq-item"><summary>「大文字小文字を無視」とは？</summary><p>The、THE、theを全て同じストップワードとして扱います。</p></details>
+<details class="faq-item"><summary>NLPでの活用は？</summary><p>特徴抽出前に訓練データや分析テキストのノイズを除去する前処理に活用します。</p></details>
+<details class="faq-item"><summary>出力に余分なスペースが残る場合は？</summary><p>単語を削除すると余分なスペースが残ることがあります。必要に応じて編集してください。</p></details>
+<details class="faq-item"><summary>句読点も削除されますか？</summary><p>単語のみ削除します。句読点は保持されます。</p></details>`
+  }
+};
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function getStopSet(){
+  const useBuiltin=document.getElementById('optBuiltin').checked;
+  const ignCase=document.getElementById('optCase').checked;
+  const custom=document.getElementById('customStop').value.split(',').map(s=>s.trim()).filter(Boolean);
+  const set=new Set();
+  if(useBuiltin)BASE_STOP.forEach(w=>set.add(w));
+  custom.forEach(w=>set.add(ignCase?w.toLowerCase():w));
+  return set;
+}
+function isStop(word,stopSet,ignCase){const w=ignCase?word.toLowerCase():word;const clean=w.replace(/[^a-zA-ZÀ-ɏ]/g,'');return stopSet.has(clean);}
+function process(){
+  const t=_i18n[_lang];const text=document.getElementById('input').value;
+  const ob=document.getElementById('outputBox');
+  if(!text.trim()){ob.style.display='none';return;}
+  const ignCase=document.getElementById('optCase').checked;
+  const stopSet=getStopSet();
+  const tokens=text.split(/(\s+)/);
+  let removedCount=0,totalWords=0;
+  const previewHtml=tokens.map(tok=>{
+    if(/^\s+$/.test(tok))return tok.replace(/</g,'&lt;');
+    totalWords++;
+    if(isStop(tok,stopSet,ignCase)){removedCount++;return `<span class="stop">${tok.replace(/</g,'&lt;')}</span>`;}
+    return tok.replace(/</g,'&lt;');
+  }).join('');
+  const cleaned=tokens.filter(tok=>{if(/^\s+$/.test(tok))return true;return !isStop(tok,stopSet,ignCase);}).join('').replace(/[ \t]{2,}/g,' ').replace(/\n[ \t]+/g,'\n').trim();
+  const afterWords=totalWords-removedCount;
+  ob.style.display='block';
+  document.getElementById('statRow').innerHTML=
+    `<div class="stat-chip">${t.statBefore}: <span>${totalWords}</span></div>
+     <div class="stat-chip">${t.statAfter}: <span>${afterWords}</span></div>
+     <div class="stat-chip">${t.statRemoved}: <span>${removedCount}</span></div>`;
+  document.getElementById('previewBox').innerHTML=previewHtml;
+  document.getElementById('outputTa').value=cleaned;
+}
+function copyOutput(){
+  const t=_i18n[_lang];const val=document.getElementById('outputTa').value;
+  navigator.clipboard.writeText(val).then(()=>{const b=document.getElementById('btnCopy');b.textContent=t.copied;setTimeout(()=>b.textContent=t.btnCopy,1500);});
+}
+function applyLang(){
+  const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
+  ['h1b','subEl','backLink','langBtn','lblInput','lblBuiltin','lblCase','lblCustom','lblPreview','lblOutput','btnCopy'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id];});
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;process();
+}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

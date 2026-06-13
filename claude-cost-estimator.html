@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude 비용 추정기 - Anthropic Claude API 비용 계산기 | MODOO HUB</title>
+<meta name="description" content="Claude Opus, Sonnet, Haiku API 사용 비용을 토큰 기반으로 계산. 월간·연간 예산 추정. 무료 온라인 Claude 비용 계산기.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/claude-cost-estimator.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/claude-cost-estimator.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/claude-cost-estimator.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/claude-cost-estimator.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/claude-cost-estimator.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/claude-cost-estimator.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--blue:#60a5fa;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:860px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;}
+.label{font-size:11px;color:var(--text-dim);letter-spacing:.07em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:8px;display:block;}
+select,input[type=number]{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;outline:none;width:100%;margin-bottom:8px;}
+select:focus,input:focus{border-color:var(--accent);}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.result-big{text-align:center;padding:20px;background:var(--surface2);border-radius:10px;margin-bottom:8px;}
+.result-val{font-size:36px;font-weight:900;font-family:'DM Mono',monospace;color:var(--accent);}
+.result-label{font-size:12px;color:var(--text-dim);margin-top:4px;}
+.breakdown{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.bk-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center;}
+.bk-val{font-size:16px;font-weight:700;font-family:'DM Mono',monospace;color:var(--green);}
+.bk-label{font-size:10px;color:var(--text-dim);margin-top:3px;}
+.pricing-table{width:100%;border-collapse:collapse;font-size:12px;font-family:'DM Mono',monospace;}
+.pricing-table th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--text-dim);font-size:10px;text-transform:uppercase;}
+.pricing-table td{padding:8px 10px;border-bottom:1px solid var(--border);color:var(--text-muted);}
+.pricing-table tr:last-child td{border-bottom:none;}
+.pricing-table .sel{background:rgba(251,191,36,.05);color:var(--accent);}
+.note{font-size:11px;color:var(--text-dim);margin-top:8px;line-height:1.5;}
+.ctx-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;background:rgba(96,165,250,.1);color:var(--blue);border:1px solid rgba(96,165,250,.2);}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Claude Cost Estimator","url":"https://modoohub.com/claude-cost-estimator.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Calculate Anthropic Claude API costs for Opus, Sonnet, and Haiku models. Monthly and yearly budget estimator."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Claude API 비용은 어떻게 계산되나요?","acceptedAnswer":{"@type":"Answer","text":"입력과 출력 토큰을 1백만 토큰당 달러로 각각 계산합니다. Opus가 가장 비싸고 Haiku가 가장 저렴합니다."}},{"@type":"Question","name":"Claude Haiku와 Opus의 차이는?","acceptedAnswer":{"@type":"Answer","text":"Haiku는 빠르고 저렴한 경량 모델, Opus는 가장 강력하지만 비싼 모델입니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>Claude <span id="h1b">비용 추정기</span></h1>
+  <p class="sub" id="subEl">Anthropic Claude API 사용 비용 계산</p>
+  <div class="panel">
+    <label class="label" id="labelModel">모델 선택</label>
+    <select id="modelSel" onchange="calc()">
+      <option value="opus48">Claude Opus 4.8 ($15/$75 per 1M)</option>
+      <option value="sonnet46" selected>Claude Sonnet 4.6 ($3/$15 per 1M)</option>
+      <option value="haiku45">Claude Haiku 4.5 ($0.80/$4 per 1M)</option>
+      <option value="opus3">Claude 3 Opus ($15/$75 per 1M)</option>
+      <option value="sonnet3">Claude 3 Sonnet ($3/$15 per 1M)</option>
+      <option value="haiku3">Claude 3 Haiku ($0.25/$1.25 per 1M)</option>
+    </select>
+    <div class="row2">
+      <div>
+        <label class="label" id="labelIn">입력 토큰 (1회)</label>
+        <input type="number" id="inTok" value="1000" min="0" oninput="calc()">
+      </div>
+      <div>
+        <label class="label" id="labelOut">출력 토큰 (1회)</label>
+        <input type="number" id="outTok" value="500" min="0" oninput="calc()">
+      </div>
+    </div>
+    <label class="label" id="labelReqs">일일 요청 수</label>
+    <input type="number" id="reqsDay" value="100" min="1" oninput="calc()">
+  </div>
+  <div class="panel">
+    <div class="result-big">
+      <div class="result-val" id="monthCost">$0.000</div>
+      <div class="result-label" id="monthLabel">월간 추정 비용</div>
+    </div>
+    <div class="breakdown">
+      <div class="bk-card"><div class="bk-val" id="perCall">$0.000</div><div class="bk-label" id="perCallLabel">1회 비용</div></div>
+      <div class="bk-card"><div class="bk-val" id="dayTotal">$0.00</div><div class="bk-label" id="dayLabel">일간 비용</div></div>
+      <div class="bk-card"><div class="bk-val" id="yearTotal">$0.00</div><div class="bk-label" id="yearLabel">연간 비용</div></div>
+    </div>
+    <p class="note" id="noteEl">※ 참고용 추정치입니다. 실제 가격은 Anthropic 공식 페이지를 확인하세요.</p>
+  </div>
+  <div class="panel">
+    <label class="label" id="labelTable">모델별 가격표 ($/1M 토큰)</label>
+    <table class="pricing-table" id="pricingTable"></table>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const MODELS={
+  opus48:  {label:'Claude Opus 4.8',   pIn:15,   pOut:75,   ctx:'200K'},
+  sonnet46:{label:'Claude Sonnet 4.6', pIn:3,    pOut:15,   ctx:'200K'},
+  haiku45: {label:'Claude Haiku 4.5',  pIn:0.80, pOut:4,    ctx:'200K'},
+  opus3:   {label:'Claude 3 Opus',     pIn:15,   pOut:75,   ctx:'200K'},
+  sonnet3: {label:'Claude 3 Sonnet',   pIn:3,    pOut:15,   ctx:'200K'},
+  haiku3:  {label:'Claude 3 Haiku',    pIn:0.25, pOut:1.25, ctx:'200K'},
+};
+const _i18n={
+  ko:{pageTitle:'Claude 비용 추정기 - Anthropic Claude API 비용 계산기 | MODOO HUB',h1b:'비용 추정기',sub:'Anthropic Claude API 사용 비용 계산',backLink:'← 모두의 툴',langBtn:'🌐 EN',labelModel:'모델 선택',labelIn:'입력 토큰 (1회)',labelOut:'출력 토큰 (1회)',labelReqs:'일일 요청 수',monthLabel:'월간 추정 비용',perCallLabel:'1회 비용',dayLabel:'일간 비용',yearLabel:'연간 비용',note:'※ 참고용 추정치입니다. 실제 가격은 Anthropic 공식 페이지를 확인하세요.',labelTable:'모델별 가격표 ($/1M 토큰)',thModel:'모델',thIn:'입력',thOut:'출력',thCtx:'컨텍스트',
+    seoHtml:`<h2>Claude API 비용 추정기란?</h2><p>Anthropic의 <strong>Claude Opus, Sonnet, Haiku API 사용 비용을 정확하게 계산</strong>합니다. 1회 요청부터 월간·연간 예산까지 한눈에 파악하세요. Claude는 모든 모델이 200K 토큰 컨텍스트를 지원합니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>Claude Opus vs Sonnet vs Haiku?</summary><p>Opus는 최고 성능, Sonnet은 성능/비용 균형, Haiku는 빠르고 저렴한 경량 모델입니다.</p></details>
+<details class="faq-item"><summary>Claude의 컨텍스트 윈도우는?</summary><p>모든 Claude 모델이 200K 토큰 컨텍스트를 지원합니다. 긴 문서 처리에 적합합니다.</p></details>
+<details class="faq-item"><summary>캐시된 토큰은 할인되나요?</summary><p>Claude는 프롬프트 캐싱을 지원하며, 캐시 히트 시 입력 토큰이 90% 할인됩니다.</p></details>
+<details class="faq-item"><summary>Batch API 지원 여부?</summary><p>Claude API는 Message Batches API를 통해 50% 할인된 가격으로 비동기 처리를 지원합니다.</p></details>
+<details class="faq-item"><summary>Claude와 GPT-4o 가격 비교는?</summary><p>Claude Sonnet 4.6과 GPT-4o는 비슷한 가격대입니다. 성능 대비 비용 효율은 작업마다 다릅니다.</p></details>
+<details class="faq-item"><summary>API 키는 어디서 받나요?</summary><p>console.anthropic.com에서 가입 후 API 키를 발급받을 수 있습니다.</p></details>
+<details class="faq-item"><summary>Claude 4 모델이란?</summary><p>Claude 4 시리즈는 Anthropic의 최신 모델 세대입니다. Opus 4.8, Sonnet 4.6이 포함됩니다.</p></details>
+<details class="faq-item"><summary>무료 평가판이 있나요?</summary><p>Claude.ai에서 무료로 Claude를 사용해볼 수 있으며, API는 유료입니다.</p></details>`
+  },
+  en:{pageTitle:'Claude Cost Estimator - Anthropic Claude API Cost Calculator | MODOO HUB',h1b:'Cost Estimator',sub:'Calculate Anthropic Claude API usage costs',backLink:'← All Tools',langBtn:'🌐 中文',labelModel:'Select Model',labelIn:'Input Tokens (per call)',labelOut:'Output Tokens (per call)',labelReqs:'Daily Requests',monthLabel:'Estimated Monthly Cost',perCallLabel:'Per Call',dayLabel:'Daily',yearLabel:'Yearly',note:'※ Estimates only. Check Anthropic pricing page for current rates.',labelTable:'Pricing Table ($/1M tokens)',thModel:'Model',thIn:'Input',thOut:'Output',thCtx:'Context',
+    seoHtml:`<h2>Claude Cost Estimator</h2><p>Calculate Anthropic <strong>Claude Opus, Sonnet, and Haiku API costs</strong>. View per-call, daily, monthly, and yearly estimates. All Claude models support 200K token context.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>Claude Opus vs Sonnet vs Haiku?</summary><p>Opus is the most capable, Sonnet balances performance and cost, Haiku is the fastest and cheapest.</p></details>
+<details class="faq-item"><summary>What is Claude&apos;s context window?</summary><p>All Claude models support 200K token context — ideal for processing long documents.</p></details>
+<details class="faq-item"><summary>Are cached tokens discounted?</summary><p>Yes — Claude prompt caching offers 90% off input tokens on cache hits.</p></details>
+<details class="faq-item"><summary>Is Batch API supported?</summary><p>Claude&apos;s Message Batches API provides 50% off for asynchronous processing.</p></details>
+<details class="faq-item"><summary>Claude vs GPT-4o pricing?</summary><p>Claude Sonnet 4.6 and GPT-4o are in a similar price range. Cost-efficiency varies by task.</p></details>
+<details class="faq-item"><summary>Where to get an API key?</summary><p>Sign up at console.anthropic.com to get your API key.</p></details>
+<details class="faq-item"><summary>What is the Claude 4 series?</summary><p>The Claude 4 family is Anthropic&apos;s latest generation, including Opus 4.8 and Sonnet 4.6.</p></details>
+<details class="faq-item"><summary>Is there a free trial?</summary><p>Claude.ai offers free access to Claude for personal use. The API is paid.</p></details>`
+  },
+  zh:{pageTitle:'Claude费用估算器 - Anthropic Claude API成本计算器 | MODOO HUB',h1b:'费用估算器',sub:'计算Anthropic Claude API使用费用',backLink:'← 所有工具',langBtn:'🌐 日本語',labelModel:'选择模型',labelIn:'输入Token数(每次调用)',labelOut:'输出Token数(每次调用)',labelReqs:'每日请求次数',monthLabel:'预估月费用',perCallLabel:'每次费用',dayLabel:'每日费用',yearLabel:'每年费用',note:'※ 仅为估算值，请查看Anthropic官方定价页面。',labelTable:'各模型价格表 ($/1M Token)',thModel:'模型',thIn:'输入',thOut:'输出',thCtx:'上下文',
+    seoHtml:`<h2>Claude费用估算器</h2><p>计算Anthropic <strong>Claude Opus、Sonnet和Haiku的API费用</strong>。查看每次调用、每日、每月和每年的费用估算。所有Claude模型都支持200K Token上下文。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>Opus vs Sonnet vs Haiku的区别？</summary><p>Opus能力最强，Sonnet平衡性能和成本，Haiku最快最便宜。</p></details>
+<details class="faq-item"><summary>Claude的上下文窗口是多少？</summary><p>所有Claude模型都支持200K Token上下文，适合处理长文档。</p></details>
+<details class="faq-item"><summary>缓存Token有折扣吗？</summary><p>是的，Claude提示缓存在命中时提供90%的输入Token折扣。</p></details>
+<details class="faq-item"><summary>支持Batch API吗？</summary><p>Claude的Message Batches API为异步处理提供50%折扣。</p></details>
+<details class="faq-item"><summary>与GPT-4o价格比较？</summary><p>Claude Sonnet 4.6和GPT-4o价格相近，成本效率因任务不同而异。</p></details>
+<details class="faq-item"><summary>在哪里获取API密钥？</summary><p>在console.anthropic.com注册后获取API密钥。</p></details>
+<details class="faq-item"><summary>什么是Claude 4系列？</summary><p>Claude 4系列是Anthropic最新一代，包括Opus 4.8和Sonnet 4.6。</p></details>
+<details class="faq-item"><summary>有免费试用吗？</summary><p>Claude.ai提供免费个人使用，API为付费服务。</p></details>`
+  },
+  ja:{pageTitle:'Claudeコスト見積もりツール - Anthropic Claude API費用計算 | MODOO HUB',h1b:'コスト見積もりツール',sub:'Anthropic Claude API使用コストを計算',backLink:'← ホーム',langBtn:'🌐 한국어',labelModel:'モデル選択',labelIn:'入力トークン数(1回あたり)',labelOut:'出力トークン数(1回あたり)',labelReqs:'1日のリクエスト数',monthLabel:'月間推定コスト',perCallLabel:'1回あたり',dayLabel:'1日あたり',yearLabel:'年間',note:'※ 推定値です。最新料金はAnthropic公式ページをご確認ください。',labelTable:'モデル別料金表 ($/1Mトークン)',thModel:'モデル',thIn:'入力',thOut:'出力',thCtx:'コンテキスト',
+    seoHtml:`<h2>Claude APIコスト見積もりツールとは</h2><p>Anthropicの<strong>Claude Opus、Sonnet、Haiku APIのコスト</strong>を計算します。1回あたり、1日、月間、年間のコスト推定を表示。全Claudeモデルが200Kトークンのコンテキストをサポートしています。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>Opus vs Sonnet vs Haikuの違いは？</summary><p>Opusが最高性能、Sonnetが性能とコストのバランス、Haikuが最速で最安値です。</p></details>
+<details class="faq-item"><summary>Claudeのコンテキストウィンドウは？</summary><p>全Claudeモデルが200Kトークンのコンテキストをサポートし、長文書処理に最適です。</p></details>
+<details class="faq-item"><summary>キャッシュトークンは割引されますか？</summary><p>はい、Claudeのプロンプトキャッシングはキャッシュヒット時に入力トークンが90%オフになります。</p></details>
+<details class="faq-item"><summary>Batch APIはサポートされていますか？</summary><p>ClaudeのMessage Batches APIで非同期処理が50%オフになります。</p></details>
+<details class="faq-item"><summary>GPT-4oとの価格比較は？</summary><p>Claude Sonnet 4.6とGPT-4oは同程度の価格帯です。コスト効率はタスクによって異なります。</p></details>
+<details class="faq-item"><summary>APIキーの取得方法は？</summary><p>console.anthropic.comで登録後にAPIキーを発行できます。</p></details>
+<details class="faq-item"><summary>Claude 4シリーズとは？</summary><p>Claude 4シリーズはAnthropicの最新世代で、Opus 4.8とSonnet 4.6が含まれます。</p></details>
+<details class="faq-item"><summary>無料トライアルはありますか？</summary><p>Claude.aiで個人利用は無料でお試しいただけます。APIは有料です。</p></details>`
+  }
+};
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko';
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const idx=LANGS.indexOf(_lang);_lang=LANGS[(idx+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
+  document.getElementById('h1b').textContent=t.h1b;document.getElementById('subEl').textContent=t.sub;
+  document.getElementById('backLink').textContent=t.backLink;document.getElementById('langBtn').textContent=t.langBtn;
+  document.getElementById('labelModel').textContent=t.labelModel;document.getElementById('labelIn').textContent=t.labelIn;
+  document.getElementById('labelOut').textContent=t.labelOut;document.getElementById('labelReqs').textContent=t.labelReqs;
+  document.getElementById('monthLabel').textContent=t.monthLabel;document.getElementById('perCallLabel').textContent=t.perCallLabel;
+  document.getElementById('dayLabel').textContent=t.dayLabel;document.getElementById('yearLabel').textContent=t.yearLabel;
+  document.getElementById('noteEl').textContent=t.note;document.getElementById('labelTable').textContent=t.labelTable;
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;buildTable();calc();
+}
+function buildTable(){
+  const t=_i18n[_lang];const sel=document.getElementById('modelSel').value;
+  document.getElementById('pricingTable').innerHTML=`<thead><tr><th>${t.thModel}</th><th>${t.thIn}</th><th>${t.thOut}</th><th>${t.thCtx}</th></tr></thead><tbody>${Object.entries(MODELS).map(([k,m])=>`<tr class="${k===sel?'sel':''}"><td>${m.label}</td><td>$${m.pIn.toFixed(2)}</td><td>$${m.pOut.toFixed(2)}</td><td>${m.ctx}</td></tr>`).join('')}</tbody>`;
+}
+function calc(){
+  const sel=document.getElementById('modelSel').value;const m=MODELS[sel];
+  const inTok=parseFloat(document.getElementById('inTok').value)||0;
+  const outTok=parseFloat(document.getElementById('outTok').value)||0;
+  const reqs=parseFloat(document.getElementById('reqsDay').value)||0;
+  const perCall=(inTok/1e6*m.pIn)+(outTok/1e6*m.pOut);
+  const day=perCall*reqs;const month=day*30;const year=day*365;
+  document.getElementById('monthCost').textContent='$'+month.toFixed(month<0.01?4:2);
+  document.getElementById('perCall').textContent='$'+perCall.toFixed(6);
+  document.getElementById('dayTotal').textContent='$'+day.toFixed(day<0.01?4:2);
+  document.getElementById('yearTotal').textContent='$'+year.toFixed(2);
+  buildTable();
+}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

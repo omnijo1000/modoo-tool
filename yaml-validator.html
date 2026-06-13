@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YAML 유효성 검사기 - YAML Validator | MODOO HUB</title>
+<meta name="description" content="YAML 문법 오류를 즉시 감지합니다. 오류 위치·메시지 표시, 파싱된 구조 미리보기. 무료 온라인 YAML 검증 도구.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/yaml-validator.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/yaml-validator.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/yaml-validator.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/yaml-validator.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/yaml-validator.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/yaml-validator.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:900px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:20px;}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:640px){.split{grid-template-columns:1fr;}}
+.pane{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:8px;}
+.pane-label{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em;}
+textarea{width:100%;flex:1;min-height:340px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;resize:vertical;outline:none;}
+textarea:focus{border-color:var(--accent);}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;}
+.btn{padding:7px 16px;border-radius:7px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:'Noto Sans KR',sans-serif;}
+.btn-primary{background:var(--accent);color:#000;}
+.btn-primary:hover{background:#f59e0b;}
+.btn-sec{background:var(--surface2);color:var(--text-muted);border:1px solid var(--border);}
+.btn-sec:hover{border-color:var(--accent);}
+.result-badge{padding:10px 14px;border-radius:8px;font-size:13px;font-weight:700;margin-bottom:8px;}
+.badge-ok{background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.3);color:var(--green);}
+.badge-err{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);color:var(--red);}
+.badge-idle{background:var(--surface2);border:1px solid var(--border);color:var(--text-dim);}
+.output-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;font-family:'DM Mono',monospace;font-size:12px;min-height:60px;white-space:pre-wrap;word-break:break-all;color:var(--text-muted);flex:1;overflow-y:auto;max-height:340px;}
+.err-msg{color:var(--red);}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"YAML 유효성 검사기","url":"https://modoohub.com/yaml-validator.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"YAML 문법 오류를 즉시 감지하고 파싱 구조를 미리보는 무료 온라인 도구."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"YAML이란?","acceptedAnswer":{"@type":"Answer","text":"YAML(YAML Ain't Markup Language)은 사람이 읽기 쉬운 데이터 직렬화 형식입니다. 설정 파일에 널리 사용됩니다."}},{"@type":"Question","name":"YAML과 JSON의 차이는?","acceptedAnswer":{"@type":"Answer","text":"YAML은 들여쓰기 기반으로 더 읽기 쉽고, 주석을 지원합니다. JSON은 더 엄격하고 범용적입니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>YAML <span id="h1b">유효성 검사기</span></h1>
+  <p class="sub" id="subEl">YAML 문법 오류를 즉시 감지합니다</p>
+  <div class="split">
+    <div class="pane">
+      <div class="pane-label" id="lblInput">YAML 입력</div>
+      <textarea id="txtInput" placeholder="name: John&#10;age: 30&#10;hobbies:&#10;  - reading&#10;  - coding" oninput="validate()" spellcheck="false"></textarea>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="validate()" id="btnValidate">검사</button>
+        <button class="btn btn-sec" onclick="loadSample()" id="btnSample">샘플</button>
+        <button class="btn btn-sec" onclick="clearAll()" id="btnClear">지우기</button>
+      </div>
+    </div>
+    <div class="pane">
+      <div class="pane-label" id="lblResult">결과</div>
+      <div class="result-badge badge-idle" id="badgeEl" id="resultBadge">YAML을 입력하세요</div>
+      <div class="output-box" id="outputBox"></div>
+    </div>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko';
+const SAMPLE=`# 서버 설정 예시
+server:
+  host: localhost
+  port: 8080
+  debug: true
+
+database:
+  name: mydb
+  user: admin
+  password: secret123
+
+features:
+  - authentication
+  - logging
+  - caching`;
+const _i18n={
+  ko:{h1b:'유효성 검사기',sub:'YAML 문법 오류를 즉시 감지합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',pageTitle:'YAML 유효성 검사기 | MODOO HUB',lblInput:'YAML 입력',lblResult:'결과',btnValidate:'검사',btnSample:'샘플',btnClear:'지우기',idle:'YAML을 입력하세요',ok:'✅ 유효한 YAML',err:'❌ 유효하지 않은 YAML',
+    seoHtml:`<h2>YAML 유효성 검사기</h2><p>YAML 문법 오류를 즉시 감지하고 파싱된 구조를 미리봅니다. Docker Compose, GitHub Actions, Kubernetes 설정 파일 등을 작성할 때 오류를 빠르게 발견할 수 있습니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>YAML이란?</summary><p>YAML Ain't Markup Language — 사람이 읽기 쉬운 데이터 직렬화 형식입니다.</p></details>
+<details class="faq-item"><summary>YAML과 JSON의 차이는?</summary><p>YAML은 들여쓰기 기반으로 읽기 쉽고 주석을 지원합니다. JSON은 더 엄격합니다.</p></details>
+<details class="faq-item"><summary>YAML 들여쓰기 규칙은?</summary><p>탭 대신 공백을 사용하고 일관된 들여쓰기를 유지해야 합니다.</p></details>
+<details class="faq-item"><summary>YAML 주석 방법은?</summary><p># 기호로 주석을 작성합니다.</p></details>
+<details class="faq-item"><summary>YAML에서 문자열 따옴표는 필수인가요?</summary><p>일반 문자열은 따옴표 없이 작성할 수 있지만 특수 문자가 있으면 따옴표가 필요합니다.</p></details>
+<details class="faq-item"><summary>YAML 배열 작성법은?</summary><p>각 항목 앞에 하이픈(-)을 붙입니다: - item1</p></details>
+<details class="faq-item"><summary>멀티라인 문자열은?</summary><p>| (리터럴)이나 > (폴드) 블록 스칼라를 사용합니다.</p></details>
+<details class="faq-item"><summary>YAML 파일 확장자는?</summary><p>.yaml 또는 .yml 모두 사용됩니다.</p></details>`
+  },
+  en:{h1b:'Validator',sub:'Instantly detect YAML syntax errors',backLink:'← All Tools',langBtn:'🌐 中文',pageTitle:'YAML Validator | MODOO HUB',lblInput:'YAML Input',lblResult:'Result',btnValidate:'Validate',btnSample:'Sample',btnClear:'Clear',idle:'Enter YAML to validate',ok:'✅ Valid YAML',err:'❌ Invalid YAML',
+    seoHtml:`<h2>YAML Validator</h2><p>Instantly detect YAML syntax errors and preview the parsed structure. Great for Docker Compose, GitHub Actions, Kubernetes configs, and any YAML-based configuration.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>What is YAML?</summary><p>YAML Ain't Markup Language — a human-readable data serialization format.</p></details>
+<details class="faq-item"><summary>YAML vs JSON?</summary><p>YAML uses indentation, is more readable, and supports comments. JSON is stricter.</p></details>
+<details class="faq-item"><summary>YAML indentation rules?</summary><p>Use spaces not tabs, and keep indentation consistent throughout the file.</p></details>
+<details class="faq-item"><summary>How to write comments in YAML?</summary><p>Use the # symbol for comments.</p></details>
+<details class="faq-item"><summary>Are quotes required for strings?</summary><p>Simple strings don't need quotes, but special characters may require them.</p></details>
+<details class="faq-item"><summary>How to write arrays?</summary><p>Prefix each item with a hyphen: - item1</p></details>
+<details class="faq-item"><summary>Multi-line strings?</summary><p>Use | (literal) or > (folded) block scalars.</p></details>
+<details class="faq-item"><summary>YAML file extension?</summary><p>Both .yaml and .yml are accepted.</p></details>`
+  },
+  zh:{h1b:'验证器',sub:'即时检测YAML语法错误',backLink:'← 所有工具',langBtn:'🌐 日本語',pageTitle:'YAML验证器 | MODOO HUB',lblInput:'YAML输入',lblResult:'结果',btnValidate:'验证',btnSample:'示例',btnClear:'清除',idle:'请输入YAML进行验证',ok:'✅ 有效的YAML',err:'❌ 无效的YAML',
+    seoHtml:`<h2>YAML验证器</h2><p>即时检测YAML语法错误并预览解析结构。适用于Docker Compose、GitHub Actions、Kubernetes配置等YAML文件。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>什么是YAML？</summary><p>YAML是一种人类可读的数据序列化格式，广泛用于配置文件。</p></details>
+<details class="faq-item"><summary>YAML与JSON的区别？</summary><p>YAML基于缩进，更易读，支持注释。JSON更严格。</p></details>
+<details class="faq-item"><summary>YAML缩进规则？</summary><p>使用空格而非制表符，并保持一致的缩进。</p></details>
+<details class="faq-item"><summary>如何在YAML中写注释？</summary><p>使用#符号写注释。</p></details>
+<details class="faq-item"><summary>字符串需要引号吗？</summary><p>简单字符串不需要引号，但含特殊字符时需要。</p></details>
+<details class="faq-item"><summary>如何写数组？</summary><p>每项前加连字符：- item1</p></details>
+<details class="faq-item"><summary>多行字符串？</summary><p>使用|（字面量）或>（折叠）块标量。</p></details>
+<details class="faq-item"><summary>YAML文件扩展名？</summary><p>.yaml和.yml都可以使用。</p></details>`
+  },
+  ja:{h1b:'バリデーター',sub:'YAML構文エラーを即座に検出します',backLink:'← ホーム',langBtn:'🌐 한국어',pageTitle:'YAMLバリデーター | MODOO HUB',lblInput:'YAML入力',lblResult:'結果',btnValidate:'検証',btnSample:'サンプル',btnClear:'クリア',idle:'YAMLを入力してください',ok:'✅ 有効なYAML',err:'❌ 無効なYAML',
+    seoHtml:`<h2>YAMLバリデーター</h2><p>YAML構文エラーを即座に検出し、パースされた構造をプレビューします。Docker Compose、GitHub Actions、Kubernetes設定ファイルなどの作成に役立ちます。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>YAMLとは？</summary><p>人間が読みやすいデータシリアライズ形式で、設定ファイルに広く使用されます。</p></details>
+<details class="faq-item"><summary>YAMLとJSONの違いは？</summary><p>YAMLはインデントベースで読みやすく、コメントをサポートします。JSONはより厳格です。</p></details>
+<details class="faq-item"><summary>YAMLのインデントルールは？</summary><p>タブではなくスペースを使用し、一貫したインデントを維持します。</p></details>
+<details class="faq-item"><summary>YAMLでコメントを書くには？</summary><p>#記号を使用します。</p></details>
+<details class="faq-item"><summary>文字列に引用符は必要？</summary><p>単純な文字列には不要ですが、特殊文字がある場合は必要です。</p></details>
+<details class="faq-item"><summary>配列の書き方は？</summary><p>各アイテムの前にハイフンを付けます: - item1</p></details>
+<details class="faq-item"><summary>複数行文字列は？</summary><p>|(リテラル)または>(折り畳み)ブロックスカラーを使用します。</p></details>
+<details class="faq-item"><summary>YAMLのファイル拡張子は？</summary><p>.yamlまたは.ymlのどちらも使用できます。</p></details>`
+  }
+};
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){
+  const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
+  ['h1b','subEl','backLink','langBtn','lblInput','lblResult','btnValidate','btnSample','btnClear'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id]||el.textContent;});
+  document.getElementById('badgeEl').textContent=t.idle;
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+  validate();
+}
+function loadSample(){document.getElementById('txtInput').value=SAMPLE;validate();}
+function clearAll(){document.getElementById('txtInput').value='';const t=_i18n[_lang];document.getElementById('badgeEl').textContent=t.idle;document.getElementById('badgeEl').className='result-badge badge-idle';document.getElementById('outputBox').textContent='';}
+function validate(){
+  const yaml=document.getElementById('txtInput').value.trim();
+  const t=_i18n[_lang];
+  const badge=document.getElementById('badgeEl');
+  const out=document.getElementById('outputBox');
+  if(!yaml){badge.textContent=t.idle;badge.className='result-badge badge-idle';out.textContent='';return;}
+  try{
+    const parsed=jsyaml.load(yaml);
+    badge.textContent=t.ok;badge.className='result-badge badge-ok';
+    out.className='output-box';
+    out.textContent=JSON.stringify(parsed,null,2);
+  }catch(e){
+    badge.textContent=t.err;badge.className='result-badge badge-err';
+    out.className='output-box err-msg';
+    out.textContent=e.message||String(e);
+  }
+}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CPS 계산기 - 클릭 속도 테스트 | MODOO HUB</title>
+<meta name="description" content="초당 클릭 횟수(CPS)를 측정합니다. 5초/10초/15초/30초 클릭 속도 테스트. 무료 온라인 CPS 측정 도구.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/cps-calculator.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/cps-calculator.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/cps-calculator.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/cps-calculator.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/cps-calculator.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/cps-calculator.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:600px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
+.time-row{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+.time-btn{padding:7px 18px;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text-muted);font-size:13px;cursor:pointer;transition:.15s;}
+.time-btn:hover,.time-btn.sel{border-color:var(--accent);color:var(--accent);background:rgba(251,191,36,.06);}
+.click-zone{display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--surface);border:2px solid var(--border);border-radius:20px;min-height:260px;cursor:pointer;user-select:none;transition:.1s;margin-bottom:16px;}
+.click-zone:hover{border-color:var(--accent);}
+.click-zone:active{transform:scale(.98);background:rgba(251,191,36,.04);}
+.click-zone.running{border-color:var(--accent);}
+.cps-big{font-size:72px;font-weight:900;font-family:'DM Mono',monospace;color:var(--accent);line-height:1;}
+.cps-label{font-size:13px;color:var(--text-muted);margin-top:6px;}
+.sub-stats{display:flex;gap:20px;margin-top:16px;}
+.sub-stat{font-size:12px;color:var(--text-dim);text-align:center;}
+.sub-stat-val{font-size:18px;font-weight:700;font-family:'DM Mono',monospace;color:var(--text-muted);display:block;}
+.prompt-text{font-size:18px;font-weight:700;color:var(--text-dim);}
+.timer-arc{font-size:13px;color:var(--text-muted);margin-top:8px;font-family:'DM Mono',monospace;}
+.result-box{display:none;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;text-align:center;margin-top:16px;}
+.result-box.show{display:block;}
+.result-cps{font-size:56px;font-weight:900;font-family:'DM Mono',monospace;color:var(--accent);}
+.result-sub{font-size:13px;color:var(--text-muted);margin-bottom:16px;}
+.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.ritem{background:var(--surface2);border-radius:8px;padding:12px;}
+.ritem-val{font-size:20px;font-weight:700;font-family:'DM Mono',monospace;}
+.ritem-label{font-size:10px;color:var(--text-dim);margin-top:2px;}
+.rank-badge{display:inline-block;padding:4px 16px;border-radius:20px;font-size:13px;font-weight:700;background:rgba(251,191,36,.15);color:var(--accent);border:1px solid rgba(251,191,36,.3);margin-bottom:12px;}
+.btn{padding:10px 24px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:'Noto Sans KR',sans-serif;background:var(--accent);color:#000;}
+.btn:hover{background:#f59e0b;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"CPS 계산기","url":"https://modoohub.com/cps-calculator.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"초당 클릭 횟수(CPS)를 측정하는 무료 클릭 속도 테스트."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"CPS란 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"CPS(Clicks Per Second)는 초당 클릭 횟수로 마우스 클릭 속도를 나타내는 지표입니다."}},{"@type":"Question","name":"평균 CPS는 얼마인가요?","acceptedAnswer":{"@type":"Answer","text":"일반인 평균 5~7 CPS, 고수 10 CPS 이상입니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>CPS <span id="h1b">계산기</span></h1>
+  <p class="sub" id="subEl">클릭 속도를 측정합니다 (초당 클릭 수)</p>
+
+  <div class="time-row" id="timeRow">
+    <button class="time-btn sel" onclick="setDur(this,5)" data-s="5">5s</button>
+    <button class="time-btn" onclick="setDur(this,10)" data-s="10">10s</button>
+    <button class="time-btn" onclick="setDur(this,15)" data-s="15">15s</button>
+    <button class="time-btn" onclick="setDur(this,30)" data-s="30">30s</button>
+  </div>
+
+  <div class="click-zone" id="clickZone" onclick="onZoneClick()">
+    <div class="cps-big" id="cpsNum">0</div>
+    <div class="cps-label" id="cpsLabel">CPS</div>
+    <div class="timer-arc" id="timerText">— / 5s</div>
+    <div class="sub-stats">
+      <div class="sub-stat"><span class="sub-stat-val" id="totalClicks">0</span><span id="lblTotal">총 클릭</span></div>
+      <div class="sub-stat"><span class="sub-stat-val" id="elapsedSec">0s</span><span id="lblElapsed">경과</span></div>
+    </div>
+    <div class="prompt-text" id="promptText" style="margin-top:14px;"></div>
+  </div>
+
+  <div class="result-box" id="resultBox">
+    <div class="result-cps" id="rCps">0</div>
+    <div class="result-sub">CPS</div>
+    <div class="result-grid">
+      <div class="ritem"><div class="ritem-val" id="rTotal">0</div><div class="ritem-label" id="rTotalLabel">총 클릭</div></div>
+      <div class="ritem"><div class="ritem-val" id="rDur">5s</div><div class="ritem-label" id="rDurLabel">측정 시간</div></div>
+    </div>
+    <div class="rank-badge" id="rankBadge"></div><br>
+    <button class="btn" onclick="resetTest()" id="btnRetry">다시 도전</button>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko',_dur=5,_clicks=0,_startTime=null,_timer=null,_running=false,_done=false;
+const _i18n={
+  ko:{h1b:'계산기',sub:'클릭 속도를 측정합니다 (초당 클릭 수)',backLink:'← 모두의 툴',langBtn:'🌐 EN',pageTitle:'CPS 계산기 - 클릭 속도 테스트 | MODOO HUB',lblTotal:'총 클릭',lblElapsed:'경과',rTotalLabel:'총 클릭',rDurLabel:'측정 시간',btnRetry:'다시 도전',prompt:'클릭하여 시작',rankFn:c=>c>=12?'마우스 신 🐭':c>=8?'고급 클리커 ⚡':c>=5?'평균 수준 👍':'초급 수준 📝',
+    seoHtml:`<h2>CPS 계산기</h2><p>초당 클릭 횟수(CPS, Clicks Per Second)를 측정하는 무료 클릭 속도 테스트입니다. 5초~30초 동안 최대한 빠르게 클릭하면 평균 CPS와 총 클릭 수를 계산합니다. 게임 반응속도 측정, 마우스 성능 테스트에 활용하세요.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>CPS란 무엇인가요?</summary><p>Clicks Per Second — 초당 마우스 클릭 횟수입니다.</p></details>
+<details class="faq-item"><summary>평균 CPS는 얼마인가요?</summary><p>일반인 평균 5~7 CPS, 고수는 10 CPS 이상입니다.</p></details>
+<details class="faq-item"><summary>게임에서 높은 CPS가 유리한가요?</summary><p>마인크래프트 PvP 등 클릭 속도가 중요한 게임에서 유리합니다.</p></details>
+<details class="faq-item"><summary>세계 최고 CPS 기록은?</summary><p>기록은 약 14~16 CPS 수준으로 알려져 있습니다.</p></details>
+<details class="faq-item"><summary>버터플라이 클릭이란?</summary><p>두 손가락을 교대로 빠르게 클릭해 CPS를 높이는 기법입니다.</p></details>
+<details class="faq-item"><summary>드래그 클릭이란?</summary><p>마우스 버튼을 드래그하며 연속 클릭을 유발하는 고급 기법입니다.</p></details>
+<details class="faq-item"><summary>마우스 성능에 따라 CPS가 달라지나요?</summary><p>고성능 게이밍 마우스는 더 높은 CPS를 지원합니다.</p></details>
+<details class="faq-item"><summary>모바일에서도 테스트 가능한가요?</summary><p>터치 이벤트도 카운트되므로 모바일에서도 테스트 가능합니다.</p></details>`
+  },
+  en:{h1b:'Calculator',sub:'Measure click speed (clicks per second)',backLink:'← All Tools',langBtn:'🌐 中文',pageTitle:'CPS Calculator - Click Speed Test | MODOO HUB',lblTotal:'Total Clicks',lblElapsed:'Elapsed',rTotalLabel:'Total Clicks',rDurLabel:'Duration',btnRetry:'Try Again',prompt:'Click to Start',rankFn:c=>c>=12?'Mouse God 🐭':c>=8?'Advanced ⚡':c>=5?'Average 👍':'Beginner 📝',
+    seoHtml:`<h2>CPS Calculator</h2><p>Measure your <strong>clicks per second (CPS)</strong> in a free click speed test. Click as fast as you can for 5–30 seconds to get your CPS score and total click count. Great for gaming reaction speed and mouse performance checks.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>What is CPS?</summary><p>Clicks Per Second — how many times you click your mouse in one second.</p></details>
+<details class="faq-item"><summary>What is average CPS?</summary><p>Average is 5–7 CPS; skilled players reach 10+ CPS.</p></details>
+<details class="faq-item"><summary>Does high CPS help in games?</summary><p>In Minecraft PvP and similar games, higher CPS gives an advantage.</p></details>
+<details class="faq-item"><summary>World record CPS?</summary><p>Top records are around 14–16 CPS.</p></details>
+<details class="faq-item"><summary>What is butterfly clicking?</summary><p>Alternating two fingers rapidly on one button to maximize CPS.</p></details>
+<details class="faq-item"><summary>What is drag clicking?</summary><p>Dragging across the mouse button to trigger rapid repeated inputs.</p></details>
+<details class="faq-item"><summary>Does mouse quality affect CPS?</summary><p>High-end gaming mice can support higher polling rates and CPS.</p></details>
+<details class="faq-item"><summary>Works on mobile?</summary><p>Yes — touch events are counted so you can test on mobile too.</p></details>`
+  },
+  zh:{h1b:'计算器',sub:'测量点击速度（每秒点击次数）',backLink:'← 所有工具',langBtn:'🌐 日本語',pageTitle:'CPS计算器 - 点击速度测试 | MODOO HUB',lblTotal:'总点击',lblElapsed:'已用时间',rTotalLabel:'总点击',rDurLabel:'测试时间',btnRetry:'再试一次',prompt:'点击开始',rankFn:c=>c>=12?'鼠标之神 🐭':c>=8?'高级 ⚡':c>=5?'平均水平 👍':'初级 📝',
+    seoHtml:`<h2>CPS计算器</h2><p>免费测量每秒点击次数(CPS)的工具。在5~30秒内尽快点击，计算平均CPS和总点击数。适用于游戏反应速度测试和鼠标性能评估。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>CPS是什么？</summary><p>Clicks Per Second — 每秒鼠标点击次数。</p></details>
+<details class="faq-item"><summary>平均CPS是多少？</summary><p>普通人平均5~7 CPS，高手10 CPS以上。</p></details>
+<details class="faq-item"><summary>高CPS在游戏中有优势吗？</summary><p>在《我的世界》PvP等游戏中，高CPS有明显优势。</p></details>
+<details class="faq-item"><summary>世界最高CPS记录？</summary><p>已知记录约为14~16 CPS。</p></details>
+<details class="faq-item"><summary>什么是蝴蝶点击？</summary><p>用两根手指交替快速点击以提升CPS的技术。</p></details>
+<details class="faq-item"><summary>什么是拖动点击？</summary><p>拖动鼠标按键以触发连续点击的高级技术。</p></details>
+<details class="faq-item"><summary>鼠标质量影响CPS吗？</summary><p>高端游戏鼠标支持更高的轮询率和CPS。</p></details>
+<details class="faq-item"><summary>手机也能测试吗？</summary><p>可以，触摸事件也被计算，可以在手机上测试。</p></details>`
+  },
+  ja:{h1b:'計算ツール',sub:'クリック速度を測定します（CPS）',backLink:'← ホーム',langBtn:'🌐 한국어',pageTitle:'CPS計算ツール - クリック速度テスト | MODOO HUB',lblTotal:'総クリック',lblElapsed:'経過時間',rTotalLabel:'総クリック',rDurLabel:'測定時間',btnRetry:'もう一度',prompt:'クリックして開始',rankFn:c=>c>=12?'マウスの神 🐭':c>=8?'上級 ⚡':c>=5?'平均 👍':'初心者 📝',
+    seoHtml:`<h2>CPS計算ツール</h2><p>毎秒クリック数(CPS)を無料で測定できるツールです。5〜30秒間できるだけ速くクリックして平均CPSと総クリック数を計算します。ゲームの反応速度測定やマウス性能テストに活用できます。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>CPSとは？</summary><p>Clicks Per Second — 1秒あたりのクリック数です。</p></details>
+<details class="faq-item"><summary>平均CPSは？</summary><p>一般的に5〜7 CPS、上級者は10 CPS以上です。</p></details>
+<details class="faq-item"><summary>ゲームで高いCPSは有利？</summary><p>マインクラフトPvPなど、クリック速度が重要なゲームで有利です。</p></details>
+<details class="faq-item"><summary>世界記録のCPSは？</summary><p>約14〜16 CPSが記録されています。</p></details>
+<details class="faq-item"><summary>バタフライクリックとは？</summary><p>2本の指を交互に素早くクリックしてCPSを上げる技術です。</p></details>
+<details class="faq-item"><summary>ドラッグクリックとは？</summary><p>マウスボタンをドラッグして連続クリックを誘発する上級技術です。</p></details>
+<details class="faq-item"><summary>マウスの品質でCPSは変わる？</summary><p>高性能ゲーミングマウスはより高いポーリングレートとCPSをサポートします。</p></details>
+<details class="faq-item"><summary>モバイルでもテストできる？</summary><p>タッチイベントもカウントされるため、モバイルでもテスト可能です。</p></details>`
+  }
+};
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){
+  const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
+  document.getElementById('h1b').textContent=t.h1b;document.getElementById('subEl').textContent=t.sub;
+  document.getElementById('backLink').textContent=t.backLink;document.getElementById('langBtn').textContent=t.langBtn;
+  document.getElementById('lblTotal').textContent=t.lblTotal;document.getElementById('lblElapsed').textContent=t.lblElapsed;
+  document.getElementById('rTotalLabel').textContent=t.rTotalLabel;document.getElementById('rDurLabel').textContent=t.rDurLabel;
+  document.getElementById('btnRetry').textContent=t.btnRetry;document.getElementById('seoDiv').innerHTML=t.seoHtml;
+  if(!_running&&!_done)document.getElementById('promptText').textContent=t.prompt;
+}
+function setDur(el,s){if(_running)return;document.querySelectorAll('.time-btn').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');_dur=s;document.getElementById('timerText')='— / '+s+'s';resetTest();}
+function resetTest(){
+  clearInterval(_timer);_running=false;_done=false;_clicks=0;_startTime=null;
+  document.getElementById('cpsNum').textContent='0';document.getElementById('totalClicks').textContent='0';
+  document.getElementById('elapsedSec').textContent='0s';document.getElementById('timerText').textContent='— / '+_dur+'s';
+  document.getElementById('resultBox').classList.remove('show');document.getElementById('clickZone').classList.remove('running');
+  document.getElementById('promptText').textContent=_i18n[_lang].prompt;
+}
+function onZoneClick(){
+  if(_done)return;
+  if(!_running){_running=true;_startTime=Date.now();document.getElementById('clickZone').classList.add('running');document.getElementById('promptText').textContent='';startTimer();}
+  _clicks++;updateDisplay();
+}
+function updateDisplay(){
+  const sec=_startTime?(Date.now()-_startTime)/1000:0;
+  const cps=sec>0?(_clicks/sec).toFixed(1):0;
+  document.getElementById('cpsNum').textContent=cps;
+  document.getElementById('totalClicks').textContent=_clicks;
+  document.getElementById('elapsedSec').textContent=sec.toFixed(1)+'s';
+  document.getElementById('timerText').textContent=sec.toFixed(1)+'s / '+_dur+'s';
+}
+function startTimer(){
+  _timer=setInterval(()=>{
+    if(!_running)return;
+    const sec=(Date.now()-_startTime)/1000;
+    updateDisplay();
+    if(sec>=_dur){finish();}
+  },100);
+}
+function finish(){
+  clearInterval(_timer);_running=false;_done=true;
+  const cps=(_clicks/_dur).toFixed(2);
+  document.getElementById('rCps').textContent=cps;
+  document.getElementById('rTotal').textContent=_clicks;
+  document.getElementById('rDur').textContent=_dur+'s';
+  document.getElementById('rankBadge').textContent=_i18n[_lang].rankFn(parseFloat(cps));
+  document.getElementById('resultBox').classList.add('show');
+}
+_lang=detectLang();applyLang();resetTest();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDF 페이지 순서 변경 - PDF 페이지 재배열 | MODOO HUB</title>
+<meta name="description" content="PDF 페이지 순서를 드래그로 변경합니다. 특정 페이지 삭제·이동. 무료 온라인 PDF 페이지 재배열 도구.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/pdf-reorder-pages.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/pdf-reorder-pages.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/pdf-reorder-pages.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/pdf-reorder-pages.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/pdf-reorder-pages.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/pdf-reorder-pages.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:720px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
+.drop-zone{border:2px dashed var(--border);border-radius:12px;padding:48px 24px;text-align:center;cursor:pointer;transition:border-color .2s;}
+.drop-zone:hover,.drop-zone.drag{border-color:var(--accent);}
+.drop-zone-icon{font-size:36px;margin-bottom:12px;}
+.drop-zone-text{font-size:13px;color:var(--text-muted);}
+.hint{font-size:11px;color:var(--text-dim);margin-bottom:12px;font-family:'DM Mono',monospace;}
+.pages-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:10px;margin-bottom:16px;}
+.page-card{background:var(--surface);border:2px solid var(--border);border-radius:8px;padding:10px 6px;text-align:center;cursor:grab;user-select:none;position:relative;transition:border-color .15s;}
+.page-card:active{cursor:grabbing;}
+.page-card.drag-over{border-color:var(--accent);background:rgba(251,191,36,.06);}
+.page-card.dragging{opacity:.4;}
+.page-card .page-num{font-size:18px;font-weight:700;color:var(--text-muted);display:block;margin-bottom:4px;font-family:'DM Mono',monospace;}
+.page-card .orig-num{font-size:9px;color:var(--text-dim);font-family:'DM Mono',monospace;}
+.page-card .del-btn{position:absolute;top:3px;right:3px;width:16px;height:16px;border-radius:50%;background:rgba(248,113,113,.2);border:none;cursor:pointer;font-size:10px;color:var(--red);line-height:16px;display:flex;align-items:center;justify-content:center;padding:0;}
+.page-card .del-btn:hover{background:rgba(248,113,113,.5);}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;}
+.btn{padding:10px 24px;background:var(--accent);color:#000;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;}
+.btn:hover{opacity:.85;}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+.btn-ghost{padding:9px 16px;background:none;border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--text-muted);cursor:pointer;}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
+.msg{font-size:12px;padding:8px 12px;border-radius:6px;margin-top:10px;}
+.msg.ok{color:var(--green);background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.3);}
+.msg.err{color:var(--red);background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"PDF 페이지 순서 변경","url":"https://modoohub.com/pdf-reorder-pages.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"PDF 페이지 드래그로 순서 변경. 특정 페이지 삭제. 무료 온라인 도구."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"특정 페이지를 삭제할 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"예, 각 페이지 카드의 × 버튼을 클릭하면 해당 페이지가 제거됩니다."}},{"@type":"Question","name":"파일이 서버로 전송되나요?","acceptedAnswer":{"@type":"Answer","text":"아니요. 모든 처리는 브라우저 내에서만 이루어집니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>PDF <span id="h1b">페이지 순서 변경</span></h1>
+  <p class="sub" id="subEl">PDF 페이지를 드래그하여 순서를 변경합니다</p>
+
+  <div class="drop-zone" id="dropZone" onclick="fileInput.click()" ondragover="ev(event,'drag')" ondragleave="ev(event,'')" ondrop="drop(event)">
+    <div class="drop-zone-icon">📑</div>
+    <div class="drop-zone-text" id="dropTxt">PDF 파일을 드래그하거나 클릭하여 선택</div>
+  </div>
+  <input type="file" id="fileInput" accept=".pdf" style="display:none" onchange="loadFile(this.files[0])">
+
+  <div id="editorBox" style="display:none;margin-top:20px;">
+    <div class="hint" id="hintTxt">드래그하여 순서를 변경하세요 · × 버튼으로 페이지 삭제</div>
+    <div class="pages-grid" id="pagesGrid"></div>
+    <div class="btn-row">
+      <button class="btn" id="saveBtn" onclick="savePdf()">💾 저장 후 다운로드</button>
+      <button class="btn-ghost" id="resetBtn" onclick="resetOrder()">↩ 초기화</button>
+    </div>
+    <div id="msgEl"></div>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<script>
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko',_buf=null,_origOrder=[],_order=[];
+const _i18n={
+  ko:{h1b:'페이지 순서 변경',sub:'PDF 페이지를 드래그하여 순서를 변경합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',pageTitle:'PDF 페이지 순서 변경 | MODOO HUB',dropTxt:'PDF 파일을 드래그하거나 클릭하여 선택',hintTxt:'드래그하여 순서를 변경하세요 · × 버튼으로 페이지 삭제',saveBtn:'💾 저장 후 다운로드',resetBtn:'↩ 초기화',msgOk:'✅ 완료! 다운로드가 시작됩니다.',msgErr:'❌ 오류가 발생했습니다.',
+    seoHtml:`<h2>PDF 페이지 순서 변경</h2><p><strong>PDF 페이지</strong>를 드래그 앤 드롭으로 순서를 재배열합니다. 불필요한 페이지를 삭제하거나 원하는 위치로 이동할 수 있습니다. 모든 처리가 브라우저 로컬에서 이루어집니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>특정 페이지를 삭제할 수 있나요?</summary><p>예, 각 페이지 카드의 × 버튼을 클릭하면 삭제됩니다.</p></details>
+<details class="faq-item"><summary>파일이 서버로 전송되나요?</summary><p>아니요. 브라우저 내에서만 처리됩니다.</p></details>
+<details class="faq-item"><summary>순서를 원래대로 되돌릴 수 있나요?</summary><p>초기화 버튼을 클릭하면 원래 순서로 돌아옵니다.</p></details>
+<details class="faq-item"><summary>페이지 수 제한이 있나요?</summary><p>브라우저 메모리 한도 내에서 처리됩니다.</p></details>
+<details class="faq-item"><summary>모바일 드래그가 지원되나요?</summary><p>PC 브라우저 드래그를 권장합니다. 모바일은 제한적입니다.</p></details>
+<details class="faq-item"><summary>PDF 내용이 변경되나요?</summary><p>아니요. 순서와 구성만 변경됩니다.</p></details>
+<details class="faq-item"><summary>암호화된 PDF도 처리할 수 있나요?</summary><p>암호화되지 않은 PDF만 처리됩니다.</p></details>
+<details class="faq-item"><summary>처리 속도는 어떤가요?</summary><p>파일 크기에 따라 다르지만 대부분 빠르게 완료됩니다.</p></details>`
+  },
+  en:{h1b:'Reorder Pages',sub:'Drag and drop to reorder PDF pages',backLink:'← All Tools',langBtn:'🌐 中文',pageTitle:'PDF Reorder Pages | MODOO HUB',dropTxt:'Drop PDF here or click to select',hintTxt:'Drag to reorder · × to delete a page',saveBtn:'💾 Save & Download',resetBtn:'↩ Reset',msgOk:'✅ Done! Download starting.',msgErr:'❌ Error occurred.',
+    seoHtml:`<h2>PDF Page Reorder</h2><p>Rearrange <strong>PDF pages</strong> by drag and drop. Delete unwanted pages or move them to any position. Fully local browser processing — no uploads.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>Can I delete specific pages?</summary><p>Yes — click the × button on any page card to remove it.</p></details>
+<details class="faq-item"><summary>Is my file uploaded?</summary><p>No — fully local browser processing.</p></details>
+<details class="faq-item"><summary>Can I undo reordering?</summary><p>Yes — click the Reset button to restore the original order.</p></details>
+<details class="faq-item"><summary>Is there a page limit?</summary><p>Within browser memory limits.</p></details>
+<details class="faq-item"><summary>Does mobile drag work?</summary><p>PC browser drag is recommended. Mobile is limited.</p></details>
+<details class="faq-item"><summary>Does content change?</summary><p>No — only the page order and composition changes.</p></details>
+<details class="faq-item"><summary>Encrypted PDFs supported?</summary><p>Only unencrypted PDFs are supported.</p></details>
+<details class="faq-item"><summary>Processing speed?</summary><p>Most files process quickly depending on size.</p></details>`
+  },
+  zh:{h1b:'重新排序页面',sub:'拖放以重新排列PDF页面',backLink:'← 所有工具',langBtn:'🌐 日本語',pageTitle:'PDF页面重排 | MODOO HUB',dropTxt:'拖放PDF文件或点击选择',hintTxt:'拖动以重新排序 · ×按钮删除页面',saveBtn:'💾 保存并下载',resetBtn:'↩ 重置',msgOk:'✅ 完成！下载开始。',msgErr:'❌ 发生错误。',
+    seoHtml:`<h2>PDF页面重排</h2><p>通过拖放重新排列<strong>PDF页面</strong>。删除不需要的页面或移动到任意位置。完全在浏览器本地处理，不上传文件。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>可以删除特定页面吗？</summary><p>可以，点击页面卡片上的×按钮即可删除。</p></details>
+<details class="faq-item"><summary>文件会上传服务器吗？</summary><p>不会，完全本地处理。</p></details>
+<details class="faq-item"><summary>可以撤销重排吗？</summary><p>可以，点击重置按钮恢复原始顺序。</p></details>
+<details class="faq-item"><summary>有页数限制吗？</summary><p>在浏览器内存限制内处理。</p></details>
+<details class="faq-item"><summary>手机拖动支持吗？</summary><p>建议使用PC浏览器拖动，手机支持有限。</p></details>
+<details class="faq-item"><summary>内容会改变吗？</summary><p>不会，只改变页面顺序和组成。</p></details>
+<details class="faq-item"><summary>加密PDF支持吗？</summary><p>只支持未加密的PDF。</p></details>
+<details class="faq-item"><summary>处理速度如何？</summary><p>根据文件大小，大多数文件处理较快。</p></details>`
+  },
+  ja:{h1b:'ページ並び替え',sub:'ドラッグ&ドロップでPDFページを並び替えます',backLink:'← ホーム',langBtn:'🌐 한국어',pageTitle:'PDFページ並び替え | MODOO HUB',dropTxt:'PDFファイルをドロップまたはクリックして選択',hintTxt:'ドラッグして並び替え · ×でページを削除',saveBtn:'💾 保存してダウンロード',resetBtn:'↩ リセット',msgOk:'✅ 完了！ダウンロード開始。',msgErr:'❌ エラーが発生しました。',
+    seoHtml:`<h2>PDFページ並び替え</h2><p>ドラッグ&ドロップで<strong>PDFページ</strong>を並び替えます。不要なページを削除したり、任意の位置に移動できます。すべてブラウザ内でローカル処理されます。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>特定のページを削除できますか？</summary><p>はい、ページカードの×ボタンをクリックすると削除されます。</p></details>
+<details class="faq-item"><summary>ファイルはサーバーに送信されますか？</summary><p>いいえ、すべてブラウザ内でローカル処理されます。</p></details>
+<details class="faq-item"><summary>並び替えを元に戻せますか？</summary><p>はい、リセットボタンで元の順序に戻ります。</p></details>
+<details class="faq-item"><summary>ページ数に制限はありますか？</summary><p>ブラウザのメモリ制限内で処理できます。</p></details>
+<details class="faq-item"><summary>モバイルドラッグは対応していますか？</summary><p>PCブラウザのドラッグを推奨します。モバイルは制限的です。</p></details>
+<details class="faq-item"><summary>内容は変わりますか？</summary><p>いいえ、ページの順序と構成のみ変更されます。</p></details>
+<details class="faq-item"><summary>暗号化PDFは対応していますか？</summary><p>暗号化されていないPDFのみ対応しています。</p></details>
+<details class="faq-item"><summary>処理速度は？</summary><p>ファイルサイズにより異なりますが、ほとんどは素早く処理されます。</p></details>`
+  }
+};
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){
+  const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
+  ['h1b','subEl','backLink','langBtn','dropTxt','hintTxt','saveBtn','resetBtn'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id]||el.textContent;});
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+}
+function ev(e,cls){e.preventDefault();document.getElementById('dropZone').className='drop-zone'+' '+cls;}
+function drop(e){e.preventDefault();document.getElementById('dropZone').className='drop-zone';const f=e.dataTransfer.files[0];if(f)loadFile(f);}
+function loadFile(f){
+  if(!f||!f.name.endsWith('.pdf'))return;
+  _fname=f.name;
+  const fr=new FileReader();
+  fr.onload=async ev2=>{
+    _buf=ev2.target.result;
+    try{
+      const {PDFDocument}=PDFLib;
+      const d=await PDFDocument.load(_buf);
+      const n=d.getPageCount();
+      _origOrder=[...Array(n).keys()];_order=[..._origOrder];
+      renderCards();
+      document.getElementById('editorBox').style.display='block';
+    }catch(e){alert('PDF 로드 오류');}
+  };fr.readAsArrayBuffer(f);
+}
+function renderCards(){
+  const grid=document.getElementById('pagesGrid');grid.innerHTML='';
+  _order.forEach((origIdx,pos)=>{
+    const card=document.createElement('div');card.className='page-card';card.draggable=true;card.dataset.pos=pos;
+    card.innerHTML=`<span class="page-num">${pos+1}</span><span class="orig-num">원본 ${origIdx+1}</span><button class="del-btn" onclick="delPage(${pos})">×</button>`;
+    card.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',pos);card.classList.add('dragging');});
+    card.addEventListener('dragend',()=>card.classList.remove('dragging'));
+    card.addEventListener('dragover',e=>{e.preventDefault();card.classList.add('drag-over');});
+    card.addEventListener('dragleave',()=>card.classList.remove('drag-over'));
+    card.addEventListener('drop',e=>{
+      e.preventDefault();card.classList.remove('drag-over');
+      const from=parseInt(e.dataTransfer.getData('text/plain'));const to=parseInt(card.dataset.pos);
+      if(from===to)return;
+      const moved=_order.splice(from,1)[0];_order.splice(to,0,moved);
+      renderCards();
+    });
+    grid.appendChild(card);
+  });
+}
+function delPage(pos){_order.splice(pos,1);renderCards();}
+function resetOrder(){_order=[..._origOrder];renderCards();}
+async function savePdf(){
+  const t=_i18n[_lang];const btn=document.getElementById('saveBtn');const msgEl=document.getElementById('msgEl');
+  btn.disabled=true;msgEl.textContent='';
+  try{
+    const {PDFDocument}=PDFLib;
+    const src=await PDFDocument.load(_buf);
+    const out=await PDFDocument.create();
+    const copied=await out.copyPages(src,_order);
+    copied.forEach(p=>out.addPage(p));
+    const bytes=await out.save();
+    const blob=new Blob([bytes],{type:'application/pdf'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+    a.download=(_fname||'doc').replace('.pdf','')+'_reordered.pdf';a.click();
+    msgEl.className='msg ok';msgEl.textContent=t.msgOk;
+  }catch(e){msgEl.className='msg err';msgEl.textContent=t.msgErr+' '+e.message;}
+  btn.disabled=false;
+}
+let _buf=null,_origOrder=[],_order=[],_fname='';
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

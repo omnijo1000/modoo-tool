@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>텍스트 암호화 - AES-256·Caesar·ROT13 온라인 암호화 | MODOO HUB</title>
+<meta name="description" content="텍스트를 AES-256-GCM, Caesar cipher, ROT13, Vigenere 방식으로 암호화. 비밀번호 기반 암호화. 브라우저에서 안전하게 처리. 무료 온라인 텍스트 암호화 도구.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/text-encryptor.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/text-encryptor.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/text-encryptor.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/text-encryptor.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/text-encryptor.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/text-encryptor.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:680px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:20px;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
+.section-label{font-size:11px;color:var(--text-dim);margin-bottom:8px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em;}
+textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;resize:vertical;min-height:100px;outline:none;}
+textarea:focus{border-color:var(--accent);}
+.algo-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.algo-chip{padding:5px 14px;border:1px solid var(--border);border-radius:16px;font-size:12px;cursor:pointer;color:var(--text-dim);background:none;font-family:'DM Mono',monospace;}
+.algo-chip.active{border-color:var(--accent);color:var(--accent);background:rgba(251,191,36,.08);}
+.field-row{display:flex;gap:10px;align-items:center;margin-bottom:10px;flex-wrap:wrap;}
+.field-label{font-size:12px;color:var(--text-dim);white-space:nowrap;}
+.field-input{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;flex:1;min-width:120px;outline:none;}
+.field-input:focus{border-color:var(--accent);}
+.btn{padding:7px 16px;background:var(--accent);color:#000;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;}
+.btn:hover{opacity:.85;}
+.btn-enc{padding:10px 28px;background:var(--accent);color:#000;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;width:100%;}
+.btn-enc:hover{opacity:.85;}
+.notice{font-size:11px;color:var(--text-dim);margin-top:8px;line-height:1.6;}
+.err{color:#f87171;font-size:12px;margin-top:6px;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Text Encryptor","url":"https://modoohub.com/text-encryptor.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Encrypt text with AES-256-GCM, Caesar cipher, ROT13, or Vigenere. Browser-side processing, no data sent to server."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"AES-256-GCM이란?","acceptedAnswer":{"@type":"Answer","text":"현재 가장 안전한 대칭키 암호화 방식 중 하나입니다. 브라우저 Web Crypto API를 사용하여 처리하며 서버로 데이터를 전송하지 않습니다."}},{"@type":"Question","name":"ROT13이란?","acceptedAnswer":{"@type":"Answer","text":"알파벳을 13글자씩 이동시키는 간단한 치환 암호입니다. 같은 방식으로 복호화도 가능합니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>텍스트 <span id="h1b">암호화</span></h1>
+  <p class="sub" id="subEl">AES-256-GCM · Caesar · ROT13 · Vigenere — 브라우저에서 안전하게 처리</p>
+  <div class="box">
+    <div class="section-label" id="lblAlgo">암호화 방식</div>
+    <div class="algo-row" id="algoRow"></div>
+    <div class="section-label" id="lblInput">평문 (원본 텍스트)</div>
+    <textarea id="input" placeholder="암호화할 텍스트 입력..."></textarea>
+    <div id="keyArea" style="margin-top:12px;"></div>
+    <div id="errMsg" class="err"></div>
+    <button class="btn-enc" style="margin-top:14px;" onclick="doEncrypt()" id="btnEnc">암호화</button>
+  </div>
+  <div class="box" id="outBox" style="display:none;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <div class="section-label" id="lblOut">암호문</div>
+      <button class="btn" onclick="copyOut()" id="btnCopy">복사</button>
+    </div>
+    <textarea id="outputTa" readonly></textarea>
+    <p class="notice" id="noticeEl"></p>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const ALGOS=['aes','caesar','rot13','vigenere'];
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko',_algo='aes';
+const _i18n={
+  ko:{h1b:'암호화',sub:'AES-256-GCM · Caesar · ROT13 · Vigenere — 브라우저에서 안전하게 처리',backLink:'← 모두의 툴',langBtn:'🌐 EN',pageTitle:'텍스트 암호화 | MODOO HUB',lblAlgo:'암호화 방식',lblInput:'평문 (원본 텍스트)',lblOut:'암호문',btnEnc:'암호화',btnCopy:'복사',copied:'복사됨!',
+    algos:['AES-256-GCM','Caesar Cipher','ROT13','Vigenere'],
+    lblPwd:'비밀번호',lblShift:'이동 수 (1-25)',lblKey:'키 단어',
+    noticeAes:'비밀번호를 잃어버리면 복호화가 불가능합니다.',
+    noticeCaesar:'Caesar 암호는 교육용으로 실제 보안에 사용하지 마세요.',
+    noticeRot13:'ROT13은 암호화가 아닌 간단한 텍스트 변환입니다.',
+    noticeVig:'Vigenere는 Caesar보다 강하지만 실제 보안에는 적합하지 않습니다.',
+    errNo:'암호화할 텍스트를 입력하세요.',errNoPwd:'비밀번호를 입력하세요.',errNoKey:'키 단어를 입력하세요 (영문만).',
+    seoHtml:`<h2>텍스트 암호화 도구</h2><p>텍스트를 <strong>AES-256-GCM, Caesar, ROT13, Vigenere</strong> 방식으로 암호화합니다. AES-256-GCM은 Web Crypto API를 사용하여 브라우저에서만 처리하므로 서버로 데이터가 전송되지 않습니다. Caesar와 ROT13은 교육용 고전 암호입니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>AES-256-GCM이란?</summary><p>현재 가장 안전한 대칭키 암호화 알고리즘 중 하나입니다. 256비트 키와 인증 태그를 사용합니다.</p></details>
+<details class="faq-item"><summary>내 데이터가 서버로 전송되나요?</summary><p>아니요. 모든 처리는 브라우저에서만 이루어집니다. 외부로 데이터가 전송되지 않습니다.</p></details>
+<details class="faq-item"><summary>Caesar cipher란?</summary><p>알파벳을 N글자씩 이동시키는 고전 치환 암호입니다. 보안성이 낮아 교육용으로만 사용합니다.</p></details>
+<details class="faq-item"><summary>ROT13이란?</summary><p>Caesar cipher의 특수 케이스로 13글자씩 이동합니다. 같은 방법으로 복호화도 됩니다.</p></details>
+<details class="faq-item"><summary>Vigenere cipher란?</summary><p>키 단어를 반복하여 각 문자마다 다른 이동 값을 적용하는 다중 치환 암호입니다.</p></details>
+<details class="faq-item"><summary>AES 암호화 결과를 복호화하려면?</summary><p>text-decryptor.html에서 같은 비밀번호와 AES-256-GCM 방식을 선택하여 복호화합니다.</p></details>
+<details class="faq-item"><summary>비밀번호를 잃어버리면?</summary><p>AES 암호화의 경우 비밀번호 없이는 복호화가 불가능합니다.</p></details>
+<details class="faq-item"><summary>한국어도 암호화할 수 있나요?</summary><p>AES와 ROT13(비알파벳 보존)은 모든 언어 텍스트를 처리합니다. Caesar/Vigenere는 영문자만 변환합니다.</p></details>`
+  },
+  en:{h1b:'Encryptor',sub:'AES-256-GCM · Caesar · ROT13 · Vigenere — processed entirely in your browser',backLink:'← All Tools',langBtn:'🌐 中文',pageTitle:'Text Encryptor | MODOO HUB',lblAlgo:'Algorithm',lblInput:'Plaintext',lblOut:'Ciphertext',btnEnc:'Encrypt',btnCopy:'Copy',copied:'Copied!',
+    algos:['AES-256-GCM','Caesar Cipher','ROT13','Vigenere'],
+    lblPwd:'Password',lblShift:'Shift (1-25)',lblKey:'Key word',
+    noticeAes:'Losing the password makes decryption impossible.',
+    noticeCaesar:'Caesar cipher is for education — not real security.',
+    noticeRot13:'ROT13 is a simple text transform, not real encryption.',
+    noticeVig:'Vigenere is stronger than Caesar but not suitable for real security.',
+    errNo:'Enter text to encrypt.',errNoPwd:'Enter a password.',errNoKey:'Enter a keyword (letters only).',
+    seoHtml:`<h2>Text Encryptor</h2><p>Encrypt text with <strong>AES-256-GCM, Caesar cipher, ROT13, or Vigenere</strong>. AES-256-GCM uses the browser\'s Web Crypto API — no data is sent to any server. Caesar and ROT13 are classic ciphers for learning and fun.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>What is AES-256-GCM?</summary><p>One of the most secure symmetric encryption algorithms — 256-bit key with authentication tag.</p></details>
+<details class="faq-item"><summary>Is my data sent to a server?</summary><p>No. All processing happens in your browser. No external data transfer.</p></details>
+<details class="faq-item"><summary>What is Caesar cipher?</summary><p>A substitution cipher that shifts each letter by N positions. Low security — educational use only.</p></details>
+<details class="faq-item"><summary>What is ROT13?</summary><p>Caesar cipher with shift 13. Apply twice to get back the original.</p></details>
+<details class="faq-item"><summary>What is Vigenere cipher?</summary><p>A polyalphabetic cipher using a keyword to apply different shifts per character.</p></details>
+<details class="faq-item"><summary>How do I decrypt AES output?</summary><p>Use text-decryptor.html with the same password and AES-256-GCM algorithm.</p></details>
+<details class="faq-item"><summary>What if I lose the AES password?</summary><p>Decryption is impossible without the correct password.</p></details>
+<details class="faq-item"><summary>Does it work with non-English text?</summary><p>AES and ROT13 work with any language. Caesar/Vigenere only shift ASCII letters.</p></details>`
+  },
+  zh:{h1b:'加密器',sub:'AES-256-GCM · Caesar · ROT13 · Vigenere — 完全在浏览器中处理',backLink:'← 所有工具',langBtn:'🌐 日本語',pageTitle:'文本加密器 | MODOO HUB',lblAlgo:'算法',lblInput:'明文',lblOut:'密文',btnEnc:'加密',btnCopy:'复制',copied:'已复制！',
+    algos:['AES-256-GCM','Caesar密码','ROT13','Vigenere密码'],
+    lblPwd:'密码',lblShift:'移位 (1-25)',lblKey:'密钥词',
+    noticeAes:'丢失密码将无法解密。',noticeCaesar:'Caesar密码仅供教育用途，不用于实际安全。',noticeRot13:'ROT13是简单的文本变换，不是真正的加密。',noticeVig:'Vigenere比Caesar更强，但不适合实际安全需求。',
+    errNo:'请输入要加密的文本。',errNoPwd:'请输入密码。',errNoKey:'请输入密钥词（仅字母）。',
+    seoHtml:`<h2>文本加密器</h2><p>使用<strong>AES-256-GCM、Caesar密码、ROT13或Vigenere密码</strong>加密文本。AES-256-GCM使用浏览器Web Crypto API处理，不向任何服务器发送数据。Caesar和ROT13是经典密码，适合学习使用。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>什么是AES-256-GCM？</summary><p>最安全的对称加密算法之一，使用256位密钥和认证标签。</p></details>
+<details class="faq-item"><summary>我的数据会被发送到服务器吗？</summary><p>不会。所有处理都在浏览器中进行，不向外部传输数据。</p></details>
+<details class="faq-item"><summary>什么是Caesar密码？</summary><p>将每个字母移位N个位置的替换密码。安全性低，仅供教育用途。</p></details>
+<details class="faq-item"><summary>什么是ROT13？</summary><p>移位13位的Caesar密码。应用两次可恢复原文。</p></details>
+<details class="faq-item"><summary>什么是Vigenere密码？</summary><p>使用密钥词对每个字符应用不同移位的多表替换密码。</p></details>
+<details class="faq-item"><summary>如何解密AES输出？</summary><p>在text-decryptor.html中使用相同密码和AES-256-GCM算法。</p></details>
+<details class="faq-item"><summary>忘记AES密码怎么办？</summary><p>没有正确密码无法解密。</p></details>
+<details class="faq-item"><summary>支持非英语文本吗？</summary><p>AES和ROT13支持任何语言。Caesar/Vigenere只转换ASCII字母。</p></details>`
+  },
+  ja:{h1b:'エンクリプター',sub:'AES-256-GCM · Caesar · ROT13 · Vigenere — 全てブラウザ内で処理',backLink:'← ホーム',langBtn:'🌐 한국어',pageTitle:'テキスト暗号化 | MODOO HUB',lblAlgo:'アルゴリズム',lblInput:'平文',lblOut:'暗号文',btnEnc:'暗号化',btnCopy:'コピー',copied:'コピー済み！',
+    algos:['AES-256-GCM','Caesar暗号','ROT13','Vigenere暗号'],
+    lblPwd:'パスワード',lblShift:'シフト数 (1-25)',lblKey:'キーワード',
+    noticeAes:'パスワードを失うと復号不可能です。',noticeCaesar:'Caesar暗号は教育用です。実際のセキュリティには使用しないでください。',noticeRot13:'ROT13は簡単なテキスト変換であり、真の暗号ではありません。',noticeVig:'VigenereはCaesarより強いですが、実際のセキュリティには不十分です。',
+    errNo:'暗号化するテキストを入力してください。',errNoPwd:'パスワードを入力してください。',errNoKey:'キーワードを入力してください（英字のみ）。',
+    seoHtml:`<h2>テキスト暗号化ツールとは</h2><p><strong>AES-256-GCM、Caesar暗号、ROT13、Vigenere暗号</strong>でテキストを暗号化します。AES-256-GCMはブラウザのWeb Crypto APIを使用し、サーバーへのデータ送信はありません。CaesarとROT13は学習用の古典暗号です。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>AES-256-GCMとは？</summary><p>最も安全な対称暗号化アルゴリズムの1つ。256ビット鍵と認証タグを使用します。</p></details>
+<details class="faq-item"><summary>データはサーバーに送信されますか？</summary><p>いいえ。全ての処理はブラウザ内で行われ、外部にデータは送信されません。</p></details>
+<details class="faq-item"><summary>Caesar暗号とは？</summary><p>各文字をN文字ずらす古典的な換字式暗号。セキュリティが低く教育用です。</p></details>
+<details class="faq-item"><summary>ROT13とは？</summary><p>シフト数13のCaesar暗号。2回適用すると元に戻ります。</p></details>
+<details class="faq-item"><summary>Vigenere暗号とは？</summary><p>キーワードを使って文字ごとに異なるシフトを適用する多表式換字暗号です。</p></details>
+<details class="faq-item"><summary>AES出力を復号するには？</summary><p>text-decryptor.htmlで同じパスワードとAES-256-GCMを選択して復号します。</p></details>
+<details class="faq-item"><summary>AESパスワードを忘れたら？</summary><p>正しいパスワードなしでは復号できません。</p></details>
+<details class="faq-item"><summary>日本語テキストも暗号化できますか？</summary><p>AESとROT13はあらゆる言語に対応します。Caesar/Vigenereは英字のみ変換します。</p></details>`
+  }
+};
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function setAlgo(a){
+  _algo=a;
+  document.querySelectorAll('.algo-chip').forEach(c=>c.classList.toggle('active',c.dataset.algo===a));
+  buildKeyArea();
+}
+function buildKeyArea(){
+  const t=_i18n[_lang];const div=document.getElementById('keyArea');
+  if(_algo==='aes'){
+    div.innerHTML=`<div class="field-row"><span class="field-label">${t.lblPwd}</span><input class="field-input" id="pwdInput" type="password" placeholder="..."></div>`;
+  }else if(_algo==='caesar'){
+    div.innerHTML=`<div class="field-row"><span class="field-label">${t.lblShift}</span><input class="field-input" id="shiftInput" type="number" value="3" min="1" max="25" style="max-width:80px;"></div>`;
+  }else if(_algo==='vigenere'){
+    div.innerHTML=`<div class="field-row"><span class="field-label">${t.lblKey}</span><input class="field-input" id="keyInput" type="text" placeholder="secret"></div>`;
+  }else{div.innerHTML='';}
+}
+function rot13(s){return s.replace(/[a-zA-Z]/g,c=>{const b=c<='Z'?65:97;return String.fromCharCode((c.charCodeAt(0)-b+13)%26+b);});}
+function caesar(s,n){return s.replace(/[a-zA-Z]/g,c=>{const b=c<='Z'?65:97;return String.fromCharCode((c.charCodeAt(0)-b+n+26)%26+b);});}
+function vigenere(s,key){
+  key=key.toLowerCase().replace(/[^a-z]/g,'');if(!key)return s;
+  let ki=0;return s.replace(/[a-zA-Z]/g,c=>{const b=c<='Z'?65:97;const sh=key[ki++%key.length].charCodeAt(0)-97;return String.fromCharCode((c.charCodeAt(0)-b+sh)%26+b);});
+}
+async function aesEncrypt(text,pwd){
+  const enc=new TextEncoder();
+  const keyMat=await crypto.subtle.importKey('raw',enc.encode(pwd),{name:'PBKDF2'},false,['deriveKey']);
+  const salt=crypto.getRandomValues(new Uint8Array(16));
+  const key=await crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:100000,hash:'SHA-256'},keyMat,{name:'AES-GCM',length:256},false,['encrypt']);
+  const iv=crypto.getRandomValues(new Uint8Array(12));
+  const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv},key,enc.encode(text));
+  const buf=new Uint8Array(salt.length+iv.length+ct.byteLength);
+  buf.set(salt,0);buf.set(iv,16);buf.set(new Uint8Array(ct),28);
+  return btoa(String.fromCharCode(...buf));
+}
+async function doEncrypt(){
+  const t=_i18n[_lang];const text=document.getElementById('input').value;
+  const errEl=document.getElementById('errMsg');errEl.textContent='';
+  if(!text.trim()){errEl.textContent=t.errNo;return;}
+  let result='';
+  try{
+    if(_algo==='rot13'){result=rot13(text);}
+    else if(_algo==='caesar'){const sh=parseInt(document.getElementById('shiftInput')?.value)||3;result=caesar(text,sh);}
+    else if(_algo==='vigenere'){const k=document.getElementById('keyInput')?.value||'';if(!k.match(/[a-zA-Z]/)){errEl.textContent=t.errNoKey;return;}result=vigenere(text,k);}
+    else{const pwd=document.getElementById('pwdInput')?.value||'';if(!pwd){errEl.textContent=t.errNoPwd;return;}result=await aesEncrypt(text,pwd);}
+  }catch(e){errEl.textContent='Error: '+e.message;return;}
+  const ob=document.getElementById('outBox');ob.style.display='block';
+  document.getElementById('outputTa').value=result;
+  const notices={aes:t.noticeAes,caesar:t.noticeCaesar,rot13:t.noticeRot13,vigenere:t.noticeVig};
+  document.getElementById('noticeEl').textContent=notices[_algo]||'';
+}
+function copyOut(){
+  const t=_i18n[_lang];const b=document.getElementById('btnCopy');
+  navigator.clipboard.writeText(document.getElementById('outputTa').value).then(()=>{b.textContent=t.copied;setTimeout(()=>b.textContent=t.btnCopy,1500);});
+}
+function applyLang(){
+  const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
+  document.getElementById('h1b').textContent=t.h1b;document.getElementById('subEl').textContent=t.sub;
+  document.getElementById('backLink').textContent=t.backLink;document.getElementById('langBtn').textContent=t.langBtn;
+  document.getElementById('lblAlgo').textContent=t.lblAlgo;document.getElementById('lblInput').textContent=t.lblInput;
+  document.getElementById('lblOut').textContent=t.lblOut;document.getElementById('btnEnc').textContent=t.btnEnc;document.getElementById('btnCopy').textContent=t.btnCopy;
+  document.getElementById('algoRow').innerHTML=ALGOS.map((a,i)=>`<button class="algo-chip${_algo===a?' active':''}" data-algo="${a}" onclick="setAlgo('${a}')">${t.algos[i]}</button>`).join('');
+  buildKeyArea();document.getElementById('seoDiv').innerHTML=t.seoHtml;
+}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

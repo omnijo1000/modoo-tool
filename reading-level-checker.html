@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>독해 수준 분석기 - 플레시-킨케이드 가독성 검사 | MODOO HUB</title>
+<meta name="description" content="텍스트의 독해 수준을 분석합니다. Flesch-Kincaid, Gunning Fog, SMOG 지수 계산. 평균 문장 길이·음절 수 분석. 무료 온라인 가독성 검사.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/reading-level-checker.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/reading-level-checker.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/reading-level-checker.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/reading-level-checker.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/reading-level-checker.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/reading-level-checker.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:680px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
+textarea{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;resize:vertical;min-height:160px;outline:none;margin-bottom:12px;}
+textarea:focus{border-color:var(--accent);}
+.btn-row{display:flex;gap:10px;margin-bottom:20px;}
+.btn{padding:10px 20px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:'Noto Sans KR',sans-serif;}
+.btn-primary{background:var(--accent);color:#000;}
+.btn-primary:hover{background:#f59e0b;}
+.btn-sec{background:var(--surface);color:var(--text-muted);border:1px solid var(--border);}
+.btn-sec:hover{border-color:var(--accent);color:var(--accent);}
+.stats-mini{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px;}
+.stat-mini{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center;}
+.stat-mini-val{font-size:18px;font-weight:700;font-family:'DM Mono',monospace;color:var(--text);}
+.stat-mini-label{font-size:10px;color:var(--text-dim);margin-top:2px;}
+.score-list{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;}
+.score-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+.score-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.score-name{font-size:13px;font-weight:700;color:var(--text-muted);}
+.score-val{font-size:20px;font-weight:900;font-family:'DM Mono',monospace;color:var(--accent);}
+.score-desc{font-size:12px;color:var(--text-dim);}
+.score-bar{height:4px;background:var(--border);border-radius:2px;margin-top:8px;}
+.score-bar-fill{height:4px;border-radius:2px;background:var(--accent);transition:.4s;}
+.ease-gauge{display:flex;flex-direction:column;gap:6px;}
+.ease-label-row{display:flex;justify-content:space-between;font-size:10px;color:var(--text-dim);}
+.ease-label-row span:last-child{text-align:right;}
+.placeholder-msg{text-align:center;color:var(--text-dim);font-size:13px;padding:30px;background:var(--surface);border-radius:12px;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"독해 수준 분석기","url":"https://modoohub.com/reading-level-checker.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Flesch-Kincaid, Gunning Fog, SMOG 지수로 텍스트 독해 수준을 분석하는 무료 도구."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Flesch Reading Ease란?","acceptedAnswer":{"@type":"Answer","text":"플레시 독해 용이도는 텍스트가 얼마나 읽기 쉬운지를 0~100 점수로 나타냅니다. 높을수록 쉬운 글입니다."}},{"@type":"Question","name":"좋은 가독성 점수는?","acceptedAnswer":{"@type":"Answer","text":"일반 독자를 위한 글은 60~70점을 목표로 합니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1><span id="h1a">독해 수준</span> <span id="h1b">분석기</span></h1>
+  <p class="sub" id="subEl">텍스트의 가독성 지수를 분석합니다</p>
+
+  <textarea id="txtInput" placeholder="여기에 영어 텍스트를 붙여넣으세요..." oninput="analyze()"></textarea>
+  <div class="btn-row">
+    <button class="btn btn-sec" onclick="loadSample()" id="btnSample">샘플 텍스트</button>
+    <button class="btn btn-sec" onclick="document.getElementById('txtInput').value='';analyze()" id="btnClear">지우기</button>
+  </div>
+
+  <div id="statsBox" class="stats-mini" style="display:none">
+    <div class="stat-mini"><div class="stat-mini-val" id="stWords">0</div><div class="stat-mini-label" id="stWordsL">단어</div></div>
+    <div class="stat-mini"><div class="stat-mini-val" id="stSents">0</div><div class="stat-mini-label" id="stSentsL">문장</div></div>
+    <div class="stat-mini"><div class="stat-mini-val" id="stSylls">0</div><div class="stat-mini-label" id="stSyllsL">음절</div></div>
+    <div class="stat-mini"><div class="stat-mini-val" id="stComplex">0</div><div class="stat-mini-label" id="stComplexL">복잡어</div></div>
+  </div>
+
+  <div id="scoresBox" class="score-list" style="display:none">
+    <!-- Flesch Reading Ease -->
+    <div class="score-item">
+      <div class="score-header">
+        <span class="score-name">Flesch Reading Ease</span>
+        <span class="score-val" id="sFleschEase">—</span>
+      </div>
+      <div class="score-desc" id="sFleschEaseDesc"></div>
+      <div class="ease-gauge" style="margin-top:8px;">
+        <div class="score-bar"><div class="score-bar-fill" id="sFleschEaseBar" style="width:0%"></div></div>
+        <div class="ease-label-row"><span id="lblDifficult">어려움 0</span><span>100 쉬움</span></div>
+      </div>
+    </div>
+    <!-- FK Grade Level -->
+    <div class="score-item">
+      <div class="score-header">
+        <span class="score-name">Flesch-Kincaid Grade</span>
+        <span class="score-val" id="sFKGrade">—</span>
+      </div>
+      <div class="score-desc" id="sFKGradeDesc"></div>
+    </div>
+    <!-- Gunning Fog -->
+    <div class="score-item">
+      <div class="score-header">
+        <span class="score-name">Gunning Fog Index</span>
+        <span class="score-val" id="sGunFog">—</span>
+      </div>
+      <div class="score-desc" id="sGunFogDesc"></div>
+    </div>
+    <!-- SMOG -->
+    <div class="score-item">
+      <div class="score-header">
+        <span class="score-name">SMOG Index</span>
+        <span class="score-val" id="sSMOG">—</span>
+      </div>
+      <div class="score-desc" id="sSMOGDesc"></div>
+    </div>
+  </div>
+
+  <div id="placeholderBox" class="placeholder-msg" id="ph">텍스트를 붙여넣으면 가독성 분석 결과가 표시됩니다</div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko';
+const SAMPLE="The quick brown fox jumps over the lazy dog. It was a bright cold day in April, and the clocks were striking thirteen. Winston Smith, his chin nuzzled into his breast in an effort to escape the vile wind, slipped quickly through the glass doors of Victory Mansions, though not quickly enough to prevent a swirl of gritty dust from entering along with him.";
+const _i18n={
+  ko:{h1a:'독해 수준',h1b:'분석기',sub:'텍스트의 가독성 지수를 분석합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',pageTitle:'독해 수준 분석기 | MODOO HUB',btnSample:'샘플 텍스트',btnClear:'지우기',stWordsL:'단어',stSentsL:'문장',stSyllsL:'음절',stComplexL:'복잡어',lblDifficult:'어려움 0',ph:'텍스트를 붙여넣으면 가독성 분석 결과가 표시됩니다',txtPh:'여기에 영어 텍스트를 붙여넣으세요...',
+    easeDesc:(s)=>s>=90?'매우 쉬움 (초등 5학년)':s>=80?'쉬움 (일상 대화)':s>=70?'약간 쉬움':s>=60?'보통 (13~15세)':s>=50?'약간 어려움':s>=30?'어려움 (대학 수준)':'매우 어려움 (전문가)',
+    gradeDesc:(g)=>g<=6?`초등학교 ${g}학년 수준`:g<=9?`중학교 ${g-6}학년 수준`:g<=12?`고등학교 ${g-9}학년 수준`:g<=16?`대학교 수준`:'대학원 이상 수준',
+    fogDesc:(g)=>g<=6?'쉬운 글 (초등 수준)':g<=10?'보통 글 (중등 수준)':g<=14?'어려운 글 (고등 수준)':'매우 어려운 글 (전문가 수준)',
+    smogDesc:(g)=>g<=6?'초등 수준':g<=9?'중등 수준':g<=12?'고등 수준':'대학 이상',
+    seoHtml:`<h2>독해 수준 분석기</h2><p>텍스트의 <strong>가독성(Readability)</strong>을 여러 지수로 분석합니다. Flesch Reading Ease는 0~100 점수로 쉬울수록 높습니다. Flesch-Kincaid Grade Level은 미국 학년 수준으로 나타냅니다. Gunning Fog Index와 SMOG Index도 학년 기준의 지수입니다. 영어 텍스트에 최적화되어 있습니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>Flesch Reading Ease란?</summary><p>텍스트 가독성을 0~100으로 나타내며, 높을수록 읽기 쉽습니다.</p></details>
+<details class="faq-item"><summary>FK Grade Level 8은 무슨 의미?</summary><p>미국 8학년(한국 중학교 2학년)이 이해할 수 있는 수준입니다.</p></details>
+<details class="faq-item"><summary>좋은 가독성 점수는?</summary><p>일반 독자를 위한 글은 Flesch 60~70점, FK Grade 8~10 수준을 목표합니다.</p></details>
+<details class="faq-item"><summary>Gunning Fog 지수란?</summary><p>복잡한 단어(3음절 이상)와 문장 길이를 기반으로 학년 수준을 계산합니다.</p></details>
+<details class="faq-item"><summary>SMOG Index란?</summary><p>다음절 단어의 수를 기반으로 학년 수준을 계산하는 지수입니다.</p></details>
+<details class="faq-item"><summary>한국어도 분석 가능한가요?</summary><p>이 도구는 영어 텍스트에 최적화되어 있어 한국어 분석 결과는 정확하지 않을 수 있습니다.</p></details>
+<details class="faq-item"><summary>어떻게 가독성을 높이나요?</summary><p>짧은 문장, 쉬운 단어 사용, 수동태 최소화로 가독성을 높일 수 있습니다.</p></details>
+<details class="faq-item"><summary>뉴스 기사의 일반적인 가독성 수준은?</summary><p>주요 신문 기사는 보통 FK Grade 8~10, Flesch 60~70점 수준입니다.</p></details>`
+  },
+  en:{h1a:'Reading Level',h1b:'Checker',sub:'Analyze readability scores of your text',backLink:'← All Tools',langBtn:'🌐 中文',pageTitle:'Reading Level Checker | MODOO HUB',btnSample:'Load Sample',btnClear:'Clear',stWordsL:'Words',stSentsL:'Sentences',stSyllsL:'Syllables',stComplexL:'Complex Words',lblDifficult:'Hard 0',ph:'Paste text to see readability analysis',txtPh:'Paste English text here...',
+    easeDesc:(s)=>s>=90?'Very Easy (Grade 5)':s>=80?'Easy (Conversational)':s>=70?'Fairly Easy':s>=60?'Standard (Ages 13–15)':s>=50?'Fairly Difficult':s>=30?'Difficult (College)':'Very Confusing (Expert)',
+    gradeDesc:(g)=>`US Grade ${g.toFixed(1)} level`,
+    fogDesc:(g)=>g<=6?'Easy':g<=10?'Standard':g<=14?'Hard':'Very Hard',
+    smogDesc:(g)=>`Grade ${g.toFixed(1)} level`,
+    seoHtml:`<h2>Reading Level Checker</h2><p>Analyze your text's <strong>readability</strong> with multiple formulas. Flesch Reading Ease scores 0–100 (higher = easier). Flesch-Kincaid Grade Level maps to US school grade. Gunning Fog and SMOG indexes also estimate grade level. Optimized for English text.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>What is Flesch Reading Ease?</summary><p>A 0–100 score where higher means easier to read.</p></details>
+<details class="faq-item"><summary>What does FK Grade 8 mean?</summary><p>Text readable by an 8th-grade US student (around age 13–14).</p></details>
+<details class="faq-item"><summary>Good readability score?</summary><p>Flesch 60–70 and FK Grade 8–10 is good for general audiences.</p></details>
+<details class="faq-item"><summary>What is Gunning Fog?</summary><p>Estimates grade level from complex words (3+ syllables) and sentence length.</p></details>
+<details class="faq-item"><summary>What is SMOG Index?</summary><p>Estimates grade level from the count of polysyllabic words.</p></details>
+<details class="faq-item"><summary>Works for non-English text?</summary><p>These formulas are designed for English and may not be accurate for other languages.</p></details>
+<details class="faq-item"><summary>How to improve readability?</summary><p>Use shorter sentences, simpler words, and active voice.</p></details>
+<details class="faq-item"><summary>News article readability?</summary><p>Major newspapers target FK Grade 8–10 and Flesch 60–70.</p></details>`
+  },
+  zh:{h1a:'阅读水平',h1b:'检测器',sub:'分析文本的可读性指数',backLink:'← 所有工具',langBtn:'🌐 日本語',pageTitle:'阅读水平检测器 | MODOO HUB',btnSample:'加载示例',btnClear:'清除',stWordsL:'单词',stSentsL:'句子',stSyllsL:'音节',stComplexL:'复杂词',lblDifficult:'难 0',ph:'粘贴文本以查看可读性分析',txtPh:'在此粘贴英文文本...',
+    easeDesc:(s)=>s>=90?'非常简单(5年级)':s>=80?'简单(日常对话)':s>=70?'较简单':s>=60?'标准(13-15岁)':s>=50?'较难':s>=30?'困难(大学水平)':'非常难(专家)',
+    gradeDesc:(g)=>`美国${g.toFixed(1)}年级水平`,
+    fogDesc:(g)=>g<=6?'简单':g<=10?'标准':g<=14?'困难':'非常困难',
+    smogDesc:(g)=>`${g.toFixed(1)}年级水平`,
+    seoHtml:`<h2>阅读水平检测器</h2><p>使用多种公式分析文本的<strong>可读性</strong>。Flesch阅读难易度0~100分（越高越容易）。Flesch-Kincaid年级水平对应美国学校年级。Gunning Fog和SMOG指数也能估算年级水平。针对英文文本优化。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>Flesch阅读难易度是什么？</summary><p>0~100分，分数越高表示越容易阅读。</p></details>
+<details class="faq-item"><summary>FK年级8意味着什么？</summary><p>适合美国8年级学生（约13-14岁）阅读的水平。</p></details>
+<details class="faq-item"><summary>好的可读性分数是多少？</summary><p>面向一般读者，Flesch 60~70分，FK年级8~10是好目标。</p></details>
+<details class="faq-item"><summary>Gunning Fog指数是什么？</summary><p>基于复杂词（3个以上音节）和句子长度估算年级水平。</p></details>
+<details class="faq-item"><summary>SMOG指数是什么？</summary><p>基于多音节词的数量估算年级水平的指数。</p></details>
+<details class="faq-item"><summary>适用于中文吗？</summary><p>这些公式为英文设计，对中文的分析可能不准确。</p></details>
+<details class="faq-item"><summary>如何提高可读性？</summary><p>使用更短的句子、更简单的词汇和主动语态。</p></details>
+<details class="faq-item"><summary>新闻文章的可读性水平？</summary><p>主要报纸目标为FK年级8~10，Flesch 60~70分。</p></details>`
+  },
+  ja:{h1a:'読解レベル',h1b:'チェッカー',sub:'テキストの可読性スコアを分析します',backLink:'← ホーム',langBtn:'🌐 한국어',pageTitle:'読解レベルチェッカー | MODOO HUB',btnSample:'サンプルを読み込む',btnClear:'クリア',stWordsL:'単語',stSentsL:'文',stSyllsL:'音節',stComplexL:'複雑語',lblDifficult:'難 0',ph:'テキストを貼り付けると可読性分析が表示されます',txtPh:'ここに英語テキストを貼り付けてください...',
+    easeDesc:(s)=>s>=90?'非常に簡単(5年生)':s>=80?'簡単(日常会話)':s>=70?'やや簡単':s>=60?'標準(13〜15歳)':s>=50?'やや難しい':s>=30?'難しい(大学レベル)':'非常に難しい(専門家)',
+    gradeDesc:(g)=>`米国${g.toFixed(1)}年生レベル`,
+    fogDesc:(g)=>g<=6?'簡単':g<=10?'標準':g<=14?'難しい':'非常に難しい',
+    smogDesc:(g)=>`${g.toFixed(1)}年生レベル`,
+    seoHtml:`<h2>読解レベルチェッカー</h2><p>複数の公式でテキストの<strong>可読性</strong>を分析します。Flesch Reading Easeは0〜100点(高いほど読みやすい)。Flesch-Kincaid Grade Levelは米国学年を示します。Gunning FogとSMOG Indexも学年レベルを推定します。英語テキスト用に最適化されています。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>Flesch Reading Easeとは？</summary><p>0〜100点で高いほど読みやすいことを示します。</p></details>
+<details class="faq-item"><summary>FK Grade 8とは何を意味する？</summary><p>米国8年生（13〜14歳）が理解できる水準です。</p></details>
+<details class="faq-item"><summary>良い可読性スコアは？</summary><p>一般読者向けにはFlesch 60〜70、FK Grade 8〜10が目安です。</p></details>
+<details class="faq-item"><summary>Gunning Fog Indexとは？</summary><p>複雑語(3音節以上)と文章長から学年レベルを計算します。</p></details>
+<details class="faq-item"><summary>SMOG Indexとは？</summary><p>多音節語の数から学年レベルを推定します。</p></details>
+<details class="faq-item"><summary>日本語のテキストも分析できますか？</summary><p>この公式は英語用で、日本語の分析精度は保証できません。</p></details>
+<details class="faq-item"><summary>可読性を高めるには？</summary><p>短い文、簡単な単語、能動態の使用が効果的です。</p></details>
+<details class="faq-item"><summary>ニュース記事の可読性は？</summary><p>主要新聞はFK Grade 8〜10、Flesch 60〜70を目標にしています。</p></details>`
+  }
+};
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){
+  const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
+  ['h1a','h1b','subEl','backLink','langBtn','btnSample','btnClear','stWordsL','stSentsL','stSyllsL','stComplexL','lblDifficult','placeholderBox'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id]||el.textContent;});
+  document.getElementById('txtInput').placeholder=t.txtPh;
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+  analyze();
+}
+function countSyllables(word){
+  word=word.toLowerCase().replace(/[^a-z]/g,'');
+  if(!word)return 0;
+  word=word.replace(/(?:[^laeiouy]es|[^laeiouy]ed)$/,'');
+  word=word.replace(/e$/,'');
+  const m=word.match(/[aeiouy]+/g);
+  return Math.max(1,m?m.length:0);
+}
+function loadSample(){document.getElementById('txtInput').value=SAMPLE;analyze();}
+function analyze(){
+  const txt=document.getElementById('txtInput').value.trim();
+  const t=_i18n[_lang];
+  if(!txt){
+    document.getElementById('statsBox').style.display='none';
+    document.getElementById('scoresBox').style.display='none';
+    document.getElementById('placeholderBox').style.display='block';
+    document.getElementById('placeholderBox').textContent=t.ph;
+    return;
+  }
+  const words=txt.split(/\s+/).filter(Boolean);
+  const sentences=txt.split(/[.!?]+/).filter(s=>s.trim());
+  const wCount=words.length;
+  const sCount=Math.max(1,sentences.length);
+  let syllCount=0,complexCount=0;
+  words.forEach(w=>{const s=countSyllables(w);syllCount+=s;if(s>=3)complexCount++;});
+  // Flesch Reading Ease
+  const fleschEase=206.835-1.015*(wCount/sCount)-84.6*(syllCount/wCount);
+  const clampedEase=Math.max(0,Math.min(100,fleschEase));
+  // FK Grade
+  const fkGrade=0.39*(wCount/sCount)+11.8*(syllCount/wCount)-15.59;
+  // Gunning Fog
+  const gunFog=0.4*(wCount/sCount+(100*complexCount/wCount));
+  // SMOG
+  const smog=sentences.length>=30?3*Math.sqrt(complexCount):3*Math.sqrt(complexCount*(30/sCount));
+  document.getElementById('stWords').textContent=wCount.toLocaleString();
+  document.getElementById('stSents').textContent=sCount.toLocaleString();
+  document.getElementById('stSylls').textContent=syllCount.toLocaleString();
+  document.getElementById('stComplex').textContent=complexCount.toLocaleString();
+  document.getElementById('sFleschEase').textContent=clampedEase.toFixed(1);
+  document.getElementById('sFleschEaseDesc').textContent=t.easeDesc(clampedEase);
+  document.getElementById('sFleschEaseBar').style.width=clampedEase+'%';
+  document.getElementById('sFKGrade').textContent=Math.max(0,fkGrade).toFixed(1);
+  document.getElementById('sFKGradeDesc').textContent=t.gradeDesc(Math.max(0,fkGrade));
+  document.getElementById('sGunFog').textContent=Math.max(0,gunFog).toFixed(1);
+  document.getElementById('sGunFogDesc').textContent=t.fogDesc(Math.max(0,gunFog));
+  document.getElementById('sSMOG').textContent=Math.max(0,smog).toFixed(1);
+  document.getElementById('sSMOGDesc').textContent=t.smogDesc(Math.max(0,smog));
+  document.getElementById('statsBox').style.display='grid';
+  document.getElementById('scoresBox').style.display='flex';
+  document.getElementById('placeholderBox').style.display='none';
+}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

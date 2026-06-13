@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>텍스트 케이스 감지기 - camelCase·snake_case·PascalCase 자동 인식 | MODOO HUB</title>
+<meta name="description" content="텍스트의 케이스 형식(camelCase, snake_case, PascalCase, kebab-case 등)을 자동으로 감지하고 상호 변환. 무료 온라인 케이스 감지·변환기.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/text-case-detector.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/text-case-detector.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/text-case-detector.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/text-case-detector.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/text-case-detector.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/text-case-detector.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--blue:#60a5fa;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:860px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;}
+.label{font-size:11px;color:var(--text-dim);letter-spacing:.07em;text-transform:uppercase;font-family:'DM Mono',monospace;display:block;margin-bottom:8px;}
+textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;resize:vertical;outline:none;min-height:100px;line-height:1.6;}
+textarea:focus{border-color:var(--accent);}
+.detected-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;font-size:13px;font-weight:700;font-family:'DM Mono',monospace;margin-bottom:12px;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.3);color:var(--accent);}
+.convert-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;}
+.conv-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;cursor:pointer;transition:.15s;}
+.conv-card:hover{border-color:var(--accent);}
+.conv-name{font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;font-family:'DM Mono',monospace;}
+.conv-val{font-size:12px;color:var(--text);font-family:'DM Mono',monospace;word-break:break-all;}
+.conv-card.active-case{border-color:var(--green);background:rgba(74,222,128,.06);}
+.conv-card.active-case .conv-name{color:var(--green);}
+.copy-btn{padding:5px 12px;border:1px solid var(--border);border-radius:6px;font-size:11px;cursor:pointer;background:none;color:var(--text-dim);}
+.copy-btn:hover{border-color:var(--accent);color:var(--accent);}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Text Case Detector","url":"https://modoohub.com/text-case-detector.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Automatically detect text case format (camelCase, snake_case, PascalCase, kebab-case) and convert between them."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"camelCase와 PascalCase의 차이는?","acceptedAnswer":{"@type":"Answer","text":"camelCase는 첫 단어 소문자로 시작(예: myVariable), PascalCase는 모든 단어 대문자로 시작(예: MyVariable)합니다."}},{"@type":"Question","name":"snake_case는 언제 사용하나요?","acceptedAnswer":{"@type":"Answer","text":"Python 변수명, 데이터베이스 컬럼명, 파일명에 주로 사용합니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>텍스트 <span id="h1b">케이스 감지기</span></h1>
+  <p class="sub" id="subEl">camelCase·snake_case·PascalCase 자동 감지 및 상호 변환</p>
+  <div class="panel">
+    <label class="label" id="inputLabel">텍스트 입력</label>
+    <textarea id="inputArea" placeholder="myVariableName 또는 my_variable_name..." oninput="detect()"></textarea>
+  </div>
+  <div class="panel" id="resultPanel" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div><span class="label" id="detectedLabel" style="margin-bottom:4px">감지된 케이스</span><div class="detected-badge" id="detectedBadge">—</div></div>
+    </div>
+    <label class="label" id="convertLabel">변환 결과 (클릭하여 복사)</label>
+    <div class="convert-grid" id="convertGrid"></div>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const CASES=[
+  {key:'camel',  name:'camelCase',       fn:w=>w[0].toLowerCase()+w.slice(1).map(capitalize).join('')},
+  {key:'pascal', name:'PascalCase',      fn:w=>w.map(capitalize).join('')},
+  {key:'snake',  name:'snake_case',      fn:w=>w.map(s=>s.toLowerCase()).join('_')},
+  {key:'usnake', name:'UPPER_SNAKE',     fn:w=>w.map(s=>s.toUpperCase()).join('_')},
+  {key:'kebab',  name:'kebab-case',      fn:w=>w.map(s=>s.toLowerCase()).join('-')},
+  {key:'train',  name:'Train-Case',      fn:w=>w.map(capitalize).join('-')},
+  {key:'dot',    name:'dot.case',        fn:w=>w.map(s=>s.toLowerCase()).join('.')},
+  {key:'flat',   name:'flatcase',        fn:w=>w.map(s=>s.toLowerCase()).join('')},
+  {key:'title',  name:'Title Case',      fn:w=>w.map(capitalize).join(' ')},
+  {key:'upper',  name:'UPPER CASE',      fn:w=>w.map(s=>s.toUpperCase()).join(' ')},
+  {key:'lower',  name:'lower case',      fn:w=>w.map(s=>s.toLowerCase()).join(' ')},
+];
+function capitalize(s){return s.charAt(0).toUpperCase()+s.slice(1).toLowerCase();}
+function tokenize(s){
+  if(/[_]/.test(s)) return s.split(/[_]+/).filter(Boolean);
+  if(/[-]/.test(s)) return s.split(/[-]+/).filter(Boolean);
+  if(/[.]/.test(s)) return s.split(/[.]+/).filter(Boolean);
+  if(/\s/.test(s)) return s.trim().split(/\s+/);
+  return s.replace(/([A-Z])/g,' $1').trim().split(/\s+/).filter(Boolean);
+}
+function detectCase(s){
+  if(/^[a-z][a-z0-9]*([A-Z][a-z0-9]+)+$/.test(s)) return 'camel';
+  if(/^([A-Z][a-z0-9]+)+$/.test(s)) return 'pascal';
+  if(/^[a-z][a-z0-9]*(_[a-z][a-z0-9]*)+$/.test(s)) return 'snake';
+  if(/^[A-Z][A-Z0-9]*(_[A-Z][A-Z0-9]*)+$/.test(s)) return 'usnake';
+  if(/^[a-z][a-z0-9]*(-[a-z][a-z0-9]*)+$/.test(s)) return 'kebab';
+  if(/^[A-Z][a-z0-9]*(-[A-Z][a-z0-9]*)+$/.test(s)) return 'train';
+  if(/^[a-z][a-z0-9]*(\.[a-z][a-z0-9]*)+$/.test(s)) return 'dot';
+  if(/^[a-z]+$/.test(s)) return 'flat';
+  if(/^[A-Z][a-z]+ ([A-Z][a-z]+)+$/.test(s)) return 'title';
+  if(/^[A-Z ]+$/.test(s.trim())) return 'upper';
+  if(/^[a-z ]+$/.test(s.trim())) return 'lower';
+  return null;
+}
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko';
+const _i18n={
+  ko:{pageTitle:'텍스트 케이스 감지기 - camelCase·snake_case 자동 인식 변환 | MODOO HUB',h1b:'케이스 감지기',sub:'camelCase·snake_case·PascalCase 자동 감지 및 상호 변환',backLink:'← 모두의 툴',langBtn:'🌐 EN',inputLabel:'텍스트 입력',detectedLabel:'감지된 케이스',convertLabel:'변환 결과 (클릭하여 복사)',placeholder:'myVariableName 또는 my_variable_name...',unknown:'알 수 없음',copied:'✓ 복사됨',
+    seoHtml:`<h2>텍스트 케이스 감지기란?</h2><p>프로그래밍에서 사용하는 <strong>camelCase, snake_case, PascalCase, kebab-case, UPPER_SNAKE</strong> 등 다양한 케이스 형식을 자동으로 감지하고 다른 형식으로 즉시 변환합니다. 변수명, 함수명, 파일명 변환에 유용합니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>camelCase와 PascalCase 차이는?</summary><p>camelCase는 첫 단어 소문자(myVar), PascalCase는 모든 단어 대문자 시작(MyVar)입니다.</p></details>
+<details class="faq-item"><summary>snake_case는 어디서 쓰나요?</summary><p>Python 변수명, 데이터베이스 컬럼명, Linux 파일명에 주로 사용합니다.</p></details>
+<details class="faq-item"><summary>kebab-case는 어디서 쓰나요?</summary><p>CSS 클래스명, URL 슬러그, HTML 속성명에 사용합니다.</p></details>
+<details class="faq-item"><summary>UPPER_SNAKE_CASE는 어디서 쓰나요?</summary><p>환경변수명, 상수 정의에 사용합니다(예: MAX_RETRY_COUNT).</p></details>
+<details class="faq-item"><summary>PascalCase는 어디서 쓰나요?</summary><p>JavaScript/TypeScript 클래스명, React 컴포넌트명, C# 클래스명에 사용합니다.</p></details>
+<details class="faq-item"><summary>한글은 감지되나요?</summary><p>영문 기반 케이스 감지에 최적화되어 있습니다. 한글 텍스트는 정확히 감지되지 않을 수 있습니다.</p></details>
+<details class="faq-item"><summary>여러 단어 변환도 되나요?</summary><p>네, 공백으로 구분된 여러 단어도 입력하면 각 케이스로 변환합니다.</p></details>
+<details class="faq-item"><summary>dot.case는 어디서 쓰나요?</summary><p>설정 파일 키(config.database.host), 네임스페이스에 사용합니다.</p></details>`
+  },
+  en:{pageTitle:'Text Case Detector - camelCase·snake_case Auto Detect & Convert | MODOO HUB',h1b:'Case Detector',sub:'Auto-detect camelCase·snake_case·PascalCase and convert between them',backLink:'← All Tools',langBtn:'🌐 中文',inputLabel:'Input Text',detectedLabel:'Detected Case',convertLabel:'Conversions (click to copy)',placeholder:'myVariableName or my_variable_name...',unknown:'Unknown',copied:'✓ Copied',
+    seoHtml:`<h2>Text Case Detector</h2><p>Automatically detect and convert between <strong>camelCase, snake_case, PascalCase, kebab-case, UPPER_SNAKE</strong> and other naming conventions. Useful for variable names, function names, and file names.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>camelCase vs PascalCase?</summary><p>camelCase starts with a lowercase letter (myVar); PascalCase capitalizes every word (MyVar).</p></details>
+<details class="faq-item"><summary>When to use snake_case?</summary><p>Python variables, database columns, Linux file names.</p></details>
+<details class="faq-item"><summary>When to use kebab-case?</summary><p>CSS class names, URL slugs, HTML attribute names.</p></details>
+<details class="faq-item"><summary>When to use UPPER_SNAKE_CASE?</summary><p>Environment variables and constants (e.g. MAX_RETRY_COUNT).</p></details>
+<details class="faq-item"><summary>When to use PascalCase?</summary><p>JavaScript/TypeScript class names, React component names, C# classes.</p></details>
+<details class="faq-item"><summary>Does it work with non-English text?</summary><p>Optimized for English-based naming conventions. Non-Latin scripts may not detect correctly.</p></details>
+<details class="faq-item"><summary>Can I convert multi-word phrases?</summary><p>Yes — enter space-separated words and all case conversions will appear.</p></details>
+<details class="faq-item"><summary>When to use dot.case?</summary><p>Config file keys (config.database.host) and namespacing.</p></details>`
+  },
+  zh:{pageTitle:'文本大小写检测器 - camelCase·snake_case自动识别转换 | MODOO HUB',h1b:'大小写检测器',sub:'自动检测camelCase·snake_case·PascalCase并相互转换',backLink:'← 所有工具',langBtn:'🌐 日本語',inputLabel:'输入文本',detectedLabel:'检测到的格式',convertLabel:'转换结果（点击复制）',placeholder:'myVariableName 或 my_variable_name...',unknown:'未知',copied:'✓ 已复制',
+    seoHtml:`<h2>文本大小写检测器</h2><p>自动检测并转换<strong>camelCase、snake_case、PascalCase、kebab-case、UPPER_SNAKE</strong>等命名规范，适用于变量名、函数名和文件名转换。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>camelCase和PascalCase的区别？</summary><p>camelCase首字母小写(myVar)，PascalCase每个单词首字母大写(MyVar)。</p></details>
+<details class="faq-item"><summary>snake_case用在哪里？</summary><p>Python变量名、数据库列名、Linux文件名。</p></details>
+<details class="faq-item"><summary>kebab-case用在哪里？</summary><p>CSS类名、URL别名、HTML属性名。</p></details>
+<details class="faq-item"><summary>UPPER_SNAKE_CASE用在哪里？</summary><p>环境变量和常量定义（如MAX_RETRY_COUNT）。</p></details>
+<details class="faq-item"><summary>PascalCase用在哪里？</summary><p>JavaScript/TypeScript类名、React组件名、C#类名。</p></details>
+<details class="faq-item"><summary>支持中文检测吗？</summary><p>针对英文命名规范优化，非拉丁文字可能无法正确检测。</p></details>
+<details class="faq-item"><summary>可以转换多个单词吗？</summary><p>是的，输入空格分隔的多个单词，将显示所有格式的转换结果。</p></details>
+<details class="faq-item"><summary>dot.case用在哪里？</summary><p>配置文件键名（config.database.host）和命名空间。</p></details>`
+  },
+  ja:{pageTitle:'テキストケース検出ツール - camelCase·snake_case自動認識変換 | MODOO HUB',h1b:'ケース検出ツール',sub:'camelCase·snake_case·PascalCaseを自動検出して相互変換',backLink:'← ホーム',langBtn:'🌐 한국어',inputLabel:'テキスト入力',detectedLabel:'検出されたケース',convertLabel:'変換結果（クリックでコピー）',placeholder:'myVariableName または my_variable_name...',unknown:'不明',copied:'✓ コピー済み',
+    seoHtml:`<h2>テキストケース検出ツールとは</h2><p><strong>camelCase、snake_case、PascalCase、kebab-case、UPPER_SNAKE</strong>などの命名規則を自動検出し、相互変換します。変数名、関数名、ファイル名の変換に役立ちます。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>camelCaseとPascalCaseの違いは？</summary><p>camelCaseは最初の単語が小文字(myVar)、PascalCaseは全単語が大文字始まり(MyVar)です。</p></details>
+<details class="faq-item"><summary>snake_caseはどこで使いますか？</summary><p>Python変数名、データベースカラム名、Linuxファイル名に使います。</p></details>
+<details class="faq-item"><summary>kebab-caseはどこで使いますか？</summary><p>CSSクラス名、URLスラッグ、HTML属性名に使います。</p></details>
+<details class="faq-item"><summary>UPPER_SNAKE_CASEはどこで使いますか？</summary><p>環境変数や定数定義(例: MAX_RETRY_COUNT)に使います。</p></details>
+<details class="faq-item"><summary>PascalCaseはどこで使いますか？</summary><p>JavaScript/TypeScriptクラス名、Reactコンポーネント名、C#クラス名に使います。</p></details>
+<details class="faq-item"><summary>日本語テキストは検出できますか？</summary><p>英語ベースの命名規則に最適化されています。非ラテン文字は正確に検出できない場合があります。</p></details>
+<details class="faq-item"><summary>複数の単語を変換できますか？</summary><p>はい、スペースで区切られた複数の単語を入力すると、すべてのケース変換が表示されます。</p></details>
+<details class="faq-item"><summary>dot.caseはどこで使いますか？</summary><p>設定ファイルのキー(config.database.host)や名前空間に使います。</p></details>`
+  }
+};
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;document.getElementById('h1b').textContent=t.h1b;document.getElementById('subEl').textContent=t.sub;document.getElementById('backLink').textContent=t.backLink;document.getElementById('langBtn').textContent=t.langBtn;document.getElementById('inputLabel').textContent=t.inputLabel;document.getElementById('detectedLabel').textContent=t.detectedLabel;document.getElementById('convertLabel').textContent=t.convertLabel;document.getElementById('inputArea').placeholder=t.placeholder;document.getElementById('seoDiv').innerHTML=t.seoHtml;detect();}
+function detect(){
+  const t=_i18n[_lang];const v=document.getElementById('inputArea').value.trim();
+  const panel=document.getElementById('resultPanel');
+  if(!v){panel.style.display='none';return;}
+  panel.style.display='';
+  const words=tokenize(v);
+  const detected=detectCase(v);
+  const badge=document.getElementById('detectedBadge');
+  const caseObj=CASES.find(c=>c.key===detected);
+  badge.textContent=caseObj?caseObj.name:(t.unknown||'Unknown');
+  const grid=document.getElementById('convertGrid');
+  grid.innerHTML=CASES.map(c=>{
+    const val=c.fn(words);
+    return `<div class="conv-card${detected===c.key?' active-case':''}" onclick="copyText('${val.replace(/'/g,"\\'")}')" title="${val}">
+      <div class="conv-name">${c.name}</div>
+      <div class="conv-val">${val}</div>
+    </div>`;
+  }).join('');
+}
+function copyText(v){
+  const t=_i18n[_lang];navigator.clipboard.writeText(v);
+}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>텍스트 합치기 - 여러 텍스트를 하나로 합치는 도구 | MODOO HUB</title>
+<meta name="description" content="여러 텍스트 블록을 구분자로 합쳐 하나의 텍스트로 만드는 도구. 줄바꿈·쉼표·커스텀 구분자 지원. 무료 온라인 텍스트 병합 도구.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/text-merger.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/text-merger.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/text-merger.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/text-merger.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/text-merger.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/text-merger.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:760px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:20px;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
+.section-label{font-size:11px;color:var(--text-dim);margin-bottom:8px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em;}
+.blocks-list{display:flex;flex-direction:column;gap:8px;margin-bottom:10px;}
+.block-item{display:flex;gap:8px;align-items:flex-start;}
+.block-num{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;padding-top:8px;min-width:18px;}
+.block-ta{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;resize:vertical;min-height:56px;outline:none;}
+.block-ta:focus{border-color:var(--accent);}
+.block-del{background:none;border:1px solid var(--border);color:var(--text-dim);border-radius:6px;padding:5px 8px;cursor:pointer;font-size:12px;}
+.block-del:hover{border-color:#f87171;color:#f87171;}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px;}
+.btn-add{padding:6px 14px;background:none;border:1px dashed var(--border);border-radius:8px;color:var(--text-dim);font-size:12px;cursor:pointer;}
+.btn-add:hover{border-color:var(--accent);color:var(--accent);}
+.sep-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0 8px;}
+.sep-chip{padding:5px 12px;border:1px solid var(--border);border-radius:16px;font-size:12px;cursor:pointer;color:var(--text-dim);background:none;font-family:'DM Mono',monospace;}
+.sep-chip.active{border-color:var(--accent);color:var(--accent);background:rgba(251,191,36,.08);}
+.sep-custom{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:5px 10px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;width:120px;outline:none;}
+.sep-custom:focus{border-color:var(--accent);}
+.opts{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px;}
+label.chk{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);cursor:pointer;}
+input[type=checkbox]{accent-color:var(--accent);width:14px;height:14px;}
+.output-ta{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;resize:vertical;min-height:100px;outline:none;}
+.stat-chip{padding:5px 12px;background:var(--surface2);border-radius:8px;font-size:12px;color:var(--text-dim);font-family:'DM Mono',monospace;display:inline-block;}
+.stat-chip span{color:var(--accent);font-weight:700;}
+.btn{padding:7px 16px;background:var(--accent);color:#000;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;}
+.btn:hover{opacity:.85;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Text Merger","url":"https://modoohub.com/text-merger.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Merge multiple text blocks into one with configurable separator. Supports newline, comma, custom separators, and blank-line trimming."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"텍스트 합치기란?","acceptedAnswer":{"@type":"Answer","text":"여러 텍스트 블록을 선택한 구분자로 이어 붙여 하나의 텍스트로 만드는 도구입니다."}},{"@type":"Question","name":"어떤 구분자를 지원하나요?","acceptedAnswer":{"@type":"Answer","text":"줄바꿈, 빈 줄, 쉼표, 공백, 파이프(|), 커스텀 문자열을 지원합니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>텍스트 <span id="h1b">합치기</span></h1>
+  <p class="sub" id="subEl">여러 텍스트 블록을 구분자로 하나로 합치기</p>
+  <div class="box">
+    <div class="section-label" id="lblBlocks">텍스트 블록</div>
+    <div class="blocks-list" id="blocksList"></div>
+    <div class="btn-row">
+      <button class="btn-add" onclick="addBlock()" id="btnAdd">+ 블록 추가</button>
+    </div>
+    <div style="margin-top:14px;">
+      <div class="section-label" id="lblSep">구분자</div>
+      <div class="sep-row">
+        <button class="sep-chip active" data-sep="newline" onclick="setSep('newline',this)" id="sc0">줄바꿈 (\n)</button>
+        <button class="sep-chip" data-sep="blank" onclick="setSep('blank',this)" id="sc1">빈 줄 (\n\n)</button>
+        <button class="sep-chip" data-sep="comma" onclick="setSep('comma',this)" id="sc2">, (쉼표)</button>
+        <button class="sep-chip" data-sep="space" onclick="setSep('space',this)" id="sc3">공백</button>
+        <button class="sep-chip" data-sep="pipe" onclick="setSep('pipe',this)" id="sc4">| (파이프)</button>
+        <button class="sep-chip" data-sep="custom" onclick="setSep('custom',this)" id="sc5" id="lblCustomSep">커스텀</button>
+        <input class="sep-custom" id="customSep" placeholder="구분자..." oninput="merge()" style="display:none;">
+      </div>
+    </div>
+    <div class="opts">
+      <label class="chk"><input type="checkbox" id="optTrim" checked onchange="merge()"><span id="lblTrim">앞뒤 공백 제거</span></label>
+      <label class="chk"><input type="checkbox" id="optEmpty" checked onchange="merge()"><span id="lblEmpty">빈 블록 제외</span></label>
+    </div>
+  </div>
+  <div class="box">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <div>
+        <div class="section-label" id="lblResult">결과</div>
+        <span class="stat-chip" id="statChip"></span>
+      </div>
+      <button class="btn" onclick="copyResult()" id="btnCopy">복사</button>
+    </div>
+    <textarea class="output-ta" id="outputTa" readonly></textarea>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko',_sepMode='newline';
+const SEPS={newline:'\n',blank:'\n\n',comma:', ',space:' ',pipe:' | '};
+const _i18n={
+  ko:{h1b:'합치기',sub:'여러 텍스트 블록을 구분자로 하나로 합치기',backLink:'← 모두의 툴',langBtn:'🌐 EN',pageTitle:'텍스트 합치기 | MODOO HUB',lblBlocks:'텍스트 블록',btnAdd:'+ 블록 추가',lblSep:'구분자',lblTrim:'앞뒤 공백 제거',lblEmpty:'빈 블록 제외',lblResult:'결과',btnCopy:'복사',copied:'복사됨!',del:'삭제',
+    chips:['줄바꿈 (\\n)','빈 줄 (\\n\\n)',', (쉼표)','공백','| (파이프)','커스텀'],
+    customPlaceholder:'구분자...',statChars:'자',
+    seoHtml:`<h2>텍스트 합치기</h2><p>여러 텍스트 블록을 <strong>원하는 구분자로 하나의 텍스트로 합치는</strong> 도구입니다. 줄바꿈, 빈 줄, 쉼표, 공백, 파이프, 커스텀 구분자를 지원합니다. 여러 단락을 이어 붙이거나 데이터를 CSV 형식으로 합치는 데 유용합니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>블록을 몇 개까지 추가할 수 있나요?</summary><p>제한 없이 추가할 수 있습니다.</p></details>
+<details class="faq-item"><summary>커스텀 구분자란?</summary><p>직접 입력한 문자열을 구분자로 사용합니다. 예: ` + '`---`' + `, ` + '`|`' + `.</p></details>
+<details class="faq-item"><summary>빈 블록 제외 옵션이란?</summary><p>내용이 없는 블록은 결과에서 제외하여 불필요한 구분자가 연속으로 나오지 않게 합니다.</p></details>
+<details class="faq-item"><summary>앞뒤 공백 제거 옵션이란?</summary><p>각 블록의 앞뒤 공백과 줄바꿈을 정리한 후 합칩니다.</p></details>
+<details class="faq-item"><summary>CSV 형식으로 합치려면?</summary><p>구분자를 쉼표(,)로 설정하고 각 블록에 항목을 입력하세요.</p></details>
+<details class="faq-item"><summary>결과를 어떻게 내보내나요?</summary><p>복사 버튼으로 클립보드에 복사한 후 원하는 편집기에 붙여 넣으세요.</p></details>
+<details class="faq-item"><summary>줄바꿈과 빈 줄의 차이는?</summary><p>줄바꿈은 \\n 1개, 빈 줄은 \\n\\n 2개 연속으로 단락 구분에 사용합니다.</p></details>
+<details class="faq-item"><summary>블록을 삭제하면 번호가 바뀌나요?</summary><p>삭제 후 번호가 자동으로 재정렬됩니다.</p></details>`
+  },
+  en:{h1b:'Merger',sub:'Merge multiple text blocks into one with a separator',backLink:'← All Tools',langBtn:'🌐 中文',pageTitle:'Text Merger | MODOO HUB',lblBlocks:'Text blocks',btnAdd:'+ Add block',lblSep:'Separator',lblTrim:'Trim whitespace',lblEmpty:'Skip empty blocks',lblResult:'Result',btnCopy:'Copy',copied:'Copied!',del:'Del',
+    chips:['Newline (\\n)','Blank line (\\n\\n)',', (comma)','Space','| (pipe)','Custom'],
+    customPlaceholder:'Separator...',statChars:'chars',
+    seoHtml:`<h2>Text Merger</h2><p>Merge multiple text blocks into one using <strong>any separator</strong>: newline, blank line, comma, space, pipe, or custom string. Great for joining paragraphs, building CSV rows, or concatenating data.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>How many blocks can I add?</summary><p>Unlimited.</p></details>
+<details class="faq-item"><summary>What is a custom separator?</summary><p>Any string you type — e.g. ` + '`---`' + ` or ` + '`|`' + `.</p></details>
+<details class="faq-item"><summary>What does "skip empty blocks" do?</summary><p>Excludes blocks with no content so you don\'t get double separators.</p></details>
+<details class="faq-item"><summary>What does "trim whitespace" do?</summary><p>Trims leading and trailing whitespace from each block before merging.</p></details>
+<details class="faq-item"><summary>How to merge into CSV?</summary><p>Set separator to comma and put one value per block.</p></details>
+<details class="faq-item"><summary>How do I export the result?</summary><p>Click Copy to copy to clipboard, then paste into your editor.</p></details>
+<details class="faq-item"><summary>Newline vs blank line?</summary><p>Newline inserts one \\n; blank line inserts two \\n (paragraph break).</p></details>
+<details class="faq-item"><summary>Are block numbers re-ordered after deletion?</summary><p>Yes, numbers update automatically.</p></details>`
+  },
+  zh:{h1b:'合并器',sub:'将多个文本块用分隔符合并为一个文本',backLink:'← 所有工具',langBtn:'🌐 日本語',pageTitle:'文本合并器 | MODOO HUB',lblBlocks:'文本块',btnAdd:'+ 添加块',lblSep:'分隔符',lblTrim:'修剪空白',lblEmpty:'跳过空块',lblResult:'结果',btnCopy:'复制',copied:'已复制！',del:'删除',
+    chips:['换行 (\\n)','空行 (\\n\\n)',', (逗号)','空格','| (管道)','自定义'],
+    customPlaceholder:'分隔符...',statChars:'字符',
+    seoHtml:`<h2>文本合并器</h2><p>将多个文本块用<strong>任意分隔符合并为一个文本</strong>：换行、空行、逗号、空格、管道或自定义字符串。适用于合并段落、构建CSV行或拼接数据。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>可以添加多少块？</summary><p>不限数量。</p></details>
+<details class="faq-item"><summary>什么是自定义分隔符？</summary><p>您输入的任意字符串，如` + '`---`' + `或` + '`|`' + `。</p></details>
+<details class="faq-item"><summary>"跳过空块"是什么意思？</summary><p>排除无内容的块，避免连续分隔符出现。</p></details>
+<details class="faq-item"><summary>"修剪空白"是什么意思？</summary><p>合并前修剪每个块首尾的空白字符。</p></details>
+<details class="faq-item"><summary>如何合并为CSV？</summary><p>将分隔符设置为逗号，每个块输入一个值。</p></details>
+<details class="faq-item"><summary>如何导出结果？</summary><p>点击复制按钮复制到剪贴板，然后粘贴到编辑器中。</p></details>
+<details class="faq-item"><summary>换行和空行有什么区别？</summary><p>换行插入一个\\n；空行插入两个\\n（段落分隔）。</p></details>
+<details class="faq-item"><summary>删除块后编号会重排吗？</summary><p>是的，编号会自动更新。</p></details>`
+  },
+  ja:{h1b:'マージャー',sub:'複数のテキストブロックを区切り文字で1つに結合',backLink:'← ホーム',langBtn:'🌐 한국어',pageTitle:'テキストマージャー | MODOO HUB',lblBlocks:'テキストブロック',btnAdd:'+ ブロック追加',lblSep:'区切り文字',lblTrim:'前後の空白を削除',lblEmpty:'空ブロックをスキップ',lblResult:'結果',btnCopy:'コピー',copied:'コピー済み！',del:'削除',
+    chips:['改行 (\\n)','空行 (\\n\\n)',', (コンマ)','スペース','| (パイプ)','カスタム'],
+    customPlaceholder:'区切り文字...',statChars:'文字',
+    seoHtml:`<h2>テキストマージャーとは</h2><p>複数のテキストブロックを<strong>任意の区切り文字で1つのテキストに結合</strong>します。改行・空行・カンマ・スペース・パイプ・カスタム文字列をサポート。段落の結合、CSVの構築、データの連結に便利です。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>ブロックはいくつまで追加できますか？</summary><p>無制限です。</p></details>
+<details class="faq-item"><summary>カスタム区切り文字とは？</summary><p>` + '`---`' + `や` + '`|`' + `など、任意の文字列を使用できます。</p></details>
+<details class="faq-item"><summary>「空ブロックをスキップ」とは？</summary><p>内容のないブロックを除外し、区切り文字が連続しないようにします。</p></details>
+<details class="faq-item"><summary>「前後の空白を削除」とは？</summary><p>結合前に各ブロックの先頭・末尾の空白を削除します。</p></details>
+<details class="faq-item"><summary>CSVに合併するには？</summary><p>区切り文字をカンマに設定し、各ブロックに1つの値を入力します。</p></details>
+<details class="faq-item"><summary>結果を出力するには？</summary><p>コピーボタンでクリップボードにコピーし、エディタに貼り付けます。</p></details>
+<details class="faq-item"><summary>改行と空行の違いは？</summary><p>改行は\\n1つ、空行は\\n2つ（段落区切り）を挿入します。</p></details>
+<details class="faq-item"><summary>ブロック削除後に番号は更新されますか？</summary><p>はい、自動的に番号が更新されます。</p></details>`
+  }
+};
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+let blockCount=0;
+function addBlock(val=''){
+  blockCount++;const t=_i18n[_lang];const idx=document.querySelectorAll('.block-item').length+1;
+  const div=document.createElement('div');div.className='block-item';
+  div.innerHTML=`<span class="block-num">${idx}</span><textarea class="block-ta" oninput="merge()" rows="2"></textarea><button class="block-del" onclick="delBlock(this)">${t.del}</button>`;
+  div.querySelector('textarea').value=val;
+  document.getElementById('blocksList').appendChild(div);
+  renumber();merge();
+}
+function delBlock(btn){btn.closest('.block-item').remove();renumber();merge();}
+function renumber(){document.querySelectorAll('.block-item .block-num').forEach((el,i)=>el.textContent=i+1);}
+function setSep(mode,btn){
+  _sepMode=mode;
+  document.querySelectorAll('.sep-chip').forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('customSep').style.display=mode==='custom'?'inline-block':'none';
+  merge();
+}
+function getSep(){
+  if(_sepMode==='custom')return document.getElementById('customSep').value;
+  return SEPS[_sepMode]||'\n';
+}
+function merge(){
+  const t=_i18n[_lang];
+  const doTrim=document.getElementById('optTrim').checked;
+  const skipEmpty=document.getElementById('optEmpty').checked;
+  let blocks=[...document.querySelectorAll('.block-ta')].map(ta=>doTrim?ta.value.trim():ta.value);
+  if(skipEmpty)blocks=blocks.filter(b=>b.length>0);
+  const result=blocks.join(getSep());
+  document.getElementById('outputTa').value=result;
+  document.getElementById('statChip').innerHTML=`<span>${result.length}</span> ${t.statChars}`;
+}
+function copyResult(){
+  const t=_i18n[_lang];const val=document.getElementById('outputTa').value;
+  navigator.clipboard.writeText(val).then(()=>{const b=document.getElementById('btnCopy');b.textContent=t.copied;setTimeout(()=>b.textContent=t.btnCopy,1500);});
+}
+function applyLang(){
+  const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
+  ['h1b','subEl','backLink','langBtn','lblBlocks','btnAdd','lblSep','lblTrim','lblEmpty','lblResult','btnCopy'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id];});
+  const chips=['sc0','sc1','sc2','sc3','sc4','sc5'];
+  chips.forEach((id,i)=>{const el=document.getElementById(id);if(el)el.textContent=t.chips[i];});
+  document.getElementById('customSep').placeholder=t.customPlaceholder;
+  document.querySelectorAll('.block-del').forEach(b=>b.textContent=t.del);
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;merge();
+}
+addBlock('');addBlock('');addBlock('');
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

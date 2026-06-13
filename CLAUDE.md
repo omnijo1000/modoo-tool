@@ -3,8 +3,8 @@
 ## 프로젝트 개요
 - **사이트**: https://modoohub.com
 - **구성**: 단일 HTML 파일 집합 (SPA 아님, 각 툴마다 별도 .html)
-- **현재 툴 수**: 229개 (index.html footer 카운터 기준)
-- **sitemap.xml**: 295 URL 항목
+- **현재 툴 수**: 306개 (index.html footer 카운터 기준)
+- **sitemap.xml**: 312 URL 항목
 
 ## 필수 코드 (모든 새 HTML 파일에 공통)
 
@@ -242,6 +242,24 @@ cors-header-checker, mime-type-finder, website-speed-estimator, sitemap-validato
 
 ### 배치 14 ✅
 jwt-validator, jwt-inspector, json-diff, json-flattener, json-to-yaml, yaml-to-json, xml-to-json, json-path-tester, graphql-formatter, graphql-query-builder, sql-minifier, sql-validator, sql-to-json, curl-generator, curl-parser, http-request-builder, api-tester, webhook-tester, webhook-generator, regex-generator, regex-cheatsheet, uuid-converter, ulid-generator, nanoid-generator, hash-checker, bcrypt-generator, bcrypt-validator, hmac-generator, rsa-key-generator, ssh-key-generator
+
+### 배치 15 ✅
+prompt-token-estimator, openai-cost-estimator, claude-cost-estimator, gemini-cost-estimator, prompt-cleaner, prompt-template-generator, prompt-variable-extractor, ai-model-comparison, ai-pricing-comparison, markdown-chat-exporter
+
+### 배치 16 ✅
+text-case-detector, duplicate-line-finder, unicode-inspector, unicode-converter, emoji-counter, emoji-remover, text-encryptor, text-decryptor, text-to-unicode, unicode-to-text, ascii-converter, ascii-table, palindrome-checker, anagram-checker, text-statistics, keyword-extractor, stopword-remover, text-merger, line-merger, random-word-generator
+
+### 배치 17 ✅
+svg-viewer, svg-minifier, svg-to-png, png-to-svg, image-cropper, image-rotator, image-watermark, image-metadata-viewer, exif-viewer, exif-remover, favicon-maker, ico-converter, jpg-to-webp, webp-to-jpg, image-color-extractor, dominant-color-finder, blur-image, pixelate-image, image-base64-decoder, image-base64-encoder
+
+### 배치 18 ✅
+pdf-password-remover, pdf-password-adder, pdf-rotate, pdf-reorder-pages, pdf-extract-text, pdf-extract-images, pdf-metadata-viewer, pdf-unlock, pdf-watermark, pdf-to-text
+
+### 배치 19 ✅
+word-to-minute-converter, typing-speed-test, cps-calculator, wpm-calculator, reading-level-checker, keyword-density-checker, seo-title-generator, meta-description-generator, slug-checker, url-slug-generator
+
+### 배치 20 ✅
+yaml-validator, json-to-xml, html-minifier, css-minifier, javascript-minifier, javascript-beautifier, css-beautifier
 
 ## JS 문자열 이스케이프 주의사항
 

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>회문 검사기 - 팰린드롬 확인 도구 | MODOO HUB</title>
+<meta name="description" content="입력한 텍스트가 팰린드롬(회문)인지 즉시 확인. 대소문자·공백·구두점 무시 옵션. 단어 단위 회문 검사. 무료 온라인 팰린드롬 체커.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/palindrome-checker.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/palindrome-checker.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/palindrome-checker.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/palindrome-checker.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/palindrome-checker.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/palindrome-checker.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:680px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:20px;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
+textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;resize:vertical;min-height:100px;outline:none;}
+textarea:focus{border-color:var(--accent);}
+.opts{display:flex;gap:12px;flex-wrap:wrap;margin:12px 0;}
+label{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);cursor:pointer;}
+input[type=checkbox]{accent-color:var(--accent);width:14px;height:14px;}
+.result-card{border-radius:12px;padding:20px 24px;text-align:center;transition:all .3s;}
+.result-card.yes{background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.25);}
+.result-card.no{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.25);}
+.result-icon{font-size:40px;margin-bottom:8px;}
+.result-verdict{font-size:22px;font-weight:900;margin-bottom:4px;}
+.result-card.yes .result-verdict{color:var(--green);}
+.result-card.no .result-verdict{color:var(--red);}
+.result-note{font-size:12px;color:var(--text-dim);}
+.visual{display:flex;gap:2px;flex-wrap:wrap;justify-content:center;margin-top:16px;}
+.ch{width:28px;height:28px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:12px;font-weight:700;}
+.ch.match{background:rgba(74,222,128,.15);color:var(--green);border:1px solid rgba(74,222,128,.3);}
+.ch.mismatch{background:rgba(248,113,113,.15);color:var(--red);border:1px solid rgba(248,113,113,.3);}
+.ch.skip{background:var(--surface2);color:var(--text-dim);border:1px solid var(--border);}
+.section-label{font-size:11px;color:var(--text-dim);margin-bottom:8px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Palindrome Checker","url":"https://modoohub.com/palindrome-checker.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Check if text is a palindrome. Options to ignore case, spaces, and punctuation."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"팰린드롬(회문)이란 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"앞에서 읽으나 뒤에서 읽으나 동일한 문자열입니다. 예: 'racecar', '기러기'."}},{"@type":"Question","name":"대소문자를 무시하면 어떻게 되나요?","acceptedAnswer":{"@type":"Answer","text":"'Racecar'처럼 대소문자가 섞인 경우에도 회문으로 판단합니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1><span id="h1a">회문</span> <span id="h1b">검사기</span></h1>
+  <p class="sub" id="subEl">텍스트가 팰린드롬인지 즉시 확인 · 대소문자·공백·구두점 옵션</p>
+  <div class="box">
+    <div class="section-label" id="lblInput">입력</div>
+    <textarea id="input" placeholder="텍스트를 입력하세요..." oninput="check()"></textarea>
+    <div class="opts">
+      <label><input type="checkbox" id="optCase" checked onchange="check()"><span id="lblCase">대소문자 무시</span></label>
+      <label><input type="checkbox" id="optSpace" checked onchange="check()"><span id="lblSpace">공백 무시</span></label>
+      <label><input type="checkbox" id="optPunct" checked onchange="check()"><span id="lblPunct">구두점 무시</span></label>
+    </div>
+  </div>
+  <div id="resultCard" class="result-card" style="display:none;"></div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko';
+const _i18n={
+  ko:{h1a:'회문',h1b:'검사기',sub:'텍스트가 팰린드롬인지 즉시 확인 · 대소문자·공백·구두점 옵션',backLink:'← 모두의 툴',langBtn:'🌐 EN',pageTitle:'회문 검사기 - 팰린드롬 확인 | MODOO HUB',lblInput:'입력',lblCase:'대소문자 무시',lblSpace:'공백 무시',lblPunct:'구두점 무시',yes:'팰린드롬입니다!',no:'팰린드롬이 아닙니다',noteYes:'앞뒤로 동일한 문자열',noteNo:'앞뒤가 다릅니다',
+    seoHtml:`<h2>회문(팰린드롬) 검사기</h2><p><strong>팰린드롬(palindrome)</strong>은 앞에서 읽으나 뒤에서 읽으나 동일한 문자열입니다. '기러기', 'racecar', 'A man, a plan, a canal: Panama' 같은 예가 있습니다. 대소문자·공백·구두점 무시 옵션으로 유연하게 검사하고, 문자 단위 매칭 시각화로 어떤 위치가 일치하는지 확인할 수 있습니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>팰린드롬이란 무엇인가요?</summary><p>앞뒤로 읽어도 동일한 문자열입니다. 예: racecar, level, 기러기.</p></details>
+<details class="faq-item"><summary>대소문자 무시란?</summary><p>'Racecar'처럼 대소문자 혼재도 회문으로 인정합니다.</p></details>
+<details class="faq-item"><summary>공백 무시란?</summary><p>'race car'처럼 공백이 있어도 회문 검사 시 제거 후 비교합니다.</p></details>
+<details class="faq-item"><summary>구두점 무시란?</summary><p>'A man, a plan, a canal: Panama' 같이 쉼표·콜론 등을 제거하고 비교합니다.</p></details>
+<details class="faq-item"><summary>숫자도 팰린드롬이 될 수 있나요?</summary><p>예, '12321'처럼 숫자 팰린드롬도 가능합니다.</p></details>
+<details class="faq-item"><summary>한국어 회문 예시는?</summary><p>'기러기', '토마토', '별똥별' 등이 한국어 회문입니다.</p></details>
+<details class="faq-item"><summary>문자 시각화가 빨간색이면?</summary><p>해당 위치의 앞뒤 문자가 일치하지 않아 팰린드롬이 아님을 나타냅니다.</p></details>
+<details class="faq-item"><summary>공백만 입력하면?</summary><p>옵션에 따라 빈 문자열로 처리되어 팰린드롬으로 판단됩니다.</p></details>`
+  },
+  en:{h1a:'Palindrome',h1b:'Checker',sub:'Instantly check if text is a palindrome · case, space, punctuation options',backLink:'← All Tools',langBtn:'🌐 中文',pageTitle:'Palindrome Checker | MODOO HUB',lblInput:'Input',lblCase:'Ignore case',lblSpace:'Ignore spaces',lblPunct:'Ignore punctuation',yes:'It\'s a palindrome!',no:'Not a palindrome',noteYes:'Reads the same forwards and backwards',noteNo:'Front and back differ',
+    seoHtml:`<h2>Palindrome Checker</h2><p>A <strong>palindrome</strong> reads the same forwards and backwards. Examples: "racecar", "level", "A man, a plan, a canal: Panama". Options to ignore case, spaces, and punctuation. Character-level visualization shows exactly which positions match or mismatch.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>What is a palindrome?</summary><p>A string that reads the same in both directions. Examples: racecar, level, noon.</p></details>
+<details class="faq-item"><summary>What does "ignore case" do?</summary><p>"Racecar" would still count as a palindrome when case is ignored.</p></details>
+<details class="faq-item"><summary>What does "ignore spaces" do?</summary><p>"race car" becomes "racecar" before comparison.</p></details>
+<details class="faq-item"><summary>What does "ignore punctuation" do?</summary><p>Strips commas, colons, etc. so "A man, a plan, a canal: Panama" passes.</p></details>
+<details class="faq-item"><summary>Can numbers be palindromes?</summary><p>Yes — "12321" is a numeric palindrome.</p></details>
+<details class="faq-item"><summary>What do red cells mean?</summary><p>That character position does not match its mirror, so the string is not a palindrome.</p></details>
+<details class="faq-item"><summary>What about Unicode or emoji?</summary><p>The checker uses JS string character iteration, which handles most Unicode correctly.</p></details>
+<details class="faq-item"><summary>Longest known English palindrome?</summary><p>"A man, a plan, a canal: Panama" is the most famous. Much longer ones exist as literary puzzles.</p></details>`
+  },
+  zh:{h1a:'回文',h1b:'检测器',sub:'即时检查文本是否为回文 · 大小写·空格·标点选项',backLink:'← 所有工具',langBtn:'🌐 日本語',pageTitle:'回文检测器 | MODOO HUB',lblInput:'输入',lblCase:'忽略大小写',lblSpace:'忽略空格',lblPunct:'忽略标点',yes:'是回文！',no:'不是回文',noteYes:'正读反读相同',noteNo:'正读反读不同',
+    seoHtml:`<h2>回文检测器</h2><p><strong>回文</strong>是正读和反读都相同的字符串。例如"level"、"racecar"、"12321"。支持忽略大小写、空格和标点符号选项，并提供字符级可视化显示。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>什么是回文？</summary><p>正读和反读都相同的字符串，如racecar、level、noon。</p></details>
+<details class="faq-item"><summary>"忽略大小写"是什么意思？</summary><p>"Racecar"忽略大小写后仍视为回文。</p></details>
+<details class="faq-item"><summary>"忽略空格"是什么意思？</summary><p>"race car"去除空格后变为"racecar"再比较。</p></details>
+<details class="faq-item"><summary>"忽略标点"是什么意思？</summary><p>去除逗号、冒号等标点后再比较。</p></details>
+<details class="faq-item"><summary>数字可以是回文吗？</summary><p>可以，如"12321"是数字回文。</p></details>
+<details class="faq-item"><summary>红色格子表示什么？</summary><p>该位置的字符与其镜像不匹配，说明不是回文。</p></details>
+<details class="faq-item"><summary>支持中文回文吗？</summary><p>支持，工具使用JS字符串迭代处理Unicode字符。</p></details>
+<details class="faq-item"><summary>最著名的英文回文是什么？</summary><p>"A man, a plan, a canal: Panama"是最著名的英文回文。</p></details>`
+  },
+  ja:{h1a:'回文',h1b:'チェッカー',sub:'テキストが回文かどうか即座に確認 · 大文字小文字・空白・句読点オプション',backLink:'← ホーム',langBtn:'🌐 한국어',pageTitle:'回文チェッカー | MODOO HUB',lblInput:'入力',lblCase:'大文字小文字を無視',lblSpace:'空白を無視',lblPunct:'句読点を無視',yes:'回文です！',no:'回文ではありません',noteYes:'前後どちらから読んでも同じ',noteNo:'前後で異なります',
+    seoHtml:`<h2>回文チェッカーとは</h2><p><strong>回文（palindrome）</strong>は前から読んでも後ろから読んでも同じ文字列です。例：「racecar」「level」「12321」。大文字小文字・空白・句読点を無視するオプション付き、文字単位の可視化で一致位置を確認できます。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>回文とは何ですか？</summary><p>前後どちらから読んでも同じ文字列です。例：racecar、level、noon。</p></details>
+<details class="faq-item"><summary>「大文字小文字を無視」とは？</summary><p>「Racecar」のような場合でも回文として認識します。</p></details>
+<details class="faq-item"><summary>「空白を無視」とは？</summary><p>「race car」から空白を除いて比較します。</p></details>
+<details class="faq-item"><summary>「句読点を無視」とは？</summary><p>コンマ・コロンなどを除いて比較します。</p></details>
+<details class="faq-item"><summary>数字も回文になりますか？</summary><p>はい、「12321」は数字の回文です。</p></details>
+<details class="faq-item"><summary>赤いセルは何を意味しますか？</summary><p>その位置の文字が鏡像と一致せず、回文でないことを示します。</p></details>
+<details class="faq-item"><summary>日本語の回文は？</summary><p>「竹垣竹立てかけたのは」など日本語にも回文があります。</p></details>
+<details class="faq-item"><summary>有名な英語回文は？</summary><p>「A man, a plan, a canal: Panama」が最も有名です。</p></details>`
+  }
+};
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){
+  const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
+  ['h1a','h1b','subEl','backLink','langBtn','lblInput','lblCase','lblSpace','lblPunct'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id]||t[id.replace('El','')];});
+  document.getElementById('h1a').textContent=t.h1a;document.getElementById('h1b').textContent=t.h1b;
+  document.getElementById('subEl').textContent=t.sub;document.getElementById('backLink').textContent=t.backLink;document.getElementById('langBtn').textContent=t.langBtn;
+  document.getElementById('lblInput').textContent=t.lblInput;document.getElementById('lblCase').textContent=t.lblCase;document.getElementById('lblSpace').textContent=t.lblSpace;document.getElementById('lblPunct').textContent=t.lblPunct;
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;check();
+}
+function normalize(s){
+  const t=_i18n[_lang];
+  let r=s;
+  if(document.getElementById('optCase').checked)r=r.toLowerCase();
+  if(document.getElementById('optSpace').checked)r=r.replace(/\s+/g,'');
+  if(document.getElementById('optPunct').checked)r=r.replace(/[^\p{L}\p{N}]/gu,'');
+  return r;
+}
+function check(){
+  const raw=document.getElementById('input').value;
+  const t=_i18n[_lang];
+  const rc=document.getElementById('resultCard');
+  if(!raw.trim()){rc.style.display='none';return;}
+  const n=normalize(raw);
+  const rev=[...n].reverse().join('');
+  const isPalin=n===rev;
+  const chars=[...n];
+  const len=chars.length;
+  let cells='';
+  for(let i=0;i<Math.min(len,80);i++){
+    const j=len-1-i;
+    let cls=i===j?'match':(chars[i]===chars[j]?'match':'mismatch');
+    cells+=`<div class="ch ${cls}">${chars[i].replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div>`;
+  }
+  rc.className='result-card '+(isPalin?'yes':'no');
+  rc.style.display='block';
+  rc.innerHTML=`<div class="result-icon">${isPalin?'✅':'❌'}</div>
+    <div class="result-verdict">${isPalin?t.yes:t.no}</div>
+    <div class="result-note">${isPalin?t.noteYes:t.noteNo}</div>
+    ${len?'<div class="visual">'+cells+'</div>':''}`;
+}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

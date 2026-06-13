@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 채팅 마크다운 내보내기 - ChatGPT/Claude 대화 Markdown 변환 | MODOO HUB</title>
+<meta name="description" content="AI 채팅 대화를 마크다운 형식으로 변환·내보내기. ChatGPT, Claude 대화 구조를 깔끔한 Markdown 문서로 저장. 무료 온라인 채팅 내보내기 도구.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/markdown-chat-exporter.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/markdown-chat-exporter.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/markdown-chat-exporter.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/markdown-chat-exporter.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/markdown-chat-exporter.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/markdown-chat-exporter.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:900px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;}
+.panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.label{font-size:11px;color:var(--text-dim);letter-spacing:.07em;text-transform:uppercase;font-family:'DM Mono',monospace;display:block;margin-bottom:8px;}
+textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;resize:vertical;outline:none;line-height:1.6;}
+textarea:focus{border-color:var(--accent);}
+.btn{padding:9px 20px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;}
+.btn-primary{background:var(--accent);color:#000;}
+.btn-primary:hover{background:#f59e0b;}
+.btn-sec{background:none;border:1px solid var(--border);color:var(--text-dim);font-size:12px;padding:6px 14px;border-radius:6px;cursor:pointer;}
+.btn-sec:hover{border-color:var(--accent);color:var(--accent);}
+.opts-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px;align-items:center;}
+.opt-label{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-muted);cursor:pointer;}
+.opt-label input[type=checkbox]{accent-color:var(--accent);width:14px;height:14px;}
+select{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:5px 10px;color:var(--text);font-size:12px;outline:none;cursor:pointer;}
+select:focus{border-color:var(--accent);}
+.msg-row{display:grid;grid-template-columns:80px 1fr;gap:8px;margin-bottom:8px;align-items:start;}
+.role-sel{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:5px 8px;color:var(--text);font-size:12px;outline:none;width:100%;}
+.role-sel:focus{border-color:var(--accent);}
+.msg-ta{min-height:60px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;resize:vertical;outline:none;width:100%;}
+.msg-ta:focus{border-color:var(--accent);}
+.del-btn{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:16px;padding:4px;}
+.del-btn:hover{color:#f87171;}
+.add-msg-row{display:flex;gap:8px;margin-top:4px;}
+.out-area{min-height:200px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;font-family:'DM Mono',monospace;font-size:12px;color:var(--text);white-space:pre-wrap;word-break:break-word;line-height:1.6;}
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:12px;}
+.tab{padding:8px 16px;font-size:12px;cursor:pointer;color:var(--text-dim);border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none;}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Markdown Chat Exporter","url":"https://modoohub.com/markdown-chat-exporter.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Convert AI chat conversations to clean Markdown format. Supports ChatGPT, Claude, and any user/assistant dialog structure."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"AI 채팅을 마크다운으로 내보내려면?","acceptedAnswer":{"@type":"Answer","text":"대화 내용을 붙여넣거나 메시지를 직접 입력한 후 '변환' 버튼을 클릭하면 Markdown 형식으로 변환됩니다."}},{"@type":"Question","name":"ChatGPT 대화를 그대로 붙여넣을 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"네, ChatGPT나 Claude에서 복사한 대화를 붙여넣기 입력 탭에서 자동 파싱할 수 있습니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>AI 채팅 <span id="h1b">마크다운 내보내기</span></h1>
+  <p class="sub" id="subEl">대화 구조 → 깔끔한 Markdown 문서로 변환·저장</p>
+  <div class="panel">
+    <div class="tabs">
+      <button class="tab active" id="tab0" onclick="switchTab(0)" data-i18n="tabBuild">메시지 빌더</button>
+      <button class="tab" id="tab1" onclick="switchTab(1)" data-i18n="tabPaste">텍스트 붙여넣기</button>
+    </div>
+    <div id="pane0">
+      <div id="msgList"></div>
+      <div class="add-msg-row">
+        <button class="btn-sec" id="addUserBtn" onclick="addMsg('user')">+ User</button>
+        <button class="btn-sec" id="addAssistBtn" onclick="addMsg('assistant')">+ Assistant</button>
+        <button class="btn-sec" id="addSysBtn" onclick="addMsg('system')">+ System</button>
+      </div>
+    </div>
+    <div id="pane1" style="display:none">
+      <label class="label" id="pasteLabel">대화 텍스트 붙여넣기</label>
+      <textarea id="pasteArea" rows="8" placeholder="사용자: 안녕하세요&#10;어시스턴트: 반갑습니다!&#10;..."></textarea>
+      <div style="margin-top:8px;display:flex;gap:8px">
+        <button class="btn-sec" id="parseBtn" onclick="parsePaste()">파싱</button>
+        <span style="font-size:11px;color:var(--text-dim);align-self:center" id="parseHint">사용자:/어시스턴트: 패턴 자동 인식</span>
+      </div>
+    </div>
+  </div>
+  <div class="panel">
+    <label class="label" id="labelOpts">내보내기 옵션</label>
+    <div class="opts-row">
+      <label class="opt-label"><input type="checkbox" id="optTitle" checked> <span id="lblTitle">제목 포함</span></label>
+      <label class="opt-label"><input type="checkbox" id="optTimestamp"> <span id="lblTs">타임스탬프</span></label>
+      <label class="opt-label"><input type="checkbox" id="optHr" checked> <span id="lblHr">구분선</span></label>
+      <label class="opt-label"><input type="checkbox" id="optRole" checked> <span id="lblRole">역할 표시</span></label>
+    </div>
+    <div class="opts-row">
+      <span style="font-size:12px;color:var(--text-dim)" id="lblStyle">스타일:</span>
+      <select id="styleSelect">
+        <option value="heading" id="optHeading">### 헤딩</option>
+        <option value="bold" id="optBold">**굵게**</option>
+        <option value="blockquote" id="optBq">&gt; 인용</option>
+        <option value="plain" id="optPlain">플레인</option>
+      </select>
+      <span style="font-size:12px;color:var(--text-dim);margin-left:8px" id="lblModel">모델명:</span>
+      <input type="text" id="modelName" value="ChatGPT" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:5px 10px;color:var(--text);font-size:12px;outline:none;width:100px;">
+    </div>
+    <button class="btn btn-primary" id="convertBtn" onclick="convert()">변환하기</button>
+  </div>
+  <div class="panel">
+    <div class="panel-header">
+      <label class="label" id="labelOut">마크다운 출력</label>
+      <div style="display:flex;gap:6px">
+        <button class="btn-sec" id="copyBtn" onclick="copyOut()">Copy</button>
+        <button class="btn-sec" id="dlBtn" onclick="download()">↓ .md</button>
+      </div>
+    </div>
+    <div class="out-area" id="outArea"></div>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+let _msgs=[{role:'user',text:''},{role:'assistant',text:''}];
+let _tab=0;
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko';
+const ROLE_LABELS={
+  ko:{user:'사용자',assistant:'어시스턴트',system:'시스템'},
+  en:{user:'User',assistant:'Assistant',system:'System'},
+  zh:{user:'用户',assistant:'助手',system:'系统'},
+  ja:{user:'ユーザー',assistant:'アシスタント',system:'システム'},
+};
+const _i18n={
+  ko:{pageTitle:'AI 채팅 마크다운 내보내기 | MODOO HUB',h1b:'마크다운 내보내기',sub:'대화 구조 → 깔끔한 Markdown 문서로 변환·저장',backLink:'← 모두의 툴',langBtn:'🌐 EN',
+    tabBuild:'메시지 빌더',tabPaste:'텍스트 붙여넣기',pasteLabel:'대화 텍스트 붙여넣기',parseHint:'사용자:/어시스턴트: 패턴 자동 인식',parseBtn:'파싱',
+    labelOpts:'내보내기 옵션',lblTitle:'제목 포함',lblTs:'타임스탬프',lblHr:'구분선',lblRole:'역할 표시',lblStyle:'스타일:',lblModel:'모델명:',
+    convertBtn:'변환하기',labelOut:'마크다운 출력',dlBtn:'↓ .md',
+    optHeading:'### 헤딩',optBold:'**굵게**',optBq:'> 인용',optPlain:'플레인',
+    addUserBtn:'+ 사용자',addAssistBtn:'+ 어시스턴트',addSysBtn:'+ 시스템',
+    copied:'✓ 복사됨',
+    seoHtml:`<h2>AI 채팅 마크다운 내보내기란?</h2><p>ChatGPT, Claude 등 <strong>AI 채팅 대화를 깔끔한 Markdown 문서로 변환</strong>합니다. 메시지 빌더로 직접 입력하거나, 채팅 내용을 붙여넣으면 자동으로 구조화된 마크다운을 생성합니다. 블로그 포스팅, 문서화, 아카이빙에 활용하세요.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>ChatGPT 대화를 바로 붙여넣을 수 있나요?</summary><p>네, "텍스트 붙여넣기" 탭에서 복사한 대화를 붙여넣고 파싱하면 자동으로 역할을 인식합니다.</p></details>
+<details class="faq-item"><summary>어떤 마크다운 스타일을 지원하나요?</summary><p>### 헤딩, **굵게**, > 인용, 플레인 텍스트 등 4가지 스타일을 지원합니다.</p></details>
+<details class="faq-item"><summary>.md 파일로 다운로드할 수 있나요?</summary><p>네, "↓ .md" 버튼으로 마크다운 파일을 즉시 다운로드할 수 있습니다.</p></details>
+<details class="faq-item"><summary>시스템 프롬프트도 포함할 수 있나요?</summary><p>네, 메시지 빌더에서 "+ System" 버튼으로 시스템 메시지를 추가할 수 있습니다.</p></details>
+<details class="faq-item"><summary>긴 대화도 처리할 수 있나요?</summary><p>브라우저 메모리 한도 내에서 길이 제한 없이 처리할 수 있습니다.</p></details>
+<details class="faq-item"><summary>변환 결과를 Notion에 붙여넣을 수 있나요?</summary><p>네, Markdown을 지원하는 Notion, Obsidian, GitHub 등에 바로 붙여넣기할 수 있습니다.</p></details>
+<details class="faq-item"><summary>코드 블록이 포함된 대화도 지원하나요?</summary><p>네, 입력된 텍스트를 그대로 보존하므로 코드 블록 마크다운도 유지됩니다.</p></details>
+<details class="faq-item"><summary>저장 기능이 있나요?</summary><p>이 도구는 서버 저장을 지원하지 않습니다. .md 파일로 다운로드하거나 클립보드로 복사하세요.</p></details>`
+  },
+  en:{pageTitle:'Markdown Chat Exporter - AI Conversation to Markdown | MODOO HUB',h1b:'Markdown Exporter',sub:'Chat structure → clean Markdown document, convert and save',backLink:'← All Tools',langBtn:'🌐 中文',
+    tabBuild:'Message Builder',tabPaste:'Paste Text',pasteLabel:'Paste chat text',parseHint:'Auto-detects User:/Assistant: patterns',parseBtn:'Parse',
+    labelOpts:'Export Options',lblTitle:'Include title',lblTs:'Timestamp',lblHr:'Divider',lblRole:'Show role',lblStyle:'Style:',lblModel:'Model:',
+    convertBtn:'Convert',labelOut:'Markdown Output',dlBtn:'↓ .md',
+    optHeading:'### Heading',optBold:'**Bold**',optBq:'> Quote',optPlain:'Plain',
+    addUserBtn:'+ User',addAssistBtn:'+ Assistant',addSysBtn:'+ System',
+    copied:'✓ Copied',
+    seoHtml:`<h2>Markdown Chat Exporter</h2><p>Convert <strong>AI chat conversations from ChatGPT, Claude, or any dialog</strong> into clean Markdown documents. Use the message builder or paste existing chat text for automatic structure detection. Perfect for blog posts, documentation, and archiving.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>Can I paste ChatGPT conversations directly?</summary><p>Yes — use the "Paste Text" tab, paste your conversation, and click Parse to auto-detect roles.</p></details>
+<details class="faq-item"><summary>What Markdown styles are supported?</summary><p>Four styles: ### Heading, **Bold**, > Blockquote, and Plain text.</p></details>
+<details class="faq-item"><summary>Can I download as a .md file?</summary><p>Yes — click the "↓ .md" button to immediately download a Markdown file.</p></details>
+<details class="faq-item"><summary>Can I include system prompts?</summary><p>Yes — use the "+ System" button in the message builder to add system messages.</p></details>
+<details class="faq-item"><summary>Is there a length limit?</summary><p>No limit beyond browser memory — suitable for very long conversations.</p></details>
+<details class="faq-item"><summary>Can I paste results into Notion?</summary><p>Yes — Markdown is compatible with Notion, Obsidian, GitHub, and most editors.</p></details>
+<details class="faq-item"><summary>Does it preserve code blocks?</summary><p>Yes — input text is preserved as-is, so existing code block formatting is maintained.</p></details>
+<details class="faq-item"><summary>Is there a save feature?</summary><p>No server-side saving. Download as .md or copy to clipboard.</p></details>`
+  },
+  zh:{pageTitle:'AI聊天Markdown导出 - AI对话转换Markdown | MODOO HUB',h1b:'Markdown导出',sub:'对话结构 → 干净的Markdown文档，转换并保存',backLink:'← 所有工具',langBtn:'🌐 日本語',
+    tabBuild:'消息构建器',tabPaste:'粘贴文本',pasteLabel:'粘贴对话文本',parseHint:'自动识别用户:/助手:模式',parseBtn:'解析',
+    labelOpts:'导出选项',lblTitle:'包含标题',lblTs:'时间戳',lblHr:'分隔线',lblRole:'显示角色',lblStyle:'样式:',lblModel:'模型:',
+    convertBtn:'转换',labelOut:'Markdown输出',dlBtn:'↓ .md',
+    optHeading:'### 标题',optBold:'**粗体**',optBq:'> 引用',optPlain:'纯文本',
+    addUserBtn:'+ 用户',addAssistBtn:'+ 助手',addSysBtn:'+ 系统',
+    copied:'✓ 已复制',
+    seoHtml:`<h2>AI聊天Markdown导出</h2><p>将<strong>ChatGPT、Claude等AI聊天对话转换为干净的Markdown文档</strong>。使用消息构建器直接输入，或粘贴聊天内容自动生成结构化Markdown，适合博客发布、文档记录和归档。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>可以直接粘贴ChatGPT对话吗？</summary><p>是的，在"粘贴文本"标签中粘贴对话并点击解析，即可自动识别角色。</p></details>
+<details class="faq-item"><summary>支持哪些Markdown样式？</summary><p>四种样式：### 标题、**粗体**、> 引用块和纯文本。</p></details>
+<details class="faq-item"><summary>可以下载为.md文件吗？</summary><p>是的，点击"↓ .md"按钮即可立即下载Markdown文件。</p></details>
+<details class="faq-item"><summary>可以包含系统提示吗？</summary><p>是的，在消息构建器中点击"+ 系统"按钮添加系统消息。</p></details>
+<details class="faq-item"><summary>有长度限制吗？</summary><p>仅受浏览器内存限制，适合非常长的对话。</p></details>
+<details class="faq-item"><summary>可以粘贴到Notion吗？</summary><p>是的，Markdown兼容Notion、Obsidian、GitHub等大多数编辑器。</p></details>
+<details class="faq-item"><summary>会保留代码块吗？</summary><p>是的，输入文本原样保留，现有的代码块格式会被维护。</p></details>
+<details class="faq-item"><summary>有保存功能吗？</summary><p>不支持服务器保存，请下载为.md文件或复制到剪贴板。</p></details>`
+  },
+  ja:{pageTitle:'AIチャットMarkdownエクスポート - AI会話をMarkdownに変換 | MODOO HUB',h1b:'Markdownエクスポート',sub:'会話構造 → クリーンなMarkdownドキュメントに変換・保存',backLink:'← ホーム',langBtn:'🌐 한국어',
+    tabBuild:'メッセージビルダー',tabPaste:'テキスト貼り付け',pasteLabel:'チャットテキストを貼り付け',parseHint:'ユーザー:/アシスタント:パターンを自動認識',parseBtn:'解析',
+    labelOpts:'エクスポートオプション',lblTitle:'タイトルを含める',lblTs:'タイムスタンプ',lblHr:'区切り線',lblRole:'役割を表示',lblStyle:'スタイル:',lblModel:'モデル名:',
+    convertBtn:'変換',labelOut:'Markdown出力',dlBtn:'↓ .md',
+    optHeading:'### 見出し',optBold:'**太字**',optBq:'> 引用',optPlain:'プレーン',
+    addUserBtn:'+ ユーザー',addAssistBtn:'+ アシスタント',addSysBtn:'+ システム',
+    copied:'✓ コピー済み',
+    seoHtml:`<h2>AIチャットMarkdownエクスポートとは</h2><p>ChatGPT、Claude等の<strong>AIチャット会話をクリーンなMarkdownドキュメントに変換</strong>します。メッセージビルダーで直接入力するか、チャット内容を貼り付けると自動的に構造化されたMarkdownを生成します。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>ChatGPTの会話を直接貼り付けられますか？</summary><p>はい、「テキスト貼り付け」タブで会話を貼り付けて解析をクリックすると、役割が自動認識されます。</p></details>
+<details class="faq-item"><summary>どのMarkdownスタイルに対応していますか？</summary><p>### 見出し、**太字**、> 引用、プレーンテキストの4種類です。</p></details>
+<details class="faq-item"><summary>.mdファイルとしてダウンロードできますか？</summary><p>はい、「↓ .md」ボタンで即座にMarkdownファイルをダウンロードできます。</p></details>
+<details class="faq-item"><summary>システムプロンプトも含められますか？</summary><p>はい、メッセージビルダーの「+ システム」ボタンでシステムメッセージを追加できます。</p></details>
+<details class="faq-item"><summary>長い会話も処理できますか？</summary><p>ブラウザのメモリ制限内であれば長さ制限なく処理できます。</p></details>
+<details class="faq-item"><summary>Notionに貼り付けられますか？</summary><p>はい、MarkdownはNotion、Obsidian、GitHubなど多くのエディタと互換性があります。</p></details>
+<details class="faq-item"><summary>コードブロックは保持されますか？</summary><p>はい、入力テキストをそのまま保持するため、既存のコードブロック書式が維持されます。</p></details>
+<details class="faq-item"><summary>保存機能はありますか？</summary><p>サーバー保存はサポートしていません。.mdファイルとしてダウンロードするかクリップボードにコピーしてください。</p></details>`
+  }
+};
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const idx=LANGS.indexOf(_lang);_lang=LANGS[(idx+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){
+  const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
+  document.getElementById('h1b').textContent=t.h1b;document.getElementById('subEl').textContent=t.sub;
+  document.getElementById('backLink').textContent=t.backLink;document.getElementById('langBtn').textContent=t.langBtn;
+  document.getElementById('tab0').textContent=t.tabBuild;document.getElementById('tab1').textContent=t.tabPaste;
+  document.getElementById('pasteLabel').textContent=t.pasteLabel;document.getElementById('parseHint').textContent=t.parseHint;
+  document.getElementById('parseBtn').textContent=t.parseBtn;document.getElementById('labelOpts').textContent=t.labelOpts;
+  document.getElementById('lblTitle').textContent=t.lblTitle;document.getElementById('lblTs').textContent=t.lblTs;
+  document.getElementById('lblHr').textContent=t.lblHr;document.getElementById('lblRole').textContent=t.lblRole;
+  document.getElementById('lblStyle').textContent=t.lblStyle;document.getElementById('lblModel').textContent=t.lblModel;
+  document.getElementById('convertBtn').textContent=t.convertBtn;document.getElementById('labelOut').textContent=t.labelOut;
+  document.getElementById('dlBtn').textContent=t.dlBtn;
+  document.getElementById('addUserBtn').textContent=t.addUserBtn;document.getElementById('addAssistBtn').textContent=t.addAssistBtn;document.getElementById('addSysBtn').textContent=t.addSysBtn;
+  document.getElementById('optHeading').textContent=t.optHeading;document.getElementById('optBold').textContent=t.optBold;
+  document.getElementById('optBq').textContent=t.optBq;document.getElementById('optPlain').textContent=t.optPlain;
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+  renderMsgs();
+}
+function switchTab(n){_tab=n;['pane0','pane1'].forEach((id,i)=>{document.getElementById(id).style.display=i===n?'':'none';});document.getElementById('tab0').className='tab'+(n===0?' active':'');document.getElementById('tab1').className='tab'+(n===1?' active':'');}
+function addMsg(role){_msgs.push({role,text:''});renderMsgs();}
+function delMsg(i){_msgs.splice(i,1);renderMsgs();}
+function renderMsgs(){
+  const rl=ROLE_LABELS[_lang];
+  const opts=[{v:'user',l:rl.user},{v:'assistant',l:rl.assistant},{v:'system',l:rl.system}];
+  document.getElementById('msgList').innerHTML=_msgs.map((m,i)=>`
+    <div class="msg-row">
+      <select class="role-sel" onchange="_msgs[${i}].role=this.value">${opts.map(o=>`<option value="${o.v}"${m.role===o.v?' selected':''}>${o.l}</option>`).join('')}</select>
+      <div style="display:flex;gap:4px;align-items:start">
+        <textarea class="msg-ta" oninput="_msgs[${i}].text=this.value" placeholder="${opts.find(o=>o.v===m.role)?.l||''}...">${m.text}</textarea>
+        <button class="del-btn" onclick="delMsg(${i})">×</button>
+      </div>
+    </div>`).join('');
+}
+function parsePaste(){
+  const raw=document.getElementById('pasteArea').value.trim();if(!raw)return;
+  const lines=raw.split('\n');
+  const rl=ROLE_LABELS[_lang];
+  const patterns=[
+    {re:/^(user|사용자|ユーザー|用户|you|human)\s*[:：]/i,role:'user'},
+    {re:/^(assistant|어시스턴트|アシスタント|助手|ai|chatgpt|claude|gemini)\s*[:：]/i,role:'assistant'},
+    {re:/^(system|시스템|システム|系统)\s*[:：]/i,role:'system'},
+  ];
+  const msgs=[];let cur=null;
+  for(const line of lines){
+    let matched=false;
+    for(const p of patterns){if(p.re.test(line)){if(cur)msgs.push(cur);cur={role:p.role,text:line.replace(p.re,'').trim()};matched=true;break;}}
+    if(!matched&&cur)cur.text+=(cur.text?'\n':'')+line;
+  }
+  if(cur)msgs.push(cur);
+  if(msgs.length){_msgs=msgs;switchTab(0);renderMsgs();}
+}
+function convert(){
+  const t=_i18n[_lang];const rl=ROLE_LABELS[_lang];
+  const style=document.getElementById('styleSelect').value;
+  const model=document.getElementById('modelName').value||'AI';
+  const doTitle=document.getElementById('optTitle').checked;
+  const doTs=document.getElementById('optTimestamp').checked;
+  const doHr=document.getElementById('optHr').checked;
+  const doRole=document.getElementById('optRole').checked;
+  let out='';
+  if(doTitle){const now=new Date();out+=`# ${model} Chat Export\n\n`;}
+  if(doTs){out+=`> ${new Date().toLocaleString()}\n\n`;}
+  _msgs.forEach((m,i)=>{
+    const roleLabel=rl[m.role]||m.role;
+    if(doHr&&i>0)out+='\n---\n\n';
+    if(doRole){
+      if(style==='heading')out+=`### ${roleLabel}\n\n`;
+      else if(style==='bold')out+=`**${roleLabel}**\n\n`;
+      else if(style==='blockquote')out+=`> **${roleLabel}**\n\n`;
+    }
+    if(style==='blockquote'){out+=m.text.split('\n').map(l=>`> ${l}`).join('\n')+'\n\n';}
+    else{out+=m.text+'\n\n';}
+  });
+  document.getElementById('outArea').textContent=out.trim();
+}
+function copyOut(){
+  const t=_i18n[_lang];const v=document.getElementById('outArea').textContent;if(!v)return;
+  navigator.clipboard.writeText(v).then(()=>{const btn=document.getElementById('copyBtn');const o=btn.textContent;btn.textContent=t.copied;setTimeout(()=>btn.textContent='Copy',1500);});
+}
+function download(){
+  const v=document.getElementById('outArea').textContent;if(!v)return;
+  const blob=new Blob([v],{type:'text/markdown'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='chat-export.md';a.click();
+}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

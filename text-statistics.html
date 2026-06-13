@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>텍스트 통계 분석기 - 글자수·단어수·가독성 지수 | MODOO HUB</title>
+<meta name="description" content="글자수, 단어수, 문장수, 단락수, 독서 시간, Flesch 가독성 지수, 문자 빈도 분석까지. 무료 온라인 텍스트 통계 도구.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/text-statistics.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/text-statistics.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/text-statistics.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/text-statistics.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/text-statistics.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/text-statistics.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:760px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:20px;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
+textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;resize:vertical;min-height:160px;outline:none;}
+textarea:focus{border-color:var(--accent);}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+@media(max-width:480px){.stat-grid{grid-template-columns:repeat(2,1fr);}}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+.stat-val{font-size:22px;font-weight:900;font-family:'DM Mono',monospace;color:var(--accent);}
+.stat-label{font-size:11px;color:var(--text-dim);margin-top:2px;}
+.section-label{font-size:11px;color:var(--text-dim);margin-bottom:10px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em;}
+.read-bar{height:8px;background:var(--surface2);border-radius:4px;margin-top:6px;overflow:hidden;}
+.read-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--green),var(--accent));transition:width .3s;}
+.flesch-score{font-size:28px;font-weight:900;font-family:'DM Mono',monospace;}
+.flesch-label{font-size:12px;color:var(--text-dim);margin-top:4px;}
+.freq-bars{display:flex;flex-direction:column;gap:4px;margin-top:8px;}
+.freq-row{display:flex;align-items:center;gap:8px;}
+.freq-ch{width:24px;text-align:right;font-family:'DM Mono',monospace;font-size:12px;color:var(--text-muted);}
+.freq-bar-wrap{flex:1;height:16px;background:var(--surface2);border-radius:3px;overflow:hidden;}
+.freq-bar-fill{height:100%;background:var(--blue);border-radius:3px;transition:width .3s;}
+.freq-cnt{font-size:11px;color:var(--text-dim);width:28px;text-align:right;font-family:'DM Mono',monospace;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Text Statistics Analyzer","url":"https://modoohub.com/text-statistics.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Analyze text for character count, word count, sentences, reading time, Flesch readability score, and character frequency."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Flesch 가독성 지수란?","acceptedAnswer":{"@type":"Answer","text":"0~100 점수로 텍스트 읽기 난이도를 나타냅니다. 높을수록 쉬운 텍스트입니다."}},{"@type":"Question","name":"독서 시간은 어떻게 계산하나요?","acceptedAnswer":{"@type":"Answer","text":"평균 독서 속도인 분당 200단어를 기준으로 계산합니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>텍스트 <span id="h1b">통계</span></h1>
+  <p class="sub" id="subEl">글자수·단어수·문장수·독서 시간·가독성 지수·문자 빈도 분석</p>
+  <div class="box">
+    <div class="section-label" id="lblInput">텍스트 입력</div>
+    <textarea id="input" placeholder="분석할 텍스트를 입력하세요..." oninput="analyze()"></textarea>
+  </div>
+  <div class="stat-grid" id="statGrid"></div>
+  <div id="fleschBox" class="box" style="display:none;">
+    <div class="section-label" id="lblFlesch">Flesch 가독성 지수 (영어 전용)</div>
+    <div id="fleschScore" class="flesch-score"></div>
+    <div id="fleschLabel" class="flesch-label"></div>
+    <div class="read-bar"><div class="read-fill" id="fleschBar" style="width:0%"></div></div>
+  </div>
+  <div id="freqBox" class="box" style="display:none;">
+    <div class="section-label" id="lblFreq">문자 빈도 TOP 20</div>
+    <div class="freq-bars" id="freqBars"></div>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko';
+const _i18n={
+  ko:{h1b:'통계',sub:'글자수·단어수·문장수·독서 시간·가독성 지수·문자 빈도 분석',backLink:'← 모두의 툴',langBtn:'🌐 EN',pageTitle:'텍스트 통계 분석기 | MODOO HUB',lblInput:'텍스트 입력',lblFlesch:'Flesch 가독성 지수 (영어 전용)',lblFreq:'문자 빈도 TOP 20',
+    stats:{chars:'글자 수',charsNoSpace:'공백 제외',words:'단어 수',sentences:'문장 수',paragraphs:'단락 수',lines:'줄 수',readMin:'독서 시간(분)',avgWordLen:'평균 단어 길이',uniqueWords:'고유 단어 수'},
+    flesch:{vEasy:'매우 쉬움',easy:'쉬움',fair:'보통',difficult:'어려움',vDiff:'매우 어려움'},
+    seoHtml:`<h2>텍스트 통계 분석기</h2><p>텍스트의 <strong>글자 수, 단어 수, 문장 수, 단락 수, 줄 수, 독서 예상 시간, Flesch 가독성 지수, 문자 빈도 TOP 20</strong>을 한 번에 분석합니다. 블로그 글, 논문, 이메일 등 다양한 텍스트의 통계를 확인하는 데 유용합니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>글자 수는 공백 포함인가요?</summary><p>두 가지 모두 표시합니다. "글자 수"는 공백 포함, "공백 제외"는 공백을 뺀 수치입니다.</p></details>
+<details class="faq-item"><summary>Flesch 가독성 지수란?</summary><p>영어 텍스트의 읽기 쉬움 정도를 0~100점으로 나타냅니다. 높을수록 쉬운 글입니다.</p></details>
+<details class="faq-item"><summary>독서 시간은 어떻게 계산하나요?</summary><p>성인 평균 독서 속도인 분당 200단어를 기준으로 계산합니다.</p></details>
+<details class="faq-item"><summary>단어 수는 어떻게 세나요?</summary><p>공백으로 구분된 토큰 수를 기준으로 합니다.</p></details>
+<details class="faq-item"><summary>문장 수는 어떻게 계산하나요?</summary><p>.!? 뒤에 공백이나 줄바꿈이 오는 경우를 문장 구분자로 사용합니다.</p></details>
+<details class="faq-item"><summary>한국어도 가독성 지수가 나오나요?</summary><p>Flesch 지수는 영어 기준이므로 한국어에는 정확하지 않습니다. 글자·단어 수 통계는 정상 작동합니다.</p></details>
+<details class="faq-item"><summary>문자 빈도 분석이란?</summary><p>텍스트에서 각 문자가 몇 번 등장하는지 상위 20개를 막대 그래프로 표시합니다.</p></details>
+<details class="faq-item"><summary>고유 단어 수란?</summary><p>대소문자를 무시하고 중복되지 않는 서로 다른 단어의 수입니다.</p></details>`
+  },
+  en:{h1b:'Statistics',sub:'Chars · words · sentences · reading time · readability · char frequency',backLink:'← All Tools',langBtn:'🌐 中文',pageTitle:'Text Statistics Analyzer | MODOO HUB',lblInput:'Input text',lblFlesch:'Flesch Readability Score',lblFreq:'Character frequency TOP 20',
+    stats:{chars:'Characters',charsNoSpace:'No spaces',words:'Words',sentences:'Sentences',paragraphs:'Paragraphs',lines:'Lines',readMin:'Read time (min)',avgWordLen:'Avg word length',uniqueWords:'Unique words'},
+    flesch:{vEasy:'Very easy',easy:'Easy',fair:'Standard',difficult:'Difficult',vDiff:'Very difficult'},
+    seoHtml:`<h2>Text Statistics Analyzer</h2><p>Analyze any text for <strong>character count, word count, sentence count, paragraph count, line count, estimated reading time, Flesch readability score, and top-20 character frequency</strong> — all instantly in your browser. Useful for blog posts, essays, emails, and more.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>Does character count include spaces?</summary><p>Both are shown: "Characters" includes spaces; "No spaces" excludes them.</p></details>
+<details class="faq-item"><summary>What is the Flesch readability score?</summary><p>A 0–100 score of how easy English text is to read. Higher = easier.</p></details>
+<details class="faq-item"><summary>How is reading time calculated?</summary><p>Based on 200 words per minute, average adult reading speed.</p></details>
+<details class="faq-item"><summary>How are words counted?</summary><p>Whitespace-delimited tokens.</p></details>
+<details class="faq-item"><summary>How are sentences counted?</summary><p>Counting .!? followed by whitespace or line break.</p></details>
+<details class="faq-item"><summary>Does it work for non-English text?</summary><p>Character/word/sentence counts work for any language. Flesch score is English-only.</p></details>
+<details class="faq-item"><summary>What is character frequency?</summary><p>How often each character appears — top 20 shown as a bar chart.</p></details>
+<details class="faq-item"><summary>What are unique words?</summary><p>Case-insensitive count of distinct words in the text.</p></details>`
+  },
+  zh:{h1b:'统计',sub:'字符数·单词数·句子数·阅读时间·可读性·字符频率分析',backLink:'← 所有工具',langBtn:'🌐 日本語',pageTitle:'文本统计分析器 | MODOO HUB',lblInput:'输入文本',lblFlesch:'Flesch可读性分数',lblFreq:'字符频率 TOP 20',
+    stats:{chars:'字符数',charsNoSpace:'不含空格',words:'单词数',sentences:'句子数',paragraphs:'段落数',lines:'行数',readMin:'阅读时间(分)',avgWordLen:'平均单词长度',uniqueWords:'唯一单词数'},
+    flesch:{vEasy:'非常简单',easy:'简单',fair:'标准',difficult:'困难',vDiff:'非常困难'},
+    seoHtml:`<h2>文本统计分析器</h2><p>分析文本的<strong>字符数、单词数、句子数、段落数、行数、预计阅读时间、Flesch可读性分数和字符频率TOP 20</strong>。适用于博客文章、论文、邮件等各种文本的统计分析。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>字符数包含空格吗？</summary><p>两种都显示："字符数"包含空格，"不含空格"不含空格。</p></details>
+<details class="faq-item"><summary>Flesch可读性分数是什么？</summary><p>0~100分衡量英语文本的易读程度，分数越高越容易。</p></details>
+<details class="faq-item"><summary>阅读时间如何计算？</summary><p>基于成人平均阅读速度每分钟200词计算。</p></details>
+<details class="faq-item"><summary>单词如何统计？</summary><p>以空白符分隔的词元数量。</p></details>
+<details class="faq-item"><summary>句子如何统计？</summary><p>以.!?后跟空白或换行作为句子分隔符。</p></details>
+<details class="faq-item"><summary>支持中文吗？</summary><p>字符/行数统计支持中文，Flesch分数仅适用于英语。</p></details>
+<details class="faq-item"><summary>字符频率是什么？</summary><p>文本中每个字符出现的次数，显示前20名条形图。</p></details>
+<details class="faq-item"><summary>唯一单词数是什么？</summary><p>不区分大小写的不重复单词数量。</p></details>`
+  },
+  ja:{h1b:'統計',sub:'文字数·単語数·文数·読書時間·可読性·文字頻度分析',backLink:'← ホーム',langBtn:'🌐 한국어',pageTitle:'テキスト統計分析器 | MODOO HUB',lblInput:'テキスト入力',lblFlesch:'Flesch可読性スコア',lblFreq:'文字頻度 TOP 20',
+    stats:{chars:'文字数',charsNoSpace:'空白除く',words:'単語数',sentences:'文数',paragraphs:'段落数',lines:'行数',readMin:'読書時間(分)',avgWordLen:'平均単語長',uniqueWords:'ユニーク単語数'},
+    flesch:{vEasy:'非常に簡単',easy:'簡単',fair:'標準',difficult:'難しい',vDiff:'非常に難しい'},
+    seoHtml:`<h2>テキスト統計分析器とは</h2><p>テキストの<strong>文字数、単語数、文数、段落数、行数、推定読書時間、Flesch可読性スコア、文字頻度TOP 20</strong>をブラウザで即座に分析します。ブログ記事、論文、メールなど様々なテキストの統計確認に便利です。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>文字数に空白は含まれますか？</summary><p>両方表示します。「文字数」は空白込み、「空白除く」は空白なしです。</p></details>
+<details class="faq-item"><summary>Flesch可読性スコアとは？</summary><p>英語テキストの読みやすさを0~100点で示します。高いほど読みやすい。</p></details>
+<details class="faq-item"><summary>読書時間はどう計算しますか？</summary><p>成人平均読書速度の1分間200語を基準に計算します。</p></details>
+<details class="faq-item"><summary>単語数はどう数えますか？</summary><p>空白区切りのトークン数です。</p></details>
+<details class="faq-item"><summary>文数はどう計算しますか？</summary><p>.!?の後に空白か改行が来る場合を文区切りとします。</p></details>
+<details class="faq-item"><summary>日本語に対応していますか？</summary><p>文字数・行数統計は日本語対応。Flexchスコアは英語専用です。</p></details>
+<details class="faq-item"><summary>文字頻度とは？</summary><p>各文字の出現回数を上位20件で棒グラフ表示します。</p></details>
+<details class="faq-item"><summary>ユニーク単語数とは？</summary><p>大文字小文字を区別しない重複しない単語の数です。</p></details>`
+  }
+};
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function countSyllables(word){return (word.toLowerCase().match(/[aeiouy]+/g)||[]).length||1;}
+function fleschScore(text){
+  const words=text.trim().split(/\s+/).filter(Boolean);
+  if(words.length<10)return null;
+  const sents=Math.max(1,(text.match(/[.!?](\s|$)/g)||[]).length);
+  const syls=words.reduce((a,w)=>a+countSyllables(w),0);
+  const score=206.835-1.015*(words.length/sents)-84.6*(syls/words.length);
+  return Math.round(Math.max(0,Math.min(100,score)));
+}
+function fleschLevel(score,t){
+  if(score>=90)return t.vEasy;if(score>=70)return t.easy;if(score>=50)return t.fair;if(score>=30)return t.difficult;return t.vDiff;
+}
+function analyze(){
+  const t=_i18n[_lang];const text=document.getElementById('input').value;
+  const chars=text.length;
+  const charsNoSpace=text.replace(/\s/g,'').length;
+  const words=text.trim()?text.trim().split(/\s+/).filter(Boolean):[];
+  const sentences=(text.match(/[.!?](\s|$)/g)||[]).length;
+  const paragraphs=text.trim()?(text.split(/\n{2,}/).filter(s=>s.trim())).length:0;
+  const lines=text?text.split('\n').length:0;
+  const readMin=words.length?Math.max(1,Math.round(words.length/200)):0;
+  const avgLen=words.length?(words.reduce((a,w)=>a+w.length,0)/words.length).toFixed(1):0;
+  const unique=words.length?new Set(words.map(w=>w.toLowerCase())).size:0;
+  const statData=[
+    {key:'chars',val:chars.toLocaleString()},
+    {key:'charsNoSpace',val:charsNoSpace.toLocaleString()},
+    {key:'words',val:words.length.toLocaleString()},
+    {key:'sentences',val:sentences.toLocaleString()},
+    {key:'paragraphs',val:paragraphs.toLocaleString()},
+    {key:'lines',val:lines.toLocaleString()},
+    {key:'readMin',val:readMin},
+    {key:'avgWordLen',val:avgLen},
+    {key:'uniqueWords',val:unique.toLocaleString()},
+  ];
+  document.getElementById('statGrid').innerHTML=statData.map(s=>`<div class="stat-card"><div class="stat-val">${s.val}</div><div class="stat-label">${t.stats[s.key]}</div></div>`).join('');
+  const fs=fleschScore(text);
+  const fbox=document.getElementById('fleschBox');
+  if(fs!==null){
+    fbox.style.display='block';
+    document.getElementById('fleschScore').textContent=fs;
+    document.getElementById('fleschLabel').textContent=fleschLevel(fs,t.flesch);
+    document.getElementById('fleschBar').style.width=fs+'%';
+  }else{fbox.style.display='none';}
+  const freqBox=document.getElementById('freqBox');
+  if(text.trim()){
+    const freq=new Map();
+    for(const c of text)if(c!==' '&&c!=='\n'&&c!=='\t')freq.set(c,(freq.get(c)||0)+1);
+    const top=[...freq.entries()].sort((a,b)=>b[1]-a[1]).slice(0,20);
+    const maxCnt=top[0]?.[1]||1;
+    freqBox.style.display='block';
+    document.getElementById('freqBars').innerHTML=top.map(([c,n])=>`<div class="freq-row">
+      <div class="freq-ch">${c.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div>
+      <div class="freq-bar-wrap"><div class="freq-bar-fill" style="width:${n/maxCnt*100}%"></div></div>
+      <div class="freq-cnt">${n}</div>
+    </div>`).join('');
+  }else{freqBox.style.display='none';}
+}
+function applyLang(){
+  const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
+  document.getElementById('h1b').textContent=t.h1b;document.getElementById('subEl').textContent=t.sub;
+  document.getElementById('backLink').textContent=t.backLink;document.getElementById('langBtn').textContent=t.langBtn;
+  document.getElementById('lblInput').textContent=t.lblInput;document.getElementById('lblFlesch').textContent=t.lblFlesch;document.getElementById('lblFreq').textContent=t.lblFreq;
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;analyze();
+}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

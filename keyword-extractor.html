@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>키워드 추출기 - 텍스트에서 핵심 단어 자동 추출 | MODOO HUB</title>
+<meta name="description" content="텍스트에서 핵심 키워드를 빈도 순으로 자동 추출. 불용어 제거, 최소 단어 길이, 상위 N개 키워드 설정. 무료 온라인 키워드 추출 도구.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/keyword-extractor.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/keyword-extractor.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/keyword-extractor.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/keyword-extractor.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/keyword-extractor.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/keyword-extractor.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--blue:#60a5fa;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:760px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:20px;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
+.section-label{font-size:11px;color:var(--text-dim);margin-bottom:8px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em;}
+textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;resize:vertical;min-height:140px;outline:none;}
+textarea:focus{border-color:var(--accent);}
+.opts-row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-top:12px;}
+.opt-group{display:flex;flex-direction:column;gap:4px;}
+.opt-label{font-size:11px;color:var(--text-dim);}
+.opt-input{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:5px 8px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;width:70px;outline:none;}
+.opt-input:focus{border-color:var(--accent);}
+label.chk{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);cursor:pointer;}
+input[type=checkbox]{accent-color:var(--accent);width:14px;height:14px;}
+.kw-grid{display:flex;flex-wrap:wrap;gap:8px;}
+.kw-chip{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:20px;background:var(--surface2);border:1px solid var(--border);cursor:pointer;transition:border-color .2s;}
+.kw-chip:hover{border-color:var(--accent);}
+.kw-word{font-size:13px;color:var(--text);}
+.kw-cnt{font-size:10px;color:var(--text-dim);font-family:'DM Mono',monospace;}
+.bar-section{margin-top:16px;}
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:5px;}
+.bar-word{font-size:12px;color:var(--text-muted);width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.bar-wrap{flex:1;height:14px;background:var(--surface2);border-radius:3px;overflow:hidden;}
+.bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--blue));border-radius:3px;transition:width .3s;}
+.bar-cnt{font-size:11px;color:var(--text-dim);width:30px;text-align:right;font-family:'DM Mono',monospace;}
+.empty{color:var(--text-dim);font-size:13px;padding:10px;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Keyword Extractor","url":"https://modoohub.com/keyword-extractor.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Extract keywords from text by frequency. Customize stopword removal, minimum word length, and top-N results."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"키워드 추출은 어떻게 작동하나요?","acceptedAnswer":{"@type":"Answer","text":"텍스트를 단어로 분리하고 불용어를 제거한 후 빈도 순으로 정렬하여 상위 N개를 표시합니다."}},{"@type":"Question","name":"불용어(stopword)란 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"'the', 'a', 'is'처럼 의미 없이 자주 등장하는 단어입니다. 키워드 추출 시 제거하면 핵심 단어가 더 잘 보입니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>키워드 <span id="h1b">추출기</span></h1>
+  <p class="sub" id="subEl">텍스트에서 핵심 키워드를 빈도 순으로 자동 추출</p>
+  <div class="box">
+    <div class="section-label" id="lblInput">텍스트 입력</div>
+    <textarea id="input" placeholder="키워드를 추출할 텍스트를 입력하세요..." oninput="extract()"></textarea>
+    <div class="opts-row">
+      <div class="opt-group">
+        <span class="opt-label" id="lblTop">상위 N개</span>
+        <input class="opt-input" id="optTop" type="number" value="20" min="1" max="100" oninput="extract()">
+      </div>
+      <div class="opt-group">
+        <span class="opt-label" id="lblMinLen">최소 글자 수</span>
+        <input class="opt-input" id="optMin" type="number" value="3" min="1" max="20" oninput="extract()">
+      </div>
+      <label class="chk"><input type="checkbox" id="optStop" checked onchange="extract()"><span id="lblStop">불용어 제거</span></label>
+      <label class="chk"><input type="checkbox" id="optCase" checked onchange="extract()"><span id="lblCase">대소문자 무시</span></label>
+    </div>
+  </div>
+  <div class="box" id="resultBox" style="display:none;">
+    <div class="section-label" id="lblResult">추출된 키워드</div>
+    <div class="kw-grid" id="kwGrid"></div>
+    <div class="bar-section" id="barSection"></div>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const EN_STOP=new Set(['a','an','the','and','or','but','in','on','at','to','for','of','with','is','are','was','were','be','been','being','have','has','had','do','does','did','will','would','could','should','may','might','this','that','these','those','i','you','he','she','it','we','they','me','him','her','us','them','my','your','his','its','our','their','from','by','about','as','into','through','during','before','after','not','no','if','then','than','so','also','there','here','when','where','how','what','who','which','all','each','every','some','any','few','more','most','other','such','just','very','just','too','now','only','even','new','old','own','same','few','more']);
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko';
+const _i18n={
+  ko:{h1b:'추출기',sub:'텍스트에서 핵심 키워드를 빈도 순으로 자동 추출',backLink:'← 모두의 툴',langBtn:'🌐 EN',pageTitle:'키워드 추출기 | MODOO HUB',lblInput:'텍스트 입력',lblTop:'상위 N개',lblMinLen:'최소 글자 수',lblStop:'불용어 제거',lblCase:'대소문자 무시',lblResult:'추출된 키워드',empty:'텍스트를 입력하면 키워드가 추출됩니다.',copied:'복사됨!',
+    seoHtml:`<h2>키워드 추출기</h2><p>텍스트에서 <strong>핵심 키워드를 빈도 순</strong>으로 자동 추출합니다. 불용어(the, a, is 등) 제거, 최소 단어 길이, 상위 N개 개수를 직접 설정할 수 있습니다. SEO 키워드 분석, 글 핵심 파악, 문서 요약에 유용합니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>키워드 추출은 어떻게 작동하나요?</summary><p>단어 분리 → 불용어 제거 → 빈도 집계 → 상위 N개 표시 순으로 처리합니다.</p></details>
+<details class="faq-item"><summary>불용어란 무엇인가요?</summary><p>영어 기준 'the', 'a', 'is'처럼 자주 등장하지만 의미 없는 단어입니다.</p></details>
+<details class="faq-item"><summary>한국어 키워드 추출도 가능한가요?</summary><p>공백 기준 단어 분리로 한국어도 동작하지만, 형태소 분석 없이는 조사가 붙은 채로 추출됩니다.</p></details>
+<details class="faq-item"><summary>최소 글자 수란?</summary><p>해당 글자 수 미만인 단어는 키워드에서 제외합니다. 짧은 조사·관사 필터링에 유용합니다.</p></details>
+<details class="faq-item"><summary>칩을 클릭하면?</summary><p>해당 키워드가 클립보드에 복사됩니다.</p></details>
+<details class="faq-item"><summary>SEO에 어떻게 활용하나요?</summary><p>블로그 글이나 페이지 본문을 붙여 넣으면 주요 키워드 빈도를 확인하고 최적화에 활용할 수 있습니다.</p></details>
+<details class="faq-item"><summary>상위 몇 개까지 추출 가능한가요?</summary><p>최대 100개까지 설정할 수 있습니다.</p></details>
+<details class="faq-item"><summary>불용어를 커스텀할 수 있나요?</summary><p>현재는 영어 기본 불용어 세트를 사용합니다. 커스텀 불용어는 향후 추가될 수 있습니다.</p></details>`
+  },
+  en:{h1b:'Extractor',sub:'Extract keywords from text ranked by frequency',backLink:'← All Tools',langBtn:'🌐 中文',pageTitle:'Keyword Extractor | MODOO HUB',lblInput:'Input text',lblTop:'Top N',lblMinLen:'Min length',lblStop:'Remove stopwords',lblCase:'Ignore case',lblResult:'Extracted keywords',empty:'Enter text to extract keywords.',copied:'Copied!',
+    seoHtml:`<h2>Keyword Extractor</h2><p>Automatically extract <strong>keywords from text ranked by frequency</strong>. Configure stopword removal, minimum word length, and how many top keywords to show. Useful for SEO keyword analysis, summarization, and content insights.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>How does keyword extraction work?</summary><p>Split text into words → remove stopwords → count frequency → show top N.</p></details>
+<details class="faq-item"><summary>What are stopwords?</summary><p>Common English words like "the", "a", "is" that carry little meaning.</p></details>
+<details class="faq-item"><summary>Does it work for non-English text?</summary><p>Yes, for space-separated languages. The stopword list is English-only.</p></details>
+<details class="faq-item"><summary>What is min word length?</summary><p>Words shorter than this are excluded — useful for filtering short particles.</p></details>
+<details class="faq-item"><summary>What happens when I click a chip?</summary><p>The keyword is copied to clipboard.</p></details>
+<details class="faq-item"><summary>How is this useful for SEO?</summary><p>Paste page content to see which keywords appear most often for optimization.</p></details>
+<details class="faq-item"><summary>Max keywords?</summary><p>Up to 100 top keywords can be displayed.</p></details>
+<details class="faq-item"><summary>Can I customize the stopword list?</summary><p>Not yet — a built-in English stopword set is used.</p></details>`
+  },
+  zh:{h1b:'提取器',sub:'从文本中按频率自动提取关键词',backLink:'← 所有工具',langBtn:'🌐 日本語',pageTitle:'关键词提取器 | MODOO HUB',lblInput:'输入文本',lblTop:'前N个',lblMinLen:'最小长度',lblStop:'移除停用词',lblCase:'忽略大小写',lblResult:'提取的关键词',empty:'输入文本即可提取关键词。',copied:'已复制！',
+    seoHtml:`<h2>关键词提取器</h2><p>从文本中<strong>按频率自动提取关键词</strong>。可配置停用词移除、最小单词长度和显示数量。适用于SEO关键词分析、文章摘要和内容洞察。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>关键词提取如何工作？</summary><p>分词→移除停用词→统计频率→显示前N个。</p></details>
+<details class="faq-item"><summary>什么是停用词？</summary><p>如"the"、"a"、"is"等常见但无意义的英语单词。</p></details>
+<details class="faq-item"><summary>支持中文吗？</summary><p>支持空格分词的语言。停用词列表仅限英语。</p></details>
+<details class="faq-item"><summary>最小长度是什么？</summary><p>短于此长度的单词将被排除，有助于过滤短助词。</p></details>
+<details class="faq-item"><summary>点击标签会怎样？</summary><p>该关键词会被复制到剪贴板。</p></details>
+<details class="faq-item"><summary>如何用于SEO？</summary><p>粘贴页面内容查看出现最多的关键词以便优化。</p></details>
+<details class="faq-item"><summary>最多显示多少个？</summary><p>最多可显示100个关键词。</p></details>
+<details class="faq-item"><summary>可以自定义停用词吗？</summary><p>目前使用内置英语停用词集，暂不支持自定义。</p></details>`
+  },
+  ja:{h1b:'エクストラクター',sub:'テキストから頻度順にキーワードを自動抽出',backLink:'← ホーム',langBtn:'🌐 한국어',pageTitle:'キーワード抽出器 | MODOO HUB',lblInput:'テキスト入力',lblTop:'上位N個',lblMinLen:'最小文字数',lblStop:'ストップワード除去',lblCase:'大文字小文字を無視',lblResult:'抽出されたキーワード',empty:'テキストを入力するとキーワードが抽出されます。',copied:'コピー済み！',
+    seoHtml:`<h2>キーワード抽出器とは</h2><p>テキストから<strong>頻度順にキーワードを自動抽出</strong>します。ストップワード除去、最小単語長、上位N件の表示数を設定できます。SEOキーワード分析、文書要約、コンテンツ分析に便利です。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>キーワード抽出の仕組みは？</summary><p>単語分割→ストップワード除去→頻度集計→上位N件表示。</p></details>
+<details class="faq-item"><summary>ストップワードとは？</summary><p>「the」「a」「is」など頻繁に登場するが意味のない英語単語です。</p></details>
+<details class="faq-item"><summary>日本語にも対応していますか？</summary><p>空白区切りの言語に対応。ストップワードリストは英語専用です。</p></details>
+<details class="faq-item"><summary>最小文字数とは？</summary><p>これより短い単語は除外されます。短い助詞のフィルタリングに便利です。</p></details>
+<details class="faq-item"><summary>チップをクリックすると？</summary><p>そのキーワードがクリップボードにコピーされます。</p></details>
+<details class="faq-item"><summary>SEOにどう活用しますか？</summary><p>ページコンテンツを貼り付けて頻出キーワードを確認し最適化に活用します。</p></details>
+<details class="faq-item"><summary>最大何件表示できますか？</summary><p>最大100件まで表示できます。</p></details>
+<details class="faq-item"><summary>ストップワードをカスタマイズできますか？</summary><p>現在は組み込み英語ストップワードセットを使用しています。</p></details>`
+  }
+};
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function extract(){
+  const t=_i18n[_lang];const text=document.getElementById('input').value;
+  const top=parseInt(document.getElementById('optTop').value)||20;
+  const minLen=parseInt(document.getElementById('optMin').value)||3;
+  const useStop=document.getElementById('optStop').checked;
+  const ignoreCase=document.getElementById('optCase').checked;
+  const rb=document.getElementById('resultBox');
+  if(!text.trim()){rb.style.display='none';return;}
+  let words=text.replace(/[^\p{L}\p{N}\s'-]/gu,' ').split(/\s+/).filter(Boolean);
+  if(ignoreCase)words=words.map(w=>w.toLowerCase());
+  words=words.filter(w=>w.length>=minLen);
+  if(useStop)words=words.filter(w=>!EN_STOP.has(w.toLowerCase()));
+  const freq=new Map();words.forEach(w=>freq.set(w,(freq.get(w)||0)+1));
+  const sorted=[...freq.entries()].sort((a,b)=>b[1]-a[1]).slice(0,top);
+  const maxCnt=sorted[0]?.[1]||1;
+  rb.style.display='block';
+  const grid=sorted.map(([w,n])=>`<div class="kw-chip" onclick="copy('${w.replace(/'/g,"\\'").replace(/</g,'&lt;')}',this)">
+    <span class="kw-word">${w.replace(/</g,'&lt;')}</span>
+    <span class="kw-cnt">${n}</span>
+  </div>`).join('');
+  const bars=sorted.slice(0,15).map(([w,n])=>`<div class="bar-row">
+    <div class="bar-word">${w.replace(/</g,'&lt;')}</div>
+    <div class="bar-wrap"><div class="bar-fill" style="width:${n/maxCnt*100}%"></div></div>
+    <div class="bar-cnt">${n}</div>
+  </div>`).join('');
+  document.getElementById('kwGrid').innerHTML=grid||`<span class="empty">${t.empty}</span>`;
+  document.getElementById('barSection').innerHTML=bars;
+}
+function copy(w,el){
+  navigator.clipboard.writeText(w).then(()=>{const s=el.querySelector('.kw-cnt');const p=s.textContent;s.textContent=_i18n[_lang].copied;setTimeout(()=>s.textContent=p,1200);});
+}
+function applyLang(){
+  const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
+  ['h1b','subEl','backLink','langBtn','lblInput','lblTop','lblMinLen','lblStop','lblCase','lblResult'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id];});
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;extract();
+}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>타이핑 속도 테스트 - WPM/CPM 측정 | MODOO HUB</title>
+<meta name="description" content="타이핑 속도를 측정합니다. WPM(분당 단어), CPM(분당 글자), 정확도를 실시간으로 계산. 무료 온라인 타이핑 테스트.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/typing-speed-test.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/typing-speed-test.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/typing-speed-test.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/typing-speed-test.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/typing-speed-test.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/typing-speed-test.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:700px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
+.stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;}
+.stat-val{font-size:22px;font-weight:900;font-family:'DM Mono',monospace;color:var(--accent);}
+.stat-label{font-size:10px;color:var(--text-dim);margin-top:2px;text-transform:uppercase;letter-spacing:.05em;}
+.passage-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:12px;font-family:'DM Mono',monospace;font-size:15px;line-height:2;min-height:120px;}
+.passage-box span.correct{color:var(--green);}
+.passage-box span.wrong{color:var(--red);text-decoration:underline;}
+.passage-box span.cursor{border-left:2px solid var(--accent);animation:blink .8s step-end infinite;}
+@keyframes blink{0%,100%{border-color:var(--accent);}50%{border-color:transparent;}}
+.passage-box span.pending{color:var(--text-dim);}
+textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;color:var(--text);font-family:'DM Mono',monospace;font-size:14px;resize:none;height:70px;outline:none;}
+textarea:focus{border-color:var(--accent);}
+textarea:disabled{opacity:.5;cursor:not-allowed;}
+.btn-row{display:flex;gap:10px;margin-top:12px;}
+.btn{padding:10px 20px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:'Noto Sans KR',sans-serif;}
+.btn-primary{background:var(--accent);color:#000;}
+.btn-primary:hover{background:#f59e0b;}
+.btn-sec{background:var(--surface2);color:var(--text-muted);border:1px solid var(--border);}
+.btn-sec:hover{border-color:var(--accent);color:var(--accent);}
+.result-panel{display:none;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;text-align:center;margin-top:16px;}
+.result-panel.show{display:block;}
+.result-big{font-size:48px;font-weight:900;font-family:'DM Mono',monospace;color:var(--accent);}
+.result-label{font-size:12px;color:var(--text-muted);margin-bottom:16px;}
+.result-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:16px;}
+.result-item{background:var(--surface2);border-radius:8px;padding:12px;}
+.result-item-val{font-size:20px;font-weight:700;font-family:'DM Mono',monospace;color:var(--text);}
+.result-item-label{font-size:10px;color:var(--text-dim);margin-top:2px;}
+.rank-badge{display:inline-block;margin-top:12px;padding:4px 16px;border-radius:20px;font-size:13px;font-weight:700;background:rgba(251,191,36,.15);color:var(--accent);border:1px solid rgba(251,191,36,.3);}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"타이핑 속도 테스트","url":"https://modoohub.com/typing-speed-test.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"WPM, CPM, 정확도를 측정하는 무료 타이핑 속도 테스트."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"WPM이란 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"WPM(Words Per Minute)은 분당 입력한 단어 수로 타이핑 속도를 나타내는 표준 지표입니다."}},{"@type":"Question","name":"평균 타이핑 속도는?","acceptedAnswer":{"@type":"Answer","text":"일반인 평균은 40~60 WPM, 전문 타이피스트는 80~100 WPM 이상입니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1><span id="h1a">타이핑</span> <span id="h1b">속도 테스트</span></h1>
+  <p class="sub" id="subEl">WPM, CPM, 정확도를 실시간으로 측정합니다</p>
+
+  <div class="stats-bar">
+    <div class="stat"><div class="stat-val" id="statWpm">0</div><div class="stat-label">WPM</div></div>
+    <div class="stat"><div class="stat-val" id="statCpm">0</div><div class="stat-label">CPM</div></div>
+    <div class="stat"><div class="stat-val" id="statAcc">100%</div><div class="stat-label" id="lblAcc">정확도</div></div>
+    <div class="stat"><div class="stat-val" id="statTimer">0s</div><div class="stat-label" id="lblTime">시간</div></div>
+  </div>
+
+  <div class="passage-box" id="passageBox"></div>
+  <textarea id="typingArea" placeholder="여기를 클릭 후 타이핑을 시작하세요..." oninput="onType()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" id="typingArea"></textarea>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="resetTest()" id="btnReset">새로 시작</button>
+  </div>
+
+  <div class="result-panel" id="resultPanel">
+    <div class="result-big" id="resultWpm">0</div>
+    <div class="result-label">WPM</div>
+    <div class="result-grid">
+      <div class="result-item"><div class="result-item-val" id="rCpm">0</div><div class="result-item-label">CPM</div></div>
+      <div class="result-item"><div class="result-item-val" id="rAcc">0%</div><div class="result-item-label" id="rAccLabel">정확도</div></div>
+      <div class="result-item"><div class="result-item-val" id="rTime">0s</div><div class="result-item-label" id="rTimeLabel">소요 시간</div></div>
+    </div>
+    <div class="rank-badge" id="rankBadge"></div>
+    <br><button class="btn btn-primary" onclick="resetTest()" id="btnRetry">다시 도전</button>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const PASSAGES=[
+  "The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs. How vexingly quick daft zebras jump.",
+  "To be or not to be, that is the question. Whether tis nobler in the mind to suffer the slings and arrows of outrageous fortune.",
+  "In the beginning was the Word, and the Word was with God, and the Word was God. The same was in the beginning with God.",
+  "It was the best of times, it was the worst of times, it was the age of wisdom, it was the age of foolishness.",
+  "All happy families are alike; each unhappy family is unhappy in its own way. The sky above the port was the color of television."
+];
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko',_passage='',_chars=[],_idx=0,_startTime=null,_timer=null,_done=false,_wrongCount=0;
+const _i18n={
+  ko:{h1a:'타이핑',h1b:'속도 테스트',sub:'WPM, CPM, 정확도를 실시간으로 측정합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',pageTitle:'타이핑 속도 테스트 | MODOO HUB',lblAcc:'정확도',lblTime:'시간',txtPh:'여기를 클릭 후 타이핑을 시작하세요...',btnReset:'새로 시작',rAccLabel:'정확도',rTimeLabel:'소요 시간',btnRetry:'다시 도전',rankFn:(wpm)=>wpm>=80?'전문가 수준 🏆':wpm>=60?'고급 수준 ⚡':wpm>=40?'평균 수준 👍':'초급 수준 📝',
+    seoHtml:`<h2>타이핑 속도 테스트</h2><p>실시간으로 <strong>WPM(분당 단어)</strong>, <strong>CPM(분당 글자)</strong>, <strong>정확도</strong>를 측정하는 무료 타이핑 테스트입니다. 영어 지문을 보며 타이핑하면 자동으로 속도가 계산됩니다. 타이핑 실력을 향상시키고 싶은 분, 입사 시험 준비 중인 분께 추천합니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>WPM이란 무엇인가요?</summary><p>Words Per Minute — 분당 입력한 단어 수입니다.</p></details>
+<details class="faq-item"><summary>CPM은 무엇인가요?</summary><p>Characters Per Minute — 분당 입력한 글자 수입니다.</p></details>
+<details class="faq-item"><summary>평균 타이핑 속도는?</summary><p>일반인 평균 40~60 WPM, 전문 타이피스트는 80~100 WPM 이상입니다.</p></details>
+<details class="faq-item"><summary>정확도는 어떻게 계산되나요?</summary><p>총 입력 글자 중 올바른 글자 비율입니다.</p></details>
+<details class="faq-item"><summary>타이핑 속도를 높이는 방법은?</summary><p>홈포지션 연습, 올바른 손가락 배치, 꾸준한 반복 연습이 중요합니다.</p></details>
+<details class="faq-item"><summary>시험에서 요구하는 타이핑 속도는?</summary><p>공무원 타자 시험은 보통 분당 200타(한글 기준) 이상을 요구합니다.</p></details>
+<details class="faq-item"><summary>블라인드 타이핑이란?</summary><p>키보드를 보지 않고 타이핑하는 방법으로 속도와 정확도를 크게 높입니다.</p></details>
+<details class="faq-item"><summary>게임 플레이에 타이핑 속도가 중요한가요?</summary><p>MMORPG나 채팅 등에서 높은 WPM은 커뮤니케이션 속도를 높입니다.</p></details>`
+  },
+  en:{h1a:'Typing',h1b:'Speed Test',sub:'Measure WPM, CPM and accuracy in real time',backLink:'← All Tools',langBtn:'🌐 中文',pageTitle:'Typing Speed Test | MODOO HUB',lblAcc:'Accuracy',lblTime:'Time',txtPh:'Click here and start typing...',btnReset:'New Test',rAccLabel:'Accuracy',rTimeLabel:'Time',btnRetry:'Try Again',rankFn:(wpm)=>wpm>=80?'Expert 🏆':wpm>=60?'Advanced ⚡':wpm>=40?'Average 👍':'Beginner 📝',
+    seoHtml:`<h2>Typing Speed Test</h2><p>Measure your <strong>WPM</strong>, <strong>CPM</strong> and <strong>accuracy</strong> in real time. Start typing the passage shown — your speed is calculated automatically. Great for job test prep and skill building.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>What is WPM?</summary><p>Words Per Minute — the standard measure of typing speed.</p></details>
+<details class="faq-item"><summary>What is CPM?</summary><p>Characters Per Minute — total characters typed per minute.</p></details>
+<details class="faq-item"><summary>What is average typing speed?</summary><p>Average is 40–60 WPM. Professional typists reach 80–100+ WPM.</p></details>
+<details class="faq-item"><summary>How is accuracy calculated?</summary><p>Ratio of correct characters to total characters typed.</p></details>
+<details class="faq-item"><summary>How to improve typing speed?</summary><p>Practice home-row positioning, correct finger placement, and consistent daily practice.</p></details>
+<details class="faq-item"><summary>Good WPM for a job?</summary><p>Most office jobs expect 40+ WPM; data entry roles prefer 60–80 WPM.</p></details>
+<details class="faq-item"><summary>What is touch typing?</summary><p>Typing without looking at the keyboard — greatly improves both speed and accuracy.</p></details>
+<details class="faq-item"><summary>Does gaming require fast typing?</summary><p>MMO chat and coordination benefit from higher WPM, though game mechanics vary.</p></details>`
+  },
+  zh:{h1a:'打字',h1b:'速度测试',sub:'实时测量WPM、CPM和准确率',backLink:'← 所有工具',langBtn:'🌐 日本語',pageTitle:'打字速度测试 | MODOO HUB',lblAcc:'准确率',lblTime:'时间',txtPh:'点击此处开始打字...',btnReset:'新测试',rAccLabel:'准确率',rTimeLabel:'用时',btnRetry:'再试一次',rankFn:(wpm)=>wpm>=80?'专家级 🏆':wpm>=60?'高级 ⚡':wpm>=40?'平均水平 👍':'初级 📝',
+    seoHtml:`<h2>打字速度测试</h2><p>实时测量<strong>WPM</strong>、<strong>CPM</strong>和<strong>准确率</strong>。开始打字即可自动计算速度，适合求职备考和提升技能。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>WPM是什么？</summary><p>Words Per Minute，每分钟单词数，是打字速度的标准衡量指标。</p></details>
+<details class="faq-item"><summary>CPM是什么？</summary><p>Characters Per Minute，每分钟字符数。</p></details>
+<details class="faq-item"><summary>平均打字速度是多少？</summary><p>普通人平均40~60 WPM，专业打字员达80~100 WPM以上。</p></details>
+<details class="faq-item"><summary>准确率如何计算？</summary><p>正确字符数占总输入字符数的比例。</p></details>
+<details class="faq-item"><summary>如何提升打字速度？</summary><p>练习基准键位、正确的手指摆放，坚持每天练习。</p></details>
+<details class="faq-item"><summary>工作需要多快的打字速度？</summary><p>大多数办公室工作需要40+ WPM；数据录入岗位偏好60~80 WPM。</p></details>
+<details class="faq-item"><summary>什么是盲打？</summary><p>不看键盘打字的方法，能大幅提升速度和准确率。</p></details>
+<details class="faq-item"><summary>游戏需要快速打字吗？</summary><p>MMO聊天和团队协调中，较高的WPM有助于更快沟通。</p></details>`
+  },
+  ja:{h1a:'タイピング',h1b:'速度テスト',sub:'WPM・CPM・正確率をリアルタイム測定',backLink:'← ホーム',langBtn:'🌐 한국어',pageTitle:'タイピング速度テスト | MODOO HUB',lblAcc:'正確率',lblTime:'時間',txtPh:'ここをクリックして入力開始...',btnReset:'新しいテスト',rAccLabel:'正確率',rTimeLabel:'所要時間',btnRetry:'もう一度',rankFn:(wpm)=>wpm>=80?'エキスパート 🏆':wpm>=60?'上級 ⚡':wpm>=40?'平均 👍':'初心者 📝',
+    seoHtml:`<h2>タイピング速度テスト</h2><p>リアルタイムで<strong>WPM</strong>・<strong>CPM</strong>・<strong>正確率</strong>を測定します。表示された文章を入力すると速度が自動計算されます。就職試験対策やスキルアップに最適です。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>WPMとは？</summary><p>Words Per Minute — タイピング速度の標準指標です。</p></details>
+<details class="faq-item"><summary>CPMとは？</summary><p>Characters Per Minute — 1分間に入力した文字数です。</p></details>
+<details class="faq-item"><summary>平均タイピング速度は？</summary><p>一般的に40〜60 WPM、プロは80〜100 WPM以上です。</p></details>
+<details class="faq-item"><summary>正確率の計算方法は？</summary><p>正しく入力した文字数の割合です。</p></details>
+<details class="faq-item"><summary>速度を上げる方法は？</summary><p>ホームポジションの練習と毎日の継続が重要です。</p></details>
+<details class="faq-item"><summary>仕事に必要なWPMは？</summary><p>一般事務では40+ WPM、データ入力職では60〜80 WPMが好まれます。</p></details>
+<details class="faq-item"><summary>ブラインドタッチとは？</summary><p>キーボードを見ずに打つ方法で、速度と正確率が大幅に向上します。</p></details>
+<details class="faq-item"><summary>ゲームに速いタイピングは必要？</summary><p>MMOのチャットや連携では高いWPMが役立ちます。</p></details>`
+  }
+};
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){
+  const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
+  document.getElementById('h1a').textContent=t.h1a;document.getElementById('h1b').textContent=t.h1b;document.getElementById('subEl').textContent=t.sub;
+  document.getElementById('backLink').textContent=t.backLink;document.getElementById('langBtn').textContent=t.langBtn;
+  document.getElementById('lblAcc').textContent=t.lblAcc;document.getElementById('lblTime').textContent=t.lblTime;
+  document.getElementById('typingArea').placeholder=t.txtPh;document.getElementById('btnReset').textContent=t.btnReset;
+  document.getElementById('rAccLabel').textContent=t.rAccLabel;document.getElementById('rTimeLabel').textContent=t.rTimeLabel;
+  document.getElementById('btnRetry').textContent=t.btnRetry;
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+}
+function renderPassage(){
+  const box=document.getElementById('passageBox');
+  let html='';
+  for(let i=0;i<_chars.length;i++){
+    const c=_chars[i]==='<'?'&lt;':_chars[i]==='>'?'&gt;':_chars[i]===' '?'&nbsp;':_chars[i];
+    if(i<_idx)html+=`<span class="${_chars[i]===_correct[i]?'correct':'wrong'}">${c}</span>`;
+    else if(i===_idx)html+=`<span class="cursor pending">${c}</span>`;
+    else html+=`<span class="pending">${c}</span>`;
+  }
+  box.innerHTML=html;
+}
+let _correct=[];
+function resetTest(){
+  clearInterval(_timer);_done=false;_idx=0;_startTime=null;_wrongCount=0;
+  _passage=PASSAGES[Math.floor(Math.random()*PASSAGES.length)];
+  _chars=_passage.split('');_correct=[..._chars];
+  document.getElementById('typingArea').value='';document.getElementById('typingArea').disabled=false;
+  document.getElementById('statWpm').textContent='0';document.getElementById('statCpm').textContent='0';
+  document.getElementById('statAcc').textContent='100%';document.getElementById('statTimer').textContent='0s';
+  document.getElementById('resultPanel').classList.remove('show');
+  renderPassage();
+}
+function onType(){
+  if(_done)return;
+  const val=document.getElementById('typingArea').value;
+  if(!_startTime&&val.length>0){_startTime=Date.now();startTimer();}
+  _idx=val.length;_wrongCount=0;
+  for(let i=0;i<val.length;i++){if(val[i]!==_chars[i])_wrongCount++;}
+  renderPassage();updateStats(val);
+  if(val.length===_chars.length){finishTest();}
+}
+function updateStats(val){
+  if(!_startTime)return;
+  const sec=(Date.now()-_startTime)/1000;const min=sec/60;
+  const words=val.trim().split(/\s+/).filter(Boolean).length;
+  const wpm=min>0?Math.round(words/min):0;const cpm=min>0?Math.round(val.length/min):0;
+  const acc=val.length>0?Math.round((val.length-_wrongCount)/val.length*100):100;
+  document.getElementById('statWpm').textContent=wpm;document.getElementById('statCpm').textContent=cpm;
+  document.getElementById('statAcc').textContent=acc+'%';
+}
+function startTimer(){_timer=setInterval(()=>{if(!_startTime)return;const s=Math.round((Date.now()-_startTime)/1000);document.getElementById('statTimer').textContent=s+'s';},500);}
+function finishTest(){
+  _done=true;clearInterval(_timer);document.getElementById('typingArea').disabled=true;
+  const sec=(Date.now()-_startTime)/1000;const min=sec/60;
+  const words=_passage.trim().split(/\s+/).length;
+  const wpm=Math.round(words/min);const cpm=Math.round(_passage.length/min);
+  const acc=Math.round((_passage.length-_wrongCount)/_passage.length*100);
+  document.getElementById('resultWpm').textContent=wpm;document.getElementById('rCpm').textContent=cpm;
+  document.getElementById('rAcc').textContent=acc+'%';document.getElementById('rTime').textContent=Math.round(sec)+'s';
+  document.getElementById('rankBadge').textContent=_i18n[_lang].rankFn(wpm);
+  document.getElementById('resultPanel').classList.add('show');
+}
+_lang=detectLang();applyLang();resetTest();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

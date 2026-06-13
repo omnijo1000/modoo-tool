@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gemini 비용 추정기 - Google Gemini API 비용 계산기 | MODOO HUB</title>
+<meta name="description" content="Google Gemini 1.5 Pro, Flash, 2.0 Flash API 사용 비용을 토큰 기반으로 계산. 월간·연간 예산 추정. 무료 온라인 Gemini 비용 계산기.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/gemini-cost-estimator.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/gemini-cost-estimator.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/gemini-cost-estimator.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/gemini-cost-estimator.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/gemini-cost-estimator.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/gemini-cost-estimator.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:860px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;}
+.label{font-size:11px;color:var(--text-dim);letter-spacing:.07em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:8px;display:block;}
+select,input[type=number]{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;outline:none;width:100%;margin-bottom:8px;}
+select:focus,input:focus{border-color:var(--accent);}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.result-big{text-align:center;padding:20px;background:var(--surface2);border-radius:10px;margin-bottom:8px;}
+.result-val{font-size:36px;font-weight:900;font-family:'DM Mono',monospace;color:var(--accent);}
+.result-label{font-size:12px;color:var(--text-dim);margin-top:4px;}
+.breakdown{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.bk-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center;}
+.bk-val{font-size:16px;font-weight:700;font-family:'DM Mono',monospace;color:var(--green);}
+.bk-label{font-size:10px;color:var(--text-dim);margin-top:3px;}
+.pricing-table{width:100%;border-collapse:collapse;font-size:12px;font-family:'DM Mono',monospace;}
+.pricing-table th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--text-dim);font-size:10px;text-transform:uppercase;}
+.pricing-table td{padding:8px 10px;border-bottom:1px solid var(--border);color:var(--text-muted);}
+.pricing-table tr:last-child td{border-bottom:none;}
+.pricing-table .sel{background:rgba(251,191,36,.05);color:var(--accent);}
+.free-badge{display:inline-block;padding:1px 6px;border-radius:3px;font-size:9px;background:rgba(74,222,128,.1);color:var(--green);border:1px solid rgba(74,222,128,.2);margin-left:4px;}
+.note{font-size:11px;color:var(--text-dim);margin-top:8px;line-height:1.5;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Gemini Cost Estimator","url":"https://modoohub.com/gemini-cost-estimator.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Calculate Google Gemini API costs for 1.5 Pro, Flash, and 2.0 Flash models. Monthly and yearly budget estimator."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Gemini API 비용은 어떻게 계산되나요?","acceptedAnswer":{"@type":"Answer","text":"입력 토큰과 출력 토큰을 1백만 토큰당 달러로 계산합니다. 짧은 컨텍스트와 긴 컨텍스트에 따라 가격이 달라집니다."}},{"@type":"Question","name":"Gemini Flash와 Pro의 차이는?","acceptedAnswer":{"@type":"Answer","text":"Flash는 빠르고 저렴한 경량 모델, Pro는 더 강력하지만 비용이 높습니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>Gemini <span id="h1b">비용 추정기</span></h1>
+  <p class="sub" id="subEl">Google Gemini API 사용 비용 계산</p>
+  <div class="panel">
+    <label class="label" id="labelModel">모델 선택</label>
+    <select id="modelSel" onchange="calc()">
+      <option value="g15pro">Gemini 1.5 Pro ($3.50/$10.50 per 1M)</option>
+      <option value="g15flash" selected>Gemini 1.5 Flash ($0.075/$0.30 per 1M)</option>
+      <option value="g15flash8b">Gemini 1.5 Flash-8B ($0.0375/$0.15 per 1M)</option>
+      <option value="g20flash">Gemini 2.0 Flash ($0.10/$0.40 per 1M)</option>
+      <option value="g20pro">Gemini 2.0 Pro ($2.50/$10.00 per 1M)</option>
+    </select>
+    <div class="row2">
+      <div>
+        <label class="label" id="labelIn">입력 토큰 (1회)</label>
+        <input type="number" id="inTok" value="1000" min="0" oninput="calc()">
+      </div>
+      <div>
+        <label class="label" id="labelOut">출력 토큰 (1회)</label>
+        <input type="number" id="outTok" value="500" min="0" oninput="calc()">
+      </div>
+    </div>
+    <label class="label" id="labelReqs">일일 요청 수</label>
+    <input type="number" id="reqsDay" value="100" min="1" oninput="calc()">
+  </div>
+  <div class="panel">
+    <div class="result-big">
+      <div class="result-val" id="monthCost">$0.000</div>
+      <div class="result-label" id="monthLabel">월간 추정 비용</div>
+    </div>
+    <div class="breakdown">
+      <div class="bk-card"><div class="bk-val" id="perCall">$0.000</div><div class="bk-label" id="perCallLabel">1회 비용</div></div>
+      <div class="bk-card"><div class="bk-val" id="dayTotal">$0.00</div><div class="bk-label" id="dayLabel">일간 비용</div></div>
+      <div class="bk-card"><div class="bk-val" id="yearTotal">$0.00</div><div class="bk-label" id="yearLabel">연간 비용</div></div>
+    </div>
+    <p class="note" id="noteEl">※ 참고용 추정치입니다. 실제 가격은 Google AI Studio 공식 페이지를 확인하세요. Gemini API는 무료 티어를 제공합니다.</p>
+  </div>
+  <div class="panel">
+    <label class="label" id="labelTable">모델별 가격표 ($/1M 토큰)</label>
+    <table class="pricing-table" id="pricingTable"></table>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const MODELS={
+  g15pro:    {label:'Gemini 1.5 Pro',      pIn:3.50,   pOut:10.50,  ctx:'1M',    free:'RPM 2'},
+  g15flash:  {label:'Gemini 1.5 Flash',    pIn:0.075,  pOut:0.30,   ctx:'1M',    free:'RPM 15'},
+  g15flash8b:{label:'Gemini 1.5 Flash-8B', pIn:0.0375, pOut:0.15,   ctx:'1M',    free:'RPM 15'},
+  g20flash:  {label:'Gemini 2.0 Flash',    pIn:0.10,   pOut:0.40,   ctx:'1M',    free:'RPM 15'},
+  g20pro:    {label:'Gemini 2.0 Pro',      pIn:2.50,   pOut:10.00,  ctx:'2M',    free:'-'},
+};
+const _i18n={
+  ko:{pageTitle:'Gemini 비용 추정기 - Google Gemini API 비용 계산기 | MODOO HUB',h1b:'비용 추정기',sub:'Google Gemini API 사용 비용 계산',backLink:'← 모두의 툴',langBtn:'🌐 EN',labelModel:'모델 선택',labelIn:'입력 토큰 (1회)',labelOut:'출력 토큰 (1회)',labelReqs:'일일 요청 수',monthLabel:'월간 추정 비용',perCallLabel:'1회 비용',dayLabel:'일간 비용',yearLabel:'연간 비용',note:'※ 참고용 추정치입니다. Google AI Studio 공식 페이지를 확인하세요. 무료 티어 제공.',labelTable:'모델별 가격표 ($/1M 토큰)',thModel:'모델',thIn:'입력',thOut:'출력',thCtx:'컨텍스트',thFree:'무료 티어',
+    seoHtml:`<h2>Gemini API 비용 추정기란?</h2><p>Google의 <strong>Gemini 1.5 Pro, Flash, 2.0 Flash API 사용 비용</strong>을 계산합니다. Gemini는 업계 최대 수준인 100만~200만 토큰 컨텍스트와 무료 티어를 제공합니다. AI 개발 예산 계획에 활용하세요.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>Gemini API 무료 티어란?</summary><p>Google AI Studio에서 API 키로 매분 일정 횟수의 요청을 무료로 사용할 수 있습니다. 프로덕션은 유료입니다.</p></details>
+<details class="faq-item"><summary>Gemini 1.5 Pro와 Flash의 차이는?</summary><p>Pro는 더 강력하고, Flash는 훨씬 빠르고 저렴합니다. Flash는 Pro 대비 약 47배 저렴합니다.</p></details>
+<details class="faq-item"><summary>Gemini의 1M 컨텍스트는?</summary><p>Gemini 1.5/2.0은 100만~200만 토큰을 한 번에 처리할 수 있어, 긴 책 전체나 대용량 코드베이스 분석에 적합합니다.</p></details>
+<details class="faq-item"><summary>128K 이상 컨텍스트 가격 차이는?</summary><p>Gemini 1.5 Pro는 128K 이하 입력 시 $1.25/1M, 128K 초과 시 $5.00/1M으로 구분됩니다.</p></details>
+<details class="faq-item"><summary>Vertex AI와 Google AI Studio의 차이는?</summary><p>Vertex AI는 엔터프라이즈용, Google AI Studio는 개발자·프로토타이핑용입니다. 둘 다 Gemini API를 사용합니다.</p></details>
+<details class="faq-item"><summary>Gemini Flash 8B는 무엇인가요?</summary><p>Gemini 1.5 Flash의 더 작은 버전으로, 가장 저렴하면서도 빠른 모델입니다.</p></details>
+<details class="faq-item"><summary>API 키는 어디서 받나요?</summary><p>aistudio.google.com에서 무료로 API 키를 발급받을 수 있습니다.</p></details>
+<details class="faq-item"><summary>Gemini 2.0의 특징은?</summary><p>Gemini 2.0은 향상된 추론 능력과 더 큰 컨텍스트(2M)를 제공하는 최신 세대입니다.</p></details>`
+  },
+  en:{pageTitle:'Gemini Cost Estimator - Google Gemini API Cost Calculator | MODOO HUB',h1b:'Cost Estimator',sub:'Calculate Google Gemini API usage costs',backLink:'← All Tools',langBtn:'🌐 中文',labelModel:'Select Model',labelIn:'Input Tokens (per call)',labelOut:'Output Tokens (per call)',labelReqs:'Daily Requests',monthLabel:'Estimated Monthly Cost',perCallLabel:'Per Call',dayLabel:'Daily',yearLabel:'Yearly',note:'※ Estimates only. Check Google AI Studio pricing for current rates. Free tier available.',labelTable:'Pricing Table ($/1M tokens)',thModel:'Model',thIn:'Input',thOut:'Output',thCtx:'Context',thFree:'Free Tier',
+    seoHtml:`<h2>Gemini Cost Estimator</h2><p>Calculate <strong>Google Gemini 1.5 Pro, Flash, and 2.0 Flash API costs</strong>. Gemini offers industry-leading 1-2M token context windows and a generous free tier. Plan your AI development budget.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>What is the Gemini API free tier?</summary><p>Google AI Studio allows a limited number of requests per minute for free. Production usage is paid.</p></details>
+<details class="faq-item"><summary>Gemini 1.5 Pro vs Flash?</summary><p>Pro is more capable; Flash is ~47x cheaper and much faster. Flash is ideal for high-volume tasks.</p></details>
+<details class="faq-item"><summary>What does 1M context mean?</summary><p>Gemini can process up to 1-2 million tokens at once — entire books or large codebases in one call.</p></details>
+<details class="faq-item"><summary>Does context length affect pricing?</summary><p>Yes — Gemini 1.5 Pro costs $1.25/1M for inputs ≤128K and $5.00/1M for longer inputs.</p></details>
+<details class="faq-item"><summary>Vertex AI vs Google AI Studio?</summary><p>Vertex AI is enterprise-grade; Google AI Studio is for developers and prototyping. Both use Gemini.</p></details>
+<details class="faq-item"><summary>What is Gemini Flash 8B?</summary><p>A smaller version of Gemini 1.5 Flash — the cheapest and fastest model available.</p></details>
+<details class="faq-item"><summary>How to get an API key?</summary><p>Get a free API key at aistudio.google.com.</p></details>
+<details class="faq-item"><summary>What&apos;s new in Gemini 2.0?</summary><p>Gemini 2.0 offers improved reasoning and supports up to 2M token context windows.</p></details>`
+  },
+  zh:{pageTitle:'Gemini费用估算器 - Google Gemini API成本计算器 | MODOO HUB',h1b:'费用估算器',sub:'计算Google Gemini API使用费用',backLink:'← 所有工具',langBtn:'🌐 日本語',labelModel:'选择模型',labelIn:'输入Token数(每次调用)',labelOut:'输出Token数(每次调用)',labelReqs:'每日请求次数',monthLabel:'预估月费用',perCallLabel:'每次费用',dayLabel:'每日费用',yearLabel:'每年费用',note:'※ 仅为估算值，请查看Google AI Studio官方定价。提供免费套餐。',labelTable:'各模型价格表 ($/1M Token)',thModel:'模型',thIn:'输入',thOut:'输出',thCtx:'上下文',thFree:'免费套餐',
+    seoHtml:`<h2>Gemini费用估算器</h2><p>计算<strong>Google Gemini 1.5 Pro、Flash和2.0 Flash的API费用</strong>。Gemini提供业界最大的1-2M Token上下文窗口和慷慨的免费套餐。规划您的AI开发预算。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>Gemini API免费套餐是什么？</summary><p>Google AI Studio每分钟提供有限次数的免费请求，生产使用需付费。</p></details>
+<details class="faq-item"><summary>Gemini 1.5 Pro与Flash的区别？</summary><p>Pro能力更强，Flash便宜约47倍且速度更快，适合大量任务。</p></details>
+<details class="faq-item"><summary>1M上下文意味着什么？</summary><p>Gemini一次可处理高达1-200万个Token，相当于整本书或大型代码库。</p></details>
+<details class="faq-item"><summary>上下文长度影响价格吗？</summary><p>是的，Gemini 1.5 Pro对128K以内输入收费$1.25/1M，超过则$5.00/1M。</p></details>
+<details class="faq-item"><summary>Vertex AI与Google AI Studio的区别？</summary><p>Vertex AI面向企业，Google AI Studio面向开发者和原型开发，两者都使用Gemini。</p></details>
+<details class="faq-item"><summary>什么是Gemini Flash 8B？</summary><p>Gemini 1.5 Flash的更小版本，是最便宜、最快的模型。</p></details>
+<details class="faq-item"><summary>如何获取API密钥？</summary><p>在aistudio.google.com免费获取API密钥。</p></details>
+<details class="faq-item"><summary>Gemini 2.0有什么新特性？</summary><p>Gemini 2.0提供更强的推理能力，支持高达200万Token的上下文窗口。</p></details>`
+  },
+  ja:{pageTitle:'Geminiコスト見積もりツール - Google Gemini API費用計算 | MODOO HUB',h1b:'コスト見積もりツール',sub:'Google Gemini API使用コストを計算',backLink:'← ホーム',langBtn:'🌐 한국어',labelModel:'モデル選択',labelIn:'入力トークン数(1回あたり)',labelOut:'出力トークン数(1回あたり)',labelReqs:'1日のリクエスト数',monthLabel:'月間推定コスト',perCallLabel:'1回あたり',dayLabel:'1日あたり',yearLabel:'年間',note:'※ 推定値です。最新料金はGoogle AI Studio公式ページをご確認ください。無料枠あり。',labelTable:'モデル別料金表 ($/1Mトークン)',thModel:'モデル',thIn:'入力',thOut:'出力',thCtx:'コンテキスト',thFree:'無料枠',
+    seoHtml:`<h2>Gemini APIコスト見積もりツールとは</h2><p><strong>Google Gemini 1.5 Pro、Flash、2.0 FlashのAPIコスト</strong>を計算します。Geminiは業界最大の1〜200万トークンのコンテキストと充実した無料枠を提供しています。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>Gemini APIの無料枠とは？</summary><p>Google AI StudioではAPIキーで1分あたり一定回数のリクエストが無料で使えます。本番利用は有料です。</p></details>
+<details class="faq-item"><summary>Gemini 1.5 ProとFlashの違いは？</summary><p>Proがより高性能で、Flashは約47倍安く高速です。大量処理にはFlashが最適です。</p></details>
+<details class="faq-item"><summary>1Mコンテキストとは？</summary><p>Geminiは一度に1〜200万トークンを処理でき、本全体や大規模なコードベースの分析が可能です。</p></details>
+<details class="faq-item"><summary>コンテキスト長で料金は変わりますか？</summary><p>はい、Gemini 1.5 Proは128K以下の入力が$1.25/1M、それ以上は$5.00/1Mです。</p></details>
+<details class="faq-item"><summary>Vertex AIとGoogle AI Studioの違いは？</summary><p>Vertex AIはエンタープライズ向け、Google AI Studioは開発者・プロトタイプ向けです。両方ともGeminiを使います。</p></details>
+<details class="faq-item"><summary>Gemini Flash 8Bとは？</summary><p>Gemini 1.5 Flashのより小さなバージョンで、最も安く高速なモデルです。</p></details>
+<details class="faq-item"><summary>APIキーの取得方法は？</summary><p>aistudio.google.comで無料のAPIキーを取得できます。</p></details>
+<details class="faq-item"><summary>Gemini 2.0の特徴は？</summary><p>Gemini 2.0は改善された推論能力と最大200万トークンのコンテキストウィンドウを提供します。</p></details>`
+  }
+};
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko';
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const idx=LANGS.indexOf(_lang);_lang=LANGS[(idx+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
+  document.getElementById('h1b').textContent=t.h1b;document.getElementById('subEl').textContent=t.sub;
+  document.getElementById('backLink').textContent=t.backLink;document.getElementById('langBtn').textContent=t.langBtn;
+  document.getElementById('labelModel').textContent=t.labelModel;document.getElementById('labelIn').textContent=t.labelIn;
+  document.getElementById('labelOut').textContent=t.labelOut;document.getElementById('labelReqs').textContent=t.labelReqs;
+  document.getElementById('monthLabel').textContent=t.monthLabel;document.getElementById('perCallLabel').textContent=t.perCallLabel;
+  document.getElementById('dayLabel').textContent=t.dayLabel;document.getElementById('yearLabel').textContent=t.yearLabel;
+  document.getElementById('noteEl').textContent=t.note;document.getElementById('labelTable').textContent=t.labelTable;
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;buildTable();calc();
+}
+function buildTable(){
+  const t=_i18n[_lang];const sel=document.getElementById('modelSel').value;
+  document.getElementById('pricingTable').innerHTML=`<thead><tr><th>${t.thModel}</th><th>${t.thIn}</th><th>${t.thOut}</th><th>${t.thCtx}</th><th>${t.thFree}</th></tr></thead><tbody>${Object.entries(MODELS).map(([k,m])=>`<tr class="${k===sel?'sel':''}"><td>${m.label}</td><td>$${m.pIn.toFixed(4)}</td><td>$${m.pOut.toFixed(4)}</td><td>${m.ctx}</td><td>${m.free}</td></tr>`).join('')}</tbody>`;
+}
+function calc(){
+  const sel=document.getElementById('modelSel').value;const m=MODELS[sel];
+  const inTok=parseFloat(document.getElementById('inTok').value)||0;
+  const outTok=parseFloat(document.getElementById('outTok').value)||0;
+  const reqs=parseFloat(document.getElementById('reqsDay').value)||0;
+  const perCall=(inTok/1e6*m.pIn)+(outTok/1e6*m.pOut);
+  const day=perCall*reqs;const month=day*30;const year=day*365;
+  document.getElementById('monthCost').textContent='$'+month.toFixed(month<0.01?5:2);
+  document.getElementById('perCall').textContent='$'+perCall.toFixed(6);
+  document.getElementById('dayTotal').textContent='$'+day.toFixed(day<0.01?4:2);
+  document.getElementById('yearTotal').textContent='$'+year.toFixed(2);
+  buildTable();
+}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>
