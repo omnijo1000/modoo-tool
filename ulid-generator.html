@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ULID 생성기 - 정렬 가능한 고유 ID 생성 | MODOO HUB</title>
+<meta name="description" content="ULID(Universally Unique Lexicographically Sortable Identifier) 생성기. 타임스탬프 기반 정렬 가능한 고유 ID.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/ulid-generator.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/ulid-generator.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/ulid-generator.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/ulid-generator.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/ulid-generator.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/ulid-generator.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--blue:#60a5fa;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:900px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:12px;}
+.label{font-size:11px;color:var(--text-dim);letter-spacing:.07em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:8px;}
+.ulid-display{font-family:'DM Mono',monospace;font-size:28px;font-weight:700;letter-spacing:.06em;color:var(--text);margin:12px 0;word-break:break-all;}
+.ulid-ts{color:var(--accent);}
+.ulid-rand{color:var(--blue);}
+.ts-label{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;margin-top:6px;}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
+.btn{padding:8px 20px;border:1px solid var(--border);border-radius:7px;font-size:12px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;background:none;color:var(--text-muted);transition:all .15s;}
+.btn:hover{border-color:var(--accent);color:var(--accent);}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;}
+.count-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
+.count-row label{font-size:12px;color:var(--text-muted);}
+.count-row input[type=number]{width:80px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;outline:none;}
+.count-row input[type=number]:focus{border-color:var(--accent);}
+.list-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;font-family:'DM Mono',monospace;font-size:12px;line-height:1.9;max-height:300px;overflow:auto;word-break:break-all;}
+.decode-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 12px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;outline:none;margin-bottom:8px;}
+.decode-input:focus{border-color:var(--accent);}
+.result-grid{display:grid;gap:8px;}
+.result-item{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;}
+.result-key{font-size:10px;color:var(--text-dim);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;}
+.result-val{font-family:'DM Mono',monospace;font-size:12px;color:var(--text);}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"ULID Generator","url":"https://modoohub.com/ulid-generator.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Generate ULIDs (Universally Unique Lexicographically Sortable Identifiers). Timestamp-based sortable unique IDs compatible with UUID."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"ULID이란 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"ULID는 타임스탬프(10자) + 랜덤(16자) = 26자 Crockford Base32 인코딩 고유 ID입니다. UUID와 달리 알파벳 정렬이 가능합니다."}},{"@type":"Question","name":"ULID와 UUID의 차이는?","acceptedAnswer":{"@type":"Answer","text":"ULID는 생성 시간순으로 정렬되어 데이터베이스 인덱싱에 유리합니다. UUID v4는 완전 랜덤이라 정렬되지 않습니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>ULID <span id="h1b">생성기</span></h1>
+  <p class="sub" id="subEl">정렬 가능한 고유 ID (Universally Unique Lexicographically Sortable Identifier)</p>
+  <div class="panel">
+    <div class="label" id="labelSingle">단일 생성</div>
+    <div class="ulid-display" id="ulidDisplay">—</div>
+    <div class="ts-label" id="tsLabel"></div>
+    <div class="btn-row">
+      <button class="btn primary" onclick="genOne()" id="btnGen">생성</button>
+      <button class="btn" onclick="copyOne()" id="btnCopy">복사</button>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="label" id="labelBatch">일괄 생성</div>
+    <div class="count-row">
+      <label id="labelCount">개수</label>
+      <input type="number" id="count" value="5" min="1" max="100">
+      <button class="btn primary" onclick="genBatch()" id="btnBatch">생성</button>
+      <button class="btn" onclick="copyBatch()" id="btnCopyBatch">전체 복사</button>
+    </div>
+    <div class="list-box" id="listBox"></div>
+  </div>
+  <div class="panel">
+    <div class="label" id="labelDecode">ULID 디코딩</div>
+    <input class="decode-input" id="decodeInput" placeholder="01HWABCDEF1234567890ABCDEF" oninput="decode()">
+    <div class="result-grid" id="decodeResult"></div>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const ENCODING='0123456789ABCDEFGHJKMNPQRSTVWXYZ';
+function encodeBase32(n,len){let s='';for(let i=len-1;i>=0;i--){s=ENCODING[n&31]+s;n=Math.floor(n/32);}return s;}
+function generateULID(ts){
+  ts=ts||Date.now();
+  const tsPart=encodeBase32(ts,10);
+  const rand=new Uint8Array(10);crypto.getRandomValues(rand);
+  let randPart='';let n=0;
+  for(let i=0;i<rand.length;i++){n=(n*256+rand[i]);if((i+1)%5===0||i===rand.length-1){const bits=Math.min(8,(i+1)*8%40||40);randPart+=encodeBase32(n,Math.ceil(bits/5));n=0;}}
+  return tsPart+(randPart.slice(0,16));
+}
+function decodeULID(ulid){
+  const u=ulid.toUpperCase();
+  if(!/^[0-9A-HJKMNP-TV-Z]{26}$/.test(u))throw new Error('Invalid ULID');
+  const tsPart=u.slice(0,10);let ts=0;
+  for(const c of tsPart){const v=ENCODING.indexOf(c);if(v<0)throw new Error('Invalid char');ts=ts*32+v;}
+  return ts;
+}
+const _i18n={
+  ko:{pageTitle:'ULID 생성기 - 정렬 가능한 고유 ID 생성 | MODOO HUB',h1b:'생성기',sub:'정렬 가능한 고유 ID (Universally Unique Lexicographically Sortable Identifier)',backLink:'← 모두의 툴',langBtn:'🌐 EN',labelSingle:'단일 생성',labelBatch:'일괄 생성',labelCount:'개수',labelDecode:'ULID 디코딩',btnGen:'생성',btnCopy:'복사',btnBatch:'생성',btnCopyBatch:'전체 복사',copied:'복사됨 ✓',kTimestamp:'타임스탬프',kDate:'생성 시간',kRandPart:'랜덤 부분',kValid:'유효성',valid:'✓ 유효한 ULID',invalid:'✗ 유효하지 않음',
+    seoHtml:`<h2>ULID 생성기란?</h2><p>ULID(Universally Unique Lexicographically Sortable Identifier)는 26자리 Crockford Base32 인코딩 고유 ID입니다. 앞 10자리는 <strong>밀리초 타임스탬프</strong>, 뒤 16자리는 랜덤값으로 구성됩니다. UUID와 달리 알파벳 정렬이 가능해 데이터베이스 인덱싱에 유리합니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>ULID와 UUID의 차이는?</summary><p>ULID는 타임스탬프 기반으로 정렬되지만, UUID v4는 완전 랜덤입니다. ULID는 삽입 순서를 유지해 B-트리 인덱스 단편화를 줄입니다.</p></details>
+<details class="faq-item"><summary>ULID의 정렬은 어떻게 이루어지나요?</summary><p>앞 10자리가 타임스탬프이므로 문자열 정렬 = 시간순 정렬입니다. 밀리초 내 여러 ULID는 랜덤 부분으로 구분됩니다.</p></details>
+<details class="faq-item"><summary>ULID는 UUID와 호환되나요?</summary><p>ULID는 128비트이므로 UUID 형식으로 저장할 수 있습니다. 일부 라이브러리가 변환을 지원합니다.</p></details>
+<details class="faq-item"><summary>Crockford Base32란?</summary><p>혼동하기 쉬운 문자(I, L, O, U)를 제외한 32진법 인코딩입니다. 대소문자 구분 없이 사용 가능합니다.</p></details>
+<details class="faq-item"><summary>ULID는 언제 사용하나요?</summary><p>데이터베이스 기본키로 UUID 대신 사용하거나, 생성 시간순으로 정렬이 필요한 고유 ID가 필요할 때 사용합니다.</p></details>
+<details class="faq-item"><summary>ULID 생성은 안전한가요?</summary><p>Web Crypto API(getRandomValues)를 사용해 암호학적으로 안전한 랜덤값을 생성합니다.</p></details>
+<details class="faq-item"><summary>NanoID와는 어떻게 다른가요?</summary><p>NanoID는 크기가 작고 커스텀 알파벳을 지원하지만 정렬 불가입니다. ULID는 정렬 가능하고 타임스탬프를 내장합니다.</p></details>
+<details class="faq-item"><summary>ULID의 최대 타임스탬프는?</summary><p>48비트 타임스탬프로 2^48 - 1 ms, 즉 서기 10889년까지 표현 가능합니다.</p></details>`
+  },
+  en:{pageTitle:'ULID Generator - Sortable Unique ID | MODOO HUB',h1b:'Generator',sub:'Universally Unique Lexicographically Sortable Identifier',backLink:'← All Tools',langBtn:'🌐 中文',labelSingle:'Single',labelBatch:'Batch Generate',labelCount:'Count',labelDecode:'Decode ULID',btnGen:'Generate',btnCopy:'Copy',btnBatch:'Generate',btnCopyBatch:'Copy All',copied:'Copied ✓',kTimestamp:'Timestamp (ms)',kDate:'Created At',kRandPart:'Random Part',kValid:'Validity',valid:'✓ Valid ULID',invalid:'✗ Invalid',
+    seoHtml:`<h2>ULID Generator</h2><p>ULID (Universally Unique Lexicographically Sortable Identifier) is a 26-char Crockford Base32 unique ID. The first 10 chars are a <strong>millisecond timestamp</strong>; the last 16 are random. Unlike UUID v4, ULIDs are lexicographically sortable — great for database indexing.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>ULID vs UUID?</summary><p>ULID is timestamp-based and sortable; UUID v4 is fully random. ULID maintains insertion order, reducing B-tree index fragmentation.</p></details>
+<details class="faq-item"><summary>How does ULID sort?</summary><p>The first 10 chars are the timestamp, so string sort = chronological sort. Multiple ULIDs within the same millisecond differ in the random part.</p></details>
+<details class="faq-item"><summary>Is ULID UUID-compatible?</summary><p>ULID is 128 bits, so it can be stored in UUID fields. Some libraries support conversion.</p></details>
+<details class="faq-item"><summary>What is Crockford Base32?</summary><p>A base-32 encoding excluding confusing chars (I, L, O, U). Case-insensitive.</p></details>
+<details class="faq-item"><summary>When to use ULID?</summary><p>As a database primary key when sortability matters, or any time you need a time-ordered unique ID.</p></details>
+<details class="faq-item"><summary>Is generation cryptographically secure?</summary><p>Yes — uses Web Crypto API (getRandomValues) for the random portion.</p></details>
+<details class="faq-item"><summary>ULID vs NanoID?</summary><p>NanoID is compact with custom alphabets but not sortable. ULID is sortable with an embedded timestamp.</p></details>
+<details class="faq-item"><summary>Max timestamp of ULID?</summary><p>48-bit timestamp supports up to 2^48−1 ms — year 10889.</p></details>`
+  },
+  zh:{pageTitle:'ULID生成器 - 可排序唯一ID生成 | MODOO HUB',h1b:'生成器',sub:'可字典排序的通用唯一标识符',backLink:'← 所有工具',langBtn:'🌐 日本語',labelSingle:'单个生成',labelBatch:'批量生成',labelCount:'数量',labelDecode:'解码ULID',btnGen:'生成',btnCopy:'复制',btnBatch:'生成',btnCopyBatch:'复制全部',copied:'已复制 ✓',kTimestamp:'时间戳 (ms)',kDate:'生成时间',kRandPart:'随机部分',kValid:'有效性',valid:'✓ 有效的ULID',invalid:'✗ 无效',
+    seoHtml:`<h2>ULID生成器</h2><p>ULID（可字典排序的通用唯一标识符）是26字符的Crockford Base32唯一ID。前10位是毫秒时间戳，后16位是随机值。与UUID v4不同，ULID可以按字典顺序排序，有利于数据库索引。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>ULID与UUID的区别？</summary><p>ULID基于时间戳可排序，UUID v4完全随机。ULID维护插入顺序，减少B树索引碎片。</p></details>
+<details class="faq-item"><summary>ULID如何排序？</summary><p>前10位是时间戳，字符串排序=时间顺序。同一毫秒内多个ULID通过随机部分区分。</p></details>
+<details class="faq-item"><summary>ULID与UUID兼容吗？</summary><p>ULID是128位，可存储在UUID字段中，部分库支持转换。</p></details>
+<details class="faq-item"><summary>Crockford Base32是什么？</summary><p>排除易混淆字符（I、L、O、U）的32进制编码，不区分大小写。</p></details>
+<details class="faq-item"><summary>何时使用ULID？</summary><p>需要可排序唯一ID时，例如数据库主键或时间排序的ID。</p></details>
+<details class="faq-item"><summary>生成是否安全？</summary><p>是的，随机部分使用Web Crypto API（getRandomValues）。</p></details>
+<details class="faq-item"><summary>ULID与NanoID的区别？</summary><p>NanoID体积小、支持自定义字母表但不可排序。ULID可排序且内嵌时间戳。</p></details>
+<details class="faq-item"><summary>ULID最大时间戳？</summary><p>48位时间戳，支持到2^48-1毫秒，即公元10889年。</p></details>`
+  },
+  ja:{pageTitle:'ULID生成ツール - ソート可能な一意ID生成 | MODOO HUB',h1b:'生成ツール',sub:'辞書順でソート可能な汎用一意識別子',backLink:'← ホーム',langBtn:'🌐 한국어',labelSingle:'単体生成',labelBatch:'一括生成',labelCount:'個数',labelDecode:'ULIDデコード',btnGen:'生成',btnCopy:'コピー',btnBatch:'生成',btnCopyBatch:'全コピー',copied:'コピー完了 ✓',kTimestamp:'タイムスタンプ (ms)',kDate:'生成日時',kRandPart:'ランダム部分',kValid:'有効性',valid:'✓ 有効なULID',invalid:'✗ 無効',
+    seoHtml:`<h2>ULID生成ツールとは</h2><p>ULID（Universally Unique Lexicographically Sortable Identifier）は26文字のCrockford Base32一意IDです。先頭10文字がミリ秒タイムスタンプ、残り16文字がランダム値です。UUID v4と異なり辞書順でソート可能なため、データベースのインデックスに有利です。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>ULIDとUUIDの違いは？</summary><p>ULIDはタイムスタンプベースでソート可能。UUID v4は完全ランダムです。ULIDは挿入順を維持しBツリーインデックスの断片化を軽減します。</p></details>
+<details class="faq-item"><summary>ULIDはどのようにソートされますか？</summary><p>先頭10文字がタイムスタンプなので、文字列ソート＝時系列ソートです。</p></details>
+<details class="faq-item"><summary>ULIDはUUIDと互換性がありますか？</summary><p>ULIDは128ビットなのでUUIDフィールドに格納できます。一部ライブラリが変換をサポートします。</p></details>
+<details class="faq-item"><summary>Crockford Base32とは？</summary><p>混同しやすい文字（I、L、O、U）を除いた32進数エンコードです。大文字小文字を区別しません。</p></details>
+<details class="faq-item"><summary>ULIDはいつ使いますか？</summary><p>DBの主キーや時系列順のユニークIDが必要な場合に使います。</p></details>
+<details class="faq-item"><summary>生成は安全ですか？</summary><p>はい。ランダム部分はWeb Crypto API（getRandomValues）を使用します。</p></details>
+<details class="faq-item"><summary>NanoIDとの違いは？</summary><p>NanoIDはコンパクトでカスタムアルファベット対応ですがソート不可。ULIDはソート可能でタイムスタンプを内蔵します。</p></details>
+<details class="faq-item"><summary>ULIDの最大タイムスタンプは？</summary><p>48ビットタイムスタンプで2^48-1ms、西暦10889年まで対応します。</p></details>`
+  }
+};
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko',_currentULID='';
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const idx=LANGS.indexOf(_lang);_lang=LANGS[(idx+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
+  document.getElementById('h1b').textContent=t.h1b;document.getElementById('subEl').textContent=t.sub;
+  document.getElementById('backLink').textContent=t.backLink;document.getElementById('langBtn').textContent=t.langBtn;
+  document.getElementById('labelSingle').textContent=t.labelSingle;document.getElementById('labelBatch').textContent=t.labelBatch;
+  document.getElementById('labelCount').textContent=t.labelCount;document.getElementById('labelDecode').textContent=t.labelDecode;
+  document.getElementById('btnGen').textContent=t.btnGen;document.getElementById('btnCopy').textContent=t.btnCopy;
+  document.getElementById('btnBatch').textContent=t.btnBatch;document.getElementById('btnCopyBatch').textContent=t.btnCopyBatch;
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+}
+function genOne(){
+  _currentULID=generateULID();
+  const disp=document.getElementById('ulidDisplay');
+  disp.innerHTML=`<span class="ulid-ts">${_currentULID.slice(0,10)}</span><span class="ulid-rand">${_currentULID.slice(10)}</span>`;
+  document.getElementById('tsLabel').textContent=new Date().toISOString();
+}
+function copyOne(){const t=_i18n[_lang];if(!_currentULID)return;
+  navigator.clipboard.writeText(_currentULID).then(()=>{const btn=document.getElementById('btnCopy');const orig=btn.textContent;btn.textContent=t.copied;setTimeout(()=>btn.textContent=orig,2000);});
+}
+function genBatch(){
+  const n=Math.min(100,Math.max(1,parseInt(document.getElementById('count').value)||5));
+  const ids=Array.from({length:n},()=>generateULID());
+  document.getElementById('listBox').innerHTML=ids.map(id=>`<span class="ulid-ts">${id.slice(0,10)}</span><span class="ulid-rand">${id.slice(10)}</span><br>`).join('');
+  genBatch._ids=ids;
+}
+function copyBatch(){const t=_i18n[_lang];const ids=genBatch._ids;if(!ids)return;
+  navigator.clipboard.writeText(ids.join('\n')).then(()=>{const btn=document.getElementById('btnCopyBatch');const orig=btn.textContent;btn.textContent=t.copied;setTimeout(()=>btn.textContent=orig,2000);});
+}
+function decode(){
+  const t=_i18n[_lang];const v=document.getElementById('decodeInput').value.trim();const grid=document.getElementById('decodeResult');
+  if(!v){grid.innerHTML='';return;}
+  try{
+    const ms=decodeULID(v);const dt=new Date(ms);
+    grid.innerHTML=[
+      [t.kValid,t.valid,true],
+      [t.kTimestamp,ms+'',false],
+      [t.kDate,dt.toISOString(),false],
+      [t.kRandPart,v.slice(10),false]
+    ].map(([k,val,ok])=>`<div class="result-item"><div class="result-key">${k}</div><div class="result-val${ok?' ok':''}">${val}</div></div>`).join('');
+  }catch{
+    grid.innerHTML=`<div class="result-item"><div class="result-key">${t.kValid}</div><div class="result-val err">${t.invalid}</div></div>`;
+  }
+}
+_lang=detectLang();applyLang();genOne();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

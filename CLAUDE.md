@@ -3,8 +3,8 @@
 ## 프로젝트 개요
 - **사이트**: https://modoohub.com
 - **구성**: 단일 HTML 파일 집합 (SPA 아님, 각 툴마다 별도 .html)
-- **현재 툴 수**: 172개 (index.html footer 카운터 기준)
-- **sitemap.xml**: 240 URL 항목
+- **현재 툴 수**: 229개 (index.html footer 카운터 기준)
+- **sitemap.xml**: 295 URL 항목
 
 ## 필수 코드 (모든 새 HTML 파일에 공통)
 
@@ -199,7 +199,7 @@ details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-h
 ```
 카테고리 목록: data-tools, security-tools, text-tools, ai-tools, developer-tools, image-tools, pdf-tools, generator-tools, finance-calculators, health-calculators, date-time-tools
 
-## 현재 완료된 배치 현황 (2026-06-11)
+## 현재 완료된 배치 현황 (2026-06-13)
 
 ### 배치 1 ✅
 json-validator, json-viewer, json-minifier, base64-encoder, base64-decoder
@@ -225,20 +225,23 @@ ip-address-lookup
 ### 배치 8 ✅
 sitemap-generator, xml-validator, robots-txt-validator, meta-tag-analyzer, open-graph-generator
 
-### 배치 9 (대기 중)
+### 배치 9 ✅
 twitter-card-generator, schema-markup-generator, schema-validator, hreflang-generator, canonical-tag-checker
 
-### 배치 10 (대기 중)
+### 배치 10 ✅
 keyword-clustering-tool, keyword-grouping-tool, redirect-checker, http-header-checker, user-agent-parser
 
-### 배치 11 (대기 중)
+### 배치 11 ✅
 dns-lookup, whois-lookup, ssl-checker, ssl-decoder, csr-generator
 
-### 배치 12 (대기 중)
+### 배치 12 ✅
 htaccess-generator, nginx-config-generator, apache-config-generator, csp-generator, csp-validator
 
-### 배치 13 (대기 중)
+### 배치 13 ✅
 cors-header-checker, mime-type-finder, website-speed-estimator, sitemap-validator, favicon-generator
+
+### 배치 14 ✅
+jwt-validator, jwt-inspector, json-diff, json-flattener, json-to-yaml, yaml-to-json, xml-to-json, json-path-tester, graphql-formatter, graphql-query-builder, sql-minifier, sql-validator, sql-to-json, curl-generator, curl-parser, http-request-builder, api-tester, webhook-tester, webhook-generator, regex-generator, regex-cheatsheet, uuid-converter, ulid-generator, nanoid-generator, hash-checker, bcrypt-generator, bcrypt-validator, hmac-generator, rsa-key-generator, ssh-key-generator
 
 ## JS 문자열 이스케이프 주의사항
 

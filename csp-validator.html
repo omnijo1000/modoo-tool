@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSP 검증기 - Content Security Policy 분석 & 오류 진단 | MODOO HUB</title>
+<meta name="description" content="Content Security Policy 헤더를 분석하세요. 지시어별 파싱, 위험 키워드 경고('unsafe-inline'·'unsafe-eval'), 누락 항목 진단 제공.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/csp-validator.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/csp-validator.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/csp-validator.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/csp-validator.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/csp-validator.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/csp-validator.html">
+<meta property="og:title" content="CSP 검증기 - Content Security Policy 분석 & 오류 진단">
+<meta property="og:description" content="CSP 헤더를 파싱해 지시어 분석, 위험 키워드 경고, 누락 항목 진단.">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<meta property="og:url" content="https://modoohub.com/csp-validator.html">
+<meta property="og:type" content="website">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;font-family:'DM Mono',monospace;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;font-family:'DM Mono',monospace;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:800px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;line-height:1.6;}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:14px;}
+.field-label{font-size:11px;color:var(--text-dim);letter-spacing:.06em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:6px;display:block;}
+.field-ta{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:10px 12px;color:var(--text);font-size:12px;font-family:'DM Mono',monospace;resize:vertical;min-height:80px;outline:none;line-height:1.7;transition:border-color .15s;}
+.field-ta:focus{border-color:var(--accent);}
+.btn-row{display:flex;gap:8px;margin-top:12px;}
+.btn{padding:8px 20px;border:1px solid var(--border);border-radius:7px;font-size:12px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;background:none;color:var(--text-muted);transition:all .15s;}
+.btn:hover{border-color:var(--accent);color:var(--accent);}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;}
+.btn.primary:hover{opacity:.85;}
+.results{display:none;}
+.results.show{display:block;}
+.section-title{font-size:11px;color:var(--text-dim);letter-spacing:.07em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:8px;}
+.issue-list{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
+.issue{padding:9px 12px;border-radius:7px;border:1px solid;font-size:12px;display:flex;gap:8px;align-items:flex-start;}
+.issue.error{border-color:rgba(248,113,113,.3);background:rgba(248,113,113,.05);color:var(--red);}
+.issue.warn{border-color:rgba(251,191,36,.3);background:rgba(251,191,36,.05);color:var(--accent);}
+.issue.info{border-color:rgba(96,165,250,.3);background:rgba(96,165,250,.05);color:var(--blue);}
+.issue-icon{flex-shrink:0;font-size:13px;}
+.dir-table{width:100%;border-collapse:collapse;font-size:12px;}
+.dir-table th{text-align:left;padding:7px 10px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.07em;color:var(--text-dim);border-bottom:1px solid var(--border);}
+.dir-table td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
+.dir-table tr:last-child td{border-bottom:none;}
+.dir-table td:first-child{font-family:'DM Mono',monospace;font-size:11px;color:var(--blue);white-space:nowrap;}
+.dir-table td:last-child{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);word-break:break-all;}
+.tag{display:inline-block;padding:1px 6px;border-radius:3px;font-size:10px;font-family:'DM Mono',monospace;margin-right:3px;}
+.tag.unsafe{background:rgba(248,113,113,.15);color:var(--red);border:1px solid rgba(248,113,113,.3);}
+.tag.safe{background:rgba(74,222,128,.1);color:var(--green);border:1px solid rgba(74,222,128,.2);}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:32px;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"CSP Validator","url":"https://modoohub.com/csp-validator.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Analyze and validate Content Security Policy headers. Parse directives, detect unsafe keywords, and diagnose missing security policies."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"CSP 검증이 필요한 이유는?","acceptedAnswer":{"@type":"Answer","text":"잘못된 CSP는 사이트를 깨뜨리거나 보안 효과가 없을 수 있습니다. 검증을 통해 'unsafe-inline' 등 위험 키워드, 누락된 지시어를 확인하세요."}},{"@type":"Question","name":"CSP에서 'unsafe-inline'이 경고되는 이유는?","acceptedAnswer":{"@type":"Answer","text":"'unsafe-inline'은 인라인 스크립트를 허용해 XSS 공격에 취약해집니다. nonce 또는 hash 기반 방식으로 교체하는 것이 권장됩니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>CSP <span id="h1Span">검증기</span></h1>
+  <p class="sub" id="subEl">CSP 헤더 파싱·위험 키워드 경고·누락 지시어 진단</p>
+  <div class="panel">
+    <label class="field-label" id="labelInput">Content-Security-Policy 헤더 값 또는 전체 헤더</label>
+    <textarea class="field-ta" id="cspInput" placeholder="default-src 'self'; script-src 'self' https://cdn.example.com; style-src 'self' 'unsafe-inline';"></textarea>
+    <div class="btn-row">
+      <button class="btn primary" id="btnValidate" onclick="validate()">검증</button>
+      <button class="btn" id="btnClear" onclick="clearAll()">초기화</button>
+    </div>
+  </div>
+  <div class="results" id="resultsArea">
+    <div class="panel">
+      <div class="section-title" id="titleIssues">진단 결과</div>
+      <div class="issue-list" id="issueList"></div>
+      <div class="section-title" id="titleDirectives">파싱된 지시어</div>
+      <table class="dir-table"><thead><tr><th id="thDir">지시어</th><th id="thVal">값</th></tr></thead><tbody id="dirTbody"></tbody></table>
+    </div>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+  <footer>CSP Validator · Free Online Tool · modoohub.com</footer>
+</main>
+<script>
+const UNSAFE=['unsafe-inline','unsafe-eval','unsafe-hashes'];
+const IMPORTANT_DIRS=['default-src','script-src','style-src','img-src','connect-src','frame-ancestors','object-src'];
+const _i18n={
+  ko:{pageTitle:'CSP 검증기 - Content Security Policy 분석 & 오류 진단 | MODOO HUB',h1Span:'검증기',sub:'CSP 헤더 파싱·위험 키워드 경고·누락 지시어 진단',backLink:'← 모두의 툴',langBtn:'🌐 EN',labelInput:'Content-Security-Policy 헤더 값 또는 전체 헤더',btnValidate:'검증',btnClear:'초기화',titleIssues:'진단 결과',titleDirectives:'파싱된 지시어',thDir:'지시어',thVal:'값',noIssues:'이슈가 발견되지 않았습니다.',
+    warnUnsafe:(d,k)=>`${d}: '${k}' 사용 — XSS 보호가 약화됩니다. nonce 또는 hash 방식으로 교체를 권장합니다.`,
+    warnWildcard:(d)=>`${d}: 와일드카드 '*' 사용 — 모든 출처가 허용됩니다.`,
+    infoMissing:(d)=>`${d}가 설정되지 않았습니다. default-src 폴백이 적용됩니다.`,
+    infoNoDefault:'default-src가 없습니다. 지정되지 않은 지시어에 폴백이 없습니다.',
+    seoHtml:`<h2>CSP 검증이 중요한 이유</h2><p>잘못 설정된 CSP는 <strong>사이트를 깨뜨리거나 보안 효과가 없을 수</strong> 있습니다. 'unsafe-inline'이 포함되면 XSS 공격이 가능하고, 와일드카드(*)는 모든 출처를 허용해 CSP 자체가 무의미해집니다. 검증을 통해 위험 키워드와 누락된 지시어를 확인하세요.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>CSP 파싱 오류는 어떻게 확인하나요?</summary><p>브라우저 개발자 도구 콘솔에서 CSP 위반 메시지를 확인할 수 있습니다. "Refused to execute inline script because it violates the following Content Security Policy directive" 형식의 메시지가 표시됩니다.</p></details>
+<details class="faq-item"><summary>'unsafe-inline'을 없애면 사이트가 깨지는 경우는?</summary><p>인라인 &lt;script&gt;, style 속성, onclick 핸들러 등이 차단됩니다. nonce 기반으로 교체하거나 외부 파일로 이동해야 합니다. Report-Only 모드로 먼저 테스트하세요.</p></details>
+<details class="faq-item"><summary>frame-ancestors 'none'은 무엇을 막나요?</summary><p>다른 어떤 페이지도 이 페이지를 &lt;iframe&gt;, &lt;frame&gt;, &lt;object&gt;로 삽입할 수 없게 합니다. 클릭재킹 공격을 완전히 차단하는 가장 강력한 설정입니다.</p></details>
+<details class="faq-item"><summary>CSP와 XSS의 관계는?</summary><p>CSP는 XSS 공격의 영향을 줄이는 방어 레이어입니다. 올바르게 설정된 CSP는 공격자가 스크립트를 삽입하더라도 실행을 차단합니다. 단, XSS 자체를 방지하는 것은 입력 검증과 출력 이스케이프입니다.</p></details>
+<details class="faq-item"><summary>data: URI를 img-src에 허용해도 되나요?</summary><p>img-src에 data:를 허용하면 base64 인코딩된 이미지를 인라인으로 사용할 수 있습니다. script-src나 style-src에 data:를 허용하면 심각한 보안 취약점이 됩니다.</p></details>
+<details class="faq-item"><summary>https:와 http:의 차이는?</summary><p>https:는 모든 HTTPS 도메인을 허용합니다. http:는 모든 HTTP 도메인을 허용하므로 보안상 좋지 않습니다. 가능한 한 구체적인 도메인을 명시하세요.</p></details>
+<details class="faq-item"><summary>upgrade-insecure-requests 지시어란?</summary><p>HTTP 리소스를 자동으로 HTTPS로 업그레이드하도록 지시합니다. mixed content 문제를 해결하는 데 유용합니다. block-all-mixed-content는 HTTP 리소스를 완전히 차단합니다.</p></details>
+<details class="faq-item"><summary>CSP를 점진적으로 도입하는 방법은?</summary><p>1) Report-Only 모드로 시작해 위반 사항 수집 → 2) 위반을 하나씩 수정 → 3) 실제 차단 모드로 전환. Google&apos;s CSP Evaluator 도구로 강도를 평가할 수 있습니다.</p></details>`
+  },
+  en:{pageTitle:'CSP Validator - Content Security Policy Analyzer & Error Checker | MODOO HUB',h1Span:'Validator',sub:'Parse CSP headers · warn on unsafe keywords · diagnose missing directives',backLink:'← All Tools',langBtn:'🌐 中文',labelInput:'Content-Security-Policy header value or full header',btnValidate:'Validate',btnClear:'Clear',titleIssues:'Diagnostics',titleDirectives:'Parsed Directives',thDir:'Directive',thVal:'Value',noIssues:'No issues found.',
+    warnUnsafe:(d,k)=>`${d}: '${k}' used — weakens XSS protection. Replace with nonce or hash-based allowlist.`,
+    warnWildcard:(d)=>`${d}: wildcard '*' allows all origins.`,
+    infoMissing:(d)=>`${d} not set — default-src fallback applies.`,
+    infoNoDefault:'No default-src — no fallback for unspecified directives.',
+    seoHtml:`<h2>Why CSP Validation Matters</h2><p>A misconfigured CSP can <strong>break your site or provide no security benefit</strong>. Using 'unsafe-inline' re-enables XSS attacks; a wildcard (*) allows all origins, rendering the policy useless. Validate to catch dangerous keywords and missing directives.</p>
+<h2 class="seo-sub">Frequently Asked Questions</h2>
+<details class="faq-item"><summary>How do I find CSP parse errors?</summary><p>Check the browser DevTools console for CSP violation messages like "Refused to execute inline script because it violates the following Content Security Policy directive."</p></details>
+<details class="faq-item"><summary>What breaks when removing 'unsafe-inline'?</summary><p>Inline &lt;script&gt; tags, style attributes, and onclick handlers will be blocked. Replace them with nonce-based inline code or move to external files. Test with Report-Only mode first.</p></details>
+<details class="faq-item"><summary>What does frame-ancestors 'none' block?</summary><p>It prevents any page from embedding this page via &lt;iframe&gt;, &lt;frame&gt;, or &lt;object&gt;. This is the strongest protection against clickjacking.</p></details>
+<details class="faq-item"><summary>How does CSP relate to XSS?</summary><p>CSP is a defense layer that reduces XSS impact — a correctly configured CSP blocks script execution even if an attacker injects code. Preventing XSS itself requires input validation and output escaping.</p></details>
+<details class="faq-item"><summary>Is data: safe in img-src?</summary><p>Allowing data: in img-src permits inline base64 images. Allowing data: in script-src or style-src is a critical vulnerability — never do this.</p></details>
+<details class="faq-item"><summary>Difference between https: and http: in CSP?</summary><p>https: allows all HTTPS domains. http: allows all HTTP domains (insecure). Always prefer explicit domain allowlists over scheme-only wildcards.</p></details>
+<details class="faq-item"><summary>What is upgrade-insecure-requests?</summary><p>It tells the browser to upgrade HTTP resource requests to HTTPS automatically, solving mixed content issues. block-all-mixed-content blocks HTTP resources entirely.</p></details>
+<details class="faq-item"><summary>How to roll out CSP incrementally?</summary><p>1) Start with Report-Only mode to collect violations → 2) Fix violations one by one → 3) Switch to enforcement mode. Use Google&apos;s CSP Evaluator to assess policy strength.</p></details>`
+  },
+  zh:{pageTitle:'CSP验证器 - Content Security Policy分析 & 错误诊断 | MODOO HUB',h1Span:'验证器',sub:'解析CSP头·警告不安全关键词·诊断缺失指令',backLink:'← 所有工具',langBtn:'🌐 日本語',labelInput:'Content-Security-Policy头值或完整头',btnValidate:'验证',btnClear:'清除',titleIssues:'诊断结果',titleDirectives:'已解析指令',thDir:'指令',thVal:'值',noIssues:'未发现问题。',
+    warnUnsafe:(d,k)=>`${d}: 使用了'${k}' — 削弱XSS保护。建议改用nonce或hash白名单。`,
+    warnWildcard:(d)=>`${d}: 通配符'*'允许所有来源。`,
+    infoMissing:(d)=>`${d}未设置 — 将使用default-src后备。`,
+    infoNoDefault:'没有default-src — 未指定指令没有后备。',
+    seoHtml:`<h2>为什么需要验证CSP？</h2><p>配置错误的CSP可能<strong>导致网站崩溃或毫无安全效果</strong>。'unsafe-inline'重新使XSS攻击成为可能；通配符(*)允许所有来源使策略形同虚设。通过验证发现危险关键词和缺失指令。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>如何查找CSP解析错误？</summary><p>在浏览器开发者工具控制台查找CSP违规消息，如"Refused to execute inline script because it violates the following Content Security Policy directive"。</p></details>
+<details class="faq-item"><summary>移除'unsafe-inline'后什么会失效？</summary><p>内联&lt;script&gt;标签、style属性和onclick处理器将被阻止。需将其替换为nonce方式或移至外部文件。先用Report-Only模式测试。</p></details>
+<details class="faq-item"><summary>frame-ancestors 'none'阻止什么？</summary><p>防止任何页面通过&lt;iframe&gt;、&lt;frame&gt;或&lt;object&gt;嵌入此页面，是防止点击劫持的最强保护。</p></details>
+<details class="faq-item"><summary>CSP与XSS的关系？</summary><p>CSP是减少XSS影响的防御层——正确配置的CSP即使攻击者注入代码也会阻止脚本执行。防止XSS本身需要输入验证和输出转义。</p></details>
+<details class="faq-item"><summary>img-src中允许data:安全吗？</summary><p>在img-src中允许data:可使用内联base64图片。在script-src或style-src中允许data:是严重漏洞——切勿这样做。</p></details>
+<details class="faq-item"><summary>CSP中https:与http:的区别？</summary><p>https:允许所有HTTPS域名。http:允许所有HTTP域名（不安全）。始终优先使用明确的域名白名单而非仅使用协议通配符。</p></details>
+<details class="faq-item"><summary>upgrade-insecure-requests是什么？</summary><p>告知浏览器自动将HTTP资源请求升级为HTTPS，解决混合内容问题。block-all-mixed-content则完全阻止HTTP资源。</p></details>
+<details class="faq-item"><summary>如何逐步推出CSP？</summary><p>1) 从Report-Only模式开始收集违规 → 2) 逐一修复违规 → 3) 切换到强制模式。可使用Google的CSP Evaluator工具评估策略强度。</p></details>`
+  },
+  ja:{pageTitle:'CSPバリデーター - Content Security Policy分析 & エラー診断 | MODOO HUB',h1Span:'バリデーター',sub:'CSPヘッダー解析·危険キーワード警告·不足ディレクティブ診断',backLink:'← ホーム',langBtn:'🌐 한국어',labelInput:'Content-Security-Policyヘッダー値または完全ヘッダー',btnValidate:'検証',btnClear:'クリア',titleIssues:'診断結果',titleDirectives:'解析済みディレクティブ',thDir:'ディレクティブ',thVal:'値',noIssues:'問題は見つかりませんでした。',
+    warnUnsafe:(d,k)=>`${d}: '${k}'使用 — XSS保護が弱まります。nonceまたはhashベースに置換を推奨。`,
+    warnWildcard:(d)=>`${d}: ワイルドカード'*'で全オリジンが許可されています。`,
+    infoMissing:(d)=>`${d}が設定されていません — default-srcフォールバックが適用されます。`,
+    infoNoDefault:'default-srcがありません — 未指定ディレクティブのフォールバックがありません。',
+    seoHtml:`<h2>CSP検証が重要な理由</h2><p>誤設定のCSPは<strong>サイトを壊したり、セキュリティ効果がなくなる</strong>可能性があります。'unsafe-inline'があるとXSS攻撃が可能になり、ワイルドカード(*)は全オリジンを許可してポリシーを無意味にします。危険なキーワードと不足ディレクティブを検証で発見しましょう。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>CSPの解析エラーはどこで確認できますか？</summary><p>ブラウザ開発者ツールのコンソールでCSP違反メッセージを確認できます。"Refused to execute inline script because it violates the following Content Security Policy directive"のような形式で表示されます。</p></details>
+<details class="faq-item"><summary>'unsafe-inline'を削除するとどこが壊れますか？</summary><p>インライン&lt;script&gt;タグ・style属性・onclickハンドラーがブロックされます。nonceベースに置換するか外部ファイルに移動する必要があります。まずReport-Onlyモードでテストしてください。</p></details>
+<details class="faq-item"><summary>frame-ancestors 'none'は何をブロックしますか？</summary><p>他のどのページもこのページを&lt;iframe&gt;・&lt;frame&gt;・&lt;object&gt;で埋め込めなくなります。クリックジャッキングに対する最強の保護です。</p></details>
+<details class="faq-item"><summary>CSPとXSSの関係は？</summary><p>CSPはXSSの影響を軽減する防御レイヤーです。正しく設定されたCSPは攻撃者がスクリプトを挿入しても実行をブロックします。XSS自体の防止には入力検証と出力エスケープが必要です。</p></details>
+<details class="faq-item"><summary>img-srcでdata:を許可しても安全ですか？</summary><p>img-srcでdata:を許可するとbase64エンコードされた画像をインラインで使えます。script-srcやstyle-srcでdata:を許可するのは深刻な脆弱性です。</p></details>
+<details class="faq-item"><summary>CSPのhttps:とhttp:の違いは？</summary><p>https:は全HTTPSドメインを許可します。http:は全HTTPドメインを許可します（非セキュア）。スキームのみのワイルドカードより具体的なドメイン指定を優先してください。</p></details>
+<details class="faq-item"><summary>upgrade-insecure-requestsとは？</summary><p>ブラウザにHTTPリソースリクエストを自動でHTTPSにアップグレードするよう指示し、混在コンテンツ問題を解決します。block-all-mixed-contentはHTTPリソースを完全にブロックします。</p></details>
+<details class="faq-item"><summary>CSPを段階的に導入する方法は？</summary><p>1) Report-Onlyモードで開始して違反を収集 → 2) 違反を一つずつ修正 → 3) 実際のブロックモードに切り替え。GoogleのCSP Evaluatorツールで強度を評価できます。</p></details>`
+  }
+};
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko';
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=navigator.language?.slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const idx=LANGS.indexOf(_lang);_lang=LANGS[(idx+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const url=new URL(location.href);url.searchParams.set('lang',_lang);history.replaceState({},'',url);applyLang();}
+function applyLang(){const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;document.getElementById('h1Span').textContent=t.h1Span;document.getElementById('subEl').textContent=t.sub;document.getElementById('backLink').textContent=t.backLink;document.getElementById('langBtn').textContent=t.langBtn;document.getElementById('labelInput').textContent=t.labelInput;document.getElementById('btnValidate').textContent=t.btnValidate;document.getElementById('btnClear').textContent=t.btnClear;document.getElementById('titleIssues').textContent=t.titleIssues;document.getElementById('titleDirectives').textContent=t.titleDirectives;document.getElementById('thDir').textContent=t.thDir;document.getElementById('thVal').textContent=t.thVal;document.getElementById('seoDiv').innerHTML=t.seoHtml;}
+function clearAll(){document.getElementById('cspInput').value='';document.getElementById('resultsArea').className='results';}
+function parseCSP(raw){
+  let val=raw.trim();
+  const m=val.match(/content-security-policy(?:-report-only)?:\s*(.+)/i);
+  if(m)val=m[1].trim();
+  const dirs={};
+  val.split(';').forEach(part=>{
+    const p=part.trim();if(!p)return;
+    const sp=p.indexOf(' ');
+    if(sp<0){dirs[p.toLowerCase()]='';}
+    else{dirs[p.slice(0,sp).toLowerCase()]=p.slice(sp+1).trim();}
+  });
+  return dirs;
+}
+function validate(){
+  const raw=document.getElementById('cspInput').value.trim();
+  if(!raw)return;
+  const t=_i18n[_lang];
+  const dirs=parseCSP(raw);
+  const issues=[];
+  Object.entries(dirs).forEach(([d,v])=>{
+    UNSAFE.forEach(u=>{if(v.includes("'"+u+"'"))issues.push({type:'warn',msg:t.warnUnsafe(d,u)});});
+    if(v.includes('*'))issues.push({type:'warn',msg:t.warnWildcard(d)});
+  });
+  if(!dirs['default-src'])issues.push({type:'error',msg:t.infoNoDefault});
+  IMPORTANT_DIRS.filter(d=>d!=='default-src').forEach(d=>{
+    if(!dirs[d])issues.push({type:'info',msg:t.infoMissing(d)});
+  });
+  const il=document.getElementById('issueList');
+  il.innerHTML='';
+  if(issues.length===0){
+    const div=document.createElement('div');
+    div.className='issue info';
+    div.innerHTML=`<span class="issue-icon">✓</span><span>${t.noIssues}</span>`;
+    il.appendChild(div);
+  } else {
+    issues.forEach(({type,msg})=>{
+      const div=document.createElement('div');
+      div.className='issue '+type;
+      const icon=type==='error'?'✗':type==='warn'?'⚠':'ℹ';
+      div.innerHTML=`<span class="issue-icon">${icon}</span><span>${escHtml(msg)}</span>`;
+      il.appendChild(div);
+    });
+  }
+  const tbody=document.getElementById('dirTbody');
+  tbody.innerHTML='';
+  Object.entries(dirs).forEach(([d,v])=>{
+    const tr=document.createElement('tr');
+    const vals=v.split(/\s+/).map(tok=>{
+      const u=tok.replace(/'/g,'');
+      const isUnsafe=UNSAFE.includes(u);
+      return `<span class="tag ${isUnsafe?'unsafe':'safe'}">${escHtml(tok)}</span>`;
+    }).join('');
+    tr.innerHTML=`<td>${escHtml(d)}</td><td>${vals||'(empty)'}</td>`;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('resultsArea').className='results show';
+}
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

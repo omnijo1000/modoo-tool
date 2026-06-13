@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>API 테스터 - 브라우저에서 HTTP 요청 테스트 | MODOO HUB</title>
+<meta name="description" content="브라우저에서 API 요청 테스트. GET/POST/PUT/DELETE, 헤더·본문 설정. 응답 코드·바디 즉시 확인.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/api-tester.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/api-tester.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/api-tester.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/api-tester.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/api-tester.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/api-tester.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:900px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;}
+.label{font-size:11px;color:var(--text-dim);letter-spacing:.07em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:8px;display:flex;justify-content:space-between;}
+.url-row{display:flex;gap:8px;margin-bottom:12px;}
+select,input{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;outline:none;}
+select:focus,input:focus{border-color:var(--accent);}
+#urlInput{flex:1;font-size:13px;}
+.row{display:flex;gap:8px;margin-bottom:6px;align-items:center;}
+.row input.key{flex:.7;}
+.row input.val{flex:1;}
+.add-btn{padding:4px 12px;border:1px solid var(--border);border-radius:6px;font-size:11px;cursor:pointer;background:none;color:var(--text-dim);}
+.add-btn:hover{border-color:var(--accent);color:var(--accent);}
+.del-btn{padding:4px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px;cursor:pointer;background:none;color:var(--text-dim);}
+.del-btn:hover{border-color:var(--red);color:var(--red);}
+textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;resize:vertical;outline:none;min-height:80px;line-height:1.6;}
+textarea:focus{border-color:var(--accent);}
+.btn-row{display:flex;gap:8px;margin-top:10px;align-items:center;}
+.btn{padding:8px 20px;border:1px solid var(--border);border-radius:7px;font-size:12px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;background:none;color:var(--text-muted);transition:all .15s;}
+.btn:hover{border-color:var(--accent);color:var(--accent);}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;}
+.status-bar{display:flex;gap:12px;align-items:center;font-family:'DM Mono',monospace;font-size:12px;margin-bottom:10px;flex-wrap:wrap;}
+.status-badge{padding:3px 10px;border-radius:4px;font-weight:700;}
+.s2xx{background:rgba(74,222,128,.15);color:var(--green);}
+.s3xx{background:rgba(96,165,250,.15);color:var(--blue);}
+.s4xx,.s5xx{background:rgba(248,113,113,.15);color:var(--red);}
+.resp-body{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px;font-family:'DM Mono',monospace;font-size:11px;line-height:1.7;white-space:pre-wrap;word-break:break-all;max-height:400px;overflow:auto;}
+.resp-hdrs{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-family:'DM Mono',monospace;font-size:11px;line-height:1.7;max-height:180px;overflow:auto;white-space:pre;}
+.cors-warn{background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.3);border-radius:8px;padding:12px;font-size:12px;color:var(--accent);margin-top:10px;line-height:1.6;}
+.loading{color:var(--text-dim);font-family:'DM Mono',monospace;font-size:12px;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"API Tester","url":"https://modoohub.com/api-tester.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Test HTTP API requests directly from the browser. Configure method, headers, body, and see responses instantly."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"CORS 오류가 발생하면 어떻게 하나요?","acceptedAnswer":{"@type":"Answer","text":"CORS는 브라우저 보안 정책입니다. 서버가 Access-Control-Allow-Origin 헤더를 포함하지 않으면 브라우저에서 요청이 차단됩니다. 서버에 CORS를 활성화하거나 프록시를 사용하세요."}},{"@type":"Question","name":"응답 바디가 JSON이면 자동으로 포맷되나요?","acceptedAnswer":{"@type":"Answer","text":"네. 응답 Content-Type이 application/json이면 자동으로 pretty-print합니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>API <span id="h1b">테스터</span></h1>
+  <p class="sub" id="subEl">브라우저에서 HTTP API 요청 즉시 테스트</p>
+  <div class="panel">
+    <div class="url-row">
+      <select id="method"><option>GET</option><option>POST</option><option>PUT</option><option>PATCH</option><option>DELETE</option></select>
+      <input id="urlInput" type="text" placeholder="https://api.example.com/users">
+    </div>
+    <div class="label">Headers <button class="add-btn" onclick="addRow('headers')">+ Add</button></div>
+    <div id="headers">
+      <div class="row hrow"><input class="key" placeholder="Content-Type" value="Content-Type"><input class="val" placeholder="application/json" value="application/json"><button class="del-btn" onclick="removeRow(this)">×</button></div>
+    </div>
+    <div class="label" style="margin-top:10px" id="labelBody">Body (JSON)</div>
+    <textarea id="body" placeholder='{"key":"value"}'></textarea>
+    <div class="btn-row">
+      <button class="btn primary" onclick="sendReq()" id="btnSend">요청 전송</button>
+      <button class="btn" onclick="clearResp()" id="btnClear">초기화</button>
+      <span class="loading" id="loadingEl" style="display:none">요청 중...</span>
+    </div>
+  </div>
+  <div class="panel" id="respPanel" style="display:none">
+    <div class="status-bar" id="statusBar"></div>
+    <div class="label" id="labelRespHeaders">응답 헤더</div>
+    <div class="resp-hdrs" id="respHdrs"></div>
+    <div class="label" style="margin-top:10px" id="labelRespBody">응답 바디</div>
+    <div class="resp-body" id="respBody"></div>
+    <div class="btn-row"><button class="btn" onclick="copyResp()" id="btnCopyResp">복사</button></div>
+  </div>
+  <div class="cors-warn" id="corsWarn" style="display:none"></div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const _i18n={
+  ko:{pageTitle:'API 테스터 - 브라우저에서 HTTP 요청 테스트 | MODOO HUB',h1b:'테스터',sub:'브라우저에서 HTTP API 요청 즉시 테스트',backLink:'← 모두의 툴',langBtn:'🌐 EN',labelBody:'Body (JSON)',labelRespHeaders:'응답 헤더',labelRespBody:'응답 바디',btnSend:'요청 전송',btnClear:'초기화',btnCopyResp:'복사',loading:'요청 중...',copied:'복사됨 ✓',
+    corsMsg:'⚠️ CORS 오류: 브라우저 보안 정책으로 인해 이 API는 브라우저에서 직접 호출할 수 없습니다. 서버에 CORS 헤더를 추가하거나, 서버 사이드에서 호출하세요.',
+    errMsg:'요청 실패: ',
+    seoHtml:`<h2>API 테스터란?</h2><p>브라우저에서 직접 HTTP API 요청을 테스트합니다. GET, POST, PUT, PATCH, DELETE 메서드와 커스텀 헤더, JSON 본문을 지원합니다. 응답 상태 코드, 응답 헤더, 바디를 즉시 확인하세요. 단, <strong>CORS 정책</strong>으로 일부 API는 브라우저에서 직접 호출되지 않을 수 있습니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>CORS 오류가 발생하는 이유는?</summary><p>브라우저는 다른 도메인의 API를 호출할 때 서버의 CORS 허용 헤더를 확인합니다. 서버에서 Access-Control-Allow-Origin 헤더를 설정해야 합니다.</p></details>
+<details class="faq-item"><summary>인증이 필요한 API도 테스트할 수 있나요?</summary><p>Authorization 헤더에 Bearer Token 또는 API 키를 추가해 테스트할 수 있습니다.</p></details>
+<details class="faq-item"><summary>응답 JSON이 자동으로 포맷되나요?</summary><p>응답 Content-Type이 application/json이면 자동으로 들여쓰기 처리합니다.</p></details>
+<details class="faq-item"><summary>HTTPS API도 테스트할 수 있나요?</summary><p>네. HTTPS URL을 입력하면 바로 테스트 가능합니다.</p></details>
+<details class="faq-item"><summary>전송된 데이터는 안전한가요?</summary><p>요청은 브라우저에서 직접 API 서버로 전달됩니다. 이 사이트의 서버를 경유하지 않습니다.</p></details>
+<details class="faq-item"><summary>요청 시간 초과가 있나요?</summary><p>브라우저 기본 타임아웃이 적용됩니다. 응답이 오래 걸리면 브라우저가 자동으로 중단합니다.</p></details>
+<details class="faq-item"><summary>응답 헤더를 모두 볼 수 있나요?</summary><p>CORS 정책상 일부 응답 헤더는 브라우저에서 노출되지 않을 수 있습니다.</p></details>
+<details class="faq-item"><summary>POST 본문 형식은?</summary><p>JSON 형식을 사용하세요. Content-Type: application/json 헤더를 함께 설정하는 것을 권장합니다.</p></details>`
+  },
+  en:{pageTitle:'API Tester - Test HTTP Requests from Browser | MODOO HUB',h1b:'Tester',sub:'Test HTTP API requests directly from the browser',backLink:'← All Tools',langBtn:'🌐 中文',labelBody:'Body (JSON)',labelRespHeaders:'Response Headers',labelRespBody:'Response Body',btnSend:'Send Request',btnClear:'Clear',btnCopyResp:'Copy',loading:'Sending...',copied:'Copied ✓',
+    corsMsg:'⚠️ CORS Error: This API cannot be called directly from the browser due to browser security policy. Add CORS headers to the server, or call it server-side.',errMsg:'Request failed: ',
+    seoHtml:`<h2>API Tester</h2><p>Test HTTP API requests directly from the browser. Supports GET, POST, PUT, PATCH, DELETE, custom headers, and JSON body. See response status code, headers, and body instantly. Note: <strong>CORS policy</strong> may block some APIs from being called in the browser.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>Why do I get a CORS error?</summary><p>Browsers check CORS headers when calling APIs on other domains. The server must set Access-Control-Allow-Origin headers.</p></details>
+<details class="faq-item"><summary>Can I test authenticated APIs?</summary><p>Yes. Add a Bearer Token or API key in the Authorization header.</p></details>
+<details class="faq-item"><summary>Is JSON response auto-formatted?</summary><p>Yes. If the response Content-Type is application/json, the body is automatically pretty-printed.</p></details>
+<details class="faq-item"><summary>Can I test HTTPS APIs?</summary><p>Yes. Enter an HTTPS URL and test immediately.</p></details>
+<details class="faq-item"><summary>Is data sent securely?</summary><p>Requests go directly from your browser to the API server — not through this site&apos;s server.</p></details>
+<details class="faq-item"><summary>Is there a request timeout?</summary><p>The browser&apos;s default timeout applies. Long responses may be aborted automatically.</p></details>
+<details class="faq-item"><summary>Can I see all response headers?</summary><p>Some headers may be hidden due to CORS policy restrictions in the browser.</p></details>
+<details class="faq-item"><summary>What format should the POST body be?</summary><p>Use JSON format. Also set the Content-Type: application/json header.</p></details>`
+  },
+  zh:{pageTitle:'API测试器 - 在浏览器中测试HTTP请求 | MODOO HUB',h1b:'测试器',sub:'直接在浏览器中测试HTTP API请求',backLink:'← 所有工具',langBtn:'🌐 日本語',labelBody:'请求体 (JSON)',labelRespHeaders:'响应头',labelRespBody:'响应体',btnSend:'发送请求',btnClear:'清除',btnCopyResp:'复制',loading:'请求中...',copied:'已复制 ✓',
+    corsMsg:'⚠️ CORS错误：由于浏览器安全策略，此API无法直接从浏览器调用。请在服务器添加CORS头，或在服务器端调用。',errMsg:'请求失败：',
+    seoHtml:`<h2>API测试器</h2><p>直接在浏览器中测试HTTP API请求。支持GET、POST、PUT、PATCH、DELETE方法，自定义请求头和JSON请求体。即时查看响应状态码、响应头和响应体。注意：CORS策略可能阻止某些API在浏览器中直接调用。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>为什么会出现CORS错误？</summary><p>浏览器在调用其他域的API时会检查CORS头。服务器必须设置Access-Control-Allow-Origin头。</p></details>
+<details class="faq-item"><summary>可以测试需要认证的API吗？</summary><p>可以，在Authorization请求头中添加Bearer Token或API密钥。</p></details>
+<details class="faq-item"><summary>JSON响应会自动格式化吗？</summary><p>是的，如果响应Content-Type是application/json，会自动格式化显示。</p></details>
+<details class="faq-item"><summary>可以测试HTTPS API吗？</summary><p>可以，输入HTTPS URL即可测试。</p></details>
+<details class="faq-item"><summary>数据传输安全吗？</summary><p>请求从浏览器直接发送到API服务器，不经过本站服务器。</p></details>
+<details class="faq-item"><summary>有请求超时吗？</summary><p>适用浏览器默认超时，长时间无响应可能自动中断。</p></details>
+<details class="faq-item"><summary>能看到所有响应头吗？</summary><p>由于CORS策略，某些响应头可能在浏览器中无法显示。</p></details>
+<details class="faq-item"><summary>POST请求体格式是什么？</summary><p>使用JSON格式，同时建议设置Content-Type: application/json请求头。</p></details>`
+  },
+  ja:{pageTitle:'APIテスター - ブラウザからHTTPリクエストをテスト | MODOO HUB',h1b:'テスター',sub:'ブラウザから直接HTTP APIリクエストをテスト',backLink:'← ホーム',langBtn:'🌐 한국어',labelBody:'ボディ (JSON)',labelRespHeaders:'レスポンスヘッダー',labelRespBody:'レスポンスボディ',btnSend:'リクエスト送信',btnClear:'クリア',btnCopyResp:'コピー',loading:'送信中...',copied:'コピー完了 ✓',
+    corsMsg:'⚠️ CORSエラー：ブラウザのセキュリティポリシーにより、このAPIはブラウザから直接呼び出せません。サーバーにCORSヘッダーを追加するか、サーバーサイドから呼び出してください。',errMsg:'リクエスト失敗：',
+    seoHtml:`<h2>APIテスターとは</h2><p>ブラウザから直接HTTP APIリクエストをテストします。GET・POST・PUT・PATCH・DELETEメソッド、カスタムヘッダー、JSONボディをサポート。レスポンスのステータスコード・ヘッダー・ボディを即座に確認できます。CORSポリシーにより一部のAPIはブラウザから直接呼び出せない場合があります。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>CORSエラーが発生する理由は？</summary><p>ブラウザは他のドメインのAPIを呼び出す際にCORSヘッダーを確認します。サーバーがAccess-Control-Allow-Originヘッダーを設定する必要があります。</p></details>
+<details class="faq-item"><summary>認証が必要なAPIもテストできますか？</summary><p>はい。AuthorizationヘッダーにBearer TokenやAPIキーを追加してテストできます。</p></details>
+<details class="faq-item"><summary>JSONレスポンスは自動でフォーマットされますか？</summary><p>はい。レスポンスのContent-Typeがapplication/jsonの場合、自動でpretty-printします。</p></details>
+<details class="faq-item"><summary>HTTPS APIもテストできますか？</summary><p>はい。HTTPS URLを入力してすぐにテストできます。</p></details>
+<details class="faq-item"><summary>データは安全に送信されますか？</summary><p>リクエストはブラウザから直接APIサーバーに送信され、このサイトのサーバーを経由しません。</p></details>
+<details class="faq-item"><summary>タイムアウトはありますか？</summary><p>ブラウザのデフォルトタイムアウトが適用されます。</p></details>
+<details class="faq-item"><summary>すべてのレスポンスヘッダーを見られますか？</summary><p>CORSポリシーにより一部ヘッダーはブラウザで表示されない場合があります。</p></details>
+<details class="faq-item"><summary>POSTボディの形式は？</summary><p>JSON形式を使用してください。Content-Type: application/jsonヘッダーも設定することを推奨します。</p></details>`
+  }
+};
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko';
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const idx=LANGS.indexOf(_lang);_lang=LANGS[(idx+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
+  document.getElementById('h1b').textContent=t.h1b;document.getElementById('subEl').textContent=t.sub;
+  document.getElementById('backLink').textContent=t.backLink;document.getElementById('langBtn').textContent=t.langBtn;
+  document.getElementById('labelBody').textContent=t.labelBody;document.getElementById('btnSend').textContent=t.btnSend;
+  document.getElementById('btnClear').textContent=t.btnClear;document.getElementById('loadingEl').textContent=t.loading;
+  document.getElementById('labelRespHeaders').textContent=t.labelRespHeaders;document.getElementById('labelRespBody').textContent=t.labelRespBody;
+  document.getElementById('btnCopyResp').textContent=t.btnCopyResp;document.getElementById('seoDiv').innerHTML=t.seoHtml;
+}
+function addRow(id){
+  const c=document.getElementById(id);const div=document.createElement('div');div.className='row hrow';
+  div.innerHTML='<input class="key" placeholder="Header-Name"><input class="val" placeholder="value"><button class="del-btn" onclick="removeRow(this)">×</button>';
+  c.appendChild(div);
+}
+function removeRow(btn){btn.parentElement.remove();}
+function getHeaders(){const h={};document.querySelectorAll('#headers .hrow').forEach(r=>{const k=r.querySelector('.key').value.trim();const v=r.querySelector('.val').value.trim();if(k)h[k]=v;});return h;}
+async function sendReq(){
+  const t=_i18n[_lang];const url=document.getElementById('urlInput').value.trim();if(!url)return;
+  const method=document.getElementById('method').value;const body=document.getElementById('body').value.trim();const headers=getHeaders();
+  document.getElementById('loadingEl').style.display='';document.getElementById('respPanel').style.display='none';document.getElementById('corsWarn').style.display='none';
+  try{
+    const opts={method,headers};
+    if(body&&['POST','PUT','PATCH'].includes(method))opts.body=body;
+    const r=await fetch(url,opts);
+    const respText=await r.text();
+    let respBody=respText;try{respBody=JSON.stringify(JSON.parse(respText),null,2);}catch{}
+    const sc=r.status;const scClass=sc<300?'s2xx':sc<400?'s3xx':sc<500?'s4xx':'s5xx';
+    document.getElementById('statusBar').innerHTML=`<span class="status-badge ${scClass}">${sc} ${r.statusText}</span><span style="color:var(--text-dim)">${new Date().toLocaleTimeString()}</span>`;
+    let hdrsText='';r.headers.forEach((v,k)=>{hdrsText+=`${k}: ${v}\n`;});
+    document.getElementById('respHdrs').textContent=hdrsText||'(no headers)';
+    document.getElementById('respBody').textContent=respBody;
+    document.getElementById('respPanel').style.display='';
+  }catch(e){
+    if(e.name==='TypeError'&&e.message.toLowerCase().includes('failed to fetch')){
+      document.getElementById('corsWarn').textContent=t.corsMsg;document.getElementById('corsWarn').style.display='';
+    }else{document.getElementById('corsWarn').textContent=t.errMsg+e.message;document.getElementById('corsWarn').style.display='';}
+  }finally{document.getElementById('loadingEl').style.display='none';}
+}
+function clearResp(){document.getElementById('respPanel').style.display='none';document.getElementById('corsWarn').style.display='none';document.getElementById('body').value='';document.getElementById('urlInput').value='';}
+function copyResp(){const t=_i18n[_lang];const v=document.getElementById('respBody').textContent;if(!v)return;
+  navigator.clipboard.writeText(v).then(()=>{const btn=document.getElementById('btnCopyResp');const orig=btn.textContent;btn.textContent=t.copied;setTimeout(()=>btn.textContent=orig,2000);});
+}
+document.querySelectorAll('.hrow input').forEach(i=>i.addEventListener('input',()=>{}));
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

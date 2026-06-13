@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JSON 비교기 - JSON Diff 도구 | MODOO HUB</title>
+<meta name="description" content="두 JSON을 붙여넣어 차이점 즉시 비교. 추가·삭제·변경된 키 색상으로 표시. 온라인 JSON Diff 도구.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/json-diff.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/json-diff.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/json-diff.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/json-diff.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/json-diff.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/json-diff.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;font-family:'DM Mono',monospace;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;font-family:'DM Mono',monospace;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:1000px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+@media(max-width:600px){.cols{grid-template-columns:1fr;}}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;}
+.label{font-size:11px;color:var(--text-dim);letter-spacing:.07em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:6px;}
+textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;resize:vertical;outline:none;min-height:200px;line-height:1.6;}
+textarea:focus{border-color:var(--accent);}
+.btn-row{display:flex;gap:8px;margin-top:12px;}
+.btn{padding:8px 20px;border:1px solid var(--border);border-radius:7px;font-size:12px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;background:none;color:var(--text-muted);transition:all .15s;}
+.btn:hover{border-color:var(--accent);color:var(--accent);}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;}
+.btn.primary:hover{opacity:.85;}
+.diff-result{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-top:14px;display:none;}
+.diff-result.show{display:block;}
+.diff-stats{display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap;}
+.stat{padding:4px 12px;border-radius:6px;font-size:12px;font-family:'DM Mono',monospace;}
+.stat.add{background:rgba(74,222,128,.1);color:var(--green);}
+.stat.del{background:rgba(248,113,113,.1);color:var(--red);}
+.stat.mod{background:rgba(96,165,250,.1);color:var(--blue);}
+.stat.same{background:var(--surface2);color:var(--text-dim);}
+.diff-lines{font-family:'DM Mono',monospace;font-size:11px;line-height:1.8;}
+.diff-line{padding:1px 8px;display:flex;gap:8px;}
+.diff-line.add{background:rgba(74,222,128,.07);}
+.diff-line.del{background:rgba(248,113,113,.07);}
+.diff-line.mod{background:rgba(96,165,250,.07);}
+.diff-sign{width:16px;flex-shrink:0;}
+.add .diff-sign{color:var(--green);}
+.del .diff-sign{color:var(--red);}
+.mod .diff-sign{color:var(--blue);}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"JSON Diff","url":"https://modoohub.com/json-diff.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Compare two JSON objects and highlight added, deleted, and modified keys instantly."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"JSON 비교는 어떻게 동작하나요?","acceptedAnswer":{"@type":"Answer","text":"두 JSON 객체를 재귀적으로 순회하며 키별로 추가/삭제/변경 여부를 판별해 색상으로 표시합니다."}},{"@type":"Question","name":"배열 비교도 지원하나요?","acceptedAnswer":{"@type":"Answer","text":"배열은 인덱스 기준으로 비교합니다. 배열 순서가 다르면 변경으로 표시됩니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>JSON <span id="h1b">비교기</span></h1>
+  <p class="sub" id="subEl">두 JSON 붙여넣기 → 추가·삭제·변경 키 즉시 비교</p>
+  <div class="cols">
+    <div class="panel">
+      <div class="label" id="labelA">JSON A (기준)</div>
+      <textarea id="jsonA" placeholder='{"name":"Alice","age":30,"city":"Seoul"}'></textarea>
+    </div>
+    <div class="panel">
+      <div class="label" id="labelB">JSON B (비교)</div>
+      <textarea id="jsonB" placeholder='{"name":"Alice","age":31,"email":"alice@example.com"}'></textarea>
+    </div>
+  </div>
+  <div class="btn-row">
+    <button class="btn primary" onclick="doDiff()" id="btnDiff">비교</button>
+    <button class="btn" onclick="clearAll()" id="btnClear">초기화</button>
+  </div>
+  <div class="diff-result" id="diffResult">
+    <div class="diff-stats" id="diffStats"></div>
+    <div class="diff-lines" id="diffLines"></div>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const _i18n={
+  ko:{pageTitle:'JSON 비교기 - JSON Diff 도구 | MODOO HUB',h1b:'비교기',sub:'두 JSON 붙여넣기 → 추가·삭제·변경 키 즉시 비교',backLink:'← 모두의 툴',langBtn:'🌐 EN',labelA:'JSON A (기준)',labelB:'JSON B (비교)',btnDiff:'비교',btnClear:'초기화',added:'추가',deleted:'삭제',modified:'변경',same:'동일',errA:'JSON A 파싱 오류',errB:'JSON B 파싱 오류',
+    seoHtml:`<h2>JSON 비교기란?</h2><p>두 JSON 데이터의 차이를 즉시 분석합니다. <strong>추가된 키(녹색)</strong>, <strong>삭제된 키(빨간색)</strong>, <strong>변경된 값(파란색)</strong>을 색상으로 구분해 빠르게 파악할 수 있습니다. API 응답 변경 확인, 설정 파일 비교, 데이터 마이그레이션 검증 등에 유용합니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>배열 비교는 어떻게 되나요?</summary><p>배열은 인덱스 기준으로 비교합니다. 배열 순서가 다르면 변경으로 표시됩니다. 의미적 동등성(같은 요소, 다른 순서)은 판별하지 않습니다.</p></details>
+<details class="faq-item"><summary>중첩 JSON도 비교 가능한가요?</summary><p>재귀적으로 중첩 객체를 순회하며 비교합니다. 점(.) 표기법으로 중첩 경로를 표시합니다.</p></details>
+<details class="faq-item"><summary>null과 undefined 차이도 표시되나요?</summary><p>null은 JSON에서 유효한 값으로, null → 다른 값으로 변경되면 변경으로 표시됩니다. undefined는 JSON에 존재하지 않아 키 없음으로 처리됩니다.</p></details>
+<details class="faq-item"><summary>타입 변경(string → number)도 감지되나요?</summary><p>값이 다르면 타입 무관하게 변경으로 표시됩니다. 예: "30" → 30도 변경으로 표시됩니다.</p></details>
+<details class="faq-item"><summary>JSON 순서가 다르면 어떻게 되나요?</summary><p>JSON 객체의 키 순서는 의미가 없으므로, 순서가 달라도 값이 같으면 동일로 처리됩니다.</p></details>
+<details class="faq-item"><summary>대용량 JSON도 비교 가능한가요?</summary><p>브라우저 내 JS로 처리하므로 수백 KB 규모는 문제 없습니다. 수 MB 이상의 대용량은 성능이 저하될 수 있습니다.</p></details>
+<details class="faq-item"><summary>비교 결과를 복사할 수 있나요?</summary><p>현재 버전은 화면 표시 중심입니다. 브라우저의 텍스트 선택 후 복사 기능을 이용하세요.</p></details>
+<details class="faq-item"><summary>JSON 유효성 검사도 함께 하나요?</summary><p>네, 비교 전에 각 JSON의 파싱 가능 여부를 먼저 검사합니다. 파싱 오류가 있으면 해당 오류를 먼저 알려줍니다.</p></details>`
+  },
+  en:{pageTitle:'JSON Diff - Compare Two JSON Objects | MODOO HUB',h1b:'Diff',sub:'Paste two JSON objects → instantly compare added, deleted, modified keys',backLink:'← All Tools',langBtn:'🌐 中文',labelA:'JSON A (base)',labelB:'JSON B (compare)',btnDiff:'Compare',btnClear:'Clear',added:'added',deleted:'deleted',modified:'modified',same:'same',errA:'JSON A parse error',errB:'JSON B parse error',
+    seoHtml:`<h2>JSON Diff Tool</h2><p>Instantly compare two JSON objects. <strong>Added keys (green)</strong>, <strong>deleted keys (red)</strong>, and <strong>modified values (blue)</strong> are color-coded for quick identification. Useful for API response changes, config file comparison, and data migration validation.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>How are arrays compared?</summary><p>Arrays are compared by index. Different order is treated as modified. Semantic equality (same elements, different order) is not detected.</p></details>
+<details class="faq-item"><summary>Are nested objects supported?</summary><p>Yes, nested objects are recursively traversed and compared. Nested paths are shown with dot notation.</p></details>
+<details class="faq-item"><summary>Is null vs undefined detected?</summary><p>null is a valid JSON value — changing null to another value is shown as modified. undefined does not exist in JSON and is treated as missing.</p></details>
+<details class="faq-item"><summary>Are type changes detected?</summary><p>Any value difference, including type changes (e.g. "30" → 30), is shown as modified.</p></details>
+<details class="faq-item"><summary>Does key order matter?</summary><p>No. JSON object key order is not significant, so reordered keys with the same values are treated as identical.</p></details>
+<details class="faq-item"><summary>Large JSON support?</summary><p>Client-side JS handles hundreds of KB without issue. Very large files (several MB+) may cause performance slowdowns.</p></details>
+<details class="faq-item"><summary>Can I copy the diff result?</summary><p>Use browser text selection and copy for now. A copy button may be added in a future version.</p></details>
+<details class="faq-item"><summary>JSON validation included?</summary><p>Yes, each JSON is parsed before comparison. Parse errors are reported before the diff runs.</p></details>`
+  },
+  zh:{pageTitle:'JSON差异比较器 - 在线JSON Diff工具 | MODOO HUB',h1b:'差异比较器',sub:'粘贴两个JSON → 即时比较新增·删除·修改的键',backLink:'← 所有工具',langBtn:'🌐 日本語',labelA:'JSON A（基准）',labelB:'JSON B（对比）',btnDiff:'比较',btnClear:'清除',added:'新增',deleted:'删除',modified:'修改',same:'相同',errA:'JSON A解析错误',errB:'JSON B解析错误',
+    seoHtml:`<h2>JSON差异比较器</h2><p>即时比较两个JSON对象的差异。<strong>新增键（绿色）</strong>、<strong>删除键（红色）</strong>、<strong>修改值（蓝色）</strong>用颜色区分，快速识别变化。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>数组如何比较？</summary><p>数组按索引比较。顺序不同视为修改，不检测语义等价性。</p></details>
+<details class="faq-item"><summary>支持嵌套对象吗？</summary><p>支持。递归遍历嵌套对象，用点号表示嵌套路径。</p></details>
+<details class="faq-item"><summary>能检测类型变化吗？</summary><p>能。任何值的差异（包括类型变化）都会显示为修改。</p></details>
+<details class="faq-item"><summary>键的顺序有影响吗？</summary><p>没有。JSON对象键的顺序不重要，顺序不同但值相同视为相同。</p></details>
+<details class="faq-item"><summary>支持大型JSON吗？</summary><p>客户端JS处理数百KB没有问题，数MB以上可能性能下降。</p></details>
+<details class="faq-item"><summary>包含JSON格式验证吗？</summary><p>是的，比较前会先验证每个JSON是否可解析，并报告解析错误。</p></details>
+<details class="faq-item"><summary>null值如何处理？</summary><p>null是有效的JSON值，从null改为其他值显示为修改。</p></details>
+<details class="faq-item"><summary>可以复制比较结果吗？</summary><p>可以使用浏览器文本选择后复制。</p></details>`
+  },
+  ja:{pageTitle:'JSON差分比較ツール - JSON Diff | MODOO HUB',h1b:'差分比較',sub:'2つのJSONを貼り付け → 追加・削除・変更されたキーを即時比較',backLink:'← ホーム',langBtn:'🌐 한국어',labelA:'JSON A（基準）',labelB:'JSON B（比較）',btnDiff:'比較',btnClear:'クリア',added:'追加',deleted:'削除',modified:'変更',same:'同一',errA:'JSON Aのパースエラー',errB:'JSON Bのパースエラー',
+    seoHtml:`<h2>JSON差分比較ツールとは</h2><p>2つのJSONオブジェクトの差分を即時分析します。<strong>追加されたキー（緑）</strong>、<strong>削除されたキー（赤）</strong>、<strong>変更された値（青）</strong>を色分けして素早く把握できます。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>配列の比較はどうなりますか？</summary><p>配列はインデックス基準で比較します。順序が異なれば変更として表示されます。</p></details>
+<details class="faq-item"><summary>ネストされたオブジェクトも比較できますか？</summary><p>はい。再帰的に比較し、ネストパスはドット表記で表示します。</p></details>
+<details class="faq-item"><summary>型の変更も検出されますか？</summary><p>はい。型変更を含む値の差異はすべて変更として表示されます。</p></details>
+<details class="faq-item"><summary>キーの順序は影響しますか？</summary><p>いいえ。JSONオブジェクトのキー順序は意味がないため、順序が違っても値が同じなら同一として扱います。</p></details>
+<details class="faq-item"><summary>大きなJSONも比較できますか？</summary><p>クライアントサイドJSで数百KBは問題ありません。数MB以上は性能が低下する場合があります。</p></details>
+<details class="faq-item"><summary>JSON検証も行いますか？</summary><p>はい。比較前に各JSONのパース可否を検査し、エラーを先に報告します。</p></details>
+<details class="faq-item"><summary>nullはどう扱われますか？</summary><p>nullは有効なJSON値です。nullから別の値への変更は「変更」として表示されます。</p></details>
+<details class="faq-item"><summary>比較結果をコピーできますか？</summary><p>ブラウザのテキスト選択でコピーできます。</p></details>`
+  }
+};
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko';
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const idx=LANGS.indexOf(_lang);_lang=LANGS[(idx+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){
+  const t=_i18n[_lang];
+  document.documentElement.lang=_lang;document.title=t.pageTitle;
+  document.getElementById('h1b').textContent=t.h1b;document.getElementById('subEl').textContent=t.sub;
+  document.getElementById('backLink').textContent=t.backLink;document.getElementById('langBtn').textContent=t.langBtn;
+  document.getElementById('labelA').textContent=t.labelA;document.getElementById('labelB').textContent=t.labelB;
+  document.getElementById('btnDiff').textContent=t.btnDiff;document.getElementById('btnClear').textContent=t.btnClear;
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+}
+function clearAll(){document.getElementById('jsonA').value='';document.getElementById('jsonB').value='';document.getElementById('diffResult').className='diff-result';}
+function diffObjs(a,b,path){
+  const results=[];
+  const keys=new Set([...Object.keys(a),...Object.keys(b)]);
+  keys.forEach(k=>{
+    const fp=path?path+'.'+k:k;
+    if(!(k in a)){results.push({type:'add',path:fp,val:b[k]});}
+    else if(!(k in b)){results.push({type:'del',path:fp,val:a[k]});}
+    else if(typeof a[k]==='object'&&a[k]!==null&&typeof b[k]==='object'&&b[k]!==null&&!Array.isArray(a[k])&&!Array.isArray(b[k])){
+      results.push(...diffObjs(a[k],b[k],fp));
+    } else {
+      const av=JSON.stringify(a[k]);const bv=JSON.stringify(b[k]);
+      if(av!==bv){results.push({type:'mod',path:fp,from:a[k],to:b[k]});}
+      else{results.push({type:'same',path:fp,val:a[k]});}
+    }
+  });
+  return results;
+}
+function doDiff(){
+  const t=_i18n[_lang];
+  const ra=document.getElementById('diffResult');
+  let a,b;
+  try{a=JSON.parse(document.getElementById('jsonA').value);}catch(e){ra.className='diff-result show';document.getElementById('diffStats').innerHTML=`<span style="color:var(--red)">${t.errA}: ${e.message}</span>`;document.getElementById('diffLines').innerHTML='';return;}
+  try{b=JSON.parse(document.getElementById('jsonB').value);}catch(e){ra.className='diff-result show';document.getElementById('diffStats').innerHTML=`<span style="color:var(--red)">${t.errB}: ${e.message}</span>`;document.getElementById('diffLines').innerHTML='';return;}
+  const results=diffObjs(a,b,'');
+  const counts={add:0,del:0,mod:0,same:0};
+  results.forEach(r=>counts[r.type]++);
+  document.getElementById('diffStats').innerHTML=
+    `<span class="stat add">+ ${counts.add} ${t.added}</span><span class="stat del">- ${counts.del} ${t.deleted}</span><span class="stat mod">~ ${counts.mod} ${t.modified}</span><span class="stat same">= ${counts.same} ${t.same}</span>`;
+  let lines='';
+  results.forEach(r=>{
+    if(r.type==='add') lines+=`<div class="diff-line add"><span class="diff-sign">+</span><span>${r.path}: ${JSON.stringify(r.val)}</span></div>`;
+    else if(r.type==='del') lines+=`<div class="diff-line del"><span class="diff-sign">-</span><span>${r.path}: ${JSON.stringify(r.val)}</span></div>`;
+    else if(r.type==='mod') lines+=`<div class="diff-line mod"><span class="diff-sign">~</span><span>${r.path}: ${JSON.stringify(r.from)} → ${JSON.stringify(r.to)}</span></div>`;
+    else lines+=`<div class="diff-line"><span class="diff-sign"> </span><span style="color:var(--text-dim)">${r.path}: ${JSON.stringify(r.val)}</span></div>`;
+  });
+  document.getElementById('diffLines').innerHTML=lines;
+  ra.className='diff-result show';
+}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

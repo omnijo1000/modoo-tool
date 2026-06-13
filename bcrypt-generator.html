@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bcrypt 생성기 - 비밀번호 bcrypt 해시 생성 | MODOO HUB</title>
+<meta name="description" content="비밀번호를 bcrypt 해시로 변환. Cost factor 설정. 온라인 Bcrypt Password Hash Generator.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/bcrypt-generator.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/bcrypt-generator.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/bcrypt-generator.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/bcrypt-generator.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/bcrypt-generator.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/bcrypt-generator.html">
+<script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js"></script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:900px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;}
+.label{font-size:11px;color:var(--text-dim);letter-spacing:.07em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:8px;}
+input[type=text],input[type=password]{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 12px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;outline:none;margin-bottom:8px;}
+input[type=text]:focus,input[type=password]:focus{border-color:var(--accent);}
+.cost-row{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.cost-row label{font-size:12px;color:var(--text-muted);}
+.cost-row input[type=range]{flex:1;accent-color:var(--accent);}
+.cost-val{font-family:'DM Mono',monospace;font-size:14px;color:var(--accent);font-weight:700;min-width:30px;}
+.cost-time{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;}
+.hash-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px;font-family:'DM Mono',monospace;font-size:12px;line-height:1.6;word-break:break-all;min-height:60px;color:var(--green);}
+.btn-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center;}
+.btn{padding:8px 20px;border:1px solid var(--border);border-radius:7px;font-size:12px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;background:none;color:var(--text-muted);transition:all .15s;}
+.btn:hover{border-color:var(--accent);color:var(--accent);}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+.loading-msg{font-size:12px;color:var(--text-dim);font-family:'DM Mono',monospace;}
+.hash-parts{margin-top:8px;font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;line-height:1.8;}
+.hash-parts span{color:var(--text-muted);}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Bcrypt Generator","url":"https://modoohub.com/bcrypt-generator.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Hash passwords with bcrypt online. Set cost factor from 4 to 14. Secure password hashing with salt for storage."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"bcrypt이란?","acceptedAnswer":{"@type":"Answer","text":"bcrypt은 Blowfish 암호 기반의 패스워드 해싱 함수입니다. cost factor로 계산 비용을 조절해 브루트포스 공격을 어렵게 합니다."}},{"@type":"Question","name":"cost factor는 얼마로 설정해야 하나요?","acceptedAnswer":{"@type":"Answer","text":"10~12가 일반적으로 권장됩니다. 값이 클수록 해시 생성이 느려지고 보안이 강화되지만, 서버 부하도 증가합니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>Bcrypt <span id="h1b">생성기</span></h1>
+  <p class="sub" id="subEl">비밀번호를 bcrypt 해시로 안전하게 변환</p>
+  <div class="panel">
+    <div class="label" id="labelPwd">비밀번호</div>
+    <input type="password" id="pwdIn" placeholder="해시할 비밀번호 입력...">
+    <div class="label" id="labelCost">Cost Factor</div>
+    <div class="cost-row">
+      <input type="range" id="costRange" min="4" max="14" value="10" oninput="updateCost()">
+      <span class="cost-val" id="costVal">10</span>
+    </div>
+    <div class="cost-time" id="costTime"></div>
+    <div class="btn-row">
+      <button class="btn primary" onclick="generateHash()" id="btnGen">해시 생성</button>
+      <button class="btn" onclick="clearAll()" id="btnClear">초기화</button>
+      <span class="loading-msg" id="loadMsg" style="display:none">생성 중...</span>
+    </div>
+  </div>
+  <div class="panel" id="resultPanel" style="display:none">
+    <div class="label" id="labelResult">bcrypt 해시</div>
+    <div class="hash-box" id="hashBox"></div>
+    <div class="hash-parts" id="hashParts"></div>
+    <div class="btn-row"><button class="btn" onclick="copyHash()" id="btnCopy">복사</button></div>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const COST_TIMES={4:'~1ms',5:'~2ms',6:'~4ms',7:'~8ms',8:'~16ms',9:'~33ms',10:'~66ms',11:'~130ms',12:'~260ms',13:'~520ms',14:'~1s'};
+const _i18n={
+  ko:{pageTitle:'Bcrypt 생성기 - 비밀번호 bcrypt 해시 생성 | MODOO HUB',h1b:'생성기',sub:'비밀번호를 bcrypt 해시로 안전하게 변환',backLink:'← 모두의 툴',langBtn:'🌐 EN',labelPwd:'비밀번호',labelCost:'Cost Factor',labelResult:'bcrypt 해시',btnGen:'해시 생성',btnClear:'초기화',btnCopy:'복사',loadMsg:'생성 중...',copied:'복사됨 ✓',approx:'약 ',costNote:'(높을수록 안전, 느림)',
+    seoHtml:`<h2>Bcrypt 생성기란?</h2><p>bcrypt은 비밀번호 해싱 전용 알고리즘으로, <strong>cost factor</strong>로 계산 비용을 조절합니다. 매 해시마다 랜덤 salt를 생성해 같은 비밀번호도 다른 해시값이 나옵니다. SHA-256보다 훨씬 안전한 비밀번호 저장 방식입니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>bcrypt 해시는 왜 매번 다른가요?</summary><p>bcrypt은 해시마다 랜덤 salt를 생성합니다. 같은 비밀번호도 매번 다른 해시가 생성되므로 레인보우 테이블 공격을 방어합니다.</p></details>
+<details class="faq-item"><summary>cost factor 10과 12의 차이는?</summary><p>cost factor가 1 증가할 때마다 계산 시간이 2배 증가합니다. 12는 10보다 4배 느립니다.</p></details>
+<details class="faq-item"><summary>bcrypt 해시 형식은?</summary><p>$2a$10$salt22charshashval31chars 형식입니다. $2a$는 버전, $10$은 cost factor, 그 뒤가 salt+hash입니다.</p></details>
+<details class="faq-item"><summary>비밀번호가 서버로 전송되나요?</summary><p>아니요. bcryptjs 라이브러리가 브라우저에서만 실행되며 서버로 데이터를 전송하지 않습니다.</p></details>
+<details class="faq-item"><summary>bcrypt 해시 최대 비밀번호 길이는?</summary><p>bcrypt는 72바이트(대부분의 경우 72자)까지만 처리합니다. 더 긴 비밀번호는 잘립니다.</p></details>
+<details class="faq-item"><summary>bcrypt vs Argon2 vs PBKDF2?</summary><p>세 모두 키 스트레칭 알고리즘입니다. Argon2는 메모리 집약적이라 더 현대적입니다. bcrypt은 광범위하게 지원됩니다.</p></details>
+<details class="faq-item"><summary>생성된 해시를 데이터베이스에 저장하나요?</summary><p>네. bcrypt 해시는 60자이므로 VARCHAR(60) 컬럼에 저장하면 됩니다.</p></details>
+<details class="faq-item"><summary>bcrypt 검증은 어떻게 하나요?</summary><p>bcrypt-validator 도구에서 비밀번호와 해시를 비교 검증할 수 있습니다.</p></details>`
+  },
+  en:{pageTitle:'Bcrypt Generator - Hash Passwords with Bcrypt | MODOO HUB',h1b:'Generator',sub:'Securely hash passwords with bcrypt',backLink:'← All Tools',langBtn:'🌐 中文',labelPwd:'Password',labelCost:'Cost Factor',labelResult:'Bcrypt Hash',btnGen:'Generate Hash',btnClear:'Clear',btnCopy:'Copy',loadMsg:'Generating...',copied:'Copied ✓',approx:'~',costNote:'(higher = more secure, slower)',
+    seoHtml:`<h2>Bcrypt Generator</h2><p>bcrypt is a password-specific hashing algorithm using an adjustable <strong>cost factor</strong> to control computation time. A random salt is generated per hash, so the same password always produces a different hash — defending against rainbow table attacks.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>Why is the hash different each time?</summary><p>bcrypt generates a random salt per hash. Same password → different hash each time, defeating rainbow table attacks.</p></details>
+<details class="faq-item"><summary>Cost factor 10 vs 12?</summary><p>Each increment doubles computation time. Cost 12 is 4× slower than cost 10.</p></details>
+<details class="faq-item"><summary>What is the bcrypt hash format?</summary><p>$2a$10$[22-char salt][31-char hash]. $2a$ is version, $10$ is cost factor.</p></details>
+<details class="faq-item"><summary>Is the password sent to a server?</summary><p>No. bcryptjs runs entirely in the browser — no data is transmitted.</p></details>
+<details class="faq-item"><summary>Max password length for bcrypt?</summary><p>bcrypt truncates at 72 bytes. Passwords longer than 72 chars are silently truncated.</p></details>
+<details class="faq-item"><summary>bcrypt vs Argon2 vs PBKDF2?</summary><p>All are key-stretching algorithms. Argon2 is more modern (memory-hard). bcrypt has wide support.</p></details>
+<details class="faq-item"><summary>How do I store the hash in a database?</summary><p>bcrypt hashes are 60 chars — use a VARCHAR(60) column.</p></details>
+<details class="faq-item"><summary>How do I verify a bcrypt hash?</summary><p>Use the bcrypt-validator tool to compare a password against a stored hash.</p></details>`
+  },
+  zh:{pageTitle:'Bcrypt生成器 - 密码bcrypt哈希生成 | MODOO HUB',h1b:'生成器',sub:'使用bcrypt安全地哈希密码',backLink:'← 所有工具',langBtn:'🌐 日本語',labelPwd:'密码',labelCost:'Cost Factor',labelResult:'Bcrypt哈希',btnGen:'生成哈希',btnClear:'清除',btnCopy:'复制',loadMsg:'生成中...',copied:'已复制 ✓',approx:'约',costNote:'（越高越安全，越慢）',
+    seoHtml:`<h2>Bcrypt生成器</h2><p>bcrypt是专用于密码哈希的算法，通过cost factor调整计算成本。每次哈希生成随机盐值，相同密码产生不同哈希，防御彩虹表攻击。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>为什么每次哈希不同？</summary><p>bcrypt每次哈希生成随机盐值，相同密码每次产生不同哈希，防御彩虹表攻击。</p></details>
+<details class="faq-item"><summary>cost factor 10和12的区别？</summary><p>每增加1，计算时间翻倍。cost 12比cost 10慢4倍。</p></details>
+<details class="faq-item"><summary>bcrypt哈希格式是什么？</summary><p>$2a$10$[22字符盐][31字符哈希]。$2a$是版本，$10$是cost factor。</p></details>
+<details class="faq-item"><summary>密码会发送到服务器吗？</summary><p>不会，bcryptjs完全在浏览器中运行。</p></details>
+<details class="faq-item"><summary>bcrypt最大密码长度？</summary><p>bcrypt截断为72字节，超过72字符的密码会被静默截断。</p></details>
+<details class="faq-item"><summary>bcrypt vs Argon2 vs PBKDF2？</summary><p>都是密钥拉伸算法，Argon2更现代（内存密集），bcrypt广泛支持。</p></details>
+<details class="faq-item"><summary>如何在数据库中存储哈希？</summary><p>bcrypt哈希为60字符，使用VARCHAR(60)列存储。</p></details>
+<details class="faq-item"><summary>如何验证bcrypt哈希？</summary><p>使用bcrypt-validator工具将密码与存储的哈希进行比较验证。</p></details>`
+  },
+  ja:{pageTitle:'Bcrypt生成ツール - パスワードbcryptハッシュ生成 | MODOO HUB',h1b:'生成ツール',sub:'bcryptでパスワードを安全にハッシュ化',backLink:'← ホーム',langBtn:'🌐 한국어',labelPwd:'パスワード',labelCost:'Cost Factor',labelResult:'bcryptハッシュ',btnGen:'ハッシュ生成',btnClear:'クリア',btnCopy:'コピー',loadMsg:'生成中...',copied:'コピー完了 ✓',approx:'約',costNote:'（高いほど安全・低速）',
+    seoHtml:`<h2>Bcrypt生成ツールとは</h2><p>bcryptはパスワード専用のハッシュアルゴリズムで、cost factorで計算コストを調整します。ハッシュごとにランダムなsaltを生成するため、同じパスワードでも毎回異なるハッシュが生成されます。レインボーテーブル攻撃を防ぎます。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>なぜ毎回異なるハッシュが生成されますか？</summary><p>bcryptはハッシュごとにランダムなsaltを生成します。同じパスワードでも毎回異なるハッシュになり、レインボーテーブル攻撃を防ぎます。</p></details>
+<details class="faq-item"><summary>cost factor 10と12の違いは？</summary><p>1増えるごとに計算時間が2倍になります。cost 12はcost 10の4倍遅いです。</p></details>
+<details class="faq-item"><summary>bcryptハッシュの形式は？</summary><p>$2a$10$[22文字のsalt][31文字のハッシュ]。$2a$はバージョン、$10$はcost factorです。</p></details>
+<details class="faq-item"><summary>パスワードはサーバーに送信されますか？</summary><p>いいえ。bcryptjsはブラウザ内のみで実行されます。</p></details>
+<details class="faq-item"><summary>bcryptの最大パスワード長は？</summary><p>bcryptは72バイトで切り捨てます。72文字を超えるパスワードは黙って切り捨てられます。</p></details>
+<details class="faq-item"><summary>bcrypt vs Argon2 vs PBKDF2？</summary><p>すべてキーストレッチングアルゴリズムです。Argon2はよりモダン（メモリ集約型）。bcryptは広くサポートされています。</p></details>
+<details class="faq-item"><summary>DBへのハッシュ保存方法は？</summary><p>bcryptハッシュは60文字なのでVARCHAR(60)カラムに保存します。</p></details>
+<details class="faq-item"><summary>bcryptハッシュの検証は？</summary><p>bcrypt-validatorツールでパスワードと保存ハッシュを比較検証できます。</p></details>`
+  }
+};
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko',_hash='';
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const idx=LANGS.indexOf(_lang);_lang=LANGS[(idx+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
+  document.getElementById('h1b').textContent=t.h1b;document.getElementById('subEl').textContent=t.sub;
+  document.getElementById('backLink').textContent=t.backLink;document.getElementById('langBtn').textContent=t.langBtn;
+  document.getElementById('labelPwd').textContent=t.labelPwd;document.getElementById('labelCost').textContent=t.labelCost;
+  document.getElementById('labelResult').textContent=t.labelResult;document.getElementById('btnGen').textContent=t.btnGen;
+  document.getElementById('btnClear').textContent=t.btnClear;document.getElementById('btnCopy').textContent=t.btnCopy;
+  document.getElementById('loadMsg').textContent=t.loadMsg;document.getElementById('seoDiv').innerHTML=t.seoHtml;
+  updateCost();
+}
+function updateCost(){
+  const t=_i18n[_lang];const v=document.getElementById('costRange').value;
+  document.getElementById('costVal').textContent=v;
+  document.getElementById('costTime').textContent=t.approx+COST_TIMES[v]+' '+t.costNote;
+}
+async function generateHash(){
+  const t=_i18n[_lang];const pwd=document.getElementById('pwdIn').value;if(!pwd)return;
+  const cost=parseInt(document.getElementById('costRange').value);
+  document.getElementById('btnGen').disabled=true;document.getElementById('loadMsg').style.display='';
+  document.getElementById('resultPanel').style.display='none';
+  await new Promise(r=>setTimeout(r,10));
+  _hash=await bcrypt.hash(pwd,cost);
+  const parts=_hash.split('$');
+  document.getElementById('hashBox').textContent=_hash;
+  document.getElementById('hashParts').innerHTML=`Version: <span>$${parts[1]}$</span> &nbsp; Cost: <span>$${parts[2]}$</span> &nbsp; Salt (22): <span>${_hash.slice(7,29)}</span> &nbsp; Hash (31): <span>${_hash.slice(29)}</span>`;
+  document.getElementById('resultPanel').style.display='';
+  document.getElementById('btnGen').disabled=false;document.getElementById('loadMsg').style.display='none';
+}
+function copyHash(){const t=_i18n[_lang];if(!_hash)return;
+  navigator.clipboard.writeText(_hash).then(()=>{const btn=document.getElementById('btnCopy');const orig=btn.textContent;btn.textContent=t.copied;setTimeout(()=>btn.textContent=orig,2000);});
+}
+function clearAll(){document.getElementById('pwdIn').value='';document.getElementById('resultPanel').style.display='none';_hash='';}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

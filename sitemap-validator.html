@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>사이트맵 검증기 - XML Sitemap 유효성 검사 & URL 분석 | MODOO HUB</title>
+<meta name="description" content="XML 사이트맵을 검증하세요. URL 수 확인, 형식 오류 탐지, lastmod·changefreq·priority 값 분석, 중복 URL 감지.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/sitemap-validator.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/sitemap-validator.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/sitemap-validator.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/sitemap-validator.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/sitemap-validator.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/sitemap-validator.html">
+<meta property="og:title" content="사이트맵 검증기 - XML Sitemap 유효성 검사 & URL 분석">
+<meta property="og:description" content="XML 사이트맵 형식 오류 탐지, URL 수 확인, 중복 URL 감지.">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<meta property="og:url" content="https://modoohub.com/sitemap-validator.html">
+<meta property="og:type" content="website">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;font-family:'DM Mono',monospace;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;font-family:'DM Mono',monospace;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:900px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;line-height:1.6;}
+.tabs{display:flex;gap:4px;margin-bottom:16px;}
+.tab{padding:7px 18px;border:1px solid var(--border);border-radius:7px;font-size:12px;cursor:pointer;font-family:'DM Mono',monospace;background:none;color:var(--text-dim);transition:all .15s;}
+.tab:hover{border-color:var(--accent);color:var(--accent);}
+.tab.active{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:14px;}
+.field-label{font-size:11px;color:var(--text-dim);letter-spacing:.06em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:6px;display:block;}
+.field-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text);font-size:13px;font-family:'DM Mono',monospace;outline:none;transition:border-color .15s;}
+.field-input:focus{border-color:var(--accent);}
+.field-ta{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:10px 12px;color:var(--text);font-size:12px;font-family:'DM Mono',monospace;resize:vertical;min-height:180px;outline:none;line-height:1.7;transition:border-color .15s;}
+.field-ta:focus{border-color:var(--accent);}
+.note{font-size:11px;color:var(--accent);font-family:'DM Mono',monospace;margin-top:6px;padding:8px 12px;background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.2);border-radius:6px;}
+.btn-row{display:flex;gap:8px;margin-top:12px;}
+.btn{padding:8px 20px;border:1px solid var(--border);border-radius:7px;font-size:12px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;background:none;color:var(--text-muted);transition:all .15s;}
+.btn:hover{border-color:var(--accent);color:var(--accent);}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;}
+.btn.primary:hover{opacity:.85;}
+.results{display:none;}
+.results.show{display:block;}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;}
+@media(max-width:600px){.stats-grid{grid-template-columns:1fr 1fr;}}
+.stat-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center;}
+.stat-val{font-size:22px;font-weight:900;font-family:'DM Mono',monospace;color:var(--accent);}
+.stat-label{font-size:10px;color:var(--text-dim);font-family:'DM Mono',monospace;letter-spacing:.07em;margin-top:2px;}
+.issue-list{margin-bottom:12px;}
+.issue{padding:8px 12px;border-radius:6px;border:1px solid;font-size:12px;margin-bottom:6px;display:flex;gap:8px;}
+.issue.error{border-color:rgba(248,113,113,.3);background:rgba(248,113,113,.05);color:var(--red);}
+.issue.warn{border-color:rgba(251,191,36,.3);background:rgba(251,191,36,.05);color:var(--accent);}
+.issue.pass{border-color:rgba(74,222,128,.3);background:rgba(74,222,128,.05);color:var(--green);}
+.section-title{font-size:11px;color:var(--text-dim);letter-spacing:.07em;text-transform:uppercase;font-family:'DM Mono',monospace;margin:12px 0 6px;}
+.url-table{width:100%;border-collapse:collapse;font-size:11px;}
+.url-table th{text-align:left;padding:6px 8px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.07em;color:var(--text-dim);border-bottom:1px solid var(--border);}
+.url-table td{padding:6px 8px;border-bottom:1px solid var(--border);font-family:'DM Mono',monospace;color:var(--text-muted);word-break:break-all;}
+.url-table tr:last-child td{border-bottom:none;}
+.url-table td.url-cell{color:var(--blue);}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:32px;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Sitemap Validator","url":"https://modoohub.com/sitemap-validator.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Validate XML sitemaps. Check URL count, detect format errors, analyze lastmod/changefreq/priority values, and identify duplicate URLs."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"XML 사이트맵이란?","acceptedAnswer":{"@type":"Answer","text":"검색 엔진에 사이트의 모든 페이지 URL을 알려주는 XML 파일입니다. Google Search Console에 제출하면 크롤링 효율이 높아집니다."}},{"@type":"Question","name":"사이트맵 URL 수 제한은?","acceptedAnswer":{"@type":"Answer","text":"하나의 사이트맵 파일에 최대 50,000개 URL, 50MB 이내로 제한됩니다. 초과 시 사이트맵 인덱스 파일로 분할하세요."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>Sitemap <span id="h1Span">검증기</span></h1>
+  <p class="sub" id="subEl">XML 사이트맵 형식 검사·URL 수 분석·중복 감지</p>
+  <div class="tabs">
+    <button class="tab active" id="tabPaste" onclick="switchTab('paste')">XML 붙여넣기</button>
+    <button class="tab" id="tabFetch" onclick="switchTab('fetch')">URL 조회</button>
+  </div>
+  <div class="tab-panel active" id="panelPaste">
+    <div class="panel">
+      <label class="field-label" id="labelPaste">XML 사이트맵 붙여넣기</label>
+      <textarea class="field-ta" id="xmlInput" placeholder="<?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?>&#10;<urlset xmlns=&quot;http://www.sitemaps.org/schemas/sitemap/0.9&quot;>&#10;  <url><loc>https://example.com/</loc></url>&#10;</urlset>"></textarea>
+      <div class="btn-row">
+        <button class="btn primary" id="btnValidatePaste" onclick="validatePaste()">검증</button>
+        <button class="btn" id="btnClearPaste" onclick="clearAll()">초기화</button>
+      </div>
+    </div>
+  </div>
+  <div class="tab-panel" id="panelFetch">
+    <div class="panel">
+      <label class="field-label" id="labelUrl">사이트맵 URL</label>
+      <input type="text" class="field-input" id="urlInput" placeholder="https://example.com/sitemap.xml">
+      <div class="note" id="fetchNote"></div>
+      <div class="btn-row">
+        <button class="btn primary" id="btnFetch" onclick="fetchSitemap()">조회</button>
+        <button class="btn" id="btnClearFetch" onclick="clearAll()">초기화</button>
+      </div>
+    </div>
+  </div>
+  <div class="results" id="resultsArea">
+    <div class="panel">
+      <div class="stats-grid" id="statsGrid"></div>
+      <div class="issue-list" id="issueList"></div>
+      <div class="section-title" id="titleUrls">URL 목록 (최대 100개 표시)</div>
+      <table class="url-table"><thead><tr><th>#</th><th id="thLoc">URL</th><th id="thLastmod">lastmod</th><th id="thFreq">changefreq</th><th id="thPri">priority</th></tr></thead><tbody id="urlTbody"></tbody></table>
+    </div>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+  <footer>Sitemap Validator · Free Online Tool · modoohub.com</footer>
+</main>
+<script>
+const _i18n={
+  ko:{pageTitle:'사이트맵 검증기 - XML Sitemap 유효성 검사 & URL 분석 | MODOO HUB',h1Span:'검증기',sub:'XML 사이트맵 형식 검사·URL 수 분석·중복 감지',backLink:'← 모두의 툴',langBtn:'🌐 EN',tabPaste:'XML 붙여넣기',tabFetch:'URL 조회',labelPaste:'XML 사이트맵 붙여넣기',labelUrl:'사이트맵 URL',btnValidate:'검증',btnClear:'초기화',btnFetch:'조회',titleUrls:'URL 목록 (최대 100개 표시)',thLoc:'URL',thLastmod:'lastmod',thFreq:'changefreq',thPri:'priority',fetchNote:'⚠ CORS로 직접 조회가 제한될 수 있습니다.',fetchError:'조회 실패. XML 붙여넣기 탭을 이용하세요.',loading:'조회 중...',
+    sTotal:'총 URL',sDup:'중복 URL',sErr:'오류',sIndex:'인덱스 여부',isIndex:'인덱스',notIndex:'일반',
+    errNoUrlset:'urlset 또는 sitemapindex 루트 요소가 없습니다.',errInvalidXml:'XML 파싱 오류: ',errOver50k:'URL이 50,000개를 초과합니다. 사이트맵 인덱스로 분할하세요.',warnDup:(n)=>`중복 URL이 ${n}개 발견되었습니다.`,warnNoLastmod:'lastmod가 없는 URL이 있습니다.',passValid:'XML 형식이 유효합니다.',passUnder50k:'URL 수가 제한(50,000개) 이내입니다.',
+    seoHtml:`<h2>XML 사이트맵이란?</h2><p>XML 사이트맵은 검색 엔진에 사이트의 모든 페이지 URL을 알려주는 파일입니다. <strong>Google Search Console에 제출</strong>하면 크롤링 효율이 높아지고 새 페이지가 더 빨리 색인됩니다. 특히 링크가 적은 깊은 페이지나 최신 콘텐츠에 효과적입니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>사이트맵 URL 수 제한은?</summary><p>하나의 사이트맵 파일에 최대 50,000개 URL, 50MB(압축 전) 이내입니다. 초과 시 사이트맵 인덱스 파일(&lt;sitemapindex&gt;)로 분할하고 인덱스 파일만 Search Console에 제출하세요.</p></details>
+<details class="faq-item"><summary>lastmod 날짜 형식은?</summary><p>W3C 날짜 형식을 사용합니다: YYYY-MM-DD 또는 YYYY-MM-DDTHH:MM:SS+00:00 형식입니다. 실제 콘텐츠 수정일과 일치해야 합니다. 임의로 오늘 날짜를 넣으면 Google이 신뢰도를 낮춥니다.</p></details>
+<details class="faq-item"><summary>changefreq와 priority는 효과가 있나요?</summary><p>Google은 changefreq와 priority를 무시하거나 힌트로만 사용합니다. 크롤링 빈도는 Google이 자체적으로 결정합니다. 정확한 lastmod가 더 중요합니다.</p></details>
+<details class="faq-item"><summary>사이트맵에 non-canonical URL을 포함하면?</summary><p>사이트맵에는 canonical URL만 포함해야 합니다. non-canonical, noindex, 리디렉션 URL은 제외하세요. 혼란을 주면 크롤 예산이 낭비됩니다.</p></details>
+<details class="faq-item"><summary>사이트맵 자동 생성 방법은?</summary><p>WordPress는 Yoast SEO, Rank Math 플러그인이 자동 생성합니다. Next.js, Nuxt.js 등 프레임워크도 자동 생성 기능을 제공합니다. 정적 사이트는 빌드 스크립트로 생성하세요.</p></details>
+<details class="faq-item"><summary>robots.txt에 사이트맵을 명시해야 하나요?</summary><p>robots.txt 파일에 Sitemap: https://example.com/sitemap.xml 줄을 추가하면 모든 검색 엔진이 자동으로 발견할 수 있습니다. Google Search Console 제출과 병행하는 것이 좋습니다.</p></details>
+<details class="faq-item"><summary>이미지·비디오 사이트맵이란?</summary><p>이미지 사이트맵(&lt;image:image&gt;)은 Google 이미지 검색 색인에 도움이 되고, 비디오 사이트맵(&lt;video:video&gt;)은 비디오 리치 스니펫에 활용됩니다. 각각 별도 네임스페이스가 필요합니다.</p></details>
+<details class="faq-item"><summary>사이트맵 오류 진단 방법은?</summary><p>Google Search Console → 색인 생성 → 사이트맵에서 제출된 사이트맵의 오류를 확인할 수 있습니다. 오류 유형(접근 불가, 잘못된 XML, URL 오류 등)별로 상세 정보가 제공됩니다.</p></details>`
+  },
+  en:{pageTitle:'Sitemap Validator - XML Sitemap Validation & URL Analysis | MODOO HUB',h1Span:'Validator',sub:'Validate XML sitemap format · count URLs · detect duplicates',backLink:'← All Tools',langBtn:'🌐 中文',tabPaste:'Paste XML',tabFetch:'Fetch URL',labelPaste:'Paste XML Sitemap',labelUrl:'Sitemap URL',btnValidate:'Validate',btnClear:'Clear',btnFetch:'Fetch',titleUrls:'URL List (first 100)',thLoc:'URL',thLastmod:'lastmod',thFreq:'changefreq',thPri:'priority',fetchNote:'⚠ CORS may block direct fetching.',fetchError:'Fetch failed. Use the Paste XML tab.',loading:'Fetching...',
+    sTotal:'Total URLs',sDup:'Duplicate URLs',sErr:'Errors',sIndex:'Type',isIndex:'Index',notIndex:'Standard',
+    errNoUrlset:'No urlset or sitemapindex root element found.',errInvalidXml:'XML parse error: ',errOver50k:'URL count exceeds 50,000. Split into a sitemap index.',warnDup:(n)=>`${n} duplicate URL(s) found.`,warnNoLastmod:'Some URLs are missing lastmod.',passValid:'XML format is valid.',passUnder50k:'URL count is within the 50,000 limit.',
+    seoHtml:`<h2>What is an XML Sitemap?</h2><p>An XML sitemap is a file that tells search engines about all pages on your site. <strong>Submit it to Google Search Console</strong> to improve crawl efficiency and speed up indexing of new content. It is especially effective for deep pages and fresh content.</p>
+<h2 class="seo-sub">Frequently Asked Questions</h2>
+<details class="faq-item"><summary>How many URLs can a sitemap contain?</summary><p>A single sitemap file can contain a maximum of 50,000 URLs and must be under 50MB (uncompressed). For larger sites, split into multiple files and link them via a sitemap index file.</p></details>
+<details class="faq-item"><summary>What lastmod date format is required?</summary><p>Use W3C date format: YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS+00:00. The date must reflect the actual content modification date. Using today&apos;s date arbitrarily reduces Google&apos;s trust in your sitemap.</p></details>
+<details class="faq-item"><summary>Do changefreq and priority actually matter?</summary><p>Google largely ignores changefreq and priority — it determines crawl frequency itself. Accurate lastmod dates are far more influential.</p></details>
+<details class="faq-item"><summary>Should non-canonical URLs be in the sitemap?</summary><p>Only include canonical URLs in your sitemap. Exclude non-canonical, noindex, and redirect URLs. Mixing these confuses search engines and wastes crawl budget.</p></details>
+<details class="faq-item"><summary>How to auto-generate sitemaps?</summary><p>WordPress: use Yoast SEO or Rank Math plugins. Next.js/Nuxt.js: built-in sitemap generation features. Static sites: generate via build scripts.</p></details>
+<details class="faq-item"><summary>Should I declare the sitemap in robots.txt?</summary><p>Add <code>Sitemap: https://example.com/sitemap.xml</code> to robots.txt so all search engines can discover it automatically. Do this alongside submitting to Google Search Console.</p></details>
+<details class="faq-item"><summary>What are image and video sitemaps?</summary><p>Image sitemaps (&lt;image:image&gt;) help Google index images; video sitemaps (&lt;video:video&gt;) enable video rich snippets in search results. Each requires its own XML namespace.</p></details>
+<details class="faq-item"><summary>How to diagnose sitemap errors?</summary><p>In Google Search Console → Indexing → Sitemaps, you can see errors for submitted sitemaps — categorized by type (inaccessible, invalid XML, URL errors, etc.).</p></details>`
+  },
+  zh:{pageTitle:'站点地图验证器 - XML Sitemap验证 & URL分析 | MODOO HUB',h1Span:'验证器',sub:'验证XML站点地图格式·统计URL·检测重复',backLink:'← 所有工具',langBtn:'🌐 日本語',tabPaste:'粘贴XML',tabFetch:'获取URL',labelPaste:'粘贴XML站点地图',labelUrl:'站点地图URL',btnValidate:'验证',btnClear:'清除',btnFetch:'获取',titleUrls:'URL列表（最多显示100个）',thLoc:'URL',thLastmod:'lastmod',thFreq:'changefreq',thPri:'priority',fetchNote:'⚠ CORS可能阻止直接获取。',fetchError:'获取失败，请使用粘贴XML标签页。',loading:'获取中...',
+    sTotal:'总URL数',sDup:'重复URL',sErr:'错误',sIndex:'类型',isIndex:'索引',notIndex:'普通',
+    errNoUrlset:'未找到urlset或sitemapindex根元素。',errInvalidXml:'XML解析错误：',errOver50k:'URL数量超过50,000。请拆分为站点地图索引。',warnDup:(n)=>`发现${n}个重复URL。`,warnNoLastmod:'部分URL缺少lastmod。',passValid:'XML格式有效。',passUnder50k:'URL数量在50,000限制内。',
+    seoHtml:`<h2>什么是XML站点地图？</h2><p>XML站点地图是告知搜索引擎网站所有页面URL的文件。<strong>提交到Google Search Console</strong>可提高抓取效率，加快新内容的索引速度。对链接较少的深层页面和最新内容尤为有效。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>站点地图URL数量限制是多少？</summary><p>单个站点地图文件最多包含50,000个URL，大小不超过50MB（未压缩）。超出时请拆分为多个文件并通过站点地图索引文件链接。</p></details>
+<details class="faq-item"><summary>lastmod日期格式要求？</summary><p>使用W3C日期格式：YYYY-MM-DD或YYYY-MM-DDTHH:MM:SS+00:00。日期必须反映实际内容修改时间。随意填写今天日期会降低Google对站点地图的信任度。</p></details>
+<details class="faq-item"><summary>changefreq和priority真的有效吗？</summary><p>Google基本上忽略changefreq和priority，自行决定抓取频率。准确的lastmod日期更为重要。</p></details>
+<details class="faq-item"><summary>站点地图中应包含非canonical URL吗？</summary><p>站点地图中只应包含canonical URL，排除非canonical、noindex和重定向URL。混入这些会使搜索引擎困惑并浪费抓取配额。</p></details>
+<details class="faq-item"><summary>如何自动生成站点地图？</summary><p>WordPress：使用Yoast SEO或Rank Math插件。Next.js/Nuxt.js：内置站点地图生成功能。静态网站：通过构建脚本生成。</p></details>
+<details class="faq-item"><summary>是否需要在robots.txt中声明站点地图？</summary><p>在robots.txt中添加 <code>Sitemap: https://example.com/sitemap.xml</code> 让所有搜索引擎自动发现。同时建议提交到Google Search Console。</p></details>
+<details class="faq-item"><summary>图片和视频站点地图是什么？</summary><p>图片站点地图(&lt;image:image&gt;)帮助Google索引图片；视频站点地图(&lt;video:video&gt;)支持搜索结果中的视频富文本摘要。各需要自己的XML命名空间。</p></details>
+<details class="faq-item"><summary>如何诊断站点地图错误？</summary><p>在Google Search Console → 索引 → 站点地图中可查看已提交站点地图的错误，按类型（无法访问、无效XML、URL错误等）分类提供详细信息。</p></details>`
+  },
+  ja:{pageTitle:'サイトマップバリデーター - XML Sitemap検証 & URL分析 | MODOO HUB',h1Span:'バリデーター',sub:'XMLサイトマップ形式検証·URL数分析·重複検出',backLink:'← ホーム',langBtn:'🌐 한국어',tabPaste:'XML貼り付け',tabFetch:'URL取得',labelPaste:'XMLサイトマップ貼り付け',labelUrl:'サイトマップURL',btnValidate:'検証',btnClear:'クリア',btnFetch:'取得',titleUrls:'URLリスト（最大100件表示）',thLoc:'URL',thLastmod:'lastmod',thFreq:'changefreq',thPri:'priority',fetchNote:'⚠ CORSにより直接取得が制限される場合があります。',fetchError:'取得失敗。XML貼り付けタブをご利用ください。',loading:'取得中...',
+    sTotal:'総URL数',sDup:'重複URL',sErr:'エラー',sIndex:'タイプ',isIndex:'インデックス',notIndex:'通常',
+    errNoUrlset:'urlsetまたはsitemapindexルート要素が見つかりません。',errInvalidXml:'XML解析エラー：',errOver50k:'URL数が50,000を超えています。サイトマップインデックスで分割してください。',warnDup:(n)=>`重複URLが${n}件見つかりました。`,warnNoLastmod:'lastmodがないURLがあります。',passValid:'XML形式は有効です。',passUnder50k:'URL数は上限（50,000件）以内です。',
+    seoHtml:`<h2>XMLサイトマップとは</h2><p>XMLサイトマップはサイトの全ページURLを検索エンジンに伝えるファイルです。<strong>Google Search Consoleに送信</strong>するとクロール効率が向上し、新しいページのインデックスが早まります。リンクが少ない深いページや最新コンテンツに特に効果的です。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>サイトマップのURL数制限は？</summary><p>1つのサイトマップファイルに最大50,000URL、50MB（非圧縮）以内です。超過する場合はサイトマップインデックスファイル(&lt;sitemapindex&gt;)で分割し、インデックスファイルのみSearch Consoleに提出してください。</p></details>
+<details class="faq-item"><summary>lastmod日付フォーマットは？</summary><p>W3C日付形式を使用します：YYYY-MM-DDまたはYYYY-MM-DDTHH:MM:SS+00:00。実際のコンテンツ更新日と一致させてください。任意に今日の日付を入れるとGoogleの信頼度が下がります。</p></details>
+<details class="faq-item"><summary>changefreqとpriorityは効果がありますか？</summary><p>Googleはchangefreqとpriorityをほぼ無視しクロール頻度を自ら決定します。正確なlastmodの方がはるかに重要です。</p></details>
+<details class="faq-item"><summary>サイトマップにnon-canonical URLを含めると？</summary><p>サイトマップにはcanonical URLのみを含めてください。non-canonical・noindex・リダイレクトURLは除外してください。混在するとクロールバジェットが無駄になります。</p></details>
+<details class="faq-item"><summary>サイトマップの自動生成方法は？</summary><p>WordPress：Yoast SEOまたはRank Mathプラグインが自動生成します。Next.js/Nuxt.js：組み込みのサイトマップ生成機能があります。静的サイト：ビルドスクリプトで生成してください。</p></details>
+<details class="faq-item"><summary>robots.txtにサイトマップを記載すべきですか？</summary><p>robots.txtに <code>Sitemap: https://example.com/sitemap.xml</code> を追加すると全検索エンジンが自動で発見できます。Google Search Consoleへの提出と併用することを推奨します。</p></details>
+<details class="faq-item"><summary>画像・動画サイトマップとは？</summary><p>画像サイトマップ(&lt;image:image&gt;)はGoogle画像検索のインデックスに役立ち、動画サイトマップ(&lt;video:video&gt;)は動画リッチスニペットに活用されます。それぞれ専用のXML名前空間が必要です。</p></details>
+<details class="faq-item"><summary>サイトマップエラーの診断方法は？</summary><p>Google Search Console → インデックス作成 → サイトマップで提出済みサイトマップのエラーを確認できます。エラー種別（アクセス不可・無効なXML・URLエラー等）ごとに詳細情報が提供されます。</p></details>`
+  }
+};
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko';
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=navigator.language?.slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const idx=LANGS.indexOf(_lang);_lang=LANGS[(idx+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const url=new URL(location.href);url.searchParams.set('lang',_lang);history.replaceState({},'',url);applyLang();}
+function applyLang(){
+  const t=_i18n[_lang];
+  document.documentElement.lang=_lang;document.title=t.pageTitle;
+  document.getElementById('h1Span').textContent=t.h1Span;document.getElementById('subEl').textContent=t.sub;
+  document.getElementById('backLink').textContent=t.backLink;document.getElementById('langBtn').textContent=t.langBtn;
+  document.getElementById('tabPaste').textContent=t.tabPaste;document.getElementById('tabFetch').textContent=t.tabFetch;
+  document.getElementById('labelPaste').textContent=t.labelPaste;document.getElementById('labelUrl').textContent=t.labelUrl;
+  document.getElementById('btnValidatePaste').textContent=t.btnValidate;document.getElementById('btnClearPaste').textContent=t.btnClear;
+  document.getElementById('btnFetch').textContent=t.btnFetch;document.getElementById('btnClearFetch').textContent=t.btnClear;
+  document.getElementById('titleUrls').textContent=t.titleUrls;document.getElementById('thLoc').textContent=t.thLoc;
+  document.getElementById('thLastmod').textContent=t.thLastmod;document.getElementById('thFreq').textContent=t.thFreq;
+  document.getElementById('thPri').textContent=t.thPri;document.getElementById('fetchNote').textContent=t.fetchNote;
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+}
+function switchTab(tab){
+  document.getElementById('tabPaste').className='tab'+(tab==='paste'?' active':'');
+  document.getElementById('tabFetch').className='tab'+(tab==='fetch'?' active':'');
+  document.getElementById('panelPaste').className='tab-panel'+(tab==='paste'?' active':'');
+  document.getElementById('panelFetch').className='tab-panel'+(tab==='fetch'?' active':'');
+}
+function clearAll(){document.getElementById('xmlInput').value='';document.getElementById('urlInput').value='';document.getElementById('resultsArea').className='results';}
+function getTag(xml,tag){const m=xml.match(new RegExp('<'+tag+'[^>]*>([\\s\\S]*?)</'+tag+'>','i'));return m?m[1].trim():'';}
+function getAllTags(xml,tag){const re=new RegExp('<'+tag+'[^>]*>([\\s\\S]*?)</'+tag+'>','gi');const r=[];let m;while((m=re.exec(xml)))r.push(m[1].trim());return r;}
+function parseSitemap(xml){
+  const t=_i18n[_lang];
+  const issues=[];
+  let isIndex=false;
+  const parser=new DOMParser();
+  const doc=parser.parseFromString(xml,'application/xml');
+  const err=doc.querySelector('parsererror');
+  if(err){issues.push({type:'error',msg:t.errInvalidXml+(err.textContent.slice(0,100))});return{issues,urls:[],total:0,dups:0,isIndex};}
+  const root=doc.documentElement;
+  if(!root||(!root.localName.includes('urlset')&&!root.localName.includes('sitemapindex'))){
+    issues.push({type:'error',msg:t.errNoUrlset});return{issues,urls:[],total:0,dups:0,isIndex};
+  }
+  isIndex=root.localName.includes('sitemapindex');
+  const urlEls=isIndex?[...doc.querySelectorAll('sitemap')]:[...doc.querySelectorAll('url')];
+  const urls=urlEls.map(el=>({
+    loc:el.querySelector('loc')?.textContent?.trim()||'',
+    lastmod:el.querySelector('lastmod')?.textContent?.trim()||'',
+    changefreq:el.querySelector('changefreq')?.textContent?.trim()||'',
+    priority:el.querySelector('priority')?.textContent?.trim()||''
+  }));
+  const total=urls.length;
+  const seen={};const dups=[];
+  urls.forEach(u=>{if(u.loc){seen[u.loc]=(seen[u.loc]||0)+1;if(seen[u.loc]===2)dups.push(u.loc);}});
+  const dupCount=dups.length;
+  if(total>50000)issues.push({type:'error',msg:t.errOver50k});
+  else issues.push({type:'pass',msg:t.passUnder50k});
+  issues.push({type:'pass',msg:t.passValid});
+  if(dupCount>0)issues.push({type:'warn',msg:t.warnDup(dupCount)});
+  const noLastmod=urls.filter(u=>!u.lastmod).length;
+  if(noLastmod>0)issues.push({type:'warn',msg:t.warnNoLastmod});
+  return{issues,urls,total,dups:dupCount,isIndex};
+}
+function renderResults(result){
+  const t=_i18n[_lang];
+  const sg=document.getElementById('statsGrid');
+  sg.innerHTML='';
+  [{v:result.total,l:t.sTotal},{v:result.dups,l:t.sDup},{v:result.issues.filter(i=>i.type==='error').length,l:t.sErr},{v:result.isIndex?t.isIndex:t.notIndex,l:t.sIndex}].forEach(s=>{
+    const d=document.createElement('div');d.className='stat-card';
+    d.innerHTML=`<div class="stat-val">${s.v}</div><div class="stat-label">${s.l}</div>`;
+    sg.appendChild(d);
+  });
+  const il=document.getElementById('issueList');il.innerHTML='';
+  result.issues.forEach(({type,msg})=>{
+    const d=document.createElement('div');d.className='issue '+type;
+    const icon=type==='error'?'✗':type==='warn'?'⚠':'✓';
+    d.innerHTML=`<span>${icon}</span><span>${escHtml(msg)}</span>`;
+    il.appendChild(d);
+  });
+  const tbody=document.getElementById('urlTbody');tbody.innerHTML='';
+  result.urls.slice(0,100).forEach((u,i)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${i+1}</td><td class="url-cell">${escHtml(u.loc)}</td><td>${escHtml(u.lastmod)}</td><td>${escHtml(u.changefreq)}</td><td>${escHtml(u.priority)}</td>`;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('resultsArea').className='results show';
+}
+function validatePaste(){const xml=document.getElementById('xmlInput').value.trim();if(!xml)return;renderResults(parseSitemap(xml));}
+async function fetchSitemap(){
+  const url=document.getElementById('urlInput').value.trim();if(!url)return;
+  const t=_i18n[_lang];
+  const btn=document.getElementById('btnFetch');btn.textContent=t.loading;btn.disabled=true;
+  try{
+    const proxy='https://api.allorigins.win/get?url='+encodeURIComponent(url);
+    const resp=await fetch(proxy);const data=await resp.json();
+    if(data&&data.contents){document.getElementById('xmlInput').value=data.contents;switchTab('paste');validatePaste();}
+    else alert(t.fetchError);
+  }catch(e){alert(t.fetchError);}
+  finally{btn.textContent=t.btnFetch;btn.disabled=false;}
+}
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

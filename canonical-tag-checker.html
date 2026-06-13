@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Canonical 태그 검사기 - 정규 URL 분석 & 중복 확인 | MODOO HUB</title>
+<meta name="description" content="Canonical 태그를 분석하세요. URL 입력 또는 HTML 붙여넣기로 rel=canonical 유무·자기참조·다중 태그·오류를 즉시 검사.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/canonical-tag-checker.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/canonical-tag-checker.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/canonical-tag-checker.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/canonical-tag-checker.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/canonical-tag-checker.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/canonical-tag-checker.html">
+<meta property="og:title" content="Canonical 태그 검사기 - 정규 URL 분석 & 중복 확인">
+<meta property="og:description" content="rel=canonical 유무·자기참조·다중 태그·오류를 즉시 검사.">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<meta property="og:url" content="https://modoohub.com/canonical-tag-checker.html">
+<meta property="og:type" content="website">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;font-family:'DM Mono',monospace;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;font-family:'DM Mono',monospace;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:800px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;line-height:1.6;}
+/* Tabs */
+.tabs{display:flex;gap:4px;margin-bottom:16px;}
+.tab{padding:7px 18px;border:1px solid var(--border);border-radius:7px;font-size:12px;cursor:pointer;font-family:'DM Mono',monospace;background:none;color:var(--text-dim);transition:all .15s;}
+.tab:hover{border-color:var(--accent);color:var(--accent);}
+.tab.active{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+/* Panel */
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:16px;}
+.field-label{font-size:11px;color:var(--text-dim);letter-spacing:.06em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:6px;display:block;}
+.field-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text);font-size:13px;font-family:'DM Mono',monospace;outline:none;transition:border-color .15s;}
+.field-input:focus{border-color:var(--accent);}
+.field-ta{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:10px 12px;color:var(--text);font-size:12px;font-family:'DM Mono',monospace;resize:vertical;min-height:160px;outline:none;line-height:1.7;transition:border-color .15s;}
+.field-ta:focus{border-color:var(--accent);}
+.cors-warn{font-size:11px;color:var(--accent);font-family:'DM Mono',monospace;margin-top:6px;padding:8px 12px;background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.2);border-radius:6px;}
+.btn-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.btn{padding:8px 20px;border:1px solid var(--border);border-radius:7px;font-size:12px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;background:none;color:var(--text-muted);transition:all .15s;}
+.btn:hover{border-color:var(--accent);color:var(--accent);}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;}
+.btn.primary:hover{opacity:.85;}
+/* Results */
+.results{display:none;}
+.results.show{display:block;}
+.result-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:12px;}
+.result-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.status-icon{font-size:20px;line-height:1;}
+.result-title{font-size:14px;font-weight:700;}
+.result-count{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;}
+.check-list{display:flex;flex-direction:column;gap:8px;}
+.check-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:8px;border:1px solid var(--border);}
+.check-item.pass{border-color:rgba(74,222,128,.2);background:rgba(74,222,128,.04);}
+.check-item.fail{border-color:rgba(248,113,113,.2);background:rgba(248,113,113,.04);}
+.check-item.warn{border-color:rgba(251,191,36,.2);background:rgba(251,191,36,.04);}
+.check-item.info{border-color:rgba(96,165,250,.2);background:rgba(96,165,250,.04);}
+.check-badge{font-size:11px;font-family:'DM Mono',monospace;font-weight:700;min-width:42px;text-align:center;padding:2px 6px;border-radius:4px;flex-shrink:0;}
+.check-badge.pass{color:var(--green);}
+.check-badge.fail{color:var(--red);}
+.check-badge.warn{color:var(--accent);}
+.check-badge.info{color:var(--blue);}
+.check-text{font-size:12px;line-height:1.6;}
+.check-text strong{font-size:11px;font-family:'DM Mono',monospace;display:block;margin-bottom:2px;}
+.check-text span{color:var(--text-muted);}
+.canonical-url{font-family:'DM Mono',monospace;font-size:11px;color:var(--blue);word-break:break-all;padding:6px 10px;background:var(--surface2);border-radius:5px;margin-top:4px;border:1px solid var(--border);}
+.section-label{font-size:11px;color:var(--text-dim);letter-spacing:.07em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:10px;}
+.score-row{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+.score-circle{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;font-family:'DM Mono',monospace;flex-shrink:0;}
+.score-circle.good{background:rgba(74,222,128,.1);border:2px solid var(--green);color:var(--green);}
+.score-circle.ok{background:rgba(251,191,36,.1);border:2px solid var(--accent);color:var(--accent);}
+.score-circle.bad{background:rgba(248,113,113,.1);border:2px solid var(--red);color:var(--red);}
+.score-desc{font-size:13px;color:var(--text-muted);line-height:1.5;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:32px;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebApplication",
+  "name":"Canonical Tag Checker",
+  "url":"https://modoohub.com/canonical-tag-checker.html",
+  "applicationCategory":"UtilitiesApplication",
+  "operatingSystem":"Any",
+  "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},
+  "description":"Analyze canonical tags on any webpage. Check for missing, duplicate, or misconfigured rel=canonical tags to prevent SEO duplicate content issues."
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"FAQPage",
+  "mainEntity":[
+    {"@type":"Question","name":"Canonical 태그란?","acceptedAnswer":{"@type":"Answer","text":"rel=canonical은 중복 콘텐츠 문제를 방지하기 위해 검색 엔진에 정규 URL을 알려주는 HTML 링크 태그입니다."}},
+    {"@type":"Question","name":"Canonical 태그가 없으면 어떻게 되나요?","acceptedAnswer":{"@type":"Answer","text":"검색 엔진이 여러 URL 중 정규 버전을 임의로 선택합니다. 링크 에퀴티가 분산되어 SEO 순위가 낮아질 수 있습니다."}},
+    {"@type":"Question","name":"다중 Canonical 태그는 문제가 되나요?","acceptedAnswer":{"@type":"Answer","text":"네. 하나의 페이지에 canonical이 여러 개 있으면 검색 엔진이 모두 무시할 수 있습니다. 하나만 유지하세요."}}
+  ]
+}
+</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>Canonical <span id="h1Span">태그 검사기</span></h1>
+  <p class="sub" id="subEl">rel=canonical 유무·자기참조·다중 태그 즉시 분석</p>
+
+  <div class="tabs">
+    <button class="tab active" id="tabUrl" onclick="switchTab('url')">URL 분석</button>
+    <button class="tab" id="tabHtml" onclick="switchTab('html')">HTML 붙여넣기</button>
+  </div>
+
+  <div class="tab-panel active" id="panelUrl">
+    <div class="panel">
+      <label class="field-label" id="labelUrl">웹페이지 URL</label>
+      <input type="text" class="field-input" id="urlInput" placeholder="https://example.com/page" oninput="onUrlInput()">
+      <div class="cors-warn" id="corsWarn"></div>
+      <div class="btn-row">
+        <button class="btn primary" id="btnAnalyzeUrl" onclick="analyzeUrl()">분석</button>
+        <button class="btn" id="btnClearUrl" onclick="clearAll()">초기화</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="panelHtml">
+    <div class="panel">
+      <label class="field-label" id="labelHtml">HTML 소스 붙여넣기</label>
+      <textarea class="field-ta" id="htmlInput" placeholder="<head>...</head> 부분을 붙여넣으세요"></textarea>
+      <div class="btn-row">
+        <button class="btn primary" id="btnAnalyzeHtml" onclick="analyzeHtml()">분석</button>
+        <button class="btn" id="btnClearHtml" onclick="clearAll()">초기화</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="results" id="resultsArea">
+    <div class="result-card">
+      <div class="score-row">
+        <div class="score-circle" id="scoreCircle">–</div>
+        <div class="score-desc" id="scoreDesc"></div>
+      </div>
+      <div class="section-label" id="labelChecks">검사 항목</div>
+      <div class="check-list" id="checkList"></div>
+    </div>
+  </div>
+
+  <div class="seo" id="seoDiv"></div>
+  <footer>Canonical Tag Checker · Free Online Tool · modoohub.com</footer>
+</main>
+<script>
+const _i18n={
+  ko:{
+    pageTitle:'Canonical 태그 검사기 - 정규 URL 분석 & 중복 확인 | MODOO HUB',
+    h1Span:'태그 검사기',
+    sub:'rel=canonical 유무·자기참조·다중 태그 즉시 분석',
+    backLink:'← 모두의 툴',langBtn:'🌐 EN',
+    tabUrl:'URL 분석',tabHtml:'HTML 붙여넣기',
+    labelUrl:'웹페이지 URL',labelHtml:'HTML 소스 붙여넣기',
+    htmlPlaceholder:'<head>...</head> 부분을 붙여넣으세요',
+    btnAnalyze:'분석',btnClear:'초기화',
+    labelChecks:'검사 항목',
+    corsWarn:'⚠ CORS 정책으로 직접 URL 분석이 차단될 수 있습니다. 차단 시 HTML 붙여넣기 탭을 이용하세요.',
+    fetchError:'URL 가져오기 실패. HTML 탭을 이용해 소스를 직접 붙여넣으세요.',
+    loading:'분석 중...',
+    scoreGood:'정상',scoreOk:'주의',scoreBad:'오류',
+    descGood:'Canonical 태그가 올바르게 설정되어 있습니다.',
+    descOk:'일부 개선이 필요한 항목이 있습니다.',
+    descBad:'Canonical 태그에 심각한 문제가 발견되었습니다.',
+    descMissing:'Canonical 태그가 없습니다. 중복 콘텐츠 문제가 발생할 수 있습니다.',
+    checks:{
+      present:{pass:'태그 존재',fail:'태그 없음',
+        passDesc:'rel=canonical 태그가 발견되었습니다.',
+        failDesc:'rel=canonical 태그가 없습니다. 중복 URL 문제를 방지하기 위해 추가를 권장합니다.'},
+      count:{pass:'단일 태그',warn:'다중 태그',
+        passDesc:'Canonical 태그가 정확히 1개 있습니다.',
+        warnDesc:'Canonical 태그가 {n}개 발견되었습니다. 검색 엔진이 모두 무시할 수 있습니다. 1개만 유지하세요.'},
+      https:{pass:'HTTPS',warn:'HTTP',
+        passDesc:'Canonical URL이 HTTPS를 사용합니다.',
+        warnDesc:'Canonical URL이 HTTP입니다. HTTPS로 변경을 권장합니다.'},
+      trailing:{pass:'후행 슬래시 일치',warn:'후행 슬래시 불일치',
+        passDesc:'후행 슬래시가 일관되게 처리되고 있습니다.',
+        warnDesc:'Canonical URL의 후행 슬래시를 사이트 내 다른 URL과 일관되게 유지하세요.'},
+      empty:{pass:'값 있음',fail:'값 비어있음',
+        passDesc:'Canonical href 속성에 URL이 지정되어 있습니다.',
+        failDesc:'Canonical 태그의 href 속성이 비어 있습니다.'},
+    },
+    seoHtml:`<h2>Canonical 태그란?</h2><p><strong>rel=canonical</strong>은 검색 엔진에 "이 페이지의 정규(대표) URL은 여기다"라고 알려주는 HTML 링크 태그입니다. 동일·유사한 콘텐츠가 여러 URL에서 접근 가능할 때 <strong>중복 콘텐츠 문제를 방지</strong>하고 링크 에퀴티를 하나의 URL로 집중시킵니다. &lt;head&gt; 섹션에 <code>&lt;link rel="canonical" href="https://example.com/page"&gt;</code> 형식으로 추가합니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>Canonical 태그가 없으면 어떻게 되나요?</summary><p>검색 엔진이 여러 URL 중 정규 버전을 임의로 선택합니다. www/non-www, http/https, 파라미터 포함 URL 등이 별도 페이지로 인식되어 링크 에퀴티가 분산됩니다. SEO 순위에 부정적 영향을 줄 수 있습니다.</p></details>
+<details class="faq-item"><summary>자기 참조(self-referencing) Canonical이란?</summary><p>페이지 A의 canonical이 페이지 A 자신을 가리키는 경우입니다. 이는 정상적인 패턴이며, "이 URL이 정규 버전임"을 명시적으로 선언하는 SEO 모범 사례입니다. 크로스 도메인 canonical과 달리 기본적으로 권장됩니다.</p></details>
+<details class="faq-item"><summary>다중 Canonical 태그는 왜 문제가 되나요?</summary><p>하나의 페이지에 canonical 태그가 2개 이상 있으면 Google은 두 태그를 모두 무시합니다. CMS 플러그인 충돌, 테마 중복 출력 등으로 발생할 수 있습니다. 반드시 1개만 유지하세요.</p></details>
+<details class="faq-item"><summary>HTTP와 HTTPS canonical 차이는?</summary><p>canonical URL은 반드시 HTTPS를 사용해야 합니다. HTTP canonical을 설정하면 HTTPS 페이지임에도 HTTP 버전을 정규 URL로 선언하는 모순이 생겨 SEO에 해롭습니다.</p></details>
+<details class="faq-item"><summary>Canonical과 301 리디렉션의 차이는?</summary><p>301은 브라우저와 검색 엔진 모두를 새 URL로 실제 이동시킵니다. Canonical은 검색 엔진에만 "정규 URL"을 힌트로 알려주는 신호입니다. 가능하면 301을 사용하고, 같은 콘텐츠를 여러 URL로 노출해야 하는 경우 canonical을 사용하세요.</p></details>
+<details class="faq-item"><summary>상대 경로 Canonical도 유효한가요?</summary><p>Google은 상대 경로 canonical도 지원합니다. 그러나 절대 URL(https://example.com/page)을 사용하는 것이 모호성을 줄이고 크로스 도메인 canonical에서도 정확히 작동하므로 권장됩니다.</p></details>
+<details class="faq-item"><summary>Canonical 태그와 sitemap의 관계는?</summary><p>sitemap.xml에는 canonical URL만 포함시키는 것이 원칙입니다. non-canonical URL이 sitemap에 있으면 검색 엔진에 혼란을 줄 수 있습니다. canonical과 sitemap을 일관되게 유지하면 크롤 효율이 높아집니다.</p></details>
+<details class="faq-item"><summary>JavaScript로 삽입된 Canonical도 인식되나요?</summary><p>Google은 JavaScript로 삽입된 canonical도 처리하지만, 크롤 지연이 발생할 수 있습니다. 가능하면 서버 사이드 렌더링 또는 정적 HTML &lt;head&gt;에 직접 포함시키는 것이 안전합니다.</p></details>`
+  },
+  en:{
+    pageTitle:'Canonical Tag Checker - Analyze rel=canonical & Duplicate URLs | MODOO HUB',
+    h1Span:'Tag Checker',
+    sub:'Instantly check rel=canonical — presence, duplicates, HTTPS & empty href',
+    backLink:'← All Tools',langBtn:'🌐 中文',
+    tabUrl:'Analyze URL',tabHtml:'Paste HTML',
+    labelUrl:'Webpage URL',labelHtml:'Paste HTML Source',
+    htmlPlaceholder:'Paste the <head>...</head> section here',
+    btnAnalyze:'Analyze',btnClear:'Clear',
+    labelChecks:'Checks',
+    corsWarn:'⚠ CORS policy may block direct URL analysis. Use the Paste HTML tab if the request fails.',
+    fetchError:'Failed to fetch URL. Please paste the page HTML source in the HTML tab.',
+    loading:'Analyzing...',
+    scoreGood:'OK',scoreOk:'Warning',scoreBad:'Error',
+    descGood:'Canonical tag is correctly configured.',
+    descOk:'Some items need attention.',
+    descBad:'Critical issues found with canonical tag.',
+    descMissing:'No canonical tag found. Duplicate content issues may arise.',
+    checks:{
+      present:{pass:'Present',fail:'Missing',
+        passDesc:'rel=canonical tag found.',
+        failDesc:'No rel=canonical tag found. Adding one is recommended to prevent duplicate URL issues.'},
+      count:{pass:'Single tag',warn:'Multiple tags',
+        passDesc:'Exactly one canonical tag present.',
+        warnDesc:'{n} canonical tags found. Search engines may ignore all of them. Keep only one.'},
+      https:{pass:'HTTPS',warn:'HTTP',
+        passDesc:'Canonical URL uses HTTPS.',
+        warnDesc:'Canonical URL uses HTTP. Consider upgrading to HTTPS.'},
+      trailing:{pass:'Trailing slash consistent',warn:'Trailing slash check',
+        passDesc:'Trailing slash is handled consistently.',
+        warnDesc:'Keep trailing slash usage consistent across all URLs on your site.'},
+      empty:{pass:'Has value',fail:'Empty href',
+        passDesc:'Canonical href attribute contains a URL.',
+        failDesc:'Canonical tag has an empty href attribute.'},
+    },
+    seoHtml:`<h2>What is a Canonical Tag?</h2><p>The <strong>rel=canonical</strong> tag tells search engines which URL is the preferred ("canonical") version of a page. When identical or similar content is accessible at multiple URLs, canonical tags <strong>prevent duplicate content issues</strong> and consolidate link equity into a single URL. Add it in the &lt;head&gt; section: <code>&lt;link rel="canonical" href="https://example.com/page"&gt;</code>.</p>
+<h2 class="seo-sub">Frequently Asked Questions</h2>
+<details class="faq-item"><summary>What happens if there is no canonical tag?</summary><p>Search engines will choose a canonical version themselves, often picking the wrong one. www vs non-www, http vs https, and URLs with query parameters may all be indexed separately, splitting link equity and potentially hurting rankings.</p></details>
+<details class="faq-item"><summary>What is a self-referencing canonical?</summary><p>A self-referencing canonical means page A&apos;s canonical points to page A itself. This is a valid and recommended SEO practice — it explicitly declares the current URL as the canonical version, preventing any ambiguity from URL variations.</p></details>
+<details class="faq-item"><summary>Why are multiple canonical tags a problem?</summary><p>If a page has two or more canonical tags, Google ignores all of them. This often happens due to CMS plugin conflicts or duplicate theme output. Always ensure exactly one canonical tag per page.</p></details>
+<details class="faq-item"><summary>Should canonical URLs use HTTPS?</summary><p>Yes. If your site serves HTTPS, the canonical URL must also be HTTPS. Pointing to an HTTP canonical from an HTTPS page contradicts the actual URL and can harm SEO.</p></details>
+<details class="faq-item"><summary>What is the difference between canonical and 301 redirect?</summary><p>A 301 redirect physically moves both browsers and search engines to the new URL. A canonical is a hint to search engines only about the preferred URL — the page remains accessible at the original URL. Use 301 when possible; use canonical when the same content must be served at multiple URLs.</p></details>
+<details class="faq-item"><summary>Are relative canonical URLs valid?</summary><p>Google supports relative canonical URLs, but absolute URLs (e.g., https://example.com/page) are recommended. Absolute URLs eliminate ambiguity and work correctly for cross-domain canonical use cases.</p></details>
+<details class="faq-item"><summary>How do canonical tags relate to sitemaps?</summary><p>Only include canonical URLs in your sitemap.xml. Including non-canonical URLs in sitemaps sends mixed signals to search engines. Keeping canonical tags and sitemaps in sync improves crawl efficiency.</p></details>
+<details class="faq-item"><summary>Does Google read JavaScript-injected canonical tags?</summary><p>Google can process JavaScript-injected canonical tags, but there may be a crawl delay. For reliability, include canonical tags directly in the static HTML &lt;head&gt; via server-side rendering or static generation.</p></details>`
+  },
+  zh:{
+    pageTitle:'Canonical标签检查器 - 分析rel=canonical & 重复URL | MODOO HUB',
+    h1Span:'标签检查器',
+    sub:'即时检查rel=canonical — 存在性、重复、HTTPS及空href',
+    backLink:'← 所有工具',langBtn:'🌐 日本語',
+    tabUrl:'分析URL',tabHtml:'粘贴HTML',
+    labelUrl:'网页URL',labelHtml:'粘贴HTML源码',
+    htmlPlaceholder:'粘贴<head>...</head>部分',
+    btnAnalyze:'分析',btnClear:'清除',
+    labelChecks:'检查项目',
+    corsWarn:'⚠ CORS策略可能阻止直接URL分析。请求失败时请使用"粘贴HTML"标签页。',
+    fetchError:'URL获取失败，请在HTML标签页中粘贴页面源码。',
+    loading:'分析中...',
+    scoreGood:'正常',scoreOk:'警告',scoreBad:'错误',
+    descGood:'Canonical标签配置正确。',
+    descOk:'部分项目需要注意。',
+    descBad:'Canonical标签存在严重问题。',
+    descMissing:'未找到Canonical标签，可能出现重复内容问题。',
+    checks:{
+      present:{pass:'存在',fail:'缺失',
+        passDesc:'找到rel=canonical标签。',
+        failDesc:'未找到rel=canonical标签。建议添加以防止重复URL问题。'},
+      count:{pass:'单个标签',warn:'多个标签',
+        passDesc:'页面只有一个Canonical标签。',
+        warnDesc:'发现{n}个Canonical标签。搜索引擎可能全部忽略。请只保留一个。'},
+      https:{pass:'HTTPS',warn:'HTTP',
+        passDesc:'Canonical URL使用HTTPS。',
+        warnDesc:'Canonical URL使用HTTP，建议升级为HTTPS。'},
+      trailing:{pass:'斜杠一致',warn:'斜杠不一致',
+        passDesc:'末尾斜杠处理一致。',
+        warnDesc:'请确保网站所有URL的末尾斜杠用法一致。'},
+      empty:{pass:'有值',fail:'href为空',
+        passDesc:'Canonical href属性包含URL。',
+        failDesc:'Canonical标签的href属性为空。'},
+    },
+    seoHtml:`<h2>什么是Canonical标签？</h2><p><strong>rel=canonical</strong>标签告诉搜索引擎哪个URL是页面的首选（规范）版本。当相同或相似内容可通过多个URL访问时，canonical标签<strong>防止重复内容问题</strong>并将链接权重集中到单一URL。在&lt;head&gt;部分添加：<code>&lt;link rel="canonical" href="https://example.com/page"&gt;</code>。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>没有Canonical标签会怎样？</summary><p>搜索引擎会自行选择规范版本，通常会选错。www与non-www、http与https、带参数的URL可能被分别索引，导致链接权重分散，影响排名。</p></details>
+<details class="faq-item"><summary>什么是自引用Canonical？</summary><p>自引用Canonical是指页面A的canonical指向页面A本身。这是有效且推荐的SEO做法，明确声明当前URL为规范版本，防止URL变体造成歧义。</p></details>
+<details class="faq-item"><summary>为什么多个Canonical标签是问题？</summary><p>如果一个页面有两个或更多canonical标签，Google会忽略所有标签。这通常是CMS插件冲突或主题重复输出造成的。每页务必只保留一个canonical标签。</p></details>
+<details class="faq-item"><summary>Canonical URL应该使用HTTPS吗？</summary><p>是的。如果您的网站使用HTTPS，canonical URL也必须使用HTTPS。在HTTPS页面上指向HTTP的canonical与实际URL矛盾，会损害SEO。</p></details>
+<details class="faq-item"><summary>Canonical与301重定向有什么区别？</summary><p>301重定向会将浏览器和搜索引擎都实际转移到新URL。Canonical只是向搜索引擎提示首选URL——页面仍可通过原始URL访问。尽可能使用301；当同一内容必须通过多个URL提供时使用canonical。</p></details>
+<details class="faq-item"><summary>相对路径Canonical有效吗？</summary><p>Google支持相对路径canonical，但推荐使用绝对URL（如https://example.com/page）。绝对URL消除歧义，在跨域canonical使用场景中也能正确工作。</p></details>
+<details class="faq-item"><summary>Canonical标签与Sitemap的关系是什么？</summary><p>sitemap.xml中只应包含canonical URL。将non-canonical URL包含在sitemap中会向搜索引擎发送混乱信号。保持canonical标签与sitemap一致可提高抓取效率。</p></details>
+<details class="faq-item"><summary>Google能读取JavaScript注入的Canonical标签吗？</summary><p>Google可以处理JavaScript注入的canonical标签，但可能存在抓取延迟。为确保可靠性，建议通过服务器端渲染或静态生成直接将canonical标签包含在静态HTML的&lt;head&gt;中。</p></details>`
+  },
+  ja:{
+    pageTitle:'Canonicalタグチェッカー - rel=canonical分析 & 重複URL確認 | MODOO HUB',
+    h1Span:'タグチェッカー',
+    sub:'rel=canonical の有無・重複・HTTPS・空href を即時チェック',
+    backLink:'← ホーム',langBtn:'🌐 한국어',
+    tabUrl:'URL分析',tabHtml:'HTML貼り付け',
+    labelUrl:'WebページURL',labelHtml:'HTMLソース貼り付け',
+    htmlPlaceholder:'<head>...</head>部分を貼り付けてください',
+    btnAnalyze:'分析',btnClear:'クリア',
+    labelChecks:'チェック項目',
+    corsWarn:'⚠ CORSポリシーにより直接URL分析がブロックされることがあります。失敗時はHTML貼り付けタブをご利用ください。',
+    fetchError:'URL取得に失敗しました。HTMLタブでページのソースを貼り付けてください。',
+    loading:'分析中...',
+    scoreGood:'正常',scoreOk:'注意',scoreBad:'エラー',
+    descGood:'Canonicalタグは正しく設定されています。',
+    descOk:'一部改善が必要な項目があります。',
+    descBad:'Canonicalタグに重大な問題が見つかりました。',
+    descMissing:'Canonicalタグが見つかりません。重複コンテンツの問題が発生する可能性があります。',
+    checks:{
+      present:{pass:'存在',fail:'なし',
+        passDesc:'rel=canonicalタグが見つかりました。',
+        failDesc:'rel=canonicalタグが見つかりません。重複URL問題を防ぐために追加を推奨します。'},
+      count:{pass:'単一タグ',warn:'複数タグ',
+        passDesc:'Canonicalタグがちょうど1つあります。',
+        warnDesc:'{n}個のCanonicalタグが見つかりました。検索エンジンがすべて無視する可能性があります。1つだけ残してください。'},
+      https:{pass:'HTTPS',warn:'HTTP',
+        passDesc:'Canonical URLはHTTPSを使用しています。',
+        warnDesc:'Canonical URLがHTTPです。HTTPSへの変更を推奨します。'},
+      trailing:{pass:'末尾スラッシュ一致',warn:'末尾スラッシュ確認',
+        passDesc:'末尾スラッシュが一貫して処理されています。',
+        warnDesc:'サイト内の全URLで末尾スラッシュの使い方を統一してください。'},
+      empty:{pass:'値あり',fail:'href空',
+        passDesc:'Canonical href属性にURLが指定されています。',
+        failDesc:'Canonicalタグのhref属性が空です。'},
+    },
+    seoHtml:`<h2>Canonicalタグとは</h2><p><strong>rel=canonical</strong>タグは、検索エンジンにそのページの優先（正規）URLを伝えるHTMLリンクタグです。同一または類似のコンテンツが複数のURLからアクセス可能な場合、<strong>重複コンテンツ問題を防ぎ</strong>リンクエクイティを1つのURLに集約します。&lt;head&gt;セクションに <code>&lt;link rel="canonical" href="https://example.com/page"&gt;</code> の形式で追加します。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>Canonicalタグがないとどうなりますか？</summary><p>検索エンジンが複数のURLの中から正規バージョンを独自に選択します。www/non-www、http/https、パラメータ付きURLが別々のページとして認識され、リンクエクイティが分散してSEO順位に悪影響を与える可能性があります。</p></details>
+<details class="faq-item"><summary>自己参照Canonicalとは何ですか？</summary><p>ページAのcanonicalがページA自身を指す場合を自己参照と言います。これは有効かつ推奨されるSEOの慣行で、現在のURLが正規バージョンであることを明示的に宣言し、URLのバリエーションによる曖昧さを防ぎます。</p></details>
+<details class="faq-item"><summary>複数のCanonicalタグはなぜ問題なのですか？</summary><p>1つのページにcanonicalタグが2つ以上あると、Googleはすべてを無視します。CMSプラグインの競合やテーマの重複出力で発生することがあります。必ず1ページに1つだけ残してください。</p></details>
+<details class="faq-item"><summary>Canonical URLはHTTPSを使うべきですか？</summary><p>はい。サイトがHTTPSを提供している場合、canonical URLもHTTPSである必要があります。HTTPSページでHTTP canonicalを設定すると実際のURLと矛盾し、SEOに悪影響を与えます。</p></details>
+<details class="faq-item"><summary>Canonicalと301リダイレクトの違いは？</summary><p>301リダイレクトはブラウザと検索エンジンの両方を新しいURLに実際に移動させます。Canonicalは検索エンジンにのみ優先URLを「ヒント」として伝えるシグナルです。可能な限り301を使用し、同一コンテンツを複数URLで提供する必要がある場合にcanonicalを使用してください。</p></details>
+<details class="faq-item"><summary>相対パスのCanonicalは有効ですか？</summary><p>Googleは相対パスのcanonicalをサポートしていますが、絶対URL（例：https://example.com/page）の使用を推奨します。絶対URLは曖昧さをなくし、クロスドメインcanonicalでも正確に機能します。</p></details>
+<details class="faq-item"><summary>CanonicalタグとSitemapの関係は？</summary><p>sitemap.xmlにはcanonical URLのみを含めるのが原則です。non-canonical URLをsitemapに含めると検索エンジンに混乱を与えます。canonicalタグとsitemapを一致させることでクロール効率が向上します。</p></details>
+<details class="faq-item"><summary>JavaScriptで挿入されたCanonicalタグは認識されますか？</summary><p>GoogleはJavaScriptで挿入されたcanonicalタグも処理できますが、クロールの遅延が生じる可能性があります。信頼性のため、サーバーサイドレンダリングや静的生成で静的HTMLの&lt;head&gt;に直接含めることを推奨します。</p></details>`
+  }
+};
+
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko';
+let _activeTab='url';
+
+function detectLang(){
+  const u=new URLSearchParams(location.search).get('lang');
+  if(u&&_i18n[u])return u;
+  const s=localStorage.getItem('modoo_lang');
+  if(s&&_i18n[s])return s;
+  const n=navigator.language?.slice(0,2);
+  return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';
+}
+
+function cycleLang(){
+  const idx=LANGS.indexOf(_lang);
+  _lang=LANGS[(idx+1)%LANGS.length];
+  localStorage.setItem('modoo_lang',_lang);
+  const url=new URL(location.href);
+  url.searchParams.set('lang',_lang);
+  history.replaceState({},'',url);
+  applyLang();
+}
+
+function applyLang(){
+  const t=_i18n[_lang];
+  document.documentElement.lang=_lang;
+  document.title=t.pageTitle;
+  document.getElementById('h1Span').textContent=t.h1Span;
+  document.getElementById('subEl').textContent=t.sub;
+  document.getElementById('backLink').textContent=t.backLink;
+  document.getElementById('langBtn').textContent=t.langBtn;
+  document.getElementById('tabUrl').textContent=t.tabUrl;
+  document.getElementById('tabHtml').textContent=t.tabHtml;
+  document.getElementById('labelUrl').textContent=t.labelUrl;
+  document.getElementById('labelHtml').textContent=t.labelHtml;
+  document.getElementById('htmlInput').placeholder=t.htmlPlaceholder;
+  document.getElementById('btnAnalyzeUrl').textContent=t.btnAnalyze;
+  document.getElementById('btnClearUrl').textContent=t.btnClear;
+  document.getElementById('btnAnalyzeHtml').textContent=t.btnAnalyze;
+  document.getElementById('btnClearHtml').textContent=t.btnClear;
+  document.getElementById('labelChecks').textContent=t.labelChecks;
+  document.getElementById('corsWarn').textContent=t.corsWarn;
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+}
+
+function switchTab(tab){
+  _activeTab=tab;
+  document.getElementById('tabUrl').className='tab'+(tab==='url'?' active':'');
+  document.getElementById('tabHtml').className='tab'+(tab==='html'?' active':'');
+  document.getElementById('panelUrl').className='tab-panel'+(tab==='url'?' active':'');
+  document.getElementById('panelHtml').className='tab-panel'+(tab==='html'?' active':'');
+}
+
+function onUrlInput(){
+  // nothing needed
+}
+
+function clearAll(){
+  document.getElementById('urlInput').value='';
+  document.getElementById('htmlInput').value='';
+  document.getElementById('resultsArea').className='results';
+}
+
+async function analyzeUrl(){
+  const url=document.getElementById('urlInput').value.trim();
+  if(!url)return;
+  const t=_i18n[_lang];
+  const btn=document.getElementById('btnAnalyzeUrl');
+  btn.textContent=t.loading;btn.disabled=true;
+  try{
+    const proxyUrl='https://api.allorigins.win/get?url='+encodeURIComponent(url);
+    const resp=await fetch(proxyUrl);
+    const data=await resp.json();
+    if(data&&data.contents){
+      runAnalysis(data.contents, url);
+    }else{
+      alert(t.fetchError);
+    }
+  }catch(e){
+    alert(t.fetchError);
+  }finally{
+    btn.textContent=t.btnAnalyze;btn.disabled=false;
+  }
+}
+
+function analyzeHtml(){
+  const html=document.getElementById('htmlInput').value.trim();
+  if(!html)return;
+  runAnalysis(html,'');
+}
+
+function runAnalysis(html, pageUrl){
+  const t=_i18n[_lang];
+  const checks=t.checks;
+
+  // Parse canonical tags using regex (handle both case variants)
+  const canonicalRe=/<link[^>]+rel=["']canonical["'][^>]*>/gi;
+  const hrefRe=/href=["']([^"']*)["']/i;
+  const tags=[...html.matchAll(canonicalRe)];
+  const canonicals=tags.map(m=>{
+    const h=m[0].match(hrefRe);
+    return h?h[1]:'';
+  });
+
+  const items=[];
+  let failCount=0;let warnCount=0;
+
+  // Check 1: Present?
+  if(canonicals.length===0){
+    items.push({type:'fail',badge:checks.present.fail,title:checks.present.failDesc,url:null});
+    failCount++;
+  }else{
+    items.push({type:'pass',badge:checks.present.pass,title:checks.present.passDesc,url:canonicals[0]});
+  }
+
+  if(canonicals.length>0){
+    // Check 2: Count
+    if(canonicals.length>1){
+      items.push({type:'warn',badge:checks.count.warn,title:checks.count.warnDesc.replace('{n}',canonicals.length),url:null});
+      warnCount++;
+    }else{
+      items.push({type:'pass',badge:checks.count.pass,title:checks.count.passDesc,url:null});
+    }
+
+    const href=canonicals[0];
+
+    // Check 3: empty href
+    if(!href){
+      items.push({type:'fail',badge:checks.empty.fail,title:checks.empty.failDesc,url:null});
+      failCount++;
+    }else{
+      items.push({type:'pass',badge:checks.empty.pass,title:checks.empty.passDesc,url:null});
+
+      // Check 4: HTTPS
+      if(href.startsWith('http://')){
+        items.push({type:'warn',badge:checks.https.warn,title:checks.https.warnDesc,url:null});
+        warnCount++;
+      }else if(href.startsWith('https://')){
+        items.push({type:'pass',badge:checks.https.pass,title:checks.https.passDesc,url:null});
+      }
+
+      // Check 5: trailing slash info
+      const hasTrail=href.endsWith('/');
+      items.push({type:'info',badge:'INFO',title:(hasTrail?'Trailing slash present':'No trailing slash')+' — '+checks.trailing[hasTrail?'passDesc':'warnDesc'],url:null});
+    }
+  }
+
+  // Score
+  let scoreClass,scoreText,scoreDesc;
+  if(canonicals.length===0){
+    scoreClass='bad';scoreText='✗';scoreDesc=t.descMissing;
+  }else if(failCount>0){
+    scoreClass='bad';scoreText='✗';scoreDesc=t.descBad;
+  }else if(warnCount>0){
+    scoreClass='ok';scoreText='!';scoreDesc=t.descOk;
+  }else{
+    scoreClass='good';scoreText='✓';scoreDesc=t.scoreGood+' — '+t.descGood;
+  }
+
+  const sc=document.getElementById('scoreCircle');
+  sc.className='score-circle '+scoreClass;
+  sc.textContent=scoreText;
+  document.getElementById('scoreDesc').textContent=scoreDesc;
+
+  const list=document.getElementById('checkList');
+  list.innerHTML='';
+  items.forEach(item=>{
+    const div=document.createElement('div');
+    div.className='check-item '+item.type;
+    let html2=`<span class="check-badge ${item.type}">${escHtml(item.badge)}</span><div class="check-text"><span>${escHtml(item.title)}</span>`;
+    if(item.url){html2+=`<div class="canonical-url">${escHtml(item.url)}</div>`;}
+    html2+='</div>';
+    div.innerHTML=html2;
+    list.appendChild(div);
+  });
+
+  document.getElementById('resultsArea').className='results show';
+}
+
+function escHtml(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+_lang=detectLang();
+applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

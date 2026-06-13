@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HTTP 헤더 검사기 - 응답 헤더 분석 & 보안 헤더 확인 | MODOO HUB</title>
+<meta name="description" content="HTTP 응답 헤더를 분석하세요. 보안 헤더(HSTS·CSP·X-Frame-Options) 누락 확인, 헤더 설명, 최적화 가이드 제공.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/http-header-checker.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/http-header-checker.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/http-header-checker.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/http-header-checker.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/http-header-checker.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/http-header-checker.html">
+<meta property="og:title" content="HTTP 헤더 검사기 - 응답 헤더 분석 & 보안 헤더 확인">
+<meta property="og:description" content="HTTP 응답 헤더 분석, 보안 헤더 누락 확인, 최적화 가이드.">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<meta property="og:url" content="https://modoohub.com/http-header-checker.html">
+<meta property="og:type" content="website">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;font-family:'DM Mono',monospace;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;font-family:'DM Mono',monospace;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:860px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;line-height:1.6;}
+.tabs{display:flex;gap:4px;margin-bottom:16px;}
+.tab{padding:7px 18px;border:1px solid var(--border);border-radius:7px;font-size:12px;cursor:pointer;font-family:'DM Mono',monospace;background:none;color:var(--text-dim);transition:all .15s;}
+.tab:hover{border-color:var(--accent);color:var(--accent);}
+.tab.active{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:16px;}
+.field-label{font-size:11px;color:var(--text-dim);letter-spacing:.06em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:6px;display:block;}
+.field-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text);font-size:13px;font-family:'DM Mono',monospace;outline:none;transition:border-color .15s;}
+.field-input:focus{border-color:var(--accent);}
+.field-ta{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:10px 12px;color:var(--text);font-size:12px;font-family:'DM Mono',monospace;resize:vertical;min-height:180px;outline:none;line-height:1.7;transition:border-color .15s;}
+.field-ta:focus{border-color:var(--accent);}
+.note{font-size:11px;color:var(--accent);font-family:'DM Mono',monospace;margin-top:6px;padding:8px 12px;background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.2);border-radius:6px;}
+.btn-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.btn{padding:8px 20px;border:1px solid var(--border);border-radius:7px;font-size:12px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;background:none;color:var(--text-muted);transition:all .15s;}
+.btn:hover{border-color:var(--accent);color:var(--accent);}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;}
+.btn.primary:hover{opacity:.85;}
+.results{display:none;}
+.results.show{display:block;}
+.section-title{font-size:12px;font-family:'DM Mono',monospace;color:var(--text-dim);letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px;}
+.security-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
+@media(max-width:600px){.security-grid{grid-template-columns:1fr;}}
+.sec-item{padding:10px 12px;border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;gap:10px;}
+.sec-item.pass{border-color:rgba(74,222,128,.25);background:rgba(74,222,128,.04);}
+.sec-item.fail{border-color:rgba(248,113,113,.25);background:rgba(248,113,113,.04);}
+.sec-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.sec-dot.pass{background:var(--green);}
+.sec-dot.fail{background:var(--red);}
+.sec-name{font-family:'DM Mono',monospace;font-size:11px;font-weight:700;flex:1;}
+.sec-name.pass{color:var(--green);}
+.sec-name.fail{color:var(--red);}
+.sec-status{font-size:10px;color:var(--text-dim);}
+.header-table{width:100%;border-collapse:collapse;font-size:12px;}
+.header-table th{text-align:left;padding:7px 10px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.07em;color:var(--text-dim);border-bottom:1px solid var(--border);}
+.header-table td{padding:7px 10px;border-bottom:1px solid var(--border);vertical-align:top;word-break:break-all;}
+.header-table td:first-child{font-family:'DM Mono',monospace;font-size:11px;color:var(--blue);white-space:nowrap;padding-right:16px;}
+.header-table td:last-child{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);}
+.header-table tr:last-child td{border-bottom:none;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:32px;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebApplication",
+  "name":"HTTP Header Checker",
+  "url":"https://modoohub.com/http-header-checker.html",
+  "applicationCategory":"UtilitiesApplication",
+  "operatingSystem":"Any",
+  "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},
+  "description":"Analyze HTTP response headers. Check for missing security headers like HSTS, CSP, X-Frame-Options, and get optimization guidance."
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"FAQPage",
+  "mainEntity":[
+    {"@type":"Question","name":"HTTP 보안 헤더란?","acceptedAnswer":{"@type":"Answer","text":"HSTS, CSP, X-Frame-Options, X-Content-Type-Options 등 웹 서버가 브라우저에 보안 정책을 전달하는 응답 헤더입니다. 누락 시 XSS, 클릭재킹 등 공격에 취약해집니다."}},
+    {"@type":"Question","name":"HTTP 헤더를 어떻게 확인하나요?","acceptedAnswer":{"@type":"Answer","text":"브라우저 개발자 도구 → Network 탭 → 요청 클릭 → Response Headers에서 확인하거나, curl -I URL 명령어로 확인할 수 있습니다."}}
+  ]
+}
+</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>HTTP <span id="h1Span">헤더 검사기</span></h1>
+  <p class="sub" id="subEl">응답 헤더 분석·보안 헤더 누락 확인·최적화 가이드</p>
+
+  <div class="tabs">
+    <button class="tab active" id="tabPaste" onclick="switchTab('paste')">헤더 붙여넣기</button>
+    <button class="tab" id="tabFetch" onclick="switchTab('fetch')">URL 조회</button>
+  </div>
+
+  <div class="tab-panel active" id="panelPaste">
+    <div class="panel">
+      <label class="field-label" id="labelPaste">HTTP 응답 헤더 붙여넣기</label>
+      <textarea class="field-ta" id="headerInput" placeholder="HTTP/1.1 200 OK&#10;content-type: text/html; charset=utf-8&#10;x-frame-options: SAMEORIGIN&#10;strict-transport-security: max-age=31536000&#10;..."></textarea>
+      <div class="btn-row">
+        <button class="btn primary" id="btnAnalyzePaste" onclick="analyzePaste()">분석</button>
+        <button class="btn" id="btnClearPaste" onclick="clearAll()">초기화</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="panelFetch">
+    <div class="panel">
+      <label class="field-label" id="labelUrl">웹페이지 URL</label>
+      <input type="text" class="field-input" id="urlInput" placeholder="https://example.com">
+      <div class="note" id="fetchNote"></div>
+      <div class="btn-row">
+        <button class="btn primary" id="btnFetch" onclick="fetchUrl()">조회</button>
+        <button class="btn" id="btnClearFetch" onclick="clearAll()">초기화</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="results" id="resultsArea">
+    <div class="panel">
+      <div class="section-title" id="secTitle">보안 헤더</div>
+      <div class="security-grid" id="secGrid"></div>
+      <div class="section-title" id="allTitle">전체 헤더</div>
+      <table class="header-table"><thead><tr><th id="thName">헤더</th><th id="thValue">값</th></tr></thead><tbody id="headerTbody"></tbody></table>
+    </div>
+  </div>
+
+  <div class="seo" id="seoDiv"></div>
+  <footer>HTTP Header Checker · Free Online Tool · modoohub.com</footer>
+</main>
+<script>
+const SEC_HEADERS=[
+  'strict-transport-security','content-security-policy','x-frame-options',
+  'x-content-type-options','referrer-policy','permissions-policy',
+  'x-xss-protection','cross-origin-opener-policy'
+];
+const SEC_LABELS={
+  'strict-transport-security':'HSTS',
+  'content-security-policy':'CSP',
+  'x-frame-options':'X-Frame-Options',
+  'x-content-type-options':'X-Content-Type-Options',
+  'referrer-policy':'Referrer-Policy',
+  'permissions-policy':'Permissions-Policy',
+  'x-xss-protection':'X-XSS-Protection',
+  'cross-origin-opener-policy':'COOP'
+};
+
+const _i18n={
+  ko:{
+    pageTitle:'HTTP 헤더 검사기 - 응답 헤더 분석 & 보안 헤더 확인 | MODOO HUB',
+    h1Span:'헤더 검사기',sub:'응답 헤더 분석·보안 헤더 누락 확인·최적화 가이드',
+    backLink:'← 모두의 툴',langBtn:'🌐 EN',
+    tabPaste:'헤더 붙여넣기',tabFetch:'URL 조회',
+    labelPaste:'HTTP 응답 헤더 붙여넣기',labelUrl:'웹페이지 URL',
+    btnAnalyze:'분석',btnClear:'초기화',btnFetch:'조회',
+    secTitle:'보안 헤더',allTitle:'전체 헤더',
+    thName:'헤더',thValue:'값',
+    present:'존재',missing:'누락',
+    fetchNote:'⚠ 브라우저 CORS 정책으로 직접 조회가 제한됩니다. 헤더를 직접 붙여넣기 탭을 이용하거나 curl -I URL 명령어로 확인하세요.',
+    loading:'조회 중...',fetchError:'조회 실패. 헤더 붙여넣기 탭을 이용하세요.',
+    seoHtml:`<h2>HTTP 보안 헤더란?</h2><p>HTTP 보안 헤더는 웹 서버가 브라우저에 보안 정책을 전달하는 응답 헤더입니다. <strong>HSTS(HTTP Strict Transport Security)</strong>는 HTTPS 연결을 강제하고, <strong>CSP(Content Security Policy)</strong>는 XSS 공격을 방지하며, <strong>X-Frame-Options</strong>는 클릭재킹을 방어합니다. 보안 헤더 누락은 OWASP Top 10 취약점 중 하나입니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>HTTP 헤더를 어떻게 확인하나요?</summary><p>브라우저 개발자 도구(F12) → Network 탭 → 페이지 요청 클릭 → Response Headers 섹션에서 확인할 수 있습니다. 터미널에서는 <code>curl -I https://example.com</code> 명령어로 헤더만 조회할 수 있습니다.</p></details>
+<details class="faq-item"><summary>HSTS는 무엇인가요?</summary><p>HTTP Strict Transport Security(HSTS)는 브라우저가 해당 도메인에 항상 HTTPS로 접속하도록 강제하는 헤더입니다. <code>Strict-Transport-Security: max-age=31536000; includeSubDomains</code> 형식으로 설정합니다. max-age는 초 단위로, 1년은 31536000입니다.</p></details>
+<details class="faq-item"><summary>CSP 헤더는 왜 중요한가요?</summary><p>Content Security Policy(CSP)는 허용된 리소스 출처만 로드하도록 제한해 XSS(Cross-Site Scripting) 공격을 방어합니다. 스크립트, 스타일, 이미지 등 각 리소스 유형별로 허용 도메인을 지정할 수 있습니다.</p></details>
+<details class="faq-item"><summary>X-Frame-Options vs CSP frame-ancestors 차이는?</summary><p>X-Frame-Options는 구형 방식으로 DENY, SAMEORIGIN, ALLOW-FROM 값을 지원합니다. 최신 CSP의 frame-ancestors 지시어가 더 유연하고 강력합니다. 구형 브라우저 호환을 위해 두 가지를 함께 사용하는 것이 권장됩니다.</p></details>
+<details class="faq-item"><summary>X-Content-Type-Options는 무엇인가요?</summary><p><code>X-Content-Type-Options: nosniff</code>를 설정하면 브라우저가 Content-Type을 임의로 추측(MIME sniffing)하지 않도록 합니다. 악성 콘텐츠가 다른 타입으로 위장되는 공격을 방어합니다.</p></details>
+<details class="faq-item"><summary>Referrer-Policy 권장 값은?</summary><p>보안과 프라이버시 균형을 위해 <code>strict-origin-when-cross-origin</code>이 권장됩니다. HTTPS→HTTP 요청에서는 레퍼러를 전송하지 않고, 동일 오리진과 HTTPS→HTTPS에서는 전체 URL을 전송합니다.</p></details>
+<details class="faq-item"><summary>Permissions-Policy 헤더는?</summary><p>카메라, 마이크, 위치정보 등 브라우저 기능에 대한 접근 권한을 제어합니다. <code>Permissions-Policy: camera=(), microphone=(), geolocation=()</code>은 해당 기능을 모두 차단합니다.</p></details>
+<details class="faq-item"><summary>Cache-Control 헤더 최적화는?</summary><p>정적 리소스는 <code>Cache-Control: public, max-age=31536000, immutable</code>, HTML은 <code>no-cache</code> 또는 짧은 max-age를 권장합니다. ETag와 함께 사용하면 조건부 요청으로 불필요한 전송을 줄일 수 있습니다.</p></details>`
+  },
+  en:{
+    pageTitle:'HTTP Header Checker - Analyze Response Headers & Security Headers | MODOO HUB',
+    h1Span:'Header Checker',sub:'Analyze HTTP response headers · check missing security headers · optimization guide',
+    backLink:'← All Tools',langBtn:'🌐 中文',
+    tabPaste:'Paste Headers',tabFetch:'Fetch URL',
+    labelPaste:'Paste HTTP Response Headers',labelUrl:'Webpage URL',
+    btnAnalyze:'Analyze',btnClear:'Clear',btnFetch:'Fetch',
+    secTitle:'Security Headers',allTitle:'All Headers',
+    thName:'Header',thValue:'Value',
+    present:'Present',missing:'Missing',
+    fetchNote:'⚠ Browser CORS policy limits direct header fetching. Paste headers manually or use curl -I URL in your terminal.',
+    loading:'Fetching...',fetchError:'Fetch failed. Use the Paste Headers tab instead.',
+    seoHtml:`<h2>What are HTTP Security Headers?</h2><p>HTTP security headers are response headers that tell browsers how to behave securely. <strong>HSTS</strong> enforces HTTPS connections, <strong>CSP</strong> prevents XSS attacks, and <strong>X-Frame-Options</strong> blocks clickjacking. Missing security headers are listed in OWASP Top 10 vulnerabilities.</p>
+<h2 class="seo-sub">Frequently Asked Questions</h2>
+<details class="faq-item"><summary>How do I check HTTP headers?</summary><p>Open browser DevTools (F12) → Network tab → click the page request → Response Headers section. In the terminal, use <code>curl -I https://example.com</code> to fetch headers only.</p></details>
+<details class="faq-item"><summary>What is HSTS?</summary><p>HTTP Strict Transport Security (HSTS) forces browsers to always use HTTPS for a domain. Set it as <code>Strict-Transport-Security: max-age=31536000; includeSubDomains</code>. The max-age is in seconds (31536000 = 1 year).</p></details>
+<details class="faq-item"><summary>Why is the CSP header important?</summary><p>Content Security Policy (CSP) restricts which resources can be loaded, preventing XSS attacks by only allowing scripts, styles, and images from trusted sources.</p></details>
+<details class="faq-item"><summary>X-Frame-Options vs CSP frame-ancestors?</summary><p>X-Frame-Options is the legacy approach supporting DENY, SAMEORIGIN, and ALLOW-FROM. CSP frame-ancestors is more flexible and powerful. Use both for broader browser compatibility.</p></details>
+<details class="faq-item"><summary>What is X-Content-Type-Options?</summary><p>Setting <code>X-Content-Type-Options: nosniff</code> prevents browsers from MIME-sniffing — guessing the content type, which attackers can exploit to disguise malicious content.</p></details>
+<details class="faq-item"><summary>Recommended Referrer-Policy value?</summary><p><code>strict-origin-when-cross-origin</code> is recommended for a good security/privacy balance. It sends no referrer on HTTPS→HTTP downgrades, and the full URL on same-origin or HTTPS→HTTPS requests.</p></details>
+<details class="faq-item"><summary>What is the Permissions-Policy header?</summary><p>Controls browser feature access — camera, microphone, geolocation, etc. <code>Permissions-Policy: camera=(), microphone=(), geolocation=()</code> blocks all three features.</p></details>
+<details class="faq-item"><summary>How to optimize Cache-Control headers?</summary><p>Use <code>Cache-Control: public, max-age=31536000, immutable</code> for static assets, and <code>no-cache</code> or a short max-age for HTML. Combine with ETag for efficient conditional requests.</p></details>`
+  },
+  zh:{
+    pageTitle:'HTTP头检查器 - 分析响应头 & 安全头验证 | MODOO HUB',
+    h1Span:'头检查器',sub:'分析HTTP响应头·检查缺失安全头·优化指南',
+    backLink:'← 所有工具',langBtn:'🌐 日本語',
+    tabPaste:'粘贴响应头',tabFetch:'获取URL',
+    labelPaste:'粘贴HTTP响应头',labelUrl:'网页URL',
+    btnAnalyze:'分析',btnClear:'清除',btnFetch:'获取',
+    secTitle:'安全响应头',allTitle:'全部响应头',
+    thName:'响应头',thValue:'值',
+    present:'存在',missing:'缺失',
+    fetchNote:'⚠ 浏览器CORS策略限制直接获取头信息。请手动粘贴响应头，或在终端使用 curl -I URL。',
+    loading:'获取中...',fetchError:'获取失败，请使用粘贴响应头标签页。',
+    seoHtml:`<h2>什么是HTTP安全响应头？</h2><p>HTTP安全响应头是服务器告知浏览器安全策略的响应头。<strong>HSTS</strong>强制使用HTTPS，<strong>CSP</strong>防止XSS攻击，<strong>X-Frame-Options</strong>防止点击劫持。缺少安全响应头是OWASP Top 10漏洞之一。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>如何查看HTTP响应头？</summary><p>打开浏览器开发者工具(F12) → Network标签 → 点击页面请求 → 查看Response Headers部分。终端中可使用 <code>curl -I https://example.com</code> 只获取响应头。</p></details>
+<details class="faq-item"><summary>什么是HSTS？</summary><p>HTTP Strict Transport Security(HSTS)强制浏览器始终使用HTTPS访问该域名。设置格式：<code>Strict-Transport-Security: max-age=31536000; includeSubDomains</code>。max-age以秒为单位，1年为31536000。</p></details>
+<details class="faq-item"><summary>为什么CSP头很重要？</summary><p>Content Security Policy(CSP)限制可加载的资源来源，通过只允许来自受信任来源的脚本、样式和图片来防止XSS攻击。</p></details>
+<details class="faq-item"><summary>X-Frame-Options与CSP frame-ancestors的区别？</summary><p>X-Frame-Options是旧方式，支持DENY、SAMEORIGIN、ALLOW-FROM值。CSP的frame-ancestors指令更灵活强大。为兼容旧浏览器，建议同时使用两者。</p></details>
+<details class="faq-item"><summary>X-Content-Type-Options是什么？</summary><p>设置 <code>X-Content-Type-Options: nosniff</code> 可防止浏览器猜测内容类型(MIME嗅探)，避免攻击者将恶意内容伪装成其他类型。</p></details>
+<details class="faq-item"><summary>Referrer-Policy推荐值是什么？</summary><p><code>strict-origin-when-cross-origin</code> 是推荐值，在安全性和隐私之间取得平衡。HTTPS到HTTP请求不发送Referrer，同源或HTTPS到HTTPS时发送完整URL。</p></details>
+<details class="faq-item"><summary>Permissions-Policy头是什么？</summary><p>控制浏览器功能访问权限，如摄像头、麦克风、地理位置等。<code>Permissions-Policy: camera=(), microphone=(), geolocation=()</code> 可禁用这三个功能。</p></details>
+<details class="faq-item"><summary>如何优化Cache-Control头？</summary><p>静态资源使用 <code>Cache-Control: public, max-age=31536000, immutable</code>，HTML使用 <code>no-cache</code> 或较短的max-age。与ETag结合使用可实现高效的条件请求。</p></details>`
+  },
+  ja:{
+    pageTitle:'HTTPヘッダーチェッカー - レスポンスヘッダー分析 & セキュリティヘッダー確認 | MODOO HUB',
+    h1Span:'ヘッダーチェッカー',sub:'HTTPレスポンスヘッダー分析·セキュリティヘッダー不足確認·最適化ガイド',
+    backLink:'← ホーム',langBtn:'🌐 한국어',
+    tabPaste:'ヘッダー貼り付け',tabFetch:'URL取得',
+    labelPaste:'HTTPレスポンスヘッダー貼り付け',labelUrl:'WebページURL',
+    btnAnalyze:'分析',btnClear:'クリア',btnFetch:'取得',
+    secTitle:'セキュリティヘッダー',allTitle:'全ヘッダー',
+    thName:'ヘッダー',thValue:'値',
+    present:'存在',missing:'不足',
+    fetchNote:'⚠ ブラウザのCORSポリシーにより直接取得が制限されます。ヘッダー貼り付けタブを利用するか、ターミナルで curl -I URL をご使用ください。',
+    loading:'取得中...',fetchError:'取得失敗。ヘッダー貼り付けタブをご利用ください。',
+    seoHtml:`<h2>HTTPセキュリティヘッダーとは</h2><p>HTTPセキュリティヘッダーはWebサーバーがブラウザにセキュリティポリシーを伝えるレスポンスヘッダーです。<strong>HSTS</strong>はHTTPS接続を強制し、<strong>CSP</strong>はXSS攻撃を防ぎ、<strong>X-Frame-Options</strong>はクリックジャッキングを防御します。セキュリティヘッダーの不足はOWASP Top 10脆弱性の一つです。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>HTTPヘッダーの確認方法は？</summary><p>ブラウザ開発者ツール(F12) → Networkタブ → ページリクエストをクリック → Response Headersセクションで確認できます。ターミナルでは <code>curl -I https://example.com</code> でヘッダーのみ取得できます。</p></details>
+<details class="faq-item"><summary>HSTSとは何ですか？</summary><p>HTTP Strict Transport Security(HSTS)はブラウザが常にHTTPSでドメインにアクセスするよう強制するヘッダーです。<code>Strict-Transport-Security: max-age=31536000; includeSubDomains</code> 形式で設定します。</p></details>
+<details class="faq-item"><summary>CSPヘッダーが重要な理由は？</summary><p>Content Security Policy(CSP)は許可されたリソース元のみロードするよう制限し、XSS攻撃を防ぎます。スクリプト・スタイル・画像など各リソース種別ごとに許可ドメインを指定できます。</p></details>
+<details class="faq-item"><summary>X-Frame-OptionsとCSP frame-ancestorsの違いは？</summary><p>X-Frame-Optionsは旧方式でDENY・SAMEORIGIN・ALLOW-FROMをサポートします。CSPのframe-ancestors指令はより柔軟で強力です。旧ブラウザ互換のため両方の使用を推奨します。</p></details>
+<details class="faq-item"><summary>X-Content-Type-Optionsとは？</summary><p><code>X-Content-Type-Options: nosniff</code>を設定するとブラウザがContent-Typeを任意に推測(MIMEスニッフィング)しなくなります。悪意あるコンテンツが別タイプに偽装される攻撃を防ぎます。</p></details>
+<details class="faq-item"><summary>Referrer-Policyの推奨値は？</summary><p>セキュリティとプライバシーのバランスとして <code>strict-origin-when-cross-origin</code> が推奨されます。HTTPS→HTTPリクエストではリファラーを送信せず、同一オリジンやHTTPS→HTTPSでは完全なURLを送信します。</p></details>
+<details class="faq-item"><summary>Permissions-Policyヘッダーとは？</summary><p>カメラ・マイク・位置情報などのブラウザ機能へのアクセス権限を制御します。<code>Permissions-Policy: camera=(), microphone=(), geolocation=()</code>でこれら3機能をすべてブロックできます。</p></details>
+<details class="faq-item"><summary>Cache-Controlヘッダーの最適化は？</summary><p>静的リソースには <code>Cache-Control: public, max-age=31536000, immutable</code>、HTMLには <code>no-cache</code> または短いmax-ageを推奨します。ETagと組み合わせると効率的な条件付きリクエストが可能です。</p></details>`
+  }
+};
+
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko';
+let _activeTab='paste';
+
+function detectLang(){
+  const u=new URLSearchParams(location.search).get('lang');
+  if(u&&_i18n[u])return u;
+  const s=localStorage.getItem('modoo_lang');
+  if(s&&_i18n[s])return s;
+  const n=navigator.language?.slice(0,2);
+  return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';
+}
+function cycleLang(){
+  const idx=LANGS.indexOf(_lang);
+  _lang=LANGS[(idx+1)%LANGS.length];
+  localStorage.setItem('modoo_lang',_lang);
+  const url=new URL(location.href);
+  url.searchParams.set('lang',_lang);
+  history.replaceState({},'',url);
+  applyLang();
+}
+function applyLang(){
+  const t=_i18n[_lang];
+  document.documentElement.lang=_lang;
+  document.title=t.pageTitle;
+  document.getElementById('h1Span').textContent=t.h1Span;
+  document.getElementById('subEl').textContent=t.sub;
+  document.getElementById('backLink').textContent=t.backLink;
+  document.getElementById('langBtn').textContent=t.langBtn;
+  document.getElementById('tabPaste').textContent=t.tabPaste;
+  document.getElementById('tabFetch').textContent=t.tabFetch;
+  document.getElementById('labelPaste').textContent=t.labelPaste;
+  document.getElementById('labelUrl').textContent=t.labelUrl;
+  document.getElementById('btnAnalyzePaste').textContent=t.btnAnalyze;
+  document.getElementById('btnClearPaste').textContent=t.btnClear;
+  document.getElementById('btnFetch').textContent=t.btnFetch;
+  document.getElementById('btnClearFetch').textContent=t.btnClear;
+  document.getElementById('secTitle').textContent=t.secTitle;
+  document.getElementById('allTitle').textContent=t.allTitle;
+  document.getElementById('thName').textContent=t.thName;
+  document.getElementById('thValue').textContent=t.thValue;
+  document.getElementById('fetchNote').textContent=t.fetchNote;
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+}
+function switchTab(tab){
+  _activeTab=tab;
+  document.getElementById('tabPaste').className='tab'+(tab==='paste'?' active':'');
+  document.getElementById('tabFetch').className='tab'+(tab==='fetch'?' active':'');
+  document.getElementById('panelPaste').className='tab-panel'+(tab==='paste'?' active':'');
+  document.getElementById('panelFetch').className='tab-panel'+(tab==='fetch'?' active':'');
+}
+function clearAll(){
+  document.getElementById('headerInput').value='';
+  document.getElementById('urlInput').value='';
+  document.getElementById('resultsArea').className='results';
+}
+function parseHeaders(text){
+  const lines=text.split('\n');
+  const headers={};
+  for(const line of lines){
+    const idx=line.indexOf(':');
+    if(idx<1)continue;
+    const k=line.slice(0,idx).trim().toLowerCase();
+    const v=line.slice(idx+1).trim();
+    if(k)headers[k]=v;
+  }
+  return headers;
+}
+function renderResults(headers){
+  const t=_i18n[_lang];
+  // Security grid
+  const grid=document.getElementById('secGrid');
+  grid.innerHTML='';
+  SEC_HEADERS.forEach(h=>{
+    const present=headers.hasOwnProperty(h);
+    const div=document.createElement('div');
+    div.className='sec-item '+(present?'pass':'fail');
+    div.innerHTML=`<div class="sec-dot ${present?'pass':'fail'}"></div><div class="sec-name ${present?'pass':'fail'}">${SEC_LABELS[h]}</div><div class="sec-status">${present?t.present:t.missing}</div>`;
+    grid.appendChild(div);
+  });
+  // Header table
+  const tbody=document.getElementById('headerTbody');
+  tbody.innerHTML='';
+  const entries=Object.entries(headers);
+  if(entries.length===0){
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td colspan="2" style="color:var(--text-dim);text-align:center;padding:16px">No headers parsed</td>`;
+    tbody.appendChild(tr);
+  }else{
+    entries.forEach(([k,v])=>{
+      const tr=document.createElement('tr');
+      tr.innerHTML=`<td>${escHtml(k)}</td><td>${escHtml(v)}</td>`;
+      tbody.appendChild(tr);
+    });
+  }
+  document.getElementById('resultsArea').className='results show';
+}
+function analyzePaste(){
+  const text=document.getElementById('headerInput').value.trim();
+  if(!text)return;
+  renderResults(parseHeaders(text));
+}
+async function fetchUrl(){
+  const url=document.getElementById('urlInput').value.trim();
+  if(!url)return;
+  const t=_i18n[_lang];
+  const btn=document.getElementById('btnFetch');
+  btn.textContent=t.loading;btn.disabled=true;
+  try{
+    const proxy='https://api.allorigins.win/get?url='+encodeURIComponent(url);
+    const resp=await fetch(proxy);
+    const data=await resp.json();
+    if(data&&data.status){
+      const fakeHeaders={};
+      if(data.status.content_type)fakeHeaders['content-type']=data.status.content_type;
+      if(data.status.http_code)fakeHeaders['x-http-status-code']=String(data.status.http_code);
+      renderResults(fakeHeaders);
+      document.getElementById('headerInput').value='# Note: Full response headers not available via browser proxy.\n# Use curl -I '+url+'\n# to see all headers.\n\nx-http-status-code: '+data.status.http_code+'\ncontent-type: '+(data.status.content_type||'');
+      switchTab('paste');
+    }else{
+      alert(t.fetchError);
+    }
+  }catch(e){alert(t.fetchError);}
+  finally{btn.textContent=t.btnFetch;btn.disabled=false;}
+}
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+_lang=detectLang();
+applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

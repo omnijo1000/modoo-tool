@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UUID 변환기 - UUID v1/v3/v4/v5 생성·분석·변환 | MODOO HUB</title>
+<meta name="description" content="UUID 생성, 버전 분석, 형식 변환(하이픈 제거·바이트 배열·Base64). 온라인 UUID Converter.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/uuid-converter.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/uuid-converter.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/uuid-converter.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/uuid-converter.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/uuid-converter.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/uuid-converter.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:900px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;}
+.label{font-size:11px;color:var(--text-dim);letter-spacing:.07em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:8px;}
+input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 12px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;outline:none;margin-bottom:8px;letter-spacing:.04em;}
+input:focus{border-color:var(--accent);}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;}
+.btn{padding:8px 20px;border:1px solid var(--border);border-radius:7px;font-size:12px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;background:none;color:var(--text-muted);transition:all .15s;}
+.btn:hover{border-color:var(--accent);color:var(--accent);}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;}
+.result-grid{display:grid;gap:8px;}
+.result-item{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;}
+.result-key{font-size:10px;color:var(--text-dim);font-family:'DM Mono',monospace;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;}
+.result-val{font-family:'DM Mono',monospace;font-size:12px;color:var(--text);word-break:break-all;flex:1;}
+.copy-btn{padding:2px 8px;border:1px solid var(--border);border-radius:4px;font-size:10px;cursor:pointer;background:none;color:var(--text-dim);flex-shrink:0;}
+.copy-btn:hover{border-color:var(--accent);color:var(--accent);}
+.gen-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
+.gen-btn{padding:8px 16px;border:1px solid var(--border);border-radius:7px;font-size:12px;cursor:pointer;background:var(--surface2);color:var(--text-muted);transition:all .15s;}
+.gen-btn:hover{border-color:var(--accent);color:var(--accent);}
+.version-badge{padding:2px 8px;border-radius:4px;font-size:11px;font-family:'DM Mono',monospace;font-weight:700;background:rgba(96,165,250,.12);color:var(--blue);}
+.ok{color:var(--green);}
+.err{color:var(--red);}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"UUID Converter","url":"https://modoohub.com/uuid-converter.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Generate, analyze, and convert UUIDs. Support for v4 generation, version detection, and format conversion to no-hyphens, byte array, and Base64."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"UUID v4와 v1의 차이는?","acceptedAnswer":{"@type":"Answer","text":"v4는 완전히 랜덤 생성이고, v1은 타임스탬프와 MAC 주소 기반입니다. 보안상 v4를 권장합니다."}},{"@type":"Question","name":"UUID는 유일성이 보장되나요?","acceptedAnswer":{"@type":"Answer","text":"v4 UUID의 충돌 확률은 극히 낮아 실질적으로 고유하다고 볼 수 있습니다. 2.71 quintillion개를 생성해야 50% 충돌 확률이 됩니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>UUID <span id="h1b">변환기</span></h1>
+  <p class="sub" id="subEl">UUID 생성·분석·형식 변환</p>
+  <div class="panel">
+    <div class="label" id="labelGen">UUID 생성</div>
+    <div class="gen-row">
+      <button class="gen-btn" onclick="genV4()">v4 (랜덤)</button>
+      <button class="gen-btn" onclick="genNil()">NIL UUID</button>
+    </div>
+    <div class="label" id="labelInput">UUID 입력 또는 분석</div>
+    <input id="uuidIn" placeholder="550e8400-e29b-41d4-a716-446655440000" oninput="analyze()">
+    <div class="btn-row">
+      <button class="btn primary" onclick="analyze()" id="btnAnalyze">분석</button>
+      <button class="btn" onclick="clearAll()" id="btnClear">초기화</button>
+    </div>
+  </div>
+  <div class="result-grid" id="resultGrid"></div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const _i18n={
+  ko:{pageTitle:'UUID 변환기 - UUID v1/v3/v4/v5 생성·분석·변환 | MODOO HUB',h1b:'변환기',sub:'UUID 생성·분석·형식 변환',backLink:'← 모두의 툴',langBtn:'🌐 EN',labelGen:'UUID 생성',labelInput:'UUID 입력 또는 분석',btnAnalyze:'분석',btnClear:'초기화',copied:'복사됨',
+    kVersion:'버전',kVariant:'변형',kValid:'유효성',kUpper:'대문자',kNoHyphen:'하이픈 없음',kBase64:'Base64',kBytes:'바이트 배열 (hex)',kUrn:'URN 형식',kBraces:'중괄호 형식',
+    valid:'✓ 유효한 UUID',invalid:'✗ 유효하지 않음',nil:'NIL UUID (모두 0)',
+    seoHtml:`<h2>UUID 변환기란?</h2><p>UUID(Universally Unique Identifier)를 생성하고, 버전을 분석하고, 다양한 형식으로 변환합니다. v4(랜덤), NIL UUID 생성을 지원하며, 하이픈 제거, 대문자, Base64, 바이트 배열, URN, 중괄호 형식으로 변환합니다. <strong>데이터베이스 기본키, API ID, 세션 토큰</strong> 등에 널리 사용됩니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>UUID 버전별 차이는?</summary><p>v1: 타임스탬프+MAC 주소, v3: MD5 해시, v4: 완전 랜덤, v5: SHA-1 해시 기반입니다. 일반 용도에는 v4를 권장합니다.</p></details>
+<details class="faq-item"><summary>UUID의 구조는?</summary><p>32자리 HEX를 8-4-4-4-12 형식으로 하이픈 구분합니다. 버전은 세 번째 그룹 첫 자리, 변형은 네 번째 그룹 첫 자리입니다.</p></details>
+<details class="faq-item"><summary>UUID v4 충돌 확률은?</summary><p>2.71 quintillion(2.71×10^18)개를 생성해야 50% 충돌 확률입니다. 실용적으로는 고유하다고 봅니다.</p></details>
+<details class="faq-item"><summary>NIL UUID란?</summary><p>모든 비트가 0인 UUID입니다. 00000000-0000-0000-0000-000000000000 형태로, 초기화나 플레이스홀더로 사용됩니다.</p></details>
+<details class="faq-item"><summary>하이픈 없는 형식은 언제 사용하나요?</summary><p>일부 데이터베이스나 API에서 하이픈 없는 32자리 HEX 형식을 요구할 때 사용합니다.</p></details>
+<details class="faq-item"><summary>URN 형식이란?</summary><p>urn:uuid:550e8400-... 형태로, UUID를 네임스페이스 URI로 표현합니다.</p></details>
+<details class="faq-item"><summary>UUID를 데이터베이스 기본키로 사용해도 되나요?</summary><p>가능하지만, 순차적이지 않아 인덱스 단편화가 발생할 수 있습니다. ULIDやUUID v7(순차 정렬 가능)을 고려하세요.</p></details>
+<details class="faq-item"><summary>브라우저에서 UUID를 안전하게 생성할 수 있나요?</summary><p>네. Web Crypto API의 crypto.randomUUID() 또는 getRandomValues()를 사용해 암호학적으로 안전한 랜덤 UUID를 생성합니다.</p></details>`
+  },
+  en:{pageTitle:'UUID Converter - Generate, Analyze & Convert UUIDs | MODOO HUB',h1b:'Converter',sub:'UUID generation, analysis, and format conversion',backLink:'← All Tools',langBtn:'🌐 中文',labelGen:'Generate UUID',labelInput:'Enter or analyze UUID',btnAnalyze:'Analyze',btnClear:'Clear',copied:'Copied',
+    kVersion:'Version',kVariant:'Variant',kValid:'Validity',kUpper:'Uppercase',kNoHyphen:'No Hyphens',kBase64:'Base64',kBytes:'Byte Array (hex)',kUrn:'URN',kBraces:'Braces',
+    valid:'✓ Valid UUID',invalid:'✗ Invalid',nil:'NIL UUID (all zeros)',
+    seoHtml:`<h2>UUID Converter</h2><p>Generate UUIDs, detect their version, and convert to various formats. Supports v4 (random) and NIL UUID generation. Converts to no-hyphens, uppercase, Base64, byte array, URN, and braces format. Widely used for <strong>database primary keys, API IDs, and session tokens</strong>.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>Difference between UUID versions?</summary><p>v1: timestamp+MAC, v3: MD5 hash, v4: fully random, v5: SHA-1 hash. v4 is recommended for general use.</p></details>
+<details class="faq-item"><summary>What is UUID structure?</summary><p>32 hex chars split 8-4-4-4-12 by hyphens. Version is 1st char of the 3rd group; variant is 1st char of the 4th group.</p></details>
+<details class="faq-item"><summary>UUID v4 collision probability?</summary><p>You need to generate 2.71 quintillion UUIDs for a 50% collision chance — practically unique.</p></details>
+<details class="faq-item"><summary>What is a NIL UUID?</summary><p>All bits zero: 00000000-0000-0000-0000-000000000000. Used as a placeholder or sentinel value.</p></details>
+<details class="faq-item"><summary>When to use no-hyphens format?</summary><p>Some databases or APIs require 32-char hex without hyphens.</p></details>
+<details class="faq-item"><summary>What is URN format?</summary><p>urn:uuid:550e8400-... — represents UUID as a namespace URI.</p></details>
+<details class="faq-item"><summary>UUID as database primary key?</summary><p>Possible, but non-sequential, leading to index fragmentation. Consider ULID or UUID v7 for sortability.</p></details>
+<details class="faq-item"><summary>Is browser UUID generation secure?</summary><p>Yes. Uses Web Crypto API (crypto.randomUUID() or getRandomValues()) for cryptographically secure randomness.</p></details>`
+  },
+  zh:{pageTitle:'UUID转换器 - UUID生成·分析·转换 | MODOO HUB',h1b:'转换器',sub:'UUID生成、分析和格式转换',backLink:'← 所有工具',langBtn:'🌐 日本語',labelGen:'生成UUID',labelInput:'输入或分析UUID',btnAnalyze:'分析',btnClear:'清除',copied:'已复制',
+    kVersion:'版本',kVariant:'变体',kValid:'有效性',kUpper:'大写',kNoHyphen:'无连字符',kBase64:'Base64',kBytes:'字节数组 (hex)',kUrn:'URN格式',kBraces:'花括号格式',
+    valid:'✓ 有效的UUID',invalid:'✗ 无效',nil:'NIL UUID（全零）',
+    seoHtml:`<h2>UUID转换器</h2><p>生成UUID，检测版本，并转换为各种格式。支持v4（随机）和NIL UUID生成。可转换为无连字符、大写、Base64、字节数组、URN和花括号格式。广泛用于数据库主键、API ID和会话令牌。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>UUID版本有何区别？</summary><p>v1：时间戳+MAC地址，v3：MD5哈希，v4：完全随机，v5：SHA-1哈希。一般用途推荐v4。</p></details>
+<details class="faq-item"><summary>UUID结构是什么？</summary><p>32位十六进制字符按8-4-4-4-12分组，用连字符分隔。版本在第三组首字符，变体在第四组首字符。</p></details>
+<details class="faq-item"><summary>UUID v4碰撞概率？</summary><p>需要生成2.71×10^18个UUID才有50%碰撞概率，实际上可视为唯一。</p></details>
+<details class="faq-item"><summary>什么是NIL UUID？</summary><p>所有位为零：00000000-0000-0000-0000-000000000000，用作占位符或哨兵值。</p></details>
+<details class="faq-item"><summary>何时使用无连字符格式？</summary><p>某些数据库或API需要32位十六进制（无连字符）格式。</p></details>
+<details class="faq-item"><summary>URN格式是什么？</summary><p>urn:uuid:550e8400-...，将UUID表示为命名空间URI。</p></details>
+<details class="faq-item"><summary>UUID能作为数据库主键吗？</summary><p>可以，但由于非顺序性可能导致索引碎片。考虑ULID或UUID v7以获得可排序性。</p></details>
+<details class="faq-item"><summary>浏览器生成UUID安全吗？</summary><p>是的，使用Web Crypto API（crypto.randomUUID()）生成加密安全的随机UUID。</p></details>`
+  },
+  ja:{pageTitle:'UUIDコンバーター - UUID生成·分析·変換ツール | MODOO HUB',h1b:'コンバーター',sub:'UUID生成・分析・形式変換',backLink:'← ホーム',langBtn:'🌐 한국어',labelGen:'UUID生成',labelInput:'UUIDを入力または分析',btnAnalyze:'分析',btnClear:'クリア',copied:'コピー完了',
+    kVersion:'バージョン',kVariant:'バリアント',kValid:'有効性',kUpper:'大文字',kNoHyphen:'ハイフンなし',kBase64:'Base64',kBytes:'バイト配列 (hex)',kUrn:'URN形式',kBraces:'中括弧形式',
+    valid:'✓ 有効なUUID',invalid:'✗ 無効',nil:'NIL UUID（全ゼロ）',
+    seoHtml:`<h2>UUIDコンバーターとは</h2><p>UUIDを生成し、バージョンを分析し、さまざまな形式に変換します。v4（ランダム）とNIL UUID生成をサポート。ハイフンなし、大文字、Base64、バイト配列、URN、中括弧形式に変換できます。データベースの主キー、API ID、セッショントークンに広く使われます。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>UUIDバージョンの違いは？</summary><p>v1：タイムスタンプ+MACアドレス、v3：MD5ハッシュ、v4：完全ランダム、v5：SHA-1ハッシュ。一般用途にはv4を推奨します。</p></details>
+<details class="faq-item"><summary>UUIDの構造は？</summary><p>32桁の16進数を8-4-4-4-12でハイフン区切り。バージョンは3番目グループの先頭文字、バリアントは4番目グループの先頭文字です。</p></details>
+<details class="faq-item"><summary>UUID v4の衝突確率は？</summary><p>2.71×10^18個生成して初めて50%の衝突確率になります。実用上は一意と見なせます。</p></details>
+<details class="faq-item"><summary>NIL UUIDとは？</summary><p>すべてのビットが0のUUID：00000000-0000-0000-0000-000000000000。プレースホルダーとして使われます。</p></details>
+<details class="faq-item"><summary>ハイフンなし形式はいつ使いますか？</summary><p>一部のDBやAPIが32桁の16進数（ハイフンなし）形式を要求する場合に使います。</p></details>
+<details class="faq-item"><summary>URN形式とは？</summary><p>urn:uuid:550e8400-...の形でUUIDをネームスペースURIとして表現します。</p></details>
+<details class="faq-item"><summary>UUIDをDBの主キーに使えますか？</summary><p>可能ですが非順次のためインデックス断片化が起きやすいです。ULIDやUUID v7の利用を検討してください。</p></details>
+<details class="faq-item"><summary>ブラウザでのUUID生成は安全ですか？</summary><p>はい。Web Crypto APIを使用して暗号論的に安全なランダムUUIDを生成します。</p></details>`
+  }
+};
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko';
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const idx=LANGS.indexOf(_lang);_lang=LANGS[(idx+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
+  document.getElementById('h1b').textContent=t.h1b;document.getElementById('subEl').textContent=t.sub;
+  document.getElementById('backLink').textContent=t.backLink;document.getElementById('langBtn').textContent=t.langBtn;
+  document.getElementById('labelGen').textContent=t.labelGen;document.getElementById('labelInput').textContent=t.labelInput;
+  document.getElementById('btnAnalyze').textContent=t.btnAnalyze;document.getElementById('btnClear').textContent=t.btnClear;
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+}
+function genV4(){const u=crypto.randomUUID();document.getElementById('uuidIn').value=u;analyze();}
+function genNil(){document.getElementById('uuidIn').value='00000000-0000-0000-0000-000000000000';analyze();}
+function isValid(u){return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(u);}
+function getVersion(u){const ch=u[14];return ch>='1'&&ch<='5'?'v'+ch:'Unknown';}
+function getVariant(u){const ch=parseInt(u[19],16);if(ch<8)return 'NCS';if(ch<12)return 'RFC 4122';if(ch<14)return 'Microsoft';return 'Reserved';}
+function uuidToBase64(u){const hex=u.replace(/-/g,'');const bytes=[];for(let i=0;i<hex.length;i+=2)bytes.push(parseInt(hex.slice(i,i+2),16));return btoa(String.fromCharCode(...bytes));}
+function analyze(){
+  const t=_i18n[_lang];const u=document.getElementById('uuidIn').value.trim().toLowerCase();const grid=document.getElementById('resultGrid');
+  if(!u){grid.innerHTML='';return;}
+  const valid=isValid(u);const isNil=u==='00000000-0000-0000-0000-000000000000';
+  const validText=isNil?t.nil:valid?t.valid:t.invalid;
+  const hex=u.replace(/-/g,'');
+  const rows=valid?[
+    [t.kValid,validText,null],
+    [t.kVersion,isNil?'NIL':getVersion(u),null],
+    [t.kVariant,isNil?'—':getVariant(u),null],
+    [t.kUpper,u.toUpperCase(),u.toUpperCase()],
+    [t.kNoHyphen,hex,hex],
+    [t.kUrn,'urn:uuid:'+u,'urn:uuid:'+u],
+    [t.kBraces,'{'+u+'}','{'+u+'}'],
+    [t.kBase64,uuidToBase64(u),uuidToBase64(u)],
+    [t.kBytes,hex.match(/.{2}/g).join(' '),null]
+  ]:[[t.kValid,validText,null]];
+  grid.innerHTML=rows.map(([k,v,cp])=>`
+    <div class="result-item">
+      <div><div class="result-key">${k}</div><div class="result-val${v===t.valid?' ok':v===t.invalid||v===t.nil?' err':''}">${v}</div></div>
+      ${cp?`<button class="copy-btn" onclick="copyVal(this,'${cp.replace(/'/g,'\\\'')}')">${t.copied.replace('됨','')}</button>`:''}
+    </div>`).join('');
+}
+function copyVal(btn,v){navigator.clipboard.writeText(v).then(()=>{const o=btn.textContent;btn.textContent='✓';setTimeout(()=>btn.textContent=o,1500);});}
+function clearAll(){document.getElementById('uuidIn').value='';document.getElementById('resultGrid').innerHTML='';}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

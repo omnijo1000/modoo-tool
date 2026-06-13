@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSR 생성기 - SSL 인증서 서명 요청 & OpenSSL 명령어 | MODOO HUB</title>
+<meta name="description" content="SSL/TLS 인증서 서명 요청(CSR)을 위한 정보를 입력하고 OpenSSL 명령어를 생성하세요. CN·O·L·ST·C 필드 설명 포함.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/csr-generator.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/csr-generator.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/csr-generator.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/csr-generator.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/csr-generator.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/csr-generator.html">
+<meta property="og:title" content="CSR 생성기 - SSL 인증서 서명 요청 & OpenSSL 명령어">
+<meta property="og:description" content="CSR 필드 입력 후 OpenSSL 명령어 즉시 생성. SSL 인증서 발급 준비 가이드.">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<meta property="og:url" content="https://modoohub.com/csr-generator.html">
+<meta property="og:type" content="website">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;font-family:'DM Mono',monospace;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;font-family:'DM Mono',monospace;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:860px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;line-height:1.6;}
+.layout{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:680px){.layout{grid-template-columns:1fr;}}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;}
+.panel-label{font-size:11px;color:var(--text-dim);letter-spacing:.07em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:14px;}
+.form-group{margin-bottom:10px;}
+.field-label{font-size:11px;color:var(--text-dim);letter-spacing:.06em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:4px;display:flex;justify-content:space-between;}
+.field-hint{font-size:10px;color:var(--text-dim);font-style:italic;}
+.field-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:8px 10px;color:var(--text);font-size:12px;font-family:'DM Mono',monospace;outline:none;transition:border-color .15s;}
+.field-input:focus{border-color:var(--accent);}
+.field-select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:8px 10px;color:var(--text);font-size:12px;font-family:'DM Mono',monospace;outline:none;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;}
+.field-select:focus{border-color:var(--accent);}
+.divider{height:1px;background:var(--border);margin:12px 0;}
+.btn-row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
+.btn{padding:8px 20px;border:1px solid var(--border);border-radius:7px;font-size:12px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;background:none;color:var(--text-muted);transition:all .15s;}
+.btn:hover{border-color:var(--accent);color:var(--accent);}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;}
+.btn.primary:hover{opacity:.85;}
+.output-section{margin-top:16px;}
+.output-label{font-size:11px;color:var(--text-dim);letter-spacing:.07em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:8px;}
+.output-ta{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;resize:vertical;min-height:120px;outline:none;line-height:1.7;}
+.step-list{list-style:none;counter-reset:step;}
+.step-list li{counter-increment:step;display:flex;gap:10px;margin-bottom:10px;align-items:flex-start;}
+.step-list li::before{content:counter(step);min-width:22px;height:22px;background:var(--accent);color:#000;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;}
+.step-list li p{font-size:12px;color:var(--text-muted);line-height:1.6;}
+.step-list li code{font-family:'DM Mono',monospace;font-size:10px;background:var(--surface2);padding:1px 4px;border-radius:3px;color:var(--blue);}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:32px;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebApplication",
+  "name":"CSR Generator",
+  "url":"https://modoohub.com/csr-generator.html",
+  "applicationCategory":"UtilitiesApplication",
+  "operatingSystem":"Any",
+  "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},
+  "description":"Generate OpenSSL commands for creating Certificate Signing Requests (CSR). Configure CN, O, L, ST, C fields with a guided form and copy the ready-to-run commands."
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"FAQPage",
+  "mainEntity":[
+    {"@type":"Question","name":"CSR이란 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"Certificate Signing Request(CSR)는 SSL/TLS 인증서 발급을 위해 CA(인증 기관)에 제출하는 암호화된 요청 파일입니다. 도메인 소유자 정보와 공개 키가 포함됩니다."}},
+    {"@type":"Question","name":"CSR과 개인 키의 차이는?","acceptedAnswer":{"@type":"Answer","text":"CSR은 CA에 제출하는 공개 요청 파일이고, 개인 키(private key)는 서버에 보관하는 비밀 파일입니다. CSR 생성 시 개인 키가 함께 생성됩니다."}}
+  ]
+}
+</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>CSR <span id="h1Span">생성기</span></h1>
+  <p class="sub" id="subEl">SSL 인증서 서명 요청 정보 입력 → OpenSSL 명령어 생성</p>
+
+  <div class="layout">
+    <div class="panel">
+      <div class="panel-label" id="labelForm">인증서 정보 입력</div>
+      <div class="form-group">
+        <div class="field-label"><span>CN (Common Name)</span><span class="field-hint" id="hintCn">도메인</span></div>
+        <input type="text" class="field-input" id="fCn" placeholder="example.com" oninput="generate()">
+      </div>
+      <div class="form-group">
+        <div class="field-label"><span>O (Organization)</span><span class="field-hint" id="hintO">회사명</span></div>
+        <input type="text" class="field-input" id="fO" placeholder="My Company Ltd" oninput="generate()">
+      </div>
+      <div class="form-group">
+        <div class="field-label"><span>OU (Org Unit)</span><span class="field-hint" id="hintOu">부서</span></div>
+        <input type="text" class="field-input" id="fOu" placeholder="IT Department" oninput="generate()">
+      </div>
+      <div class="form-group">
+        <div class="field-label"><span>L (Locality)</span><span class="field-hint" id="hintL">도시</span></div>
+        <input type="text" class="field-input" id="fL" placeholder="Seoul" oninput="generate()">
+      </div>
+      <div class="form-group">
+        <div class="field-label"><span>ST (State)</span><span class="field-hint" id="hintSt">주/도</span></div>
+        <input type="text" class="field-input" id="fSt" placeholder="Seoul" oninput="generate()">
+      </div>
+      <div class="form-group">
+        <div class="field-label"><span>C (Country)</span><span class="field-hint" id="hintC">2자리 국가코드</span></div>
+        <input type="text" class="field-input" id="fC" maxlength="2" placeholder="KR" oninput="generate()">
+      </div>
+      <div class="divider"></div>
+      <div class="form-group">
+        <div class="field-label"><span id="labelKeySize">키 크기</span></div>
+        <select class="field-select" id="fKeySize" onchange="generate()">
+          <option value="2048">2048-bit (표준)</option>
+          <option value="4096">4096-bit (고보안)</option>
+          <option value="ec">EC P-256 (타원곡선)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <div class="field-label"><span id="labelSan">SAN (Subject Alternative Names)</span></div>
+        <input type="text" class="field-input" id="fSan" placeholder="www.example.com, api.example.com" oninput="generate()">
+      </div>
+    </div>
+
+    <div>
+      <div class="panel">
+        <div class="output-label" id="labelOutput1">1단계: 개인 키 & CSR 생성</div>
+        <textarea class="output-ta" id="outCmd" readonly></textarea>
+        <div class="btn-row">
+          <button class="btn primary" id="btnCopy1" onclick="copyCmd('outCmd','btnCopy1')">복사</button>
+        </div>
+      </div>
+      <div class="panel" style="margin-top:12px;">
+        <div class="output-label" id="labelOutput2">2단계: CSR 내용 확인</div>
+        <textarea class="output-ta" id="outVerify" readonly></textarea>
+        <div class="btn-row">
+          <button class="btn primary" id="btnCopy2" onclick="copyCmd('outVerify','btnCopy2')">복사</button>
+        </div>
+      </div>
+      <div class="panel" style="margin-top:12px;">
+        <div class="output-label" id="labelSteps">다음 단계</div>
+        <ul class="step-list" id="stepList"></ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="seo" id="seoDiv"></div>
+  <footer>CSR Generator · Free Online Tool · modoohub.com</footer>
+</main>
+<script>
+const _i18n={
+  ko:{
+    pageTitle:'CSR 생성기 - SSL 인증서 서명 요청 & OpenSSL 명령어 | MODOO HUB',
+    h1Span:'생성기',sub:'SSL 인증서 서명 요청 정보 입력 → OpenSSL 명령어 생성',
+    backLink:'← 모두의 툴',langBtn:'🌐 EN',
+    labelForm:'인증서 정보 입력',labelKeySize:'키 크기',labelSan:'SAN (주제 대체 이름)',
+    hintCn:'도메인',hintO:'회사명',hintOu:'부서',hintL:'도시',hintSt:'주/도',hintC:'2자리 국가코드',
+    labelOutput1:'1단계: 개인 키 & CSR 생성',labelOutput2:'2단계: CSR 내용 확인',labelSteps:'다음 단계',
+    btnCopy:'복사',copyDone:'복사됨 ✓',
+    steps:[
+      '위 명령어를 서버 터미널에서 실행합니다. <code>server.key</code>(개인 키)와 <code>server.csr</code> 파일이 생성됩니다.',
+      'CSR 내용 확인 명령어로 입력 정보가 맞는지 검토합니다.',
+      '<code>server.csr</code> 파일 내용을 CA(Let\'s Encrypt, DigiCert, Comodo 등)에 제출합니다.',
+      'CA에서 발급된 인증서(<code>.crt</code>)를 웹 서버에 설치합니다.',
+      '<code>server.key</code>는 절대 외부에 노출하지 마세요.'
+    ],
+    seoHtml:`<h2>CSR(Certificate Signing Request)이란?</h2><p>CSR은 SSL/TLS 인증서 발급을 위해 CA(인증 기관)에 제출하는 암호화된 요청입니다. <strong>도메인 정보(CN), 조직 정보, 공개 키</strong>가 포함됩니다. CA는 CSR을 검토해 인증서를 발급하며, 개인 키는 서버에만 보관합니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>CSR 생성에 필요한 정보는?</summary><p>CN(Common Name, 도메인), O(Organization, 회사명), OU(부서), L(Locality, 도시), ST(State, 주/도), C(Country, 2자리 ISO 국가코드)가 필요합니다. CN이 가장 중요하며 인증할 도메인을 정확히 입력해야 합니다.</p></details>
+<details class="faq-item"><summary>와일드카드 인증서용 CSR은?</summary><p>CN에 *.example.com을 입력하면 모든 서브도메인에 사용할 수 있는 와일드카드 인증서용 CSR이 됩니다. 단, 2단계 서브도메인(*.sub.example.com)은 별도 인증서가 필요합니다.</p></details>
+<details class="faq-item"><summary>키 크기 2048 vs 4096 차이는?</summary><p>4096비트가 더 안전하지만 TLS 핸드셰이크 처리 속도가 느립니다. 대부분의 용도에서 2048비트로 충분하며, 특히 보안이 중요한 금융·의료 서비스는 4096비트를 권장합니다.</p></details>
+<details class="faq-item"><summary>EC(타원곡선) 키의 장점은?</summary><p>EC P-256은 2048비트 RSA보다 훨씬 작은 키 크기로 동등한 보안을 제공합니다. 처리 속도가 빠르고 배터리 소모가 적어 모바일 환경에 유리합니다. 대부분의 최신 CA에서 지원됩니다.</p></details>
+<details class="faq-item"><summary>SAN(Subject Alternative Names)은 무엇인가요?</summary><p>하나의 인증서로 여러 도메인을 커버할 때 사용합니다. example.com과 www.example.com을 동시에 보호하거나, api.example.com, app.example.com 등을 추가할 수 있습니다. 현대 인증서는 SAN을 표준으로 사용합니다.</p></details>
+<details class="faq-item"><summary>CSR을 제출할 CA는 어디인가요?</summary><p>무료: Let\'s Encrypt(자동화, 90일 갱신), ZeroSSL. 유료: DigiCert, Comodo, GlobalSign, Sectigo 등. 웹 호스팅 사용 시 대부분 호스팅 패널에서 자동 발급·갱신을 지원합니다.</p></details>
+<details class="faq-item"><summary>개인 키를 분실하면 어떻게 되나요?</summary><p>개인 키를 분실하면 발급된 인증서를 사용할 수 없습니다. 처음부터 새 개인 키와 CSR을 생성해 재발급받아야 합니다. 개인 키는 안전한 곳에 백업하고 절대 외부에 노출하지 마세요.</p></details>
+<details class="faq-item"><summary>CSR 없이 인증서를 발급하는 방법은?</summary><p>Let\'s Encrypt의 Certbot은 CSR 없이 자동으로 인증서를 발급·갱신합니다. <code>certbot --nginx -d example.com</code> 명령어로 Nginx 서버에 자동 설치까지 가능합니다.</p></details>`
+  },
+  en:{
+    pageTitle:'CSR Generator - SSL Certificate Signing Request & OpenSSL Commands | MODOO HUB',
+    h1Span:'Generator',sub:'Fill in certificate fields → generate ready-to-run OpenSSL commands',
+    backLink:'← All Tools',langBtn:'🌐 中文',
+    labelForm:'Certificate Information',labelKeySize:'Key Size',labelSan:'SAN (Subject Alternative Names)',
+    hintCn:'domain',hintO:'company',hintOu:'dept',hintL:'city',hintSt:'state',hintC:'2-letter code',
+    labelOutput1:'Step 1: Generate Private Key & CSR',labelOutput2:'Step 2: Verify CSR Contents',labelSteps:'Next Steps',
+    btnCopy:'Copy',copyDone:'Copied ✓',
+    steps:[
+      'Run the command above in your server terminal. This creates <code>server.key</code> (private key) and <code>server.csr</code>.',
+      'Run the verify command to confirm the CSR contains the correct information.',
+      'Submit the contents of <code>server.csr</code> to your CA (Let\'s Encrypt, DigiCert, Comodo, etc.).',
+      'Install the certificate (<code>.crt</code>) issued by the CA on your web server.',
+      'Never expose or share <code>server.key</code> — keep it secure on the server.'
+    ],
+    seoHtml:`<h2>What is a CSR (Certificate Signing Request)?</h2><p>A CSR is an encrypted request submitted to a Certificate Authority (CA) to obtain an SSL/TLS certificate. It contains the <strong>domain (CN), organization info, and a public key</strong>. The CA validates the CSR and issues a certificate; the private key stays on your server.</p>
+<h2 class="seo-sub">Frequently Asked Questions</h2>
+<details class="faq-item"><summary>What information do I need to generate a CSR?</summary><p>CN (Common Name — the domain), O (Organization), OU (Org Unit), L (City), ST (State/Province), C (2-letter ISO country code). CN is most critical — enter the exact domain you want to secure.</p></details>
+<details class="faq-item"><summary>How do I create a wildcard certificate CSR?</summary><p>Enter *.example.com as the CN. This covers all first-level subdomains. Second-level subdomains (*.sub.example.com) require a separate certificate.</p></details>
+<details class="faq-item"><summary>2048-bit vs 4096-bit key size?</summary><p>4096-bit is more secure but slower at TLS handshakes. 2048-bit is sufficient for most use cases. High-security applications (finance, healthcare) should use 4096-bit.</p></details>
+<details class="faq-item"><summary>Benefits of EC (elliptic curve) keys?</summary><p>EC P-256 offers equivalent security to 2048-bit RSA with a much smaller key size. It&apos;s faster and uses less power — advantageous for mobile environments. Most modern CAs support it.</p></details>
+<details class="faq-item"><summary>What are Subject Alternative Names (SAN)?</summary><p>SANs let a single certificate cover multiple domains — e.g., both example.com and www.example.com, or api.example.com and app.example.com. Modern certificates use SANs as standard.</p></details>
+<details class="faq-item"><summary>Which CA should I submit my CSR to?</summary><p>Free: Let&apos;s Encrypt (automated, 90-day renewal), ZeroSSL. Paid: DigiCert, Comodo, GlobalSign, Sectigo. Most web hosting panels handle certificate issuance and renewal automatically.</p></details>
+<details class="faq-item"><summary>What if I lose my private key?</summary><p>You cannot use the issued certificate without the private key. Generate a new key and CSR from scratch and get the certificate reissued. Back up your private key securely and never expose it.</p></details>
+<details class="faq-item"><summary>Can I get a certificate without a CSR?</summary><p>Yes. Let&apos;s Encrypt&apos;s Certbot auto-generates keys, CSR, and installs certificates: <code>certbot --nginx -d example.com</code> handles everything automatically, including renewal.</p></details>`
+  },
+  zh:{
+    pageTitle:'CSR生成器 - SSL证书签名请求 & OpenSSL命令 | MODOO HUB',
+    h1Span:'生成器',sub:'填写证书信息 → 生成可直接运行的OpenSSL命令',
+    backLink:'← 所有工具',langBtn:'🌐 日本語',
+    labelForm:'证书信息填写',labelKeySize:'密钥大小',labelSan:'SAN（主题备用名称）',
+    hintCn:'域名',hintO:'公司名',hintOu:'部门',hintL:'城市',hintSt:'省/州',hintC:'2位国家代码',
+    labelOutput1:'第1步：生成私钥 & CSR',labelOutput2:'第2步：验证CSR内容',labelSteps:'后续步骤',
+    btnCopy:'复制',copyDone:'已复制 ✓',
+    steps:[
+      '在服务器终端运行上述命令。将生成 <code>server.key</code>（私钥）和 <code>server.csr</code> 文件。',
+      '运行验证命令确认CSR包含正确信息。',
+      '将 <code>server.csr</code> 文件内容提交给CA（Let\'s Encrypt、DigiCert、Comodo等）。',
+      '将CA颁发的证书（<code>.crt</code>）安装到Web服务器上。',
+      '切勿泄露或共享 <code>server.key</code>——请妥善保管在服务器上。'
+    ],
+    seoHtml:`<h2>什么是CSR（证书签名请求）？</h2><p>CSR是向CA（证书颁发机构）提交以获取SSL/TLS证书的加密请求，包含<strong>域名(CN)、组织信息和公钥</strong>。CA验证CSR后颁发证书，私钥保留在服务器上。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>生成CSR需要哪些信息？</summary><p>CN（通用名称/域名）、O（组织/公司名）、OU（部门）、L（城市）、ST（省/州）、C（2位ISO国家代码）。CN最重要——必须填写要保护的准确域名。</p></details>
+<details class="faq-item"><summary>如何创建通配符证书CSR？</summary><p>在CN中填入*.example.com，可覆盖所有一级子域名。二级子域名(*.sub.example.com)需要单独的证书。</p></details>
+<details class="faq-item"><summary>2048位与4096位密钥的区别？</summary><p>4096位更安全但TLS握手较慢。大多数用途2048位已足够。金融、医疗等高安全性应用建议使用4096位。</p></details>
+<details class="faq-item"><summary>EC（椭圆曲线）密钥的优势？</summary><p>EC P-256以小得多的密钥尺寸提供与2048位RSA同等的安全性，处理速度更快，功耗更低，适合移动环境。大多数现代CA都支持。</p></details>
+<details class="faq-item"><summary>SAN（主题备用名称）是什么？</summary><p>让单个证书覆盖多个域名，例如同时保护example.com和www.example.com，或添加api.example.com、app.example.com等。现代证书以SAN为标准。</p></details>
+<details class="faq-item"><summary>应向哪个CA提交CSR？</summary><p>免费：Let's Encrypt（自动化，90天更新）、ZeroSSL。付费：DigiCert、Comodo、GlobalSign、Sectigo等。大多数Web托管面板支持自动颁发和更新证书。</p></details>
+<details class="faq-item"><summary>私钥丢失怎么办？</summary><p>没有私钥无法使用已颁发的证书。需要重新生成密钥和CSR并重新申请证书。请安全备份私钥，切勿外泄。</p></details>
+<details class="faq-item"><summary>没有CSR能获取证书吗？</summary><p>可以。Let's Encrypt的Certbot会自动生成密钥、CSR并安装证书：<code>certbot --nginx -d example.com</code> 可自动处理所有步骤，包括续期。</p></details>`
+  },
+  ja:{
+    pageTitle:'CSRジェネレーター - SSL証明書署名要求 & OpenSSLコマンド | MODOO HUB',
+    h1Span:'ジェネレーター',sub:'証明書情報を入力 → 実行可能なOpenSSLコマンドを生成',
+    backLink:'← ホーム',langBtn:'🌐 한국어',
+    labelForm:'証明書情報入力',labelKeySize:'鍵サイズ',labelSan:'SAN（サブジェクト代替名）',
+    hintCn:'ドメイン',hintO:'会社名',hintOu:'部署',hintL:'都市',hintSt:'州/都道府県',hintC:'2文字国コード',
+    labelOutput1:'ステップ1：秘密鍵 & CSR 生成',labelOutput2:'ステップ2：CSR内容確認',labelSteps:'次のステップ',
+    btnCopy:'コピー',copyDone:'コピー完了 ✓',
+    steps:[
+      '上のコマンドをサーバーのターミナルで実行します。<code>server.key</code>（秘密鍵）と <code>server.csr</code> が生成されます。',
+      '確認コマンドを実行してCSRに正しい情報が含まれているか確認します。',
+      '<code>server.csr</code> の内容をCA（Let\'s Encrypt・DigiCert・Comodo等）に提出します。',
+      'CAから発行された証明書（<code>.crt</code>）をWebサーバーにインストールします。',
+      '<code>server.key</code> は絶対に外部に漏らさないよう安全に保管してください。'
+    ],
+    seoHtml:`<h2>CSR（証明書署名要求）とは</h2><p>CSRはSSL/TLS証明書を取得するためにCA（認証局）に提出する暗号化リクエストです。<strong>ドメイン(CN)・組織情報・公開鍵</strong>が含まれます。CAはCSRを検証して証明書を発行し、秘密鍵はサーバーにのみ保管します。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>CSR生成に必要な情報は？</summary><p>CN（コモンネーム/ドメイン）・O（組織/会社名）・OU（部署）・L（都市）・ST（都道府県/州）・C（2文字ISO国コード）が必要です。CNが最重要で、セキュリティを確保したいドメインを正確に入力してください。</p></details>
+<details class="faq-item"><summary>ワイルドカード証明書のCSRは？</summary><p>CNに*.example.comを入力すると全サブドメインに使えるワイルドカード証明書用CSRになります。2段階サブドメイン(*.sub.example.com)には別の証明書が必要です。</p></details>
+<details class="faq-item"><summary>2048ビットと4096ビットの鍵サイズの違いは？</summary><p>4096ビットがより安全ですがTLSハンドシェイクが遅くなります。多くの用途では2048ビットで十分です。金融・医療等の高セキュリティ用途では4096ビットを推奨します。</p></details>
+<details class="faq-item"><summary>EC（楕円曲線）鍵の利点は？</summary><p>EC P-256は2048ビットRSAと同等の安全性をはるかに小さい鍵サイズで実現します。処理が速く電力消費が少ないためモバイル環境に有利です。多くの最新CAで対応しています。</p></details>
+<details class="faq-item"><summary>SAN（サブジェクト代替名）とは？</summary><p>1つの証明書で複数のドメインをカバーする際に使用します。example.comとwww.example.comを同時に保護したり、api.example.comやapp.example.comを追加できます。</p></details>
+<details class="faq-item"><summary>CSRを提出するCAはどこですか？</summary><p>無料：Let&apos;s Encrypt（自動化、90日更新）、ZeroSSL。有料：DigiCert・Comodo・GlobalSign・Sectigo等。Webホスティング利用時はほとんどの場合、ホスティングパネルから自動発行・更新が可能です。</p></details>
+<details class="faq-item"><summary>秘密鍵を紛失したらどうなりますか？</summary><p>秘密鍵なしに発行済み証明書は使用できません。新しい鍵とCSRを最初から生成して再発行を依頼する必要があります。秘密鍵は安全な場所にバックアップし、絶対に外部に漏らさないでください。</p></details>
+<details class="faq-item"><summary>CSRなしで証明書を取得できますか？</summary><p>可能です。Let&apos;s EncryptのCertbotは鍵・CSR生成から証明書インストールまで自動で行います。<code>certbot --nginx -d example.com</code> コマンドで更新も含めて自動処理できます。</p></details>`
+  }
+};
+
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko';
+
+function detectLang(){
+  const u=new URLSearchParams(location.search).get('lang');
+  if(u&&_i18n[u])return u;
+  const s=localStorage.getItem('modoo_lang');
+  if(s&&_i18n[s])return s;
+  const n=navigator.language?.slice(0,2);
+  return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';
+}
+function cycleLang(){
+  const idx=LANGS.indexOf(_lang);
+  _lang=LANGS[(idx+1)%LANGS.length];
+  localStorage.setItem('modoo_lang',_lang);
+  const url=new URL(location.href);
+  url.searchParams.set('lang',_lang);
+  history.replaceState({},'',url);
+  applyLang();
+}
+function applyLang(){
+  const t=_i18n[_lang];
+  document.documentElement.lang=_lang;
+  document.title=t.pageTitle;
+  document.getElementById('h1Span').textContent=t.h1Span;
+  document.getElementById('subEl').textContent=t.sub;
+  document.getElementById('backLink').textContent=t.backLink;
+  document.getElementById('langBtn').textContent=t.langBtn;
+  document.getElementById('labelForm').textContent=t.labelForm;
+  document.getElementById('labelKeySize').textContent=t.labelKeySize;
+  document.getElementById('labelSan').textContent=t.labelSan;
+  document.getElementById('hintCn').textContent=t.hintCn;
+  document.getElementById('hintO').textContent=t.hintO;
+  document.getElementById('hintOu').textContent=t.hintOu;
+  document.getElementById('hintL').textContent=t.hintL;
+  document.getElementById('hintSt').textContent=t.hintSt;
+  document.getElementById('hintC').textContent=t.hintC;
+  document.getElementById('labelOutput1').textContent=t.labelOutput1;
+  document.getElementById('labelOutput2').textContent=t.labelOutput2;
+  document.getElementById('labelSteps').textContent=t.labelSteps;
+  document.getElementById('btnCopy1').textContent=t.btnCopy;
+  document.getElementById('btnCopy2').textContent=t.btnCopy;
+  renderSteps();
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+  generate();
+}
+function renderSteps(){
+  const t=_i18n[_lang];
+  const ul=document.getElementById('stepList');
+  ul.innerHTML='';
+  t.steps.forEach(s=>{
+    const li=document.createElement('li');
+    li.innerHTML=`<p>${s}</p>`;
+    ul.appendChild(li);
+  });
+}
+function generate(){
+  const cn=document.getElementById('fCn').value.trim()||'example.com';
+  const o=document.getElementById('fO').value.trim()||'My Organization';
+  const ou=document.getElementById('fOu').value.trim();
+  const l=document.getElementById('fL').value.trim()||'City';
+  const st=document.getElementById('fSt').value.trim()||'State';
+  const c=(document.getElementById('fC').value.trim().toUpperCase())||'US';
+  const keySize=document.getElementById('fKeySize').value;
+  const san=document.getElementById('fSan').value.trim();
+
+  let subj='/CN='+cn+'/O='+o+(ou?'/OU='+ou:'')+'/L='+l+'/ST='+st+'/C='+c;
+  let sanExt='';
+  if(san){
+    const names=san.split(',').map((s,i)=>'DNS.'+(i+1)+'='+s.trim()).join(',');
+    sanExt='\n# With SAN extension:\nopenssl req -new -key server.key -out server.csr -subj "'+subj+'" \\\n  -addext "subjectAltName='+names+'"';
+  }
+
+  let cmd='';
+  if(keySize==='ec'){
+    cmd='# Step 1: Generate EC private key\nopenssl ecparam -name prime256v1 -genkey -noout -out server.key\n\n# Step 2: Generate CSR\nopenssl req -new -key server.key -out server.csr -subj "'+subj+'"';
+  } else {
+    cmd='# Step 1: Generate '+keySize+'-bit RSA private key\nopenssl genrsa -out server.key '+keySize+'\n\n# Step 2: Generate CSR\nopenssl req -new -key server.key -out server.csr -subj "'+subj+'"';
+  }
+  if(sanExt)cmd+='\n'+sanExt;
+
+  document.getElementById('outCmd').value=cmd;
+  document.getElementById('outVerify').value='# Verify CSR contents\nopenssl req -text -noout -verify -in server.csr';
+}
+function copyCmd(id,btnId){
+  const t=_i18n[_lang];
+  const text=document.getElementById(id).value;
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn=document.getElementById(btnId);
+    const orig=btn.textContent;
+    btn.textContent=t.copyDone;
+    btn.style.background='var(--green)';btn.style.borderColor='var(--green)';btn.style.color='#000';
+    setTimeout(()=>{btn.textContent=orig;btn.style.background='';btn.style.borderColor='';btn.style.color='';},2000);
+  });
+}
+_lang=detectLang();
+applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

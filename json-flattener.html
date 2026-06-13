@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JSON 평탄화 - 중첩 JSON을 Flat 키로 변환 | MODOO HUB</title>
+<meta name="description" content="중첩된 JSON을 점(.) 표기법의 단일 레벨 키-값 쌍으로 즉시 평탄화. 구분자 커스텀 지원.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/json-flattener.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/json-flattener.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/json-flattener.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/json-flattener.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/json-flattener.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/json-flattener.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;font-family:'DM Mono',monospace;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;font-family:'DM Mono',monospace;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:820px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;}
+.label{font-size:11px;color:var(--text-dim);letter-spacing:.07em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:6px;}
+textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;resize:vertical;outline:none;line-height:1.6;}
+textarea:focus{border-color:var(--accent);}
+.opts{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:12px;}
+.opt-label{font-size:12px;color:var(--text-muted);}
+input[type=text]{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;outline:none;width:50px;}
+input[type=text]:focus{border-color:var(--accent);}
+.btn-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+.btn{padding:8px 20px;border:1px solid var(--border);border-radius:7px;font-size:12px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;background:none;color:var(--text-muted);transition:all .15s;}
+.btn:hover{border-color:var(--accent);color:var(--accent);}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;}
+.btn.primary:hover{opacity:.85;}
+.err{color:var(--red);font-size:12px;margin-top:6px;font-family:'DM Mono',monospace;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"JSON Flattener","url":"https://modoohub.com/json-flattener.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Flatten nested JSON into single-level key-value pairs using dot notation. Supports custom separators and unflatten."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"JSON 평탄화란?","acceptedAnswer":{"@type":"Answer","text":"중첩된 JSON 객체를 a.b.c 형태의 단일 레벨 키-값 쌍으로 변환하는 것입니다. 데이터베이스 저장, 설정 관리, 검색 인덱싱 등에 유용합니다."}},{"@type":"Question","name":"배열도 평탄화되나요?","acceptedAnswer":{"@type":"Answer","text":"배열은 인덱스를 사용해 key.0, key.1 형태로 평탄화됩니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>JSON <span id="h1b">평탄화</span></h1>
+  <p class="sub" id="subEl">중첩 JSON → 단일 레벨 키-값 쌍으로 즉시 변환</p>
+  <div class="panel">
+    <div class="label" id="labelIn">JSON 입력</div>
+    <textarea id="jsonIn" rows="8" placeholder='{"user":{"name":"Alice","address":{"city":"Seoul","zip":"04500"}},"tags":["admin","user"]}'></textarea>
+    <div class="opts">
+      <span class="opt-label" id="optSepLabel">구분자:</span>
+      <input type="text" id="separator" value=".">
+    </div>
+    <div class="btn-row">
+      <button class="btn primary" onclick="flatten()" id="btnFlatten">평탄화</button>
+      <button class="btn" onclick="unflatten()" id="btnUnflatten">역변환</button>
+      <button class="btn" onclick="copyOut()" id="btnCopy">복사</button>
+      <button class="btn" onclick="clearAll()" id="btnClear">초기화</button>
+    </div>
+    <div class="err" id="errMsg"></div>
+  </div>
+  <div class="panel">
+    <div class="label" id="labelOut">결과</div>
+    <textarea id="jsonOut" rows="10" readonly></textarea>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const _i18n={
+  ko:{pageTitle:'JSON 평탄화 - 중첩 JSON을 Flat 키로 변환 | MODOO HUB',h1b:'평탄화',sub:'중첩 JSON → 단일 레벨 키-값 쌍으로 즉시 변환',backLink:'← 모두의 툴',langBtn:'🌐 EN',labelIn:'JSON 입력',labelOut:'결과',optSepLabel:'구분자:',btnFlatten:'평탄화',btnUnflatten:'역변환',btnCopy:'복사',btnClear:'초기화',copied:'복사됨 ✓',errParse:'파싱 오류: ',
+    seoHtml:`<h2>JSON 평탄화란?</h2><p>중첩된 JSON 객체를 <strong>단일 레벨의 키-값 쌍</strong>으로 변환합니다. 예: {"user":{"name":"Alice"}} → {"user.name":"Alice"}. 데이터베이스 저장, 환경변수 설정, 검색 인덱싱, 스프레드시트 내보내기 등 다양한 용도에 활용됩니다. 역변환(Unflatten)으로 다시 중첩 구조로 복원할 수 있습니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>배열도 평탄화되나요?</summary><p>배열은 인덱스를 사용해 key.0, key.1 형태로 평탄화됩니다. 예: {"tags":["a","b"]} → {"tags.0":"a","tags.1":"b"}.</p></details>
+<details class="faq-item"><summary>구분자를 변경할 수 있나요?</summary><p>점(.) 대신 _(언더스코어), /(슬래시) 등 다른 구분자를 사용할 수 있습니다. 환경변수나 특정 시스템 형식에 맞게 조정하세요.</p></details>
+<details class="faq-item"><summary>역변환(Unflatten)이란?</summary><p>평탄화된 JSON을 다시 중첩 구조로 복원합니다. {"user.name":"Alice"} → {"user":{"name":"Alice"}}.</p></details>
+<details class="faq-item"><summary>null 값은 어떻게 처리되나요?</summary><p>null은 그대로 보존됩니다. {"a":{"b":null}} → {"a.b":null}.</p></details>
+<details class="faq-item"><summary>평탄화 활용 사례는?</summary><p>MongoDB dot notation 쿼리 작성, 환경변수 설정(A_B_C 형태), 스프레드시트 컬럼 변환, Redux 상태 관리, i18n 번역 키 생성 등에 유용합니다.</p></details>
+<details class="faq-item"><summary>키에 구분자가 포함된 경우는?</summary><p>키에 구분자(예: "user.name"이 키 자체인 경우) 포함되면 평탄화 시 모호성이 생길 수 있습니다. 구분자를 다른 문자로 변경하거나 역변환 시 주의가 필요합니다.</p></details>
+<details class="faq-item"><summary>빈 객체·빈 배열은?</summary><p>빈 객체{}와 빈 배열[]은 키를 생성하지 않고 건너뜁니다.</p></details>
+<details class="faq-item"><summary>대용량 JSON 처리 가능한가요?</summary><p>브라우저 내에서 처리하므로 수 MB 이상의 대용량은 성능이 저하될 수 있습니다. 일반적인 설정 파일 크기는 문제 없습니다.</p></details>`
+  },
+  en:{pageTitle:'JSON Flattener - Flatten Nested JSON to Flat Keys | MODOO HUB',h1b:'Flattener',sub:'Nested JSON → single-level key-value pairs instantly',backLink:'← All Tools',langBtn:'🌐 中文',labelIn:'JSON Input',labelOut:'Result',optSepLabel:'Separator:',btnFlatten:'Flatten',btnUnflatten:'Unflatten',btnCopy:'Copy',btnClear:'Clear',copied:'Copied ✓',errParse:'Parse error: ',
+    seoHtml:`<h2>JSON Flattener</h2><p>Convert nested JSON objects into <strong>single-level key-value pairs</strong> using dot notation. E.g. {"user":{"name":"Alice"}} → {"user.name":"Alice"}. Useful for databases, env vars, search indexing, and spreadsheet exports. Unflatten restores the nested structure.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>Are arrays flattened?</summary><p>Arrays are flattened using index notation: {"tags":["a","b"]} → {"tags.0":"a","tags.1":"b"}.</p></details>
+<details class="faq-item"><summary>Can I change the separator?</summary><p>Yes. Replace dot (.) with underscore, slash, or any character. Useful for env vars or specific system formats.</p></details>
+<details class="faq-item"><summary>What is Unflatten?</summary><p>Restores a flattened JSON back to nested structure. {"user.name":"Alice"} → {"user":{"name":"Alice"}}.</p></details>
+<details class="faq-item"><summary>How is null handled?</summary><p>null is preserved as-is. {"a":{"b":null}} → {"a.b":null}.</p></details>
+<details class="faq-item"><summary>Common use cases?</summary><p>MongoDB dot notation queries, env vars (A_B_C format), spreadsheet column conversion, Redux state, i18n translation keys.</p></details>
+<details class="faq-item"><summary>Keys containing the separator?</summary><p>If a key itself contains the separator character, ambiguity arises during unflatten. Use a different separator or handle such keys carefully.</p></details>
+<details class="faq-item"><summary>Empty objects and arrays?</summary><p>Empty {} and [] produce no keys and are skipped during flattening.</p></details>
+<details class="faq-item"><summary>Large JSON support?</summary><p>Client-side processing. Multi-MB files may slow down. Typical config file sizes work fine.</p></details>`
+  },
+  zh:{pageTitle:'JSON扁平化工具 - 将嵌套JSON转换为平铺键值对 | MODOO HUB',h1b:'扁平化',sub:'嵌套JSON → 即时转换为单层键值对',backLink:'← 所有工具',langBtn:'🌐 日本語',labelIn:'JSON输入',labelOut:'结果',optSepLabel:'分隔符:',btnFlatten:'扁平化',btnUnflatten:'反向转换',btnCopy:'复制',btnClear:'清除',copied:'已复制 ✓',errParse:'解析错误: ',
+    seoHtml:`<h2>JSON扁平化工具</h2><p>将嵌套JSON对象转换为<strong>单层键值对</strong>，使用点号表示法。例：{"user":{"name":"Alice"}} → {"user.name":"Alice"}。适用于数据库存储、环境变量配置、搜索索引等场景。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>数组也会被扁平化吗？</summary><p>是的，使用索引：{"tags":["a","b"]} → {"tags.0":"a","tags.1":"b"}。</p></details>
+<details class="faq-item"><summary>可以更改分隔符吗？</summary><p>可以。将点号替换为下划线、斜杠等其他字符。</p></details>
+<details class="faq-item"><summary>什么是反向转换？</summary><p>将扁平化的JSON恢复为嵌套结构。{"user.name":"Alice"} → {"user":{"name":"Alice"}}。</p></details>
+<details class="faq-item"><summary>null值如何处理？</summary><p>null值保持原样。{"a":{"b":null}} → {"a.b":null}。</p></details>
+<details class="faq-item"><summary>常见使用场景？</summary><p>MongoDB点号查询、环境变量（A_B_C格式）、电子表格列转换、i18n翻译键生成等。</p></details>
+<details class="faq-item"><summary>键中包含分隔符怎么办？</summary><p>键中包含分隔符会在反向转换时产生歧义，需更换分隔符或特别处理。</p></details>
+<details class="faq-item"><summary>空对象和空数组？</summary><p>空{}和[]不生成键，扁平化时跳过。</p></details>
+<details class="faq-item"><summary>支持大型JSON吗？</summary><p>客户端处理，数MB以上可能性能下降，一般配置文件大小没有问题。</p></details>`
+  },
+  ja:{pageTitle:'JSONフラット化ツール - ネストされたJSONをフラットキーに変換 | MODOO HUB',h1b:'フラット化',sub:'ネストされたJSON → 単一レベルのキー値ペアに即時変換',backLink:'← ホーム',langBtn:'🌐 한국어',labelIn:'JSON入力',labelOut:'結果',optSepLabel:'区切り文字:',btnFlatten:'フラット化',btnUnflatten:'逆変換',btnCopy:'コピー',btnClear:'クリア',copied:'コピー完了 ✓',errParse:'パースエラー: ',
+    seoHtml:`<h2>JSONフラット化ツールとは</h2><p>ネストされたJSONオブジェクトをドット表記の<strong>単一レベルのキー値ペア</strong>に変換します。例：{"user":{"name":"Alice"}} → {"user.name":"Alice"}。DB保存・環境変数・検索インデックスなどに便利です。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>配列もフラット化されますか？</summary><p>インデックスを使ってフラット化します：{"tags":["a","b"]} → {"tags.0":"a","tags.1":"b"}。</p></details>
+<details class="faq-item"><summary>区切り文字を変更できますか？</summary><p>はい。ドット(.)をアンダースコアやスラッシュなどに変更できます。</p></details>
+<details class="faq-item"><summary>逆変換とは？</summary><p>フラット化されたJSONをネスト構造に戻します。{"user.name":"Alice"} → {"user":{"name":"Alice"}}。</p></details>
+<details class="faq-item"><summary>nullはどう処理されますか？</summary><p>nullはそのまま保持されます。{"a":{"b":null}} → {"a.b":null}。</p></details>
+<details class="faq-item"><summary>一般的な用途は？</summary><p>MongoDBドット表記クエリ・環境変数（A_B_C形式）・スプレッドシート変換・i18n翻訳キー生成など。</p></details>
+<details class="faq-item"><summary>キーに区切り文字が含まれる場合は？</summary><p>キー自体に区切り文字が含まれると逆変換時に曖昧さが生じます。別の区切り文字を使用してください。</p></details>
+<details class="faq-item"><summary>空オブジェクト・空配列は？</summary><p>空の{}と[]はキーを生成せずスキップされます。</p></details>
+<details class="faq-item"><summary>大きなJSONも処理できますか？</summary><p>クライアントサイドで処理するため、数MB以上は性能が低下することがあります。</p></details>`
+  }
+};
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko';
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const idx=LANGS.indexOf(_lang);_lang=LANGS[(idx+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){
+  const t=_i18n[_lang];
+  document.documentElement.lang=_lang;document.title=t.pageTitle;
+  document.getElementById('h1b').textContent=t.h1b;document.getElementById('subEl').textContent=t.sub;
+  document.getElementById('backLink').textContent=t.backLink;document.getElementById('langBtn').textContent=t.langBtn;
+  document.getElementById('labelIn').textContent=t.labelIn;document.getElementById('labelOut').textContent=t.labelOut;
+  document.getElementById('optSepLabel').textContent=t.optSepLabel;
+  document.getElementById('btnFlatten').textContent=t.btnFlatten;document.getElementById('btnUnflatten').textContent=t.btnUnflatten;
+  document.getElementById('btnCopy').textContent=t.btnCopy;document.getElementById('btnClear').textContent=t.btnClear;
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+}
+function getSep(){return document.getElementById('separator').value||'.';}
+function flattenObj(obj,sep,prefix){
+  const out={};
+  Object.entries(obj).forEach(([k,v])=>{
+    const key=prefix?prefix+sep+k:k;
+    if(v!==null&&typeof v==='object'&&!Array.isArray(v)&&Object.keys(v).length>0){
+      Object.assign(out,flattenObj(v,sep,key));
+    } else if(Array.isArray(v)&&v.length>0){
+      v.forEach((item,i)=>{
+        const ak=key+sep+i;
+        if(item!==null&&typeof item==='object'&&!Array.isArray(item)){
+          Object.assign(out,flattenObj(item,sep,ak));
+        } else {
+          out[ak]=item;
+        }
+      });
+    } else {
+      out[key]=v;
+    }
+  });
+  return out;
+}
+function unflattenObj(flat,sep){
+  const out={};
+  Object.entries(flat).forEach(([k,v])=>{
+    const parts=k.split(sep);
+    let cur=out;
+    parts.forEach((p,i)=>{
+      if(i===parts.length-1){cur[p]=v;}
+      else{if(!cur[p])cur[p]={};cur=cur[p];}
+    });
+  });
+  return out;
+}
+function clearAll(){document.getElementById('jsonIn').value='';document.getElementById('jsonOut').value='';document.getElementById('errMsg').textContent='';}
+function flatten(){
+  const t=_i18n[_lang];const sep=getSep();
+  try{
+    const obj=JSON.parse(document.getElementById('jsonIn').value);
+    document.getElementById('jsonOut').value=JSON.stringify(flattenObj(obj,sep,''),null,2);
+    document.getElementById('errMsg').textContent='';
+  }catch(e){document.getElementById('errMsg').textContent=t.errParse+e.message;}
+}
+function unflatten(){
+  const t=_i18n[_lang];const sep=getSep();
+  try{
+    const flat=JSON.parse(document.getElementById('jsonIn').value);
+    document.getElementById('jsonOut').value=JSON.stringify(unflattenObj(flat,sep),null,2);
+    document.getElementById('errMsg').textContent='';
+  }catch(e){document.getElementById('errMsg').textContent=t.errParse+e.message;}
+}
+function copyOut(){
+  const t=_i18n[_lang];const v=document.getElementById('jsonOut').value;
+  if(!v)return;
+  navigator.clipboard.writeText(v).then(()=>{
+    const btn=document.getElementById('btnCopy');const orig=btn.textContent;
+    btn.textContent=t.copied;setTimeout(()=>btn.textContent=orig,2000);
+  });
+}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JWT 인스펙터 - JWT 토큰 상세 분석 | MODOO HUB</title>
+<meta name="description" content="JWT 토큰 상세 분석. 알고리즘·클레임 설명·타임라인·헤더 파트별 색상 표시. jwt.io 대안.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/jwt-inspector.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/jwt-inspector.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/jwt-inspector.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/jwt-inspector.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/jwt-inspector.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/jwt-inspector.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;font-family:'DM Mono',monospace;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;font-family:'DM Mono',monospace;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:860px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:14px;}
+.label{font-size:11px;color:var(--text-dim);letter-spacing:.07em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:6px;}
+textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;resize:vertical;outline:none;min-height:70px;line-height:1.6;}
+textarea:focus{border-color:var(--accent);}
+.btn-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.btn{padding:8px 20px;border:1px solid var(--border);border-radius:7px;font-size:12px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;background:none;color:var(--text-muted);transition:all .15s;}
+.btn:hover{border-color:var(--accent);color:var(--accent);}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;}
+.btn.primary:hover{opacity:.85;}
+.token-visual{font-family:'DM Mono',monospace;font-size:11px;word-break:break-all;line-height:2;margin-bottom:14px;background:var(--surface2);padding:12px;border-radius:8px;border:1px solid var(--border);}
+.part-h{color:var(--red);}
+.part-p{color:var(--blue);}
+.part-s{color:var(--purple);}
+.sep{color:var(--text-dim);}
+.result{display:none;}
+.result.show{display:block;}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+@media(max-width:600px){.info-grid{grid-template-columns:1fr;}}
+.info-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;}
+.info-card-title{font-size:10px;color:var(--text-dim);letter-spacing:.1em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:8px;}
+.claim-row{display:flex;justify-content:space-between;align-items:flex-start;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px;gap:8px;}
+.claim-row:last-child{border-bottom:none;}
+.ck{font-family:'DM Mono',monospace;color:var(--accent);flex-shrink:0;}
+.cv{color:var(--text-muted);text-align:right;word-break:break-all;}
+.cdesc{font-size:10px;color:var(--text-dim);}
+.timeline{display:flex;flex-direction:column;gap:8px;}
+.tl-item{display:flex;align-items:center;gap:10px;font-size:12px;}
+.tl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.tl-dot.ok{background:var(--green);}
+.tl-dot.err{background:var(--red);}
+.tl-dot.dim{background:var(--border);}
+.tl-label{color:var(--text-muted);min-width:60px;}
+.tl-time{font-family:'DM Mono',monospace;color:var(--text-dim);font-size:11px;}
+.tag{display:inline-block;padding:1px 7px;border-radius:4px;font-size:10px;font-family:'DM Mono',monospace;}
+.tag.ok{background:rgba(74,222,128,.15);color:var(--green);}
+.tag.err{background:rgba(248,113,113,.15);color:var(--red);}
+.tag.warn{background:rgba(251,191,36,.15);color:var(--accent);}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"JWT Inspector","url":"https://modoohub.com/jwt-inspector.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Deep inspect JWT tokens: color-coded parts, claim explanations, algorithm info, and validity timeline."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"JWT 인스펙터와 검증기 차이는?","acceptedAnswer":{"@type":"Answer","text":"JWT 인스펙터는 토큰의 각 파트를 색상으로 시각화하고, 표준 클레임의 의미를 설명하며, 타임라인(발급·유효·만료)을 보여주는 상세 분석 도구입니다. 검증기가 유효성 중심이라면 인스펙터는 이해 중심입니다."}},{"@type":"Question","name":"JWT 알고리즘 종류는?","acceptedAnswer":{"@type":"Answer","text":"대칭 알고리즘: HS256, HS384, HS512. 비대칭 알고리즘: RS256, RS384, RS512(RSA), ES256, ES384, ES512(ECDSA), PS256, PS384, PS512(RSA-PSS). 또한 alg:none은 서명 없음을 의미하며 보안상 허용하지 않아야 합니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>JWT <span id="h1b">인스펙터</span></h1>
+  <p class="sub" id="subEl">JWT 파트 색상 표시·클레임 설명·타임라인 분석</p>
+  <div class="panel">
+    <div class="label" id="labelInput">JWT 토큰</div>
+    <textarea id="tokenInput" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." oninput="inspect()"></textarea>
+    <div class="btn-row">
+      <button class="btn primary" onclick="inspect()" id="btnInspect">분석</button>
+      <button class="btn" onclick="clearAll()" id="btnClear">초기화</button>
+    </div>
+  </div>
+  <div class="result" id="resultArea">
+    <div class="panel">
+      <div class="label" id="labelVisual">토큰 파트 시각화</div>
+      <div class="token-visual" id="tokenVisual"></div>
+    </div>
+    <div class="info-grid">
+      <div class="info-card">
+        <div class="info-card-title" id="labelHeader">Header</div>
+        <div id="headerClaims"></div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-title" id="labelAlgo">알고리즘 정보</div>
+        <div id="algoInfo"></div>
+      </div>
+    </div>
+    <div class="info-grid">
+      <div class="info-card">
+        <div class="info-card-title" id="labelPayload">Payload 클레임</div>
+        <div id="payloadClaims"></div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-title" id="labelTimeline">타임라인</div>
+        <div class="timeline" id="timeline"></div>
+      </div>
+    </div>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const _i18n={
+  ko:{pageTitle:'JWT 인스펙터 - JWT 토큰 상세 분석 | MODOO HUB',h1b:'인스펙터',sub:'JWT 파트 색상 표시·클레임 설명·타임라인 분석',backLink:'← 모두의 툴',langBtn:'🌐 EN',labelInput:'JWT 토큰',labelVisual:'토큰 파트 시각화',labelHeader:'Header',labelAlgo:'알고리즘 정보',labelPayload:'Payload 클레임',labelTimeline:'타임라인',btnInspect:'분석',btnClear:'초기화',
+    claimDescs:{sub:'주체 (Subject)',iss:'발급자 (Issuer)',aud:'대상 (Audience)',exp:'만료 시간 (Expiration)',iat:'발급 시간 (Issued At)',nbf:'유효 시작 (Not Before)',jti:'고유 ID (JWT ID)',alg:'서명 알고리즘',typ:'토큰 타입',kid:'키 ID (Key ID)',x5t:'인증서 지문',cty:'콘텐츠 타입'},
+    algDescs:{HS256:'HMAC-SHA256 (대칭)',HS384:'HMAC-SHA384 (대칭)',HS512:'HMAC-SHA512 (대칭)',RS256:'RSA-SHA256 (비대칭)',RS384:'RSA-SHA384 (비대칭)',RS512:'RSA-SHA512 (비대칭)',ES256:'ECDSA-P256 (비대칭)',ES384:'ECDSA-P384 (비대칭)',ES512:'ECDSA-P521 (비대칭)',PS256:'RSA-PSS-SHA256',PS384:'RSA-PSS-SHA384',PS512:'RSA-PSS-SHA512',none:'서명 없음 ⚠️'},
+    tlIat:'발급',tlNbf:'유효 시작',tlNow:'현재',tlExp:'만료',tlExpired:'만료됨',tlActive:'유효',tlNotYet:'아직 유효 아님',
+    seoHtml:`<h2>JWT 인스펙터란?</h2><p>JWT 인스펙터는 토큰의 각 파트(<span style="color:var(--red)">Header</span>.<span style="color:var(--blue)">Payload</span>.<span style="color:var(--purple)">Signature</span>)를 색상으로 구분해 시각화하고, 각 클레임의 의미와 알고리즘 정보, 시간 타임라인을 상세하게 분석합니다. <strong>jwt.io</strong>와 같은 역할을 브라우저에서 직접 수행합니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>JWT 인스펙터와 검증기 차이는?</summary><p>인스펙터는 상세 분석 중심, 검증기는 유효성 판별 중심입니다. 인스펙터는 각 클레임의 의미와 알고리즘 정보를 설명하고 타임라인을 시각화합니다.</p></details>
+<details class="faq-item"><summary>JWT 알고리즘 종류는?</summary><p>HS256/HS384/HS512(HMAC, 대칭), RS256/RS384/RS512(RSA, 비대칭), ES256/ES384/ES512(ECDSA, 비대칭), PS256/PS384/PS512(RSA-PSS). alg:none은 서명 없음으로 보안상 허용하면 안 됩니다.</p></details>
+<details class="faq-item"><summary>kid 클레임이란?</summary><p>Key ID의 약자로, 서명에 사용된 키를 식별하는 힌트입니다. JWKS(JSON Web Key Set)에서 올바른 공개키를 찾을 때 사용됩니다.</p></details>
+<details class="faq-item"><summary>JWT Payload를 암호화할 수 있나요?</summary><p>표준 JWT는 페이로드를 Base64URL로만 인코딩합니다. 암호화가 필요하면 JWE(JSON Web Encryption)를 사용해야 합니다.</p></details>
+<details class="faq-item"><summary>aud 클레임이 배열인 경우는?</summary><p>토큰이 여러 대상(서비스)을 위한 경우 배열로 지정됩니다. 수신자는 자신의 식별자가 aud에 포함되어 있는지 확인해야 합니다.</p></details>
+<details class="faq-item"><summary>alg:none 토큰은 왜 위험한가요?</summary><p>서명이 없어 토큰 내용을 임의로 변조할 수 있습니다. 일부 JWT 라이브러리 취약점에서 alg:none을 허용해 인증 우회가 발생한 사례가 있습니다.</p></details>
+<details class="faq-item"><summary>JWT 갱신(Refresh) 패턴이란?</summary><p>Access Token(만료 짧음)과 Refresh Token(만료 김)을 함께 발급해, Access Token 만료 시 Refresh Token으로 새 Access Token을 발급받는 패턴입니다.</p></details>
+<details class="faq-item"><summary>JWKS란 무엇인가요?</summary><p>JSON Web Key Set의 약자로, 서명 검증에 사용되는 공개키 목록을 JSON 형식으로 공개하는 엔드포인트입니다. /.well-known/jwks.json 경로를 많이 사용합니다.</p></details>`
+  },
+  en:{pageTitle:'JWT Inspector - Deep Analyze JWT Token | MODOO HUB',h1b:'Inspector',sub:'Color-coded JWT parts · claim explanations · validity timeline',backLink:'← All Tools',langBtn:'🌐 中文',labelInput:'JWT Token',labelVisual:'Token Parts Visualization',labelHeader:'Header',labelAlgo:'Algorithm Info',labelPayload:'Payload Claims',labelTimeline:'Timeline',btnInspect:'Inspect',btnClear:'Clear',
+    claimDescs:{sub:'Subject',iss:'Issuer',aud:'Audience',exp:'Expiration Time',iat:'Issued At',nbf:'Not Before',jti:'JWT ID',alg:'Signing Algorithm',typ:'Token Type',kid:'Key ID',x5t:'Certificate Thumbprint',cty:'Content Type'},
+    algDescs:{HS256:'HMAC-SHA256 (symmetric)',HS384:'HMAC-SHA384 (symmetric)',HS512:'HMAC-SHA512 (symmetric)',RS256:'RSA-SHA256 (asymmetric)',RS384:'RSA-SHA384 (asymmetric)',RS512:'RSA-SHA512 (asymmetric)',ES256:'ECDSA-P256 (asymmetric)',ES384:'ECDSA-P384 (asymmetric)',ES512:'ECDSA-P521 (asymmetric)',PS256:'RSA-PSS-SHA256',PS384:'RSA-PSS-SHA384',PS512:'RSA-PSS-SHA512',none:'No signature ⚠️'},
+    tlIat:'Issued',tlNbf:'Valid From',tlNow:'Now',tlExp:'Expires',tlExpired:'Expired',tlActive:'Active',tlNotYet:'Not Yet Valid',
+    seoHtml:`<h2>JWT Inspector</h2><p>The JWT Inspector color-codes each token part (<span style="color:var(--red)">Header</span>.<span style="color:var(--blue)">Payload</span>.<span style="color:var(--purple)">Signature</span>), explains claim meanings, shows algorithm info, and displays a validity timeline — all in the browser, similar to jwt.io.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>Inspector vs Validator?</summary><p>The inspector focuses on deep understanding: claim meanings, algorithm info, and timeline. The validator focuses on validity judgments.</p></details>
+<details class="faq-item"><summary>What JWT algorithms exist?</summary><p>HS256/HS384/HS512 (HMAC, symmetric), RS256/RS384/RS512 (RSA, asymmetric), ES256/ES384/ES512 (ECDSA, asymmetric), PS256/PS384/PS512 (RSA-PSS). alg:none means no signature and must never be allowed.</p></details>
+<details class="faq-item"><summary>What is the kid claim?</summary><p>Key ID — a hint identifying which key was used to sign the token. Used to look up the correct public key from a JWKS endpoint.</p></details>
+<details class="faq-item"><summary>Can I encrypt the JWT payload?</summary><p>Standard JWT only Base64URL-encodes the payload. Use JWE (JSON Web Encryption) if encryption is required.</p></details>
+<details class="faq-item"><summary>aud claim as an array?</summary><p>When the token targets multiple services, aud can be an array. Recipients must verify their identifier is in the aud array.</p></details>
+<details class="faq-item"><summary>Why is alg:none dangerous?</summary><p>No signature means the token content can be freely tampered with. Some JWT library vulnerabilities accepted alg:none, enabling authentication bypass.</p></details>
+<details class="faq-item"><summary>What is the JWT refresh pattern?</summary><p>Issue a short-lived Access Token and a long-lived Refresh Token. When the Access Token expires, use the Refresh Token to obtain a new one.</p></details>
+<details class="faq-item"><summary>What is JWKS?</summary><p>JSON Web Key Set — a JSON endpoint (usually /.well-known/jwks.json) that publishes the public keys used for signature verification.</p></details>`
+  },
+  zh:{pageTitle:'JWT检查器 - 深度分析JWT令牌 | MODOO HUB',h1b:'检查器',sub:'彩色标注JWT各部分·声明解释·有效期时间线',backLink:'← 所有工具',langBtn:'🌐 日本語',labelInput:'JWT令牌',labelVisual:'令牌部分可视化',labelHeader:'标头',labelAlgo:'算法信息',labelPayload:'载荷声明',labelTimeline:'时间线',btnInspect:'检查',btnClear:'清除',
+    claimDescs:{sub:'主题',iss:'签发者',aud:'受众',exp:'过期时间',iat:'签发时间',nbf:'生效时间',jti:'JWT ID',alg:'签名算法',typ:'令牌类型',kid:'密钥ID',x5t:'证书指纹',cty:'内容类型'},
+    algDescs:{HS256:'HMAC-SHA256(对称)',HS384:'HMAC-SHA384(对称)',HS512:'HMAC-SHA512(对称)',RS256:'RSA-SHA256(非对称)',RS384:'RSA-SHA384(非对称)',RS512:'RSA-SHA512(非对称)',ES256:'ECDSA-P256(非对称)',none:'无签名 ⚠️'},
+    tlIat:'签发',tlNbf:'生效',tlNow:'当前',tlExp:'过期',tlExpired:'已过期',tlActive:'有效',tlNotYet:'尚未生效',
+    seoHtml:`<h2>JWT检查器</h2><p>JWT检查器将令牌各部分用颜色区分，解释声明含义，显示算法信息和有效期时间线，功能类似jwt.io。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>检查器和验证器的区别？</summary><p>检查器侧重深度理解：声明含义、算法信息和时间线。验证器侧重有效性判断。</p></details>
+<details class="faq-item"><summary>JWT有哪些算法？</summary><p>HS256/HS384/HS512（HMAC，对称），RS256/RS384/RS512（RSA，非对称），ES256/ES384/ES512（ECDSA，非对称）。alg:none表示无签名，绝不应允许。</p></details>
+<details class="faq-item"><summary>kid声明是什么？</summary><p>密钥ID，标识签名所用密钥的提示，用于从JWKS端点查找正确的公钥。</p></details>
+<details class="faq-item"><summary>可以加密JWT载荷吗？</summary><p>标准JWT只做Base64URL编码。如需加密，应使用JWE（JSON Web Encryption）。</p></details>
+<details class="faq-item"><summary>aud声明可以是数组吗？</summary><p>当令牌面向多个服务时，aud可以是数组。接收方必须验证自己的标识符在aud数组中。</p></details>
+<details class="faq-item"><summary>为什么alg:none很危险？</summary><p>没有签名意味着令牌内容可以随意篡改。一些JWT库漏洞接受了alg:none，导致认证绕过。</p></details>
+<details class="faq-item"><summary>JWT刷新模式是什么？</summary><p>同时签发短期Access Token和长期Refresh Token。Access Token过期时，用Refresh Token获取新的Access Token。</p></details>
+<details class="faq-item"><summary>JWKS是什么？</summary><p>JSON Web Key Set，通常在/.well-known/jwks.json公开用于验证签名的公钥列表。</p></details>`
+  },
+  ja:{pageTitle:'JWTインスペクター - JWTトークン詳細分析 | MODOO HUB',h1b:'インスペクター',sub:'カラーコードでJWT各パートを表示·クレーム説明·タイムライン分析',backLink:'← ホーム',langBtn:'🌐 한국어',labelInput:'JWTトークン',labelVisual:'トークンパート可視化',labelHeader:'ヘッダー',labelAlgo:'アルゴリズム情報',labelPayload:'ペイロードクレーム',labelTimeline:'タイムライン',btnInspect:'分析',btnClear:'クリア',
+    claimDescs:{sub:'サブジェクト',iss:'発行者',aud:'オーディエンス',exp:'有効期限',iat:'発行日時',nbf:'有効開始日時',jti:'JWT ID',alg:'署名アルゴリズム',typ:'トークンタイプ',kid:'キーID',x5t:'証明書フィンガープリント',cty:'コンテンツタイプ'},
+    algDescs:{HS256:'HMAC-SHA256（対称）',HS384:'HMAC-SHA384（対称）',HS512:'HMAC-SHA512（対称）',RS256:'RSA-SHA256（非対称）',RS384:'RSA-SHA384（非対称）',RS512:'RSA-SHA512（非対称）',ES256:'ECDSA-P256（非対称）',none:'署名なし ⚠️'},
+    tlIat:'発行',tlNbf:'有効開始',tlNow:'現在',tlExp:'有効期限',tlExpired:'期限切れ',tlActive:'有効',tlNotYet:'まだ有効でない',
+    seoHtml:`<h2>JWTインスペクターとは</h2><p>JWTインスペクターはトークンの各パートをカラーコードで表示し、各クレームの意味・アルゴリズム情報・有効期限タイムラインを詳細に分析します。jwt.ioと同様の機能をブラウザで提供します。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>インスペクターとバリデーターの違いは？</summary><p>インスペクターは深い理解に特化：クレームの意味・アルゴリズム情報・タイムライン。バリデーターは有効性判定に特化しています。</p></details>
+<details class="faq-item"><summary>JWTのアルゴリズム種類は？</summary><p>HS256/HS384/HS512（HMAC、対称）、RS256/RS384/RS512（RSA、非対称）、ES256/ES384/ES512（ECDSA、非対称）。alg:noneは署名なしで絶対に許可してはいけません。</p></details>
+<details class="faq-item"><summary>kidクレームとは？</summary><p>Key IDの略で、署名に使用されたキーを識別するヒントです。JWKSエンドポイントから正しい公開鍵を探すのに使います。</p></details>
+<details class="faq-item"><summary>JWTペイロードを暗号化できますか？</summary><p>標準JWTはBase64URLエンコードのみです。暗号化が必要な場合はJWE（JSON Web Encryption）を使用してください。</p></details>
+<details class="faq-item"><summary>audクレームが配列の場合は？</summary><p>トークンが複数のサービスを対象とする場合、audは配列になります。受信者は自分の識別子がaudに含まれているか確認する必要があります。</p></details>
+<details class="faq-item"><summary>alg:noneがなぜ危険なのですか？</summary><p>署名がないためトークン内容を自由に改ざんできます。一部のJWTライブラリの脆弱性でalg:noneが受け入れられ、認証バイパスが発生した事例があります。</p></details>
+<details class="faq-item"><summary>JWTリフレッシュパターンとは？</summary><p>短期のAccess Tokenと長期のRefresh Tokenを同時に発行します。Access Token期限切れ時にRefresh Tokenで新しいAccess Tokenを取得します。</p></details>
+<details class="faq-item"><summary>JWKSとは何ですか？</summary><p>JSON Web Key Setの略で、署名検証に使う公開鍵リストをJSON形式で公開するエンドポイントです（通常は/.well-known/jwks.json）。</p></details>`
+  }
+};
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko';
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const idx=LANGS.indexOf(_lang);_lang=LANGS[(idx+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){
+  const t=_i18n[_lang];
+  document.documentElement.lang=_lang;document.title=t.pageTitle;
+  document.getElementById('h1b').textContent=t.h1b;document.getElementById('subEl').textContent=t.sub;
+  document.getElementById('backLink').textContent=t.backLink;document.getElementById('langBtn').textContent=t.langBtn;
+  document.getElementById('labelInput').textContent=t.labelInput;document.getElementById('labelVisual').textContent=t.labelVisual;
+  document.getElementById('labelHeader').textContent=t.labelHeader;document.getElementById('labelAlgo').textContent=t.labelAlgo;
+  document.getElementById('labelPayload').textContent=t.labelPayload;document.getElementById('labelTimeline').textContent=t.labelTimeline;
+  document.getElementById('btnInspect').textContent=t.btnInspect;document.getElementById('btnClear').textContent=t.btnClear;
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+}
+function b64urlDecode(str){
+  str=str.replace(/-/g,'+').replace(/_/g,'/');while(str.length%4)str+='=';
+  try{return JSON.parse(atob(str));}catch(e){return null;}
+}
+function fmtTime(ts){return new Date(ts*1000).toISOString().replace('T',' ').slice(0,19);}
+function clearAll(){document.getElementById('tokenInput').value='';document.getElementById('resultArea').className='result';}
+function inspect(){
+  const t=_i18n[_lang];
+  const raw=document.getElementById('tokenInput').value.trim();
+  const ra=document.getElementById('resultArea');
+  if(!raw){ra.className='result';return;}
+  const parts=raw.split('.');
+  if(parts.length!==3){ra.className='result';return;}
+  const header=b64urlDecode(parts[0]);
+  const payload=b64urlDecode(parts[1]);
+  if(!header||!payload){ra.className='result';return;}
+  ra.className='result show';
+  // Visual
+  document.getElementById('tokenVisual').innerHTML=
+    `<span class="part-h">${parts[0]}</span><span class="sep">.</span><span class="part-p">${parts[1]}</span><span class="sep">.</span><span class="part-s">${parts[2].substring(0,20)}…</span>`;
+  // Header claims
+  let hHtml='';
+  Object.entries(header).forEach(([k,v])=>{
+    const desc=t.claimDescs[k]||'';
+    hHtml+=`<div class="claim-row"><span class="ck">${k}</span><span class="cv">${v}<br><span class="cdesc">${desc}</span></span></div>`;
+  });
+  document.getElementById('headerClaims').innerHTML=hHtml;
+  // Algo info
+  const alg=header.alg||'';
+  const algDesc=t.algDescs[alg]||alg;
+  const algType=alg.startsWith('HS')?'symmetric':alg==='none'?'none':'asymmetric';
+  const algTag=algType==='symmetric'?'<span class="tag warn">symmetric</span>':algType==='none'?'<span class="tag err">none</span>':'<span class="tag ok">asymmetric</span>';
+  document.getElementById('algoInfo').innerHTML=`<div class="claim-row"><span class="ck">alg</span><span class="cv">${alg} ${algTag}<br><span class="cdesc">${algDesc}</span></span></div>`;
+  // Payload claims
+  let pHtml='';
+  const now=Math.floor(Date.now()/1000);
+  Object.entries(payload).forEach(([k,v])=>{
+    const desc=t.claimDescs[k]||'';
+    let display=typeof v==='object'?JSON.stringify(v):String(v);
+    let note='';
+    if((k==='exp'||k==='iat'||k==='nbf')&&typeof v==='number'){
+      display=fmtTime(v);
+      if(k==='exp') note=v<now?'<span class="tag err">expired</span>':'<span class="tag ok">valid</span>';
+      if(k==='nbf') note=v>now?'<span class="tag warn">not yet</span>':'<span class="tag ok">active</span>';
+    }
+    pHtml+=`<div class="claim-row"><span class="ck">${k}</span><span class="cv">${display}${note}<br><span class="cdesc">${desc}</span></span></div>`;
+  });
+  document.getElementById('payloadClaims').innerHTML=pHtml;
+  // Timeline
+  const events=[];
+  if(payload.iat) events.push({label:t.tlIat,ts:payload.iat,dot:'dim'});
+  if(payload.nbf) events.push({label:t.tlNbf,ts:payload.nbf,dot:payload.nbf>now?'err':'ok'});
+  events.push({label:t.tlNow,ts:now,dot:'ok',now:true});
+  if(payload.exp) events.push({label:t.tlExp,ts:payload.exp,dot:payload.exp<now?'err':'ok'});
+  events.sort((a,b)=>a.ts-b.ts);
+  let tlHtml='';
+  events.forEach(e=>{
+    const extra=e.now?'<span class="tag ok" style="margin-left:4px">now</span>':'';
+    const expired=payload.exp&&payload.exp<now&&e.label===t.tlExp?'<span class="tag err" style="margin-left:4px">'+t.tlExpired+'</span>':'';
+    tlHtml+=`<div class="tl-item"><div class="tl-dot ${e.dot}"></div><span class="tl-label">${e.label}</span><span class="tl-time">${fmtTime(e.ts)}${extra}${expired}</span></div>`;
+  });
+  document.getElementById('timeline').innerHTML=tlHtml;
+}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

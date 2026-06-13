@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Webhook 생성기 - Webhook 페이로드·서명 생성 | MODOO HUB</title>
+<meta name="description" content="Webhook 페이로드 템플릿 생성 및 HMAC-SHA256 서명 자동 생성. GitHub/Stripe/Slack 형식 지원.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/webhook-generator.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/webhook-generator.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/webhook-generator.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/webhook-generator.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/webhook-generator.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/webhook-generator.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--blue:#60a5fa;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:900px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;}
+.label{font-size:11px;color:var(--text-dim);letter-spacing:.07em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:8px;}
+select,input{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;outline:none;margin-bottom:8px;}
+select:focus,input:focus{border-color:var(--accent);}
+select{width:100%;}input{width:100%;}
+textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;resize:vertical;outline:none;min-height:160px;line-height:1.6;}
+textarea:focus{border-color:var(--accent);}
+.btn-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+.btn{padding:8px 20px;border:1px solid var(--border);border-radius:7px;font-size:12px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;background:none;color:var(--text-muted);transition:all .15s;}
+.btn:hover{border-color:var(--accent);color:var(--accent);}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;}
+.result-block{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px;font-family:'DM Mono',monospace;font-size:11px;line-height:1.7;word-break:break-all;margin-bottom:8px;}
+.result-key{font-size:10px;color:var(--text-dim);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Webhook Generator","url":"https://modoohub.com/webhook-generator.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Generate webhook payload templates and compute HMAC-SHA256 signatures for GitHub, Stripe, Slack and custom webhooks."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Webhook 서명은 어떻게 생성되나요?","acceptedAnswer":{"@type":"Answer","text":"시크릿 키와 페이로드 바디를 HMAC-SHA256으로 해시해 서명을 생성합니다. GitHub는 sha256=HEX 형식을 사용합니다."}},{"@type":"Question","name":"생성된 서명은 서버에 전송되나요?","acceptedAnswer":{"@type":"Answer","text":"아니요. 서명은 브라우저의 Web Crypto API로 생성되며 서버로 전송되지 않습니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>Webhook <span id="h1b">생성기</span></h1>
+  <p class="sub" id="subEl">Webhook 페이로드 템플릿 생성 및 HMAC 서명 계산</p>
+  <div class="panel">
+    <div class="label" id="labelTemplate">템플릿 선택</div>
+    <select id="templateSel" onchange="loadTemplate()">
+      <option value="custom">Custom</option>
+      <option value="github-push">GitHub: push</option>
+      <option value="github-pr">GitHub: pull_request</option>
+      <option value="stripe-payment">Stripe: payment_intent.succeeded</option>
+      <option value="slack">Slack: message</option>
+    </select>
+    <div class="label" id="labelPayload">Webhook 페이로드 (JSON)</div>
+    <textarea id="payload" oninput="generateSig()"></textarea>
+    <div class="label" id="labelSecret">시크릿 키 (HMAC-SHA256 서명 생성용)</div>
+    <input id="secret" type="password" placeholder="your-webhook-secret" oninput="generateSig()">
+  </div>
+  <div class="panel">
+    <div class="result-key" id="keyPayload">페이로드 바이트</div>
+    <div class="result-block" id="resPayloadSize"></div>
+    <div class="result-key" id="keySig">생성된 서명 (sha256=...)</div>
+    <div class="result-block" id="resSig" style="color:var(--green)"></div>
+    <div class="btn-row">
+      <button class="btn primary" onclick="copyAll()" id="btnCopy">서명 복사</button>
+    </div>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const TEMPLATES={
+  'github-push':{"action":"push","ref":"refs/heads/main","repository":{"name":"my-repo","full_name":"alice/my-repo"},"pusher":{"name":"alice"},"commits":[{"id":"abc123","message":"feat: add feature","author":{"name":"Alice"}}]},
+  'github-pr':{"action":"opened","number":42,"pull_request":{"title":"feat: new feature","state":"open","user":{"login":"alice"},"head":{"ref":"feature-branch"},"base":{"ref":"main"}}},
+  'stripe-payment':{"id":"evt_test_1234","object":"event","type":"payment_intent.succeeded","data":{"object":{"id":"pi_test_1234","amount":2000,"currency":"usd","status":"succeeded"}},"created":1718000000},
+  'slack':{"token":"verification_token","team_id":"T123","event":{"type":"message","user":"U123","text":"Hello world","ts":"1718000000.123"},"event_id":"Ev123","event_time":1718000000}
+};
+const _i18n={
+  ko:{pageTitle:'Webhook 생성기 - Webhook 페이로드·서명 생성 | MODOO HUB',h1b:'생성기',sub:'Webhook 페이로드 템플릿 생성 및 HMAC 서명 계산',backLink:'← 모두의 툴',langBtn:'🌐 EN',labelTemplate:'템플릿 선택',labelPayload:'Webhook 페이로드 (JSON)',labelSecret:'시크릿 키 (HMAC-SHA256 서명 생성용)',keyPayload:'페이로드 바이트',keySig:'생성된 서명 (sha256=...)',btnCopy:'서명 복사',copied:'복사됨 ✓',
+    seoHtml:`<h2>Webhook 생성기란?</h2><p>Webhook 페이로드 템플릿을 생성하고 HMAC-SHA256 서명을 계산합니다. GitHub, Stripe, Slack 등 주요 플랫폼의 Webhook 형식을 기반으로 커스텀 페이로드를 만들 수 있습니다. <strong>시크릿 키</strong>를 입력하면 서명이 자동 계산되어 수신 서버에서 검증에 활용할 수 있습니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>HMAC-SHA256 서명이란?</summary><p>시크릿 키와 메시지를 해시 함수로 결합해 만든 인증 코드입니다. 페이로드 위변조를 감지하는 데 사용됩니다.</p></details>
+<details class="faq-item"><summary>서명이 서버로 전송되나요?</summary><p>아니요. Web Crypto API를 사용해 브라우저에서만 처리됩니다.</p></details>
+<details class="faq-item"><summary>GitHub는 어떤 서명 형식을 사용하나요?</summary><p>sha256= 접두사를 포함한 HEX 형식의 HMAC-SHA256을 X-Hub-Signature-256 헤더로 제공합니다.</p></details>
+<details class="faq-item"><summary>커스텀 JSON도 사용할 수 있나요?</summary><p>네. Custom 템플릿을 선택하고 원하는 JSON을 직접 입력하세요.</p></details>
+<details class="faq-item"><summary>생성된 서명을 수신 서버에서 어떻게 검증하나요?</summary><p>동일한 시크릿으로 수신 바디를 HMAC-SHA256 해시하고 서명 헤더 값과 비교합니다.</p></details>
+<details class="faq-item"><summary>페이로드 크기 정보는 왜 표시되나요?</summary><p>Content-Length 헤더 설정이나 로그 분석 시 참고용으로 제공됩니다.</p></details>
+<details class="faq-item"><summary>Stripe 서명 형식이 다른 이유는?</summary><p>Stripe는 타임스탬프를 포함한 서명 방식을 사용합니다. 재전송 공격을 방지하기 위함입니다.</p></details>
+<details class="faq-item"><summary>Slack Webhook도 서명 검증을 하나요?</summary><p>네. Slack은 X-Slack-Signature 헤더로 서명을 제공하며 타임스탬프도 포함합니다.</p></details>`
+  },
+  en:{pageTitle:'Webhook Generator - Create Webhook Payloads & Signatures | MODOO HUB',h1b:'Generator',sub:'Generate webhook payload templates and compute HMAC signatures',backLink:'← All Tools',langBtn:'🌐 中文',labelTemplate:'Template',labelPayload:'Webhook Payload (JSON)',labelSecret:'Secret Key (for HMAC-SHA256 signature)',keyPayload:'Payload Bytes',keySig:'Generated Signature (sha256=...)',btnCopy:'Copy Signature',copied:'Copied ✓',
+    seoHtml:`<h2>Webhook Generator</h2><p>Generate webhook payload templates and compute HMAC-SHA256 signatures. Create custom payloads based on GitHub, Stripe, Slack, and other major webhook formats. Enter a <strong>secret key</strong> to auto-compute the signature for use in server-side verification.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>What is HMAC-SHA256?</summary><p>An authentication code created by combining a secret key and message with a hash function. Used to detect payload tampering.</p></details>
+<details class="faq-item"><summary>Is the signature sent to a server?</summary><p>No. Uses the Web Crypto API — everything stays in your browser.</p></details>
+<details class="faq-item"><summary>What signature format does GitHub use?</summary><p>HMAC-SHA256 in hex with a sha256= prefix, sent in the X-Hub-Signature-256 header.</p></details>
+<details class="faq-item"><summary>Can I use custom JSON?</summary><p>Yes. Select Custom and enter any JSON you like.</p></details>
+<details class="faq-item"><summary>How to verify on the server?</summary><p>Hash the received body with HMAC-SHA256 using the same secret, then compare to the signature header.</p></details>
+<details class="faq-item"><summary>Why is payload size shown?</summary><p>Useful for setting Content-Length headers or log analysis.</p></details>
+<details class="faq-item"><summary>Why is Stripe&apos;s format different?</summary><p>Stripe includes a timestamp in the signature to prevent replay attacks.</p></details>
+<details class="faq-item"><summary>Does Slack verify signatures too?</summary><p>Yes. Slack provides X-Slack-Signature including a timestamp to prevent replay attacks.</p></details>`
+  },
+  zh:{pageTitle:'Webhook生成器 - 创建Webhook负载和签名 | MODOO HUB',h1b:'生成器',sub:'生成Webhook负载模板并计算HMAC签名',backLink:'← 所有工具',langBtn:'🌐 日本語',labelTemplate:'选择模板',labelPayload:'Webhook负载 (JSON)',labelSecret:'密钥 (用于HMAC-SHA256签名)',keyPayload:'负载字节',keySig:'生成的签名 (sha256=...)',btnCopy:'复制签名',copied:'已复制 ✓',
+    seoHtml:`<h2>Webhook生成器</h2><p>生成Webhook负载模板并计算HMAC-SHA256签名。基于GitHub、Stripe、Slack等主要平台的Webhook格式创建自定义负载。输入密钥自动计算签名，用于服务器端验证。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>什么是HMAC-SHA256？</summary><p>将密钥和消息通过哈希函数组合生成的认证码，用于检测负载篡改。</p></details>
+<details class="faq-item"><summary>签名会发送到服务器吗？</summary><p>不会，使用Web Crypto API在浏览器中处理。</p></details>
+<details class="faq-item"><summary>GitHub使用什么签名格式？</summary><p>HMAC-SHA256十六进制，带sha256=前缀，在X-Hub-Signature-256请求头中提供。</p></details>
+<details class="faq-item"><summary>可以使用自定义JSON吗？</summary><p>可以，选择Custom并输入任意JSON。</p></details>
+<details class="faq-item"><summary>如何在服务器端验证？</summary><p>用相同密钥对接收到的请求体进行HMAC-SHA256哈希，与签名头比较。</p></details>
+<details class="faq-item"><summary>为什么显示负载大小？</summary><p>用于设置Content-Length请求头或日志分析参考。</p></details>
+<details class="faq-item"><summary>Stripe格式为什么不同？</summary><p>Stripe在签名中包含时间戳以防止重放攻击。</p></details>
+<details class="faq-item"><summary>Slack也验证签名吗？</summary><p>是的，Slack通过X-Slack-Signature请求头提供包含时间戳的签名。</p></details>`
+  },
+  ja:{pageTitle:'Webhook生成ツール - Webhookペイロード・署名生成 | MODOO HUB',h1b:'生成ツール',sub:'WebhookペイロードテンプレートとHMAC署名を生成',backLink:'← ホーム',langBtn:'🌐 한국어',labelTemplate:'テンプレート選択',labelPayload:'Webhookペイロード (JSON)',labelSecret:'シークレットキー (HMAC-SHA256署名生成用)',keyPayload:'ペイロードバイト',keySig:'生成した署名 (sha256=...)',btnCopy:'署名をコピー',copied:'コピー完了 ✓',
+    seoHtml:`<h2>Webhook生成ツールとは</h2><p>Webhookペイロードテンプレートを生成し、HMAC-SHA256署名を計算します。GitHub、Stripe、SlackなどのWebhook形式に基づいたカスタムペイロードを作成できます。シークレットキーを入力すると署名が自動計算され、受信サーバーでの検証に活用できます。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>HMAC-SHA256とは？</summary><p>シークレットキーとメッセージをハッシュ関数で組み合わせた認証コードです。ペイロード改ざんを検出するのに使われます。</p></details>
+<details class="faq-item"><summary>署名はサーバーに送信されますか？</summary><p>いいえ。Web Crypto APIでブラウザのみで処理されます。</p></details>
+<details class="faq-item"><summary>GitHubはどの署名形式を使いますか？</summary><p>sha256=プレフィックス付きのHEX形式HMAC-SHA256をX-Hub-Signature-256ヘッダーで提供します。</p></details>
+<details class="faq-item"><summary>カスタムJSONも使えますか？</summary><p>はい。Customを選んで任意のJSONを入力してください。</p></details>
+<details class="faq-item"><summary>サーバー側で検証するには？</summary><p>同じシークレットで受信ボディをHMAC-SHA256ハッシュして署名ヘッダーと比較します。</p></details>
+<details class="faq-item"><summary>ペイロードサイズが表示される理由は？</summary><p>Content-Lengthヘッダーの設定やログ分析の参考として提供されます。</p></details>
+<details class="faq-item"><summary>Stripeの形式が異なる理由は？</summary><p>Stripeはリプレイアタック防止のためタイムスタンプを署名に含めます。</p></details>
+<details class="faq-item"><summary>SlackもWebhook署名を検証しますか？</summary><p>はい。SlackはX-Slack-Signatureヘッダーでタイムスタンプを含む署名を提供します。</p></details>`
+  }
+};
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko';
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const idx=LANGS.indexOf(_lang);_lang=LANGS[(idx+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
+  document.getElementById('h1b').textContent=t.h1b;document.getElementById('subEl').textContent=t.sub;
+  document.getElementById('backLink').textContent=t.backLink;document.getElementById('langBtn').textContent=t.langBtn;
+  document.getElementById('labelTemplate').textContent=t.labelTemplate;document.getElementById('labelPayload').textContent=t.labelPayload;
+  document.getElementById('labelSecret').textContent=t.labelSecret;document.getElementById('keyPayload').textContent=t.keyPayload;
+  document.getElementById('keySig').textContent=t.keySig;document.getElementById('btnCopy').textContent=t.btnCopy;
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;generateSig();
+}
+function loadTemplate(){
+  const v=document.getElementById('templateSel').value;
+  if(TEMPLATES[v])document.getElementById('payload').value=JSON.stringify(TEMPLATES[v],null,2);
+  generateSig();
+}
+async function generateSig(){
+  const body=document.getElementById('payload').value;
+  const secret=document.getElementById('secret').value;
+  const bytes=new TextEncoder().encode(body).length;
+  document.getElementById('resPayloadSize').textContent=`${bytes} bytes / ${body.length} chars`;
+  if(!secret){document.getElementById('resSig').textContent='— (enter secret key above)';return;}
+  try{
+    const enc=new TextEncoder();
+    const key=await crypto.subtle.importKey('raw',enc.encode(secret),{name:'HMAC',hash:'SHA-256'},false,['sign']);
+    const mac=await crypto.subtle.sign('HMAC',key,enc.encode(body));
+    const hex=Array.from(new Uint8Array(mac)).map(b=>b.toString(16).padStart(2,'0')).join('');
+    document.getElementById('resSig').textContent='sha256='+hex;
+  }catch(e){document.getElementById('resSig').textContent='Error: '+e.message;}
+}
+function copyAll(){
+  const t=_i18n[_lang];const v=document.getElementById('resSig').textContent;if(!v||v.startsWith('—'))return;
+  navigator.clipboard.writeText(v).then(()=>{const btn=document.getElementById('btnCopy');const orig=btn.textContent;btn.textContent=t.copied;setTimeout(()=>btn.textContent=orig,2000);});
+}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JWT 검증기 - JWT Token 유효성 검사 | MODOO HUB</title>
+<meta name="description" content="JWT 토큰 유효성 검사. Header·Payload·Signature 디코딩, 만료 여부·구조 검증 즉시 확인.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/jwt-validator.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/jwt-validator.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/jwt-validator.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/jwt-validator.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/jwt-validator.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/jwt-validator.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;font-family:'DM Mono',monospace;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;font-family:'DM Mono',monospace;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:820px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;line-height:1.6;}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:14px;}
+.label{font-size:11px;color:var(--text-dim);letter-spacing:.07em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:6px;}
+textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;resize:vertical;outline:none;min-height:80px;line-height:1.6;}
+textarea:focus{border-color:var(--accent);}
+.btn-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.btn{padding:8px 20px;border:1px solid var(--border);border-radius:7px;font-size:12px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;background:none;color:var(--text-muted);transition:all .15s;}
+.btn:hover{border-color:var(--accent);color:var(--accent);}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;}
+.btn.primary:hover{opacity:.85;}
+.result{display:none;margin-top:14px;}
+.result.show{display:block;}
+.status-bar{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;margin-bottom:12px;font-size:13px;font-weight:600;}
+.status-bar.ok{background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.3);color:var(--green);}
+.status-bar.warn{background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);color:var(--accent);}
+.status-bar.err{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);color:var(--red);}
+.parts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;}
+@media(max-width:600px){.parts{grid-template-columns:1fr;}}
+.part-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;}
+.part-title{font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:6px;}
+.part-title.h{color:var(--red);}
+.part-title.p{color:var(--blue);}
+.part-title.s{color:var(--purple);}
+.part-json{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);word-break:break-all;white-space:pre-wrap;}
+.claims-list{display:flex;flex-direction:column;gap:6px;}
+.claim{display:flex;gap:8px;align-items:flex-start;font-size:12px;}
+.claim-key{font-family:'DM Mono',monospace;color:var(--accent);min-width:60px;flex-shrink:0;}
+.claim-val{color:var(--text-muted);}
+.claim-note{font-size:11px;color:var(--text-dim);margin-left:4px;}
+.tag{display:inline-block;padding:1px 7px;border-radius:4px;font-size:10px;font-family:'DM Mono',monospace;}
+.tag.ok{background:rgba(74,222,128,.15);color:var(--green);}
+.tag.err{background:rgba(248,113,113,.15);color:var(--red);}
+.tag.warn{background:rgba(251,191,36,.15);color:var(--accent);}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"JWT Validator","url":"https://modoohub.com/jwt-validator.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Validate and decode JWT tokens instantly. Check header, payload, signature structure, expiry, and claim fields."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"JWT 검증기란?","acceptedAnswer":{"@type":"Answer","text":"JWT(JSON Web Token)의 구조적 유효성, 만료 여부, 클레임 필드를 브라우저에서 즉시 디코딩·분석하는 도구입니다."}},{"@type":"Question","name":"JWT 서명도 검증되나요?","acceptedAnswer":{"@type":"Answer","text":"이 도구는 클라이언트 사이드에서 동작하므로 서명 검증(Signature Verification)을 위한 시크릿 키나 공개키 입력이 필요합니다. 구조 및 만료 여부는 키 없이도 확인 가능합니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1><span id="h1a">JWT</span> <span id="h1b">검증기</span></h1>
+  <p class="sub" id="subEl">JWT 토큰 붙여넣기 → Header·Payload 디코딩·만료 검사</p>
+  <div class="panel">
+    <div class="label" id="labelInput">JWT 토큰</div>
+    <textarea id="tokenInput" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c" rows="4" oninput="autoValidate()"></textarea>
+    <div class="btn-row">
+      <button class="btn primary" onclick="validate()" id="btnValidate">검증</button>
+      <button class="btn" onclick="clearAll()" id="btnClear">초기화</button>
+    </div>
+  </div>
+  <div class="result" id="resultArea">
+    <div class="status-bar" id="statusBar"></div>
+    <div class="parts">
+      <div class="part-card">
+        <div class="part-title h" id="labelHeader">HEADER</div>
+        <pre class="part-json" id="headerJson"></pre>
+      </div>
+      <div class="part-card">
+        <div class="part-title p" id="labelPayload">PAYLOAD</div>
+        <pre class="part-json" id="payloadJson"></pre>
+      </div>
+      <div class="part-card">
+        <div class="part-title s" id="labelSig">SIGNATURE</div>
+        <pre class="part-json" id="sigJson"></pre>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="label" id="labelClaims">클레임 분석</div>
+      <div class="claims-list" id="claimsList"></div>
+    </div>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const _i18n={
+  ko:{pageTitle:'JWT 검증기 - JWT Token 유효성 검사 | MODOO HUB',h1a:'JWT',h1b:'검증기',sub:'JWT 토큰 붙여넣기 → Header·Payload 디코딩·만료 검사',backLink:'← 모두의 툴',langBtn:'🌐 EN',labelInput:'JWT 토큰',labelHeader:'HEADER',labelPayload:'PAYLOAD',labelSig:'SIGNATURE',labelClaims:'클레임 분석',btnValidate:'검증',btnClear:'초기화',
+    msgOk:'유효한 JWT 구조',msgExpired:'만료된 토큰',msgInvalid:'잘못된 JWT 형식',msgNotYet:'아직 유효하지 않은 토큰 (nbf)',
+    claimSub:'주체(Subject)',claimIss:'발급자(Issuer)',claimAud:'대상(Audience)',claimExp:'만료 시간',claimIat:'발급 시간',claimNbf:'유효 시작 시간',claimJti:'JWT ID',claimAlg:'알고리즘',claimTyp:'타입',
+    seoHtml:`<h2>JWT 검증기란?</h2><p>JWT(JSON Web Token)는 인증·인가에 널리 쓰이는 토큰 형식입니다. <strong>Header.Payload.Signature</strong> 세 부분을 Base64URL로 인코딩해 점(.)으로 연결합니다. 이 도구는 JWT를 즉시 디코딩해 구조 유효성, 만료 여부, 표준 클레임을 분석합니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>JWT 서명도 검증되나요?</summary><p>서명 검증(Signature Verification)은 서버 측 시크릿 키 또는 공개키가 필요합니다. 이 도구는 클라이언트에서 동작하므로 구조·만료·클레임 분석만 제공합니다.</p></details>
+<details class="faq-item"><summary>JWT 토큰이 만료됐는지 어떻게 확인하나요?</summary><p>Payload의 exp 클레임(Unix timestamp)과 현재 시각을 비교합니다. exp < 현재 시각이면 만료로 판정됩니다.</p></details>
+<details class="faq-item"><summary>HS256, RS256 차이는?</summary><p>HS256은 HMAC-SHA256으로 동일한 시크릿 키로 서명·검증합니다. RS256은 RSA 비대칭키로 개인키로 서명하고 공개키로 검증합니다.</p></details>
+<details class="faq-item"><summary>JWT에서 민감 정보를 저장해도 되나요?</summary><p>Payload는 Base64URL 인코딩만 된 것으로 누구나 디코딩할 수 있습니다. 민감 정보(비밀번호, 카드번호 등)는 절대 JWT에 저장하지 마세요.</p></details>
+<details class="faq-item"><summary>nbf 클레임이란?</summary><p>Not Before의 약자로, 이 시각 이전에는 토큰을 사용할 수 없음을 의미합니다. nbf > 현재 시각이면 아직 유효하지 않습니다.</p></details>
+<details class="faq-item"><summary>JWE와 JWT 차이는?</summary><p>JWT(JSON Web Token)는 서명만 하며 페이로드가 노출됩니다. JWE(JSON Web Encryption)는 페이로드를 암호화해 내용이 보호됩니다.</p></details>
+<details class="faq-item"><summary>JWT는 어디에 저장해야 하나요?</summary><p>localStorage는 XSS 공격에 취약합니다. httpOnly 쿠키가 더 안전합니다. Authorization: Bearer 헤더로 전송할 때는 메모리에만 보관하는 것이 권장됩니다.</p></details>
+<details class="faq-item"><summary>JWT 토큰 길이가 너무 긴 경우는?</summary><p>Payload에 너무 많은 클레임을 넣으면 토큰이 길어져 네트워크 오버헤드가 커집니다. 필수 클레임만 포함하고 나머지는 서버에서 조회하는 방식을 권장합니다.</p></details>`
+  },
+  en:{pageTitle:'JWT Validator - Validate & Decode JWT Token | MODOO HUB',h1a:'JWT',h1b:'Validator',sub:'Paste JWT → decode Header·Payload & check expiry',backLink:'← All Tools',langBtn:'🌐 中文',labelInput:'JWT Token',labelHeader:'HEADER',labelPayload:'PAYLOAD',labelSig:'SIGNATURE',labelClaims:'Claims Analysis',btnValidate:'Validate',btnClear:'Clear',
+    msgOk:'Valid JWT structure',msgExpired:'Token expired',msgInvalid:'Invalid JWT format',msgNotYet:'Token not yet valid (nbf)',
+    claimSub:'Subject',claimIss:'Issuer',claimAud:'Audience',claimExp:'Expiration',claimIat:'Issued At',claimNbf:'Not Before',claimJti:'JWT ID',claimAlg:'Algorithm',claimTyp:'Type',
+    seoHtml:`<h2>JWT Validator</h2><p>JWT (JSON Web Token) is a widely used token format for authentication and authorization. It consists of three Base64URL-encoded parts: <strong>Header.Payload.Signature</strong>. This tool instantly decodes a JWT and analyzes its structure, expiry, and standard claims.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>Is the signature verified?</summary><p>Signature verification requires a server-side secret key or public key. This client-side tool only analyzes structure, expiry, and claims.</p></details>
+<details class="faq-item"><summary>How is token expiry checked?</summary><p>The exp claim (Unix timestamp) is compared to the current time. If exp is in the past, the token is expired.</p></details>
+<details class="faq-item"><summary>HS256 vs RS256?</summary><p>HS256 uses HMAC-SHA256 with a shared secret key for both signing and verification. RS256 uses RSA asymmetric keys — private key to sign, public key to verify.</p></details>
+<details class="faq-item"><summary>Can I store sensitive data in JWT?</summary><p>No. The payload is only Base64URL-encoded, not encrypted — anyone can decode it. Never store passwords, card numbers, or other sensitive data in a JWT.</p></details>
+<details class="faq-item"><summary>What is the nbf claim?</summary><p>Not Before — the token should not be accepted before this time. If nbf is in the future, the token is not yet valid.</p></details>
+<details class="faq-item"><summary>JWT vs JWE?</summary><p>JWT is signed (payload visible). JWE (JSON Web Encryption) encrypts the payload so the contents are protected.</p></details>
+<details class="faq-item"><summary>Where should I store a JWT?</summary><p>localStorage is vulnerable to XSS. httpOnly cookies are safer. For Bearer header usage, store only in memory.</p></details>
+<details class="faq-item"><summary>Why is my JWT so long?</summary><p>Too many claims in the payload bloat the token size, increasing network overhead. Include only required claims and look up the rest server-side.</p></details>`
+  },
+  zh:{pageTitle:'JWT验证器 - 验证和解码JWT令牌 | MODOO HUB',h1a:'JWT',h1b:'验证器',sub:'粘贴JWT → 解码Header·Payload并检查过期',backLink:'← 所有工具',langBtn:'🌐 日本語',labelInput:'JWT令牌',labelHeader:'标头',labelPayload:'载荷',labelSig:'签名',labelClaims:'声明分析',btnValidate:'验证',btnClear:'清除',
+    msgOk:'有效的JWT结构',msgExpired:'令牌已过期',msgInvalid:'无效的JWT格式',msgNotYet:'令牌尚未生效(nbf)',
+    claimSub:'主题',claimIss:'签发者',claimAud:'受众',claimExp:'过期时间',claimIat:'签发时间',claimNbf:'生效时间',claimJti:'JWT ID',claimAlg:'算法',claimTyp:'类型',
+    seoHtml:`<h2>JWT验证器</h2><p>JWT（JSON Web Token）是广泛用于认证和授权的令牌格式，由三个Base64URL编码部分组成：<strong>Header.Payload.Signature</strong>。本工具即时解码JWT并分析其结构、过期时间和标准声明。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>签名会被验证吗？</summary><p>签名验证需要服务器端密钥或公钥。此客户端工具仅分析结构、过期时间和声明。</p></details>
+<details class="faq-item"><summary>如何检查令牌是否过期？</summary><p>将exp声明（Unix时间戳）与当前时间比较。如果exp在过去，令牌已过期。</p></details>
+<details class="faq-item"><summary>HS256和RS256的区别？</summary><p>HS256使用共享密钥的HMAC-SHA256进行签名和验证。RS256使用RSA非对称密钥——私钥签名，公钥验证。</p></details>
+<details class="faq-item"><summary>可以在JWT中存储敏感数据吗？</summary><p>不可以。载荷只是Base64URL编码，任何人都可以解码。切勿在JWT中存储密码、卡号等敏感数据。</p></details>
+<details class="faq-item"><summary>nbf声明是什么？</summary><p>Not Before——令牌在此时间之前不应被接受。如果nbf在未来，令牌尚未生效。</p></details>
+<details class="faq-item"><summary>JWT和JWE的区别？</summary><p>JWT是签名的（载荷可见）。JWE（JSON Web Encryption）加密载荷，内容受到保护。</p></details>
+<details class="faq-item"><summary>JWT应该存储在哪里？</summary><p>localStorage容易受XSS攻击。httpOnly Cookie更安全。对于Bearer头使用，建议仅存储在内存中。</p></details>
+<details class="faq-item"><summary>为什么我的JWT这么长？</summary><p>载荷中声明过多会使令牌变大，增加网络开销。只包含必要的声明，其余从服务器查询。</p></details>`
+  },
+  ja:{pageTitle:'JWT検証ツール - JWTトークンの検証・デコード | MODOO HUB',h1a:'JWT',h1b:'バリデーター',sub:'JWTを貼り付け → Header·Payloadをデコードして有効期限を確認',backLink:'← ホーム',langBtn:'🌐 한국어',labelInput:'JWTトークン',labelHeader:'ヘッダー',labelPayload:'ペイロード',labelSig:'署名',labelClaims:'クレーム分析',btnValidate:'検証',btnClear:'クリア',
+    msgOk:'有効なJWT構造',msgExpired:'トークンの有効期限切れ',msgInvalid:'無効なJWT形式',msgNotYet:'まだ有効でないトークン(nbf)',
+    claimSub:'サブジェクト',claimIss:'発行者',claimAud:'オーディエンス',claimExp:'有効期限',claimIat:'発行日時',claimNbf:'有効開始日時',claimJti:'JWT ID',claimAlg:'アルゴリズム',claimTyp:'タイプ',
+    seoHtml:`<h2>JWTバリデーターとは</h2><p>JWT（JSON Web Token）は認証・認可に広く使われるトークン形式です。<strong>Header.Payload.Signature</strong>の3部をBase64URLエンコードして点(.)で連結します。このツールはJWTを即時デコードし、構造の有効性・有効期限・標準クレームを分析します。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>署名も検証されますか？</summary><p>署名検証にはサーバー側のシークレットキーまたは公開鍵が必要です。このクライアントサイドツールは構造・有効期限・クレームの分析のみ提供します。</p></details>
+<details class="faq-item"><summary>トークンの有効期限はどう確認しますか？</summary><p>expクレーム（Unixタイムスタンプ）と現在時刻を比較します。expが過去であればトークンは期限切れです。</p></details>
+<details class="faq-item"><summary>HS256とRS256の違いは？</summary><p>HS256は共有シークレットキーを使うHMAC-SHA256です。RS256はRSA非対称鍵を使い、秘密鍵で署名して公開鍵で検証します。</p></details>
+<details class="faq-item"><summary>JWTに機密情報を入れてもいいですか？</summary><p>いいえ。ペイロードはBase64URLエンコードのみで誰でもデコードできます。パスワードやカード番号などの機密情報は絶対に入れないでください。</p></details>
+<details class="faq-item"><summary>nbfクレームとは？</summary><p>Not Beforeの略で、この時刻以前はトークンを使えません。nbfが未来の場合、トークンはまだ有効ではありません。</p></details>
+<details class="faq-item"><summary>JWTとJWEの違いは？</summary><p>JWTは署名のみ（ペイロードは見える）。JWE（JSON Web Encryption）はペイロードを暗号化して内容を保護します。</p></details>
+<details class="faq-item"><summary>JWTはどこに保存すべきですか？</summary><p>localStorageはXSS攻撃に弱いです。httpOnly Cookieがより安全です。Bearerヘッダー使用時はメモリのみに保持することを推奨します。</p></details>
+<details class="faq-item"><summary>JWTが長すぎる場合は？</summary><p>ペイロードのクレームが多すぎるとトークンが大きくなりネットワーク負荷が増えます。必須クレームのみ含め、それ以外はサーバーで取得することを推奨します。</p></details>`
+  }
+};
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko';
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const idx=LANGS.indexOf(_lang);_lang=LANGS[(idx+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){
+  const t=_i18n[_lang];
+  document.documentElement.lang=_lang;document.title=t.pageTitle;
+  document.getElementById('h1a').textContent=t.h1a;document.getElementById('h1b').textContent=t.h1b;
+  document.getElementById('subEl').textContent=t.sub;document.getElementById('backLink').textContent=t.backLink;
+  document.getElementById('langBtn').textContent=t.langBtn;document.getElementById('labelInput').textContent=t.labelInput;
+  document.getElementById('labelHeader').textContent=t.labelHeader;document.getElementById('labelPayload').textContent=t.labelPayload;
+  document.getElementById('labelSig').textContent=t.labelSig;document.getElementById('labelClaims').textContent=t.labelClaims;
+  document.getElementById('btnValidate').textContent=t.btnValidate;document.getElementById('btnClear').textContent=t.btnClear;
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+}
+function b64urlDecode(str){
+  str=str.replace(/-/g,'+').replace(/_/g,'/');
+  while(str.length%4)str+='=';
+  try{return JSON.parse(atob(str));}catch(e){return null;}
+}
+function b64urlRaw(str){
+  str=str.replace(/-/g,'+').replace(/_/g,'/');
+  while(str.length%4)str+='=';
+  try{return atob(str);}catch(e){return null;}
+}
+function autoValidate(){validate();}
+function clearAll(){document.getElementById('tokenInput').value='';document.getElementById('resultArea').className='result';}
+function validate(){
+  const t=_i18n[_lang];
+  const raw=document.getElementById('tokenInput').value.trim();
+  const ra=document.getElementById('resultArea');
+  if(!raw){ra.className='result';return;}
+  const parts=raw.split('.');
+  if(parts.length!==3){
+    ra.className='result show';
+    document.getElementById('statusBar').className='status-bar err';
+    document.getElementById('statusBar').textContent='✗ '+t.msgInvalid;
+    document.getElementById('headerJson').textContent='';
+    document.getElementById('payloadJson').textContent='';
+    document.getElementById('sigJson').textContent='';
+    document.getElementById('claimsList').innerHTML='';
+    return;
+  }
+  const header=b64urlDecode(parts[0]);
+  const payload=b64urlDecode(parts[1]);
+  const sig=parts[2];
+  if(!header||!payload){
+    ra.className='result show';
+    document.getElementById('statusBar').className='status-bar err';
+    document.getElementById('statusBar').textContent='✗ '+t.msgInvalid;
+    document.getElementById('headerJson').textContent='';document.getElementById('payloadJson').textContent='';document.getElementById('sigJson').textContent='';document.getElementById('claimsList').innerHTML='';
+    return;
+  }
+  const now=Math.floor(Date.now()/1000);
+  let status='ok',msg=t.msgOk;
+  if(payload.exp && payload.exp < now){status='warn';msg=t.msgExpired;}
+  if(payload.nbf && payload.nbf > now){status='warn';msg=t.msgNotYet;}
+  ra.className='result show';
+  const sb=document.getElementById('statusBar');
+  sb.className='status-bar '+(status==='ok'?'ok':'warn');
+  sb.textContent=(status==='ok'?'✓ ':'⚠ ')+msg;
+  document.getElementById('headerJson').textContent=JSON.stringify(header,null,2);
+  document.getElementById('payloadJson').textContent=JSON.stringify(payload,null,2);
+  document.getElementById('sigJson').textContent=sig.substring(0,40)+(sig.length>40?'…':'');
+  // claims
+  const clMap={sub:t.claimSub,iss:t.claimIss,aud:t.claimAud,exp:t.claimExp,iat:t.claimIat,nbf:t.claimNbf,jti:t.claimJti};
+  const algMap={alg:t.claimAlg,typ:t.claimTyp};
+  let html='';
+  Object.entries({...header,...payload}).forEach(([k,v])=>{
+    const name=clMap[k]||algMap[k]||k;
+    let display=String(v);
+    let note='';
+    if((k==='exp'||k==='iat'||k==='nbf')&&typeof v==='number'){
+      const d=new Date(v*1000);
+      display=d.toISOString().replace('T',' ').slice(0,19);
+      if(k==='exp') note=v<now?'<span class="tag err">expired</span>':'<span class="tag ok">valid</span>';
+      if(k==='nbf') note=v>now?'<span class="tag warn">not yet valid</span>':'<span class="tag ok">active</span>';
+    }
+    html+=`<div class="claim"><span class="claim-key">${k}</span><span class="claim-val">${display} <span class="claim-note">${name}</span>${note}</span></div>`;
+  });
+  document.getElementById('claimsList').innerHTML=html;
+}
+_lang=detectLang();applyLang();
+document.addEventListener('DOMContentLoaded',()=>{const v=document.getElementById('tokenInput').value;if(v)validate();});
+</script>
+<script src="related.js"></script>
+</body>
+</html>

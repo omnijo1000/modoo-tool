@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSP 생성기 - Content Security Policy 헤더 생성 | MODOO HUB</title>
+<meta name="description" content="Content Security Policy(CSP) 헤더를 시각적으로 생성하세요. script-src·style-src·img-src 등 지시어별 설정 후 헤더 값·메타 태그·Nginx/Apache 설정 즉시 복사.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/csp-generator.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/csp-generator.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/csp-generator.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/csp-generator.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/csp-generator.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/csp-generator.html">
+<meta property="og:title" content="CSP 생성기 - Content Security Policy 헤더 생성">
+<meta property="og:description" content="CSP 지시어 설정 후 헤더 값·메타 태그·서버 설정 즉시 복사.">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<meta property="og:url" content="https://modoohub.com/csp-generator.html">
+<meta property="og:type" content="website">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;font-family:'DM Mono',monospace;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;font-family:'DM Mono',monospace;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:960px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;line-height:1.6;}
+.layout{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:720px){.layout{grid-template-columns:1fr;}}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:14px;}
+.panel-label{font-size:11px;color:var(--text-dim);letter-spacing:.07em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:12px;}
+.dir-row{margin-bottom:10px;}
+.dir-name{font-family:'DM Mono',monospace;font-size:11px;color:var(--blue);margin-bottom:4px;font-weight:700;}
+.dir-desc{font-size:10px;color:var(--text-dim);margin-bottom:4px;}
+.dir-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--text);font-size:11px;font-family:'DM Mono',monospace;outline:none;transition:border-color .15s;}
+.dir-input:focus{border-color:var(--accent);}
+.quick-btns{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;}
+.qbtn{padding:2px 8px;border:1px solid var(--border);border-radius:4px;font-size:10px;font-family:'DM Mono',monospace;cursor:pointer;background:none;color:var(--text-dim);transition:all .1s;}
+.qbtn:hover{border-color:var(--accent);color:var(--accent);}
+.output-label{font-size:11px;color:var(--text-dim);letter-spacing:.07em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:6px;}
+.output-ta{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;resize:vertical;min-height:80px;outline:none;line-height:1.7;word-break:break-all;}
+.btn-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+.btn{padding:7px 16px;border:1px solid var(--border);border-radius:7px;font-size:12px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;background:none;color:var(--text-muted);transition:all .15s;}
+.btn:hover{border-color:var(--accent);color:var(--accent);}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;}
+.btn.primary:hover{opacity:.85;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:32px;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebApplication",
+  "name":"CSP Generator",
+  "url":"https://modoohub.com/csp-generator.html",
+  "applicationCategory":"UtilitiesApplication",
+  "operatingSystem":"Any",
+  "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},
+  "description":"Generate Content Security Policy (CSP) headers visually. Configure directives like script-src, style-src, img-src and copy the header value, meta tag, or server config."
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"FAQPage",
+  "mainEntity":[
+    {"@type":"Question","name":"CSP(Content Security Policy)란?","acceptedAnswer":{"@type":"Answer","text":"CSP는 브라우저가 로드할 수 있는 리소스 출처를 제한하는 HTTP 응답 헤더입니다. XSS, 데이터 인젝션 등의 공격을 방어합니다."}},
+    {"@type":"Question","name":"'unsafe-inline'을 사용해도 되나요?","acceptedAnswer":{"@type":"Answer","text":"'unsafe-inline'은 CSP의 핵심 보호를 우회합니다. 인라인 스크립트/스타일을 nonce 또는 hash 기반으로 교체하는 것이 권장됩니다."}}
+  ]
+}
+</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>CSP <span id="h1Span">생성기</span></h1>
+  <p class="sub" id="subEl">Content Security Policy 지시어 설정 → 헤더 값·서버 설정 즉시 생성</p>
+
+  <div class="layout">
+    <div>
+      <div class="panel">
+        <div class="panel-label" id="labelDirectives">지시어 설정</div>
+        <div id="dirForm"></div>
+      </div>
+    </div>
+    <div>
+      <div class="panel">
+        <div class="output-label" id="labelHeader">헤더 값</div>
+        <textarea class="output-ta" id="outHeader" readonly style="min-height:60px;"></textarea>
+        <div class="btn-row"><button class="btn primary" id="btnCopyHeader" onclick="copy('outHeader','btnCopyHeader')">복사</button></div>
+      </div>
+      <div class="panel">
+        <div class="output-label" id="labelMeta">HTML Meta 태그</div>
+        <textarea class="output-ta" id="outMeta" readonly></textarea>
+        <div class="btn-row"><button class="btn primary" id="btnCopyMeta" onclick="copy('outMeta','btnCopyMeta')">복사</button></div>
+      </div>
+      <div class="panel">
+        <div class="output-label" id="labelNginx">Nginx 설정</div>
+        <textarea class="output-ta" id="outNginx" readonly></textarea>
+        <div class="btn-row"><button class="btn primary" id="btnCopyNginx" onclick="copy('outNginx','btnCopyNginx')">복사</button></div>
+      </div>
+      <div class="panel">
+        <div class="output-label" id="labelApache">Apache 설정</div>
+        <textarea class="output-ta" id="outApache" readonly></textarea>
+        <div class="btn-row"><button class="btn primary" id="btnCopyApache" onclick="copy('outApache','btnCopyApache')">복사</button></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="seo" id="seoDiv"></div>
+  <footer>CSP Generator · Free Online Tool · modoohub.com</footer>
+</main>
+<script>
+const DIRECTIVES=[
+  {key:'default-src',desc:{ko:'기본 리소스 출처 (지정되지 않은 지시어의 폴백)',en:'Default fallback for unspecified directives',zh:'未指定指令的默认后备源',ja:'未指定ディレクティブのデフォルト'}},
+  {key:'script-src',desc:{ko:'JavaScript 스크립트 출처',en:'JavaScript source origins',zh:'JavaScript脚本来源',ja:'JavaScriptスクリプト元'}},
+  {key:'style-src',desc:{ko:'CSS 스타일시트 출처',en:'CSS stylesheet origins',zh:'CSS样式表来源',ja:'CSSスタイルシート元'}},
+  {key:'img-src',desc:{ko:'이미지 리소스 출처',en:'Image resource origins',zh:'图片资源来源',ja:'画像リソース元'}},
+  {key:'font-src',desc:{ko:'웹 폰트 출처',en:'Web font origins',zh:'字体来源',ja:'Webフォント元'}},
+  {key:'connect-src',desc:{ko:'fetch·XHR·WebSocket 연결 출처',en:'fetch, XHR, WebSocket connection origins',zh:'fetch·XHR·WebSocket连接来源',ja:'fetch・XHR・WebSocket接続元'}},
+  {key:'frame-src',desc:{ko:'iframe 출처',en:'Frame/iframe origins',zh:'iframe来源',ja:'iframe元'}},
+  {key:'media-src',desc:{ko:'오디오·비디오 출처',en:'Audio/video origins',zh:'音视频来源',ja:'音声・動画元'}},
+  {key:'object-src',desc:{ko:'플러그인 객체 출처 (Flash 등)',en:'Plugin object origins (Flash etc.)',zh:'插件对象来源',ja:'プラグインオブジェクト元'}},
+  {key:'frame-ancestors',desc:{ko:'이 페이지를 embed할 수 있는 부모 출처',en:'Parent origins that can embed this page',zh:'可嵌入此页面的父级来源',ja:'このページを埋め込める親オリジン'}},
+  {key:'form-action',desc:{ko:'폼 제출 대상 URL',en:'Form submission target URLs',zh:'表单提交目标URL',ja:'フォーム送信先URL'}},
+  {key:'base-uri',desc:{ko:'<base> 태그에 허용된 URL',en:'Allowed URLs for <base> tag',zh:'<base>标签允许的URL',ja:'<base>タグに許可されるURL'}},
+];
+const KEYWORDS=["'self'","'none'","'unsafe-inline'","'unsafe-eval'","*","data:","https:","http:","blob:"];
+
+const _i18n={
+  ko:{pageTitle:'CSP 생성기 - Content Security Policy 헤더 생성 | MODOO HUB',h1Span:'생성기',sub:'Content Security Policy 지시어 설정 → 헤더 값·서버 설정 즉시 생성',backLink:'← 모두의 툴',langBtn:'🌐 EN',labelDirectives:'지시어 설정',labelHeader:'헤더 값',labelMeta:'HTML Meta 태그',labelNginx:'Nginx 설정',labelApache:'Apache 설정',btnCopy:'복사',copyDone:'복사됨 ✓',
+    seoHtml:`<h2>CSP(Content Security Policy)란?</h2><p>CSP는 브라우저가 로드할 수 있는 리소스 출처를 제한하는 HTTP 응답 헤더입니다. <strong>XSS(크로스 사이트 스크립팅), 데이터 인젝션, 클릭재킹</strong> 등의 공격을 방어합니다. script-src에 허용된 출처 외의 스크립트는 실행이 차단됩니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>'self'와 '*'의 차이는?</summary><p>'self'는 현재 페이지와 동일한 오리진(프로토콜+도메인+포트)만 허용합니다. '*'는 모든 출처를 허용하므로 CSP의 보안 효과를 완전히 없앱니다. 가능한 한 구체적인 도메인을 명시하세요.</p></details>
+<details class="faq-item"><summary>'unsafe-inline'과 'unsafe-eval'을 피해야 하는 이유는?</summary><p>'unsafe-inline'은 인라인 스크립트/스타일을 허용해 XSS 공격이 가능해집니다. 'unsafe-eval'은 eval()과 유사한 함수를 허용합니다. 대신 nonce-{랜덤값} 또는 hash 기반으로 특정 인라인 코드만 허용하세요.</p></details>
+<details class="faq-item"><summary>CSP를 Report-Only 모드로 테스트하는 방법은?</summary><p>Content-Security-Policy-Report-Only 헤더를 사용하면 차단하지 않고 위반 사항만 보고합니다. report-uri 지시어로 보고 URL을 지정하고 차단 없이 테스트하세요.</p></details>
+<details class="faq-item"><summary>Google Analytics와 CSP 충돌 해결법은?</summary><p>script-src에 'https://www.googletagmanager.com', img-src에 'https://www.google-analytics.com'을 추가하세요. GTM을 사용한다면 nonce 기반 설정이 더 정확합니다.</p></details>
+<details class="faq-item"><summary>default-src와 다른 지시어의 관계는?</summary><p>default-src는 지정되지 않은 다른 지시어의 폴백 역할을 합니다. script-src를 명시하면 script에 대해서는 default-src를 무시합니다. 각 지시어를 개별적으로 세밀하게 설정하는 것이 좋습니다.</p></details>
+<details class="faq-item"><summary>CSP 메타 태그와 HTTP 헤더의 차이는?</summary><p>&lt;meta http-equiv="Content-Security-Policy"&gt;는 HTML에 직접 포함할 수 있어 서버 설정 없이도 사용 가능합니다. 단, frame-ancestors, sandbox, report-uri 등 일부 지시어는 메타 태그에서 지원되지 않습니다.</p></details>
+<details class="faq-item"><summary>nonce 기반 CSP란?</summary><p>서버에서 요청마다 랜덤 nonce를 생성해 스크립트에 nonce="값"으로 추가하고 CSP에 'nonce-값'으로 허용합니다. 인라인 스크립트를 안전하게 허용하는 권장 방법입니다.</p></details>
+<details class="faq-item"><summary>object-src 'none'이 권장되는 이유는?</summary><p>Flash, Java 등 레거시 플러그인은 보안 취약점이 많습니다. object-src 'none'으로 플러그인을 완전히 차단하는 것이 현대 웹 보안 모범 사례입니다.</p></details>`
+  },
+  en:{pageTitle:'CSP Generator - Content Security Policy Header Generator | MODOO HUB',h1Span:'Generator',sub:'Configure CSP directives → instantly generate header value, meta tag & server config',backLink:'← All Tools',langBtn:'🌐 中文',labelDirectives:'Configure Directives',labelHeader:'Header Value',labelMeta:'HTML Meta Tag',labelNginx:'Nginx Config',labelApache:'Apache Config',btnCopy:'Copy',copyDone:'Copied ✓',
+    seoHtml:`<h2>What is CSP (Content Security Policy)?</h2><p>CSP is an HTTP response header that restricts which resource origins a browser can load. It defends against <strong>XSS (Cross-Site Scripting), data injection, and clickjacking</strong>. Scripts from non-whitelisted origins are blocked from executing.</p>
+<h2 class="seo-sub">Frequently Asked Questions</h2>
+<details class="faq-item"><summary>What is the difference between 'self' and '*'?</summary><p>'self' allows only the same origin (protocol + domain + port) as the current page. '*' allows all origins, completely defeating CSP&apos;s security benefit. Always specify concrete domains where possible.</p></details>
+<details class="faq-item"><summary>Why avoid 'unsafe-inline' and 'unsafe-eval'?</summary><p>'unsafe-inline' allows inline scripts and styles, re-enabling XSS attacks. 'unsafe-eval' permits eval() and similar functions. Instead, use nonce-{random} or hash-based allowlists for specific inline code.</p></details>
+<details class="faq-item"><summary>How to test CSP in Report-Only mode?</summary><p>Use the Content-Security-Policy-Report-Only header — it reports violations without blocking. Add a report-uri directive pointing to your reporting endpoint to test without breaking the site.</p></details>
+<details class="faq-item"><summary>How to fix Google Analytics CSP conflicts?</summary><p>Add https://www.googletagmanager.com to script-src and https://www.google-analytics.com to img-src. For GTM, nonce-based configuration is more precise.</p></details>
+<details class="faq-item"><summary>How do default-src and other directives interact?</summary><p>default-src is a fallback for directives not explicitly set. If you set script-src, it overrides default-src for scripts only. Configure each directive individually for fine-grained control.</p></details>
+<details class="faq-item"><summary>CSP meta tag vs HTTP header?</summary><p>The &lt;meta http-equiv="Content-Security-Policy"&gt; tag can be included in HTML without server configuration. However, some directives (frame-ancestors, sandbox, report-uri) are not supported in meta tags.</p></details>
+<details class="faq-item"><summary>What is nonce-based CSP?</summary><p>The server generates a random nonce per request, adds nonce="value" to scripts, and includes 'nonce-value' in the CSP. This is the recommended way to safely allow inline scripts.</p></details>
+<details class="faq-item"><summary>Why is object-src 'none' recommended?</summary><p>Legacy plugins (Flash, Java) have many security vulnerabilities. Setting object-src 'none' completely blocks plugin-based attacks — a modern web security best practice.</p></details>`
+  },
+  zh:{pageTitle:'CSP生成器 - Content Security Policy头生成 | MODOO HUB',h1Span:'生成器',sub:'配置CSP指令 → 即时生成头值·元标签·服务器配置',backLink:'← 所有工具',langBtn:'🌐 日本語',labelDirectives:'配置指令',labelHeader:'头值',labelMeta:'HTML Meta标签',labelNginx:'Nginx配置',labelApache:'Apache配置',btnCopy:'复制',copyDone:'已复制 ✓',
+    seoHtml:`<h2>什么是CSP（内容安全策略）？</h2><p>CSP是限制浏览器可加载资源来源的HTTP响应头，防御<strong>XSS（跨站脚本）、数据注入和点击劫持</strong>等攻击。来自非白名单来源的脚本将被阻止执行。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>'self'和'*'的区别？</summary><p>'self'只允许与当前页面相同的源（协议+域名+端口）。'*'允许所有来源，完全消除CSP的安全效果。请尽可能指定具体域名。</p></details>
+<details class="faq-item"><summary>为什么要避免'unsafe-inline'和'unsafe-eval'？</summary><p>'unsafe-inline'允许内联脚本和样式，重新使XSS攻击成为可能。'unsafe-eval'允许eval()等函数。建议改用nonce-{随机值}或基于hash的白名单来允许特定内联代码。</p></details>
+<details class="faq-item"><summary>如何以Report-Only模式测试CSP？</summary><p>使用Content-Security-Policy-Report-Only头——只报告违规而不阻止。添加report-uri指令指向你的报告端点，无需阻断即可测试。</p></details>
+<details class="faq-item"><summary>如何解决Google Analytics与CSP的冲突？</summary><p>在script-src中添加https://www.googletagmanager.com，在img-src中添加https://www.google-analytics.com。使用GTM时，基于nonce的配置更精确。</p></details>
+<details class="faq-item"><summary>default-src与其他指令的关系？</summary><p>default-src是未明确设置的指令的后备。如果设置了script-src，它仅覆盖脚本的default-src。建议为每个指令单独配置以实现精细控制。</p></details>
+<details class="faq-item"><summary>CSP meta标签与HTTP头的区别？</summary><p>&lt;meta http-equiv="Content-Security-Policy"&gt;可直接包含在HTML中，无需服务器配置。但部分指令（frame-ancestors、sandbox、report-uri）不支持meta标签方式。</p></details>
+<details class="faq-item"><summary>什么是基于nonce的CSP？</summary><p>服务器为每个请求生成随机nonce，在脚本上添加nonce="值"，并在CSP中包含'nonce-值'。这是安全允许内联脚本的推荐方式。</p></details>
+<details class="faq-item"><summary>为什么推荐object-src 'none'？</summary><p>Flash、Java等旧版插件存在大量安全漏洞。设置object-src 'none'完全阻断基于插件的攻击——这是现代Web安全最佳实践。</p></details>`
+  },
+  ja:{pageTitle:'CSPジェネレーター - Content Security Policyヘッダー生成 | MODOO HUB',h1Span:'ジェネレーター',sub:'CSPディレクティブを設定 → ヘッダー値・メタタグ・サーバー設定を即時生成',backLink:'← ホーム',langBtn:'🌐 한국어',labelDirectives:'ディレクティブ設定',labelHeader:'ヘッダー値',labelMeta:'HTML Metaタグ',labelNginx:'Nginx設定',labelApache:'Apache設定',btnCopy:'コピー',copyDone:'コピー完了 ✓',
+    seoHtml:`<h2>CSP（コンテンツセキュリティポリシー）とは</h2><p>CSPはブラウザがロードできるリソース元を制限するHTTPレスポンスヘッダーです。<strong>XSS（クロスサイトスクリプティング）・データインジェクション・クリックジャッキング</strong>などの攻撃を防ぎます。ホワイトリスト外のスクリプトの実行がブロックされます。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>'self'と'*'の違いは？</summary><p>'self'は現在のページと同じオリジン（プロトコル+ドメイン+ポート）のみを許可します。'*'は全てのオリジンを許可しCSPのセキュリティ効果を完全に無効化します。できるだけ具体的なドメインを指定してください。</p></details>
+<details class="faq-item"><summary>'unsafe-inline'と'unsafe-eval'を避けるべき理由は？</summary><p>'unsafe-inline'はインラインスクリプト/スタイルを許可しXSS攻撃を再び可能にします。'unsafe-eval'はeval()等の関数を許可します。代わりにnonce-{ランダム値}またはhashベースで特定インラインコードのみ許可してください。</p></details>
+<details class="faq-item"><summary>CSPをReport-Onlyモードでテストするには？</summary><p>Content-Security-Policy-Report-Onlyヘッダーを使うとブロックせず違反のみ報告します。report-uriディレクティブでレポートURLを指定しサイトを壊さずテストできます。</p></details>
+<details class="faq-item"><summary>Google AnalyticsとCSPの競合解決法は？</summary><p>script-srcにhttps://www.googletagmanager.com、img-srcにhttps://www.google-analytics.comを追加してください。GTMを使う場合はnonceベースの設定がより正確です。</p></details>
+<details class="faq-item"><summary>default-srcと他のディレクティブの関係は？</summary><p>default-srcは明示的に設定されていない他のディレクティブのフォールバックです。script-srcを設定するとスクリプトについてのみdefault-srcを上書きします。各ディレクティブを個別に細かく設定するのが良いでしょう。</p></details>
+<details class="faq-item"><summary>CSP metaタグとHTTPヘッダーの違いは？</summary><p>&lt;meta http-equiv="Content-Security-Policy"&gt;はHTMLに直接含めることができサーバー設定なしで使えます。ただしframe-ancestors・sandbox・report-uri等一部のディレクティブはmetaタグでサポートされていません。</p></details>
+<details class="faq-item"><summary>nonceベースCSPとは？</summary><p>サーバーがリクエストごとにランダムnonceを生成しスクリプトにnonce="値"を追加、CSPに'nonce-値'を含めます。インラインスクリプトを安全に許可する推奨方法です。</p></details>
+<details class="faq-item"><summary>object-src 'none'が推奨される理由は？</summary><p>Flash・Java等のレガシープラグインには多くの脆弱性があります。object-src 'none'でプラグインを完全にブロックするのが現代のWebセキュリティのベストプラクティスです。</p></details>`
+  }
+};
+
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko';
+
+function detectLang(){
+  const u=new URLSearchParams(location.search).get('lang');
+  if(u&&_i18n[u])return u;
+  const s=localStorage.getItem('modoo_lang');
+  if(s&&_i18n[s])return s;
+  const n=navigator.language?.slice(0,2);
+  return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';
+}
+function cycleLang(){
+  const idx=LANGS.indexOf(_lang);
+  _lang=LANGS[(idx+1)%LANGS.length];
+  localStorage.setItem('modoo_lang',_lang);
+  const url=new URL(location.href);
+  url.searchParams.set('lang',_lang);
+  history.replaceState({},'',url);
+  applyLang();
+}
+function applyLang(){
+  const t=_i18n[_lang];
+  document.documentElement.lang=_lang;
+  document.title=t.pageTitle;
+  document.getElementById('h1Span').textContent=t.h1Span;
+  document.getElementById('subEl').textContent=t.sub;
+  document.getElementById('backLink').textContent=t.backLink;
+  document.getElementById('langBtn').textContent=t.langBtn;
+  document.getElementById('labelDirectives').textContent=t.labelDirectives;
+  document.getElementById('labelHeader').textContent=t.labelHeader;
+  document.getElementById('labelMeta').textContent=t.labelMeta;
+  document.getElementById('labelNginx').textContent=t.labelNginx;
+  document.getElementById('labelApache').textContent=t.labelApache;
+  document.getElementById('btnCopyHeader').textContent=t.btnCopy;
+  document.getElementById('btnCopyMeta').textContent=t.btnCopy;
+  document.getElementById('btnCopyNginx').textContent=t.btnCopy;
+  document.getElementById('btnCopyApache').textContent=t.btnCopy;
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+  renderDirectiveForm();
+  generate();
+}
+function renderDirectiveForm(){
+  const form=document.getElementById('dirForm');
+  form.innerHTML='';
+  DIRECTIVES.forEach(d=>{
+    const div=document.createElement('div');
+    div.className='dir-row';
+    const desc=d.desc[_lang]||d.desc.en;
+    div.innerHTML=`<div class="dir-name">${d.key}</div><div class="dir-desc">${desc}</div><input type="text" class="dir-input" id="dir_${d.key.replace(/-/g,'_')}" placeholder="" oninput="generate()"><div class="quick-btns">${KEYWORDS.map(k=>`<button class="qbtn" onclick="addKw('${d.key.replace(/-/g,'_')}','${k}')">${k}</button>`).join('')}</div>`;
+    form.appendChild(div);
+  });
+}
+function addKw(id,kw){
+  const el=document.getElementById('dir_'+id);
+  const cur=el.value.trim();
+  const parts=cur?cur.split(/\s+/):[];
+  if(!parts.includes(kw)){parts.push(kw);}
+  el.value=parts.join(' ');
+  generate();
+}
+function generate(){
+  const parts=[];
+  DIRECTIVES.forEach(d=>{
+    const el=document.getElementById('dir_'+d.key.replace(/-/g,'_'));
+    if(!el)return;
+    const v=el.value.trim();
+    if(v)parts.push(d.key+' '+v);
+  });
+  const policy=parts.join('; ');
+  document.getElementById('outHeader').value=policy?'Content-Security-Policy: '+policy:'';
+  document.getElementById('outMeta').value=policy?`<meta http-equiv="Content-Security-Policy" content="${policy}">`:'' ;
+  document.getElementById('outNginx').value=policy?`add_header Content-Security-Policy "${policy}";`:'';
+  document.getElementById('outApache').value=policy?`Header always set Content-Security-Policy "${policy}"`:'';
+}
+function copy(id,btnId){
+  const t=_i18n[_lang];
+  const text=document.getElementById(id).value;
+  if(!text)return;
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn=document.getElementById(btnId);
+    const orig=btn.textContent;
+    btn.textContent=t.copyDone;
+    btn.style.background='var(--green)';btn.style.borderColor='var(--green)';btn.style.color='#000';
+    setTimeout(()=>{btn.textContent=orig;btn.style.background='';btn.style.borderColor='';btn.style.color='';},2000);
+  });
+}
+_lang=detectLang();
+applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

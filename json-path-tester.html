@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JSONPath 테스터 - JSONPath 표현식 즉시 테스트 | MODOO HUB</title>
+<meta name="description" content="JSONPath 표현식을 JSON 데이터에 즉시 테스트. $., .., *, [] 필터 지원. 온라인 JSONPath 평가기.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/json-path-tester.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/json-path-tester.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/json-path-tester.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/json-path-tester.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/json-path-tester.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/json-path-tester.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;font-family:'DM Mono',monospace;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;font-family:'DM Mono',monospace;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:860px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;}
+.label{font-size:11px;color:var(--text-dim);letter-spacing:.07em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:6px;}
+textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;resize:vertical;outline:none;line-height:1.6;}
+textarea:focus{border-color:var(--accent);}
+input[type=text]{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;outline:none;}
+input[type=text]:focus{border-color:var(--accent);}
+.btn-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+.btn{padding:8px 20px;border:1px solid var(--border);border-radius:7px;font-size:12px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;background:none;color:var(--text-muted);transition:all .15s;}
+.btn:hover{border-color:var(--accent);color:var(--accent);}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;}
+.btn.primary:hover{opacity:.85;}
+.result-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;min-height:80px;font-family:'DM Mono',monospace;font-size:11px;line-height:1.7;white-space:pre-wrap;word-break:break-all;}
+.result-box.ok{border-color:rgba(74,222,128,.3);}
+.result-box.err{border-color:rgba(248,113,113,.3);color:var(--red);}
+.chip-list{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+.chip{font-family:'DM Mono',monospace;font-size:11px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:2px 8px;cursor:pointer;color:var(--text-muted);}
+.chip:hover{border-color:var(--accent);color:var(--accent);}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"JSONPath Tester","url":"https://modoohub.com/json-path-tester.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Test JSONPath expressions against JSON data instantly. Supports $., .., *, and filter expressions."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"JSONPath란?","acceptedAnswer":{"@type":"Answer","text":"JSONPath는 JSON 데이터에서 특정 값을 추출하기 위한 쿼리 언어입니다. XPath의 JSON 버전으로, $., .., *, [] 등의 구문을 사용합니다."}},{"@type":"Question","name":"JSONPath와 JMESPath 차이는?","acceptedAnswer":{"@type":"Answer","text":"JSONPath는 더 광범위하게 사용되며 대부분의 언어 라이브러리가 지원합니다. JMESPath는 AWS CLI에서 사용하는 표준으로, 더 엄격한 스펙을 가집니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1><span>JSONPath</span> <span id="h1b">테스터</span></h1>
+  <p class="sub" id="subEl">JSONPath 표현식 입력 → 즉시 결과 추출</p>
+  <div class="panel">
+    <div class="label" id="labelJson">JSON 데이터</div>
+    <textarea id="jsonIn" rows="8" placeholder='{"store":{"books":[{"title":"A","price":9.99},{"title":"B","price":14.99}],"name":"MyStore"}}'></textarea>
+  </div>
+  <div class="panel">
+    <div class="label" id="labelPath">JSONPath 표현식</div>
+    <div class="chip-list" id="chipList"></div>
+    <input type="text" id="pathIn" placeholder="$.store.books[*].title" oninput="evaluate()">
+    <div class="btn-row">
+      <button class="btn primary" onclick="evaluate()" id="btnEval">실행</button>
+      <button class="btn" onclick="clearAll()" id="btnClear">초기화</button>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="label" id="labelResult">결과</div>
+    <div class="result-box" id="resultBox"></div>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const EXAMPLES=[
+  '$.store.name',
+  '$.store.books[*].title',
+  '$.store.books[0]',
+  '$.store.books[-1]',
+  '$.store.books[?(@.price > 10)]',
+  '$..title',
+  '$.store.*',
+];
+const _i18n={
+  ko:{pageTitle:'JSONPath 테스터 - JSONPath 표현식 즉시 테스트 | MODOO HUB',h1b:'테스터',sub:'JSONPath 표현식 입력 → 즉시 결과 추출',backLink:'← 모두의 툴',langBtn:'🌐 EN',labelJson:'JSON 데이터',labelPath:'JSONPath 표현식',labelResult:'결과',btnEval:'실행',btnClear:'초기화',errParse:'JSON 파싱 오류: ',noMatch:'결과 없음',
+    seoHtml:`<h2>JSONPath 테스터란?</h2><p><strong>JSONPath</strong>는 XPath의 JSON 버전으로, JSON 데이터에서 특정 값을 추출하는 쿼리 언어입니다. $ (루트), . (자식), .. (재귀), * (와일드카드), [] (인덱스/필터) 구문을 지원합니다. API 응답 분석, 데이터 추출, 조건부 필터링에 활용합니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>JSONPath 기본 구문은?</summary><p>$ (루트), . (자식), .. (재귀 하강), * (와일드카드), [n] (n번째 인덱스), [?(@.key > val)] (필터 표현식), [-1] (마지막 요소).</p></details>
+<details class="faq-item"><summary>$.store.books[*].title은 무슨 뜻인가요?</summary><p>루트($) → store → books 배열의 모든 요소(*) → title 필드를 추출합니다.</p></details>
+<details class="faq-item"><summary>재귀 하강(..)이란?</summary><p>$..title은 JSON의 모든 깊이에서 title 키를 찾아 값을 반환합니다.</p></details>
+<details class="faq-item"><summary>필터 표현식은?</summary><p>[?(@.price > 10)]처럼 조건식을 사용해 배열 요소를 필터링할 수 있습니다. @는 현재 요소를 의미합니다.</p></details>
+<details class="faq-item"><summary>JSONPath vs JMESPath 차이는?</summary><p>JSONPath는 광범위하게 사용되며 대부분 언어 라이브러리가 지원합니다. JMESPath는 AWS CLI 표준으로 더 엄격한 스펙을 가집니다.</p></details>
+<details class="faq-item"><summary>어떤 언어에서 JSONPath를 쓸 수 있나요?</summary><p>JavaScript(jsonpath-plus), Python(jsonpath-ng), Java(Jayway), Go, Ruby 등 대부분 언어에서 라이브러리를 제공합니다.</p></details>
+<details class="faq-item"><summary>배열 슬라이싱도 가능한가요?</summary><p>표준 JSONPath는 [0:2] 슬라이싱을 지원하는 구현체가 있습니다. 이 도구는 기본 인덱스와 필터를 지원합니다.</p></details>
+<details class="faq-item"><summary>결과가 비어있는 경우는?</summary><p>표현식이 올바르지 않거나 JSON에 해당 경로가 없을 때 빈 결과가 반환됩니다.</p></details>`
+  },
+  en:{pageTitle:'JSONPath Tester - Test JSONPath Expressions Instantly | MODOO HUB',h1b:'Tester',sub:'Enter JSONPath expression → extract results instantly',backLink:'← All Tools',langBtn:'🌐 中文',labelJson:'JSON Data',labelPath:'JSONPath Expression',labelResult:'Result',btnEval:'Run',btnClear:'Clear',errParse:'JSON parse error: ',noMatch:'No match',
+    seoHtml:`<h2>JSONPath Tester</h2><p><strong>JSONPath</strong> is the JSON equivalent of XPath — a query language for extracting values from JSON. Supports $ (root), . (child), .. (recursive descent), * (wildcard), [] (index/filter) syntax. Great for API response analysis, data extraction, and conditional filtering.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>Basic JSONPath syntax?</summary><p>$ (root), . (child), .. (recursive descent), * (wildcard), [n] (index), [?(@.key > val)] (filter), [-1] (last element).</p></details>
+<details class="faq-item"><summary>What does $.store.books[*].title mean?</summary><p>Root ($) → store → all elements (*) of books array → title field.</p></details>
+<details class="faq-item"><summary>What is recursive descent (..)?</summary><p>$..title finds all title keys at any depth in the JSON structure.</p></details>
+<details class="faq-item"><summary>Filter expressions?</summary><p>[?(@.price > 10)] filters array elements by condition. @ refers to the current element.</p></details>
+<details class="faq-item"><summary>JSONPath vs JMESPath?</summary><p>JSONPath is widely supported across languages. JMESPath is the AWS CLI standard with a stricter spec.</p></details>
+<details class="faq-item"><summary>Which languages support JSONPath?</summary><p>JavaScript (jsonpath-plus), Python (jsonpath-ng), Java (Jayway), Go, Ruby — most languages have libraries.</p></details>
+<details class="faq-item"><summary>Array slicing?</summary><p>Some JSONPath implementations support [0:2] slicing. This tool supports basic index and filter expressions.</p></details>
+<details class="faq-item"><summary>Empty result?</summary><p>An empty result means the expression is invalid or the path doesn\'t exist in the JSON.</p></details>`
+  },
+  zh:{pageTitle:'JSONPath测试器 - 即时测试JSONPath表达式 | MODOO HUB',h1b:'测试器',sub:'输入JSONPath表达式 → 即时提取结果',backLink:'← 所有工具',langBtn:'🌐 日本語',labelJson:'JSON数据',labelPath:'JSONPath表达式',labelResult:'结果',btnEval:'运行',btnClear:'清除',errParse:'JSON解析错误: ',noMatch:'无结果',
+    seoHtml:`<h2>JSONPath测试器</h2><p>JSONPath是XPath的JSON版本，用于从JSON数据中提取特定值。支持$（根）、.（子）、..（递归）、*（通配符）、[]（索引/过滤）语法。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>JSONPath基本语法？</summary><p>$（根）、.（子）、..（递归下降）、*（通配符）、[n]（索引）、[?(@.key>val)]（过滤）、[-1]（最后元素）。</p></details>
+<details class="faq-item"><summary>$.store.books[*].title是什么意思？</summary><p>根($) → store → books数组所有元素(*) → title字段。</p></details>
+<details class="faq-item"><summary>递归下降(..)是什么？</summary><p>$..title在JSON所有层级中查找title键并返回值。</p></details>
+<details class="faq-item"><summary>过滤表达式？</summary><p>[?(@.price>10)]用条件过滤数组元素，@表示当前元素。</p></details>
+<details class="faq-item"><summary>JSONPath和JMESPath的区别？</summary><p>JSONPath广泛使用，大多数语言库支持。JMESPath是AWS CLI标准，规范更严格。</p></details>
+<details class="faq-item"><summary>哪些语言支持JSONPath？</summary><p>JavaScript（jsonpath-plus）、Python（jsonpath-ng）、Java（Jayway）、Go、Ruby等都有库。</p></details>
+<details class="faq-item"><summary>支持数组切片吗？</summary><p>部分JSONPath实现支持[0:2]切片，本工具支持基本索引和过滤表达式。</p></details>
+<details class="faq-item"><summary>结果为空是为什么？</summary><p>表达式无效或JSON中不存在该路径时返回空结果。</p></details>`
+  },
+  ja:{pageTitle:'JSONPathテスター - JSONPath式を即時テスト | MODOO HUB',h1b:'テスター',sub:'JSONPath式を入力 → 即時結果抽出',backLink:'← ホーム',langBtn:'🌐 한국어',labelJson:'JSONデータ',labelPath:'JSONPath式',labelResult:'結果',btnEval:'実行',btnClear:'クリア',errParse:'JSONパースエラー: ',noMatch:'一致なし',
+    seoHtml:`<h2>JSONPathテスターとは</h2><p>JSONPathはXPathのJSON版で、JSONデータから特定の値を抽出するクエリ言語です。$（ルート）、.（子）、..（再帰）、*（ワイルドカード）、[]（インデックス/フィルタ）構文をサポートします。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>JSONPathの基本構文は？</summary><p>$（ルート）、.（子）、..（再帰下降）、*（ワイルドカード）、[n]（インデックス）、[?(@.key>val)]（フィルタ）、[-1]（最後の要素）。</p></details>
+<details class="faq-item"><summary>$.store.books[*].titleの意味は？</summary><p>ルート($) → store → booksの全要素(*) → titleフィールドを抽出します。</p></details>
+<details class="faq-item"><summary>再帰下降(..)とは？</summary><p>$..titleはJSONの全ての深さでtitleキーを探して値を返します。</p></details>
+<details class="faq-item"><summary>フィルタ式は？</summary><p>[?(@.price>10)]で配列要素を条件でフィルタリングします。@は現在の要素を指します。</p></details>
+<details class="faq-item"><summary>JSONPathとJMESPathの違いは？</summary><p>JSONPathは広く使われ大部分の言語ライブラリがサポートします。JMESPathはAWS CLIの標準でより厳格な仕様を持ちます。</p></details>
+<details class="faq-item"><summary>どの言語でJSONPathが使えますか？</summary><p>JavaScript（jsonpath-plus）、Python（jsonpath-ng）、Java（Jayway）、Go、Rubyなどにライブラリがあります。</p></details>
+<details class="faq-item"><summary>配列スライスも可能ですか？</summary><p>一部の実装は[0:2]スライスをサポートします。このツールは基本インデックスとフィルタをサポートします。</p></details>
+<details class="faq-item"><summary>結果が空の場合は？</summary><p>式が無効かJSONにそのパスが存在しない場合に空の結果が返ります。</p></details>`
+  }
+};
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko';
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const idx=LANGS.indexOf(_lang);_lang=LANGS[(idx+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){
+  const t=_i18n[_lang];
+  document.documentElement.lang=_lang;document.title=t.pageTitle;
+  document.getElementById('h1b').textContent=t.h1b;document.getElementById('subEl').textContent=t.sub;
+  document.getElementById('backLink').textContent=t.backLink;document.getElementById('langBtn').textContent=t.langBtn;
+  document.getElementById('labelJson').textContent=t.labelJson;document.getElementById('labelPath').textContent=t.labelPath;
+  document.getElementById('labelResult').textContent=t.labelResult;
+  document.getElementById('btnEval').textContent=t.btnEval;document.getElementById('btnClear').textContent=t.btnClear;
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+  const cl=document.getElementById('chipList');
+  cl.innerHTML=EXAMPLES.map(e=>`<span class="chip" onclick="useExample('${e}')">${e}</span>`).join('');
+}
+function useExample(e){document.getElementById('pathIn').value=e;evaluate();}
+function clearAll(){document.getElementById('jsonIn').value='';document.getElementById('pathIn').value='';document.getElementById('resultBox').textContent='';document.getElementById('resultBox').className='result-box';}
+function getByPath(obj,path){
+  const normalized=path.replace(/^\$/,'').replace(/\[(\d+)\]/g,'.$1');
+  const parts=normalized.split('.').filter(Boolean);
+  let current=[obj];
+  for(const part of parts){
+    if(part==='*'){current=current.flatMap(c=>Array.isArray(c)?c:typeof c==='object'&&c?Object.values(c):[]);}
+    else if(part==='..'){
+      const all=[];
+      function recurse(v){all.push(v);if(typeof v==='object'&&v)Object.values(v).forEach(recurse);}
+      current.forEach(recurse);current=all;
+    }
+    else{current=current.map(c=>typeof c==='object'&&c?c[part]:undefined).filter(v=>v!==undefined);}
+  }
+  return current;
+}
+function evaluateFilter(arr,filterExpr){
+  const m=filterExpr.match(/\?\(@\.(\w+)\s*(==|!=|>|>=|<|<=)\s*(.+)\)/);
+  if(!m)return arr;
+  const[,key,op,rawVal]=m;
+  let val;
+  try{val=JSON.parse(rawVal);}catch{val=rawVal.replace(/^['"]|['"]$/g,'');}
+  return arr.filter(item=>{
+    if(typeof item!=='object'||!item)return false;
+    const iv=item[key];
+    if(op==='==')return iv==val;if(op==='!=')return iv!=val;
+    if(op==='>') return iv>val;if(op==='>=')return iv>=val;
+    if(op==='<') return iv<val;if(op==='<=')return iv<=val;
+    return false;
+  });
+}
+function jsonPath(obj,path){
+  if(!path.startsWith('$'))return [];
+  const rest=path.slice(1);
+  const tokens=[];
+  let buf='',inBracket=false;
+  for(let i=0;i<rest.length;i++){
+    const c=rest[i];
+    if(c==='['&&!inBracket){if(buf)tokens.push({type:'key',val:buf.replace(/^\./,'')});buf='[';inBracket=true;}
+    else if(c===']'&&inBracket){buf+=']';tokens.push({type:'bracket',val:buf});buf='';inBracket=false;}
+    else if(c==='.'&&!inBracket&&rest[i+1]==='.'&&!inBracket){if(buf)tokens.push({type:'key',val:buf.replace(/^\./,'')});tokens.push({type:'recursive'});buf='';i++;}
+    else{buf+=c;}
+  }
+  if(buf)tokens.push({type:'key',val:buf.replace(/^\./,'')});
+  let current=[obj];
+  for(const tok of tokens){
+    if(tok.type==='key'){
+      if(tok.val==='*'){current=current.flatMap(c=>Array.isArray(c)?c:typeof c==='object'&&c?Object.values(c):[]);}
+      else if(tok.val){current=current.map(c=>typeof c==='object'&&c?c[tok.val]:undefined).filter(v=>v!==undefined);}
+    } else if(tok.type==='bracket'){
+      const inner=tok.val.slice(1,-1).trim();
+      if(inner==='*'){current=current.flatMap(c=>Array.isArray(c)?c:typeof c==='object'&&c?Object.values(c):[]);}
+      else if(inner.startsWith('?(')){current=current.flatMap(c=>Array.isArray(c)?evaluateFilter(c,inner):[]);}
+      else{
+        const idx=parseInt(inner);
+        if(!isNaN(idx)){current=current.map(c=>Array.isArray(c)?c[idx<0?c.length+idx:idx]:undefined).filter(v=>v!==undefined);}
+      }
+    } else if(tok.type==='recursive'){
+      const all=[];
+      function recurse(v){all.push(v);if(typeof v==='object'&&v)Object.values(v).forEach(recurse);}
+      current.forEach(recurse);current=all;
+    }
+  }
+  return current;
+}
+function evaluate(){
+  const t=_i18n[_lang];
+  const rb=document.getElementById('resultBox');
+  let obj;
+  try{obj=JSON.parse(document.getElementById('jsonIn').value);}catch(e){rb.className='result-box err';rb.textContent=t.errParse+e.message;return;}
+  const path=document.getElementById('pathIn').value.trim();
+  if(!path){rb.className='result-box';rb.textContent='';return;}
+  try{
+    const res=jsonPath(obj,path);
+    if(res.length===0){rb.className='result-box';rb.textContent=t.noMatch;}
+    else{rb.className='result-box ok';rb.textContent=JSON.stringify(res.length===1?res[0]:res,null,2);}
+  }catch(e){rb.className='result-box err';rb.textContent=e.message;}
+}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

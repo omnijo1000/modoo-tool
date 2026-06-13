@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RSA 키 생성기 - RSA 공개키/개인키 쌍 생성 PEM | MODOO HUB</title>
+<meta name="description" content="RSA 2048/4096비트 공개키·개인키 쌍 생성기. PEM 형식 출력. 브라우저 Web Crypto API 사용. 온라인 RSA Key Generator.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/rsa-key-generator.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/rsa-key-generator.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/rsa-key-generator.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/rsa-key-generator.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/rsa-key-generator.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/rsa-key-generator.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--blue:#60a5fa;--red:#f87171;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:900px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
+.controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px;}
+select{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;outline:none;}
+select:focus{border-color:var(--accent);}
+.gen-btn{padding:10px 24px;background:var(--accent);color:#000;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;}
+.gen-btn:hover{background:var(--accent2,#f59e0b);}
+.gen-btn:disabled{opacity:.5;cursor:not-allowed;}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;}
+.panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.panel-title{font-size:11px;color:var(--text-dim);letter-spacing:.07em;text-transform:uppercase;font-family:'DM Mono',monospace;}
+.copy-btn{padding:5px 12px;border:1px solid var(--border);border-radius:6px;font-size:11px;cursor:pointer;background:none;color:var(--text-dim);}
+.copy-btn:hover{border-color:var(--accent);color:var(--accent);}
+textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--green);font-family:'DM Mono',monospace;font-size:11px;resize:vertical;outline:none;line-height:1.5;min-height:180px;}
+textarea.pub{color:var(--blue);}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--text-dim);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin-right:6px;vertical-align:middle;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.info-bar{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;margin-top:8px;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"RSA Key Generator","url":"https://modoohub.com/rsa-key-generator.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Generate RSA 2048/4096-bit public and private key pairs in PEM format using browser Web Crypto API."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"RSA 키 생성기란?","acceptedAnswer":{"@type":"Answer","text":"브라우저 Web Crypto API로 RSA 공개키와 개인키 쌍을 생성합니다. 키는 서버로 전송되지 않아 안전합니다."}},{"@type":"Question","name":"RSA 2048비트와 4096비트 차이는?","acceptedAnswer":{"@type":"Answer","text":"4096비트가 더 강력하지만 느립니다. 대부분의 용도에서 2048비트로 충분합니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>RSA <span id="h1b">키 생성기</span></h1>
+  <p class="sub" id="subEl">RSA 공개키·개인키 쌍을 PEM 형식으로 생성</p>
+  <div class="controls">
+    <select id="sizeSelect">
+      <option value="2048">2048 bits</option>
+      <option value="4096">4096 bits</option>
+    </select>
+    <select id="usageSelect">
+      <option value="sign">서명 / Signing (RSASSA-PKCS1-v1_5)</option>
+      <option value="encrypt">암호화 / Encryption (RSA-OAEP)</option>
+    </select>
+    <button class="gen-btn" id="genBtn" onclick="generateKeys()"><span id="genLabel">키 생성</span></button>
+  </div>
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title" id="pubLabel">공개키 (Public Key)</span>
+      <button class="copy-btn" id="copyPubBtn" onclick="copyKey('pubArea','copyPubBtn')">Copy</button>
+    </div>
+    <textarea class="pub" id="pubArea" readonly placeholder="-----BEGIN PUBLIC KEY-----\n...\n-----END PUBLIC KEY-----"></textarea>
+  </div>
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title" id="privLabel">개인키 (Private Key)</span>
+      <button class="copy-btn" id="copyPrivBtn" onclick="copyKey('privArea','copyPrivBtn')">Copy</button>
+    </div>
+    <textarea id="privArea" readonly placeholder="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----"></textarea>
+    <div class="info-bar" id="infoBar"></div>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const _i18n={
+  ko:{pageTitle:'RSA 키 생성기 - RSA 공개키/개인키 쌍 생성 PEM | MODOO HUB',h1b:'키 생성기',sub:'RSA 공개키·개인키 쌍을 PEM 형식으로 생성',backLink:'← 모두의 툴',langBtn:'🌐 EN',genLabel:'키 생성',genLabelBusy:'생성 중...',pubLabel:'공개키 (Public Key)',privLabel:'개인키 (Private Key)',copied:'✓ 복사됨',copyPub:'공개키 복사',copyPriv:'개인키 복사',
+    seoHtml:`<h2>RSA 키 생성기란?</h2><p>RSA 공개키/개인키 쌍을 브라우저에서 안전하게 생성하는 도구입니다. Web Crypto API를 사용해 키가 서버로 전송되지 않습니다. <strong>SSH, JWT, TLS 인증서, 코드 서명</strong> 등 다양한 보안 시나리오에 활용됩니다. 2048비트와 4096비트를 지원합니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>RSA 키 쌍이란?</summary><p>공개키(암호화/검증)와 개인키(복호화/서명)의 쌍입니다. 공개키는 공개해도 되지만 개인키는 안전하게 보관해야 합니다.</p></details>
+<details class="faq-item"><summary>2048비트 vs 4096비트?</summary><p>4096비트가 더 강력하지만 생성과 연산이 느립니다. 대부분의 현대 시스템에서 2048비트로 충분합니다.</p></details>
+<details class="faq-item"><summary>PEM 형식이란?</summary><p>Privacy-Enhanced Mail의 약자로, Base64로 인코딩된 DER 형식에 헤더/푸터를 추가한 키 저장 형식입니다.</p></details>
+<details class="faq-item"><summary>생성된 키는 서버로 전송되나요?</summary><p>아니요. 브라우저 Web Crypto API로만 처리됩니다. 네트워크 요청이 발생하지 않습니다.</p></details>
+<details class="faq-item"><summary>서명용과 암호화용 차이는?</summary><p>서명용(RSASSA-PKCS1-v1_5)은 JWT, 코드 서명에, 암호화용(RSA-OAEP)은 데이터 암호화에 사용됩니다.</p></details>
+<details class="faq-item"><summary>OpenSSL 명령어로 동일한 작업은?</summary><p>openssl genrsa -out private.pem 2048 && openssl rsa -in private.pem -pubout -out public.pem 으로 생성할 수 있습니다.</p></details>
+<details class="faq-item"><summary>SSH 키와 RSA 키의 차이?</summary><p>SSH는 OpenSSH 전용 포맷(.pub 파일)을 사용하며, 이 도구는 PKCS#8 PEM 형식을 생성합니다.</p></details>
+<details class="faq-item"><summary>JWT에 RSA를 사용하려면?</summary><p>RS256 알고리즘은 RSASSA-PKCS1-v1_5 SHA-256을 사용합니다. 서명용으로 생성한 키를 사용하세요.</p></details>`
+  },
+  en:{pageTitle:'RSA Key Generator - RSA Public/Private Key Pair PEM | MODOO HUB',h1b:'Key Generator',sub:'Generate RSA public & private key pairs in PEM format',backLink:'← All Tools',langBtn:'🌐 中文',genLabel:'Generate Keys',genLabelBusy:'Generating...',pubLabel:'Public Key',privLabel:'Private Key',copied:'✓ Copied',copyPub:'Copy Public Key',copyPriv:'Copy Private Key',
+    seoHtml:`<h2>RSA Key Generator</h2><p>Securely generate RSA public/private key pairs in your browser. Uses Web Crypto API — keys are never sent to a server. Used for <strong>SSH, JWT, TLS certificates, and code signing</strong>. Supports 2048-bit and 4096-bit keys.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>What is an RSA key pair?</summary><p>A pair of public key (encrypt/verify) and private key (decrypt/sign). Share the public key freely; keep the private key secret.</p></details>
+<details class="faq-item"><summary>2048-bit vs 4096-bit?</summary><p>4096-bit is stronger but slower. 2048-bit is sufficient for most modern use cases.</p></details>
+<details class="faq-item"><summary>What is PEM format?</summary><p>Privacy-Enhanced Mail — Base64-encoded DER with header/footer lines. Standard format for storing cryptographic keys.</p></details>
+<details class="faq-item"><summary>Are keys sent to a server?</summary><p>No. Processed entirely in the browser via Web Crypto API. No network requests are made.</p></details>
+<details class="faq-item"><summary>Signing vs encryption usage?</summary><p>Signing (RSASSA-PKCS1-v1_5) is used for JWT and code signing. Encryption (RSA-OAEP) is for encrypting data.</p></details>
+<details class="faq-item"><summary>Equivalent OpenSSL command?</summary><p>openssl genrsa -out private.pem 2048 && openssl rsa -in private.pem -pubout -out public.pem</p></details>
+<details class="faq-item"><summary>Difference from SSH keys?</summary><p>SSH uses OpenSSH format (.pub files). This tool generates PKCS#8 PEM format keys.</p></details>
+<details class="faq-item"><summary>Using RSA with JWT?</summary><p>RS256 uses RSASSA-PKCS1-v1_5 with SHA-256. Generate keys with the signing option.</p></details>`
+  },
+  zh:{pageTitle:'RSA密钥生成器 - RSA公钥/私钥对生成PEM | MODOO HUB',h1b:'密钥生成器',sub:'在浏览器中安全生成RSA公钥和私钥对（PEM格式）',backLink:'← 所有工具',langBtn:'🌐 日本語',genLabel:'生成密钥',genLabelBusy:'生成中...',pubLabel:'公钥 (Public Key)',privLabel:'私钥 (Private Key)',copied:'✓ 已复制',copyPub:'复制公钥',copyPriv:'复制私钥',
+    seoHtml:`<h2>RSA密钥生成器</h2><p>在浏览器中安全生成RSA公钥/私钥对。使用Web Crypto API，密钥不会发送到服务器。适用于SSH、JWT、TLS证书和代码签名。支持2048位和4096位密钥。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>RSA密钥对是什么？</summary><p>公钥（加密/验证）和私钥（解密/签名）的配对。公钥可以公开，私钥必须安全保管。</p></details>
+<details class="faq-item"><summary>2048位 vs 4096位？</summary><p>4096位更强但更慢，大多数现代场景2048位已足够。</p></details>
+<details class="faq-item"><summary>PEM格式是什么？</summary><p>Privacy-Enhanced Mail，Base64编码的DER格式加上头尾行，是存储密钥的标准格式。</p></details>
+<details class="faq-item"><summary>密钥会发送到服务器吗？</summary><p>不会。完全在浏览器通过Web Crypto API处理，不发送任何网络请求。</p></details>
+<details class="faq-item"><summary>签名用和加密用的区别？</summary><p>签名(RSASSA-PKCS1-v1_5)用于JWT和代码签名，加密(RSA-OAEP)用于数据加密。</p></details>
+<details class="faq-item"><summary>等效的OpenSSL命令？</summary><p>openssl genrsa -out private.pem 2048 && openssl rsa -in private.pem -pubout -out public.pem</p></details>
+<details class="faq-item"><summary>与SSH密钥的区别？</summary><p>SSH使用OpenSSH格式(.pub文件)，本工具生成PKCS#8 PEM格式。</p></details>
+<details class="faq-item"><summary>JWT中使用RSA？</summary><p>RS256使用RSASSA-PKCS1-v1_5和SHA-256，选择签名选项生成密钥。</p></details>`
+  },
+  ja:{pageTitle:'RSA鍵生成ツール - RSA公開鍵/秘密鍵ペア生成PEM | MODOO HUB',h1b:'鍵生成ツール',sub:'RSA公開鍵・秘密鍵ペアをPEM形式で生成',backLink:'← ホーム',langBtn:'🌐 한국어',genLabel:'鍵を生成',genLabelBusy:'生成中...',pubLabel:'公開鍵 (Public Key)',privLabel:'秘密鍵 (Private Key)',copied:'✓ コピー済',copyPub:'公開鍵をコピー',copyPriv:'秘密鍵をコピー',
+    seoHtml:`<h2>RSA鍵生成ツールとは</h2><p>ブラウザのWeb Crypto APIを使ってRSA公開鍵/秘密鍵ペアを安全に生成します。鍵はサーバーに送信されません。SSH、JWT、TLS証明書、コード署名に活用できます。2048ビットと4096ビットをサポートします。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>RSA鍵ペアとは？</summary><p>公開鍵（暗号化/検証）と秘密鍵（復号/署名）のペアです。公開鍵は公開できますが秘密鍵は安全に保管してください。</p></details>
+<details class="faq-item"><summary>2048ビット vs 4096ビット？</summary><p>4096ビットがより強力ですが遅いです。ほとんどの用途では2048ビットで十分です。</p></details>
+<details class="faq-item"><summary>PEM形式とは？</summary><p>Privacy-Enhanced Mail — Base64エンコードされたDER形式にヘッダー/フッター行を追加した鍵保存形式です。</p></details>
+<details class="faq-item"><summary>鍵はサーバーに送信されますか？</summary><p>いいえ。Web Crypto APIでブラウザ内のみで処理されます。ネットワークリクエストは発生しません。</p></details>
+<details class="faq-item"><summary>署名用と暗号化用の違いは？</summary><p>署名用(RSASSA-PKCS1-v1_5)はJWTやコード署名に、暗号化用(RSA-OAEP)はデータ暗号化に使います。</p></details>
+<details class="faq-item"><summary>OpenSSLの同等コマンドは？</summary><p>openssl genrsa -out private.pem 2048 && openssl rsa -in private.pem -pubout -out public.pem</p></details>
+<details class="faq-item"><summary>SSH鍵との違いは？</summary><p>SSHはOpenSSH形式(.pubファイル)を使います。このツールはPKCS#8 PEM形式を生成します。</p></details>
+<details class="faq-item"><summary>JWTでRSAを使うには？</summary><p>RS256はRSASSA-PKCS1-v1_5とSHA-256を使います。署名用オプションで生成した鍵を使ってください。</p></details>`
+  }
+};
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko';
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const idx=LANGS.indexOf(_lang);_lang=LANGS[(idx+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
+  document.getElementById('h1b').textContent=t.h1b;document.getElementById('subEl').textContent=t.sub;
+  document.getElementById('backLink').textContent=t.backLink;document.getElementById('langBtn').textContent=t.langBtn;
+  document.getElementById('genLabel').textContent=t.genLabel;
+  document.getElementById('pubLabel').textContent=t.pubLabel;
+  document.getElementById('privLabel').textContent=t.privLabel;
+  document.getElementById('copyPubBtn').textContent=t.copyPub;
+  document.getElementById('copyPrivBtn').textContent=t.copyPriv;
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+}
+function ab2b64(buf){const bytes=new Uint8Array(buf);let str='';for(let i=0;i<bytes.length;i++)str+=String.fromCharCode(bytes[i]);return btoa(str);}
+function wrapPem(b64,type){const WRAP=64;let out='-----BEGIN '+type+'-----\n';for(let i=0;i<b64.length;i+=WRAP)out+=b64.slice(i,i+WRAP)+'\n';out+='-----END '+type+'-----';return out;}
+async function generateKeys(){
+  const t=_i18n[_lang];
+  const btn=document.getElementById('genBtn');const lbl=document.getElementById('genLabel');
+  btn.disabled=true;lbl.innerHTML=`<span class="spinner"></span>${t.genLabelBusy}`;
+  document.getElementById('pubArea').value='';document.getElementById('privArea').value='';document.getElementById('infoBar').textContent='';
+  const bits=parseInt(document.getElementById('sizeSelect').value);
+  const usage=document.getElementById('usageSelect').value;
+  const algoName=usage==='sign'?'RSASSA-PKCS1-v1_5':'RSA-OAEP';
+  const keyUsages=usage==='sign'?['sign','verify']:['encrypt','decrypt'];
+  try{
+    const t0=Date.now();
+    const kp=await crypto.subtle.generateKey({name:algoName,modulusLength:bits,publicExponent:new Uint8Array([1,0,1]),hash:'SHA-256'},true,keyUsages);
+    const pubDer=await crypto.subtle.exportKey('spki',kp.publicKey);
+    const privDer=await crypto.subtle.exportKey('pkcs8',kp.privateKey);
+    const elapsed=((Date.now()-t0)/1000).toFixed(2);
+    document.getElementById('pubArea').value=wrapPem(ab2b64(pubDer),'PUBLIC KEY');
+    document.getElementById('privArea').value=wrapPem(ab2b64(privDer),'PRIVATE KEY');
+    document.getElementById('infoBar').textContent=`${bits}-bit RSA | ${algoName} | ${elapsed}s`;
+  }catch(e){
+    document.getElementById('infoBar').textContent='Error: '+e.message;
+  }
+  btn.disabled=false;lbl.textContent=t.genLabel;
+}
+function copyKey(id,btnId){
+  const t=_i18n[_lang];const val=document.getElementById(id).value;if(!val)return;
+  navigator.clipboard.writeText(val).then(()=>{
+    const btn=document.getElementById(btnId);const orig=btn.textContent;btn.textContent=t.copied;setTimeout(()=>btn.textContent=orig,1500);
+  });
+}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

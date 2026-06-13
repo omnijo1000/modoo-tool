@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>User-Agent 파서 - 브라우저·OS·디바이스 분석 | MODOO HUB</title>
+<meta name="description" content="User-Agent 문자열을 파싱하세요. 브라우저 종류·버전, OS, 디바이스 타입(모바일/데스크탑/봇)을 즉시 분석. 내 UA도 확인 가능.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/user-agent-parser.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/user-agent-parser.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/user-agent-parser.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/user-agent-parser.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/user-agent-parser.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/user-agent-parser.html">
+<meta property="og:title" content="User-Agent 파서 - 브라우저·OS·디바이스 분석">
+<meta property="og:description" content="UA 문자열을 파싱해 브라우저·OS·디바이스 타입 즉시 분석.">
+<meta property="og:image" content="https://modoohub.com/og-image.png">
+<meta property="og:url" content="https://modoohub.com/user-agent-parser.html">
+<meta property="og:type" content="website">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;font-family:'DM Mono',monospace;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;font-family:'DM Mono',monospace;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:800px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;line-height:1.6;}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:16px;}
+.field-label{font-size:11px;color:var(--text-dim);letter-spacing:.06em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:6px;display:block;}
+.field-ta{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:10px 12px;color:var(--text);font-size:12px;font-family:'DM Mono',monospace;resize:vertical;min-height:80px;outline:none;line-height:1.7;transition:border-color .15s;}
+.field-ta:focus{border-color:var(--accent);}
+.btn-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.btn{padding:8px 20px;border:1px solid var(--border);border-radius:7px;font-size:12px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;background:none;color:var(--text-muted);transition:all .15s;}
+.btn:hover{border-color:var(--accent);color:var(--accent);}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;}
+.btn.primary:hover{opacity:.85;}
+.btn.secondary{border-color:var(--border);color:var(--text-dim);}
+.results{display:none;}
+.results.show{display:block;}
+.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+@media(max-width:580px){.result-grid{grid-template-columns:1fr;}}
+.result-item{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+.result-label{font-size:10px;font-family:'DM Mono',monospace;color:var(--text-dim);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;}
+.result-value{font-size:14px;font-weight:700;color:var(--text);}
+.result-value.accent{color:var(--accent);}
+.result-value.blue{color:var(--blue);}
+.result-value.green{color:var(--green);}
+.result-value.purple{color:var(--purple);}
+.result-value.red{color:var(--red);}
+.ua-raw{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);word-break:break-all;line-height:1.7;margin-bottom:16px;}
+.ua-label{font-size:10px;color:var(--text-dim);letter-spacing:.07em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:6px;}
+.token-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+.token{padding:3px 8px;border-radius:4px;font-size:11px;font-family:'DM Mono',monospace;background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:32px;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebApplication",
+  "name":"User-Agent Parser",
+  "url":"https://modoohub.com/user-agent-parser.html",
+  "applicationCategory":"UtilitiesApplication",
+  "operatingSystem":"Any",
+  "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},
+  "description":"Parse User-Agent strings to identify browser, OS, device type (mobile/desktop/bot), and version information instantly."
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"FAQPage",
+  "mainEntity":[
+    {"@type":"Question","name":"User-Agent란 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"User-Agent(UA)는 브라우저나 봇이 HTTP 요청 시 서버에 자신을 식별하는 문자열입니다. 브라우저 종류, 버전, OS, 렌더링 엔진 정보를 포함합니다."}},
+    {"@type":"Question","name":"봇과 일반 브라우저 UA의 차이는?","acceptedAnswer":{"@type":"Answer","text":"Googlebot, Bingbot 등 크롤러는 UA에 bot, crawler, spider 키워드를 포함합니다. 일부 봇은 탐지를 피하려고 일반 브라우저 UA를 사용하기도 합니다."}}
+  ]
+}
+</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>User-Agent <span id="h1Span">파서</span></h1>
+  <p class="sub" id="subEl">UA 문자열 파싱·브라우저·OS·디바이스 타입 즉시 분석</p>
+
+  <div class="panel">
+    <label class="field-label" id="labelInput">User-Agent 문자열</label>
+    <textarea class="field-ta" id="uaInput" placeholder="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36..."></textarea>
+    <div class="btn-row">
+      <button class="btn primary" id="btnParse" onclick="parseUA()">파싱</button>
+      <button class="btn secondary" id="btnMyUA" onclick="useMyUA()">내 UA 사용</button>
+      <button class="btn" id="btnClear" onclick="clearAll()">초기화</button>
+    </div>
+  </div>
+
+  <div class="results" id="resultsArea">
+    <div class="panel">
+      <div class="ua-label" id="labelRaw">원본 UA</div>
+      <div class="ua-raw" id="uaRaw"></div>
+      <div class="result-grid" id="resultGrid"></div>
+      <div class="ua-label" id="labelTokens">UA 토큰</div>
+      <div class="token-list" id="tokenList"></div>
+    </div>
+  </div>
+
+  <div class="seo" id="seoDiv"></div>
+  <footer>User-Agent Parser · Free Online Tool · modoohub.com</footer>
+</main>
+<script>
+const _i18n={
+  ko:{
+    pageTitle:'User-Agent 파서 - 브라우저·OS·디바이스 분석 | MODOO HUB',
+    h1Span:'파서',sub:'UA 문자열 파싱·브라우저·OS·디바이스 타입 즉시 분석',
+    backLink:'← 모두의 툴',langBtn:'🌐 EN',
+    labelInput:'User-Agent 문자열',btnParse:'파싱',btnMyUA:'내 UA 사용',btnClear:'초기화',
+    labelRaw:'원본 UA',labelTokens:'UA 토큰',
+    lBrowser:'브라우저',lBrowserVer:'브라우저 버전',lEngine:'렌더링 엔진',lOs:'운영체제',
+    lOsVer:'OS 버전',lDevice:'디바이스',lArch:'아키텍처',lType:'타입',
+    tMobile:'모바일',tTablet:'태블릿',tDesktop:'데스크탑',tBot:'봇/크롤러',tUnknown:'알 수 없음',
+    seoHtml:`<h2>User-Agent(UA)란?</h2><p>User-Agent는 브라우저나 크롤러 봇이 HTTP 요청 시 서버에 자신을 식별하는 문자열입니다. 브라우저 종류, 버전, 운영체제, 렌더링 엔진 정보를 포함합니다. 서버는 UA를 통해 <strong>모바일/데스크탑 분기, 봇 탐지, 통계 수집</strong> 등을 처리합니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>내 User-Agent를 어떻게 확인하나요?</summary><p>브라우저 개발자 도구 콘솔에서 <code>navigator.userAgent</code>를 입력하면 확인할 수 있습니다. 이 페이지의 "내 UA 사용" 버튼을 클릭해도 현재 브라우저 UA가 자동으로 입력됩니다.</p></details>
+<details class="faq-item"><summary>User-Agent를 변경할 수 있나요?</summary><p>크롬 개발자 도구 → Network Conditions → User agent 섹션에서 변경 가능합니다. 또는 브라우저 확장 프로그램을 사용하면 웹사이트에 다른 UA로 보이게 할 수 있습니다.</p></details>
+<details class="faq-item"><summary>봇과 크롤러를 UA로 탐지하는 방법은?</summary><p>Googlebot, Bingbot 등은 UA에 bot, crawler, spider 키워드를 포함합니다. <code>if(/bot|crawler|spider/i.test(navigator.userAgent))</code> 패턴으로 기본적인 감지가 가능합니다.</p></details>
+<details class="faq-item"><summary>모바일과 데스크탑을 UA로 구분하는 방법은?</summary><p>모바일 UA에는 Mobi, Android, iPhone 등의 키워드가 포함됩니다. 그러나 UA 기반 탐지보다 CSS 미디어 쿼리나 window.innerWidth를 사용한 반응형 디자인이 더 정확하고 유지보수가 쉽습니다.</p></details>
+<details class="faq-item"><summary>User-Agent Reduction이란?</summary><p>Chrome 107+부터 Privacy Sandbox 정책으로 UA에서 마이너 버전, OS 버전 등 일부 정보가 제거되었습니다. 상세 정보는 User-Agent Client Hints API(navigator.userAgentData)를 통해 필요시에만 요청할 수 있습니다.</p></details>
+<details class="faq-item"><summary>검색 엔진 크롤러 UA 목록은?</summary><p>주요 크롤러: Googlebot(Mozilla/5.0...Googlebot/2.1), Bingbot(bingbot/2.0), Yandexbot, DuckDuckBot, facebookexternalhit(소셜 공유 미리보기), Twitterbot 등이 있습니다.</p></details>
+<details class="faq-item"><summary>AppleWebKit/537.36은 무엇인가요?</summary><p>WebKit은 Apple이 개발한 브라우저 엔진입니다. Chrome, Edge, Opera 등 Blink 기반 브라우저도 호환성을 위해 537.36을 고정값으로 포함합니다. 실제 렌더링 엔진 버전은 Chrome/xxx 부분을 확인하세요.</p></details>
+<details class="faq-item"><summary>UA 파싱 시 주의사항은?</summary><p>UA는 클라이언트가 임의로 조작할 수 있어 완전히 신뢰해서는 안 됩니다. 서버 사이드 로직이나 보안에 UA를 사용하면 우회될 수 있습니다. 통계, 분기 처리 등 참고용으로만 사용하세요.</p></details>`
+  },
+  en:{
+    pageTitle:'User-Agent Parser - Detect Browser, OS & Device Type | MODOO HUB',
+    h1Span:'Parser',sub:'Parse UA strings · detect browser, OS, device type instantly',
+    backLink:'← All Tools',langBtn:'🌐 中文',
+    labelInput:'User-Agent String',btnParse:'Parse',btnMyUA:'Use My UA',btnClear:'Clear',
+    labelRaw:'Raw UA',labelTokens:'UA Tokens',
+    lBrowser:'Browser',lBrowserVer:'Browser Version',lEngine:'Engine',lOs:'Operating System',
+    lOsVer:'OS Version',lDevice:'Device',lArch:'Architecture',lType:'Type',
+    tMobile:'Mobile',tTablet:'Tablet',tDesktop:'Desktop',tBot:'Bot/Crawler',tUnknown:'Unknown',
+    seoHtml:`<h2>What is a User-Agent?</h2><p>A User-Agent (UA) is a string sent in HTTP requests that identifies the browser, crawler, or app making the request. It contains browser name, version, operating system, and rendering engine info. Servers use UAs for <strong>mobile/desktop routing, bot detection, and analytics</strong>.</p>
+<h2 class="seo-sub">Frequently Asked Questions</h2>
+<details class="faq-item"><summary>How do I check my User-Agent?</summary><p>Type <code>navigator.userAgent</code> in the browser console, or click "Use My UA" on this page to auto-fill your current browser UA.</p></details>
+<details class="faq-item"><summary>Can I change my User-Agent?</summary><p>In Chrome DevTools → Network Conditions → User agent section you can override it. Browser extensions can also spoof the UA sent to websites.</p></details>
+<details class="faq-item"><summary>How to detect bots via UA?</summary><p>Googlebot, Bingbot, and other crawlers include bot, crawler, or spider keywords in their UA. Basic detection: <code>if(/bot|crawler|spider/i.test(navigator.userAgent))</code>. Note: some bots spoof browser UAs.</p></details>
+<details class="faq-item"><summary>How to detect mobile vs desktop via UA?</summary><p>Mobile UAs typically contain Mobi, Android, or iPhone keywords. However, CSS media queries or <code>window.innerWidth</code> are more reliable for responsive design than UA-based detection.</p></details>
+<details class="faq-item"><summary>What is User-Agent Reduction?</summary><p>From Chrome 107+, Privacy Sandbox reduced UA detail — minor version numbers and OS versions are frozen. Use the User-Agent Client Hints API (<code>navigator.userAgentData</code>) to request specific details only when needed.</p></details>
+<details class="faq-item"><summary>What are the major search engine crawler UAs?</summary><p>Key crawlers: Googlebot (Mozilla/5.0...Googlebot/2.1), Bingbot (bingbot/2.0), YandexBot, DuckDuckBot, facebookexternalhit (social preview), and Twitterbot.</p></details>
+<details class="faq-item"><summary>What is AppleWebKit/537.36?</summary><p>WebKit is Apple&apos;s browser engine. Chromium-based browsers (Chrome, Edge, Opera) include AppleWebKit/537.36 as a frozen compatibility token. The actual version is in the Chrome/xxx part of the UA.</p></details>
+<details class="faq-item"><summary>Caveats when parsing UA strings?</summary><p>UAs can be spoofed by clients and should never be trusted for security decisions. Use UA parsing only for analytics, UI hints, or progressive enhancement — never for access control.</p></details>`
+  },
+  zh:{
+    pageTitle:'User-Agent解析器 - 检测浏览器·OS·设备类型 | MODOO HUB',
+    h1Span:'解析器',sub:'解析UA字符串·即时检测浏览器·OS·设备类型',
+    backLink:'← 所有工具',langBtn:'🌐 日本語',
+    labelInput:'User-Agent字符串',btnParse:'解析',btnMyUA:'使用我的UA',btnClear:'清除',
+    labelRaw:'原始UA',labelTokens:'UA令牌',
+    lBrowser:'浏览器',lBrowserVer:'浏览器版本',lEngine:'渲染引擎',lOs:'操作系统',
+    lOsVer:'系统版本',lDevice:'设备',lArch:'架构',lType:'类型',
+    tMobile:'移动设备',tTablet:'平板',tDesktop:'桌面',tBot:'爬虫/机器人',tUnknown:'未知',
+    seoHtml:`<h2>什么是User-Agent？</h2><p>User-Agent(UA)是HTTP请求中浏览器或爬虫发送的标识字符串，包含浏览器名称、版本、操作系统和渲染引擎信息。服务器用UA进行<strong>移动/桌面分流、爬虫检测和统计分析</strong>。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>如何查看我的User-Agent？</summary><p>在浏览器控制台输入 <code>navigator.userAgent</code>，或点击本页的"使用我的UA"按钮自动填入当前浏览器UA。</p></details>
+<details class="faq-item"><summary>如何修改User-Agent？</summary><p>在Chrome开发者工具 → Network Conditions → User agent部分可以修改。也可使用浏览器扩展程序来伪造发送给网站的UA。</p></details>
+<details class="faq-item"><summary>如何通过UA检测爬虫？</summary><p>Googlebot、Bingbot等爬虫的UA中包含bot、crawler、spider关键词。基本检测：<code>if(/bot|crawler|spider/i.test(navigator.userAgent))</code>。注意：部分爬虫会伪造浏览器UA。</p></details>
+<details class="faq-item"><summary>如何通过UA区分移动设备和桌面？</summary><p>移动UA通常包含Mobi、Android、iPhone等关键词。但相比UA检测，CSS媒体查询或window.innerWidth对响应式设计更可靠。</p></details>
+<details class="faq-item"><summary>什么是User-Agent Reduction？</summary><p>从Chrome 107+开始，Privacy Sandbox减少了UA中的详细信息——次要版本号和OS版本被冻结。如需详细信息，可通过User-Agent Client Hints API(navigator.userAgentData)按需请求。</p></details>
+<details class="faq-item"><summary>主要搜索引擎爬虫UA是什么？</summary><p>主要爬虫：Googlebot(Mozilla/5.0...Googlebot/2.1)、Bingbot(bingbot/2.0)、YandexBot、DuckDuckBot、facebookexternalhit(社交预览)和Twitterbot。</p></details>
+<details class="faq-item"><summary>AppleWebKit/537.36是什么？</summary><p>WebKit是苹果的浏览器引擎。基于Chromium的浏览器(Chrome、Edge、Opera)包含AppleWebKit/537.36作为兼容性标记，实际版本在UA的Chrome/xxx部分。</p></details>
+<details class="faq-item"><summary>解析UA字符串时需注意什么？</summary><p>UA可被客户端伪造，不应用于安全判断。UA解析仅适用于统计、界面提示或渐进增强——绝不用于访问控制。</p></details>`
+  },
+  ja:{
+    pageTitle:'User-Agentパーサー - ブラウザ·OS·デバイス種別を解析 | MODOO HUB',
+    h1Span:'パーサー',sub:'UA文字列を解析·ブラウザ·OS·デバイス種別を即時分析',
+    backLink:'← ホーム',langBtn:'🌐 한국어',
+    labelInput:'User-Agent文字列',btnParse:'解析',btnMyUA:'自分のUAを使用',btnClear:'クリア',
+    labelRaw:'元のUA',labelTokens:'UAトークン',
+    lBrowser:'ブラウザ',lBrowserVer:'ブラウザバージョン',lEngine:'レンダリングエンジン',lOs:'OS',
+    lOsVer:'OSバージョン',lDevice:'デバイス',lArch:'アーキテクチャ',lType:'タイプ',
+    tMobile:'モバイル',tTablet:'タブレット',tDesktop:'デスクトップ',tBot:'ボット/クローラー',tUnknown:'不明',
+    seoHtml:`<h2>User-Agentとは</h2><p>User-Agent(UA)はHTTPリクエスト時にブラウザやクローラーがサーバーに自身を識別させる文字列です。ブラウザ種別・バージョン・OS・レンダリングエンジン情報を含みます。サーバーはUAを<strong>モバイル/デスクトップ振り分け、ボット検出、統計収集</strong>などに使用します。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>自分のUser-Agentを確認するには？</summary><p>ブラウザのコンソールで <code>navigator.userAgent</code> を入力するか、このページの「自分のUAを使用」ボタンをクリックすると現在のブラウザUAが自動入力されます。</p></details>
+<details class="faq-item"><summary>User-Agentを変更できますか？</summary><p>Chrome開発者ツール → Network Conditions → User agentセクションで変更できます。ブラウザ拡張機能を使えばWebサイトに別のUAとして見せることもできます。</p></details>
+<details class="faq-item"><summary>UAでボットを検出する方法は？</summary><p>Googlebot・Bingbot等のクローラーはUAにbot・crawler・spiderキーワードを含みます。基本検出：<code>if(/bot|crawler|spider/i.test(navigator.userAgent))</code>。一部のボットはブラウザUAを偽装します。</p></details>
+<details class="faq-item"><summary>UAでモバイルとデスクトップを区別する方法は？</summary><p>モバイルUAにはMobi・Android・iPhoneなどのキーワードが含まれます。ただしCSSメディアクエリや<code>window.innerWidth</code>を使ったレスポンシブデザインの方が正確で保守しやすいです。</p></details>
+<details class="faq-item"><summary>User-Agent Reductionとは？</summary><p>Chrome 107+からPrivacy SandboxによりUAの詳細情報（マイナーバージョン・OSバージョン等）が削除されました。詳細情報はUser-Agent Client Hints API(<code>navigator.userAgentData</code>)から必要時のみ取得できます。</p></details>
+<details class="faq-item"><summary>主要検索エンジンのクローラーUAは？</summary><p>主要クローラー：Googlebot(Mozilla/5.0...Googlebot/2.1)・Bingbot(bingbot/2.0)・YandexBot・DuckDuckBot・facebookexternalhit(SNSシェアプレビュー)・Twitterbot等があります。</p></details>
+<details class="faq-item"><summary>AppleWebKit/537.36とは？</summary><p>WebKitはAppleのブラウザエンジンです。Chrome・Edge・OperaなどChromiumベースのブラウザも互換性のためAppleWebKit/537.36を固定値として含んでいます。実際のバージョンはChrome/xxx部分を確認してください。</p></details>
+<details class="faq-item"><summary>UA解析の注意点は？</summary><p>UAはクライアントが任意に偽装できるため、セキュリティ判断に使用してはいけません。統計・UI分岐・プログレッシブエンハンスメントの参考用にのみ使用してください。</p></details>`
+  }
+};
+
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko';
+
+function detectLang(){
+  const u=new URLSearchParams(location.search).get('lang');
+  if(u&&_i18n[u])return u;
+  const s=localStorage.getItem('modoo_lang');
+  if(s&&_i18n[s])return s;
+  const n=navigator.language?.slice(0,2);
+  return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';
+}
+function cycleLang(){
+  const idx=LANGS.indexOf(_lang);
+  _lang=LANGS[(idx+1)%LANGS.length];
+  localStorage.setItem('modoo_lang',_lang);
+  const url=new URL(location.href);
+  url.searchParams.set('lang',_lang);
+  history.replaceState({},'',url);
+  applyLang();
+}
+function applyLang(){
+  const t=_i18n[_lang];
+  document.documentElement.lang=_lang;
+  document.title=t.pageTitle;
+  document.getElementById('h1Span').textContent=t.h1Span;
+  document.getElementById('subEl').textContent=t.sub;
+  document.getElementById('backLink').textContent=t.backLink;
+  document.getElementById('langBtn').textContent=t.langBtn;
+  document.getElementById('labelInput').textContent=t.labelInput;
+  document.getElementById('btnParse').textContent=t.btnParse;
+  document.getElementById('btnMyUA').textContent=t.btnMyUA;
+  document.getElementById('btnClear').textContent=t.btnClear;
+  document.getElementById('labelRaw').textContent=t.labelRaw;
+  document.getElementById('labelTokens').textContent=t.labelTokens;
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+}
+function clearAll(){
+  document.getElementById('uaInput').value='';
+  document.getElementById('resultsArea').className='results';
+}
+function useMyUA(){
+  document.getElementById('uaInput').value=navigator.userAgent;
+  parseUA();
+}
+function parseUA(){
+  const ua=document.getElementById('uaInput').value.trim();
+  if(!ua)return;
+  const t=_i18n[_lang];
+  const r=analyze(ua);
+  document.getElementById('uaRaw').textContent=ua;
+  const grid=document.getElementById('resultGrid');
+  grid.innerHTML='';
+  const items=[
+    {label:t.lType,value:r.type,cls:'accent'},
+    {label:t.lBrowser,value:r.browser,cls:'blue'},
+    {label:t.lBrowserVer,value:r.browserVersion,cls:''},
+    {label:t.lEngine,value:r.engine,cls:'purple'},
+    {label:t.lOs,value:r.os,cls:'green'},
+    {label:t.lOsVer,value:r.osVersion,cls:''},
+    {label:t.lDevice,value:r.device,cls:''},
+    {label:t.lArch,value:r.arch,cls:''},
+  ];
+  items.forEach(item=>{
+    const div=document.createElement('div');
+    div.className='result-item';
+    div.innerHTML=`<div class="result-label">${escHtml(item.label)}</div><div class="result-value ${item.cls}">${escHtml(item.value||t.tUnknown)}</div>`;
+    grid.appendChild(div);
+  });
+  // Tokens
+  const tokens=ua.match(/[^()\s]+|\([^)]*\)/g)||[];
+  const tl=document.getElementById('tokenList');
+  tl.innerHTML='';
+  tokens.slice(0,30).forEach(tok=>{
+    const span=document.createElement('span');
+    span.className='token';
+    span.textContent=tok;
+    tl.appendChild(span);
+  });
+  document.getElementById('resultsArea').className='results show';
+}
+function analyze(ua){
+  const t=_i18n[_lang];
+  const r={type:'',browser:'',browserVersion:'',engine:'',os:'',osVersion:'',device:'',arch:''};
+  // Type
+  if(/bot|crawl|spider|slurp|facebookexternalhit|twitterbot|linkedinbot|whatsapp|telegram|applebot|baidu|yandex/i.test(ua)){
+    r.type=t.tBot;
+  } else if(/mobile|android(?!.*tablet)|iphone|ipod|windows phone|blackberry|nokia/i.test(ua)){
+    r.type=t.tMobile;
+  } else if(/tablet|ipad|kindle|silk|playbook/i.test(ua)){
+    r.type=t.tTablet;
+  } else {
+    r.type=t.tDesktop;
+  }
+  // Browser
+  const browsers=[
+    [/Edg\/([0-9.]+)/,'Edge'],
+    [/OPR\/([0-9.]+)/,'Opera'],
+    [/SamsungBrowser\/([0-9.]+)/,'Samsung Browser'],
+    [/UCBrowser\/([0-9.]+)/,'UC Browser'],
+    [/YaBrowser\/([0-9.]+)/,'Yandex Browser'],
+    [/Chrome\/([0-9.]+)/,'Chrome'],
+    [/Firefox\/([0-9.]+)/,'Firefox'],
+    [/Safari\/([0-9.]+)/,'Safari'],
+    [/MSIE ([0-9.]+)/,'Internet Explorer'],
+    [/Trident.*rv:([0-9.]+)/,'Internet Explorer'],
+  ];
+  for(const [re,name] of browsers){
+    const m=ua.match(re);
+    if(m){r.browser=name;r.browserVersion=m[1];break;}
+  }
+  if(!r.browser&&/Googlebot\/([0-9.]+)/i.test(ua)){r.browser='Googlebot';const m=ua.match(/Googlebot\/([0-9.]+)/i);if(m)r.browserVersion=m[1];}
+  // Engine
+  if(/Gecko\/[0-9]/i.test(ua)&&/Firefox/i.test(ua))r.engine='Gecko';
+  else if(/AppleWebKit\/([0-9.]+)/i.test(ua)){
+    const m=ua.match(/AppleWebKit\/([0-9.]+)/i);
+    r.engine='WebKit '+(m?m[1]:'');
+    if(/Chrome\//i.test(ua))r.engine='Blink';
+  }
+  else if(/Trident\/([0-9.]+)/i.test(ua)){const m=ua.match(/Trident\/([0-9.]+)/i);r.engine='Trident '+(m?m[1]:'');}
+  // OS
+  if(/Windows NT ([0-9.]+)/i.test(ua)){
+    r.os='Windows';
+    const m=ua.match(/Windows NT ([0-9.]+)/i);
+    const ver={10:'10/11',6.3:'8.1',6.2:'8',6.1:'7',6.0:'Vista',5.1:'XP'};
+    r.osVersion=m?ver[m[1]]||m[1]:'';
+  } else if(/Mac OS X ([0-9_]+)/i.test(ua)){
+    r.os='macOS';
+    const m=ua.match(/Mac OS X ([0-9_]+)/i);
+    r.osVersion=m?m[1].replace(/_/g,'.'):'';
+  } else if(/Android ([0-9.]+)/i.test(ua)){
+    r.os='Android';
+    const m=ua.match(/Android ([0-9.]+)/i);
+    r.osVersion=m?m[1]:'';
+  } else if(/iPhone OS ([0-9_]+)/i.test(ua)||/iPad.*OS ([0-9_]+)/i.test(ua)){
+    r.os='iOS';
+    const m=ua.match(/OS ([0-9_]+)/i);
+    r.osVersion=m?m[1].replace(/_/g,'.'):'';
+  } else if(/Linux/i.test(ua)){
+    r.os='Linux';
+    if(/Ubuntu/i.test(ua))r.os='Ubuntu';
+    else if(/Fedora/i.test(ua))r.os='Fedora';
+    else if(/Debian/i.test(ua))r.os='Debian';
+  } else if(/CrOS/i.test(ua)){r.os='Chrome OS';}
+  // Device model
+  const dm=ua.match(/\(([^;)]+);/);
+  if(dm)r.device=dm[1].trim().slice(0,40);
+  // Arch
+  if(/x64|Win64|WOW64/i.test(ua))r.arch='x64';
+  else if(/x86_64|amd64/i.test(ua))r.arch='x64';
+  else if(/arm64|aarch64/i.test(ua))r.arch='ARM64';
+  else if(/arm/i.test(ua))r.arch='ARM';
+  else if(/i686|i386|x86/i.test(ua))r.arch='x86';
+  return r;
+}
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+_lang=detectLang();
+applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

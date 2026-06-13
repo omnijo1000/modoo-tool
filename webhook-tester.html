@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Webhook 테스터 - Webhook 요청 수신·검사 | MODOO HUB</title>
+<meta name="description" content="Webhook 페이로드 구조 분석 및 서명 검증 테스트. GitHub/Stripe/Slack 웹훅 형식 분석.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/webhook-tester.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/webhook-tester.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/webhook-tester.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/webhook-tester.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/webhook-tester.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/webhook-tester.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:900px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;}
+.label{font-size:11px;color:var(--text-dim);letter-spacing:.07em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:8px;}
+textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;resize:vertical;outline:none;min-height:160px;line-height:1.6;}
+textarea:focus{border-color:var(--accent);}
+input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;outline:none;margin-bottom:8px;}
+input:focus{border-color:var(--accent);}
+.btn-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+.btn{padding:8px 20px;border:1px solid var(--border);border-radius:7px;font-size:12px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;background:none;color:var(--text-muted);transition:all .15s;}
+.btn:hover{border-color:var(--accent);color:var(--accent);}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;}
+.tabs{display:flex;gap:4px;margin-bottom:12px;}
+.tab{padding:6px 14px;border:1px solid var(--border);border-radius:20px;font-size:11px;cursor:pointer;background:none;color:var(--text-dim);}
+.tab.active{border-color:var(--accent);color:var(--accent);}
+.result-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px;font-family:'DM Mono',monospace;font-size:11px;line-height:1.7;white-space:pre-wrap;word-break:break-all;min-height:60px;}
+.ok{color:var(--green);}
+.err{color:var(--red);}
+.info{color:var(--blue);}
+.key-badge{display:inline-block;background:rgba(96,165,250,.12);color:var(--blue);border-radius:4px;padding:1px 6px;font-size:10px;margin-right:6px;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Webhook Tester","url":"https://modoohub.com/webhook-tester.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Analyze webhook payloads and verify HMAC signatures for GitHub, Stripe, Slack and other webhook providers."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Webhook 서명 검증이란?","acceptedAnswer":{"@type":"Answer","text":"Webhook 발신자가 공유한 시크릿 키로 HMAC-SHA256 서명을 생성해 수신 페이로드의 서명과 비교합니다. 위변조를 감지하는 보안 기능입니다."}},{"@type":"Question","name":"GitHub Webhook 서명 형식은?","acceptedAnswer":{"@type":"Answer","text":"GitHub는 X-Hub-Signature-256 헤더에 sha256=... 형식으로 HMAC-SHA256 서명을 제공합니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>Webhook <span id="h1b">테스터</span></h1>
+  <p class="sub" id="subEl">Webhook 페이로드 분석 및 서명 검증</p>
+  <div class="tabs">
+    <button class="tab active" id="tab1" onclick="switchTab(1)">페이로드 분석</button>
+    <button class="tab" id="tab2" onclick="switchTab(2)">서명 검증</button>
+  </div>
+
+  <div id="section1">
+    <div class="panel">
+      <div class="label" id="labelPayload">Webhook 페이로드 (JSON)</div>
+      <textarea id="payload" placeholder='{"action":"push","repository":{"name":"my-repo"},"commits":[{"id":"abc123","message":"fix: bug","author":{"name":"Alice"}}]}' oninput="analyzePayload()"></textarea>
+      <div class="btn-row">
+        <button class="btn" onclick="loadGithubExample()" id="btnGH">GitHub 예시</button>
+        <button class="btn" onclick="loadStripeExample()" id="btnStripe">Stripe 예시</button>
+        <button class="btn" onclick="clearPayload()" id="btnClear">초기화</button>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="label" id="labelAnalysis">분석 결과</div>
+      <div class="result-box" id="analysisBox"></div>
+    </div>
+  </div>
+
+  <div id="section2" style="display:none">
+    <div class="panel">
+      <div class="label" id="labelSecret">시크릿 키</div>
+      <input id="secret" type="password" placeholder="webhook-secret-key" oninput="verifySignature()">
+      <div class="label" id="labelSig">수신 서명 (X-Hub-Signature-256 등)</div>
+      <input id="signature" placeholder="sha256=abc123..." oninput="verifySignature()">
+      <div class="label" id="labelBody">요청 바디 (raw)</div>
+      <textarea id="rawBody" placeholder='{"action":"push"}' oninput="verifySignature()" style="min-height:100px;"></textarea>
+    </div>
+    <div class="panel">
+      <div class="label" id="labelVerifyResult">검증 결과</div>
+      <div class="result-box" id="verifyBox"></div>
+    </div>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const _i18n={
+  ko:{pageTitle:'Webhook 테스터 - Webhook 요청 수신·검사 | MODOO HUB',h1b:'테스터',sub:'Webhook 페이로드 분석 및 서명 검증',backLink:'← 모두의 툴',langBtn:'🌐 EN',tab1:'페이로드 분석',tab2:'서명 검증',labelPayload:'Webhook 페이로드 (JSON)',labelAnalysis:'분석 결과',labelSecret:'시크릿 키',labelSig:'수신 서명 (X-Hub-Signature-256 등)',labelBody:'요청 바디 (raw)',labelVerifyResult:'검증 결과',btnGH:'GitHub 예시',btnStripe:'Stripe 예시',btnClear:'초기화',sigOk:'✓ 서명 일치 — 페이로드 무결성 확인됨',sigFail:'✗ 서명 불일치 — 페이로드 위변조 또는 잘못된 시크릿',sigComputed:'계산된 서명:',
+    seoHtml:`<h2>Webhook 테스터란?</h2><p>Webhook 페이로드의 구조를 분석하고, HMAC-SHA256 서명을 검증합니다. GitHub, Stripe, Slack 등 주요 플랫폼의 Webhook 형식을 지원합니다. <strong>서명 검증</strong> 탭에서 시크릿 키와 수신 서명, 원시 바디를 입력해 위변조 여부를 확인하세요.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>Webhook이란?</summary><p>이벤트 발생 시 지정된 URL로 HTTP POST 요청을 전송하는 알림 메커니즘입니다. GitHub push, Stripe 결제 완료 등 외부 서비스의 이벤트를 실시간으로 수신할 때 사용합니다.</p></details>
+<details class="faq-item"><summary>서명 검증이 필요한 이유는?</summary><p>Webhook은 외부에서 수신하므로 발신자를 신뢰할 수 없습니다. HMAC 서명으로 정당한 발신자임을 검증합니다.</p></details>
+<details class="faq-item"><summary>GitHub Webhook 서명 형식은?</summary><p>X-Hub-Signature-256 헤더에 sha256=HEX 형식으로 제공됩니다.</p></details>
+<details class="faq-item"><summary>Stripe Webhook 서명은?</summary><p>Stripe-Signature 헤더에 t=타임스탬프,v1=HEX 형식입니다.</p></details>
+<details class="faq-item"><summary>서명 검증 로직은?</summary><p>시크릿 키로 원시 바디를 HMAC-SHA256 해시하고 수신 서명과 비교합니다.</p></details>
+<details class="faq-item"><summary>시크릿 키는 서버로 전송되나요?</summary><p>아니요. 모든 처리는 브라우저(Web Crypto API)에서 이루어집니다.</p></details>
+<details class="faq-item"><summary>JSON 페이로드가 아니어도 분석되나요?</summary><p>JSON이 아닌 경우 파싱 오류를 표시하고 원시 텍스트 정보를 제공합니다.</p></details>
+<details class="faq-item"><summary>실시간 Webhook 수신 테스트는 어떻게 하나요?</summary><p>ngrok 같은 터널링 도구로 로컬 서버를 공개 URL로 노출한 뒤 외부 서비스에 등록하세요.</p></details>`
+  },
+  en:{pageTitle:'Webhook Tester - Analyze & Verify Webhook Payloads | MODOO HUB',h1b:'Tester',sub:'Analyze webhook payloads and verify signatures',backLink:'← All Tools',langBtn:'🌐 中文',tab1:'Payload Analysis',tab2:'Signature Verify',labelPayload:'Webhook Payload (JSON)',labelAnalysis:'Analysis',labelSecret:'Secret Key',labelSig:'Received Signature (X-Hub-Signature-256 etc.)',labelBody:'Request Body (raw)',labelVerifyResult:'Verify Result',btnGH:'GitHub Example',btnStripe:'Stripe Example',btnClear:'Clear',sigOk:'✓ Signature VALID — payload integrity confirmed',sigFail:'✗ Signature INVALID — payload tampered or wrong secret',sigComputed:'Computed signature:',
+    seoHtml:`<h2>Webhook Tester</h2><p>Analyze webhook payload structure and verify HMAC-SHA256 signatures. Supports GitHub, Stripe, Slack, and other major platform webhook formats. Use the <strong>Signature Verify</strong> tab to check whether a payload has been tampered.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>What is a webhook?</summary><p>A notification mechanism that sends an HTTP POST request to a specified URL when an event occurs — e.g., GitHub push, Stripe payment, etc.</p></details>
+<details class="faq-item"><summary>Why verify the signature?</summary><p>Since webhooks come from external sources, you can&apos;t implicitly trust the sender. HMAC signature verification confirms authenticity.</p></details>
+<details class="faq-item"><summary>What is the GitHub webhook signature format?</summary><p>Provided in the X-Hub-Signature-256 header as sha256=HEX.</p></details>
+<details class="faq-item"><summary>What about Stripe webhook signatures?</summary><p>Stripe uses the Stripe-Signature header with t=timestamp,v1=HEX format.</p></details>
+<details class="faq-item"><summary>How does signature verification work?</summary><p>The raw body is HMAC-SHA256 hashed with the secret key and compared to the received signature.</p></details>
+<details class="faq-item"><summary>Is my secret key sent to a server?</summary><p>No. All processing uses the browser-native Web Crypto API — nothing leaves your device.</p></details>
+<details class="faq-item"><summary>What if the payload is not JSON?</summary><p>A parse error is shown and raw text info is provided.</p></details>
+<details class="faq-item"><summary>How to test real-time webhook reception?</summary><p>Use a tunneling tool like ngrok to expose your local server to a public URL, then register it with the external service.</p></details>`
+  },
+  zh:{pageTitle:'Webhook测试器 - 分析和验证Webhook | MODOO HUB',h1b:'测试器',sub:'分析Webhook负载并验证签名',backLink:'← 所有工具',langBtn:'🌐 日本語',tab1:'负载分析',tab2:'签名验证',labelPayload:'Webhook负载 (JSON)',labelAnalysis:'分析结果',labelSecret:'密钥',labelSig:'接收到的签名',labelBody:'请求体 (原始)',labelVerifyResult:'验证结果',btnGH:'GitHub示例',btnStripe:'Stripe示例',btnClear:'清除',sigOk:'✓ 签名有效 — 负载完整性已确认',sigFail:'✗ 签名无效 — 负载被篡改或密钥错误',sigComputed:'计算的签名:',
+    seoHtml:`<h2>Webhook测试器</h2><p>分析Webhook负载结构并验证HMAC-SHA256签名。支持GitHub、Stripe、Slack等主要平台的Webhook格式。在签名验证选项卡中输入密钥、接收的签名和原始请求体来检查是否被篡改。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>什么是Webhook？</summary><p>当事件发生时向指定URL发送HTTP POST请求的通知机制，如GitHub push、Stripe支付等。</p></details>
+<details class="faq-item"><summary>为什么需要验证签名？</summary><p>Webhook来自外部，不能隐式信任发送者。HMAC签名验证确认真实性。</p></details>
+<details class="faq-item"><summary>GitHub Webhook签名格式？</summary><p>在X-Hub-Signature-256请求头中以sha256=HEX格式提供。</p></details>
+<details class="faq-item"><summary>Stripe Webhook签名如何？</summary><p>Stripe使用Stripe-Signature请求头，格式为t=时间戳,v1=HEX。</p></details>
+<details class="faq-item"><summary>签名验证如何工作？</summary><p>用密钥对原始请求体进行HMAC-SHA256哈希，与接收的签名比较。</p></details>
+<details class="faq-item"><summary>密钥会发送到服务器吗？</summary><p>不会，所有处理使用浏览器内置的Web Crypto API完成。</p></details>
+<details class="faq-item"><summary>非JSON负载也能分析吗？</summary><p>显示解析错误并提供原始文本信息。</p></details>
+<details class="faq-item"><summary>如何测试实时Webhook接收？</summary><p>使用ngrok等隧道工具将本地服务器暴露为公共URL，然后在外部服务中注册。</p></details>`
+  },
+  ja:{pageTitle:'Webhookテスター - Webhookペイロード分析・署名検証 | MODOO HUB',h1b:'テスター',sub:'Webhookペイロード分析と署名検証',backLink:'← ホーム',langBtn:'🌐 한국어',tab1:'ペイロード分析',tab2:'署名検証',labelPayload:'Webhookペイロード (JSON)',labelAnalysis:'分析結果',labelSecret:'シークレットキー',labelSig:'受信した署名',labelBody:'リクエストボディ (raw)',labelVerifyResult:'検証結果',btnGH:'GitHub例',btnStripe:'Stripe例',btnClear:'クリア',sigOk:'✓ 署名一致 — ペイロード整合性確認済み',sigFail:'✗ 署名不一致 — ペイロード改ざんまたはシークレット誤り',sigComputed:'計算済み署名:',
+    seoHtml:`<h2>Webhookテスターとは</h2><p>WebhookペイロードのJSON構造を分析し、HMAC-SHA256署名を検証します。GitHub、Stripe、SlackなどのWebhook形式をサポートします。署名検証タブでシークレットキー、受信した署名、生のリクエストボディを入力して改ざんを確認できます。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>Webhookとは？</summary><p>イベント発生時に指定URLへHTTP POSTリクエストを送信する通知メカニズムです。GitHub pushやStripe決済完了などの外部イベントをリアルタイムで受信します。</p></details>
+<details class="faq-item"><summary>署名検証が必要な理由は？</summary><p>Webhookは外部から受信するため送信者を暗黙に信頼できません。HMAC署名で正当な送信者を確認します。</p></details>
+<details class="faq-item"><summary>GitHub Webhook署名形式は？</summary><p>X-Hub-Signature-256ヘッダーにsha256=HEX形式で提供されます。</p></details>
+<details class="faq-item"><summary>Stripe署名は？</summary><p>Stripe-Signatureヘッダーにt=タイムスタンプ,v1=HEX形式です。</p></details>
+<details class="faq-item"><summary>署名検証ロジックは？</summary><p>シークレットキーで生ボディをHMAC-SHA256ハッシュして受信署名と比較します。</p></details>
+<details class="faq-item"><summary>シークレットキーはサーバーに送信されますか？</summary><p>いいえ。すべてブラウザのWeb Crypto APIで処理されます。</p></details>
+<details class="faq-item"><summary>JSON以外のペイロードは？</summary><p>パースエラーを表示し、生テキスト情報を提供します。</p></details>
+<details class="faq-item"><summary>リアルタイムWebhook受信テストは？</summary><p>ngrokなどのトンネリングツールでローカルサーバーを公開URLとして外部サービスに登録します。</p></details>`
+  }
+};
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko';
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const idx=LANGS.indexOf(_lang);_lang=LANGS[(idx+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
+  document.getElementById('h1b').textContent=t.h1b;document.getElementById('subEl').textContent=t.sub;
+  document.getElementById('backLink').textContent=t.backLink;document.getElementById('langBtn').textContent=t.langBtn;
+  document.getElementById('tab1').textContent=t.tab1;document.getElementById('tab2').textContent=t.tab2;
+  document.getElementById('labelPayload').textContent=t.labelPayload;document.getElementById('labelAnalysis').textContent=t.labelAnalysis;
+  document.getElementById('labelSecret').textContent=t.labelSecret;document.getElementById('labelSig').textContent=t.labelSig;
+  document.getElementById('labelBody').textContent=t.labelBody;document.getElementById('labelVerifyResult').textContent=t.labelVerifyResult;
+  document.getElementById('btnGH').textContent=t.btnGH;document.getElementById('btnStripe').textContent=t.btnStripe;
+  document.getElementById('btnClear').textContent=t.btnClear;document.getElementById('seoDiv').innerHTML=t.seoHtml;
+}
+function switchTab(n){
+  document.getElementById('section1').style.display=n===1?'':'none';
+  document.getElementById('section2').style.display=n===2?'':'none';
+  document.getElementById('tab1').className='tab'+(n===1?' active':'');
+  document.getElementById('tab2').className='tab'+(n===2?' active':'');
+}
+function analyzePayload(){
+  const raw=document.getElementById('payload').value.trim();const box=document.getElementById('analysisBox');
+  if(!raw){box.innerHTML='';return;}
+  try{
+    const obj=JSON.parse(raw);
+    const keys=Object.keys(obj);
+    let html=`<span class="info">JSON valid — ${keys.length} top-level keys</span>\n\n`;
+    keys.forEach(k=>{
+      const v=obj[k];const t=Array.isArray(v)?'array['+v.length+']':typeof v;
+      html+=`<span class="key-badge">${k}</span><span style="color:var(--text-dim)">${t}</span>\n`;
+    });
+    if(obj.action)html+=`\n<span style="color:var(--accent)">action: ${obj.action}</span>`;
+    if(obj.event)html+=`\n<span style="color:var(--accent)">event: ${obj.event}</span>`;
+    box.innerHTML=html;
+  }catch(e){box.innerHTML=`<span class="err">JSON parse error: ${e.message}</span>`;}
+}
+function loadGithubExample(){
+  document.getElementById('payload').value=JSON.stringify({"action":"push","ref":"refs/heads/main","repository":{"name":"my-repo","full_name":"alice/my-repo","private":false},"pusher":{"name":"alice","email":"alice@example.com"},"commits":[{"id":"abc123","message":"fix: resolve auth bug","author":{"name":"Alice"}}],"head_commit":{"id":"abc123","message":"fix: resolve auth bug"}},null,2);analyzePayload();
+}
+function loadStripeExample(){
+  document.getElementById('payload').value=JSON.stringify({"id":"evt_test_1234","object":"event","type":"payment_intent.succeeded","data":{"object":{"id":"pi_test_1234","object":"payment_intent","amount":2000,"currency":"usd","status":"succeeded"}},"created":1718000000},null,2);analyzePayload();
+}
+function clearPayload(){document.getElementById('payload').value='';document.getElementById('analysisBox').innerHTML='';}
+async function verifySignature(){
+  const t=_i18n[_lang];
+  const secret=document.getElementById('secret').value;
+  const sig=document.getElementById('signature').value.trim();
+  const body=document.getElementById('rawBody').value;
+  const box=document.getElementById('verifyBox');
+  if(!secret||!sig||!body){box.innerHTML='';return;}
+  try{
+    const enc=new TextEncoder();
+    const key=await crypto.subtle.importKey('raw',enc.encode(secret),{name:'HMAC',hash:'SHA-256'},false,['sign']);
+    const mac=await crypto.subtle.sign('HMAC',key,enc.encode(body));
+    const hex=Array.from(new Uint8Array(mac)).map(b=>b.toString(16).padStart(2,'0')).join('');
+    const computed='sha256='+hex;
+    const match=sig===computed||sig===hex;
+    box.innerHTML=match?`<span class="ok">${t.sigOk}</span>\n${t.sigComputed} ${computed}`:`<span class="err">${t.sigFail}</span>\n${t.sigComputed} ${computed}\n受信: ${sig}`;
+  }catch(e){box.innerHTML=`<span class="err">Error: ${e.message}</span>`;}
+}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

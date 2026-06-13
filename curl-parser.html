@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>cURL 파서 - cURL 명령어 분석·분해 | MODOO HUB</title>
+<meta name="description" content="cURL 명령어를 붙여넣으면 URL, Method, Headers, Body를 자동 분석. 온라인 cURL Parser.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/curl-parser.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/curl-parser.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/curl-parser.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/curl-parser.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/curl-parser.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/curl-parser.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:900px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;}
+.label{font-size:11px;color:var(--text-dim);letter-spacing:.07em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:6px;}
+textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;resize:vertical;outline:none;min-height:100px;line-height:1.6;}
+textarea:focus{border-color:var(--accent);}
+.btn-row{display:flex;gap:8px;margin-top:10px;}
+.btn{padding:8px 20px;border:1px solid var(--border);border-radius:7px;font-size:12px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;background:none;color:var(--text-muted);transition:all .15s;}
+.btn:hover{border-color:var(--accent);color:var(--accent);}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;}
+.result-grid{display:grid;gap:10px;}
+.result-item{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;}
+.result-key{font-size:10px;color:var(--text-dim);font-family:'DM Mono',monospace;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;}
+.result-val{font-family:'DM Mono',monospace;font-size:12px;color:var(--text);line-height:1.6;white-space:pre-wrap;word-break:break-all;}
+.method-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-weight:700;font-size:12px;font-family:'DM Mono',monospace;}
+.m-get{background:rgba(96,165,250,.15);color:var(--blue);}
+.m-post{background:rgba(74,222,128,.15);color:var(--green);}
+.m-put{background:rgba(251,191,36,.15);color:var(--accent);}
+.m-delete{background:rgba(248,113,113,.15);color:var(--red);}
+.m-patch{background:rgba(192,132,252,.15);color:var(--purple);}
+.headers-table{width:100%;}
+.headers-table tr td:first-child{color:var(--text-muted);padding-right:12px;font-weight:600;white-space:nowrap;}
+.headers-table tr td{padding:2px 0;font-size:12px;font-family:'DM Mono',monospace;vertical-align:top;line-height:1.6;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"cURL Parser","url":"https://modoohub.com/curl-parser.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Parse and analyze cURL commands. Extract URL, method, headers, and request body from any cURL command."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"cURL 파서는 어떻게 사용하나요?","acceptedAnswer":{"@type":"Answer","text":"cURL 명령어를 입력창에 붙여넣으면 URL, HTTP 메서드, 헤더, 본문으로 자동 분해됩니다."}},{"@type":"Question","name":"여러 줄 cURL 명령도 지원하나요?","acceptedAnswer":{"@type":"Answer","text":"백슬래시(\\)로 이어진 여러 줄 cURL 명령어도 지원합니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>cURL <span id="h1b">파서</span></h1>
+  <p class="sub" id="subEl">cURL 명령어 → URL·Method·Headers·Body 분해</p>
+  <div class="panel">
+    <div class="label" id="labelIn">cURL 명령어 입력</div>
+    <textarea id="curlIn" placeholder="curl -X POST 'https://api.example.com/users' \&#10;  -H 'Content-Type: application/json' \&#10;  -H 'Authorization: Bearer TOKEN' \&#10;  -d '{&quot;name&quot;:&quot;Alice&quot;}'" oninput="parse()"></textarea>
+    <div class="btn-row">
+      <button class="btn" onclick="loadExample()" id="btnExample">예시</button>
+      <button class="btn" onclick="clearAll()" id="btnClear">초기화</button>
+    </div>
+  </div>
+  <div class="result-grid" id="resultGrid"></div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const _i18n={
+  ko:{pageTitle:'cURL 파서 - cURL 명령어 분석·분해 | MODOO HUB',h1b:'파서',sub:'cURL 명령어 → URL·Method·Headers·Body 분해',backLink:'← 모두의 툴',langBtn:'🌐 EN',labelIn:'cURL 명령어 입력',btnExample:'예시',btnClear:'초기화',url:'URL',method:'Method',headers:'Headers',body:'Body',options:'옵션',noHeaders:'없음',noBody:'없음',
+    seoHtml:`<h2>cURL 파서란?</h2><p>cURL 명령어를 분해해 URL, HTTP 메서드, 헤더, 요청 본문을 시각적으로 표시합니다. 팀원이 공유한 cURL 명령을 분석하거나 디버깅 시 유용합니다. 백슬래시로 이어진 <strong>멀티라인 cURL</strong> 명령도 지원합니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>어떤 cURL 옵션을 파싱하나요?</summary><p>-X/--request, -H/--header, -d/--data, --data-raw, -u/--user, -L/--location, -k/--insecure, -v/--verbose 등을 지원합니다.</p></details>
+<details class="faq-item"><summary>Authorization 헤더를 자동 인식하나요?</summary><p>네. Authorization 헤더가 있으면 헤더 목록에 별도로 표시됩니다.</p></details>
+<details class="faq-item"><summary>JSON 본문이 있으면 예쁘게 표시되나요?</summary><p>본문이 유효한 JSON이면 자동으로 포맷팅해 표시합니다.</p></details>
+<details class="faq-item"><summary>브라우저에서 복사한 cURL도 파싱되나요?</summary><p>브라우저 개발자 도구에서 "cURL로 복사"한 명령어를 그대로 붙여넣기 할 수 있습니다.</p></details>
+<details class="faq-item"><summary>Basic Auth(-u 옵션)도 인식되나요?</summary><p>-u user:password 옵션을 파싱해 Authorization: Basic 형식으로 표시합니다.</p></details>
+<details class="faq-item"><summary>URL 파라미터도 파싱되나요?</summary><p>URL에 포함된 쿼리 파라미터를 파싱해 Key-Value 형태로 표시합니다.</p></details>
+<details class="faq-item"><summary>파싱된 내용은 안전한가요?</summary><p>모든 처리는 브라우저에서 이루어지며 서버로 데이터를 전송하지 않습니다.</p></details>
+<details class="faq-item"><summary>curl-generator.html과 어떻게 다른가요?</summary><p>curl-generator는 UI 입력으로 명령어를 생성하고, curl-parser는 기존 명령어를 분해합니다.</p></details>`
+  },
+  en:{pageTitle:'cURL Parser - Analyze & Decompose cURL Commands | MODOO HUB',h1b:'Parser',sub:'cURL command → URL · Method · Headers · Body',backLink:'← All Tools',langBtn:'🌐 中文',labelIn:'Paste cURL Command',btnExample:'Example',btnClear:'Clear',url:'URL',method:'Method',headers:'Headers',body:'Body',options:'Options',noHeaders:'None',noBody:'None',
+    seoHtml:`<h2>cURL Parser</h2><p>Decompose cURL commands into URL, HTTP method, headers, and request body. Great for analyzing cURL commands shared by teammates or for debugging. Supports <strong>multi-line cURL</strong> commands joined with backslashes.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>Which cURL options are parsed?</summary><p>Supports -X/--request, -H/--header, -d/--data, --data-raw, -u/--user, -L/--location, -k/--insecure, -v/--verbose, and more.</p></details>
+<details class="faq-item"><summary>Is the Authorization header auto-recognized?</summary><p>Yes. Authorization headers are extracted and highlighted separately.</p></details>
+<details class="faq-item"><summary>Is JSON body pretty-printed?</summary><p>If the body is valid JSON, it is automatically formatted for readability.</p></details>
+<details class="faq-item"><summary>Can I paste cURL copied from browser DevTools?</summary><p>Yes. Paste cURL commands copied via "Copy as cURL" from DevTools directly.</p></details>
+<details class="faq-item"><summary>Is Basic Auth (-u) recognized?</summary><p>The -u user:password option is parsed and displayed as Authorization: Basic.</p></details>
+<details class="faq-item"><summary>Are URL query params parsed?</summary><p>Query parameters in the URL are shown as key-value pairs.</p></details>
+<details class="faq-item"><summary>Is the parsing safe?</summary><p>All processing is browser-side. No data is sent to a server.</p></details>
+<details class="faq-item"><summary>How is this different from curl-generator?</summary><p>curl-generator builds a command from UI input; curl-parser decomposes an existing command.</p></details>`
+  },
+  zh:{pageTitle:'cURL解析器 - 在线解析cURL命令 | MODOO HUB',h1b:'解析器',sub:'cURL命令 → URL·方法·请求头·请求体分解',backLink:'← 所有工具',langBtn:'🌐 日本語',labelIn:'粘贴cURL命令',btnExample:'示例',btnClear:'清除',url:'URL',method:'方法',headers:'请求头',body:'请求体',options:'选项',noHeaders:'无',noBody:'无',
+    seoHtml:`<h2>cURL解析器</h2><p>将cURL命令分解为URL、HTTP方法、请求头和请求体。适合分析团队成员共享的cURL命令或调试使用。支持反斜杠连接的多行cURL命令。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>解析哪些cURL选项？</summary><p>支持-X/--request、-H/--header、-d/--data、--data-raw、-u/--user等选项。</p></details>
+<details class="faq-item"><summary>Authorization请求头会自动识别吗？</summary><p>是的，Authorization请求头会单独提取显示。</p></details>
+<details class="faq-item"><summary>JSON请求体会格式化显示吗？</summary><p>如果请求体是有效JSON，会自动格式化显示。</p></details>
+<details class="faq-item"><summary>可以粘贴浏览器开发工具复制的cURL吗？</summary><p>可以，直接粘贴通过开发工具"复制为cURL"的命令即可。</p></details>
+<details class="faq-item"><summary>Basic Auth（-u选项）会识别吗？</summary><p>解析-u user:password选项，显示为Authorization: Basic格式。</p></details>
+<details class="faq-item"><summary>URL查询参数会解析吗？</summary><p>URL中的查询参数会以键值对形式显示。</p></details>
+<details class="faq-item"><summary>解析过程安全吗？</summary><p>所有处理在浏览器端完成，不向服务器发送数据。</p></details>
+<details class="faq-item"><summary>与curl-generator有什么区别？</summary><p>curl-generator通过UI输入生成命令，curl-parser分解已有命令。</p></details>`
+  },
+  ja:{pageTitle:'cURLパーサー - cURLコマンド解析·分解ツール | MODOO HUB',h1b:'パーサー',sub:'cURLコマンド → URL·Method·Headers·Body分解',backLink:'← ホーム',langBtn:'🌐 한국어',labelIn:'cURLコマンドを貼り付け',btnExample:'例を見る',btnClear:'クリア',url:'URL',method:'メソッド',headers:'ヘッダー',body:'ボディ',options:'オプション',noHeaders:'なし',noBody:'なし',
+    seoHtml:`<h2>cURLパーサーとは</h2><p>cURLコマンドをURL、HTTPメソッド、ヘッダー、リクエストボディに分解して表示します。チームメンバーが共有したcURLコマンドの分析やデバッグに便利です。バックスラッシュでつないだ複数行cURLコマンドもサポートします。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>どのcURLオプションを解析しますか？</summary><p>-X/--request、-H/--header、-d/--data、--data-raw、-u/--user、-L、-k、-vなどをサポートします。</p></details>
+<details class="faq-item"><summary>Authorizationヘッダーは自動認識されますか？</summary><p>はい。Authorizationヘッダーは個別に抽出して表示されます。</p></details>
+<details class="faq-item"><summary>JSONボディはpretty-printされますか？</summary><p>有効なJSONの場合、自動でフォーマットして表示します。</p></details>
+<details class="faq-item"><summary>ブラウザDevToolsからコピーしたcURLも貼り付けできますか？</summary><p>はい。DevToolsの「cURLとしてコピー」でコピーしたコマンドをそのまま貼り付けられます。</p></details>
+<details class="faq-item"><summary>Basic Auth（-uオプション）は認識されますか？</summary><p>-u user:passwordオプションを解析してAuthorization: Basic形式で表示します。</p></details>
+<details class="faq-item"><summary>URLのクエリパラメータも解析されますか？</summary><p>URLのクエリパラメータをKey-Value形式で表示します。</p></details>
+<details class="faq-item"><summary>解析は安全ですか？</summary><p>すべての処理はブラウザ内で完結し、サーバーにデータは送信されません。</p></details>
+<details class="faq-item"><summary>curl-generatorとの違いは？</summary><p>curl-generatorはUI入力からコマンドを生成し、curl-parserは既存のコマンドを分解します。</p></details>`
+  }
+};
+const LANGS=['ko','en','zh','ja'];
+let _lang='ko';
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const idx=LANGS.indexOf(_lang);_lang=LANGS[(idx+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
+  document.getElementById('h1b').textContent=t.h1b;document.getElementById('subEl').textContent=t.sub;
+  document.getElementById('backLink').textContent=t.backLink;document.getElementById('langBtn').textContent=t.langBtn;
+  document.getElementById('labelIn').textContent=t.labelIn;document.getElementById('btnExample').textContent=t.btnExample;
+  document.getElementById('btnClear').textContent=t.btnClear;document.getElementById('seoDiv').innerHTML=t.seoHtml;parse();
+}
+function loadExample(){
+  document.getElementById('curlIn').value=`curl -X POST 'https://api.example.com/v1/users' \\\n  -H 'Content-Type: application/json' \\\n  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.example' \\\n  -H 'X-Request-ID: abc-123' \\\n  -d '{"name":"Alice","email":"alice@example.com","role":"admin"}' \\\n  -L -v`;
+  parse();
+}
+function parseCurl(raw){
+  const s=raw.replace(/\\\s*\n/g,' ').replace(/\s+/g,' ').trim();
+  const tokens=tokenize(s);
+  const result={method:'GET',url:'',headers:{},body:'',opts:[]};
+  let i=0;
+  if(tokens[0]&&tokens[0].toLowerCase()==='curl')i++;
+  while(i<tokens.length){
+    const t=tokens[i];
+    if(t==='-X'||t==='--request'){result.method=(tokens[++i]||'GET').toUpperCase();}
+    else if(t==='-H'||t==='--header'){const h=tokens[++i]||'';const ci=h.indexOf(':');if(ci>-1)result.headers[h.slice(0,ci).trim()]=h.slice(ci+1).trim();}
+    else if(t==='-d'||t==='--data'||t==='--data-raw'){result.body=tokens[++i]||'';}
+    else if(t==='-u'||t==='--user'){const u=tokens[++i]||'';result.headers['Authorization']='Basic '+btoa(u);}
+    else if(t==='-L'||t==='--location')result.opts.push('Follow Redirects');
+    else if(t==='-k'||t==='--insecure')result.opts.push('Insecure (skip SSL)');
+    else if(t==='-v'||t==='--verbose')result.opts.push('Verbose');
+    else if(!t.startsWith('-')&&!result.url&&/^https?:\/\//.test(t.replace(/^'/,'').replace(/'$/,'')))result.url=t.replace(/^'/,'').replace(/'$/,'');
+    i++;
+  }
+  if(!result.method&&result.body)result.method='POST';
+  return result;
+}
+function tokenize(s){
+  const tokens=[];let cur='',inQ=false,qCh='';
+  for(const c of s){
+    if(inQ){if(c===qCh)inQ=false;else cur+=c;}
+    else if(c==="'"||c==='"'){inQ=true;qCh=c;}
+    else if(c===' '){if(cur)tokens.push(cur);cur='';}
+    else cur+=c;
+  }
+  if(cur)tokens.push(cur);return tokens;
+}
+function parse(){
+  const raw=document.getElementById('curlIn').value.trim();
+  const grid=document.getElementById('resultGrid');
+  if(!raw){grid.innerHTML='';return;}
+  const t=_i18n[_lang];const r=parseCurl(raw);
+  let body=r.body;let bodyFmt='';
+  try{bodyFmt=JSON.stringify(JSON.parse(body),null,2);}catch{bodyFmt=body;}
+  const mClass='m-'+r.method.toLowerCase();
+  const hdrs=Object.entries(r.headers);
+  let hdrsHtml=hdrs.length?`<table class="headers-table">${hdrs.map(([k,v])=>`<tr><td>${k}:</td><td style="color:var(--text-dim)">${v}</td></tr>`).join('')}</table>`:t.noHeaders;
+  let urlObj=null;let queryHtml='';
+  try{urlObj=new URL(r.url);const p=[...urlObj.searchParams.entries()];
+    if(p.length)queryHtml=`<div class="result-item" style="margin-top:10px"><div class="result-key">Query Params</div><div class="result-val"><table class="headers-table">${p.map(([k,v])=>`<tr><td>${k}:</td><td style="color:var(--text-dim)">${v}</td></tr>`).join('')}</table></div></div>`;
+  }catch{}
+  grid.innerHTML=`
+    <div class="result-item"><div class="result-key">${t.method}</div><div class="result-val"><span class="method-badge ${mClass}">${r.method}</span></div></div>
+    <div class="result-item"><div class="result-key">${t.url}</div><div class="result-val">${r.url||'—'}</div></div>
+    ${queryHtml}
+    <div class="result-item"><div class="result-key">${t.headers}</div><div class="result-val">${hdrsHtml}</div></div>
+    <div class="result-item"><div class="result-key">${t.body}</div><div class="result-val">${bodyFmt||t.noBody}</div></div>
+    ${r.opts.length?`<div class="result-item"><div class="result-key">${t.options}</div><div class="result-val">${r.opts.join(', ')}</div></div>`:''}
+  `;
+}
+function clearAll(){document.getElementById('curlIn').value='';document.getElementById('resultGrid').innerHTML='';}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>
