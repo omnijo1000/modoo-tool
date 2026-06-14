@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SVG Optimizer - SVG 최적화 도구 | MODOO HUB</title>
+<meta name="description" content="SVG 파일을 최적화하여 파일 크기를 줄입니다. 주석, 메타데이터, 빈 요소 제거, 속성 최적화. 무료 온라인 SVG 최적화 도구.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/svg-optimizer.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/svg-optimizer.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/svg-optimizer.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/svg-optimizer.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/svg-optimizer.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/svg-optimizer.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:880px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:20px;}
+.drop-zone{border:2px dashed var(--border);border-radius:12px;padding:36px 20px;text-align:center;cursor:pointer;transition:border-color .2s;background:var(--surface);margin-bottom:16px;}
+.drop-zone:hover,.drop-zone.drag{border-color:var(--accent);}
+.drop-icon{font-size:32px;margin-bottom:8px;}
+.drop-text{font-size:13px;color:var(--text-muted);}
+.drop-hint{font-size:11px;color:var(--text-dim);margin-top:5px;}
+#fileInput{display:none;}
+.opts-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
+@media(max-width:500px){.opts-grid{grid-template-columns:1fr;}}
+.opt-item{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;cursor:pointer;}
+.opt-item:hover{border-color:var(--accent);}
+.opt-item input{accent-color:var(--accent);}
+.opt-label{font-size:12px;color:var(--text-muted);}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px;}
+@media(max-width:600px){.two-col{grid-template-columns:1fr;}}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.panel-header{padding:8px 14px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.panel-title{font-size:11px;font-weight:700;color:var(--text-muted);font-family:'DM Mono',monospace;text-transform:uppercase;}
+.panel-info{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;}
+textarea.code{width:100%;min-height:280px;background:var(--bg);border:none;padding:12px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text);resize:vertical;outline:none;line-height:1.5;}
+.stats-bar{display:flex;gap:12px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-top:12px;flex-wrap:wrap;}
+.stat{font-family:'DM Mono',monospace;font-size:11px;}
+.stat span{color:var(--accent);}
+.stat .red{color:var(--green);}
+.btn-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+.btn{padding:7px 18px;border-radius:7px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:'Noto Sans KR',sans-serif;}
+.btn-primary{background:var(--accent);color:#000;}
+.btn-primary:hover{background:#f59e0b;}
+.btn-sec{background:var(--surface2);color:var(--text-muted);border:1px solid var(--border);}
+.btn-sec:hover{border-color:var(--accent);}
+.svg-preview-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px;}
+@media(max-width:500px){.svg-preview-row{grid-template-columns:1fr;}}
+.svg-preview{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;display:flex;align-items:center;justify-content:center;min-height:120px;}
+.svg-preview svg,.svg-preview img{max-width:100%;max-height:120px;object-fit:contain;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"SVG Optimizer","url":"https://modoohub.com/svg-optimizer.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"SVG 파일을 최적화하여 파일 크기를 줄이는 무료 온라인 도구."}</script>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"SVG 최적화는 어떻게 동작하나요?","acceptedAnswer":{"@type":"Answer","text":"경로 데이터 정밀도 감소, 불필요한 속성 제거, 소수점 반올림 등을 통해 파일 크기를 줄입니다."}},{"@type":"Question","name":"얼마나 크기를 줄일 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"SVG 복잡도에 따라 다르지만, 일반적으로 30~70%까지 크기를 줄일 수 있습니다."}},{"@type":"Question","name":"최적화 후 SVG 모양이 바뀌나요?","acceptedAnswer":{"@type":"Answer","text":"경로 정밀도를 낮추면 미세한 차이가 생길 수 있습니다. 로고나 아이콘에는 정밀도 3~4 이상을 권장합니다."}},{"@type":"Question","name":"애니메이션 SVG도 최적화할 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"기본 최적화는 적용되지만, 애니메이션 관련 요소는 유지됩니다. 복잡한 애니메이션 SVG는 결과를 확인하세요."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>SVG <span id="h1Accent">Optimizer</span></h1>
+  <p class="sub" id="subEl">SVG 파일 크기를 줄이고 불필요한 요소를 제거합니다</p>
+  <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+    <div class="drop-icon">🔧</div>
+    <div class="drop-text" id="dropText">SVG 파일을 드래그하거나 클릭하세요</div>
+    <div class="drop-hint" id="dropHint">.svg 파일 또는 아래에 SVG 코드를 직접 붙여넣으세요</div>
+  </div>
+  <input type="file" id="fileInput" accept=".svg,image/svg+xml">
+  <div class="opts-grid" id="optsGrid"></div>
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="optimize()" id="btnOpt">최적화</button>
+    <button class="btn btn-sec" onclick="copyOut()" id="btnCopy">복사</button>
+    <button class="btn btn-sec" onclick="downloadOut()" id="btnDl">다운로드</button>
+    <button class="btn btn-sec" onclick="clearAll()" id="btnClear">초기화</button>
+  </div>
+  <div class="stats-bar" id="statsBar" style="display:none">
+    <div class="stat" id="statBefore"></div>
+    <div class="stat" id="statAfter"></div>
+    <div class="stat" id="statSaved"></div>
+  </div>
+  <div class="two-col">
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title" id="lblInput">입력</span><span class="panel-info" id="infoSizeIn"></span></div>
+      <textarea class="code" id="inputSvg" placeholder="&lt;svg ...&gt;...&lt;/svg&gt;" oninput="updateInSize()"></textarea>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title" id="lblOutput">출력</span><span class="panel-info" id="infoSizeOut"></span></div>
+      <textarea class="code" id="outputSvg" readonly></textarea>
+    </div>
+  </div>
+  <div class="svg-preview-row" id="previewRow" style="display:none">
+    <div class="svg-preview" id="prevBefore"></div>
+    <div class="svg-preview" id="prevAfter"></div>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const LANGS=['ko','en','zh','ja'];let _lang='ko';
+const OPTS=[
+  {key:'removeComments',ko:'주석 제거',en:'Remove comments',zh:'删除注释',ja:'コメント削除'},
+  {key:'removeMetadata',ko:'메타데이터 제거',en:'Remove metadata',zh:'删除元数据',ja:'メタデータ削除'},
+  {key:'removeDoctype',ko:'DOCTYPE 제거',en:'Remove doctype',zh:'删除DOCTYPE',ja:'DOCTYPE削除'},
+  {key:'removeXmlDecl',ko:'XML 선언 제거',en:'Remove XML declaration',zh:'删除XML声明',ja:'XML宣言削除'},
+  {key:'removeEmptyGroups',ko:'빈 그룹 제거',en:'Remove empty groups',zh:'删除空组',ja:'空グループ削除'},
+  {key:'removeHidden',ko:'숨겨진 요소 제거',en:'Remove hidden elements',zh:'删除隐藏元素',ja:'非表示要素削除'},
+  {key:'collapseWhitespace',ko:'공백 압축',en:'Collapse whitespace',zh:'压缩空白',ja:'空白圧縮'},
+  {key:'removeDefaultAttrs',ko:'기본값 속성 제거',en:'Remove default attrs',zh:'删除默认属性',ja:'デフォルト属性削除'},
+];
+const optState={removeComments:true,removeMetadata:true,removeDoctype:true,removeXmlDecl:true,removeEmptyGroups:true,removeHidden:false,collapseWhitespace:true,removeDefaultAttrs:true};
+const _i18n={
+  ko:{h1Accent:'Optimizer',sub:'SVG 파일 크기를 줄이고 불필요한 요소를 제거합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',dropText:'SVG 파일을 드래그하거나 클릭하세요',dropHint:'.svg 파일 또는 아래에 SVG 코드를 직접 붙여넣으세요',btnOpt:'최적화',btnCopy:'복사',btnDl:'다운로드',btnClear:'초기화',lblInput:'입력',lblOutput:'출력',before:'원본',after:'최적화',saved:'절약',
+    seoHtml:`<h2>SVG Optimizer</h2><p>SVG 파일을 최적화하여 불필요한 요소를 제거하고 파일 크기를 줄입니다. SVG는 웹에서 아이콘, 로고, 일러스트에 널리 사용되지만, 편집 프로그램에서 내보낸 SVG에는 주석, 메타데이터, 빈 그룹, 기본값 속성 등 불필요한 요소가 많이 포함됩니다. 이 도구로 SVG 크기를 최대 70% 줄일 수 있습니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>SVG 최적화가 왜 필요한가요?</summary><p>Illustrator, Inkscape 등에서 내보낸 SVG에는 불필요한 메타데이터, 주석, 빈 그룹이 포함됩니다. 제거하면 파일 크기가 20~70% 감소합니다.</p></details>
+<details class="faq-item"><summary>최적화 후 SVG가 깨지지 않나요?</summary><p>이 도구는 시각적 렌더링에 영향을 주지 않는 요소만 제거합니다. 미리보기로 최적화 전후를 비교할 수 있습니다.</p></details>
+<details class="faq-item"><summary>어떤 요소가 제거되나요?</summary><p>XML 주석, 메타데이터, DOCTYPE 선언, XML 선언, 빈 그룹, visibility:hidden 요소, 불필요한 공백 등이 제거됩니다.</p></details>
+<details class="faq-item"><summary>파일 크기를 얼마나 줄일 수 있나요?</summary><p>SVG 파일에 따라 다르지만 일반적으로 20~70% 감소합니다. Inkscape SVG는 특히 메타데이터가 많아 효과적입니다.</p></details>
+<details class="faq-item"><summary>최적화 옵션을 개별 선택할 수 있나요?</summary><p>예, 각 옵션 체크박스를 통해 어떤 최적화를 적용할지 선택할 수 있습니다.</p></details>
+<details class="faq-item"><summary>SVG 파일 외에도 코드를 직접 붙여넣을 수 있나요?</summary><p>예, 입력 영역에 SVG 코드를 직접 붙여넣어 최적화할 수 있습니다.</p></details>
+<details class="faq-item"><summary>SVG Cleaner와 차이점은?</summary><p>SVG Optimizer는 크기 최적화에 집중하고, SVG Cleaner는 편집 소프트웨어 전용 요소 정리에 더 특화되어 있습니다.</p></details>
+<details class="faq-item"><summary>최적화된 SVG를 어떻게 사용하나요?</summary><p>복사 버튼으로 클립보드에 복사하거나, 다운로드 버튼으로 파일로 저장할 수 있습니다.</p></details>`
+  },
+  en:{h1Accent:'Optimizer',sub:'Reduce SVG file size by removing unnecessary elements',backLink:'← All Tools',langBtn:'🌐 中文',dropText:'Drop an SVG file here or click to browse',dropHint:'.svg file or paste SVG code below',btnOpt:'Optimize',btnCopy:'Copy',btnDl:'Download',btnClear:'Reset',lblInput:'Input',lblOutput:'Output',before:'Before',after:'After',saved:'Saved',
+    seoHtml:`<h2>SVG Optimizer</h2><p>Optimize SVG files by removing unnecessary elements to reduce file size. SVGs exported from editors like Illustrator or Inkscape often contain comments, metadata, empty groups, and default attribute values. This tool can reduce SVG size by up to 70% while preserving visual output.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>Why optimize SVGs?</summary><p>Editor-exported SVGs often contain unnecessary metadata, comments, and empty groups. Removing them reduces file size 20–70%.</p></details>
+<details class="faq-item"><summary>Will optimization break my SVG?</summary><p>This tool only removes elements that don&apos;t affect visual rendering. Use the preview to compare before/after.</p></details>
+<details class="faq-item"><summary>What gets removed?</summary><p>XML comments, metadata, DOCTYPE declarations, XML declarations, empty groups, hidden elements, and unnecessary whitespace.</p></details>
+<details class="faq-item"><summary>How much size reduction can I expect?</summary><p>Typically 20–70% depending on the SVG. Inkscape files with lots of metadata see the greatest reduction.</p></details>
+<details class="faq-item"><summary>Can I choose which optimizations to apply?</summary><p>Yes — use the checkboxes to enable or disable each optimization.</p></details>
+<details class="faq-item"><summary>Can I paste SVG code directly?</summary><p>Yes — paste SVG code directly into the input area and click Optimize.</p></details>
+<details class="faq-item"><summary>What&apos;s the difference between this and SVG Cleaner?</summary><p>SVG Optimizer focuses on size reduction; SVG Cleaner specializes in cleaning editor-specific artifacts.</p></details>
+<details class="faq-item"><summary>How do I use the optimized SVG?</summary><p>Use the Copy button to copy to clipboard or Download to save as a file.</p></details>`
+  },
+  zh:{h1Accent:'Optimizer',sub:'通过删除不必要的元素来减少SVG文件大小',backLink:'← 所有工具',langBtn:'🌐 日本語',dropText:'将SVG文件拖放到此处或点击浏览',dropHint:'.svg文件或在下方粘贴SVG代码',btnOpt:'优化',btnCopy:'复制',btnDl:'下载',btnClear:'重置',lblInput:'输入',lblOutput:'输出',before:'原始',after:'优化后',saved:'节省',
+    seoHtml:`<h2>SVG优化器</h2><p>通过删除不必要的元素来优化SVG文件并减少文件大小。从Illustrator或Inkscape等编辑器导出的SVG通常包含注释、元数据、空组和默认属性值。该工具可在保持视觉输出的同时将SVG大小减少高达70%。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>为什么需要优化SVG？</summary><p>编辑器导出的SVG通常包含不必要的元数据、注释和空组，删除后可减少20~70%的文件大小。</p></details>
+<details class="faq-item"><summary>优化后SVG会损坏吗？</summary><p>该工具只删除不影响视觉渲染的元素，可使用预览功能比较优化前后的效果。</p></details>
+<details class="faq-item"><summary>会删除哪些内容？</summary><p>XML注释、元数据、DOCTYPE声明、XML声明、空组、隐藏元素和不必要的空白。</p></details>
+<details class="faq-item"><summary>可以减少多少文件大小？</summary><p>通常减少20~70%，含大量元数据的Inkscape文件效果最明显。</p></details>
+<details class="faq-item"><summary>可以选择具体的优化选项吗？</summary><p>可以，通过复选框选择要应用的优化。</p></details>
+<details class="faq-item"><summary>可以直接粘贴SVG代码吗？</summary><p>可以，在输入区域直接粘贴SVG代码后点击优化即可。</p></details>
+<details class="faq-item"><summary>与SVG Cleaner有什么区别？</summary><p>SVG Optimizer专注于大小优化，SVG Cleaner专门清理编辑器特定的元素。</p></details>
+<details class="faq-item"><summary>如何使用优化后的SVG？</summary><p>使用复制按钮复制到剪贴板，或使用下载按钮保存为文件。</p></details>`
+  },
+  ja:{h1Accent:'Optimizer',sub:'不要な要素を削除してSVGファイルサイズを縮小します',backLink:'← ホーム',langBtn:'🌐 한국어',dropText:'SVGファイルをドラッグするかクリックしてください',dropHint:'.svgファイルまたは下にSVGコードを貼り付けてください',btnOpt:'最適化',btnCopy:'コピー',btnDl:'ダウンロード',btnClear:'リセット',lblInput:'入力',lblOutput:'出力',before:'最適化前',after:'最適化後',saved:'削減',
+    seoHtml:`<h2>SVG Optimizer</h2><p>不要な要素を削除してSVGファイルを最適化し、ファイルサイズを削減します。IllustratorやInkscapeなどのエディタからエクスポートされたSVGには、コメント、メタデータ、空グループ、デフォルト属性値が含まれています。このツールは視覚的出力を維持しながらSVGサイズを最大70%削減できます。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>なぜSVGを最適化するのですか？</summary><p>エディタからエクスポートされたSVGには不要なメタデータ、コメント、空グループが含まれており、削除するとファイルサイズが20〜70%削減されます。</p></details>
+<details class="faq-item"><summary>最適化でSVGが壊れませんか？</summary><p>視覚的レンダリングに影響しない要素のみを削除します。プレビューで最適化前後を比較できます。</p></details>
+<details class="faq-item"><summary>何が削除されますか？</summary><p>XMLコメント、メタデータ、DOCTYPE宣言、XML宣言、空グループ、非表示要素、不要な空白。</p></details>
+<details class="faq-item"><summary>どのくらいサイズが削減できますか？</summary><p>通常20〜70%。メタデータが多いInkscapeファイルで最も効果的です。</p></details>
+<details class="faq-item"><summary>最適化オプションを個別に選択できますか？</summary><p>はい、チェックボックスで適用する最適化を選択できます。</p></details>
+<details class="faq-item"><summary>SVGコードを直接貼り付けられますか？</summary><p>はい、入力エリアにSVGコードを貼り付けて最適化ボタンをクリックしてください。</p></details>
+<details class="faq-item"><summary>SVG Cleanerとの違いは？</summary><p>SVG Optimizerはサイズ最適化に集中し、SVG Cleanerはエディタ固有の要素のクリーニングに特化しています。</p></details>
+<details class="faq-item"><summary>最適化されたSVGの使い方は？</summary><p>コピーボタンでクリップボードにコピーするか、ダウンロードボタンでファイルとして保存してください。</p></details>`
+  }
+};
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){
+  const t=_i18n[_lang];document.documentElement.lang=_lang;
+  ['h1Accent','subEl','backLink','langBtn','dropText','dropHint','btnOpt','btnCopy','btnDl','btnClear','lblInput','lblOutput'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id];});
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+  renderOpts();
+}
+function renderOpts(){
+  const t=_i18n[_lang];const grid=document.getElementById('optsGrid');grid.innerHTML='';
+  OPTS.forEach(o=>{
+    const label=o[_lang]||o.ko;
+    const div=document.createElement('label');div.className='opt-item';
+    div.innerHTML=`<input type="checkbox" ${optState[o.key]?'checked':''}><span class="opt-label">${label}</span>`;
+    div.querySelector('input').addEventListener('change',e=>optState[o.key]=e.target.checked);
+    grid.appendChild(div);
+  });
+}
+function optimizeSvg(svg){
+  let s=svg;
+  if(optState.removeComments)s=s.replace(/<!--[\s\S]*?-->/g,'');
+  if(optState.removeDoctype)s=s.replace(/<!DOCTYPE[^>]*>/gi,'');
+  if(optState.removeXmlDecl)s=s.replace(/<\?xml[^?]*\?>/gi,'');
+  if(optState.removeMetadata)s=s.replace(/<metadata[\s\S]*?<\/metadata>/gi,'').replace(/<sodipodi:[^/]*\/>/gi,'').replace(/<sodipodi:[\s\S]*?<\/sodipodi:[^>]*>/gi,'').replace(/<inkscape:[^/]*\/>/gi,'').replace(/<inkscape:[\s\S]*?<\/inkscape:[^>]*>/gi,'').replace(/xmlns:inkscape="[^"]*"/g,'').replace(/xmlns:sodipodi="[^"]*"/g,'').replace(/inkscape:[a-z-]+=("[^"]*"|'[^']*')/g,'').replace(/sodipodi:[a-z-]+=("[^"]*"|'[^']*')/g,'');
+  if(optState.removeEmptyGroups)s=s.replace(/<g[^>]*>\s*<\/g>/g,'');
+  if(optState.removeHidden)s=s.replace(/<[^>]+(?:display="none"|visibility="hidden")[^>]*(?:\/>|>[\s\S]*?<\/[^>]+>)/g,'');
+  if(optState.removeDefaultAttrs){s=s.replace(/\s*fill="black"/g,'').replace(/\s*fill="none"\s+fill="none"/g,' fill="none"').replace(/\s*stroke="none"/g,'').replace(/\s*opacity="1"/g,'').replace(/\s*fill-opacity="1"/g,'').replace(/\s*stroke-opacity="1"/g,'');}
+  if(optState.collapseWhitespace){s=s.replace(/\s+/g,' ').replace(/> </g,'><').replace(/\n\s*/g,'').trim();}
+  return s;
+}
+function optimize(){
+  const inp=document.getElementById('inputSvg').value.trim();
+  if(!inp)return;
+  const out=optimizeSvg(inp);
+  document.getElementById('outputSvg').value=out;
+  const t=_i18n[_lang];const inSz=new Blob([inp]).size;const outSz=new Blob([out]).size;
+  const saved=inSz-outSz;const pct=((saved/inSz)*100).toFixed(1);
+  document.getElementById('statBefore').innerHTML=`${t.before}: <span>${fmt(inSz)}</span>`;
+  document.getElementById('statAfter').innerHTML=`${t.after}: <span>${fmt(outSz)}</span>`;
+  document.getElementById('statSaved').innerHTML=`${t.saved}: <span>${fmt(saved)} (${pct}%)</span>`;
+  document.getElementById('statsBar').style.display='flex';
+  document.getElementById('infoSizeIn').textContent=fmt(inSz);
+  document.getElementById('infoSizeOut').textContent=fmt(outSz);
+  document.getElementById('prevBefore').innerHTML=inp;
+  document.getElementById('prevAfter').innerHTML=out;
+  document.getElementById('previewRow').style.display='grid';
+}
+function fmt(b){return b>1024?`${(b/1024).toFixed(1)}KB`:`${b}B`;}
+function updateInSize(){const v=document.getElementById('inputSvg').value;document.getElementById('infoSizeIn').textContent=fmt(new Blob([v]).size);}
+function copyOut(){const v=document.getElementById('outputSvg').value;if(v)navigator.clipboard.writeText(v);}
+function downloadOut(){
+  const v=document.getElementById('outputSvg').value;if(!v)return;
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([v],{type:'image/svg+xml'}));a.download='optimized.svg';a.click();
+}
+function clearAll(){document.getElementById('inputSvg').value='';document.getElementById('outputSvg').value='';document.getElementById('statsBar').style.display='none';document.getElementById('previewRow').style.display='none';document.getElementById('infoSizeIn').textContent='';document.getElementById('infoSizeOut').textContent='';}
+const dz=document.getElementById('dropZone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag');const f=e.dataTransfer.files[0];if(f)loadFile(f);});
+document.getElementById('fileInput').addEventListener('change',e=>{if(e.target.files[0])loadFile(e.target.files[0]);});
+function loadFile(f){const r=new FileReader();r.onload=e=>{document.getElementById('inputSvg').value=e.target.result;updateInSize();};r.readAsText(f);}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

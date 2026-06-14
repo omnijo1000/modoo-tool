@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>할인 계산기 - Discount Calculator | MODOO HUB</title>
+<meta name="description" content="원가와 할인율로 할인 금액과 최종 판매가를 계산합니다. 역산(최종가에서 원가/할인율 계산)도 지원. 무료 온라인 할인 계산기.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/discount-calculator.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/discount-calculator.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/discount-calculator.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/discount-calculator.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/discount-calculator.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/discount-calculator.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:640px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
+.mode-tabs{display:flex;gap:4px;margin-bottom:16px;}
+.tab{flex:1;padding:8px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid var(--border);color:var(--text-dim);background:var(--surface2);text-align:center;}
+.tab.active{background:var(--accent);color:#000;border-color:var(--accent);}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:14px;}
+.field-label{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;margin-bottom:6px;}
+.input-row{display:flex;gap:8px;align-items:center;margin-bottom:14px;}
+.f-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:10px 14px;color:var(--text);font-size:15px;font-family:'DM Mono',monospace;outline:none;}
+.f-input:focus{border-color:var(--accent);}
+.discount-presets{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px;}
+.dp{padding:5px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid var(--border);color:var(--text-dim);background:var(--surface2);font-family:'DM Mono',monospace;}
+.dp.sel{background:var(--accent);color:#000;border-color:var(--accent);}
+.result-panel{display:grid;grid-template-columns:1fr 1fr;gap:10px;display:none;}
+.r-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center;}
+.r-box.main{grid-column:span 2;background:rgba(251,191,36,0.07);border-color:rgba(251,191,36,0.3);}
+.r-val{font-size:28px;font-weight:900;font-family:'DM Mono',monospace;}
+.r-val.big{font-size:40px;color:var(--accent);}
+.r-val.red{color:var(--red);}
+.r-val.green{color:var(--green);}
+.r-label{font-size:10px;color:var(--text-dim);margin-top:4px;}
+.strikethrough{text-decoration:line-through;color:var(--text-dim);font-family:'DM Mono',monospace;font-size:12px;margin-top:2px;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Discount Calculator","url":"https://modoohub.com/discount-calculator.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"할인율과 원가로 최종 판매가를 계산하는 무료 온라인 도구."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"할인 계산 공식은?","acceptedAnswer":{"@type":"Answer","text":"할인 금액 = 원가 × 할인율. 최종가 = 원가 × (1 - 할인율). 예: 10,000원에 30% 할인 → 할인 3,000원, 최종가 7,000원."}},{"@type":"Question","name":"두 번 할인 계산은?","acceptedAnswer":{"@type":"Answer","text":"최종가 = 원가 × (1 - 할인율1) × (1 - 할인율2). 단순 합산이 아닙니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1><span id="h1Accent">할인</span> 계산기</h1>
+  <p class="sub" id="subEl">할인율로 최종 판매가와 절약 금액을 계산합니다</p>
+  <div class="mode-tabs">
+    <div class="tab active" id="tab0" onclick="setMode(0)"></div>
+    <div class="tab" id="tab1" onclick="setMode(1)"></div>
+    <div class="tab" id="tab2" onclick="setMode(2)"></div>
+  </div>
+  <div class="card" id="inputCard">
+    <div id="inputs0">
+      <div class="field-label" id="lbl0a"></div>
+      <div class="input-row"><input class="f-input" id="origPrice" type="number" placeholder="10000" oninput="calc()"></div>
+      <div class="field-label" id="lbl0b"></div>
+      <div class="discount-presets" id="presetRow"></div>
+      <div class="input-row"><input class="f-input" id="discRate" type="number" placeholder="30" oninput="unselectPreset();calc()"><span style="font-size:14px;color:var(--text-muted);margin-left:4px">%</span></div>
+    </div>
+    <div id="inputs1" style="display:none">
+      <div class="field-label" id="lbl1a"></div>
+      <div class="input-row"><input class="f-input" id="origPriceB" type="number" placeholder="10000" oninput="calc()"></div>
+      <div class="field-label" id="lbl1b"></div>
+      <div class="input-row"><input class="f-input" id="finalPrice" type="number" placeholder="7000" oninput="calc()"></div>
+    </div>
+    <div id="inputs2" style="display:none">
+      <div class="field-label" id="lbl2a"></div>
+      <div class="input-row"><input class="f-input" id="origPriceC" type="number" placeholder="10000" oninput="calc()"></div>
+      <div class="field-label" id="lbl2b"></div>
+      <div class="input-row"><input class="f-input" id="discRate2a" type="number" placeholder="20" oninput="calc()"><span style="font-size:14px;color:var(--text-muted);margin-left:4px">%</span></div>
+      <div class="field-label" id="lbl2c"></div>
+      <div class="input-row"><input class="f-input" id="discRate2b" type="number" placeholder="10" oninput="calc()"><span style="font-size:14px;color:var(--text-muted);margin-left:4px">%</span></div>
+    </div>
+  </div>
+  <div class="result-panel" id="resultPanel">
+    <div class="r-box main">
+      <div class="r-val big" id="rFinal">—</div>
+      <div class="strikethrough" id="rOrig"></div>
+      <div class="r-label" id="lblFinal"></div>
+    </div>
+    <div class="r-box"><div class="r-val red" id="rSaved">—</div><div class="r-label" id="lblSaved"></div></div>
+    <div class="r-box"><div class="r-val green" id="rDisc">—</div><div class="r-label" id="lblDisc"></div></div>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const LANGS=['ko','en','zh','ja'];let _lang='ko',_mode=0;
+const DISC_PRESETS=[5,10,15,20,25,30,40,50,70];
+const _i18n={
+  ko:{h1Accent:'할인',sub:'할인율로 최종 판매가와 절약 금액을 계산합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',
+    tabs:['원가 + 할인율','원가 + 최종가','이중 할인'],
+    lbl0a:'원가 (정가)',lbl0b:'할인율',lbl1a:'원가 (정가)',lbl1b:'최종 판매가',lbl2a:'원가',lbl2b:'첫 번째 할인율',lbl2c:'두 번째 할인율',
+    lblFinal:'최종 판매가',lblSaved:'할인 금액',lblDisc:'할인율',
+    seoHtml:`<h2>할인 계산기</h2><p>정가와 할인율을 입력하면 최종 판매가와 할인 금액을 즉시 계산합니다. 역산 기능으로 정가와 최종가를 알고 있을 때 할인율을 계산할 수도 있습니다. 또한 20% + 10% 같은 이중 할인도 정확히 계산합니다 (복리 할인으로 단순 합산 30%가 아닌 28%).</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>할인 계산 공식은?</summary><p>최종가 = 원가 × (1 - 할인율). 예: 10,000원 × (1-0.3) = 7,000원. 할인금액 = 10,000 - 7,000 = 3,000원.</p></details>
+<details class="faq-item"><summary>이중 할인은 어떻게 계산되나요?</summary><p>최종가 = 원가 × (1-할인1) × (1-할인2). 20%+10%는 28% 할인 (단순 합산 30% 아님).</p></details>
+<details class="faq-item"><summary>역산으로 할인율을 계산하려면?</summary><p>두 번째 탭에서 원가와 최종가를 입력하면 할인율을 자동으로 계산합니다.</p></details>
+<details class="faq-item"><summary>세일 가격이 진짜 할인인지 확인하려면?</summary><p>역산 탭에서 원래 가격(정가)과 세일 가격을 입력하면 실제 할인율을 확인할 수 있습니다.</p></details>
+<details class="faq-item"><summary>쿠폰 할인 + 세일 중복 할인은?</summary><p>이중 할인 탭에서 두 할인율을 각각 입력하면 최종 가격을 정확히 계산합니다.</p></details>
+<details class="faq-item"><summary>50% 할인은 얼마나 저렴한가요?</summary><p>원가의 절반입니다. 10만원짜리가 5만원이 됩니다. 이중 50% 할인은 75% 할인 (25% 남음)입니다.</p></details>
+<details class="faq-item"><summary>마진을 유지하면서 할인할 수 있는 최대 할인율은?</summary><p>마진율을 알고 있다면: 최대 할인율 ≤ 마진율. 마진이 30%면 최대 30% 할인까지 손익분기점에 도달합니다.</p></details>
+<details class="faq-item"><summary>VAT 포함/제외 가격 계산은?</summary><p>부가세 역산 계산기를 이용하세요.</p></details>`
+  },
+  en:{h1Accent:'Discount',sub:'Calculate final price and savings from a discount rate',backLink:'← All Tools',langBtn:'🌐 中文',
+    tabs:['Price + discount rate','Price + final price','Double discount'],
+    lbl0a:'Original price',lbl0b:'Discount rate',lbl1a:'Original price',lbl1b:'Final (sale) price',lbl2a:'Original price',lbl2b:'First discount rate',lbl2c:'Second discount rate',
+    lblFinal:'Final price',lblSaved:'You save',lblDisc:'Discount rate',
+    seoHtml:`<h2>Discount Calculator</h2><p>Enter the original price and discount rate to instantly calculate the final sale price and the amount saved. Reverse mode lets you find the discount rate when you know the original and sale prices. Double discount mode correctly calculates stacked discounts — 20% + 10% is a 28% total discount, not 30%.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>Discount formula?</summary><p>Final = Original × (1 - rate). Example: $10,000 × (1-0.3) = $7,000. Savings = $3,000.</p></details>
+<details class="faq-item"><summary>How is double discount calculated?</summary><p>Final = Original × (1-rate1) × (1-rate2). 20%+10% = 28% off total (not 30%).</p></details>
+<details class="faq-item"><summary>Can I find the discount rate from prices?</summary><p>Yes — use tab 2, enter the original and sale price, and the discount rate is calculated automatically.</p></details>
+<details class="faq-item"><summary>How do I check if a sale is a real deal?</summary><p>Enter the listed original price and sale price in tab 2 to see the actual discount percentage.</p></details>
+<details class="faq-item"><summary>Coupon + sale combined?</summary><p>Use double discount mode — enter each discount rate separately to get the exact final price.</p></details>
+<details class="faq-item"><summary>How much is 50% off?</summary><p>Half price. $100 → $50. Double 50% off = 75% total (25% remaining).</p></details>
+<details class="faq-item"><summary>What is the max discount while keeping margin?</summary><p>If your margin is 30%, you can discount up to 30% before hitting break-even.</p></details>
+<details class="faq-item"><summary>What about VAT?</summary><p>Use the VAT Reverse Calculator separately for tax calculations.</p></details>`
+  },
+  zh:{h1Accent:'折扣',sub:'计算折扣率对应的最终价格和节省金额',backLink:'← 所有工具',langBtn:'🌐 日本語',
+    tabs:['原价+折扣率','原价+最终价','双重折扣'],
+    lbl0a:'原价',lbl0b:'折扣率',lbl1a:'原价',lbl1b:'最终（优惠）价',lbl2a:'原价',lbl2b:'第一折扣率',lbl2c:'第二折扣率',
+    lblFinal:'最终价格',lblSaved:'节省金额',lblDisc:'折扣率',
+    seoHtml:`<h2>折扣计算器</h2><p>输入原价和折扣率，立即计算最终销售价和节省金额。逆向模式可在已知原价和销售价时计算折扣率。双重折扣模式正确计算叠加折扣——20%+10%是总折扣28%，不是30%。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>折扣计算公式是什么？</summary><p>最终价=原价×(1-折扣率)。例：10000元×(1-0.3)=7000元，节省3000元。</p></details>
+<details class="faq-item"><summary>双重折扣如何计算？</summary><p>最终价=原价×(1-折扣1)×(1-折扣2)。20%+10%=总折扣28%（不是30%）。</p></details>
+<details class="faq-item"><summary>可以从价格反推折扣率吗？</summary><p>可以，使用第2个标签页，输入原价和销售价，折扣率会自动计算。</p></details>
+<details class="faq-item"><summary>如何确认促销是否真实优惠？</summary><p>在第2标签页输入标注的原价和促销价，查看实际折扣百分比。</p></details>
+<details class="faq-item"><summary>优惠券+促销叠加？</summary><p>使用双重折扣模式，分别输入每个折扣率，获得精确的最终价格。</p></details>
+<details class="faq-item"><summary>50%折扣有多划算？</summary><p>半价。100元变50元。双重50%折扣=总折扣75%（剩余25%）。</p></details>
+<details class="faq-item"><summary>保持利润的最大折扣率是多少？</summary><p>如果利润率是30%，最多可以打30%折扣才到盈亏平衡点。</p></details>
+<details class="faq-item"><summary>含税价格怎么计算？</summary><p>请使用增值税逆算计算器进行税款计算。</p></details>`
+  },
+  ja:{h1Accent:'割引',sub:'割引率から最終価格と節約額を計算します',backLink:'← ホーム',langBtn:'🌐 한국어',
+    tabs:['定価+割引率','定価+最終価格','二重割引'],
+    lbl0a:'定価（元の価格）',lbl0b:'割引率',lbl1a:'定価',lbl1b:'最終（セール）価格',lbl2a:'定価',lbl2b:'1回目の割引率',lbl2c:'2回目の割引率',
+    lblFinal:'最終価格',lblSaved:'節約額',lblDisc:'割引率',
+    seoHtml:`<h2>割引計算機</h2><p>定価と割引率を入力すると、最終セール価格と節約額を即座に計算します。逆算モードでは定価とセール価格がわかれば割引率を計算できます。二重割引モードでは重ねた割引を正確に計算——20%+10%の合計は28%引きで、30%ではありません。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>割引計算式は？</summary><p>最終価格=定価×(1-割引率)。例：10,000円×(1-0.3)=7,000円、節約3,000円。</p></details>
+<details class="faq-item"><summary>二重割引はどう計算されますか？</summary><p>最終価格=定価×(1-割引1)×(1-割引2)。20%+10%=合計28%引き（30%でない）。</p></details>
+<details class="faq-item"><summary>価格から割引率を逆算できますか？</summary><p>はい、タブ2で定価とセール価格を入力すると割引率が自動計算されます。</p></details>
+<details class="faq-item"><summary>セールが本当にお得か確認するには？</summary><p>タブ2に表示された定価とセール価格を入力すれば実際の割引率が確認できます。</p></details>
+<details class="faq-item"><summary>クーポン+セール併用は？</summary><p>二重割引モードで各割引率を別々に入力して正確な最終価格を計算します。</p></details>
+<details class="faq-item"><summary>50%オフはどれくらいお得？</summary><p>半額です。10,000円→5,000円。二重50%オフ=合計75%引き（25%残り）。</p></details>
+<details class="faq-item"><summary>利益を保ちながら最大限割引できる率は？</summary><p>マージンが30%なら最大30%引きで損益分岐点に達します。</p></details>
+<details class="faq-item"><summary>税込価格は？</summary><p>消費税の計算には消費税逆算計算機をご利用ください。</p></details>`
+  }
+};
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();buildPresets();calc();}
+function applyLang(){
+  const t=_i18n[_lang];document.documentElement.lang=_lang;
+  ['h1Accent','subEl','backLink','langBtn','lbl0a','lbl0b','lbl1a','lbl1b','lbl2a','lbl2b','lbl2c','lblFinal','lblSaved','lblDisc'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id];});
+  if(t.tabs)[0,1,2].forEach(i=>{const el=document.getElementById('tab'+i);if(el)el.textContent=t.tabs[i];});
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+}
+function setMode(m){_mode=m;[0,1,2].forEach(i=>{document.getElementById('tab'+i).classList.toggle('active',i===m);document.getElementById('inputs'+i).style.display=i===m?'block':'none';});calc();}
+function buildPresets(){
+  const row=document.getElementById('presetRow');row.innerHTML='';const cur=parseFloat(document.getElementById('discRate').value)||0;
+  DISC_PRESETS.forEach(r=>{const btn=document.createElement('div');btn.className='dp'+(cur===r?' sel':'');btn.textContent=r+'%';btn.onclick=()=>{document.getElementById('discRate').value=r;buildPresets();calc();};row.appendChild(btn);});
+}
+function unselectPreset(){buildPresets();}
+function fmt(n){return Math.abs(n).toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:2});}
+function calc(){
+  const t=_i18n[_lang];
+  let orig,final,rate,saved;
+  if(_mode===0){
+    orig=parseFloat(document.getElementById('origPrice').value)||0;rate=parseFloat(document.getElementById('discRate').value)||0;
+    if(!orig){document.getElementById('resultPanel').style.display='none';return;}
+    final=orig*(1-rate/100);saved=orig-final;
+  }else if(_mode===1){
+    orig=parseFloat(document.getElementById('origPriceB').value)||0;final=parseFloat(document.getElementById('finalPrice').value)||0;
+    if(!orig||!final){document.getElementById('resultPanel').style.display='none';return;}
+    saved=orig-final;rate=(saved/orig)*100;
+  }else{
+    orig=parseFloat(document.getElementById('origPriceC').value)||0;const r1=parseFloat(document.getElementById('discRate2a').value)||0;const r2=parseFloat(document.getElementById('discRate2b').value)||0;
+    if(!orig){document.getElementById('resultPanel').style.display='none';return;}
+    final=orig*(1-r1/100)*(1-r2/100);saved=orig-final;rate=(saved/orig)*100;
+  }
+  document.getElementById('rFinal').textContent=fmt(final);
+  document.getElementById('rOrig').textContent=fmt(orig);
+  document.getElementById('rSaved').textContent='-'+fmt(saved);
+  document.getElementById('rDisc').textContent=rate.toFixed(1)+'%';
+  document.getElementById('lblFinal').textContent=t.lblFinal;
+  document.getElementById('lblSaved').textContent=t.lblSaved;
+  document.getElementById('lblDisc').textContent=t.lblDisc;
+  document.getElementById('resultPanel').style.display='grid';
+}
+_lang=detectLang();applyLang();buildPresets();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

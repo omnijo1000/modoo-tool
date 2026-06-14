@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>텍스트 유사도 검사기 - Text Similarity Checker | MODOO HUB</title>
+<meta name="description" content="두 텍스트의 유사도를 코사인 유사도, 자카드 유사도, 편집 거리로 분석합니다. 표절 검사, 문서 비교에 활용. 무료 온라인 텍스트 유사도 도구.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/text-similarity-checker.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/text-similarity-checker.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/text-similarity-checker.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/text-similarity-checker.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/text-similarity-checker.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/text-similarity-checker.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:860px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;}
+@media(max-width:640px){.two-col{grid-template-columns:1fr;}}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.panel-head{padding:10px 14px;background:var(--surface2);font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+textarea{width:100%;background:transparent;border:none;color:var(--text);font-size:13px;font-family:'Noto Sans KR',sans-serif;min-height:160px;outline:none;resize:vertical;padding:12px;line-height:1.6;}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.btn{padding:7px 18px;border-radius:7px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:'Noto Sans KR',sans-serif;}
+.btn-primary{background:var(--accent);color:#000;}
+.btn-primary:hover{background:#f59e0b;}
+.btn-sec{background:var(--surface2);color:var(--text-muted);border:1px solid var(--border);}
+.btn-sec:hover{border-color:var(--accent);}
+.small-btn{padding:3px 10px;border-radius:5px;border:none;cursor:pointer;font-size:11px;font-family:'DM Mono',monospace;background:var(--surface2);color:var(--text-muted);}
+.small-btn:hover{color:var(--accent);}
+.results{display:none;}
+.score-hero{text-align:center;padding:28px;background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:14px;}
+.score-big{font-size:64px;font-weight:900;line-height:1;font-family:'DM Mono',monospace;}
+.score-label{font-size:12px;color:var(--text-muted);margin-top:6px;}
+.score-tier{font-size:13px;font-weight:700;margin-top:8px;}
+.score-bar-wrap{width:60%;margin:14px auto 0;background:var(--surface2);border-radius:10px;height:8px;}
+.score-bar{height:8px;border-radius:10px;transition:width 0.5s;}
+.metrics-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px;}
+@media(max-width:580px){.metrics-grid{grid-template-columns:1fr;}}
+.metric-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;}
+.metric-val{font-size:28px;font-weight:900;font-family:'DM Mono',monospace;color:var(--accent);}
+.metric-name{font-size:11px;color:var(--text-dim);margin-top:4px;}
+.metric-desc{font-size:10px;color:var(--text-dim);margin-top:2px;}
+.details-panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px;}
+.det-title{font-size:11px;font-family:'DM Mono',monospace;color:var(--text-muted);margin-bottom:10px;}
+.det-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px;}
+.det-row:last-child{border-bottom:none;}
+.det-key{color:var(--text-dim);}
+.det-val{font-family:'DM Mono',monospace;color:var(--text-muted);}
+.common-words{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;}
+.word-chip{padding:3px 8px;background:var(--surface2);border-radius:5px;font-size:11px;color:var(--text-muted);font-family:'DM Mono',monospace;}
+.word-chip.shared{background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.3);color:var(--accent);}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Text Similarity Checker","url":"https://modoohub.com/text-similarity-checker.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"두 텍스트의 유사도를 분석하는 무료 온라인 도구."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"텍스트 유사도는 어떻게 측정하나요?","acceptedAnswer":{"@type":"Answer","text":"Cosine 유사도, Jaccard 계수, Levenshtein 편집 거리 등의 알고리즘으로 텍스트 간 유사도를 계산합니다."}},{"@type":"Question","name":"표절 검사에 활용할 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"두 텍스트의 유사도를 퍼센트로 보여주어 표절 여부 참고에 활용할 수 있습니다. 전문 표절 검사기는 아닙니다."}},{"@type":"Question","name":"유사도가 몇 % 이상이면 유사한 텍스트인가요?","acceptedAnswer":{"@type":"Answer","text":"80% 이상이면 매우 유사, 60~80%는 유사, 60% 미만은 낮은 유사도로 일반적으로 판단합니다."}},{"@type":"Question","name":"긴 텍스트 비교도 가능한가요?","acceptedAnswer":{"@type":"Answer","text":"긴 문서도 처리 가능하며, 어느 부분이 유사한지 하이라이트로 표시합니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>텍스트 <span id="h1Accent">유사도</span> 검사기</h1>
+  <p class="sub" id="subEl">두 텍스트의 유사도를 코사인·자카드·편집 거리로 분석합니다</p>
+  <div class="two-col">
+    <div class="panel">
+      <div class="panel-head"><span id="lblText1">텍스트 A</span><button class="small-btn" onclick="clearAll()" id="btnClear">지우기</button></div>
+      <textarea id="text1" placeholder="첫 번째 텍스트 입력..."></textarea>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><span id="lblText2">텍스트 B</span><button class="small-btn" onclick="swapTexts()" id="btnSwap">교체</button></div>
+      <textarea id="text2" placeholder="두 번째 텍스트 입력..."></textarea>
+    </div>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="check()" id="btnCheck">유사도 분석</button>
+    <button class="btn btn-sec" onclick="loadSample()" id="btnSample">샘플</button>
+  </div>
+  <div class="results" id="results">
+    <div class="score-hero">
+      <div class="score-big" id="scoreMain">—</div>
+      <div class="score-label" id="scoreLabel">종합 유사도</div>
+      <div class="score-tier" id="scoreTier"></div>
+      <div class="score-bar-wrap"><div class="score-bar" id="scoreBar" style="width:0%"></div></div>
+    </div>
+    <div class="metrics-grid">
+      <div class="metric-card"><div class="metric-val" id="metCosine">—</div><div class="metric-name" id="lblCosine">코사인 유사도</div><div class="metric-desc" id="descCosine">단어 벡터 기반</div></div>
+      <div class="metric-card"><div class="metric-val" id="metJaccard">—</div><div class="metric-name" id="lblJaccard">자카드 유사도</div><div class="metric-desc" id="descJaccard">집합 교집합 / 합집합</div></div>
+      <div class="metric-card"><div class="metric-val" id="metEdit">—</div><div class="metric-name" id="lblEdit">편집 거리 유사도</div><div class="metric-desc" id="descEdit">Levenshtein 기반</div></div>
+    </div>
+    <div class="details-panel">
+      <div class="det-title" id="detTitle">세부 정보</div>
+      <div class="det-row"><span class="det-key" id="detLen1">텍스트 A 길이</span><span class="det-val" id="valLen1">—</span></div>
+      <div class="det-row"><span class="det-key" id="detLen2">텍스트 B 길이</span><span class="det-val" id="valLen2">—</span></div>
+      <div class="det-row"><span class="det-key" id="detWords1">A 단어 수</span><span class="det-val" id="valWords1">—</span></div>
+      <div class="det-row"><span class="det-key" id="detWords2">B 단어 수</span><span class="det-val" id="valWords2">—</span></div>
+      <div class="det-row"><span class="det-key" id="detShared">공통 단어</span><span class="det-val" id="valShared">—</span></div>
+      <div class="det-row"><span class="det-key" id="detUnique1">A 고유 단어</span><span class="det-val" id="valUnique1">—</span></div>
+      <div class="det-row"><span class="det-key" id="detUnique2">B 고유 단어</span><span class="det-val" id="valUnique2">—</span></div>
+      <div class="common-words" id="commonWordsEl"></div>
+    </div>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const LANGS=['ko','en','zh','ja'];let _lang='ko';
+const _i18n={
+  ko:{h1Accent:'유사도',sub:'두 텍스트의 유사도를 코사인·자카드·편집 거리로 분석합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',lblText1:'텍스트 A',lblText2:'텍스트 B',btnClear:'지우기',btnSwap:'교체',btnCheck:'유사도 분석',btnSample:'샘플',scoreLabel:'종합 유사도',lblCosine:'코사인 유사도',descCosine:'단어 벡터 기반',lblJaccard:'자카드 유사도',descJaccard:'집합 교집합/합집합',lblEdit:'편집 거리 유사도',descEdit:'Levenshtein 기반',detTitle:'세부 정보',detLen1:'텍스트 A 길이',detLen2:'텍스트 B 길이',detWords1:'A 단어 수',detWords2:'B 단어 수',detShared:'공통 단어',detUnique1:'A 고유 단어',detUnique2:'B 고유 단어',
+    tiers:['거의 동일','매우 유사','유사','부분 유사','거의 다름'],
+    cwLabel:'공통 단어:',
+    seoHtml:`<h2>텍스트 유사도 검사기</h2><p>두 텍스트 사이의 유사도를 코사인 유사도, 자카드 유사도, 편집 거리(Levenshtein) 세 가지 방법으로 측정합니다. 표절 검사, 문서 비교, 중복 콘텐츠 탐지, 문장 변형 확인 등 다양한 목적에 활용할 수 있습니다. 공통 단어 목록과 세부 통계도 제공합니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>코사인 유사도란 무엇인가요?</summary><p>두 텍스트를 단어 빈도 벡터로 표현하고 두 벡터 사이의 각도를 측정하는 방법입니다. 단어 집합이 유사할수록 높은 점수를 받습니다.</p></details>
+<details class="faq-item"><summary>자카드 유사도란 무엇인가요?</summary><p>두 집합의 교집합을 합집합으로 나눈 값입니다. 두 텍스트가 공유하는 고유 단어 비율을 측정합니다.</p></details>
+<details class="faq-item"><summary>편집 거리란 무엇인가요?</summary><p>한 텍스트를 다른 텍스트로 바꾸기 위한 최소 편집(삽입/삭제/대체) 횟수입니다. 이를 정규화하여 유사도로 표현합니다.</p></details>
+<details class="faq-item"><summary>어떤 유사도 지표가 가장 정확한가요?</summary><p>목적에 따라 다릅니다. 표절 검사에는 자카드, 의미적 유사성에는 코사인, 문자 수준 비교에는 편집 거리가 적합합니다.</p></details>
+<details class="faq-item"><summary>100% 유사도는 어떤 의미인가요?</summary><p>두 텍스트가 완전히 동일하다는 의미입니다.</p></details>
+<details class="faq-item"><summary>한국어 텍스트도 비교할 수 있나요?</summary><p>예, 공백 기준 단어 분리로 비교합니다. 형태소 분석 없이도 기본 유사도 측정이 가능합니다.</p></details>
+<details class="faq-item"><summary>이 도구로 표절을 확인할 수 있나요?</summary><p>유사도가 높은 경우 표절 가능성이 있지만, 완전한 표절 검사 도구는 아닙니다. 참고용으로 활용하세요.</p></details>
+<details class="faq-item"><summary>긴 텍스트도 처리할 수 있나요?</summary><p>예, 브라우저에서 처리되지만 매우 긴 텍스트(수만 단어 이상)는 편집 거리 계산이 느려질 수 있습니다.</p></details>`
+  },
+  en:{h1Accent:'Similarity',sub:'Analyze text similarity with cosine, Jaccard, and edit distance',backLink:'← All Tools',langBtn:'🌐 中文',lblText1:'Text A',lblText2:'Text B',btnClear:'Clear',btnSwap:'Swap',btnCheck:'Analyze Similarity',btnSample:'Sample',scoreLabel:'Overall Similarity',lblCosine:'Cosine Similarity',descCosine:'Word vector-based',lblJaccard:'Jaccard Similarity',descJaccard:'Intersection / Union',lblEdit:'Edit Distance Similarity',descEdit:'Levenshtein-based',detTitle:'Details',detLen1:'Text A length',detLen2:'Text B length',detWords1:'A word count',detWords2:'B word count',detShared:'Shared words',detUnique1:'A unique words',detUnique2:'B unique words',
+    tiers:['Nearly Identical','Very Similar','Similar','Partially Similar','Very Different'],
+    cwLabel:'Common words:',
+    seoHtml:`<h2>Text Similarity Checker</h2><p>Measure similarity between two texts using three methods: cosine similarity (word vector-based), Jaccard similarity (set overlap), and edit distance (Levenshtein). Useful for plagiarism checking, document comparison, duplicate content detection, and paraphrase analysis. Common word lists and detailed statistics are provided.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>What is cosine similarity?</summary><p>Represents texts as word-frequency vectors and measures the angle between them. Higher scores indicate more similar word distributions.</p></details>
+<details class="faq-item"><summary>What is Jaccard similarity?</summary><p>Intersection of unique words divided by their union. Measures the proportion of shared unique vocabulary.</p></details>
+<details class="faq-item"><summary>What is edit distance?</summary><p>Minimum number of insertions, deletions, or substitutions to convert one text to another, normalized to a similarity score.</p></details>
+<details class="faq-item"><summary>Which metric is most accurate?</summary><p>Depends on purpose: Jaccard for plagiarism, cosine for semantic similarity, edit distance for character-level comparison.</p></details>
+<details class="faq-item"><summary>What does 100% similarity mean?</summary><p>The two texts are identical.</p></details>
+<details class="faq-item"><summary>Does it work with non-English text?</summary><p>Yes — whitespace tokenization is used. Basic similarity works without morpheme analysis.</p></details>
+<details class="faq-item"><summary>Can I use this for plagiarism checking?</summary><p>High similarity may indicate plagiarism, but this is not a complete plagiarism checker — use it as a reference.</p></details>
+<details class="faq-item"><summary>Can it handle long texts?</summary><p>Yes — but edit distance calculation may be slow for very long texts (tens of thousands of words).</p></details>`
+  },
+  zh:{h1Accent:'相似度',sub:'用余弦相似度、Jaccard相似度和编辑距离分析两段文本的相似度',backLink:'← 所有工具',langBtn:'🌐 日本語',lblText1:'文本A',lblText2:'文本B',btnClear:'清除',btnSwap:'交换',btnCheck:'分析相似度',btnSample:'示例',scoreLabel:'综合相似度',lblCosine:'余弦相似度',descCosine:'词向量基础',lblJaccard:'Jaccard相似度',descJaccard:'交集/并集',lblEdit:'编辑距离相似度',descEdit:'Levenshtein基础',detTitle:'详细信息',detLen1:'文本A长度',detLen2:'文本B长度',detWords1:'A词数',detWords2:'B词数',detShared:'共同词',detUnique1:'A独有词',detUnique2:'B独有词',
+    tiers:['几乎相同','非常相似','相似','部分相似','差异很大'],
+    cwLabel:'共同词汇:',
+    seoHtml:`<h2>文本相似度检查器</h2><p>使用三种方法测量两段文本之间的相似度：余弦相似度（词向量基础）、Jaccard相似度（集合重叠）和编辑距离（Levenshtein）。适用于抄袭检查、文档比较、重复内容检测和复述分析。提供共同词汇列表和详细统计信息。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>什么是余弦相似度？</summary><p>将文本表示为词频向量，测量它们之间的角度。分数越高表示词分布越相似。</p></details>
+<details class="faq-item"><summary>什么是Jaccard相似度？</summary><p>唯一词的交集除以并集。测量共享独特词汇的比例。</p></details>
+<details class="faq-item"><summary>什么是编辑距离？</summary><p>将一段文本转换为另一段文本所需的最少插入、删除或替换次数，归一化为相似度分数。</p></details>
+<details class="faq-item"><summary>哪个指标最准确？</summary><p>取决于目的：Jaccard适合抄袭检查，余弦适合语义相似度，编辑距离适合字符级比较。</p></details>
+<details class="faq-item"><summary>100%相似度意味着什么？</summary><p>两段文本完全相同。</p></details>
+<details class="faq-item"><summary>支持中文文本吗？</summary><p>支持，使用空格分词。无需分词分析也能进行基本相似度测量。</p></details>
+<details class="faq-item"><summary>可以用来检查抄袭吗？</summary><p>高相似度可能表明抄袭，但这不是完整的抄袭检查工具，仅供参考。</p></details>
+<details class="faq-item"><summary>可以处理长文本吗？</summary><p>可以，但对于非常长的文本（数万词以上），编辑距离计算可能会较慢。</p></details>`
+  },
+  ja:{h1Accent:'類似度',sub:'コサイン類似度・Jaccard係数・編集距離で2つのテキストの類似度を分析します',backLink:'← ホーム',langBtn:'🌐 한국어',lblText1:'テキストA',lblText2:'テキストB',btnClear:'クリア',btnSwap:'交換',btnCheck:'類似度を分析',btnSample:'サンプル',scoreLabel:'総合類似度',lblCosine:'コサイン類似度',descCosine:'単語ベクトルベース',lblJaccard:'Jaccard類似度',descJaccard:'積集合/和集合',lblEdit:'編集距離類似度',descEdit:'Levenshteinベース',detTitle:'詳細情報',detLen1:'テキストAの長さ',detLen2:'テキストBの長さ',detWords1:'A単語数',detWords2:'B単語数',detShared:'共通単語',detUnique1:'A固有単語',detUnique2:'B固有単語',
+    tiers:['ほぼ同一','非常に類似','類似','部分的に類似','かなり異なる'],
+    cwLabel:'共通単語:',
+    seoHtml:`<h2>テキスト類似度チェッカー</h2><p>3つの方法で2つのテキスト間の類似度を測定します：コサイン類似度（単語ベクトルベース）、Jaccard係数（集合の重複）、編集距離（Levenshtein）。剽窃チェック、文書比較、重複コンテンツ検出、言い換え分析に役立ちます。共通単語リストと詳細統計も提供します。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>コサイン類似度とは何ですか？</summary><p>テキストを単語頻度ベクトルとして表現し、その角度を測定します。スコアが高いほど単語分布が類似しています。</p></details>
+<details class="faq-item"><summary>Jaccard係数とは何ですか？</summary><p>ユニークな単語の積集合を和集合で割った値です。共有する固有語彙の割合を測定します。</p></details>
+<details class="faq-item"><summary>編集距離とは何ですか？</summary><p>一方のテキストをもう一方に変換するのに必要な最小編集（挿入/削除/置換）回数を類似度スコアに正規化したものです。</p></details>
+<details class="faq-item"><summary>どの指標が最も正確ですか？</summary><p>目的によります。剽窃チェックにはJaccard、意味的類似性にはコサイン、文字レベル比較には編集距離が適しています。</p></details>
+<details class="faq-item"><summary>100%類似度とはどういう意味ですか？</summary><p>2つのテキストが完全に同一であることを意味します。</p></details>
+<details class="faq-item"><summary>日本語テキストでも比較できますか？</summary><p>はい — スペース分かち書きで処理します。形態素解析なしでも基本的な類似度測定が可能です。</p></details>
+<details class="faq-item"><summary>剽窃チェックに使えますか？</summary><p>高い類似度は剽窃の可能性を示しますが、完全な剽窃チェックツールではありません。参考としてご活用ください。</p></details>
+<details class="faq-item"><summary>長いテキストでも処理できますか？</summary><p>はい — ただし非常に長いテキスト（数万語以上）では編集距離の計算が遅くなる場合があります。</p></details>`
+  }
+};
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){
+  const t=_i18n[_lang];document.documentElement.lang=_lang;
+  ['h1Accent','subEl','backLink','langBtn','lblText1','lblText2','btnClear','btnSwap','btnCheck','btnSample','scoreLabel','lblCosine','descCosine','lblJaccard','descJaccard','lblEdit','descEdit','detTitle','detLen1','detLen2','detWords1','detWords2','detShared','detUnique1','detUnique2'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id]||el.textContent;});
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+}
+function tokenize(text){return text.toLowerCase().replace(/[^\w\s가-힣]/g,' ').trim().split(/\s+/).filter(w=>w.length>0);}
+function cosineSim(a,b){
+  const freqA={},freqB={};
+  for(const w of a)freqA[w]=(freqA[w]||0)+1;
+  for(const w of b)freqB[w]=(freqB[w]||0)+1;
+  const keys=new Set([...Object.keys(freqA),...Object.keys(freqB)]);
+  let dot=0,normA=0,normB=0;
+  for(const k of keys){const fa=freqA[k]||0,fb=freqB[k]||0;dot+=fa*fb;normA+=fa*fa;normB+=fb*fb;}
+  if(!normA||!normB)return 0;
+  return dot/(Math.sqrt(normA)*Math.sqrt(normB));
+}
+function jaccardSim(a,b){
+  const setA=new Set(a),setB=new Set(b);
+  const inter=[...setA].filter(w=>setB.has(w)).length;
+  const union=new Set([...setA,...setB]).size;
+  return union?inter/union:0;
+}
+function editSim(a,b){
+  const s1=a.join(' '),s2=b.join(' ');
+  if(!s1&&!s2)return 1;
+  const m=s1.length,n=s2.length;
+  if(m>500||n>500){const shorter=Math.min(m,n),longer=Math.max(m,n);return shorter/longer;}
+  const dp=Array.from({length:m+1},(_,i)=>Array.from({length:n+1},(_,j)=>i===0?j:j===0?i:0));
+  for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=s1[i-1]===s2[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);
+  return 1-dp[m][n]/Math.max(m,n);
+}
+function check(){
+  const t=_i18n[_lang];
+  const raw1=document.getElementById('text1').value;
+  const raw2=document.getElementById('text2').value;
+  if(!raw1.trim()||!raw2.trim())return;
+  const tok1=tokenize(raw1),tok2=tokenize(raw2);
+  const cos=cosineSim(tok1,tok2);
+  const jac=jaccardSim(tok1,tok2);
+  const edt=editSim(tok1,tok2);
+  const overall=(cos*0.4+jac*0.3+edt*0.3);
+  const pct=Math.round(overall*100);
+  const colors=['var(--green)','var(--green)','var(--accent)','var(--blue)','var(--red)'];
+  const tierIdx=pct>=90?0:pct>=70?1:pct>=50?2:pct>=30?3:4;
+  document.getElementById('scoreMain').textContent=pct+'%';
+  document.getElementById('scoreMain').style.color=colors[tierIdx];
+  document.getElementById('scoreTier').textContent=t.tiers[tierIdx];
+  document.getElementById('scoreTier').style.color=colors[tierIdx];
+  document.getElementById('scoreBar').style.width=pct+'%';
+  document.getElementById('scoreBar').style.background=colors[tierIdx];
+  document.getElementById('metCosine').textContent=Math.round(cos*100)+'%';
+  document.getElementById('metJaccard').textContent=Math.round(jac*100)+'%';
+  document.getElementById('metEdit').textContent=Math.round(edt*100)+'%';
+  const set1=new Set(tok1),set2=new Set(tok2);
+  const shared=[...set1].filter(w=>set2.has(w));
+  const uniq1=[...set1].filter(w=>!set2.has(w));
+  const uniq2=[...set2].filter(w=>!set1.has(w));
+  document.getElementById('valLen1').textContent=raw1.length+'자';
+  document.getElementById('valLen2').textContent=raw2.length+'자';
+  document.getElementById('valWords1').textContent=tok1.length+'개';
+  document.getElementById('valWords2').textContent=tok2.length+'개';
+  document.getElementById('valShared').textContent=shared.length+'개';
+  document.getElementById('valUnique1').textContent=uniq1.length+'개';
+  document.getElementById('valUnique2').textContent=uniq2.length+'개';
+  const topShared=shared.slice(0,12);
+  document.getElementById('commonWordsEl').innerHTML=topShared.length?`<span class="opt-label">${t.cwLabel}</span>`+topShared.map(w=>`<span class="word-chip shared">${w}</span>`).join(''):'';
+  document.getElementById('results').style.display='';
+}
+function clearAll(){document.getElementById('text1').value='';document.getElementById('text2').value='';document.getElementById('results').style.display='none';}
+function swapTexts(){const a=document.getElementById('text1').value,b=document.getElementById('text2').value;document.getElementById('text1').value=b;document.getElementById('text2').value=a;}
+function loadSample(){
+  document.getElementById('text1').value='Artificial intelligence is transforming the way we work and live. Machine learning algorithms can now perform tasks that were once thought to require human intelligence.';
+  document.getElementById('text2').value='AI is changing how people work and live their lives. Machine learning systems are now capable of completing tasks that previously required human intelligence and judgment.';
+  document.getElementById('results').style.display='none';
+}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

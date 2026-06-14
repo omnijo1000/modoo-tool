@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>중복 줄 제거기 - Text Deduplicator | MODOO HUB</title>
+<meta name="description" content="텍스트에서 중복된 줄을 제거합니다. 대소문자 무시, 공백 정규화, 순서 유지 등 옵션 제공. 무료 온라인 중복 제거 도구.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/text-deduplicator.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/text-deduplicator.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/text-deduplicator.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/text-deduplicator.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/text-deduplicator.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/text-deduplicator.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:800px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
+.opts{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:14px;display:flex;gap:20px;flex-wrap:wrap;}
+label.chk{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);cursor:pointer;}
+label.chk input{accent-color:var(--accent);}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+@media(max-width:640px){.two-col{grid-template-columns:1fr;}}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.panel-head{padding:10px 14px;background:var(--surface2);font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+textarea{width:100%;background:transparent;border:none;color:var(--text);font-size:13px;font-family:'DM Mono',sans-serif;min-height:220px;outline:none;resize:vertical;padding:12px;line-height:1.6;}
+.out-area{padding:12px;font-size:13px;font-family:'DM Mono',sans-serif;min-height:220px;color:var(--text);line-height:1.6;white-space:pre-wrap;word-break:break-word;}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+.btn{padding:7px 18px;border-radius:7px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:'Noto Sans KR',sans-serif;}
+.btn-sec{background:var(--surface2);color:var(--text-muted);border:1px solid var(--border);}
+.btn-sec:hover{border-color:var(--accent);}
+.small-btn{padding:3px 10px;border-radius:5px;border:none;cursor:pointer;font-size:11px;font-family:'DM Mono',monospace;background:var(--surface2);color:var(--text-muted);}
+.small-btn:hover{color:var(--accent);}
+.stats-bar{display:flex;gap:20px;font-size:11px;font-family:'DM Mono',monospace;color:var(--text-dim);margin-top:4px;}
+.stat-ok{color:var(--green);}
+.stat-rm{color:var(--red);}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Text Deduplicator","url":"https://modoohub.com/text-deduplicator.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"텍스트에서 중복 줄을 제거하는 무료 온라인 도구."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"텍스트 중복 제거란 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"동일하거나 유사한 텍스트 항목을 찾아 하나만 남기고 제거하는 도구입니다."}},{"@type":"Question","name":"완전 일치와 유사 일치를 구분할 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"완전히 동일한 텍스트만 제거하거나, 유사도 임계값을 설정해 비슷한 항목도 제거할 수 있습니다."}},{"@type":"Question","name":"대소문자를 무시하고 중복을 찾을 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"대소문자 무시 옵션을 켜면 'Hello'와 'hello'를 같은 항목으로 처리합니다."}},{"@type":"Question","name":"중복 제거 후 항목 수를 확인할 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"제거 전 총 항목 수와 제거 후 고유 항목 수, 제거된 중복 수를 표시합니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>중복 줄 <span id="h1Accent">제거기</span></h1>
+  <p class="sub" id="subEl">텍스트에서 중복된 줄을 제거합니다</p>
+  <div class="opts">
+    <label class="chk"><input type="checkbox" id="chkCase" onchange="dedup()"><span id="lblCase">대소문자 무시</span></label>
+    <label class="chk"><input type="checkbox" id="chkTrim" checked onchange="dedup()"><span id="lblTrim">앞뒤 공백 무시</span></label>
+    <label class="chk"><input type="checkbox" id="chkEmpty" onchange="dedup()"><span id="lblEmpty">빈 줄 제거</span></label>
+    <label class="chk"><input type="checkbox" id="chkSort" onchange="dedup()"><span id="lblSort">정렬</span></label>
+    <label class="chk"><input type="checkbox" id="chkSortRev" onchange="dedup()"><span id="lblSortRev">역순 정렬</span></label>
+  </div>
+  <div class="two-col">
+    <div class="panel">
+      <div class="panel-head"><span id="lblInput">입력</span><button class="small-btn" onclick="clearInput()" id="btnClear">지우기</button></div>
+      <textarea id="textIn" oninput="dedup()" placeholder="줄 단위 텍스트를 입력하세요..."></textarea>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><span id="lblOutput">결과</span><button class="small-btn" onclick="copyOut()" id="btnCopy">복사</button></div>
+      <div class="out-area" id="outEl"></div>
+    </div>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-sec" onclick="loadSample()" id="btnSample">샘플</button>
+    <button class="btn btn-sec" onclick="copyOut()" id="btnCopyBtn">결과 복사</button>
+  </div>
+  <div class="stats-bar" id="statsBar"></div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const LANGS=['ko','en','zh','ja'];let _lang='ko';
+const _i18n={
+  ko:{h1Accent:'제거기',sub:'텍스트에서 중복된 줄을 제거합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',lblCase:'대소문자 무시',lblTrim:'앞뒤 공백 무시',lblEmpty:'빈 줄 제거',lblSort:'정렬',lblSortRev:'역순 정렬',lblInput:'입력',lblOutput:'결과',btnClear:'지우기',btnCopy:'복사',btnSample:'샘플',btnCopyBtn:'결과 복사',
+    stats:(total,unique,removed)=>`총 ${total}줄 · 고유 ${unique}줄 · 제거 ${removed}줄`,
+    seoHtml:`<h2>중복 줄 제거기</h2><p>텍스트에서 중복된 줄을 제거하고 고유한 줄만 남깁니다. 키워드 목록, CSV 데이터, 이메일 주소 목록 등의 중복 제거에 활용하세요. 대소문자 무시, 앞뒤 공백 정규화, 빈 줄 제거, 정렬 등의 옵션을 제공합니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>첫 번째 중복과 마지막 중복 중 어느 것이 유지되나요?</summary><p>기본적으로 처음 등장하는 줄이 유지되고 이후 중복 줄은 제거됩니다.</p></details>
+<details class="faq-item"><summary>대소문자 무시 옵션이란?</summary><p>"Hello"와 "hello"를 같은 줄로 간주하여 중복 처리합니다.</p></details>
+<details class="faq-item"><summary>공백만 있는 줄은 어떻게 처리되나요?</summary><p>앞뒤 공백 무시 옵션을 켜면 공백만 있는 줄도 빈 줄로 처리됩니다.</p></details>
+<details class="faq-item"><summary>정렬과 중복 제거를 동시에 할 수 있나요?</summary><p>예, 정렬 체크박스와 다른 옵션을 함께 사용할 수 있습니다.</p></details>
+<details class="faq-item"><summary>몇 줄까지 처리할 수 있나요?</summary><p>브라우저 메모리 내에서 처리하므로 수만 줄도 빠르게 처리됩니다.</p></details>
+<details class="faq-item"><summary>결과 줄 수를 확인할 수 있나요?</summary><p>예, 총 줄 수, 고유 줄 수, 제거된 줄 수가 통계로 표시됩니다.</p></details>
+<details class="faq-item"><summary>CSV 파일의 중복 행도 제거할 수 있나요?</summary><p>예, CSV 내용을 그대로 붙여넣으면 중복 행을 제거할 수 있습니다.</p></details>
+<details class="faq-item"><summary>Unix sort -u 명령어와 같은 기능인가요?</summary><p>유사합니다. 이 도구는 브라우저에서 GUI로 제공하며 추가 옵션을 지원합니다.</p></details>`
+  },
+  en:{h1Accent:'Deduplicator',sub:'Remove duplicate lines from text',backLink:'← All Tools',langBtn:'🌐 中文',lblCase:'Ignore case',lblTrim:'Ignore leading/trailing spaces',lblEmpty:'Remove blank lines',lblSort:'Sort',lblSortRev:'Reverse sort',lblInput:'Input',lblOutput:'Result',btnClear:'Clear',btnCopy:'Copy',btnSample:'Sample',btnCopyBtn:'Copy Result',
+    stats:(total,unique,removed)=>`Total ${total} lines · Unique ${unique} · Removed ${removed}`,
+    seoHtml:`<h2>Text Deduplicator</h2><p>Remove duplicate lines from text, keeping only unique lines. Great for keyword lists, CSV data, email address lists, and more. Options include case-insensitive matching, whitespace trimming, blank-line removal, and sorting.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>Which duplicate is kept — first or last?</summary><p>The first occurrence is kept; subsequent duplicates are removed.</p></details>
+<details class="faq-item"><summary>What does "Ignore case" do?</summary><p>"Hello" and "hello" are treated as the same line.</p></details>
+<details class="faq-item"><summary>How are whitespace-only lines handled?</summary><p>With "Ignore leading/trailing spaces" on, whitespace-only lines become empty lines and can be removed with "Remove blank lines".</p></details>
+<details class="faq-item"><summary>Can I sort and deduplicate at the same time?</summary><p>Yes — use the Sort option alongside the other options.</p></details>
+<details class="faq-item"><summary>How many lines can it handle?</summary><p>Tens of thousands of lines — processed in-browser with no size limit other than browser memory.</p></details>
+<details class="faq-item"><summary>Can I see line counts?</summary><p>Yes — total, unique, and removed line counts are shown after processing.</p></details>
+<details class="faq-item"><summary>Can it deduplicate CSV rows?</summary><p>Yes — paste CSV content and duplicate rows will be removed.</p></details>
+<details class="faq-item"><summary>Is it equivalent to Unix "sort -u"?</summary><p>Similar — but with a GUI and extra options. Unlike sort -u, it preserves insertion order by default (without Sort checked).</p></details>`
+  },
+  zh:{h1Accent:'去重器',sub:'从文本中删除重复行',backLink:'← 所有工具',langBtn:'🌐 日本語',lblCase:'忽略大小写',lblTrim:'忽略首尾空格',lblEmpty:'删除空行',lblSort:'排序',lblSortRev:'反向排序',lblInput:'输入',lblOutput:'结果',btnClear:'清除',btnCopy:'复制',btnSample:'示例',btnCopyBtn:'复制结果',
+    stats:(total,unique,removed)=>`共${total}行 · 唯一${unique}行 · 删除${removed}行`,
+    seoHtml:`<h2>文本去重器</h2><p>从文本中删除重复行，只保留唯一行。适用于关键词列表、CSV数据、电子邮件地址列表等。支持大小写不敏感匹配、空白修剪、空行删除和排序等选项。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>保留第一个还是最后一个重复项？</summary><p>保留第一次出现的行，后续重复行被删除。</p></details>
+<details class="faq-item"><summary>"忽略大小写"是什么意思？</summary><p>"Hello"和"hello"被视为同一行。</p></details>
+<details class="faq-item"><summary>只有空格的行如何处理？</summary><p>开启"忽略首尾空格"后，只有空格的行变为空行，可用"删除空行"选项删除。</p></details>
+<details class="faq-item"><summary>可以同时排序和去重吗？</summary><p>可以，同时使用排序选项和其他选项即可。</p></details>
+<details class="faq-item"><summary>可以处理多少行？</summary><p>在浏览器内处理，可处理数万行，无固定上限（仅受浏览器内存限制）。</p></details>
+<details class="faq-item"><summary>可以查看行数统计吗？</summary><p>可以，处理后会显示总行数、唯一行数和删除行数。</p></details>
+<details class="faq-item"><summary>可以去重CSV行吗？</summary><p>可以，粘贴CSV内容即可删除重复行。</p></details>
+<details class="faq-item"><summary>与Unix "sort -u"命令等效吗？</summary><p>类似，但提供GUI和额外选项。默认不排序时保留插入顺序。</p></details>`
+  },
+  ja:{h1Accent:'重複削除器',sub:'テキストから重複行を削除します',backLink:'← ホーム',langBtn:'🌐 한국어',lblCase:'大小文字を無視',lblTrim:'前後の空白を無視',lblEmpty:'空白行を削除',lblSort:'ソート',lblSortRev:'逆順ソート',lblInput:'入力',lblOutput:'結果',btnClear:'クリア',btnCopy:'コピー',btnSample:'サンプル',btnCopyBtn:'結果をコピー',
+    stats:(total,unique,removed)=>`合計${total}行 · ユニーク${unique}行 · 削除${removed}行`,
+    seoHtml:`<h2>テキスト重複削除器</h2><p>テキストから重複した行を削除し、ユニークな行のみを残します。キーワードリスト、CSVデータ、メールアドレスリストなどの重複削除に活用できます。大小文字無視、空白のトリム、空行削除、ソートなどのオプションを提供します。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>重複のうち最初と最後どちらが残りますか？</summary><p>最初に出現した行が保持され、以降の重複行が削除されます。</p></details>
+<details class="faq-item"><summary>「大小文字を無視」とは？</summary><p>「Hello」と「hello」を同じ行として扱います。</p></details>
+<details class="faq-item"><summary>空白のみの行はどう処理されますか？</summary><p>「前後の空白を無視」を有効にすると、空白のみの行は空行として扱われ、「空白行を削除」で削除できます。</p></details>
+<details class="faq-item"><summary>ソートと重複削除を同時にできますか？</summary><p>はい — ソートオプションと他のオプションを組み合わせて使えます。</p></details>
+<details class="faq-item"><summary>何行まで処理できますか？</summary><p>ブラウザ内で処理するため、数万行も高速に処理できます。</p></details>
+<details class="faq-item"><summary>行数の統計を確認できますか？</summary><p>はい — 処理後に総行数、ユニーク行数、削除行数が表示されます。</p></details>
+<details class="faq-item"><summary>CSV行の重複削除もできますか？</summary><p>はい — CSVの内容をそのまま貼り付けると重複行が削除されます。</p></details>
+<details class="faq-item"><summary>Unixの「sort -u」コマンドと同じですか？</summary><p>似ていますが、GUIで追加オプションを提供します。デフォルトはソートなしで挿入順を保持します。</p></details>`
+  }
+};
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){
+  const t=_i18n[_lang];document.documentElement.lang=_lang;
+  ['h1Accent','subEl','backLink','langBtn','lblCase','lblTrim','lblEmpty','lblSort','lblSortRev','lblInput','lblOutput','btnClear','btnCopy','btnSample','btnCopyBtn'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id]||el.textContent;});
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+  dedup();
+}
+function gch(id){return document.getElementById(id).checked;}
+function dedup(){
+  const t=_i18n[_lang];
+  const raw=document.getElementById('textIn').value;
+  let lines=raw.split('\n');
+  const total=lines.length;
+  if(gch('chkEmpty'))lines=lines.filter(l=>l.trim()!=='');
+  const seen=new Set();const unique=[];
+  for(const ln of lines){
+    let key=gch('chkTrim')?ln.trim():ln;
+    if(gch('chkCase'))key=key.toLowerCase();
+    if(!seen.has(key)){seen.add(key);unique.push(ln);}
+  }
+  let result=[...unique];
+  if(gch('chkSort'))result.sort((a,b)=>a.localeCompare(b));
+  if(gch('chkSortRev'))result.sort((a,b)=>b.localeCompare(a));
+  document.getElementById('outEl').textContent=result.join('\n');
+  const removed=total-result.length;
+  document.getElementById('statsBar').innerHTML=`<span>${t.stats(total,result.length,removed<0?0:removed)}</span>`;
+}
+function clearInput(){document.getElementById('textIn').value='';dedup();}
+function copyOut(){navigator.clipboard.writeText(document.getElementById('outEl').textContent);}
+function loadSample(){document.getElementById('textIn').value='apple\nbanana\napple\norange\nbanana\ngrape\nOrange\n\ngrape';dedup();}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

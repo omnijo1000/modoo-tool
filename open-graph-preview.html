@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>오픈그래프 미리보기 - Open Graph Preview | MODOO HUB</title>
+<meta name="description" content="HTML 소스 또는 직접 입력으로 Open Graph 태그를 파싱하고 Facebook, Twitter, LinkedIn 공유 미리보기를 확인합니다. 무료 온라인 OG 태그 미리보기 도구.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/open-graph-preview.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/open-graph-preview.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/open-graph-preview.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/open-graph-preview.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/open-graph-preview.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/open-graph-preview.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:900px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
+.tabs{display:flex;gap:0;border:1px solid var(--border);border-radius:8px;overflow:hidden;width:fit-content;margin-bottom:16px;}
+.tab{padding:6px 16px;font-size:12px;cursor:pointer;background:none;border:none;color:var(--text-dim);font-family:'DM Mono',monospace;border-right:1px solid var(--border);}
+.tab:last-child{border-right:none;}
+.tab.active{background:var(--surface2);color:var(--accent);}
+.input-panel{display:none;margin-bottom:16px;}
+.input-panel.active{display:block;}
+textarea{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text);font-size:12px;font-family:'DM Mono',monospace;min-height:180px;outline:none;resize:vertical;line-height:1.6;}
+textarea:focus{border-color:var(--accent);}
+.btn-row{display:flex;gap:8px;margin-bottom:20px;}
+.btn{padding:7px 18px;border-radius:7px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:'Noto Sans KR',sans-serif;}
+.btn-primary{background:var(--accent);color:#000;}
+.btn-primary:hover{background:#f59e0b;}
+.btn-sec{background:var(--surface2);color:var(--text-muted);border:1px solid var(--border);}
+.btn-sec:hover{border-color:var(--accent);}
+.og-table{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:20px;}
+.og-row{display:grid;grid-template-columns:160px 1fr;border-bottom:1px solid var(--border);font-size:12px;}
+.og-row:last-child{border-bottom:none;}
+.og-key{padding:8px 12px;background:var(--surface2);color:var(--text-dim);font-family:'DM Mono',monospace;}
+.og-val{padding:8px 12px;color:var(--text-muted);font-family:'DM Mono',monospace;word-break:break-all;}
+.og-val.miss{color:var(--red);}
+.og-val.ok{color:var(--green);}
+.preview-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;}
+@media(max-width:680px){.preview-grid{grid-template-columns:1fr;}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.card-head{padding:8px 14px;background:var(--surface2);font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;border-bottom:1px solid var(--border);}
+.card-body{padding:12px;}
+.fb-wrap{background:#f0f2f5;border-radius:6px;overflow:hidden;border:1px solid #dde0e6;}
+.og-img-box{width:100%;height:120px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:28px;overflow:hidden;}
+.og-img-box img{width:100%;height:100%;object-fit:cover;}
+.fb-body{padding:8px 10px;background:#f0f2f5;}
+.fb-domain{font-size:10px;color:#65676b;text-transform:uppercase;font-family:Arial,sans-serif;margin-bottom:2px;}
+.fb-title{font-size:13px;font-weight:700;color:#1c1e21;font-family:Arial,sans-serif;line-height:1.3;margin-bottom:3px;}
+.fb-desc{font-size:11px;color:#65676b;font-family:Arial,sans-serif;line-height:1.4;}
+.tw-wrap{border-radius:10px;overflow:hidden;border:1px solid #cfd9de;background:#fff;}
+.tw-body{padding:8px 10px;}
+.tw-title{font-size:13px;font-weight:700;color:#0f1419;font-family:-apple-system,sans-serif;line-height:1.3;margin-bottom:3px;}
+.tw-desc{font-size:11px;color:#536471;font-family:-apple-system,sans-serif;line-height:1.4;margin-bottom:3px;}
+.tw-domain{font-size:11px;color:#536471;font-family:-apple-system,sans-serif;}
+.li-wrap{background:#fff;border-radius:4px;overflow:hidden;border:1px solid #e0e0e0;}
+.li-body{padding:8px 10px;}
+.li-title{font-size:13px;font-weight:600;color:#000;font-family:-apple-system,sans-serif;line-height:1.3;margin-bottom:3px;}
+.li-desc{font-size:11px;color:#666;font-family:-apple-system,sans-serif;}
+.li-domain{font-size:10px;color:#666;font-family:-apple-system,sans-serif;margin-top:4px;text-transform:uppercase;}
+.score-bar{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:20px;}
+.score-title{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;margin-bottom:10px;}
+.score-item{display:flex;align-items:center;gap:8px;font-size:12px;margin-bottom:6px;}
+.score-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Open Graph Preview","url":"https://modoohub.com/open-graph-preview.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Open Graph 태그를 파싱하여 소셜 미디어 공유 미리보기를 확인하는 무료 도구."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Open Graph 태그란 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"페이스북, 트위터, 카카오 등 SNS에서 URL을 공유할 때 표시될 제목·설명·이미지를 지정하는 메타 태그입니다."}},{"@type":"Question","name":"OG 이미지 최적 크기는?","acceptedAnswer":{"@type":"Answer","text":"1200×630px가 대부분의 플랫폼에서 권장됩니다. 최소 600×315px 이상이어야 합니다."}},{"@type":"Question","name":"OG 태그 없으면 어떻게 되나요?","acceptedAnswer":{"@type":"Answer","text":"SNS가 페이지 내용을 임의로 추출해 표시합니다. 의도하지 않은 이미지나 설명이 나올 수 있습니다."}},{"@type":"Question","name":"카카오톡 공유 시 미리보기도 확인할 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"카카오톡은 OG 태그 기반으로 링크 미리보기를 생성합니다. 이 도구로 공유 전 미리 확인하세요."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>Open Graph <span id="h1Accent">미리보기</span></h1>
+  <p class="sub" id="subEl">HTML 소스에서 OG 태그를 파싱하여 소셜 미디어 공유 화면을 미리 확인합니다</p>
+  <div class="tabs">
+    <button class="tab active" id="tabHtml" onclick="setInputTab('html')">HTML 소스</button>
+    <button class="tab" id="tabManual" onclick="setInputTab('manual')">직접 입력</button>
+  </div>
+  <div class="input-panel active" id="panelHtml">
+    <textarea id="htmlIn" placeholder="<html>...</html> 또는 head 섹션 HTML을 붙여넣으세요..."></textarea>
+  </div>
+  <div class="input-panel" id="panelManual">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div><div style="font-size:11px;color:var(--text-dim);margin-bottom:4px;">og:title</div><input id="mTitle" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:7px 10px;color:var(--text);font-size:12px;width:100%;font-family:'DM Mono',monospace;outline:none;" oninput="updateManual()"></div>
+      <div><div style="font-size:11px;color:var(--text-dim);margin-bottom:4px;">og:url</div><input id="mUrl" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:7px 10px;color:var(--text);font-size:12px;width:100%;font-family:'DM Mono',monospace;outline:none;" oninput="updateManual()"></div>
+      <div style="grid-column:1/-1"><div style="font-size:11px;color:var(--text-dim);margin-bottom:4px;">og:description</div><input id="mDesc" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:7px 10px;color:var(--text);font-size:12px;width:100%;font-family:'DM Mono',monospace;outline:none;" oninput="updateManual()"></div>
+      <div style="grid-column:1/-1"><div style="font-size:11px;color:var(--text-dim);margin-bottom:4px;">og:image</div><input id="mImg" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:7px 10px;color:var(--text);font-size:12px;width:100%;font-family:'DM Mono',monospace;outline:none;" oninput="updateManual()"></div>
+    </div>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="analyze()" id="btnAnalyze">분석</button>
+    <button class="btn btn-sec" onclick="loadSample()" id="btnSample">샘플</button>
+  </div>
+  <div id="scoreDiv" style="display:none"></div>
+  <div id="tableDiv" style="display:none"></div>
+  <div id="previewDiv" style="display:none"></div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const LANGS=['ko','en','zh','ja'];let _lang='ko';let _inputTab='html';
+const _i18n={
+  ko:{h1Accent:'미리보기',sub:'HTML 소스에서 OG 태그를 파싱하여 소셜 미디어 공유 화면을 미리 확인합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',tabHtml:'HTML 소스',tabManual:'직접 입력',btnAnalyze:'분석',btnSample:'샘플',scoreTitle:'OG 태그 검사 결과',lblFacebook:'Facebook 미리보기',lblTwitter:'Twitter 미리보기',lblLinkedIn:'LinkedIn 미리보기',
+    seoHtml:`<h2>오픈그래프 미리보기</h2><p>HTML 소스 코드에서 Open Graph 메타 태그를 파싱하고 Facebook, Twitter, LinkedIn 공유 시 미리보기를 확인합니다. og:title, og:description, og:image, og:url 등을 검사하고 빠진 태그를 알려드립니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>Open Graph 태그는 무엇인가요?</summary><p>Facebook이 개발한 프로토콜로, 소셜 미디어에서 페이지가 공유될 때 제목, 설명, 이미지를 제어합니다.</p></details>
+<details class="faq-item"><summary>og:image 크기 권장 사항은?</summary><p>1200×630px를 권장하며, Facebook은 최소 600×315px 이상이어야 표시합니다.</p></details>
+<details class="faq-item"><summary>Twitter도 OG 태그를 사용하나요?</summary><p>Twitter는 자체 twitter: 태그를 우선하지만, 없으면 og: 태그를 사용합니다.</p></details>
+<details class="faq-item"><summary>OG 태그를 업데이트해도 소셜 미디어에서 반영이 안 돼요</summary><p>소셜 플랫폼은 OG 태그를 캐시합니다. Facebook Sharing Debugger로 캐시를 초기화할 수 있습니다.</p></details>
+<details class="faq-item"><summary>og:type에는 어떤 값이 있나요?</summary><p>website, article, book, profile, music, video 등이 있습니다. 기본값은 website입니다.</p></details>
+<details class="faq-item"><summary>og:site_name은 무엇인가요?</summary><p>소셜 카드에 표시되는 사이트 이름입니다. 브랜드명을 입력하세요.</p></details>
+<details class="faq-item"><summary>여러 og:image 태그를 사용할 수 있나요?</summary><p>가능하지만 대부분의 소셜 미디어는 첫 번째 이미지만 사용합니다.</p></details>
+<details class="faq-item"><summary>og:locale은 무엇인가요?</summary><p>콘텐츠의 언어와 지역을 지정합니다. 예: ko_KR, en_US, zh_CN.</p></details>`
+  },
+  en:{h1Accent:'Preview',sub:'Parse OG tags from HTML source and preview social media sharing appearance',backLink:'← All Tools',langBtn:'🌐 中文',tabHtml:'HTML Source',tabManual:'Manual Input',btnAnalyze:'Analyze',btnSample:'Sample',scoreTitle:'OG Tag Check Results',lblFacebook:'Facebook Preview',lblTwitter:'Twitter Preview',lblLinkedIn:'LinkedIn Preview',
+    seoHtml:`<h2>Open Graph Preview</h2><p>Parse Open Graph meta tags from HTML source code and preview Facebook, Twitter, and LinkedIn sharing cards. Checks og:title, og:description, og:image, og:url, and more — flags missing tags.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>What are Open Graph tags?</summary><p>A protocol developed by Facebook to control title, description, and image when a page is shared on social media.</p></details>
+<details class="faq-item"><summary>What's the recommended og:image size?</summary><p>1200×630px is recommended. Facebook requires a minimum of 600×315px to display.</p></details>
+<details class="faq-item"><summary>Does Twitter use OG tags?</summary><p>Twitter prefers its own twitter: tags but falls back to og: tags if they're absent.</p></details>
+<details class="faq-item"><summary>My OG updates aren't showing on social media</summary><p>Platforms cache OG tags. Use Facebook Sharing Debugger to clear the cache.</p></details>
+<details class="faq-item"><summary>What values can og:type have?</summary><p>website, article, book, profile, music, video, etc. Default is website.</p></details>
+<details class="faq-item"><summary>What is og:site_name?</summary><p>The site name shown on social cards. Use your brand name.</p></details>
+<details class="faq-item"><summary>Can I use multiple og:image tags?</summary><p>Yes, but most platforms only use the first image.</p></details>
+<details class="faq-item"><summary>What is og:locale?</summary><p>Specifies the content language and region. e.g., en_US, ko_KR, zh_CN.</p></details>`
+  },
+  zh:{h1Accent:'预览',sub:'从HTML源代码解析OG标签并预览社交媒体分享效果',backLink:'← 所有工具',langBtn:'🌐 日本語',tabHtml:'HTML源代码',tabManual:'手动输入',btnAnalyze:'分析',btnSample:'示例',scoreTitle:'OG标签检查结果',lblFacebook:'Facebook预览',lblTwitter:'Twitter预览',lblLinkedIn:'LinkedIn预览',
+    seoHtml:`<h2>Open Graph预览</h2><p>从HTML源代码解析Open Graph元标签，预览Facebook、Twitter和LinkedIn分享卡片。检查og:title、og:description、og:image、og:url等，标记缺失的标签。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>什么是Open Graph标签？</summary><p>Facebook开发的协议，控制页面在社交媒体分享时的标题、描述和图片。</p></details>
+<details class="faq-item"><summary>推荐的og:image尺寸？</summary><p>推荐1200×630px。Facebook要求至少600×315px才能显示。</p></details>
+<details class="faq-item"><summary>Twitter也使用OG标签吗？</summary><p>Twitter优先使用自己的twitter:标签，不存在时才使用og:标签。</p></details>
+<details class="faq-item"><summary>OG更新后社交媒体没有反映</summary><p>平台会缓存OG标签。使用Facebook Sharing Debugger清除缓存。</p></details>
+<details class="faq-item"><summary>og:type可以有哪些值？</summary><p>website、article、book、profile、music、video等。默认是website。</p></details>
+<details class="faq-item"><summary>og:site_name是什么？</summary><p>显示在社交卡片上的网站名称。请输入您的品牌名称。</p></details>
+<details class="faq-item"><summary>可以使用多个og:image标签吗？</summary><p>可以，但大多数平台只使用第一张图片。</p></details>
+<details class="faq-item"><summary>og:locale是什么？</summary><p>指定内容的语言和地区。例如：zh_CN、en_US、ko_KR。</p></details>`
+  },
+  ja:{h1Accent:'プレビュー',sub:'HTMLソースからOGタグを解析してSNSシェア画面をプレビューします',backLink:'← ホーム',langBtn:'🌐 한국어',tabHtml:'HTMLソース',tabManual:'手動入力',btnAnalyze:'分析',btnSample:'サンプル',scoreTitle:'OGタグ検査結果',lblFacebook:'Facebookプレビュー',lblTwitter:'Twitterプレビュー',lblLinkedIn:'LinkedInプレビュー',
+    seoHtml:`<h2>Open Graphプレビュー</h2><p>HTMLソースコードからOpen Graphメタタグを解析し、Facebook、Twitter、LinkedInのシェアカードをプレビューします。og:title、og:description、og:image、og:urlなどを検査し、欠落タグを通知します。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>Open Graphタグとは何ですか？</summary><p>Facebookが開発したプロトコルで、SNSでページがシェアされる際のタイトル、説明、画像を制御します。</p></details>
+<details class="faq-item"><summary>og:imageの推奨サイズは？</summary><p>1200×630pxを推奨します。Facebookは最低600×315px以上が必要です。</p></details>
+<details class="faq-item"><summary>TwitterもOGタグを使いますか？</summary><p>Twitterは自身のtwitter:タグを優先しますが、ない場合はog:タグを使用します。</p></details>
+<details class="faq-item"><summary>OG更新がSNSに反映されません</summary><p>プラットフォームはOGタグをキャッシュします。Facebook Sharing Debuggerでキャッシュをクリアできます。</p></details>
+<details class="faq-item"><summary>og:typeにはどんな値がありますか？</summary><p>website、article、book、profile、music、videoなど。デフォルトはwebsiteです。</p></details>
+<details class="faq-item"><summary>og:site_nameとは？</summary><p>ソーシャルカードに表示されるサイト名です。ブランド名を入力してください。</p></details>
+<details class="faq-item"><summary>複数のog:imageタグを使えますか？</summary><p>使えますが、ほとんどのプラットフォームは最初の画像しか使いません。</p></details>
+<details class="faq-item"><summary>og:localeとは？</summary><p>コンテンツの言語と地域を指定します。例: ja_JP、en_US、ko_KR。</p></details>`
+  }
+};
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){
+  const t=_i18n[_lang];document.documentElement.lang=_lang;
+  ['h1Accent','subEl','backLink','langBtn','btnAnalyze','btnSample'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id]||el.textContent;});
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+}
+function setInputTab(tab){_inputTab=tab;['html','manual'].forEach(id=>{document.getElementById('tab'+id.charAt(0).toUpperCase()+id.slice(1)).classList.toggle('active',id===tab);document.getElementById('panel'+id.charAt(0).toUpperCase()+id.slice(1)).classList.toggle('active',id===tab);});}
+function parseOGFromHtml(html){
+  const og={};
+  const metas=html.matchAll(/<meta\s+([^>]+)>/gi);
+  for(const m of metas){
+    const attr=m[1];
+    const propM=attr.match(/property=["']([^"']+)["']/i)||attr.match(/name=["']([^"']+)["']/i);
+    const contM=attr.match(/content=["']([^"']*?)["']/i);
+    if(propM&&contM)og[propM[1].toLowerCase()]=contM[1];
+  }
+  const titleM=html.match(/<title[^>]*>([^<]+)<\/title>/i);
+  if(titleM&&!og['og:title'])og['_title']=titleM[1];
+  return og;
+}
+function escH(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function trunc(s,n){return String(s||'').length>n?String(s).slice(0,n-3)+'...':String(s||'');}
+function getDomain(url){try{return new URL(url.startsWith('http')?url:'https://'+url).hostname;}catch{return url||'example.com';}}
+function renderResults(og){
+  const t=_i18n[_lang];
+  const title=og['og:title']||og['_title']||'';
+  const desc=og['og:description']||og['description']||'';
+  const img=og['og:image']||'';
+  const url=og['og:url']||'';
+  const domain=getDomain(url);
+  const checks=[['og:title',og['og:title']],['og:description',og['og:description']||og['description']],['og:image',og['og:image']],['og:url',og['og:url']],['og:type',og['og:type']],['og:site_name',og['og:site_name']]];
+  const score=checks.filter(([,v])=>v).length;
+  let scoreHtml=`<div class="score-bar"><div class="score-title">${t.scoreTitle} (${score}/${checks.length})</div>`;
+  checks.forEach(([k,v])=>{const ok=!!v;scoreHtml+=`<div class="score-item"><div class="score-dot" style="background:${ok?'var(--green)':'var(--red)'}"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim)">${k}</span><span style="font-size:11px;color:${ok?'var(--text-muted)':'var(--red)'};">${ok?escH(trunc(v,50)):(_lang==='ko'?'없음':_lang==='ja'?'なし':_lang==='zh'?'缺失':'missing')}</span></div>`;});
+  scoreHtml+='</div>';
+  let tableHtml='<div class="og-table">';
+  Object.entries(og).filter(([k])=>!k.startsWith('_')).forEach(([k,v])=>{tableHtml+=`<div class="og-row"><div class="og-key">${escH(k)}</div><div class="og-val ok">${escH(v)}</div></div>`;});
+  tableHtml+='</div>';
+  const imgBox=img?`<div class="og-img-box"><img src="${escH(img)}" alt="og:image" onerror="this.parentNode.innerHTML='🖼️'"></div>`:`<div class="og-img-box">🖼️</div>`;
+  const previewHtml=`<div class="preview-grid">
+<div class="card"><div class="card-head">${t.lblFacebook}</div><div class="card-body"><div class="fb-wrap">${imgBox}<div class="fb-body"><div class="fb-domain">${escH(domain)}</div><div class="fb-title">${escH(trunc(title,88))}</div><div class="fb-desc">${escH(trunc(desc,200))}</div></div></div></div></div>
+<div class="card"><div class="card-head">${t.lblTwitter}</div><div class="card-body"><div class="tw-wrap">${imgBox}<div class="tw-body"><div class="tw-title">${escH(trunc(title,70))}</div><div class="tw-desc">${escH(trunc(desc,200))}</div><div class="tw-domain">${escH(domain)}</div></div></div></div></div>
+<div class="card"><div class="card-head">${t.lblLinkedIn}</div><div class="card-body"><div class="li-wrap">${imgBox}<div class="li-body"><div class="li-title">${escH(trunc(title,120))}</div><div class="li-desc">${escH(trunc(desc,300))}</div><div class="li-domain">${escH(domain)}</div></div></div></div></div>
+</div>`;
+  document.getElementById('scoreDiv').innerHTML=scoreHtml;document.getElementById('scoreDiv').style.display='block';
+  document.getElementById('tableDiv').innerHTML=tableHtml;document.getElementById('tableDiv').style.display=Object.keys(og).filter(k=>!k.startsWith('_')).length?'block':'none';
+  document.getElementById('previewDiv').innerHTML=previewHtml;document.getElementById('previewDiv').style.display='block';
+}
+function analyze(){
+  let og;
+  if(_inputTab==='html'){const html=document.getElementById('htmlIn').value.trim();if(!html)return;og=parseOGFromHtml(html);}
+  else{og={'og:title':document.getElementById('mTitle').value,'og:description':document.getElementById('mDesc').value,'og:url':document.getElementById('mUrl').value,'og:image':document.getElementById('mImg').value};}
+  renderResults(og);
+}
+function updateManual(){if(_inputTab==='manual'){const og={'og:title':document.getElementById('mTitle').value,'og:description':document.getElementById('mDesc').value,'og:url':document.getElementById('mUrl').value,'og:image':document.getElementById('mImg').value};renderResults(og);}}
+function loadSample(){
+  setInputTab('html');
+  document.getElementById('htmlIn').value=`<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Sample Page - MODOO HUB</title>
+  <meta name="description" content="A sample page to demonstrate Open Graph tags.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://modoohub.com/">
+  <meta property="og:title" content="MODOO HUB - Free Online Developer Tools">
+  <meta property="og:description" content="335 free online tools — JSON formatter, JWT decoder, Base64 encoder and more.">
+  <meta property="og:image" content="https://modoohub.com/og-image.png">
+  <meta property="og:site_name" content="MODOO HUB">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="MODOO HUB - Free Tools">
+</head>
+</html>`;
+  analyze();
+}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

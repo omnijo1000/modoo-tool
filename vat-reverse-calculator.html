@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>부가세 역산 계산기 - VAT Reverse Calculator | MODOO HUB</title>
+<meta name="description" content="VAT 포함 금액에서 세전 금액과 부가세를 계산합니다. 다양한 VAT율 지원. 무료 온라인 부가세 역산 계산기.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/vat-reverse-calculator.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/vat-reverse-calculator.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/vat-reverse-calculator.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/vat-reverse-calculator.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/vat-reverse-calculator.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/vat-reverse-calculator.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:640px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
+.mode-tabs{display:flex;gap:4px;margin-bottom:16px;}
+.tab{flex:1;padding:8px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid var(--border);color:var(--text-dim);background:var(--surface2);text-align:center;}
+.tab.active{background:var(--accent);color:#000;border-color:var(--accent);}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:14px;}
+.field-label{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;margin-bottom:6px;}
+.input-row{display:flex;gap:8px;align-items:center;margin-bottom:14px;}
+.f-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:10px 14px;color:var(--text);font-size:15px;font-family:'DM Mono',monospace;outline:none;}
+.f-input:focus{border-color:var(--accent);}
+.vat-presets{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
+.vat-preset{padding:5px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid var(--border);color:var(--text-dim);background:var(--surface2);font-family:'DM Mono',monospace;}
+.vat-preset.sel{background:var(--accent);color:#000;border-color:var(--accent);}
+.results-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:14px;display:none;}
+.result-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);}
+.result-row:last-child{border:none;}
+.r-label{font-size:13px;color:var(--text-muted);}
+.r-val{font-size:18px;font-weight:700;font-family:'DM Mono',monospace;}
+.r-val.green{color:var(--green);}
+.r-val.red{color:var(--red);}
+.r-val.accent{color:var(--accent);}
+.vat-bar{margin-top:16px;}
+.vat-bar-track{height:20px;background:var(--surface2);border-radius:6px;overflow:hidden;display:flex;}
+.vat-seg{display:flex;align-items:center;justify-content:center;font-size:10px;font-family:'DM Mono',monospace;transition:width .4s;}
+.countries-note{font-size:11px;color:var(--text-dim);line-height:1.7;margin-top:12px;padding:8px 12px;background:var(--surface2);border-radius:6px;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"VAT Reverse Calculator","url":"https://modoohub.com/vat-reverse-calculator.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"VAT 포함/제외 금액 변환 무료 온라인 계산기."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"부가세 역산 공식은?","acceptedAnswer":{"@type":"Answer","text":"세전 금액 = VAT 포함 금액 ÷ (1 + VAT율). 예: 110만원 (VAT 10%) → 110 ÷ 1.1 = 100만원 (세전), 10만원 (VAT)"}},{"@type":"Question","name":"한국 부가세율은?","acceptedAnswer":{"@type":"Answer","text":"한국의 표준 부가가치세(VAT)율은 10%입니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1><span id="h1Accent">부가세 역산</span> 계산기</h1>
+  <p class="sub" id="subEl">VAT 포함/제외 금액을 상호 변환합니다</p>
+  <div class="mode-tabs">
+    <div class="tab active" id="tab0" onclick="setMode(0)"></div>
+    <div class="tab" id="tab1" onclick="setMode(1)"></div>
+  </div>
+  <div class="card">
+    <div class="field-label" id="lblAmount"></div>
+    <div class="input-row"><input class="f-input" id="amount" type="number" placeholder="1100000" oninput="calc()"></div>
+    <div class="field-label" id="lblVatRate"></div>
+    <div class="vat-presets" id="vatPresets"></div>
+    <div class="input-row"><input class="f-input" id="vatRate" type="number" placeholder="10" oninput="unselectPreset();calc()"><span style="font-size:13px;color:var(--text-muted);margin-left:4px">%</span></div>
+    <div class="countries-note" id="countriesNote"></div>
+  </div>
+  <div class="results-box" id="resultsBox">
+    <div id="resultsRows"></div>
+    <div class="vat-bar" id="vatBar"></div>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const LANGS=['ko','en','zh','ja'];let _lang='ko',_mode=0;
+const PRESETS=[10,5,20,25,19,7];
+const _i18n={
+  ko:{h1Accent:'부가세 역산',sub:'VAT 포함/제외 금액을 상호 변환합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',
+    tabs:['VAT 포함 → 제외','VAT 제외 → 포함'],lblAmount0:'VAT 포함 금액',lblAmount1:'VAT 제외 금액 (세전)',lblVatRate:'VAT 세율',
+    rPreTax:'세전 금액 (VAT 제외)',rVat:'부가세 금액',rTotal:'VAT 포함 금액',
+    countries:'주요 국가 VAT: 한국 10% · 일본 10% · 독일/프랑스 20% · 영국 20% · 중국 13% · 미국 없음(주별 상이)',
+    seoHtml:`<h2>부가세 역산 계산기</h2><p>VAT(부가가치세) 포함 금액에서 세전 금액과 부가세 금액을 역산합니다. 예를 들어 11만원짜리 물건의 VAT를 10% 기준으로 역산하면 세전 10만원, 부가세 1만원이 됩니다. 반대로 세전 금액에서 VAT 포함 금액을 계산할 수도 있습니다. 한국(10%), 일본(10%), 독일(19%), 영국(20%) 등 다양한 국가의 세율을 지원합니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>부가세 역산 공식은?</summary><p>세전 = VAT포함 ÷ (1 + 세율). 예: 110만원 (10%) → 110 ÷ 1.1 = 100만원 (세전), 10만원 (VAT).</p></details>
+<details class="faq-item"><summary>한국 부가세율은?</summary><p>한국의 표준 부가가치세율은 10%입니다. 일부 품목(의료, 교육 등)은 면세입니다.</p></details>
+<details class="faq-item"><summary>VAT 포함 금액으로 세금 계산서 금액을 확인할 수 있나요?</summary><p>네. VAT 포함 금액을 입력하면 공급가액(세전)과 VAT 금액이 분리됩니다. 세금계산서 발행 시 활용 가능합니다.</p></details>
+<details class="faq-item"><summary>일본 소비세도 계산할 수 있나요?</summary><p>일본 소비세율 10% (경감세율 8%)를 직접 입력하면 계산됩니다.</p></details>
+<details class="faq-item"><summary>영국 VAT는?</summary><p>영국 표준 VAT는 20%입니다. 20% 버튼을 클릭하거나 직접 입력하세요.</p></details>
+<details class="faq-item"><summary>미국에서는 어떻게 계산하나요?</summary><p>미국은 연방 VAT가 없으며, 주별로 Sales Tax가 다릅니다. 해당 주의 세율을 직접 입력하세요.</p></details>
+<details class="faq-item"><summary>소수점 VAT율도 입력할 수 있나요?</summary><p>네. 예를 들어 7.5%를 입력하면 정확히 계산됩니다.</p></details>
+<details class="faq-item"><summary>VAT 면세 상품은?</summary><p>세율에 0을 입력하면 면세 계산이 됩니다.</p></details>`
+  },
+  en:{h1Accent:'VAT Reverse',sub:'Convert between VAT-inclusive and VAT-exclusive prices',backLink:'← All Tools',langBtn:'🌐 中文',
+    tabs:['VAT-inclusive → exclusive','VAT-exclusive → inclusive'],lblAmount0:'VAT-inclusive price',lblAmount1:'VAT-exclusive price (net)',lblVatRate:'VAT rate',
+    rPreTax:'Net price (ex-VAT)',rVat:'VAT amount',rTotal:'VAT-inclusive price',
+    countries:'VAT rates by country: Korea 10% · Japan 10% · Germany 19% · France 20% · UK 20% · China 13% · US: no federal VAT',
+    seoHtml:`<h2>VAT Reverse Calculator</h2><p>Calculate the net price and VAT amount from a VAT-inclusive price, or add VAT to a net price. For example, £110 at 10% VAT = £100 net + £10 VAT. Supports preset rates for Korea (10%), Japan (10%), Germany (19%), UK (20%), France (20%), and custom rates.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>VAT reverse calculation formula?</summary><p>Net = VAT-inclusive ÷ (1 + rate). Example: $110 at 10% → $110 ÷ 1.1 = $100 net, $10 VAT.</p></details>
+<details class="faq-item"><summary>What is the UK VAT rate?</summary><p>Standard UK VAT is 20%. Reduced rates of 5% apply to some goods (e.g., domestic fuel).</p></details>
+<details class="faq-item"><summary>What about US sales tax?</summary><p>The US has no federal VAT. Sales tax rates vary by state — enter your state rate directly.</p></details>
+<details class="faq-item"><summary>Can I use this for Japanese consumption tax?</summary><p>Yes — enter 10% (standard) or 8% (reduced rate for food) directly.</p></details>
+<details class="faq-item"><summary>Can I enter decimal VAT rates?</summary><p>Yes — e.g., 7.5% calculates precisely.</p></details>
+<details class="faq-item"><summary>What if a product is VAT-exempt?</summary><p>Enter 0% — the net and inclusive prices will be the same.</p></details>
+<details class="faq-item"><summary>Which direction does this calculator go?</summary><p>Both: Tab 1 goes inclusive→exclusive (reverse); Tab 2 goes exclusive→inclusive (add VAT).</p></details>
+<details class="faq-item"><summary>Is there a formula for adding VAT?</summary><p>VAT-inclusive = Net × (1 + rate). Example: $100 + 20% = $100 × 1.2 = $120.</p></details>`
+  },
+  zh:{h1Accent:'增值税逆算',sub:'在含税价格和不含税价格之间转换',backLink:'← 所有工具',langBtn:'🌐 日本語',
+    tabs:['含税→不含税','不含税→含税'],lblAmount0:'含税金额',lblAmount1:'不含税金额（净价）',lblVatRate:'增值税率',
+    rPreTax:'净价（不含税）',rVat:'增值税金额',rTotal:'含税金额',
+    countries:'各国增值税率：韩国10% · 日本10% · 德国19% · 法国20% · 英国20% · 中国13% · 美国：无联邦增值税',
+    seoHtml:`<h2>增值税逆算计算器</h2><p>从含税金额计算不含税金额和增值税金额，或将增值税添加到净价中。例如110元含10%增值税=100元净价+10元增值税。支持韩国(10%)、日本(10%)、德国(19%)、英国(20%)、法国(20%)等预设税率和自定义税率。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>增值税逆算公式是什么？</summary><p>净价=含税价÷(1+税率)。例：110元含10%→110÷1.1=100元净价，10元增值税。</p></details>
+<details class="faq-item"><summary>中国增值税率是多少？</summary><p>中国标准增值税率为13%，部分商品适用9%或6%的优惠税率。</p></details>
+<details class="faq-item"><summary>美国销售税怎么算？</summary><p>美国没有联邦增值税，各州销售税率不同，请直接输入所在州的税率。</p></details>
+<details class="faq-item"><summary>可以输入小数税率吗？</summary><p>可以，例如7.5%可以精确计算。</p></details>
+<details class="faq-item"><summary>免税商品怎么处理？</summary><p>输入0%，含税价和净价将相同。</p></details>
+<details class="faq-item"><summary>这个计算器支持哪个方向？</summary><p>两个方向都支持：标签1是含税→不含税（逆算），标签2是不含税→含税（加税）。</p></details>
+<details class="faq-item"><summary>添加增值税的公式是什么？</summary><p>含税价=净价×(1+税率)。例：100元+20%=100×1.2=120元。</p></details>
+<details class="faq-item"><summary>日本消费税怎么计算？</summary><p>直接输入10%（标准税率）或8%（饮食品优惠税率）即可。</p></details>`
+  },
+  ja:{h1Accent:'消費税逆算',sub:'税込・税抜価格を相互変換します',backLink:'← ホーム',langBtn:'🌐 한국어',
+    tabs:['税込→税抜','税抜→税込'],lblAmount0:'税込金額',lblAmount1:'税抜金額（本体価格）',lblVatRate:'消費税率',
+    rPreTax:'本体価格（税抜）',rVat:'消費税額',rTotal:'税込金額',
+    countries:'主要国の税率：韓国10% · 日本10% · ドイツ19% · フランス20% · イギリス20% · 中国13% · アメリカ：連邦VATなし',
+    seoHtml:`<h2>消費税逆算計算機</h2><p>税込金額から本体価格と消費税額を逆算したり、税抜価格に消費税を加算したりできます。例えば110円（消費税10%）→本体100円＋消費税10円。韓国(10%)、日本(10%)、ドイツ(19%)、イギリス(20%)などのプリセット税率とカスタム税率に対応しています。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>消費税の逆算式は？</summary><p>本体価格=税込価格÷(1+税率)。例：110円(10%)→110÷1.1=100円(本体)、10円(消費税)。</p></details>
+<details class="faq-item"><summary>日本の消費税率は？</summary><p>標準は10%、飲食料品などには軽減税率8%が適用されます。</p></details>
+<details class="faq-item"><summary>小数の税率も入力できますか？</summary><p>はい、例えば7.5%も正確に計算できます。</p></details>
+<details class="faq-item"><summary>非課税品はどうしますか？</summary><p>税率に0%を入力すると、税込価格と本体価格が同じになります。</p></details>
+<details class="faq-item"><summary>どちらの方向も計算できますか？</summary><p>はい、タブ1は税込→税抜（逆算）、タブ2は税抜→税込（加算）です。</p></details>
+<details class="faq-item"><summary>消費税を加算する式は？</summary><p>税込価格=本体価格×(1+税率)。例：100円+20%=100×1.2=120円。</p></details>
+<details class="faq-item"><summary>中国の増値税は計算できますか？</summary><p>直接13%（標準税率）を入力してください。</p></details>
+<details class="faq-item"><summary>英国VAT(20%)も使えますか？</summary><p>20%のプリセットをクリックするか、直接入力してください。</p></details>`
+  }
+};
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();calc();}
+function applyLang(){
+  const t=_i18n[_lang];document.documentElement.lang=_lang;
+  ['h1Accent','subEl','backLink','langBtn','countriesNote'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id]||t.countries||'';});
+  document.getElementById('countriesNote').textContent=t.countries;
+  if(t.tabs){document.getElementById('tab0').textContent=t.tabs[0];document.getElementById('tab1').textContent=t.tabs[1];}
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+  setMode(_mode);buildPresets();
+}
+function setMode(m){_mode=m;[0,1].forEach(i=>document.getElementById('tab'+i).classList.toggle('active',i===m));const t=_i18n[_lang];document.getElementById('lblAmount').textContent=m===0?t.lblAmount0:t.lblAmount1;calc();}
+function buildPresets(){
+  const p=document.getElementById('vatPresets');p.innerHTML='';const cur=parseFloat(document.getElementById('vatRate').value)||10;
+  PRESETS.forEach(r=>{const btn=document.createElement('div');btn.className='vat-preset'+(cur===r?' sel':'');btn.textContent=r+'%';btn.onclick=()=>{document.getElementById('vatRate').value=r;buildPresets();calc();};p.appendChild(btn);});
+}
+function unselectPreset(){buildPresets();}
+function fmt(n){return n.toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:2});}
+function calc(){
+  const t=_i18n[_lang];const amt=parseFloat(document.getElementById('amount').value)||0;const rate=parseFloat(document.getElementById('vatRate').value)||0;
+  if(!amt){document.getElementById('resultsBox').style.display='none';return;}
+  let net,vatAmt,total;
+  if(_mode===0){total=amt;net=amt/(1+rate/100);vatAmt=amt-net;}
+  else{net=amt;vatAmt=net*rate/100;total=net+vatAmt;}
+  const netPct=(net/total*100).toFixed(1),vatPct=(vatAmt/total*100).toFixed(1);
+  const rows=document.getElementById('resultsRows');rows.innerHTML='';
+  [{l:t.rPreTax,v:fmt(net),c:'green'},{l:t.rVat,v:fmt(vatAmt),c:'red'},{l:t.rTotal,v:fmt(total),c:'accent'}].forEach(r=>{
+    rows.innerHTML+=`<div class="result-row"><span class="r-label">${r.l}</span><span class="r-val ${r.c}">${r.v}</span></div>`;
+  });
+  document.getElementById('vatBar').innerHTML=`<div class="vat-bar-track"><div class="vat-seg" style="width:${netPct}%;background:#3b82f6;color:#fff">${netPct}%</div><div class="vat-seg" style="width:${vatPct}%;background:#ef4444;color:#fff">${vatPct}%</div></div>`;
+  document.getElementById('resultsBox').style.display='block';
+}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

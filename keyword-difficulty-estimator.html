@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>키워드 난이도 추정기 - Keyword Difficulty Estimator | MODOO HUB</title>
+<meta name="description" content="키워드의 SEO 경쟁 난이도를 추정합니다. 키워드 특성, 검색 의도, 경쟁 강도를 분석하여 순위 달성 가능성을 평가합니다. 무료 온라인 도구.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/keyword-difficulty-estimator.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/keyword-difficulty-estimator.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/keyword-difficulty-estimator.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/keyword-difficulty-estimator.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/keyword-difficulty-estimator.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/keyword-difficulty-estimator.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:800px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
+.input-area{display:flex;gap:8px;margin-bottom:16px;}
+.kw-input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--text);font-size:14px;font-family:'Noto Sans KR',sans-serif;outline:none;}
+.kw-input:focus{border-color:var(--accent);}
+.btn{padding:8px 20px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:'Noto Sans KR',sans-serif;}
+.btn-primary{background:var(--accent);color:#000;}
+.btn-primary:hover{background:#f59e0b;}
+.btn-sec{background:var(--surface2);color:var(--text-muted);border:1px solid var(--border);}
+.btn-sec:hover{border-color:var(--accent);}
+.factors{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+@media(max-width:600px){.factors{grid-template-columns:1fr;}}
+.factor-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+.factor-label{font-size:11px;color:var(--text-dim);margin-bottom:8px;}
+.factor-sel{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--text);font-size:12px;font-family:'Noto Sans KR',sans-serif;outline:none;}
+.result-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;text-align:center;margin-bottom:16px;display:none;}
+.score-ring{width:120px;height:120px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:36px;font-weight:900;font-family:'DM Mono',monospace;border:4px solid var(--border);}
+.score-label{font-size:14px;font-weight:700;margin-bottom:6px;}
+.score-desc{font-size:12px;color:var(--text-muted);line-height:1.6;max-width:400px;margin:0 auto;}
+.details-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin-top:16px;}
+.detail-item{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;}
+.detail-label{font-size:10px;color:var(--text-dim);margin-bottom:4px;}
+.detail-val{font-size:12px;font-family:'DM Mono',monospace;}
+.tip-list{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;display:none;margin-bottom:16px;}
+.tip-title{font-size:12px;font-weight:700;color:var(--text-muted);margin-bottom:10px;}
+.tip-item{font-size:12px;color:var(--text-dim);line-height:1.8;padding:4px 0;border-bottom:1px solid var(--border);}
+.tip-item:last-child{border-bottom:none;}
+.tip-item::before{content:'→ ';color:var(--accent);}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Keyword Difficulty Estimator","url":"https://modoohub.com/keyword-difficulty-estimator.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"키워드 SEO 경쟁 난이도를 추정하는 무료 온라인 도구."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"키워드 난이도(KD)란 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"특정 키워드로 검색 결과 상위에 노출되기가 얼마나 어려운지 나타내는 지표입니다."}},{"@type":"Question","name":"KD가 높은 키워드는 피해야 하나요?","acceptedAnswer":{"@type":"Answer","text":"신규 사이트는 KD 30 이하 롱테일 키워드부터 시작해 도메인 권위를 쌓는 전략이 효과적입니다."}},{"@type":"Question","name":"어떤 요소로 키워드 난이도를 추정하나요?","acceptedAnswer":{"@type":"Answer","text":"검색 결과 상위 페이지의 도메인 권위(DA), 백링크 수, 콘텐츠 품질 등을 분석합니다."}},{"@type":"Question","name":"검색량이 낮아도 KD가 높을 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"네, 경쟁사들이 전략적으로 특정 키워드를 공략하면 검색량이 적어도 KD가 높을 수 있습니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>키워드 <span id="h1Accent">난이도 추정기</span></h1>
+  <p class="sub" id="subEl">키워드 특성과 경쟁 환경을 분석하여 SEO 난이도를 추정합니다</p>
+  <div class="input-area">
+    <input class="kw-input" id="kwInput" placeholder="분석할 키워드를 입력하세요..." oninput="onInput()">
+    <button class="btn btn-primary" onclick="estimate()" id="btnEst">분석</button>
+    <button class="btn btn-sec" onclick="loadSample()" id="btnSample">샘플</button>
+  </div>
+  <div class="factors" id="factorsEl">
+    <div class="factor-card">
+      <div class="factor-label" id="lblComp">경쟁사 도메인 강도</div>
+      <select class="factor-sel" id="selComp">
+        <option value="1">약함 (DA 10~30)</option>
+        <option value="2" selected>보통 (DA 30~60)</option>
+        <option value="3">강함 (DA 60~80)</option>
+        <option value="4">매우 강함 (DA 80+)</option>
+      </select>
+    </div>
+    <div class="factor-card">
+      <div class="factor-label" id="lblIntent">검색 의도</div>
+      <select class="factor-sel" id="selIntent">
+        <option value="info">정보형 (how to, what is)</option>
+        <option value="nav">탐색형 (브랜드명)</option>
+        <option value="com">상업형 (best, review)</option>
+        <option value="trans">구매형 (buy, price)</option>
+      </select>
+    </div>
+    <div class="factor-card">
+      <div class="factor-label" id="lblContent">콘텐츠 유형</div>
+      <select class="factor-sel" id="selContent">
+        <option value="blog">블로그/가이드</option>
+        <option value="product">제품 페이지</option>
+        <option value="tool">무료 툴/앱</option>
+        <option value="news">뉴스/이슈</option>
+      </select>
+    </div>
+    <div class="factor-card">
+      <div class="factor-label" id="lblAge">도메인 연령</div>
+      <select class="factor-sel" id="selAge">
+        <option value="new">신규 (1년 미만)</option>
+        <option value="mid" selected>중간 (1~5년)</option>
+        <option value="old">오래됨 (5년+)</option>
+      </select>
+    </div>
+  </div>
+  <div class="result-box" id="resultBox">
+    <div class="score-ring" id="scoreRing">—</div>
+    <div class="score-label" id="scoreLabel"></div>
+    <div class="score-desc" id="scoreDesc"></div>
+    <div class="details-grid" id="detailsGrid"></div>
+  </div>
+  <div class="tip-list" id="tipList">
+    <div class="tip-title" id="tipTitle">최적화 전략</div>
+    <div id="tipItems"></div>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const LANGS=['ko','en','zh','ja'];let _lang='ko';
+const _i18n={
+  ko:{h1Accent:'난이도 추정기',sub:'키워드 특성과 경쟁 환경을 분석하여 SEO 난이도를 추정합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',
+    lblComp:'경쟁사 도메인 강도',lblIntent:'검색 의도',lblContent:'콘텐츠 유형',lblAge:'도메인 연령',btnEst:'분석',btnSample:'샘플',
+    compOpts:['약함 (DA 10~30)','보통 (DA 30~60)','강함 (DA 60~80)','매우 강함 (DA 80+)'],
+    intentOpts:['정보형 (how to, what is)','탐색형 (브랜드명)','상업형 (best, review)','구매형 (buy, price)'],
+    contentOpts:['블로그/가이드','제품 페이지','무료 툴/앱','뉴스/이슈'],
+    ageOpts:['신규 (1년 미만)','중간 (1~5년)','오래됨 (5년+)'],
+    levels:['매우 쉬움','쉬움','보통','어려움','매우 어려움'],
+    levelColors:['#4ade80','#86efac','#fbbf24','#f97316','#f87171'],
+    levelDescs:['경쟁이 적어 신규 사이트도 진입 가능합니다. 롱테일 키워드나 틈새 주제입니다.','적절한 콘텐츠와 기본 SEO로 1페이지 진입이 가능합니다.','경쟁이 보통 수준입니다. 품질 높은 콘텐츠와 링크빌딩이 필요합니다.','강한 도메인들이 경쟁 중입니다. 장기적 전략과 상당한 링크빌딩이 필요합니다.','상위 도메인들이 지배하는 키워드입니다. 틈새 전략을 고려하세요.'],
+    detailLabels:['단어 수','글자 수','의도 유형','예상 월 검색량','추정 CPC','순위 기간'],
+    tipTitle:'최적화 전략',
+    tips:{easy:['롱테일 변형 키워드 추가로 트래픽 확장','FAQ 섹션으로 피처드 스니펫 확보','내부 링크 구조 최적화'],medium:['경쟁 페이지보다 긴 상세 가이드 작성','E-E-A-T 강화 (저자 프로필, 인용)','소셜 미디어 신호 구축'],hard:['링크빌딩 캠페인 집중 운영','경쟁사 백링크 분석 후 확보','시리즈 콘텐츠로 토픽 권위 구축','우선 롱테일 키워드로 도메인 권위 쌓기']},
+    seoHtml:`<h2>키워드 난이도 추정기</h2><p>SEO에서 특정 키워드로 검색 상위에 노출되기 위한 경쟁 난이도를 추정합니다. 경쟁사 도메인 강도, 검색 의도, 콘텐츠 유형, 도메인 연령 등을 종합하여 0~100 점수로 난이도를 표시합니다. 키워드 선택 전략 수립에 활용하세요.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>키워드 난이도 점수는 어떻게 계산되나요?</summary><p>경쟁사 도메인 강도, 검색 의도, 콘텐츠 경쟁, 키워드 길이 등을 가중 평균하여 0~100 점수를 산출합니다. 높을수록 순위 달성이 어렵습니다.</p></details>
+<details class="faq-item"><summary>어떤 점수가 공략 가능한 수준인가요?</summary><p>일반적으로 40점 이하는 신규 사이트도 공략 가능합니다. 60점 이상은 강한 도메인 권위가 필요합니다.</p></details>
+<details class="faq-item"><summary>롱테일 키워드는 왜 난이도가 낮나요?</summary><p>단어 수가 많을수록 검색량은 줄지만 경쟁도 낮아져 특정 의도에 집중된 사용자를 타겟할 수 있습니다.</p></details>
+<details class="faq-item"><summary>정보형 키워드와 구매형 키워드 중 어느 것이 어렵나요?</summary><p>구매형 키워드는 광고 경쟁이 강하고 CPC가 높아 SEO 난이도도 높은 경향이 있습니다.</p></details>
+<details class="faq-item"><summary>도메인 연령이 순위에 영향을 미치나요?</summary><p>오래된 도메인은 Google의 신뢰도가 높아 동일 콘텐츠 품질에서 유리할 수 있습니다.</p></details>
+<details class="faq-item"><summary>이 도구는 실제 검색량 데이터를 사용하나요?</summary><p>아니오, 키워드 특성과 입력값을 기반으로 추정하는 도구입니다. 정확한 데이터는 Google Search Console이나 Ahrefs를 사용하세요.</p></details>
+<details class="faq-item"><summary>브랜드 키워드는 왜 탐색형 의도로 분류하나요?</summary><p>브랜드명 검색은 이미 해당 브랜드를 알고 있는 사용자로, 구매 가능성이 높지만 경쟁사 진입은 어렵습니다.</p></details>
+<details class="faq-item"><summary>무료 툴 키워드가 유리한 이유는?</summary><p>무료 툴 페이지는 자연스러운 링크 유입이 많고 사용자 체류 시간이 길어 SEO에 유리합니다.</p></details>`
+  },
+  en:{h1Accent:'Difficulty Estimator',sub:'Estimate SEO keyword difficulty based on competition and keyword characteristics',backLink:'← All Tools',langBtn:'🌐 中文',
+    lblComp:'Competitor domain strength',lblIntent:'Search intent',lblContent:'Content type',lblAge:'Domain age',btnEst:'Analyze',btnSample:'Sample',
+    compOpts:['Weak (DA 10–30)','Medium (DA 30–60)','Strong (DA 60–80)','Very strong (DA 80+)'],
+    intentOpts:['Informational (how to, what is)','Navigational (brand name)','Commercial (best, review)','Transactional (buy, price)'],
+    contentOpts:['Blog / Guide','Product page','Free tool / App','News / Trending'],
+    ageOpts:['New (< 1 year)','Medium (1–5 years)','Old (5+ years)'],
+    levels:['Very Easy','Easy','Moderate','Hard','Very Hard'],
+    levelColors:['#4ade80','#86efac','#fbbf24','#f97316','#f87171'],
+    levelDescs:['Low competition — new sites can rank with good content.','Basic SEO and quality content can achieve page 1.','Moderate competition — quality content and link building needed.','Strong domains compete — long-term strategy and significant link building required.','Top domains dominate — consider long-tail alternatives.'],
+    detailLabels:['Word count','Char count','Intent type','Est. monthly searches','Est. CPC','Ranking timeline'],
+    tipTitle:'Optimization Strategy',
+    tips:{easy:['Target long-tail variations to expand traffic','Optimize for featured snippets with FAQ sections','Build internal link structure'],medium:['Write longer, more comprehensive guides than competitors','Strengthen E-E-A-T (author profiles, citations)','Build social signals'],hard:['Run focused link building campaigns','Analyze and replicate competitor backlinks','Build topical authority with content series','Target long-tail keywords first to build domain authority']},
+    seoHtml:`<h2>Keyword Difficulty Estimator</h2><p>Estimate the SEO competition difficulty for ranking a keyword in search results. Combines competitor domain strength, search intent, content type, and domain age into a 0–100 score. Use it to prioritize your keyword strategy.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>How is the difficulty score calculated?</summary><p>A weighted average of competitor domain strength, search intent, content competition, and keyword length gives a 0–100 score. Higher = harder to rank.</p></details>
+<details class="faq-item"><summary>What score is realistically achievable?</summary><p>Generally, scores below 40 are achievable for new sites. Above 60 requires significant domain authority.</p></details>
+<details class="faq-item"><summary>Why are long-tail keywords easier?</summary><p>More words = less search volume but less competition, letting you target specific intent.</p></details>
+<details class="faq-item"><summary>Informational vs. transactional — which is harder?</summary><p>Transactional keywords face high ad competition and CPC, making them harder to rank organically too.</p></details>
+<details class="faq-item"><summary>Does domain age affect rankings?</summary><p>Older domains tend to have higher Google trust, giving them an edge at equal content quality.</p></details>
+<details class="faq-item"><summary>Does this use real search volume data?</summary><p>No — it estimates based on keyword characteristics and your inputs. For precise data, use Google Search Console or Ahrefs.</p></details>
+<details class="faq-item"><summary>Why is navigational intent a separate category?</summary><p>Brand-name searches target users who already know the brand — high purchase intent but hard for competitors to enter.</p></details>
+<details class="faq-item"><summary>Why are free tool pages SEO-friendly?</summary><p>Free tools attract natural links, long dwell time, and repeat visits — all strong SEO signals.</p></details>`
+  },
+  zh:{h1Accent:'难度估算器',sub:'根据竞争和关键词特性估算SEO关键词难度',backLink:'← 所有工具',langBtn:'🌐 日本語',
+    lblComp:'竞争对手域名强度',lblIntent:'搜索意图',lblContent:'内容类型',lblAge:'域名年龄',btnEst:'分析',btnSample:'示例',
+    compOpts:['弱 (DA 10~30)','中等 (DA 30~60)','强 (DA 60~80)','非常强 (DA 80+)'],
+    intentOpts:['信息型 (how to, what is)','导航型 (品牌名)','商业型 (best, review)','交易型 (buy, price)'],
+    contentOpts:['博客/指南','产品页面','免费工具/应用','新闻/热点'],
+    ageOpts:['新 (不到1年)','中等 (1~5年)','老 (5年以上)'],
+    levels:['非常容易','容易','中等','困难','非常困难'],
+    levelColors:['#4ade80','#86efac','#fbbf24','#f97316','#f87171'],
+    levelDescs:['竞争少，新网站也可以通过优质内容排名。','基本SEO和优质内容可以进入第1页。','竞争中等，需要优质内容和链接建设。','强域名竞争，需要长期策略和大量链接建设。','顶级域名主导，考虑长尾替代关键词。'],
+    detailLabels:['单词数','字符数','意图类型','预计月搜索量','预计CPC','排名周期'],
+    tipTitle:'优化策略',
+    tips:{easy:['定位长尾变体扩展流量','用FAQ部分优化精选摘要','建立内部链接结构'],medium:['写比竞争对手更详细的指南','加强E-E-A-T（作者简介、引用）','建立社交信号'],hard:['开展重点链接建设活动','分析并复制竞争对手的反向链接','通过内容系列建立主题权威','先定位长尾词建立域名权威']},
+    seoHtml:`<h2>关键词难度估算器</h2><p>估算特定关键词在搜索结果中排名的SEO竞争难度。综合竞争对手域名强度、搜索意图、内容类型和域名年龄，输出0~100分。用于制定关键词优先策略。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>难度分数如何计算？</summary><p>对竞争对手域名强度、搜索意图、内容竞争和关键词长度进行加权平均，得出0~100分。分数越高越难排名。</p></details>
+<details class="faq-item"><summary>什么分数是可以实现的？</summary><p>一般来说，40分以下的新网站也可以实现。60分以上需要较强的域名权威。</p></details>
+<details class="faq-item"><summary>为什么长尾关键词更容易？</summary><p>词数越多，搜索量减少但竞争也减少，可以针对特定意图。</p></details>
+<details class="faq-item"><summary>信息型和交易型关键词哪个更难？</summary><p>交易型关键词面临高广告竞争和CPC，自然排名也更难。</p></details>
+<details class="faq-item"><summary>域名年龄影响排名吗？</summary><p>老域名通常在Google信任度更高，相同内容质量下更有优势。</p></details>
+<details class="faq-item"><summary>此工具使用真实搜索量数据吗？</summary><p>不，它基于关键词特性和您的输入进行估算。精确数据请使用Google Search Console或Ahrefs。</p></details>
+<details class="faq-item"><summary>为什么导航型意图是单独类别？</summary><p>品牌名搜索针对已了解品牌的用户，购买意图高但竞争对手难以进入。</p></details>
+<details class="faq-item"><summary>为什么免费工具页面SEO友好？</summary><p>免费工具吸引自然链接、长停留时间和回访——都是强烈的SEO信号。</p></details>`
+  },
+  ja:{h1Accent:'難易度推定器',sub:'競合とキーワード特性からSEOキーワード難易度を推定します',backLink:'← ホーム',langBtn:'🌐 한국어',
+    lblComp:'競合ドメイン強度',lblIntent:'検索意図',lblContent:'コンテンツタイプ',lblAge:'ドメイン年齢',btnEst:'分析',btnSample:'サンプル',
+    compOpts:['弱い (DA 10~30)','普通 (DA 30~60)','強い (DA 60~80)','非常に強い (DA 80+)'],
+    intentOpts:['情報型 (how to, what is)','ナビゲーション型 (ブランド名)','商業型 (best, review)','取引型 (buy, price)'],
+    contentOpts:['ブログ/ガイド','製品ページ','無料ツール/アプリ','ニュース/話題'],
+    ageOpts:['新規 (1年未満)','中程度 (1~5年)','古い (5年以上)'],
+    levels:['非常に簡単','簡単','普通','難しい','非常に難しい'],
+    levelColors:['#4ade80','#86efac','#fbbf24','#f97316','#f87171'],
+    levelDescs:['競合が少なく新規サイトも良質コンテンツで上位表示可能。','基本的なSEOと高品質コンテンツで1ページ目が狙えます。','競合が中程度。高品質コンテンツとリンク構築が必要。','強力なドメインが競合。長期戦略と大規模なリンク構築が必要。','トップドメインが独占。ロングテール代替キーワードを検討してください。'],
+    detailLabels:['単語数','文字数','意図タイプ','推定月間検索数','推定CPC','順位達成期間'],
+    tipTitle:'最適化戦略',
+    tips:{easy:['ロングテール変形でトラフィック拡大','FAQセクションでフィーチャードスニペット獲得','内部リンク構造の最適化'],medium:['競合より詳細なガイドを作成','E-E-A-T強化（著者プロフィール、引用）','ソーシャルシグナル構築'],hard:['集中的なリンク構築キャンペーン実施','競合のバックリンクを分析して獲得','コンテンツシリーズでトピック権威構築','まずロングテールでドメイン権威を積む']},
+    seoHtml:`<h2>キーワード難易度推定器</h2><p>特定キーワードで検索上位に表示されるためのSEO競合難易度を推定します。競合ドメイン強度、検索意図、コンテンツタイプ、ドメイン年齢を総合して0~100スコアで表示します。キーワード戦略の優先順位決定にご活用ください。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>難易度スコアはどのように計算されますか？</summary><p>競合ドメイン強度、検索意図、コンテンツ競争、キーワード長の加重平均で0~100スコアを算出。高いほど順位達成が困難。</p></details>
+<details class="faq-item"><summary>どのスコアが現実的に狙えますか？</summary><p>一般的に40点以下は新規サイトも狙えます。60点以上はドメイン権威が必要。</p></details>
+<details class="faq-item"><summary>ロングテールキーワードが簡単な理由は？</summary><p>語数が多いほど検索量は減りますが競合も減り、特定意図をターゲットできます。</p></details>
+<details class="faq-item"><summary>情報型と取引型、どちらが難しいですか？</summary><p>取引型は広告競争とCPCが高く、自然検索での順位達成も難しい傾向があります。</p></details>
+<details class="faq-item"><summary>ドメイン年齢は順位に影響しますか？</summary><p>古いドメインはGoogleの信頼度が高く、同じコンテンツ品質で有利になりやすいです。</p></details>
+<details class="faq-item"><summary>実際の検索量データを使っていますか？</summary><p>いいえ、キーワード特性と入力値に基づく推定です。正確なデータはGoogle Search ConsoleやAhrefsをご利用ください。</p></details>
+<details class="faq-item"><summary>なぜナビゲーション型が別カテゴリですか？</summary><p>ブランド名検索はすでにブランドを知っているユーザーを対象とし、購買意欲は高いが競合参入は困難です。</p></details>
+<details class="faq-item"><summary>無料ツールページがSEOに有利な理由は？</summary><p>自然なリンク獲得、長い滞在時間、リピート訪問を引き付け、強いSEOシグナルになります。</p></details>`
+  }
+};
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){
+  const t=_i18n[_lang];document.documentElement.lang=_lang;
+  ['h1Accent','subEl','backLink','langBtn','lblComp','lblIntent','lblContent','lblAge','btnEst','btnSample'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id]||el.textContent;});
+  const opts=[['selComp','compOpts'],['selIntent','intentOpts'],['selContent','contentOpts'],['selAge','ageOpts']];
+  opts.forEach(([id,key])=>{const s=document.getElementById(id);if(s)t[key].forEach((o,i)=>{if(s.options[i])s.options[i].text=o;});});
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+}
+function calcScore(kw){
+  const t=_i18n[_lang];
+  const words=kw.trim().split(/\s+/).length;
+  const comp=parseInt(document.getElementById('selComp').value);
+  const intent=document.getElementById('selIntent').value;
+  const content=document.getElementById('selContent').value;
+  const age=document.getElementById('selAge').value;
+  let score=0;
+  score+=comp*18;
+  score+=intent==='info'?10:intent==='nav'?25:intent==='com'?20:30;
+  score+=content==='tool'?5:content==='blog'?10:content==='news'?8:20;
+  score+=age==='old'?-10:age==='mid'?0:10;
+  score-=Math.min(words-1,4)*5;
+  score=Math.max(5,Math.min(95,Math.round(score)));
+  const lvl=score<20?0:score<40?1:score<60?2:score<80?3:4;
+  const searches=words===1?'10K~100K':words===2?'1K~10K':words>=3?'100~1K':'1K~10K';
+  const cpc=intent==='trans'?'$2~$8':intent==='com'?'$1~$4':intent==='nav'?'$0.5~$2':'$0.2~$1';
+  const timeline=score<30?(_lang==='ko'?'1~3개월':_lang==='ja'?'1~3ヶ月':_lang==='zh'?'1~3个月':'1–3 months'):score<60?(_lang==='ko'?'3~8개월':_lang==='ja'?'3~8ヶ月':_lang==='zh'?'3~8个月':'3–8 months'):(_lang==='ko'?'12개월+':_lang==='ja'?'12ヶ月以上':_lang==='zh'?'12个月以上':'12+ months');
+  const tips=score<40?t.tips.easy:score<70?t.tips.medium:t.tips.hard;
+  return{score,lvl,color:t.levelColors[lvl],label:t.levels[lvl],desc:t.levelDescs[lvl],words,chars:kw.length,intent,searches,cpc,timeline,tips,detailLabels:t.detailLabels};
+}
+function onInput(){if(document.getElementById('kwInput').value.trim())estimate();}
+function estimate(){
+  const t=_i18n[_lang];const kw=document.getElementById('kwInput').value.trim();
+  if(!kw)return;
+  const r=calcScore(kw);
+  const ring=document.getElementById('scoreRing');
+  ring.textContent=r.score;ring.style.borderColor=r.color;ring.style.color=r.color;
+  document.getElementById('scoreLabel').textContent=r.label;document.getElementById('scoreLabel').style.color=r.color;
+  document.getElementById('scoreDesc').textContent=r.desc;
+  const intentMap={info:r.detailLabels[2]+' (Info)',nav:r.detailLabels[2]+' (Nav)',com:r.detailLabels[2]+' (Com)',trans:r.detailLabels[2]+' (Trans)'};
+  document.getElementById('detailsGrid').innerHTML=[[r.detailLabels[0],r.words],[r.detailLabels[1],r.chars],[r.detailLabels[2],r.intent],[r.detailLabels[3],r.searches],[r.detailLabels[4],r.cpc],[r.detailLabels[5],r.timeline]].map(([l,v])=>`<div class="detail-item"><div class="detail-label">${l}</div><div class="detail-val">${v}</div></div>`).join('');
+  document.getElementById('resultBox').style.display='block';
+  document.getElementById('tipTitle').textContent=t.tipTitle;
+  document.getElementById('tipItems').innerHTML=r.tips.map(tip=>`<div class="tip-item">${tip}</div>`).join('');
+  document.getElementById('tipList').style.display='block';
+}
+function loadSample(){document.getElementById('kwInput').value=_lang==='ko'?'무료 SEO 도구 추천':_lang==='ja'?'無料SEOツール おすすめ':_lang==='zh'?'免费SEO工具推荐':'free seo tools';estimate();}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JPG to AVIF 변환기 - JPG to AVIF Converter | MODOO HUB</title>
+<meta name="description" content="JPG, PNG 이미지를 AVIF 형식으로 변환합니다. Canvas API 사용, 브라우저 직접 변환. 무료 온라인 JPG to AVIF 변환 도구.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/jpg-to-avif.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/jpg-to-avif.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/jpg-to-avif.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/jpg-to-avif.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/jpg-to-avif.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/jpg-to-avif.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:720px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
+.support-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.badge{font-size:11px;padding:3px 10px;border-radius:20px;font-family:'DM Mono',monospace;}
+.badge.ok{background:rgba(74,222,128,0.1);color:var(--green);border:1px solid rgba(74,222,128,0.2);}
+.badge.warn{background:rgba(251,191,36,0.1);color:var(--accent);border:1px solid rgba(251,191,36,0.2);}
+.badge.no{background:rgba(248,113,113,0.1);color:var(--red);border:1px solid rgba(248,113,113,0.2);}
+.drop-zone{border:2px dashed var(--border);border-radius:12px;padding:44px 20px;text-align:center;cursor:pointer;transition:border-color .2s;background:var(--surface);margin-bottom:16px;}
+.drop-zone:hover,.drop-zone.drag{border-color:var(--accent);}
+.drop-icon{font-size:32px;margin-bottom:8px;}
+.drop-text{font-size:13px;color:var(--text-muted);}
+.drop-hint{font-size:11px;color:var(--text-dim);margin-top:5px;}
+#fileInput{display:none;}
+.opts{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:16px;display:flex;gap:20px;flex-wrap:wrap;align-items:center;}
+.opt-group{display:flex;align-items:center;gap:8px;}
+.opt-label{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;}
+input.range{accent-color:var(--accent);width:100px;}
+.result-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;}
+.thumb{width:48px;height:48px;object-fit:cover;border-radius:6px;border:1px solid var(--border);}
+.file-info{flex:1;min-width:0;}
+.file-name{font-size:12px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.file-meta{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;margin-top:3px;}
+.dl-btn{padding:5px 14px;border-radius:7px;border:none;cursor:pointer;font-size:11px;font-weight:700;background:var(--accent);color:#000;white-space:nowrap;text-decoration:none;display:inline-block;}
+.dl-btn:hover{background:#f59e0b;}
+.status{font-size:11px;font-family:'DM Mono',monospace;padding:3px 10px;border-radius:5px;}
+.status.ok{background:rgba(74,222,128,0.1);color:var(--green);}
+.status.err{background:rgba(248,113,113,0.1);color:var(--red);}
+.status.proc{color:var(--accent);}
+.btn-row{display:flex;gap:8px;margin-bottom:14px;}
+.btn{padding:7px 18px;border-radius:7px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:'Noto Sans KR',sans-serif;background:var(--surface2);color:var(--text-muted);border:1px solid var(--border);}
+.btn:hover{border-color:var(--accent);}
+.no-support-msg{display:none;padding:12px 16px;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);border-radius:8px;font-size:12px;color:var(--red);margin-bottom:14px;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"JPG to AVIF Converter","url":"https://modoohub.com/jpg-to-avif.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"JPG/PNG 이미지를 AVIF 형식으로 변환하는 무료 온라인 도구."}</script>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"JPG를 AVIF로 변환하면 파일이 더 작아지나요?","acceptedAnswer":{"@type":"Answer","text":"네, AVIF는 JPG 대비 50% 이상 작은 파일 크기를 제공하면서 동등하거나 더 나은 화질을 유지합니다."}},{"@type":"Question","name":"AVIF를 지원하는 브라우저는?","acceptedAnswer":{"@type":"Answer","text":"Chrome 85+, Firefox 93+, Safari 16+에서 AVIF를 지원합니다. Edge도 최신 버전에서 지원합니다."}},{"@type":"Question","name":"AVIF와 WebP의 차이는?","acceptedAnswer":{"@type":"Answer","text":"AVIF가 WebP보다 압축률이 더 높고 화질도 우수하지만, 인코딩 시간이 더 오래 걸릴 수 있습니다."}},{"@type":"Question","name":"변환 품질을 조절할 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"브라우저 Canvas API를 통해 변환하므로 품질 수준을 직접 지정하기 어렵습니다. 결과물은 브라우저 기본 품질로 출력됩니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>JPG → <span id="h1Accent">AVIF</span> 변환기</h1>
+  <p class="sub" id="subEl">JPG, PNG를 차세대 AVIF 형식으로 변환합니다</p>
+  <div class="support-bar" id="supportBar"></div>
+  <div class="no-support-msg" id="noSupportMsg"></div>
+  <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+    <div class="drop-icon">🖼️</div>
+    <div class="drop-text" id="dropText">JPG, PNG, WebP 파일을 드래그하거나 클릭하세요</div>
+    <div class="drop-hint" id="dropHint">여러 파일 동시 처리 가능 · 파일이 서버에 업로드되지 않음</div>
+  </div>
+  <input type="file" id="fileInput" accept="image/*" multiple>
+  <div class="opts">
+    <div class="opt-group">
+      <span class="opt-label" id="lblQuality">품질:</span>
+      <input type="range" class="range" id="quality" min="50" max="100" value="80" oninput="document.getElementById('qval').textContent=this.value+'%'">
+      <span style="font-size:11px;font-family:'DM Mono',monospace;color:var(--text-muted);min-width:36px" id="qval">80%</span>
+    </div>
+  </div>
+  <div class="btn-row">
+    <button class="btn" onclick="clearAll()" id="btnClear">모두 지우기</button>
+  </div>
+  <div id="resultList"></div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const LANGS=['ko','en','zh','ja'];let _lang='ko';
+const _i18n={
+  ko:{h1Accent:'AVIF',sub:'JPG, PNG를 차세대 AVIF 형식으로 변환합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',dropText:'JPG, PNG, WebP 파일을 드래그하거나 클릭하세요',dropHint:'여러 파일 동시 처리 가능 · 파일이 서버에 업로드되지 않음',lblQuality:'품질:',btnClear:'모두 지우기',
+    supportOk:'✓ AVIF 인코딩 지원',supportNo:'✗ AVIF 미지원',noSupport:'이 브라우저는 AVIF 인코딩을 지원하지 않습니다. Chrome 85+, Firefox 93+, Safari 16+를 사용해 주세요.',
+    proc:'변환 중...',done:'변환 완료',err:'AVIF 인코딩 미지원',dl:'다운로드',
+    seoHtml:`<h2>JPG to AVIF 변환기</h2><p>JPG, PNG 이미지를 AVIF(AV1 Image File Format) 형식으로 변환합니다. AVIF는 차세대 이미지 형식으로 동일 품질에서 JPG보다 약 50%, WebP보다 약 20% 더 작은 파일 크기를 제공합니다. 웹사이트 최적화에 매우 효과적인 AVIF 형식으로 이미지를 변환하여 로딩 속도를 향상시키세요. Canvas API를 사용하여 브라우저에서 직접 변환하므로 파일이 서버에 업로드되지 않습니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>AVIF 형식이란?</summary><p>AV1 Image File Format으로, Netflix가 주도한 AOMedia에서 개발한 차세대 이미지 형식입니다. 탁월한 압축률과 화질을 제공합니다.</p></details>
+<details class="faq-item"><summary>어떤 브라우저에서 AVIF 인코딩이 가능한가요?</summary><p>Chrome 85+, Firefox 93+, Safari 16+에서 Canvas API를 통한 AVIF 인코딩이 지원됩니다.</p></details>
+<details class="faq-item"><summary>AVIF가 WebP보다 나은가요?</summary><p>일반적으로 AVIF가 WebP보다 약 20% 더 작은 파일 크기를 제공하지만, 인코딩 속도는 느릴 수 있습니다.</p></details>
+<details class="faq-item"><summary>변환 시 원본 품질이 유지되나요?</summary><p>품질 슬라이더로 출력 품질을 조정할 수 있습니다. 80% 이상에서는 육안으로 차이가 거의 없습니다.</p></details>
+<details class="faq-item"><summary>파일이 서버에 업로드되나요?</summary><p>아니요. 모든 변환이 브라우저 로컬에서 처리됩니다.</p></details>
+<details class="faq-item"><summary>AVIF를 지원하지 않는 브라우저를 위한 대안은?</summary><p>Chrome 85+, Firefox 93+, Safari 16+ 이상으로 업그레이드하거나, WebP 형식을 대안으로 사용하세요.</p></details>
+<details class="faq-item"><summary>AVIF 파일을 열 수 없어요.</summary><p>최신 Chrome, Firefox, Safari, Edge에서 AVIF를 지원합니다. Windows 사진 뷰어는 아직 지원하지 않을 수 있습니다.</p></details>
+<details class="faq-item"><summary>여러 파일을 한 번에 변환할 수 있나요?</summary><p>예, 여러 파일을 선택하거나 드래그하면 순차적으로 변환됩니다.</p></details>`
+  },
+  en:{h1Accent:'AVIF',sub:'Convert JPG, PNG to next-gen AVIF format',backLink:'← All Tools',langBtn:'🌐 中文',dropText:'Drop JPG, PNG, or WebP files here or click to browse',dropHint:'Multiple files supported · Files never uploaded to server',lblQuality:'Quality:',btnClear:'Clear all',
+    supportOk:'✓ AVIF encoding supported',supportNo:'✗ AVIF not supported',noSupport:'This browser does not support AVIF encoding. Use Chrome 85+, Firefox 93+, or Safari 16+.',
+    proc:'Converting...',done:'Done',err:'AVIF encoding not supported',dl:'Download',
+    seoHtml:`<h2>JPG to AVIF Converter</h2><p>Convert JPG and PNG images to AVIF (AV1 Image File Format). AVIF is a next-gen format offering ~50% smaller files than JPG and ~20% smaller than WebP at the same quality. Ideal for web optimization. All conversion happens locally in your browser — no server upload.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>What is AVIF?</summary><p>AV1 Image File Format — developed by AOMedia (led by Netflix/Google/Mozilla), offering superior compression and quality.</p></details>
+<details class="faq-item"><summary>Which browsers support AVIF encoding?</summary><p>Chrome 85+, Firefox 93+, Safari 16+ support AVIF encoding via Canvas API.</p></details>
+<details class="faq-item"><summary>Is AVIF better than WebP?</summary><p>Generally yes — AVIF is ~20% smaller than WebP at the same quality, though encoding can be slower.</p></details>
+<details class="faq-item"><summary>Is quality preserved?</summary><p>Use the quality slider to control output quality. At 80%+ the difference is barely noticeable.</p></details>
+<details class="faq-item"><summary>Are files uploaded to a server?</summary><p>No — all conversion happens locally in your browser.</p></details>
+<details class="faq-item"><summary>What if my browser doesn&apos;t support AVIF?</summary><p>Upgrade to Chrome 85+, Firefox 93+, or Safari 16+, or use WebP as an alternative.</p></details>
+<details class="faq-item"><summary>I can&apos;t open the AVIF file.</summary><p>Modern Chrome, Firefox, Safari, and Edge support AVIF. Windows Photo Viewer may not yet support it.</p></details>
+<details class="faq-item"><summary>Can I convert multiple files at once?</summary><p>Yes — select or drag multiple files and they&apos;ll be converted in sequence.</p></details>`
+  },
+  zh:{h1Accent:'AVIF',sub:'将JPG、PNG转换为新一代AVIF格式',backLink:'← 所有工具',langBtn:'🌐 日本語',dropText:'将JPG、PNG或WebP文件拖放到此处或点击浏览',dropHint:'支持多个文件 · 文件不会上传到服务器',lblQuality:'质量:',btnClear:'全部清除',
+    supportOk:'✓ 支持AVIF编码',supportNo:'✗ 不支持AVIF',noSupport:'此浏览器不支持AVIF编码。请使用Chrome 85+、Firefox 93+或Safari 16+。',
+    proc:'转换中...',done:'完成',err:'不支持AVIF编码',dl:'下载',
+    seoHtml:`<h2>JPG转AVIF转换器</h2><p>将JPG、PNG图像转换为AVIF（AV1图像文件格式）格式。AVIF是新一代图像格式，相同质量下比JPG小约50%，比WebP小约20%。非常适合网站优化。所有转换在浏览器本地处理，不会上传到服务器。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>AVIF是什么？</summary><p>AV1图像文件格式，由AOMedia（Netflix/Google/Mozilla主导）开发，提供卓越的压缩率和质量。</p></details>
+<details class="faq-item"><summary>哪些浏览器支持AVIF编码？</summary><p>Chrome 85+、Firefox 93+、Safari 16+通过Canvas API支持AVIF编码。</p></details>
+<details class="faq-item"><summary>AVIF比WebP更好吗？</summary><p>一般来说，相同质量下AVIF比WebP小约20%，但编码速度可能更慢。</p></details>
+<details class="faq-item"><summary>质量会保持吗？</summary><p>使用质量滑块控制输出质量，80%以上几乎看不出差异。</p></details>
+<details class="faq-item"><summary>文件会上传到服务器吗？</summary><p>不会，所有转换在浏览器本地处理。</p></details>
+<details class="faq-item"><summary>浏览器不支持AVIF怎么办？</summary><p>升级到Chrome 85+、Firefox 93+或Safari 16+，或使用WebP作为替代。</p></details>
+<details class="faq-item"><summary>无法打开AVIF文件。</summary><p>最新的Chrome、Firefox、Safari、Edge均支持AVIF，Windows照片查看器可能尚不支持。</p></details>
+<details class="faq-item"><summary>可以同时转换多个文件吗？</summary><p>可以，选择或拖放多个文件会依次转换。</p></details>`
+  },
+  ja:{h1Accent:'AVIF',sub:'JPG、PNGを次世代AVIFフォーマットに変換します',backLink:'← ホーム',langBtn:'🌐 한국어',dropText:'JPG、PNG、WebPファイルをドラッグするかクリックしてください',dropHint:'複数ファイル対応 · ファイルはサーバーにアップロードされません',lblQuality:'品質:',btnClear:'すべて消去',
+    supportOk:'✓ AVIFエンコード対応',supportNo:'✗ AVIF非対応',noSupport:'このブラウザはAVIFエンコードをサポートしていません。Chrome 85+、Firefox 93+、Safari 16+をご利用ください。',
+    proc:'変換中...',done:'完了',err:'AVIFエンコード非対応',dl:'ダウンロード',
+    seoHtml:`<h2>JPG to AVIF変換器</h2><p>JPG、PNG画像をAVIF（AV1 Image File Format）形式に変換します。AVIFは次世代画像フォーマットで、同じ品質でJPGより約50%、WebPより約20%小さいファイルサイズを提供します。ウェブ最適化に最適です。すべての変換はブラウザのローカルで処理されます。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>AVIFとは何ですか？</summary><p>AV1 Image File Format — AOMedia（Netflix/Google/Mozilla主導）が開発した次世代画像フォーマットで、優れた圧縮率と品質を提供します。</p></details>
+<details class="faq-item"><summary>どのブラウザがAVIFエンコードに対応していますか？</summary><p>Chrome 85+、Firefox 93+、Safari 16+がCanvas APIでAVIFエンコードに対応しています。</p></details>
+<details class="faq-item"><summary>AVIFはWebPより優れていますか？</summary><p>一般的に同じ品質でWebPより約20%小さいですが、エンコードは遅い場合があります。</p></details>
+<details class="faq-item"><summary>品質は維持されますか？</summary><p>品質スライダーで出力品質を調整できます。80%以上では見た目の差はほぼありません。</p></details>
+<details class="faq-item"><summary>ファイルはサーバーにアップロードされますか？</summary><p>いいえ、すべての変換はブラウザのローカルで処理されます。</p></details>
+<details class="faq-item"><summary>ブラウザがAVIFに対応していない場合は？</summary><p>Chrome 85+、Firefox 93+、Safari 16+にアップグレードするか、WebPを代替として使用してください。</p></details>
+<details class="faq-item"><summary>AVIFファイルが開けません。</summary><p>最新のChrome、Firefox、Safari、EdgeはAVIFに対応しています。Windowsフォトビューアーはまだ対応していない場合があります。</p></details>
+<details class="faq-item"><summary>複数ファイルを一度に変換できますか？</summary><p>はい、複数ファイルを選択またはドロップすると順番に変換されます。</p></details>`
+  }
+};
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+let avifSupported=null;
+function checkAvif(){
+  return new Promise(res=>{
+    const c=document.createElement('canvas');c.width=1;c.height=1;
+    c.toBlob(b=>res(b&&b.size>0),'image/avif',0.5);
+  });
+}
+function applyLang(){
+  const t=_i18n[_lang];document.documentElement.lang=_lang;
+  ['h1Accent','subEl','backLink','langBtn','dropText','dropHint','lblQuality','btnClear'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id];});
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+  const sb=document.getElementById('supportBar');
+  if(avifSupported===true)sb.innerHTML=`<span class="badge ok">${t.supportOk}</span>`;
+  else if(avifSupported===false){sb.innerHTML=`<span class="badge no">${t.supportNo}</span>`;document.getElementById('noSupportMsg').textContent=t.noSupport;document.getElementById('noSupportMsg').style.display='block';}
+}
+const dz=document.getElementById('dropZone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag');handleFiles(e.dataTransfer.files);});
+document.getElementById('fileInput').addEventListener('change',e=>handleFiles(e.target.files));
+function handleFiles(files){
+  for(const f of files){
+    if(!f.type.startsWith('image/')){continue;}
+    const id='ri_'+Math.random().toString(36).slice(2);
+    addResult(id,f.name);
+    const img=new Image();const url=URL.createObjectURL(f);
+    img.onload=()=>{
+      const c=document.createElement('canvas');c.width=img.naturalWidth;c.height=img.naturalHeight;
+      const ctx=c.getContext('2d');ctx.drawImage(img,0,0);
+      const q=parseInt(document.getElementById('quality').value)/100;
+      c.toBlob(blob=>{
+        if(!blob||blob.size===0){updateResult(id,null,null,0,'err');URL.revokeObjectURL(url);return;}
+        const outName=f.name.replace(/\.\w+$/,'.avif');
+        const outUrl=URL.createObjectURL(blob);
+        updateResult(id,outUrl,outName,blob.size,'ok');
+        URL.revokeObjectURL(url);
+      },'image/avif',q);
+    };
+    img.onerror=()=>URL.revokeObjectURL(url);
+    img.src=url;
+  }
+}
+function addResult(id,name){
+  const t=_i18n[_lang];const el=document.createElement('div');el.className='result-item';el.id=id;
+  el.innerHTML=`<div style="width:48px;height:48px;background:var(--surface2);border-radius:6px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:20px" id="${id}_icon">🖼️</div><div class="file-info"><div class="file-name">${name}</div><div class="file-meta" id="${id}_info"><span class="status proc">${t.proc}</span></div></div>`;
+  document.getElementById('resultList').appendChild(el);
+}
+function updateResult(id,url,outName,size,state){
+  const t=_i18n[_lang];
+  if(state==='ok'){
+    const img=document.createElement('img');img.src=url;img.className='thumb';
+    document.getElementById(id+'_icon').replaceWith(img);
+    document.getElementById(id).querySelector('.file-name').textContent=outName;
+    document.getElementById(id+'_info').innerHTML=`<span class="status ok">${t.done}</span> · ${(size/1024).toFixed(1)}KB`;
+    const btn=document.createElement('a');btn.href=url;btn.download=outName;btn.className='dl-btn';btn.textContent=t.dl;
+    document.getElementById(id).appendChild(btn);
+  }else{
+    document.getElementById(id+'_info').innerHTML=`<span class="status err">${t.err}</span>`;
+  }
+}
+function clearAll(){document.getElementById('resultList').innerHTML='';document.getElementById('fileInput').value='';}
+_lang=detectLang();
+checkAvif().then(ok=>{avifSupported=ok;applyLang();});
+</script>
+<script src="related.js"></script>
+</body>
+</html>

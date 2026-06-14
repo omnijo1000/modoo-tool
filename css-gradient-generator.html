@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSS 그라디언트 생성기 - CSS Gradient Generator | MODOO HUB</title>
+<meta name="description" content="선형, 방사형, 원뿔형 CSS 그라디언트를 인터랙티브하게 만들고 코드를 복사하세요. background-image 속성 전용 고급 그라디언트 에디터.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/css-gradient-generator.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/css-gradient-generator.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/css-gradient-generator.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/css-gradient-generator.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/css-gradient-generator.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/css-gradient-generator.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:860px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
+.layout{display:grid;grid-template-columns:1fr 320px;gap:16px;}
+@media(max-width:700px){.layout{grid-template-columns:1fr;}}
+.left-col{display:flex;flex-direction:column;gap:12px;}
+.preview-wrap{position:relative;}
+.preview-box{height:260px;border-radius:14px;border:1px solid var(--border);}
+.preview-stop-bar{height:32px;border-radius:8px;border:1px solid var(--border);margin-top:8px;position:relative;cursor:crosshair;}
+.stop-handle{position:absolute;top:50%;transform:translate(-50%,-50%);width:18px;height:18px;border-radius:50%;border:2px solid #fff;cursor:grab;box-shadow:0 0 0 1px #000;}
+.stop-handle.active{outline:2px solid var(--accent);}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;}
+.panel-label{font-size:10px;color:var(--text-dim);font-family:'DM Mono',monospace;margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em;}
+.type-tabs{display:flex;gap:4px;}
+.tab{flex:1;padding:6px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid var(--border);color:var(--text-dim);background:var(--surface2);text-align:center;}
+.tab.active{background:var(--accent);color:#000;border-color:var(--accent);}
+.row{display:flex;align-items:center;gap:8px;margin-top:10px;}
+.row-label{font-size:11px;color:var(--text-dim);min-width:50px;}
+input[type=range]{flex:1;accent-color:var(--accent);}
+.val-display{font-size:11px;font-family:'DM Mono',monospace;color:var(--text-muted);min-width:38px;text-align:right;}
+.stop-detail{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px;margin-top:10px;}
+.stop-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.stop-color-input{width:36px;height:36px;border-radius:6px;border:none;cursor:pointer;padding:2px;}
+.stop-num{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;min-width:20px;}
+.stop-pos-input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:5px 8px;color:var(--text);font-size:12px;font-family:'DM Mono',monospace;outline:none;}
+.stop-pos-input:focus{border-color:var(--accent);}
+.stop-del{background:none;border:none;cursor:pointer;color:var(--text-dim);font-size:14px;padding:0 4px;}
+.stop-del:hover{color:#f87171;}
+.add-stop-btn{width:100%;padding:6px;border:1px dashed var(--border);background:none;border-radius:6px;color:var(--text-dim);font-size:11px;cursor:pointer;margin-top:4px;}
+.add-stop-btn:hover{border-color:var(--accent);color:var(--accent);}
+.code-section{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;}
+.code-label{font-size:10px;color:var(--text-dim);font-family:'DM Mono',monospace;margin-bottom:8px;text-transform:uppercase;}
+.code-block{background:var(--surface2);border-radius:6px;padding:10px 12px;font-size:11px;font-family:'DM Mono',monospace;color:var(--blue);line-height:1.6;word-break:break-all;cursor:pointer;border:1px solid transparent;}
+.code-block:hover{border-color:var(--accent);}
+.copy-row{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;}
+.copy-btn{padding:5px 14px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;border:none;}
+.copy-bg{background:var(--accent);color:#000;}
+.copy-bg:hover{background:#f59e0b;}
+.copy-bi{background:var(--surface2);color:var(--text-muted);border:1px solid var(--border);}
+.copy-bi:hover{border-color:var(--accent);}
+.repeating-opts{display:flex;align-items:center;gap:6px;margin-top:8px;}
+.check-lbl{font-size:11px;color:var(--text-dim);display:flex;align-items:center;gap:4px;cursor:pointer;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"CSS Gradient Generator","url":"https://modoohub.com/css-gradient-generator.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"CSS 그라디언트를 인터랙티브하게 만들고 코드를 복사하는 무료 온라인 도구."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Linear Gradient와 Radial Gradient의 차이는?","acceptedAnswer":{"@type":"Answer","text":"Linear는 직선 방향으로 색이 변하고, Radial은 중심에서 원형으로 퍼지며 색이 변합니다."}},{"@type":"Question","name":"CSS 그라디언트를 복사해서 바로 사용할 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"네, 생성된 CSS 코드를 복사해 스타일시트에 바로 붙여넣기 하면 됩니다."}},{"@type":"Question","name":"3가지 이상 색상을 사용할 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"네, 색상 정지점(color stop)을 원하는 만큼 추가해 다중 색상 그라디언트를 만들 수 있습니다."}},{"@type":"Question","name":"브라우저 호환성은 어떤가요?","acceptedAnswer":{"@type":"Answer","text":"CSS gradient는 모든 최신 브라우저에서 지원됩니다. IE11 이하는 -ms- 접두사가 필요합니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>CSS <span id="h1Accent">그라디언트</span> 생성기</h1>
+  <p class="sub" id="subEl">고급 CSS 그라디언트를 디자인하고 코드를 복사하세요</p>
+  <div class="layout">
+    <div class="left-col">
+      <div class="panel">
+        <div class="panel-label" id="lblPreview"></div>
+        <div class="preview-box" id="preview"></div>
+        <div class="preview-stop-bar" id="stopBar"></div>
+      </div>
+      <div class="code-section">
+        <div class="code-label">CSS</div>
+        <div class="code-block" id="codeDisplay" onclick="copyBg()"></div>
+        <div class="copy-row">
+          <button class="copy-btn copy-bg" onclick="copyBg()" id="btnCopyBg"></button>
+          <button class="copy-btn copy-bi" onclick="copyBi()" id="btnCopyBi"></button>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="panel" style="margin-bottom:12px">
+        <div class="panel-label" id="lblType"></div>
+        <div class="type-tabs">
+          <div class="tab active" id="tabL" onclick="setType('linear')">Linear</div>
+          <div class="tab" id="tabR" onclick="setType('radial')">Radial</div>
+          <div class="tab" id="tabC" onclick="setType('conic')">Conic</div>
+        </div>
+        <div id="angleOpts">
+          <div class="row"><span class="row-label" id="lblAngle"></span><input type="range" id="angle" min="0" max="360" value="135" oninput="document.getElementById('angleDisplay').textContent=this.value+'°';update();"><span class="val-display" id="angleDisplay">135°</span></div>
+        </div>
+        <div id="radialOpts" style="display:none">
+          <div class="row"><span class="row-label" id="lblShape"></span>
+            <select id="radShape" onchange="update()" style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 8px;color:var(--text);font-size:12px;outline:none;">
+              <option value="circle">circle</option><option value="ellipse">ellipse</option>
+            </select>
+          </div>
+        </div>
+        <div class="repeating-opts">
+          <label class="check-lbl"><input type="checkbox" id="repeating" onchange="update()"> <span id="lblRepeating"></span></label>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-label" id="lblStops"></div>
+        <div id="stopsContainer"></div>
+        <button class="add-stop-btn" onclick="addStop()" id="btnAddStop"></button>
+      </div>
+    </div>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const LANGS=['ko','en','zh','ja'];let _lang='ko',_type='linear',stops=[{c:'#fbbf24',p:0},{c:'#8b5cf6',p:50},{c:'#ec4899',p:100}];
+const _i18n={
+  ko:{h1Accent:'그라디언트',sub:'고급 CSS 그라디언트를 디자인하고 코드를 복사하세요',backLink:'← 모두의 툴',langBtn:'🌐 EN',lblPreview:'미리보기',lblType:'유형',lblAngle:'각도',lblShape:'모양',lblRepeating:'반복(repeating)',lblStops:'색상 스탑',btnAddStop:'+ 스탑 추가',btnCopyBg:'background 복사',btnCopyBi:'background-image 복사',copied:'복사됨!',
+    seoHtml:`<h2>CSS 그라디언트 생성기</h2><p>CSS background-image에 사용할 수 있는 선형(linear-gradient), 방사형(radial-gradient), 원뿔형(conic-gradient), 반복 그라디언트를 시각적으로 만들고 CSS 코드를 바로 복사할 수 있습니다. 색상 스탑 위치를 정밀하게 조정하고, 각도와 반복 옵션을 설정하여 원하는 배경을 만드세요.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>background와 background-image 차이?</summary><p>background는 단축 속성으로 color, image, position 등을 한 번에 설정하고, background-image는 이미지만 설정합니다. 그라디언트에는 둘 다 사용 가능합니다.</p></details>
+<details class="faq-item"><summary>repeating-linear-gradient는?</summary><p>반복 그라디언트로, 색상이 지정한 크기만큼 반복됩니다. 줄무늬 패턴을 만들 때 유용합니다.</p></details>
+<details class="faq-item"><summary>원뿔형 그라디언트(conic) 지원 브라우저는?</summary><p>Chrome 69+, Firefox 83+, Safari 12.1+ 이상에서 지원됩니다.</p></details>
+<details class="faq-item"><summary>색상 스탑 위치를 드래그할 수 있나요?</summary><p>미리보기 아래의 그라디언트 바에서 스탑 핸들을 드래그하여 위치를 조정할 수 있습니다.</p></details>
+<details class="faq-item"><summary>투명도(알파) 색상도 사용할 수 있나요?</summary><p>현재 HEX 색상만 지원합니다. rgba()를 사용하려면 생성된 코드를 직접 수정하세요.</p></details>
+<details class="faq-item"><summary>Tailwind CSS에서 사용하려면?</summary><p>Tailwind v3+에서 arbitrary value 구문으로 사용: bg-[linear-gradient(135deg,#fbbf24,#ec4899)]</p></details>
+<details class="faq-item"><summary>여러 그라디언트를 겹칠 수 있나요?</summary><p>CSS에서는 쉼표로 구분하여 여러 그라디언트를 겹칠 수 있습니다. 생성된 코드를 직접 수정하세요.</p></details>
+<details class="faq-item"><summary>SVG에서도 그라디언트를 사용할 수 있나요?</summary><p>SVG는 linearGradient/radialGradient 요소를 사용하며 CSS 구문과 다릅니다. 이 도구는 CSS 전용입니다.</p></details>`
+  },
+  en:{h1Accent:'Gradient',sub:'Design advanced CSS gradients and copy the code',backLink:'← All Tools',langBtn:'🌐 中文',lblPreview:'Preview',lblType:'Type',lblAngle:'Angle',lblShape:'Shape',lblRepeating:'Repeating',lblStops:'Color stops',btnAddStop:'+ Add stop',btnCopyBg:'Copy background',btnCopyBi:'Copy background-image',copied:'Copied!',
+    seoHtml:`<h2>CSS Gradient Generator</h2><p>Create linear, radial, conic, and repeating gradients for use in CSS background-image, and copy the ready-to-use code instantly. Adjust color stop positions precisely, set the angle, and toggle repeating mode to create any background pattern you need.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>What is the difference between background and background-image?</summary><p>background is a shorthand that sets color, image, position and more in one go; background-image sets only the image. Both work with gradients.</p></details>
+<details class="faq-item"><summary>What is repeating-linear-gradient?</summary><p>A repeating gradient tiles the color pattern. Useful for creating stripes or other patterns.</p></details>
+<details class="faq-item"><summary>Which browsers support conic-gradient?</summary><p>Chrome 69+, Firefox 83+, Safari 12.1+.</p></details>
+<details class="faq-item"><summary>Can I drag color stop handles?</summary><p>Yes — drag the handles on the gradient bar below the preview to adjust positions.</p></details>
+<details class="faq-item"><summary>Can I use transparent colors?</summary><p>Currently only HEX colors are supported. Edit the generated code directly to use rgba().</p></details>
+<details class="faq-item"><summary>How to use in Tailwind CSS?</summary><p>Use arbitrary value syntax in Tailwind v3+: bg-[linear-gradient(135deg,#fbbf24,#ec4899)]</p></details>
+<details class="faq-item"><summary>Can I layer multiple gradients?</summary><p>Yes — in CSS separate multiple gradients with commas. Edit the generated code directly.</p></details>
+<details class="faq-item"><summary>Is this for SVG gradients too?</summary><p>No — SVG uses linearGradient/radialGradient elements with different syntax. This tool generates CSS only.</p></details>`
+  },
+  zh:{h1Accent:'渐变',sub:'设计高级CSS渐变并复制代码',backLink:'← 所有工具',langBtn:'🌐 日本語',lblPreview:'预览',lblType:'类型',lblAngle:'角度',lblShape:'形状',lblRepeating:'重复',lblStops:'颜色节点',btnAddStop:'+ 添加节点',btnCopyBg:'复制background',btnCopyBi:'复制background-image',copied:'已复制!',
+    seoHtml:`<h2>CSS渐变生成器</h2><p>创建用于CSS background-image的线性、径向、圆锥形和重复渐变，并立即复制即用代码。精确调整颜色节点位置、设置角度和切换重复模式，创建您需要的任何背景图案。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>background和background-image有什么区别？</summary><p>background是简写属性，可一次设置颜色、图像、位置等；background-image只设置图像。两者都适用于渐变。</p></details>
+<details class="faq-item"><summary>什么是repeating-linear-gradient？</summary><p>重复渐变会平铺颜色图案，适用于创建条纹或其他图案。</p></details>
+<details class="faq-item"><summary>哪些浏览器支持conic-gradient？</summary><p>Chrome 69+，Firefox 83+，Safari 12.1+。</p></details>
+<details class="faq-item"><summary>可以拖动颜色节点手柄吗？</summary><p>是的，在预览下方的渐变条上拖动手柄可以调整位置。</p></details>
+<details class="faq-item"><summary>可以使用透明颜色吗？</summary><p>目前只支持HEX颜色，要使用rgba()请直接编辑生成的代码。</p></details>
+<details class="faq-item"><summary>如何在Tailwind CSS中使用？</summary><p>在Tailwind v3+中使用任意值语法：bg-[linear-gradient(135deg,#fbbf24,#ec4899)]</p></details>
+<details class="faq-item"><summary>可以叠加多个渐变吗？</summary><p>可以，在CSS中用逗号分隔多个渐变，直接编辑生成的代码即可。</p></details>
+<details class="faq-item"><summary>这也适用于SVG渐变吗？</summary><p>不，SVG使用linearGradient/radialGradient元素，语法不同。本工具只生成CSS代码。</p></details>`
+  },
+  ja:{h1Accent:'グラデーション',sub:'高度なCSSグラデーションをデザインしてコードをコピーします',backLink:'← ホーム',langBtn:'🌐 한국어',lblPreview:'プレビュー',lblType:'タイプ',lblAngle:'角度',lblShape:'形状',lblRepeating:'繰り返し',lblStops:'カラーストップ',btnAddStop:'+ ストップ追加',btnCopyBg:'backgroundコピー',btnCopyBi:'background-imageコピー',copied:'コピーしました!',
+    seoHtml:`<h2>CSSグラデーション生成器</h2><p>CSSのbackground-imageに使用できる線形、放射状、円錐形、繰り返しグラデーションを視覚的に作成してコードをコピーできます。カラーストップの位置を精密に調整し、角度と繰り返しオプションを設定してお好みの背景を作成してください。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>backgroundとbackground-imageの違いは？</summary><p>backgroundはcolor、image、positionなどを一度に設定するショートハンド、background-imageはイメージのみ設定します。どちらもグラデーションに使えます。</p></details>
+<details class="faq-item"><summary>repeating-linear-gradientとは？</summary><p>繰り返しグラデーションでカラーパターンをタイル状に並べます。ストライプなどのパターン作成に便利です。</p></details>
+<details class="faq-item"><summary>conic-gradientはどのブラウザで使えますか？</summary><p>Chrome 69+、Firefox 83+、Safari 12.1+以上で対応しています。</p></details>
+<details class="faq-item"><summary>カラーストップのハンドルをドラッグできますか？</summary><p>はい、プレビュー下のグラデーションバーのハンドルをドラッグして位置を調整できます。</p></details>
+<details class="faq-item"><summary>透明色は使えますか？</summary><p>現在HEXカラーのみ対応しています。rgba()を使うには生成されたコードを直接編集してください。</p></details>
+<details class="faq-item"><summary>Tailwind CSSでの使い方は？</summary><p>Tailwind v3+の任意値構文を使用：bg-[linear-gradient(135deg,#fbbf24,#ec4899)]</p></details>
+<details class="faq-item"><summary>複数のグラデーションを重ねられますか？</summary><p>CSSでカンマ区切りで複数のグラデーションを重ねられます。生成コードを直接編集してください。</p></details>
+<details class="faq-item"><summary>SVGグラデーションにも使えますか？</summary><p>いいえ、SVGはlinearGradient/radialGradient要素を使い構文が異なります。このツールはCSS専用です。</p></details>`
+  }
+};
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){
+  const t=_i18n[_lang];document.documentElement.lang=_lang;
+  ['h1Accent','subEl','backLink','langBtn','lblPreview','lblType','lblAngle','lblShape','lblRepeating','lblStops','btnAddStop','btnCopyBg','btnCopyBi'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id];});
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+}
+function setType(type){_type=type;['L','R','C'].forEach((k,i)=>document.getElementById('tab'+k).classList.toggle('active',['linear','radial','conic'][i]===type));document.getElementById('angleOpts').style.display=type==='radial'?'none':'block';document.getElementById('radialOpts').style.display=type==='radial'?'block':'none';update();}
+function buildGrad(){
+  const rep=document.getElementById('repeating').checked;const pre=rep?'repeating-':'';
+  const stopsStr=stops.map(s=>`${s.c} ${s.p}%`).join(', ');
+  if(_type==='linear'){const a=document.getElementById('angle').value;return`${pre}linear-gradient(${a}deg, ${stopsStr})`;}
+  if(_type==='radial'){const sh=document.getElementById('radShape').value;return`${pre}radial-gradient(${sh} at center, ${stopsStr})`;}
+  if(_type==='conic'){const a=document.getElementById('angle').value;return`${pre}conic-gradient(from ${a}deg, ${stopsStr})`;}
+}
+function update(){
+  const grad=buildGrad();
+  document.getElementById('preview').style.background=grad;
+  renderStopBar(grad);
+  document.getElementById('codeDisplay').textContent=`background: ${grad};`;
+}
+function renderStopBar(grad){
+  const bar=document.getElementById('stopBar');bar.style.background=`linear-gradient(90deg, ${stops.map(s=>`${s.c} ${s.p}%`).join(', ')})`;
+  bar.innerHTML='';
+  stops.forEach((s,i)=>{
+    const h=document.createElement('div');h.className='stop-handle';h.style.cssText=`left:${s.p}%;background:${s.c};`;
+    let dragging=false;
+    h.addEventListener('mousedown',e=>{dragging=true;e.preventDefault();});
+    window.addEventListener('mousemove',e=>{if(!dragging)return;const rect=bar.getBoundingClientRect();const p=Math.max(0,Math.min(100,((e.clientX-rect.left)/rect.width)*100));stops[i].p=Math.round(p);renderStops();update();});
+    window.addEventListener('mouseup',()=>{dragging=false;});
+    bar.appendChild(h);
+  });
+}
+function renderStops(){
+  const con=document.getElementById('stopsContainer');con.innerHTML='';
+  stops.forEach((s,i)=>{
+    const row=document.createElement('div');row.className='stop-row';
+    const col=document.createElement('input');col.type='color';col.className='stop-color-input';col.value=s.c;col.oninput=()=>{stops[i].c=col.value;update();};
+    const pos=document.createElement('input');pos.type='number';pos.className='stop-pos-input';pos.value=s.p;pos.min=0;pos.max=100;pos.oninput=()=>{stops[i].p=+pos.value;update();};
+    const del=document.createElement('button');del.className='stop-del';del.textContent='×';del.onclick=()=>{if(stops.length>2)stops.splice(i,1);renderStops();update();};
+    const num=document.createElement('span');num.className='stop-num';num.textContent=i+1+'.';
+    row.append(num,col,pos,del);con.appendChild(row);
+  });
+}
+function addStop(){stops.push({c:'#ffffff',p:Math.min(stops[stops.length-1].p+15,100)});renderStops();update();}
+function copyBg(){copy(`background: ${buildGrad()};`);}
+function copyBi(){copy(`background-image: ${buildGrad()};`);}
+function copy(txt){navigator.clipboard.writeText(txt).catch(()=>{});const t=_i18n[_lang];const d=document.getElementById('codeDisplay');const orig=d.textContent;d.textContent=t.copied;setTimeout(()=>{d.textContent=`background: ${buildGrad()};`;},1200);}
+_lang=detectLang();applyLang();renderStops();update();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDF 메타데이터 제거기 - PDF Metadata Remover | MODOO HUB</title>
+<meta name="description" content="PDF 파일에서 작성자, 제목, 날짜 등 메타데이터를 제거합니다. pdf-lib 사용, 브라우저 직접 처리. 무료 온라인 PDF 메타데이터 제거 도구.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/pdf-metadata-remover.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/pdf-metadata-remover.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/pdf-metadata-remover.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/pdf-metadata-remover.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/pdf-metadata-remover.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/pdf-metadata-remover.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:720px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
+.drop-zone{border:2px dashed var(--border);border-radius:12px;padding:44px 20px;text-align:center;cursor:pointer;transition:border-color .2s;background:var(--surface);margin-bottom:16px;}
+.drop-zone:hover,.drop-zone.drag{border-color:var(--accent);}
+.drop-icon{font-size:32px;margin-bottom:8px;}
+.drop-text{font-size:13px;color:var(--text-muted);}
+.drop-hint{font-size:11px;color:var(--text-dim);margin-top:5px;}
+#fileInput{display:none;}
+.meta-table{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px;}
+.meta-header{padding:8px 14px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.meta-title{font-size:11px;font-weight:700;color:var(--text-muted);font-family:'DM Mono',monospace;text-transform:uppercase;}
+.meta-row{display:grid;grid-template-columns:140px 1fr auto;align-items:center;padding:7px 14px;border-bottom:1px solid var(--border);gap:10px;}
+.meta-row:last-child{border-bottom:none;}
+.meta-key{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;}
+.meta-val{font-size:12px;color:var(--text-muted);word-break:break-all;}
+.meta-val.empty{color:var(--text-dim);font-style:italic;}
+.check-toggle{accent-color:var(--accent);width:14px;height:14px;cursor:pointer;}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.btn{padding:7px 18px;border-radius:7px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:'Noto Sans KR',sans-serif;}
+.btn-primary{background:var(--accent);color:#000;}
+.btn-primary:hover{background:#f59e0b;}
+.btn-sec{background:var(--surface2);color:var(--text-muted);border:1px solid var(--border);}
+.btn-sec:hover{border-color:var(--accent);}
+.result-msg{padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:12px;}
+.result-msg.ok{background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);color:var(--green);}
+.result-msg.err{background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);color:var(--red);}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"PDF Metadata Remover","url":"https://modoohub.com/pdf-metadata-remover.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"PDF 파일에서 메타데이터를 제거하는 무료 온라인 도구."}</script>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"PDF 메타데이터에는 어떤 정보가 포함되나요?","acceptedAnswer":{"@type":"Answer","text":"제목, 작성자, 생성 날짜, 프로그램 정보, 회사명, 수정 이력 등 개인 정보가 포함될 수 있습니다."}},{"@type":"Question","name":"메타데이터를 제거해야 하는 이유는?","acceptedAnswer":{"@type":"Answer","text":"외부에 PDF를 공유할 때 작성자 이름, 회사 정보 등 민감한 정보가 노출되는 것을 방지하기 위해서입니다."}},{"@type":"Question","name":"메타데이터 제거 후 PDF 내용은 그대로 유지되나요?","acceptedAnswer":{"@type":"Answer","text":"네, 텍스트, 이미지, 레이아웃 등 PDF 본문 내용은 그대로 유지되고 메타데이터만 제거됩니다."}},{"@type":"Question","name":"파일이 서버에 업로드되나요?","acceptedAnswer":{"@type":"Answer","text":"모든 처리는 브라우저에서 로컬로 이루어집니다. 파일이 외부 서버로 전송되지 않아 안전합니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>PDF <span id="h1Accent">메타데이터 제거기</span></h1>
+  <p class="sub" id="subEl">작성자, 날짜 등 개인정보가 담긴 메타데이터를 제거합니다</p>
+  <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+    <div class="drop-icon">🗑️</div>
+    <div class="drop-text" id="dropText">PDF 파일을 드래그하거나 클릭하세요</div>
+    <div class="drop-hint" id="dropHint">파일이 서버에 업로드되지 않습니다 · pdf-lib 사용</div>
+  </div>
+  <input type="file" id="fileInput" accept=".pdf,application/pdf">
+  <div id="metaSection" style="display:none">
+    <div class="meta-table" id="metaTable"></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="removeMetadata()" id="btnRemove"></button>
+      <button class="btn btn-sec" onclick="selectAll(true)" id="btnSelAll"></button>
+      <button class="btn btn-sec" onclick="selectAll(false)" id="btnDeselAll"></button>
+    </div>
+    <div id="resultMsg"></div>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+const LANGS=['ko','en','zh','ja'];let _lang='ko',_pdfBytes=null,_fileName='';
+const META_FIELDS=['Title','Author','Subject','Keywords','Creator','Producer','CreationDate','ModDate'];
+const _i18n={
+  ko:{h1Accent:'메타데이터 제거기',sub:'작성자, 날짜 등 개인정보가 담긴 메타데이터를 제거합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',dropText:'PDF 파일을 드래그하거나 클릭하세요',dropHint:'파일이 서버에 업로드되지 않습니다 · pdf-lib 사용',
+    lblBefore:'현재 메타데이터',lblField:'필드',lblValue:'값',lblRemove:'제거',btnRemove:'선택 항목 제거',btnSelAll:'모두 선택',btnDeselAll:'모두 해제',
+    labels:{Title:'제목',Author:'작성자',Subject:'주제',Keywords:'키워드',Creator:'작성 프로그램',Producer:'PDF 생성기',CreationDate:'작성일',ModDate:'수정일'},
+    done:'메타데이터 제거 완료. 아래 버튼으로 다운로드하세요.',err:'처리 중 오류가 발생했습니다.',empty:'(비어 있음)',
+    seoHtml:`<h2>PDF 메타데이터 제거기</h2><p>PDF 파일에 포함된 메타데이터(작성자, 제목, 날짜, 사용한 프로그램 정보 등)를 제거합니다. PDF를 배포 전에 개인정보가 포함된 메타데이터를 제거하는 것은 중요한 보안 조치입니다. pdf-lib 라이브러리를 사용하여 브라우저에서 직접 처리하므로 파일이 서버에 업로드되지 않습니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>PDF 메타데이터에 어떤 정보가 포함되나요?</summary><p>제목, 작성자, 주제, 키워드, 작성 프로그램(Creator), PDF 생성기(Producer), 작성일, 수정일 등이 포함될 수 있습니다.</p></details>
+<details class="faq-item"><summary>메타데이터 제거가 왜 중요한가요?</summary><p>문서를 외부에 배포할 때 작성자 이름, 회사명, 사용 소프트웨어 정보 등 의도치 않은 개인/기업 정보가 노출될 수 있습니다.</p></details>
+<details class="faq-item"><summary>파일이 서버에 업로드되나요?</summary><p>아니요. pdf-lib를 사용하여 브라우저에서 직접 처리됩니다.</p></details>
+<details class="faq-item"><summary>일부 메타데이터만 제거할 수 있나요?</summary><p>예, 각 필드의 체크박스를 통해 제거할 항목을 선택할 수 있습니다.</p></details>
+<details class="faq-item"><summary>제거 후 PDF 내용이 변경되나요?</summary><p>아니요. 메타데이터만 제거되며 PDF의 내용, 구조, 품질은 변경되지 않습니다.</p></details>
+<details class="faq-item"><summary>암호화된 PDF도 처리할 수 있나요?</summary><p>아니요. 먼저 PDF 잠금 해제 도구를 사용해야 합니다.</p></details>
+<details class="faq-item"><summary>메타데이터 제거 후 파일 크기가 줄어드나요?</summary><p>메타데이터는 작은 크기이므로 파일 크기에 큰 영향을 주지 않습니다.</p></details>
+<details class="faq-item"><summary>XMP 메타데이터도 제거되나요?</summary><p>이 도구는 PDF 정보 딕셔너리(Info dictionary)를 제거합니다. 임베디드 XMP 메타데이터는 별도 처리가 필요할 수 있습니다.</p></details>`
+  },
+  en:{h1Accent:'Metadata Remover',sub:'Remove personal info metadata like author, dates, and software',backLink:'← All Tools',langBtn:'🌐 中文',dropText:'Drop a PDF file here or click to browse',dropHint:'Files are never uploaded · Uses pdf-lib',
+    lblBefore:'Current metadata',lblField:'Field',lblValue:'Value',lblRemove:'Remove',btnRemove:'Remove selected',btnSelAll:'Select all',btnDeselAll:'Deselect all',
+    labels:{Title:'Title',Author:'Author',Subject:'Subject',Keywords:'Keywords',Creator:'Creator',Producer:'Producer',CreationDate:'Created',ModDate:'Modified'},
+    done:'Metadata removed. Download the cleaned PDF below.',err:'An error occurred while processing.',empty:'(empty)',
+    seoHtml:`<h2>PDF Metadata Remover</h2><p>Remove metadata from PDF files — author, title, dates, and software information. Before distributing a PDF, removing this metadata is an important privacy measure to prevent unintentional disclosure of personal or company information. Uses pdf-lib to process files directly in your browser — nothing is uploaded to a server.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>What information is in PDF metadata?</summary><p>Title, author, subject, keywords, creator (software), producer, creation date, and modification date.</p></details>
+<details class="faq-item"><summary>Why does metadata removal matter?</summary><p>When distributing documents externally, metadata can reveal author names, company information, and software used.</p></details>
+<details class="faq-item"><summary>Are files uploaded to a server?</summary><p>No — pdf-lib processes everything locally in your browser.</p></details>
+<details class="faq-item"><summary>Can I remove only some metadata fields?</summary><p>Yes — use the checkboxes to select which fields to remove.</p></details>
+<details class="faq-item"><summary>Does removal change the PDF content?</summary><p>No — only metadata is removed. Content, structure, and quality are unchanged.</p></details>
+<details class="faq-item"><summary>Are encrypted PDFs supported?</summary><p>No — unlock them first with a PDF unlock tool.</p></details>
+<details class="faq-item"><summary>Will file size change after removal?</summary><p>Metadata is small, so the size impact is negligible.</p></details>
+<details class="faq-item"><summary>Is XMP metadata removed?</summary><p>This tool removes the PDF Info dictionary. Embedded XMP metadata may require separate handling.</p></details>`
+  },
+  zh:{h1Accent:'元数据删除器',sub:'删除作者、日期等包含个人信息的元数据',backLink:'← 所有工具',langBtn:'🌐 日本語',dropText:'将PDF文件拖放到此处或点击浏览',dropHint:'文件不会上传 · 使用pdf-lib',
+    lblBefore:'当前元数据',lblField:'字段',lblValue:'值',lblRemove:'删除',btnRemove:'删除所选',btnSelAll:'全选',btnDeselAll:'全部取消',
+    labels:{Title:'标题',Author:'作者',Subject:'主题',Keywords:'关键词',Creator:'创建程序',Producer:'PDF生成器',CreationDate:'创建日期',ModDate:'修改日期'},
+    done:'元数据已删除，请下载清理后的PDF。',err:'处理时发生错误。',empty:'（空）',
+    seoHtml:`<h2>PDF元数据删除器</h2><p>删除PDF文件中的元数据——作者、标题、日期和软件信息。在分发PDF之前删除这些元数据是一项重要的隐私措施，可防止无意中泄露个人或公司信息。使用pdf-lib在浏览器中直接处理文件，不会上传到服务器。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>PDF元数据包含哪些信息？</summary><p>标题、作者、主题、关键词、创建程序、PDF生成器、创建日期和修改日期。</p></details>
+<details class="faq-item"><summary>为什么需要删除元数据？</summary><p>向外部分发文档时，元数据可能暴露作者姓名、公司信息和所用软件。</p></details>
+<details class="faq-item"><summary>文件会上传到服务器吗？</summary><p>不会，pdf-lib在浏览器本地处理所有内容。</p></details>
+<details class="faq-item"><summary>可以只删除某些元数据字段吗？</summary><p>可以，通过复选框选择要删除的字段。</p></details>
+<details class="faq-item"><summary>删除后PDF内容会改变吗？</summary><p>不会，只删除元数据，内容、结构和质量不变。</p></details>
+<details class="faq-item"><summary>支持加密的PDF吗？</summary><p>不支持，需要先用PDF解锁工具解锁。</p></details>
+<details class="faq-item"><summary>删除后文件大小会变化吗？</summary><p>元数据很小，对文件大小影响可忽略不计。</p></details>
+<details class="faq-item"><summary>会删除XMP元数据吗？</summary><p>该工具删除PDF信息字典，嵌入的XMP元数据可能需要单独处理。</p></details>`
+  },
+  ja:{h1Accent:'メタデータ削除器',sub:'作成者・日付などの個人情報を含むメタデータを削除します',backLink:'← ホーム',langBtn:'🌐 한국어',dropText:'PDFファイルをドラッグするかクリックしてください',dropHint:'ファイルはアップロードされません · pdf-lib使用',
+    lblBefore:'現在のメタデータ',lblField:'フィールド',lblValue:'値',lblRemove:'削除',btnRemove:'選択した項目を削除',btnSelAll:'すべて選択',btnDeselAll:'すべて解除',
+    labels:{Title:'タイトル',Author:'作成者',Subject:'件名',Keywords:'キーワード',Creator:'作成プログラム',Producer:'PDFジェネレーター',CreationDate:'作成日',ModDate:'更新日'},
+    done:'メタデータを削除しました。以下のボタンでダウンロードしてください。',err:'処理中にエラーが発生しました。',empty:'（空）',
+    seoHtml:`<h2>PDFメタデータ削除器</h2><p>PDFファイルのメタデータ（作成者、タイトル、日付、ソフトウェア情報）を削除します。PDFを配布する前にこのメタデータを削除することは、個人や企業情報の意図しない開示を防ぐための重要なプライバシー対策です。pdf-libを使用してブラウザで直接処理するため、ファイルはサーバーにアップロードされません。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>PDFメタデータにはどんな情報が含まれますか？</summary><p>タイトル、作成者、件名、キーワード、作成プログラム、PDFジェネレーター、作成日、更新日。</p></details>
+<details class="faq-item"><summary>なぜメタデータを削除する必要がありますか？</summary><p>文書を外部配布する際、メタデータに作成者名、会社情報、使用ソフトウェアが露出する可能性があります。</p></details>
+<details class="faq-item"><summary>ファイルはサーバーにアップロードされますか？</summary><p>いいえ、pdf-libがブラウザのローカルですべて処理します。</p></details>
+<details class="faq-item"><summary>一部のフィールドのみ削除できますか？</summary><p>はい、チェックボックスで削除するフィールドを選択できます。</p></details>
+<details class="faq-item"><summary>削除後にPDFコンテンツは変わりますか？</summary><p>いいえ、メタデータのみ削除され、コンテンツ、構造、品質は変更されません。</p></details>
+<details class="faq-item"><summary>暗号化されたPDFは処理できますか？</summary><p>いいえ、まずPDFアンロックツールでロックを解除してください。</p></details>
+<details class="faq-item"><summary>削除後にファイルサイズは変わりますか？</summary><p>メタデータは小さいため、ファイルサイズへの影響はほぼありません。</p></details>
+<details class="faq-item"><summary>XMPメタデータも削除されますか？</summary><p>このツールはPDF情報ディクショナリを削除します。埋め込みXMPメタデータは別途処理が必要な場合があります。</p></details>`
+  }
+};
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){
+  const t=_i18n[_lang];document.documentElement.lang=_lang;
+  ['h1Accent','subEl','backLink','langBtn','dropText','dropHint','btnRemove','btnSelAll','btnDeselAll'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id];});
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+}
+const dz=document.getElementById('dropZone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag');if(e.dataTransfer.files[0])handleFile(e.dataTransfer.files[0]);});
+document.getElementById('fileInput').addEventListener('change',e=>{if(e.target.files[0])handleFile(e.target.files[0]);});
+let _metaInfo={};
+async function handleFile(file){
+  _fileName=file.name;
+  _pdfBytes=new Uint8Array(await file.arrayBuffer());
+  const pdf=await pdfjsLib.getDocument({data:_pdfBytes}).promise;
+  const meta=await pdf.getMetadata().catch(()=>({info:{}}));
+  _metaInfo=meta.info||{};
+  renderMetaTable();
+  document.getElementById('metaSection').style.display='block';
+  document.getElementById('resultMsg').innerHTML='';
+}
+function renderMetaTable(){
+  const t=_i18n[_lang];const labels=t.labels;
+  const table=document.getElementById('metaTable');
+  table.innerHTML=`<div class="meta-header"><span class="meta-title">${t.lblBefore}</span></div>
+<div class="meta-row" style="font-weight:700;font-size:10px;font-family:'DM Mono',monospace;color:var(--text-dim)"><span>${t.lblField}</span><span>${t.lblValue}</span><span>${t.lblRemove}</span></div>
+${META_FIELDS.map(f=>{
+  const val=_metaInfo[f];
+  const display=val||`<span class="empty">${t.empty}</span>`;
+  return`<div class="meta-row"><span class="meta-key">${labels[f]||f}</span><span class="meta-val">${val||`<span class="empty">${t.empty}</span>`}</span><input class="check-toggle" type="checkbox" id="chk_${f}" ${val?'checked':'disabled'}></div>`;
+}).join('')}`;
+}
+function selectAll(v){META_FIELDS.forEach(f=>{const el=document.getElementById('chk_'+f);if(el&&!el.disabled)el.checked=v;});}
+async function removeMetadata(){
+  const t=_i18n[_lang];
+  try{
+    const doc=await PDFLib.PDFDocument.load(_pdfBytes);
+    const toRemove=META_FIELDS.filter(f=>document.getElementById('chk_'+f)?.checked);
+    const info={};
+    META_FIELDS.forEach(f=>{if(!toRemove.includes(f)&&_metaInfo[f])info[f]=_metaInfo[f];});
+    doc.setTitle(info.Title||'');doc.setAuthor(info.Author||'');doc.setSubject(info.Subject||'');
+    doc.setKeywords([info.Keywords||'']);doc.setCreator(info.Creator||'');doc.setProducer(info.Producer||'');
+    const saved=await doc.save();
+    const blob=new Blob([saved],{type:'application/pdf'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+    a.download=_fileName.replace(/\.pdf$/i,'_no_meta.pdf');a.click();
+    document.getElementById('resultMsg').innerHTML=`<div class="result-msg ok">${t.done}</div>`;
+  }catch(e){document.getElementById('resultMsg').innerHTML=`<div class="result-msg err">${t.err}</div>`;}
+}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

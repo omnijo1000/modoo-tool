@@ -3,8 +3,10 @@
 ## 프로젝트 개요
 - **사이트**: https://modoohub.com
 - **구성**: 단일 HTML 파일 집합 (SPA 아님, 각 툴마다 별도 .html)
-- **현재 툴 수**: 335개 (index.html footer 카운터 기준)
-- **sitemap.xml**: 341 URL 항목
+- **현재 툴 수**: 394개 (index.html footer 카운터 기준)
+- **HTML 파일**: 387개 (index.html, privacy.html, naverfc…html, category/×11 제외)
+- **sitemap.xml**: 400 URL 항목
+- **카테고리 허브**: /category/ 디렉토리, 11개 HTML + category-i18n.js
 
 ## 필수 코드 (모든 새 HTML 파일에 공통)
 
@@ -103,9 +105,14 @@ seoHtml: `
 <p>설명 500~800자</p>
 <h2 class="seo-sub">자주 묻는 질문</h2>
 <details class="faq-item"><summary>Q. 질문</summary><p>A. 답변</p></details>
-<!-- 8개 FAQ -->
+<!-- FAQ 8개 필수 -->
 `
 ```
+
+### FAQ 최소 기준: 8개 필수
+- HTML 파일 내 `class="faq-item"` 실제 인스턴스 8개 이상
+- FAQPage JSON-LD 내 Question도 4개 이상 권장
+- 8개 미만이면 Google FAQ 리치 스니펫 노출 불리
 
 ### SEO CSS (</style> 바로 앞에 추가)
 ```css
@@ -149,7 +156,7 @@ details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-h
 
 ## index.html 업데이트 방법
 
-### 툴 카드 추가 (dev section: 254번째 줄 근처)
+### 툴 카드 추가 (dev section: 274번째 줄 근처)
 ```html
 <a href="SLUG.html" class="tool-card c7">
   <div class="tool-icon">ICON</div>
@@ -170,17 +177,17 @@ details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-h
 - ja 섹션: 같은 key
 
 ### 카운터 업데이트 (replace_all:true)
-- `161가지` → `N가지`
-- `161 tools` → `N tools`
-- `161种工具` → `N种工具`
-- `161種のツール` → `N種のツール`
+- `394가지` → `N가지`
+- `394 tools` → `N tools`
+- `394种工具` → `N种工具`
+- `394種のツール` → `N種のツール`
 - 메타 description도 수동 업데이트
 
 ## sitemap.xml 업데이트 방법
 
 개발자 도구 섹션 (line ~97) 마지막 항목 뒤에 추가:
 ```xml
-<url><loc>https://modoohub.com/SLUG.html</loc><lastmod>2026-06-11</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://modoohub.com/SLUG.html</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
 ```
 
 ## related.js 업데이트 방법
@@ -191,7 +198,7 @@ details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-h
 ```
 
 ### GROUPS[] 배열에 추가 (연관 툴 클러스터)
-기존 관련 그룹에 slug 추가하거나 새 그룹 생성
+기존 관련 그룹에 slug 추가하거나 새 그룹 생성. **CATEGORY_MAP에 등록된 모든 툴은 반드시 하나 이상의 GROUPS[] 클러스터에 포함시킬 것** (미포함 시 관련 툴 없이 고립).
 
 ### CATEGORY_MAP에 추가
 ```javascript
@@ -199,7 +206,56 @@ details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-h
 ```
 카테고리 목록: data-tools, security-tools, text-tools, ai-tools, developer-tools, image-tools, pdf-tools, generator-tools, finance-calculators, health-calculators, date-time-tools
 
-## 현재 완료된 배치 현황 (2026-06-13)
+**현재 CATEGORY_MAP 현황 (2026-06-14, 총 387개 등록)**
+| 카테고리 | 등록 수 |
+|---|---|
+| finance-calculators | 70 |
+| developer-tools | 70 |
+| text-tools | 53 |
+| image-tools | 44 |
+| generator-tools | 35 |
+| security-tools | 30 |
+| pdf-tools | 22 |
+| ai-tools | 20 |
+| data-tools | 17 |
+| health-calculators | 12 |
+| date-time-tools | 14 |
+
+### CAT_INFO 카운트 업데이트
+CATEGORY_MAP에 새 툴 추가 시 해당 카테고리 CAT_INFO count도 동기화:
+```javascript
+'finance-calculators': { ko:'금융 계산기', ..., count:70 },
+```
+
+### BreadcrumbList JSON-LD 자동 주입
+related.js가 `DOMContentLoaded` 시 CATEGORY_MAP 기반으로 모든 툴 페이지 헤더에 카테고리 chip + BreadcrumbList JSON-LD를 자동 주입. 별도 HTML 편집 불필요.
+
+## IndexNow 제출
+
+새 툴 추가 또는 대규모 업데이트 후 신속 인덱싱 요청:
+- 키: `e9f6c4e01322aa93057d0995a12a4416`
+- 인증 파일: `e9f6c4e01322aa93057d0995a12a4416.txt` (사이트 루트에 존재)
+- 엔드포인트: `https://api.indexnow.org/IndexNow`
+```bash
+curl -X POST "https://api.indexnow.org/indexnow" \
+  -H "Content-Type: application/json" \
+  -d '{"host":"modoohub.com","key":"e9f6c4e01322aa93057d0995a12a4416","urlList":["https://modoohub.com/SLUG.html"]}'
+```
+
+## SEO 완료 작업 현황 (2026-06-14 기준)
+
+전수 감사 후 완료한 일괄 수정:
+- **GA + AdSense**: 387개 전 파일 ✅
+- **canonical 태그**: 387개 전 파일 ✅
+- **hreflang 5개** (ko/en/zh/ja/x-default): 387개 전 파일 ✅
+- **WebApplication JSON-LD**: 387개 전 파일 ✅
+- **FAQPage JSON-LD**: 387개 전 파일 ✅
+- **FAQ 8개 이상**: 구형 KO 툴 38개 파일 보강 완료 ✅
+- **CATEGORY_MAP**: 387개 전 파일 등록 (이전 누락 48개 추가) ✅
+- **GROUPS[]**: 전 파일 최소 1개 클러스터 등록 (md5-generator, vat-calc 추가) ✅
+- **BreadcrumbList JSON-LD**: related.js 자동 주입으로 전체 적용 ✅
+
+## 현재 완료된 배치 현황 (2026-06-14)
 
 ### 배치 1 ✅
 json-validator, json-viewer, json-minifier, base64-encoder, base64-decoder
@@ -269,6 +325,21 @@ prompt-improver, prompt-optimizer, system-prompt-generator, ai-email-generator, 
 
 ### 배치 23 ✅
 jwt-expiration-checker, json-schema-generator, json-schema-validator, xml-beautifier, yaml-diff-checker, csv-diff-checker, sql-query-explainer, regex-extractor, regex-replace-tester, epoch-converter, uuid-bulk-generator, uuid-extractor, api-response-viewer
+
+### 배치 24 ✅
+keyword-difficulty-estimator, sitemap-extractor, robots-txt-tester, meta-tag-preview, serp-snippet-preview, open-graph-preview, schema-generator-faq, schema-generator-product, schema-generator-article, keyword-cannibalization-checker, uppercase-converter, lowercase-converter, sentence-case-converter, remove-special-characters, text-deduplicator, text-summarizer, word-frequency-counter, ngram-analyzer, text-similarity-checker
+
+### 배치 25 ✅
+pdf-page-extractor, pdf-thumbnail-generator, pdf-ocr, gradient-generator, css-gradient-generator, tailwind-color-generator, color-blindness-simulator, accessibility-color-checker
+
+### 배치 26 ✅ (금융+생산성)
+cagr-calculator, compound-annual-growth-rate-calculator, margin-calculator, profit-calculator, break-even-calculator, commission-calculator, vat-reverse-calculator, discount-calculator, percentage-increase-calculator, percentage-decrease-calculator, meeting-cost-calculator, salary-per-hour-calculator, hourly-rate-calculator, freelancer-rate-calculator, time-zone-meeting-planner
+
+### 배치 27 ✅ (고아 페이지 통합)
+avif-to-jpg, heic-to-jpg, image-dimension-checker, image-dpi-checker, jpg-to-avif, jpg-to-heic, transparent-background-maker, svg-cleaner, svg-optimizer, pdf-metadata-remover, pdf-size-analyzer, pdf-word-counter
+
+### 배치 28 ✅ (고검색량 신규)
+qr-code-generator, lorem-ipsum-generator, severance-pay-calculator, health-insurance-calculator, national-pension-calculator
 
 ## JS 문자열 이스케이프 주의사항
 

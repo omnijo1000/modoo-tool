@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>접근성 색상 검사기 - Accessibility Color Checker | MODOO HUB</title>
+<meta name="description" content="텍스트와 배경색의 WCAG 명암비를 계산합니다. AA/AAA 기준 통과 여부 확인. 무료 온라인 색상 접근성 도구.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/accessibility-color-checker.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/accessibility-color-checker.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/accessibility-color-checker.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/accessibility-color-checker.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/accessibility-color-checker.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/accessibility-color-checker.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:740px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:14px;}
+.color-pickers{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.cp-group{display:flex;flex-direction:column;gap:8px;}
+.cp-label{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;}
+.cp-row{display:flex;gap:8px;align-items:center;}
+input[type=color]{width:40px;height:40px;border-radius:8px;border:1px solid var(--border);cursor:pointer;padding:2px;background:var(--surface2);}
+.hex-inp{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:8px 12px;color:var(--text);font-size:14px;font-family:'DM Mono',monospace;outline:none;text-transform:uppercase;}
+.hex-inp:focus{border-color:var(--accent);}
+.preview-box{border-radius:10px;padding:24px 20px;text-align:center;margin-bottom:14px;transition:all .2s;}
+.preview-text-lg{font-size:22px;font-weight:700;margin-bottom:8px;}
+.preview-text-sm{font-size:14px;}
+.preview-text-ui{font-size:13px;margin-top:10px;padding:6px 14px;border-radius:6px;border:2px solid;display:inline-block;}
+.ratio-display{text-align:center;margin-bottom:14px;}
+.ratio-big{font-size:56px;font-weight:900;font-family:'DM Mono',monospace;color:var(--accent);}
+.ratio-label{font-size:12px;color:var(--text-dim);}
+.wcag-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;}
+@media(max-width:500px){.wcag-grid{grid-template-columns:1fr 1fr;}}
+.wcag-box{border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;}
+.wcag-box.pass{background:rgba(74,222,128,0.07);border-color:rgba(74,222,128,0.25);}
+.wcag-box.fail{background:rgba(248,113,113,0.07);border-color:rgba(248,113,113,0.2);}
+.wcag-badge{font-size:20px;}
+.wcag-name{font-size:10px;font-weight:700;color:var(--text-muted);margin:4px 0 2px;font-family:'DM Mono',monospace;}
+.wcag-req{font-size:10px;color:var(--text-dim);}
+.suggest-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px;display:none;}
+.suggest-title{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;margin-bottom:10px;text-transform:uppercase;}
+.suggest-swatches{display:flex;flex-wrap:wrap;gap:6px;}
+.swatch-btn{width:36px;height:36px;border-radius:7px;border:2px solid transparent;cursor:pointer;}
+.swatch-btn:hover{border-color:var(--accent);}
+.swatch-btn.sel{border-color:var(--accent);}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Accessibility Color Checker","url":"https://modoohub.com/accessibility-color-checker.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"WCAG 명암비를 계산하여 AA/AAA 접근성 기준을 확인하는 무료 온라인 도구."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"WCAG 명암비 기준이란 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"WCAG 2.1 기준으로 일반 텍스트는 AA 4.5:1, 대형 텍스트는 3:1 이상이 필요합니다. AAA 기준은 각각 7:1, 4.5:1입니다."}},{"@type":"Question","name":"AA와 AAA 차이는 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"AA는 법적 접근성 최소 기준이고, AAA는 더 엄격한 최고 수준입니다. 대부분의 웹사이트는 AA 기준을 목표로 합니다."}},{"@type":"Question","name":"텍스트 색상과 배경색을 어떻게 입력하나요?","acceptedAnswer":{"@type":"Answer","text":"HEX 코드(#ffffff), RGB(255,255,255), 또는 색상 피커로 직접 선택할 수 있습니다."}},{"@type":"Question","name":"명암비가 낮으면 어떻게 개선하나요?","acceptedAnswer":{"@type":"Answer","text":"텍스트 색상을 더 어둡게 하거나 배경을 더 밝게 조정합니다. 도구에서 WCAG 통과하는 유사 색상을 추천받을 수 있습니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1><span id="h1Accent">접근성</span> 색상 검사기</h1>
+  <p class="sub" id="subEl">WCAG 명암비를 계산하여 색상 접근성을 확인합니다</p>
+  <div class="card">
+    <div class="color-pickers">
+      <div class="cp-group">
+        <div class="cp-label" id="lblFg"></div>
+        <div class="cp-row">
+          <input type="color" id="fgPicker" value="#ffffff" oninput="syncFg('picker')">
+          <input class="hex-inp" id="fgHex" value="#FFFFFF" oninput="syncFg('hex')">
+        </div>
+      </div>
+      <div class="cp-group">
+        <div class="cp-label" id="lblBg"></div>
+        <div class="cp-row">
+          <input type="color" id="bgPicker" value="#1a1a2e" oninput="syncBg('picker')">
+          <input class="hex-inp" id="bgHex" value="#1A1A2E" oninput="syncBg('hex')">
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="preview-box" id="previewBox">
+    <div class="preview-text-lg" id="previewLg"></div>
+    <div class="preview-text-sm" id="previewSm"></div>
+    <div class="preview-text-ui" id="previewUi"></div>
+  </div>
+  <div class="ratio-display">
+    <div class="ratio-big" id="ratioBig">21:1</div>
+    <div class="ratio-label" id="ratioLabel"></div>
+  </div>
+  <div class="wcag-grid" id="wcagGrid"></div>
+  <div class="suggest-box" id="suggestBox">
+    <div class="suggest-title" id="suggestTitle"></div>
+    <div class="suggest-swatches" id="suggestSwatches"></div>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const LANGS=['ko','en','zh','ja'];let _lang='ko';
+const _i18n={
+  ko:{h1Accent:'접근성',sub:'WCAG 명암비를 계산하여 색상 접근성을 확인합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',
+    lblFg:'텍스트 색상',lblBg:'배경 색상',ratioLabel:'명암 대비율',
+    previewLg:'큰 텍스트 (18pt+)',previewSm:'일반 텍스트 (14pt) — 이 크기가 일반적인 본문 텍스트입니다.',previewUi:'UI 컴포넌트',
+    wcagItems:[{name:'AA 일반',req:'4.5:1',desc:'일반 텍스트'},{name:'AA 큰 텍스트',req:'3:1',desc:'18pt+ 또는 굵은체 14pt+'},{name:'AAA 일반',req:'7:1',desc:'일반 텍스트 최고 수준'},{name:'AAA 큰 텍스트',req:'4.5:1',desc:'큰 텍스트 최고 수준'}],
+    suggestTitle:'대비율 개선 제안 색상',
+    seoHtml:`<h2>접근성 색상 검사기</h2><p>텍스트 색상과 배경 색상의 WCAG(Web Content Accessibility Guidelines) 명암 대비율을 계산합니다. WCAG 2.1 기준으로 일반 텍스트는 AA 등급 4.5:1, AAA 등급 7:1 이상이 필요합니다. 큰 텍스트(18pt 이상)는 AA 3:1, AAA 4.5:1 이상이 필요합니다. 시각 장애인을 포함한 모든 사용자가 콘텐츠를 읽을 수 있도록 도와드립니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>WCAG란?</summary><p>Web Content Accessibility Guidelines의 약자로, W3C가 제정한 웹 콘텐츠 접근성 지침입니다. 장애인을 포함한 모든 사람이 웹을 이용할 수 있도록 합니다.</p></details>
+<details class="faq-item"><summary>AA와 AAA의 차이는?</summary><p>AA는 법적으로 요구되는 기준(일반 텍스트 4.5:1, 큰 텍스트 3:1), AAA는 최상위 기준(일반 7:1, 큰 4.5:1)입니다.</p></details>
+<details class="faq-item"><summary>큰 텍스트 기준은?</summary><p>18pt (약 24px) 이상이거나, 굵은체 14pt (약 18.67px) 이상의 텍스트입니다.</p></details>
+<details class="faq-item"><summary>명암비 계산 공식은?</summary><p>(L1 + 0.05) / (L2 + 0.05) — L1은 밝은 쪽의 상대 휘도, L2는 어두운 쪽의 상대 휘도입니다.</p></details>
+<details class="faq-item"><summary>명암비 21:1은 무엇인가요?</summary><p>흰색 배경에 검은색 텍스트의 최대 명암비입니다. 모든 WCAG 기준을 통과합니다.</p></details>
+<details class="faq-item"><summary>어떤 색상 조합을 피해야 하나요?</summary><p>연한 노란색 텍스트에 흰색 배경, 회색 계열끼리 조합, 채도 높은 빨강과 초록 등은 명암비가 낮아 접근성이 나쁩니다.</p></details>
+<details class="faq-item"><summary>그래픽이나 아이콘도 이 기준이 적용되나요?</summary><p>UI 컴포넌트와 그래픽은 3:1 (WCAG 1.4.11) 기준이 적용됩니다.</p></details>
+<details class="faq-item"><summary>접근성 검사를 자동화하려면?</summary><p>axe-core, Lighthouse(Chrome DevTools), pa11y 등의 도구를 CI 파이프라인에 통합할 수 있습니다.</p></details>`
+  },
+  en:{h1Accent:'Accessibility',sub:'Calculate WCAG contrast ratio and check color accessibility',backLink:'← All Tools',langBtn:'🌐 中文',
+    lblFg:'Text color',lblBg:'Background color',ratioLabel:'Contrast ratio',
+    previewLg:'Large text (18pt+)',previewSm:'Normal text (14pt) — this is typical body text size.',previewUi:'UI component',
+    wcagItems:[{name:'AA Normal',req:'4.5:1',desc:'Normal text'},{name:'AA Large',req:'3:1',desc:'18pt+ or bold 14pt+'},{name:'AAA Normal',req:'7:1',desc:'Enhanced normal text'},{name:'AAA Large',req:'4.5:1',desc:'Enhanced large text'}],
+    suggestTitle:'Suggested colors to improve contrast',
+    seoHtml:`<h2>Accessibility Color Checker</h2><p>Calculate the WCAG contrast ratio between a text color and background color. WCAG 2.1 requires 4.5:1 (AA) and 7:1 (AAA) for normal text, and 3:1 (AA) / 4.5:1 (AAA) for large text (18pt+). Ensures your color choices are readable for all users, including those with visual impairments.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>What is WCAG?</summary><p>Web Content Accessibility Guidelines — W3C standards for making web content accessible to people with disabilities.</p></details>
+<details class="faq-item"><summary>AA vs. AAA?</summary><p>AA is the legally required baseline (4.5:1 normal, 3:1 large). AAA is the highest standard (7:1 normal, 4.5:1 large).</p></details>
+<details class="faq-item"><summary>What counts as large text?</summary><p>18pt (≈24px) or larger, or bold text at 14pt (≈18.67px) or larger.</p></details>
+<details class="faq-item"><summary>Contrast ratio formula?</summary><p>(L1 + 0.05) / (L2 + 0.05) where L1 is the relative luminance of the lighter color and L2 of the darker.</p></details>
+<details class="faq-item"><summary>What is a 21:1 ratio?</summary><p>The maximum possible — black text on white background. Passes all WCAG levels.</p></details>
+<details class="faq-item"><summary>What combinations should I avoid?</summary><p>Light yellow on white, similar gray tones, and highly saturated red/green without lightness difference.</p></details>
+<details class="faq-item"><summary>Does this apply to icons and graphics?</summary><p>UI components and informational graphics need 3:1 (WCAG 1.4.11 Non-text Contrast).</p></details>
+<details class="faq-item"><summary>How do I automate accessibility checks?</summary><p>Integrate axe-core, Lighthouse (Chrome DevTools), or pa11y into your CI pipeline.</p></details>`
+  },
+  zh:{h1Accent:'无障碍',sub:'计算WCAG对比度并检查颜色可访问性',backLink:'← 所有工具',langBtn:'🌐 日本語',
+    lblFg:'文字颜色',lblBg:'背景颜色',ratioLabel:'对比度',
+    previewLg:'大文字 (18pt+)',previewSm:'普通文字 (14pt) — 这是典型的正文文字大小。',previewUi:'UI组件',
+    wcagItems:[{name:'AA 普通',req:'4.5:1',desc:'普通文字'},{name:'AA 大文字',req:'3:1',desc:'18pt+或粗体14pt+'},{name:'AAA 普通',req:'7:1',desc:'普通文字最高标准'},{name:'AAA 大文字',req:'4.5:1',desc:'大文字最高标准'}],
+    suggestTitle:'改善对比度的建议颜色',
+    seoHtml:`<h2>无障碍颜色检查器</h2><p>计算文字颜色和背景颜色之间的WCAG对比度。WCAG 2.1要求普通文字AA级4.5:1、AAA级7:1，大文字(18pt+)AA级3:1、AAA级4.5:1。确保您的颜色选择对所有用户（包括视觉障碍用户）都可读。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>什么是WCAG？</summary><p>网络内容无障碍指南，W3C制定的标准，使残障人士也能访问网络内容。</p></details>
+<details class="faq-item"><summary>AA和AAA的区别？</summary><p>AA是法律要求的基准(普通4.5:1，大文字3:1)，AAA是最高标准(普通7:1，大文字4.5:1)。</p></details>
+<details class="faq-item"><summary>什么算大文字？</summary><p>18pt(约24px)以上，或粗体14pt(约18.67px)以上的文字。</p></details>
+<details class="faq-item"><summary>对比度计算公式？</summary><p>(L1+0.05)/(L2+0.05)，L1是较亮颜色的相对亮度，L2是较暗颜色的相对亮度。</p></details>
+<details class="faq-item"><summary>21:1对比度是什么？</summary><p>最大可能值，即白底黑字，通过所有WCAG级别。</p></details>
+<details class="faq-item"><summary>应避免哪些颜色组合？</summary><p>白底浅黄、相似灰色调组合以及高饱和度红绿组合（没有亮度差异）。</p></details>
+<details class="faq-item"><summary>图标和图形也适用这个标准吗？</summary><p>UI组件和信息图形需要3:1（WCAG 1.4.11非文字对比度）。</p></details>
+<details class="faq-item"><summary>如何自动化无障碍检查？</summary><p>可将axe-core、Lighthouse（Chrome开发工具）或pa11y集成到CI流程中。</p></details>`
+  },
+  ja:{h1Accent:'アクセシビリティ',sub:'WCAGコントラスト比を計算して色のアクセシビリティを確認します',backLink:'← ホーム',langBtn:'🌐 한국어',
+    lblFg:'テキスト色',lblBg:'背景色',ratioLabel:'コントラスト比',
+    previewLg:'大きいテキスト（18pt以上）',previewSm:'通常テキスト（14pt）— 典型的な本文サイズです。',previewUi:'UIコンポーネント',
+    wcagItems:[{name:'AA 通常',req:'4.5:1',desc:'通常テキスト'},{name:'AA 大テキスト',req:'3:1',desc:'18pt+またはボールド14pt+'},{name:'AAA 通常',req:'7:1',desc:'通常テキスト最高基準'},{name:'AAA 大テキスト',req:'4.5:1',desc:'大テキスト最高基準'}],
+    suggestTitle:'コントラスト改善の提案色',
+    seoHtml:`<h2>アクセシビリティカラーチェッカー</h2><p>テキスト色と背景色のWCAGコントラスト比を計算します。WCAG 2.1では通常テキストにAA 4.5:1、AAA 7:1、大きいテキスト(18pt以上)にAA 3:1、AAA 4.5:1が必要です。視覚障害者を含むすべてのユーザーがコンテンツを読めるようにします。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>WCAGとは？</summary><p>Web Content Accessibility Guidelinesの略で、W3Cが策定したウェブコンテンツのアクセシビリティ指針です。</p></details>
+<details class="faq-item"><summary>AAとAAAの違いは？</summary><p>AAは法的要件(通常4.5:1、大テキスト3:1)、AAAは最高基準(通常7:1、大テキスト4.5:1)です。</p></details>
+<details class="faq-item"><summary>大きいテキストの基準は？</summary><p>18pt（約24px）以上、またはボールドで14pt（約18.67px）以上のテキストです。</p></details>
+<details class="faq-item"><summary>コントラスト比の計算式は？</summary><p>(L1+0.05)/(L2+0.05) — L1は明るい方の相対輝度、L2は暗い方の相対輝度です。</p></details>
+<details class="faq-item"><summary>21:1とは？</summary><p>白背景に黒テキストの最大値で、すべてのWCAG基準をパスします。</p></details>
+<details class="faq-item"><summary>避けるべき色の組み合わせは？</summary><p>白背景に薄い黄色、類似グレー調の組み合わせ、輝度差のない高彩度の赤と緑。</p></details>
+<details class="faq-item"><summary>アイコンや図形にも適用されますか？</summary><p>UIコンポーネントと情報グラフィックには3:1（WCAG 1.4.11非テキストコントラスト）が必要です。</p></details>
+<details class="faq-item"><summary>アクセシビリティチェックを自動化するには？</summary><p>axe-core、Lighthouse（Chrome DevTools）、pa11yなどをCIパイプラインに統合できます。</p></details>`
+  }
+};
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();check();}
+function applyLang(){
+  const t=_i18n[_lang];document.documentElement.lang=_lang;
+  ['h1Accent','subEl','backLink','langBtn','lblFg','lblBg','ratioLabel','suggestTitle'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id];});
+  ['previewLg','previewSm','previewUi'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id];});
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+}
+function hexToRgb(h){h=h.replace('#','');if(h.length===3)h=h.split('').map(x=>x+x).join('');return[parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];}
+function luminance([r,g,b]){const c=v=>{v/=255;return v<=0.04045?v/12.92:Math.pow((v+0.055)/1.055,2.4);};return 0.2126*c(r)+0.7152*c(g)+0.0722*c(b);}
+function contrast(hex1,hex2){const l1=luminance(hexToRgb(hex1)),l2=luminance(hexToRgb(hex2));const lo=Math.min(l1,l2),hi=Math.max(l1,l2);return(hi+0.05)/(lo+0.05);}
+function syncFg(src){const picker=document.getElementById('fgPicker'),hex=document.getElementById('fgHex');if(src==='picker'){hex.value=picker.value.toUpperCase();}else{const v=hex.value.trim();if(/^#[0-9a-fA-F]{6}$/.test(v))picker.value=v;}check();}
+function syncBg(src){const picker=document.getElementById('bgPicker'),hex=document.getElementById('bgHex');if(src==='picker'){hex.value=picker.value.toUpperCase();}else{const v=hex.value.trim();if(/^#[0-9a-fA-F]{6}$/.test(v))picker.value=v;}check();}
+function check(){
+  const t=_i18n[_lang];const fg=document.getElementById('fgPicker').value,bg=document.getElementById('bgPicker').value;
+  const ratio=contrast(fg,bg);
+  document.getElementById('ratioBig').textContent=ratio.toFixed(2)+':1';
+  document.getElementById('previewBox').style.background=bg;
+  ['previewLg','previewSm','previewUi'].forEach(id=>{document.getElementById(id).style.color=fg;});
+  document.getElementById('previewUi').style.borderColor=fg;
+  const reqs=[{th:4.5,large:false,level:'AA'},{th:3,large:true,level:'AA'},{th:7,large:false,level:'AAA'},{th:4.5,large:true,level:'AAA'}];
+  const items=t.wcagItems;const grid=document.getElementById('wcagGrid');grid.innerHTML='';
+  items.forEach((item,i)=>{
+    const pass=ratio>=parseFloat(reqs[i].th);
+    grid.innerHTML+=`<div class="wcag-box ${pass?'pass':'fail'}"><div class="wcag-badge">${pass?'✅':'❌'}</div><div class="wcag-name">${item.name}</div><div class="wcag-req">${item.req}</div></div>`;
+  });
+  if(ratio<4.5){
+    const sb=document.getElementById('suggestSwatches');sb.innerHTML='';
+    const darkens=['#000000','#111111','#222222','#333333','#444444','#555555'];
+    darkens.forEach(c=>{if(contrast(c,bg)>=4.5){const btn=document.createElement('div');btn.className='swatch-btn';btn.style.background=c;btn.title=c;btn.onclick=()=>{document.getElementById('fgPicker').value=c;document.getElementById('fgHex').value=c.toUpperCase();syncFg('picker');};sb.appendChild(btn);}});
+    document.getElementById('suggestBox').style.display='block';
+  }else document.getElementById('suggestBox').style.display='none';
+}
+_lang=detectLang();applyLang();check();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

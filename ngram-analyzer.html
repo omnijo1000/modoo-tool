@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>N-그램 분석기 - N-Gram Analyzer | MODOO HUB</title>
+<meta name="description" content="텍스트에서 1-gram, 2-gram, 3-gram을 추출하고 빈도를 분석합니다. 자연어처리, SEO 키워드 분석에 활용. 무료 온라인 N-그램 분석 도구.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/ngram-analyzer.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/ngram-analyzer.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/ngram-analyzer.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/ngram-analyzer.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/ngram-analyzer.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/ngram-analyzer.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:900px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
+.opts{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin-bottom:14px;display:flex;gap:16px;flex-wrap:wrap;align-items:center;}
+.opt-label{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;}
+input.num-in{width:55px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 8px;color:var(--text);font-size:12px;font-family:'DM Mono',monospace;outline:none;text-align:center;}
+input.num-in:focus{border-color:var(--accent);}
+label.chk{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);cursor:pointer;}
+label.chk input{accent-color:var(--accent);}
+.input-panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px;}
+.panel-head{padding:10px 14px;background:var(--surface2);font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+textarea{width:100%;background:transparent;border:none;color:var(--text);font-size:13px;font-family:'Noto Sans KR',sans-serif;min-height:140px;outline:none;resize:vertical;padding:12px;line-height:1.6;}
+.tabs{display:flex;gap:2px;margin-bottom:14px;}
+.tab{padding:7px 18px;border-radius:7px 7px 0 0;border:1px solid var(--border);cursor:pointer;font-size:12px;color:var(--text-muted);background:var(--surface);border-bottom:none;}
+.tab.active{background:var(--surface2);color:var(--accent);border-color:var(--border);}
+.results-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;}
+.result-panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.result-title{padding:9px 12px;background:var(--surface2);font-size:11px;font-family:'DM Mono',monospace;color:var(--accent);border-bottom:1px solid var(--border);}
+.ngram-table{width:100%;}
+.ngram-table td{padding:6px 12px;font-size:12px;color:var(--text-muted);border-bottom:1px solid var(--border);}
+.ngram-table tr:last-child td{border-bottom:none;}
+.ngram-table tr:hover td{background:rgba(255,255,255,0.02);}
+.ngram-text{font-family:'DM Mono',monospace;color:var(--text);}
+.ngram-count{font-family:'DM Mono',monospace;color:var(--accent);text-align:right;}
+.ng-bar{height:3px;background:var(--accent);border-radius:2px;opacity:0.4;}
+.table-wrap{max-height:300px;overflow-y:auto;}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.btn{padding:7px 18px;border-radius:7px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:'Noto Sans KR',sans-serif;}
+.btn-primary{background:var(--accent);color:#000;}
+.btn-primary:hover{background:#f59e0b;}
+.btn-sec{background:var(--surface2);color:var(--text-muted);border:1px solid var(--border);}
+.btn-sec:hover{border-color:var(--accent);}
+.small-btn{padding:3px 10px;border-radius:5px;border:none;cursor:pointer;font-size:11px;font-family:'DM Mono',monospace;background:var(--surface2);color:var(--text-muted);}
+.small-btn:hover{color:var(--accent);}
+.empty{padding:40px;text-align:center;font-size:12px;color:var(--text-dim);}
+.stats{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;margin-bottom:12px;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"N-Gram Analyzer","url":"https://modoohub.com/ngram-analyzer.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"텍스트에서 N-gram을 추출하고 빈도를 분석하는 무료 온라인 도구."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"N-gram이란 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"텍스트에서 연속된 N개의 단어(또는 문자) 조합입니다. 2-gram은 bigram, 3-gram은 trigram이라고 합니다."}},{"@type":"Question","name":"N-gram 분석을 SEO에 활용할 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"자주 등장하는 핵심 구문을 파악해 콘텐츠 최적화와 키워드 전략 수립에 활용할 수 있습니다."}},{"@type":"Question","name":"문자 N-gram과 단어 N-gram의 차이는?","acceptedAnswer":{"@type":"Answer","text":"문자 N-gram은 글자 단위, 단어 N-gram은 단어 단위로 분석합니다. NLP와 텍스트 마이닝에 모두 사용됩니다."}},{"@type":"Question","name":"한국어 N-gram 분석이 가능한가요?","acceptedAnswer":{"@type":"Answer","text":"네, 한국어 형태소 특성을 고려한 N-gram 분석을 지원합니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>N-그램 <span id="h1Accent">분석기</span></h1>
+  <p class="sub" id="subEl">텍스트에서 Unigram, Bigram, Trigram을 추출하고 빈도를 분석합니다</p>
+  <div class="opts">
+    <label class="chk"><input type="checkbox" id="chkCase" checked onchange="analyze()"><span id="lblCase">대소문자 통합</span></label>
+    <label class="chk"><input type="checkbox" id="chkPunct" checked onchange="analyze()"><span id="lblPunct">구두점 제거</span></label>
+    <label class="chk"><input type="checkbox" id="chkStop" onchange="analyze()"><span id="lblStop">불용어 제거</span></label>
+    <span class="opt-label" id="lblTop">상위:</span>
+    <input class="num-in" id="topN" type="number" min="5" max="100" value="20" oninput="analyze()">
+  </div>
+  <div class="input-panel">
+    <div class="panel-head"><span id="lblInput">입력</span><button class="small-btn" onclick="clearInput()" id="btnClear">지우기</button></div>
+    <textarea id="textIn" oninput="analyze()" placeholder="텍스트를 입력하세요..."></textarea>
+  </div>
+  <div class="stats" id="statsEl"></div>
+  <div id="resultsContainer"><div class="empty" id="emptyMsg">텍스트를 입력하면 분석합니다</div></div>
+  <div class="btn-row" style="margin-top:12px;">
+    <button class="btn btn-sec" onclick="loadSample()" id="btnSample">샘플</button>
+    <button class="btn btn-sec" onclick="exportCsv()" id="btnCsv">CSV 내보내기</button>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const LANGS=['ko','en','zh','ja'];let _lang='ko';
+const STOP=new Set(['a','an','the','and','or','but','in','on','at','to','for','of','with','by','from','is','are','was','were','be','been','being','have','has','had','do','does','did','will','would','could','should','may','might','i','you','he','she','it','we','they','this','that','these','those','not','no','so','as','if','then','than','up','out','into','about']);
+const _i18n={
+  ko:{h1Accent:'분석기',sub:'텍스트에서 Unigram, Bigram, Trigram을 추출하고 빈도를 분석합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',lblCase:'대소문자 통합',lblPunct:'구두점 제거',lblStop:'불용어 제거',lblTop:'상위:',lblInput:'입력',btnClear:'지우기',btnSample:'샘플',btnCsv:'CSV 내보내기',emptyMsg:'텍스트를 입력하면 분석합니다',
+    stats:(words)=>`${words}개 단어 분석됨`,titles:['Unigram (1-gram)','Bigram (2-gram)','Trigram (3-gram)'],
+    seoHtml:`<h2>N-그램 분석기</h2><p>텍스트에서 Unigram(단어), Bigram(2단어 구), Trigram(3단어 구)을 추출하고 빈도를 분석합니다. 자연어처리(NLP), SEO 키워드 분석, 텍스트 패턴 연구에 활용됩니다. 대소문자 통합, 불용어 제거, 구두점 제거 옵션을 제공합니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>N-그램이란 무엇인가요?</summary><p>N개의 연속된 단어 또는 문자의 묶음입니다. 1-gram(단어), 2-gram(두 단어 조합), 3-gram(세 단어 조합)으로 구분됩니다.</p></details>
+<details class="faq-item"><summary>N-그램 분석을 어디에 사용하나요?</summary><p>SEO 키워드 연구, 텍스트 분류, 언어 모델 훈련, 표절 탐지 등에 활용됩니다.</p></details>
+<details class="faq-item"><summary>불용어를 제거하면 더 유용한가요?</summary><p>콘텐츠 분석 목적이라면 불용어 제거 시 더 의미 있는 결과를 얻을 수 있습니다.</p></details>
+<details class="faq-item"><summary>한국어도 분석할 수 있나요?</summary><p>공백 기준으로 분리되어 분석됩니다. 형태소 분석 없이도 기본적인 패턴 파악이 가능합니다.</p></details>
+<details class="faq-item"><summary>결과를 CSV로 내보낼 수 있나요?</summary><p>예, CSV 내보내기 버튼을 클릭하면 모든 N-그램 결과가 CSV로 저장됩니다.</p></details>
+<details class="faq-item"><summary>최대 몇 개의 N-그램을 표시하나요?</summary><p>상위 N개(기본 20개)를 빈도 순으로 표시합니다. 최대 100개까지 설정할 수 있습니다.</p></details>
+<details class="faq-item"><summary>4-gram, 5-gram도 분석할 수 있나요?</summary><p>현재 도구는 1~3-gram을 지원합니다. 더 높은 N을 위해서는 별도 NLP 도구를 활용하세요.</p></details>
+<details class="faq-item"><summary>SEO에서 N-그램이 왜 중요한가요?</summary><p>롱테일 키워드는 대부분 2~3단어 구(Bigram/Trigram)로 구성되어, 콘텐츠 최적화에 활용됩니다.</p></details>`
+  },
+  en:{h1Accent:'Analyzer',sub:'Extract and analyze Unigrams, Bigrams, and Trigrams from text',backLink:'← All Tools',langBtn:'🌐 中文',lblCase:'Case-insensitive',lblPunct:'Remove punctuation',lblStop:'Remove stopwords',lblTop:'Top:',lblInput:'Input',btnClear:'Clear',btnSample:'Sample',btnCsv:'Export CSV',emptyMsg:'Enter text to analyze',
+    stats:(words)=>`${words} words analyzed`,titles:['Unigram (1-gram)','Bigram (2-gram)','Trigram (3-gram)'],
+    seoHtml:`<h2>N-Gram Analyzer</h2><p>Extract Unigrams, Bigrams, and Trigrams from text and analyze their frequency. Widely used in NLP, SEO keyword research, text classification, and linguistic analysis. Options include case normalization, punctuation removal, and stopword filtering.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>What is an N-gram?</summary><p>A contiguous sequence of N words (or characters). 1-gram = single word, 2-gram = word pair, 3-gram = word triple.</p></details>
+<details class="faq-item"><summary>What are N-grams used for?</summary><p>SEO keyword research, text classification, language model training, plagiarism detection, and more.</p></details>
+<details class="faq-item"><summary>Should I remove stopwords?</summary><p>For content analysis, yes — it yields more meaningful N-grams. For language modeling, no.</p></details>
+<details class="faq-item"><summary>Does it work with non-English text?</summary><p>Whitespace tokenization is used. Basic patterns can be identified without morpheme analysis.</p></details>
+<details class="faq-item"><summary>Can I export results to CSV?</summary><p>Yes — click Export CSV to download all N-gram results.</p></details>
+<details class="faq-item"><summary>How many N-grams are shown?</summary><p>Top N by frequency (default 20, max 100).</p></details>
+<details class="faq-item"><summary>Can I analyze 4-grams or 5-grams?</summary><p>This tool supports 1–3-grams. For higher N, use a dedicated NLP tool.</p></details>
+<details class="faq-item"><summary>Why are N-grams important for SEO?</summary><p>Long-tail keywords are usually 2–3-word phrases (bigrams/trigrams) — N-gram analysis reveals content optimization opportunities.</p></details>`
+  },
+  zh:{h1Accent:'分析器',sub:'从文本中提取和分析Unigram、Bigram和Trigram',backLink:'← 所有工具',langBtn:'🌐 日本語',lblCase:'不区分大小写',lblPunct:'删除标点',lblStop:'删除停用词',lblTop:'前N个:',lblInput:'输入',btnClear:'清除',btnSample:'示例',btnCsv:'导出CSV',emptyMsg:'输入文本以开始分析',
+    stats:(words)=>`已分析${words}个词`,titles:['一元组 (1-gram)','二元组 (2-gram)','三元组 (3-gram)'],
+    seoHtml:`<h2>N-gram分析器</h2><p>从文本中提取一元组、二元组和三元组并分析其频率。广泛用于NLP、SEO关键词研究、文本分类和语言分析。支持大小写规范化、标点删除和停用词过滤等选项。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>什么是N-gram？</summary><p>N个连续词（或字符）的序列。1-gram=单词，2-gram=词对，3-gram=词三元组。</p></details>
+<details class="faq-item"><summary>N-gram有什么用途？</summary><p>SEO关键词研究、文本分类、语言模型训练、抄袭检测等。</p></details>
+<details class="faq-item"><summary>应该删除停用词吗？</summary><p>内容分析时应该删除，可以得到更有意义的N-gram。语言建模时则不应删除。</p></details>
+<details class="faq-item"><summary>支持非英文文本吗？</summary><p>使用空格分词。无需形态素分析也能识别基本模式。</p></details>
+<details class="faq-item"><summary>可以导出CSV结果吗？</summary><p>可以，点击导出CSV即可下载所有N-gram结果。</p></details>
+<details class="faq-item"><summary>显示多少个N-gram？</summary><p>按频率排名的前N个（默认20个，最多100个）。</p></details>
+<details class="faq-item"><summary>可以分析4-gram或5-gram吗？</summary><p>此工具支持1-3 gram。更高的N请使用专用NLP工具。</p></details>
+<details class="faq-item"><summary>为什么N-gram对SEO很重要？</summary><p>长尾关键词通常是2-3词短语（bigram/trigram），N-gram分析可发现内容优化机会。</p></details>`
+  },
+  ja:{h1Accent:'アナライザー',sub:'テキストからUnigram、Bigram、Trigramを抽出・分析します',backLink:'← ホーム',langBtn:'🌐 한국어',lblCase:'大小文字を統合',lblPunct:'句読点削除',lblStop:'ストップワード削除',lblTop:'上位:',lblInput:'入力',btnClear:'クリア',btnSample:'サンプル',btnCsv:'CSVエクスポート',emptyMsg:'テキストを入力して分析',
+    stats:(words)=>`${words}語を分析`,titles:['ユニグラム (1-gram)','バイグラム (2-gram)','トライグラム (3-gram)'],
+    seoHtml:`<h2>N-gramアナライザー</h2><p>テキストからUnigram、Bigram、Trigramを抽出して頻度を分析します。NLP、SEOキーワード研究、テキスト分類、言語分析に広く利用されています。大小文字の統一、句読点削除、ストップワードフィルタリングなどのオプションを提供します。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>N-gramとは何ですか？</summary><p>N個の連続した単語（または文字）のシーケンスです。1-gram=単語、2-gram=単語ペア、3-gram=単語トリプル。</p></details>
+<details class="faq-item"><summary>N-gramは何に使われますか？</summary><p>SEOキーワード研究、テキスト分類、言語モデル訓練、剽窃検出などに使われます。</p></details>
+<details class="faq-item"><summary>ストップワードは削除すべきですか？</summary><p>コンテンツ分析目的なら削除すると、より意味のあるN-gramが得られます。言語モデリングには削除しないでください。</p></details>
+<details class="faq-item"><summary>日本語テキストでも動作しますか？</summary><p>スペース分かち書きを使用します。形態素解析なしでも基本パターンを識別できます。</p></details>
+<details class="faq-item"><summary>結果をCSVでエクスポートできますか？</summary><p>はい — CSVエクスポートをクリックするとすべてのN-gram結果がダウンロードされます。</p></details>
+<details class="faq-item"><summary>何個のN-gramが表示されますか？</summary><p>頻度上位N個（デフォルト20個、最大100個）。</p></details>
+<details class="faq-item"><summary>4-gramや5-gramも分析できますか？</summary><p>このツールは1~3-gramをサポートします。より高いNには専用NLPツールをご利用ください。</p></details>
+<details class="faq-item"><summary>なぜN-gramはSEOで重要ですか？</summary><p>ロングテールキーワードは通常2~3語のフレーズ（bigram/trigram）で、N-gram分析でコンテンツ最適化の機会を発見できます。</p></details>`
+  }
+};
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){
+  const t=_i18n[_lang];document.documentElement.lang=_lang;
+  ['h1Accent','subEl','backLink','langBtn','lblCase','lblPunct','lblStop','lblTop','lblInput','btnClear','btnSample','btnCsv','emptyMsg'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id]||el.textContent;});
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+  analyze();
+}
+function gch(id){return document.getElementById(id).checked;}
+let _allGrams=[];
+function buildNgrams(tokens,n){const map={};for(let i=0;i<=tokens.length-n;i++){const g=tokens.slice(i,i+n).join(' ');map[g]=(map[g]||0)+1;}return map;}
+function analyze(){
+  const t=_i18n[_lang];const raw=document.getElementById('textIn').value;
+  if(!raw.trim()){document.getElementById('resultsContainer').innerHTML='<div class="empty">'+t.emptyMsg+'</div>';document.getElementById('statsEl').textContent='';_allGrams=[];return;}
+  let text=raw;
+  if(gch('chkPunct'))text=text.replace(/[^\w\s가-힣]/g,' ');
+  if(gch('chkCase'))text=text.toLowerCase();
+  let tokens=text.trim().split(/\s+/).filter(w=>w.length>0);
+  if(gch('chkStop'))tokens=tokens.filter(w=>!STOP.has(w.toLowerCase()));
+  const topN=parseInt(document.getElementById('topN').value)||20;
+  _allGrams=[];
+  const html=t.titles.map((title,idx)=>{
+    const n=idx+1;
+    const map=buildNgrams(tokens,n);
+    const entries=Object.entries(map).sort((a,b)=>b[1]-a[1]).slice(0,topN);
+    _allGrams.push({n,entries});
+    const maxC=entries[0]?entries[0][1]:1;
+    const rows=entries.map(([g,c])=>`<tr><td class="ngram-text">${g}</td><td><div class="ng-bar" style="width:${Math.round(c/maxC*100)}%"></div></td><td class="ngram-count">${c}</td></tr>`).join('');
+    return`<div class="result-panel"><div class="result-title">${title}</div><div class="table-wrap"><table class="ngram-table"><tbody>${rows||'<tr><td colspan="3" style="text-align:center;color:var(--text-dim);padding:20px">-</td></tr>'}</tbody></table></div></div>`;
+  }).join('');
+  document.getElementById('resultsContainer').innerHTML='<div class="results-grid">'+html+'</div>';
+  document.getElementById('statsEl').textContent=t.stats(tokens.length);
+}
+function clearInput(){document.getElementById('textIn').value='';analyze();}
+function exportCsv(){
+  if(!_allGrams.length)return;
+  let csv='n,ngram,count\n';
+  for(const{n,entries}of _allGrams)for(const[g,c]of entries)csv+=`${n},"${g}",${c}\n`;
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='ngrams.csv';a.click();
+}
+function loadSample(){document.getElementById('textIn').value='Natural language processing enables computers to understand human language. Machine learning techniques have advanced natural language processing significantly. Deep learning models for natural language processing achieve state-of-the-art results.';analyze();}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

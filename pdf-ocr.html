@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PDF OCR 텍스트 추출기 - 스캔 PDF 텍스트 인식 | 모두의 툴</title>
+<meta name="description" content="스캔된 PDF에서 OCR로 텍스트를 추출합니다. PDF.js로 페이지를 렌더링하고 Tesseract.js로 텍스트를 인식합니다.">
+<link rel="canonical" href="https://modoohub.com/pdf-ocr.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/pdf-ocr.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/pdf-ocr.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/pdf-ocr.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/pdf-ocr.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/pdf-ocr.html">
+<!-- GA -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<!-- AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"PDF OCR Text Extractor","url":"https://modoohub.com/pdf-ocr.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Extract text from scanned PDFs using OCR technology with Tesseract.js."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"OCR이란?","acceptedAnswer":{"@type":"Answer","text":"Optical Character Recognition. 이미지 속 문자를 인식해 텍스트로 변환하는 기술."}},{"@type":"Question","name":"일반 PDF도 되나요?","acceptedAnswer":{"@type":"Answer","text":"텍스트 레이어가 있는 PDF는 PDF.js로 바로 추출. 스캔본(이미지 PDF)만 Tesseract OCR 사용."}}]}</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:20px;}
+.wrap{max-width:900px;margin:0 auto;}
+.top-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;}
+.back-link{color:var(--text-muted);text-decoration:none;font-size:14px;}
+.back-link:hover{color:var(--accent);}
+.lang-btn{background:none;border:1px solid var(--border);color:var(--text-muted);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:13px;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+h1{font-size:26px;font-weight:700;margin-bottom:8px;}
+.sub{color:var(--text-muted);font-size:15px;margin-bottom:28px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:20px;}
+.drop-zone{border:2px dashed var(--border);border-radius:10px;padding:48px;text-align:center;cursor:pointer;transition:border-color .2s;}
+.drop-zone:hover,.drop-zone.drag{border-color:var(--accent);}
+.drop-zone input{display:none;}
+.drop-icon{font-size:48px;margin-bottom:12px;}
+.drop-label{color:var(--text-muted);font-size:15px;}
+.btn{background:var(--accent);color:#000;border:none;padding:10px 24px;border-radius:8px;cursor:pointer;font-weight:700;font-size:14px;transition:opacity .2s;}
+.btn:hover{opacity:.85;}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+.btn-sec{background:var(--surface2);color:var(--text-muted);border:1px solid var(--border);}
+.btn-sec:hover{color:var(--text);border-color:var(--accent);}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:16px;}
+label{font-size:13px;color:var(--text-muted);}
+select,input[type=text],input[type=number]{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:6px;font-size:13px;}
+select:focus,input:focus{outline:none;border-color:var(--accent);}
+.progress-bar{background:var(--surface2);border-radius:99px;height:8px;margin:16px 0;overflow:hidden;}
+.progress-fill{background:var(--accent);height:100%;border-radius:99px;transition:width .3s;width:0%;}
+.status{font-size:13px;color:var(--text-muted);margin-bottom:8px;}
+#outputArea{width:100%;min-height:220px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;padding:14px;resize:vertical;}
+.info-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px;font-size:13px;color:var(--text-muted);line-height:1.7;}
+.info-box strong{color:var(--accent);}
+.canvas-wrap{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px;}
+canvas.page-canvas{border:1px solid var(--border);border-radius:6px;max-width:100%;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top-nav">
+    <a class="back-link" href="index.html" data-i18n="backLink">← 모두의 툴</a>
+    <button class="lang-btn" onclick="toggleLang()" data-i18n="langBtn">🌐 EN</button>
+  </div>
+  <h1 data-i18n="h1">📄 PDF OCR 텍스트 추출기</h1>
+  <p class="sub" data-i18n="sub">스캔된 PDF에서 OCR로 텍스트를 인식합니다</p>
+
+  <div class="card">
+    <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()" ondragover="ev.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleDrop(event)">
+      <input type="file" id="fileInput" accept=".pdf" onchange="handleFile(this.files[0])">
+      <div class="drop-icon">📄</div>
+      <p class="drop-label" data-i18n="dropLabel">PDF 파일을 드래그하거나 클릭해 선택</p>
+    </div>
+    <div class="info-box" style="margin-top:16px;" data-i18n="infoBox">
+      <strong>💡 안내:</strong> 이 도구는 <strong>PDF.js</strong>로 각 페이지를 캔버스에 렌더링한 후 <strong>Tesseract.js</strong>로 OCR을 수행합니다. 텍스트 레이어가 있는 일반 PDF는 즉시 텍스트 추출, 스캔본(이미지 PDF)은 OCR 인식을 사용합니다.
+    </div>
+  </div>
+
+  <div class="card" id="settingsCard" style="display:none;">
+    <div class="row">
+      <label data-i18n="langLabel">OCR 언어:</label>
+      <select id="ocrLang">
+        <option value="kor+eng">한국어 + English</option>
+        <option value="eng">English</option>
+        <option value="kor">한국어</option>
+        <option value="chi_sim">中文 (简体)</option>
+        <option value="jpn">日本語</option>
+      </select>
+      <label data-i18n="pageLabel">페이지 범위:</label>
+      <input type="text" id="pageRange" placeholder="예: 1-3, 5" style="width:140px;">
+      <button class="btn" id="startBtn" onclick="startOCR()" data-i18n="startBtn">OCR 시작</button>
+    </div>
+    <div class="progress-bar" id="progressBar" style="display:none;">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <p class="status" id="statusText"></p>
+    <div class="canvas-wrap" id="canvasWrap"></div>
+  </div>
+
+  <div class="card" id="resultCard" style="display:none;">
+    <div class="row" style="margin-bottom:12px;">
+      <strong data-i18n="resultLabel">추출 결과</strong>
+      <button class="btn btn-sec" onclick="copyResult()" data-i18n="copyBtn">복사</button>
+      <button class="btn btn-sec" onclick="downloadResult()" data-i18n="dlBtn">TXT 다운로드</button>
+    </div>
+    <textarea id="outputArea" readonly></textarea>
+  </div>
+
+  <div class="seo"><div id="seoContent"></div></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+<script>
+if(window.pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+
+const _i18n={
+  ko:{pageTitle:'PDF OCR 텍스트 추출기 | 모두의 툴',h1:'📄 PDF OCR 텍스트 추출기',sub:'스캔된 PDF에서 OCR로 텍스트를 인식합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',dropLabel:'PDF 파일을 드래그하거나 클릭해 선택',infoBox:'<strong>💡 안내:</strong> <strong>PDF.js</strong>로 각 페이지를 캔버스에 렌더링 후 <strong>Tesseract.js</strong>로 OCR 수행. 텍스트 레이어가 있는 PDF는 즉시 추출, 스캔본은 OCR 인식.',langLabel:'OCR 언어:',pageLabel:'페이지 범위:',startBtn:'OCR 시작',resultLabel:'추출 결과',copyBtn:'복사',dlBtn:'TXT 다운로드',seoHtml:`<h2>PDF OCR 텍스트 추출기란?</h2><p>스캔된 문서나 이미지로 된 PDF에서 텍스트를 자동으로 인식하는 도구입니다. PDF.js로 각 페이지를 고해상도 캔버스에 렌더링한 후 Tesseract.js OCR 엔진으로 문자를 인식합니다. 한국어, 영어, 중국어, 일본어 등 다양한 언어를 지원하며, 페이지 범위를 지정해 필요한 부분만 처리할 수 있습니다. 텍스트 레이어가 있는 일반 PDF는 즉시 텍스트를 추출하고, 스캔본(이미지 PDF)만 OCR 처리합니다.</p><h2 class="seo-sub">자주 묻는 질문</h2><details class="faq-item"><summary>Q. OCR 정확도는 얼마나 되나요?</summary><p>A. 인쇄체 문서는 95% 이상, 손글씨나 저화질 스캔은 낮을 수 있습니다. 고해상도 스캔 사용을 권장합니다.</p></details><details class="faq-item"><summary>Q. 어떤 언어를 지원하나요?</summary><p>A. 한국어, 영어, 중국어 간체, 일본어를 지원합니다. 다국어 혼합 문서는 복합 언어 옵션을 선택하세요.</p></details><details class="faq-item"><summary>Q. 파일이 서버에 업로드되나요?</summary><p>A. 아닙니다. 모든 처리는 브라우저에서 로컬로 이루어집니다. 파일은 외부로 전송되지 않습니다.</p></details><details class="faq-item"><summary>Q. 페이지 수 제한이 있나요?</summary><p>A. 기술적 제한은 없지만 페이지가 많을수록 처리 시간이 길어집니다. 대용량은 범위를 나눠 처리하세요.</p></details><details class="faq-item"><summary>Q. 일반 PDF와 스캔 PDF 차이는?</summary><p>A. 일반 PDF는 텍스트 레이어가 있어 즉시 추출, 스캔 PDF는 이미지이므로 OCR 인식이 필요합니다.</p></details><details class="faq-item"><summary>Q. 처리가 너무 느려요.</summary><p>A. OCR은 CPU 집약적 작업입니다. 페이지 범위를 좁히거나 낮은 해상도 스케일을 사용하면 빨라집니다.</p></details><details class="faq-item"><summary>Q. 결과 텍스트를 어떻게 저장하나요?</summary><p>A. 복사 버튼으로 클립보드에 복사하거나 TXT 다운로드 버튼으로 파일로 저장할 수 있습니다.</p></details><details class="faq-item"><summary>Q. 암호화된 PDF도 처리되나요?</summary><p>A. 암호화된 PDF는 먼저 PDF 잠금 해제 도구로 암호를 제거한 후 사용하세요.</p></details>`},
+  en:{pageTitle:'PDF OCR Text Extractor | Modoo Tools',h1:'📄 PDF OCR Text Extractor',sub:'Recognize text in scanned PDFs via OCR',backLink:'← All Tools',langBtn:'🌐 中文',dropLabel:'Drag & drop PDF or click to select',infoBox:'<strong>💡 Note:</strong> Renders pages with <strong>PDF.js</strong>, then runs <strong>Tesseract.js</strong> OCR. PDFs with text layers extract instantly; scanned image PDFs use OCR.',langLabel:'OCR Language:',pageLabel:'Page Range:',startBtn:'Start OCR',resultLabel:'Result',copyBtn:'Copy',dlBtn:'Download TXT',seoHtml:`<h2>PDF OCR Text Extractor</h2><p>Extract text from scanned or image-based PDFs automatically. Renders each page to a high-resolution canvas using PDF.js, then recognizes characters with the Tesseract.js OCR engine. Supports Korean, English, Chinese, and Japanese. Specify a page range to process only the pages you need. Regular PDFs with embedded text layers are extracted instantly without OCR.</p><h2 class="seo-sub">FAQ</h2><details class="faq-item"><summary>Q. How accurate is the OCR?</summary><p>A. Printed text typically achieves 95%+ accuracy. Handwriting or low-quality scans may be lower. Use high-resolution scans for best results.</p></details><details class="faq-item"><summary>Q. Which languages are supported?</summary><p>A. Korean, English, Simplified Chinese, and Japanese. Use the combined language option for multilingual documents.</p></details><details class="faq-item"><summary>Q. Is my file uploaded to a server?</summary><p>A. No. All processing happens locally in your browser. No data is sent to any server.</p></details><details class="faq-item"><summary>Q. Is there a page limit?</summary><p>A. No technical limit, but more pages means longer processing. Split large documents into ranges.</p></details><details class="faq-item"><summary>Q. What is the difference between regular and scanned PDFs?</summary><p>A. Regular PDFs have an embedded text layer for instant extraction; scanned PDFs are images that require OCR.</p></details><details class="faq-item"><summary>Q. Processing is very slow.</summary><p>A. OCR is CPU-intensive. Narrow the page range or use a lower render scale to speed things up.</p></details><details class="faq-item"><summary>Q. How do I save the result?</summary><p>A. Use the Copy button for clipboard or Download TXT to save as a file.</p></details><details class="faq-item"><summary>Q. Does it work with password-protected PDFs?</summary><p>A. Remove the password first using a PDF unlock tool, then process with this tool.</p></details>`},
+  zh:{pageTitle:'PDF OCR文字提取器 | Modoo工具',h1:'📄 PDF OCR文字提取器',sub:'从扫描PDF中识别文字',backLink:'← 首页',langBtn:'🌐 日本語',dropLabel:'拖放PDF文件或点击选择',infoBox:'<strong>💡 提示：</strong>使用<strong>PDF.js</strong>渲染页面，然后用<strong>Tesseract.js</strong>进行OCR识别。有文字层的PDF直接提取，扫描件使用OCR。',langLabel:'OCR语言：',pageLabel:'页面范围：',startBtn:'开始OCR',resultLabel:'提取结果',copyBtn:'复制',dlBtn:'下载TXT',seoHtml:`<h2>PDF OCR文字提取器</h2><p>从扫描或图像PDF中自动提取文字。使用PDF.js将页面渲染为高分辨率画布，再用Tesseract.js OCR引擎识别字符。支持中文、韩文、英文、日文。可指定页面范围只处理所需页面。含文字层的普通PDF可即时提取，无需OCR。</p><h2 class="seo-sub">常见问题</h2><details class="faq-item"><summary>Q. OCR准确率如何？</summary><p>A. 印刷体文字通常可达95%以上。手写体或低质量扫描准确率较低，建议使用高分辨率扫描件。</p></details><details class="faq-item"><summary>Q. 支持哪些语言？</summary><p>A. 支持中文简体、韩文、英文、日文。多语言文档请选择复合语言选项。</p></details><details class="faq-item"><summary>Q. 文件会上传到服务器吗？</summary><p>A. 不会。所有处理均在浏览器本地进行，文件不会发送到任何服务器。</p></details><details class="faq-item"><summary>Q. 有页数限制吗？</summary><p>A. 没有技术限制，但页数越多处理时间越长。建议分段处理大型文档。</p></details><details class="faq-item"><summary>Q. 普通PDF和扫描PDF有什么区别？</summary><p>A. 普通PDF有内嵌文字层可即时提取；扫描PDF是图像，需要OCR识别。</p></details><details class="faq-item"><summary>Q. 处理很慢怎么办？</summary><p>A. OCR是CPU密集型任务。缩小页面范围或降低渲染分辨率可加快速度。</p></details><details class="faq-item"><summary>Q. 如何保存结果？</summary><p>A. 使用复制按钮复制到剪贴板，或点击下载TXT保存为文件。</p></details><details class="faq-item"><summary>Q. 加密PDF可以处理吗？</summary><p>A. 请先用PDF解锁工具移除密码，再使用本工具处理。</p></details>`},
+  ja:{pageTitle:'PDF OCRテキスト抽出器 | Modooツール',h1:'📄 PDF OCRテキスト抽出器',sub:'スキャンPDFからOCRでテキストを認識します',backLink:'← ホーム',langBtn:'🌐 한국어',dropLabel:'PDFをドラッグまたはクリックして選択',infoBox:'<strong>💡 注意：</strong><strong>PDF.js</strong>でページをレンダリングし、<strong>Tesseract.js</strong>でOCRを実行します。テキストレイヤーのあるPDFは即座に抽出、スキャンPDFはOCR認識を使用します。',langLabel:'OCR言語：',pageLabel:'ページ範囲：',startBtn:'OCR開始',resultLabel:'抽出結果',copyBtn:'コピー',dlBtn:'TXTダウンロード',seoHtml:`<h2>PDF OCRテキスト抽出器とは</h2><p>スキャンまたは画像ベースのPDFからテキストを自動抽出します。PDF.jsで各ページを高解像度キャンバスにレンダリングし、Tesseract.js OCRエンジンで文字を認識します。韓国語・英語・中国語・日本語に対応。ページ範囲を指定して必要なページだけ処理できます。テキストレイヤーのある通常のPDFはOCR不要で即時抽出。</p><h2 class="seo-sub">よくある質問</h2><details class="faq-item"><summary>Q. OCRの精度はどのくらいですか？</summary><p>A. 印刷テキストは通常95%以上。手書きや低品質スキャンは低くなります。高解像度スキャンを推奨します。</p></details><details class="faq-item"><summary>Q. 対応言語は？</summary><p>A. 韓国語・英語・中国語簡体字・日本語に対応。多言語文書は複合言語オプションを選択してください。</p></details><details class="faq-item"><summary>Q. ファイルはサーバーにアップロードされますか？</summary><p>A. されません。すべての処理はブラウザ内でローカルに行われます。</p></details><details class="faq-item"><summary>Q. ページ数に制限はありますか？</summary><p>A. 技術的な制限はありませんが、ページ数が多いほど処理時間が長くなります。</p></details><details class="faq-item"><summary>Q. 通常PDFとスキャンPDFの違いは？</summary><p>A. 通常PDFはテキストレイヤーがあり即時抽出。スキャンPDFは画像なのでOCRが必要です。</p></details><details class="faq-item"><summary>Q. 処理が遅いです。</summary><p>A. OCRはCPU集約型処理です。ページ範囲を絞るか、レンダリングスケールを下げると速くなります。</p></details><details class="faq-item"><summary>Q. 結果をどうやって保存しますか？</summary><p>A. コピーボタンでクリップボードに、またはTXTダウンロードでファイルとして保存できます。</p></details><details class="faq-item"><summary>Q. パスワード保護されたPDFは使えますか？</summary><p>A. まずPDFロック解除ツールでパスワードを削除してからお使いください。</p></details>`}
+};
+
+let currentLang='ko', pdfDoc=null, pdfFile=null;
+
+function detectLang(){const p=new URLSearchParams(location.search).get('lang');if(p&&_i18n[p])return p;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=navigator.language||'';if(n.startsWith('zh'))return'zh';if(n.startsWith('ja'))return'ja';if(n.startsWith('ko'))return'ko';return'en';}
+function applyLang(l){const t=_i18n[l]||_i18n.ko;document.title=t.pageTitle;document.documentElement.lang=l;document.querySelectorAll('[data-i18n]').forEach(el=>{const v=t[el.dataset.i18n];if(v!==undefined)el.innerHTML=v;});document.getElementById('seoContent').innerHTML=t.seoHtml||'';}
+function toggleLang(){const order=['ko','en','zh','ja'];const next=order[(order.indexOf(currentLang)+1)%order.length];currentLang=next;localStorage.setItem('modoo_lang',next);const url=new URL(location.href);url.searchParams.set('lang',next);history.replaceState(null,'',url);applyLang(next);}
+currentLang=detectLang();
+document.addEventListener('DOMContentLoaded',()=>applyLang(currentLang));
+
+function handleDrop(e){e.preventDefault();document.getElementById('dropZone').classList.remove('drag');const f=e.dataTransfer.files[0];if(f&&f.type==='application/pdf')handleFile(f);}
+async function handleFile(f){
+  if(!f)return;
+  pdfFile=f;
+  const ab=await f.arrayBuffer();
+  pdfDoc=await pdfjsLib.getDocument({data:ab}).promise;
+  document.getElementById('settingsCard').style.display='block';
+  document.getElementById('statusText').textContent=`${f.name} — ${pdfDoc.numPages} pages`;
+}
+
+function parsePageRange(str,max){
+  if(!str.trim())return Array.from({length:max},(_,i)=>i+1);
+  const pages=[];
+  str.split(',').forEach(part=>{
+    part=part.trim();
+    if(part.includes('-')){const[a,b]=part.split('-').map(Number);for(let i=Math.max(1,a);i<=Math.min(max,b);i++)pages.push(i);}
+    else{const n=parseInt(part);if(n>=1&&n<=max)pages.push(n);}
+  });
+  return[...new Set(pages)].sort((a,b)=>a-b);
+}
+
+async function startOCR(){
+  if(!pdfDoc)return;
+  const btn=document.getElementById('startBtn');
+  btn.disabled=true;
+  const pages=parsePageRange(document.getElementById('pageRange').value,pdfDoc.numPages);
+  const ocrLang=document.getElementById('ocrLang').value;
+  const bar=document.getElementById('progressBar');
+  const fill=document.getElementById('progressFill');
+  const status=document.getElementById('statusText');
+  const canvasWrap=document.getElementById('canvasWrap');
+  bar.style.display='block';
+  canvasWrap.innerHTML='';
+  let fullText='';
+
+  // Try to extract text layer first
+  let hasTextLayer=false;
+  try{
+    const pg=await pdfDoc.getPage(pages[0]);
+    const tc=await pg.getTextContent();
+    if(tc.items.length>5)hasTextLayer=true;
+  }catch(e){}
+
+  if(hasTextLayer){
+    status.textContent='텍스트 레이어 감지 — 직접 추출 중...';
+    for(let i=0;i<pages.length;i++){
+      const pg=await pdfDoc.getPage(pages[i]);
+      const tc=await pg.getTextContent();
+      fullText+=`\n\n--- Page ${pages[i]} ---\n`;
+      fullText+=tc.items.map(item=>item.str).join(' ');
+      fill.style.width=((i+1)/pages.length*100)+'%';
+    }
+  } else {
+    // Load Tesseract
+    status.textContent='Tesseract.js 로드 중...';
+    if(!window.Tesseract){
+      await new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';s.onload=res;s.onerror=rej;document.head.appendChild(s);});
+    }
+    const worker=await Tesseract.createWorker(ocrLang,1,{logger:m=>{if(m.status==='recognizing text')fill.style.width=(m.progress*100)+'%';}});
+    for(let i=0;i<pages.length;i++){
+      status.textContent=`OCR: page ${pages[i]} / ${pages[pages.length-1]}...`;
+      const pg=await pdfDoc.getPage(pages[i]);
+      const vp=pg.getViewport({scale:2});
+      const canvas=document.createElement('canvas');
+      canvas.width=vp.width;canvas.height=vp.height;
+      canvas.className='page-canvas';
+      const ctx=canvas.getContext('2d');
+      await pg.render({canvasContext:ctx,viewport:vp}).promise;
+      canvasWrap.appendChild(canvas);
+      const {data:{text}}=await worker.recognize(canvas);
+      fullText+=`\n\n--- Page ${pages[i]} ---\n${text}`;
+      fill.style.width=((i+1)/pages.length*100)+'%';
+    }
+    await worker.terminate();
+  }
+
+  document.getElementById('outputArea').value=fullText.trim();
+  document.getElementById('resultCard').style.display='block';
+  status.textContent='완료!';
+  btn.disabled=false;
+}
+
+function copyResult(){navigator.clipboard.writeText(document.getElementById('outputArea').value);}
+function downloadResult(){
+  const blob=new Blob([document.getElementById('outputArea').value],{type:'text/plain'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ocr-result.txt';a.click();
+}
+</script>
+<script src="related.js"></script>
+</body>
+</html>

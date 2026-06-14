@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>투명 배경 만들기 - Transparent Background Maker | MODOO HUB</title>
+<meta name="description" content="이미지에서 배경색을 제거하여 투명 PNG를 만듭니다. 색상 선택 또는 클릭으로 배경 제거. 무료 온라인 투명 배경 도구.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/transparent-background-maker.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/transparent-background-maker.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/transparent-background-maker.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/transparent-background-maker.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/transparent-background-maker.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/transparent-background-maker.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:900px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:20px;}
+.drop-zone{border:2px dashed var(--border);border-radius:12px;padding:40px 20px;text-align:center;cursor:pointer;transition:border-color .2s;background:var(--surface);margin-bottom:16px;}
+.drop-zone:hover,.drop-zone.drag{border-color:var(--accent);}
+.drop-icon{font-size:32px;margin-bottom:8px;}
+.drop-text{font-size:13px;color:var(--text-muted);}
+.drop-hint{font-size:11px;color:var(--text-dim);margin-top:5px;}
+#fileInput{display:none;}
+.ctrl-bar{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:16px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;}
+.ctrl-group{display:flex;align-items:center;gap:8px;}
+.ctrl-label{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;white-space:nowrap;}
+input.range{accent-color:var(--accent);width:90px;}
+.range-val{font-size:11px;font-family:'DM Mono',monospace;color:var(--text-muted);min-width:30px;}
+.color-swatch{width:28px;height:28px;border-radius:6px;border:2px solid var(--border);cursor:pointer;}
+.preview-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+@media(max-width:560px){.preview-grid{grid-template-columns:1fr;}}
+.preview-panel{border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.preview-label{padding:6px 12px;background:var(--surface2);border-bottom:1px solid var(--border);font-size:11px;font-weight:700;color:var(--text-muted);font-family:'DM Mono',monospace;text-transform:uppercase;}
+.preview-area{background:repeating-conic-gradient(#333 0% 25%,#222 0% 50%) 0 0/20px 20px;min-height:200px;display:flex;align-items:center;justify-content:center;padding:12px;}
+.preview-area canvas,.preview-area img{max-width:100%;max-height:220px;object-fit:contain;}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;}
+.btn{padding:7px 18px;border-radius:7px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:'Noto Sans KR',sans-serif;}
+.btn-primary{background:var(--accent);color:#000;}
+.btn-primary:hover{background:#f59e0b;}
+.btn-sec{background:var(--surface2);color:var(--text-muted);border:1px solid var(--border);}
+.btn-sec:hover{border-color:var(--accent);}
+.mode-tabs{display:flex;gap:4px;margin-bottom:12px;}
+.tab{padding:6px 14px;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid var(--border);color:var(--text-dim);background:var(--surface);}
+.tab.active{background:var(--accent);color:#000;border-color:var(--accent);}
+.hint{font-size:11px;color:var(--text-dim);margin-bottom:12px;padding:8px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Transparent Background Maker","url":"https://modoohub.com/transparent-background-maker.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"이미지 배경을 투명하게 만드는 무료 온라인 도구."}</script>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"배경 제거 후 어떤 형식으로 저장해야 하나요?","acceptedAnswer":{"@type":"Answer","text":"투명 배경을 지원하는 PNG 형식으로 저장해야 합니다. JPG는 투명도를 지원하지 않습니다."}},{"@type":"Question","name":"복잡한 배경도 제거할 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"색상 임계값 방식이므로 단순한 단색 배경에 가장 효과적입니다. 복잡한 배경은 불필요한 부분도 제거될 수 있습니다."}},{"@type":"Question","name":"흰색 배경이 아닌 다른 색상도 제거되나요?","acceptedAnswer":{"@type":"Answer","text":"네, 색상 피커로 제거할 배경 색상을 선택할 수 있습니다. 허용 범위(tolerance)를 조절하여 정밀도를 높일 수 있습니다."}},{"@type":"Question","name":"제거 품질이 만족스럽지 않을 때는?","acceptedAnswer":{"@type":"Answer","text":"허용 범위를 낮추면 더 정확하게, 높이면 더 넓은 범위의 색상이 제거됩니다. 여러 번 시도해 최적값을 찾으세요."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>투명 <span id="h1Accent">배경 만들기</span></h1>
+  <p class="sub" id="subEl">이미지 배경색을 제거하여 투명 PNG를 만듭니다</p>
+  <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+    <div class="drop-icon">🪄</div>
+    <div class="drop-text" id="dropText">이미지 파일을 드래그하거나 클릭하세요</div>
+    <div class="drop-hint" id="dropHint">PNG, JPG, WebP 지원 · 단색 배경 이미지에 최적</div>
+  </div>
+  <input type="file" id="fileInput" accept="image/*">
+  <div id="editor" style="display:none">
+    <div class="mode-tabs">
+      <div class="tab active" id="tab0" onclick="setMode(0)" data-i18n-idx="0"></div>
+      <div class="tab" id="tab1" onclick="setMode(1)" data-i18n-idx="1"></div>
+    </div>
+    <div class="hint" id="hint"></div>
+    <div class="ctrl-bar">
+      <div class="ctrl-group">
+        <span class="ctrl-label" id="lblColor"></span>
+        <input type="color" id="colorPicker" value="#ffffff" oninput="onColorChange()">
+        <div class="color-swatch" id="swatch" style="background:#ffffff"></div>
+      </div>
+      <div class="ctrl-group">
+        <span class="ctrl-label" id="lblTolerance"></span>
+        <input type="range" class="range" id="tolerance" min="0" max="100" value="30" oninput="document.getElementById('tolVal').textContent=this.value;preview()">
+        <span class="range-val" id="tolVal">30</span>
+      </div>
+      <div class="ctrl-group">
+        <span class="ctrl-label" id="lblEdge"></span>
+        <input type="range" class="range" id="edgeSoft" min="0" max="30" value="0" oninput="document.getElementById('edgeVal').textContent=this.value">
+        <span class="range-val" id="edgeVal">0</span>
+      </div>
+    </div>
+    <div class="preview-grid">
+      <div class="preview-panel">
+        <div class="preview-label" id="lblBefore"></div>
+        <div class="preview-area"><canvas id="origCanvas"></canvas></div>
+      </div>
+      <div class="preview-panel">
+        <div class="preview-label" id="lblAfter"></div>
+        <div class="preview-area"><canvas id="outCanvas" style="cursor:crosshair"></canvas></div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="process()" id="btnProcess"></button>
+      <button class="btn btn-sec" onclick="downloadPng()" id="btnDl"></button>
+      <button class="btn btn-sec" onclick="reset()" id="btnReset"></button>
+    </div>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const LANGS=['ko','en','zh','ja'];let _lang='ko',_mode=0;
+let _imgData=null,_srcImg=null;
+const _i18n={
+  ko:{h1Accent:'배경 만들기',sub:'이미지 배경색을 제거하여 투명 PNG를 만듭니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',dropText:'이미지 파일을 드래그하거나 클릭하세요',dropHint:'PNG, JPG, WebP 지원 · 단색 배경 이미지에 최적',tabs:['색상 선택','캔버스 클릭'],hints:['색상 피커에서 제거할 배경색을 선택하거나 직접 입력하고 "처리" 버튼을 클릭하세요.','미리보기 이미지를 클릭하면 클릭한 위치의 색상이 배경색으로 설정됩니다.'],lblColor:'배경색:',lblTolerance:'허용 범위:',lblEdge:'경계 부드럽게:',lblBefore:'원본',lblAfter:'결과 미리보기',btnProcess:'처리',btnDl:'PNG 다운로드',btnReset:'초기화',
+    seoHtml:`<h2>투명 배경 만들기</h2><p>이미지에서 단색 배경을 제거하여 투명 PNG를 만들 수 있습니다. 색상 피커로 제거할 배경색을 선택하거나 캔버스를 직접 클릭하여 색상을 선택한 후 허용 범위(tolerance)를 조정하면 유사한 색상도 함께 제거됩니다. 로고, 아이콘, 제품 이미지의 흰색 또는 단색 배경을 제거하는 데 최적화되어 있습니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>어떤 배경에 가장 잘 작동하나요?</summary><p>흰색, 검정, 파란색 등 단색(uniforn color) 배경에 가장 효과적입니다. 복잡한 배경이나 피사체와 배경색이 비슷한 경우 정밀도가 낮아질 수 있습니다.</p></details>
+<details class="faq-item"><summary>허용 범위(Tolerance)란?</summary><p>선택한 색상과 얼마나 유사한 색상까지 투명하게 처리할지를 결정합니다. 0은 정확히 같은 색상만, 100은 모든 색상을 제거합니다.</p></details>
+<details class="faq-item"><summary>결과물이 PNG로 저장되는 이유는?</summary><p>투명도를 지원하는 형식은 PNG, WebP, GIF 등이지만, 이 도구는 가장 범용적인 PNG로 저장합니다.</p></details>
+<details class="faq-item"><summary>배경 제거 후 가장자리가 거칠면 어떻게 하나요?</summary><p>"경계 부드럽게" 슬라이더를 조정하거나 허용 범위를 조금씩 조정하세요.</p></details>
+<details class="faq-item"><summary>복잡한 배경도 제거할 수 있나요?</summary><p>이 도구는 단색 배경 제거에 최적화되어 있습니다. 복잡한 배경은 AI 기반 배경 제거 서비스(remove.bg 등)를 사용하는 것이 좋습니다.</p></details>
+<details class="faq-item"><summary>파일이 서버에 업로드되나요?</summary><p>아니요. Canvas API를 사용하여 브라우저에서 직접 처리됩니다.</p></details>
+<details class="faq-item"><summary>HEIC나 AVIF 파일도 처리할 수 있나요?</summary><p>브라우저가 해당 형식을 지원하면 처리 가능합니다. HEIC는 대부분 브라우저에서 지원이 제한적입니다.</p></details>
+<details class="faq-item"><summary>여러 색상의 배경을 제거할 수 있나요?</summary><p>현재 단일 색상 배경만 지원합니다. 여러 색상은 처리를 반복하거나 허용 범위를 높여 사용하세요.</p></details>`
+  },
+  en:{h1Accent:'Background Maker',sub:'Remove image background to create transparent PNG',backLink:'← All Tools',langBtn:'🌐 中文',dropText:'Drop an image file here or click to browse',dropHint:'PNG, JPG, WebP · Best for solid-color backgrounds',tabs:['Color picker','Click on canvas'],hints:['Pick the background color to remove using the color picker, then click "Process".','Click anywhere on the preview image to sample that pixel color as the background.'],lblColor:'BG color:',lblTolerance:'Tolerance:',lblEdge:'Edge smooth:',lblBefore:'Original',lblAfter:'Preview',btnProcess:'Process',btnDl:'Download PNG',btnReset:'Reset',
+    seoHtml:`<h2>Transparent Background Maker</h2><p>Remove solid-color backgrounds from images to create transparent PNGs. Pick the background color using the color picker or click on the canvas to sample it, then adjust the tolerance to cover similar shades. Works best for logos, icons, and product images with white or solid-color backgrounds. All processing happens locally in your browser.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>What backgrounds work best?</summary><p>Solid colors (white, black, blue, etc.) work best. Complex or gradient backgrounds or subjects similar in color to the background may give less precise results.</p></details>
+<details class="faq-item"><summary>What is tolerance?</summary><p>How similar a color needs to be to the target to be made transparent. 0 = exact match only; 100 = all colors removed.</p></details>
+<details class="faq-item"><summary>Why is the output saved as PNG?</summary><p>PNG is the most universal format that supports transparency.</p></details>
+<details class="faq-item"><summary>What if edges look rough?</summary><p>Adjust the edge smoothing slider or fine-tune the tolerance.</p></details>
+<details class="faq-item"><summary>Can complex backgrounds be removed?</summary><p>This tool works best for solid-color backgrounds. For complex backgrounds, use AI-based services like remove.bg.</p></details>
+<details class="faq-item"><summary>Are files uploaded to a server?</summary><p>No — the Canvas API processes everything locally in your browser.</p></details>
+<details class="faq-item"><summary>Are HEIC or AVIF files supported?</summary><p>If your browser supports the format, it will work. HEIC has limited browser support.</p></details>
+<details class="faq-item"><summary>Can I remove backgrounds of multiple colors?</summary><p>Currently one color at a time. Increase tolerance to cover color variations, or process multiple times.</p></details>`
+  },
+  zh:{h1Accent:'背景制作器',sub:'删除图像背景，创建透明PNG',backLink:'← 所有工具',langBtn:'🌐 日本語',dropText:'将图像文件拖放到此处或点击浏览',dropHint:'支持PNG、JPG、WebP · 最适合纯色背景',tabs:['选色器','点击画布'],hints:['使用选色器选择要删除的背景颜色，然后点击"处理"按钮。','点击预览图像上的任意位置，将该像素颜色设置为背景色。'],lblColor:'背景色:',lblTolerance:'容差:',lblEdge:'边缘柔化:',lblBefore:'原始',lblAfter:'预览',btnProcess:'处理',btnDl:'下载PNG',btnReset:'重置',
+    seoHtml:`<h2>透明背景制作器</h2><p>从图像中删除纯色背景以创建透明PNG。使用选色器或点击画布选择背景颜色，调整容差以覆盖相似颜色。最适合具有白色或纯色背景的徽标、图标和产品图像。所有处理在浏览器中本地进行。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>哪种背景效果最好？</summary><p>纯色（白色、黑色、蓝色等）效果最好。复杂或渐变背景或与背景颜色相似的对象可能精度较低。</p></details>
+<details class="faq-item"><summary>什么是容差？</summary><p>与目标颜色的相似程度，0=只删除完全相同的颜色，100=删除所有颜色。</p></details>
+<details class="faq-item"><summary>为什么输出为PNG？</summary><p>PNG是支持透明度最通用的格式。</p></details>
+<details class="faq-item"><summary>边缘粗糙怎么办？</summary><p>调整边缘柔化滑块或微调容差。</p></details>
+<details class="faq-item"><summary>可以删除复杂背景吗？</summary><p>该工具最适合纯色背景，复杂背景建议使用remove.bg等AI服务。</p></details>
+<details class="faq-item"><summary>文件会上传到服务器吗？</summary><p>不会，Canvas API在浏览器本地处理所有内容。</p></details>
+<details class="faq-item"><summary>支持HEIC或AVIF文件吗？</summary><p>如果浏览器支持该格式则可以处理，HEIC浏览器支持有限。</p></details>
+<details class="faq-item"><summary>可以删除多种颜色的背景吗？</summary><p>目前一次只支持一种颜色，可通过增大容差或多次处理来处理。</p></details>`
+  },
+  ja:{h1Accent:'背景メーカー',sub:'画像の背景を削除して透明PNGを作成します',backLink:'← ホーム',langBtn:'🌐 한국어',dropText:'画像ファイルをドラッグするかクリックしてください',dropHint:'PNG、JPG、WebP対応 · 単色背景画像に最適',tabs:['カラーピッカー','キャンバスをクリック'],hints:['カラーピッカーで削除する背景色を選択し、「処理」ボタンをクリックしてください。','プレビュー画像の任意の場所をクリックして、そのピクセルの色を背景色として設定します。'],lblColor:'背景色:',lblTolerance:'許容範囲:',lblEdge:'エッジ滑らか:',lblBefore:'元画像',lblAfter:'プレビュー',btnProcess:'処理',btnDl:'PNGダウンロード',btnReset:'リセット',
+    seoHtml:`<h2>透明背景メーカー</h2><p>画像から単色背景を削除して透明PNGを作成します。カラーピッカーまたはキャンバスのクリックで背景色を選択し、許容範囲を調整して類似した色も削除します。白または単色背景のロゴ、アイコン、製品画像に最適です。すべての処理はブラウザのローカルで行われます。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>どんな背景が最も効果的ですか？</summary><p>単色（白、黒、青など）が最も効果的です。複雑またはグラデーション背景、背景と似た色の被写体は精度が低い場合があります。</p></details>
+<details class="faq-item"><summary>許容範囲とは何ですか？</summary><p>ターゲット色との類似度で、0=完全一致のみ削除、100=すべての色を削除します。</p></details>
+<details class="faq-item"><summary>なぜPNGで出力されるのですか？</summary><p>PNGは透明度をサポートする最も汎用的な形式です。</p></details>
+<details class="faq-item"><summary>エッジが粗い場合は？</summary><p>エッジ滑らかスライダーを調整するか、許容範囲を微調整してください。</p></details>
+<details class="faq-item"><summary>複雑な背景も削除できますか？</summary><p>このツールは単色背景に最適化されています。複雑な背景にはremove.bgなどAIサービスの利用を推奨します。</p></details>
+<details class="faq-item"><summary>ファイルはサーバーにアップロードされますか？</summary><p>いいえ、Canvas APIがブラウザのローカルですべて処理します。</p></details>
+<details class="faq-item"><summary>HEICやAVIFファイルは対応していますか？</summary><p>ブラウザが対応していれば処理できます。HEICはブラウザサポートが限定的です。</p></details>
+<details class="faq-item"><summary>複数色の背景を削除できますか？</summary><p>現在は一度に1色のみ対応しています。許容範囲を上げるか複数回処理してください。</p></details>`
+  }
+};
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){
+  const t=_i18n[_lang];document.documentElement.lang=_lang;
+  ['h1Accent','subEl','backLink','langBtn','dropText','dropHint','lblColor','lblTolerance','lblEdge','lblBefore','lblAfter','btnProcess','btnDl','btnReset'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id];});
+  if(t.tabs){document.getElementById('tab0').textContent=t.tabs[0];document.getElementById('tab1').textContent=t.tabs[1];}
+  document.getElementById('hint').textContent=t.hints?t.hints[_mode]:'';
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+}
+function setMode(m){_mode=m;[0,1].forEach(i=>{document.getElementById('tab'+i).classList.toggle('active',i===m);});const t=_i18n[_lang];document.getElementById('hint').textContent=t.hints[m];if(m===0){document.getElementById('outCanvas').style.cursor='default';}else{document.getElementById('outCanvas').style.cursor='crosshair';}}
+const dz=document.getElementById('dropZone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag');if(e.dataTransfer.files[0])loadImg(e.dataTransfer.files[0]);});
+document.getElementById('fileInput').addEventListener('change',e=>{if(e.target.files[0])loadImg(e.target.files[0]);});
+function loadImg(file){
+  const url=URL.createObjectURL(file);const img=new Image();
+  img.onload=()=>{
+    _srcImg=img;
+    const oc=document.getElementById('origCanvas');const scale=Math.min(1,360/Math.max(img.naturalWidth,img.naturalHeight));
+    oc.width=img.naturalWidth*scale;oc.height=img.naturalHeight*scale;
+    oc.getContext('2d').drawImage(img,0,0,oc.width,oc.height);
+    document.getElementById('outCanvas').width=oc.width;document.getElementById('outCanvas').height=oc.height;
+    document.getElementById('outCanvas').getContext('2d').drawImage(img,0,0,oc.width,oc.height);
+    document.getElementById('editor').style.display='block';
+    URL.revokeObjectURL(url);applyLang();
+  };
+  img.src=url;
+}
+function onColorChange(){
+  const hex=document.getElementById('colorPicker').value;document.getElementById('swatch').style.background=hex;preview();
+}
+function hexToRgb(hex){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return[r,g,b];}
+function preview(){
+  if(!_srcImg)return;
+  const oc=document.getElementById('outCanvas');const ctx=oc.getContext('2d');
+  ctx.drawImage(_srcImg,0,0,oc.width,oc.height);
+  const imgData=ctx.getImageData(0,0,oc.width,oc.height);
+  const[tr,tg,tb]=hexToRgb(document.getElementById('colorPicker').value);
+  const tol=parseInt(document.getElementById('tolerance').value);
+  const d=imgData.data;
+  for(let i=0;i<d.length;i+=4){
+    const dist=Math.sqrt((d[i]-tr)**2+(d[i+1]-tg)**2+(d[i+2]-tb)**2);
+    if(dist<=tol*2.2){d[i+3]=Math.max(0,d[i+3]-Math.round((1-dist/(tol*2.2+0.01))*255));}
+  }
+  ctx.putImageData(imgData,0,0);_imgData=imgData;
+}
+function process(){
+  if(!_srcImg)return;preview();
+}
+function downloadPng(){
+  if(!_srcImg)return;
+  const oc=document.getElementById('outCanvas');
+  const a=document.createElement('a');a.href=oc.toDataURL('image/png');a.download='transparent.png';a.click();
+}
+function reset(){
+  if(!_srcImg)return;
+  const oc=document.getElementById('outCanvas');const ctx=oc.getContext('2d');
+  ctx.drawImage(_srcImg,0,0,oc.width,oc.height);
+}
+document.getElementById('outCanvas').addEventListener('click',e=>{
+  if(_mode!==1||!_srcImg)return;
+  const canvas=e.target;const rect=canvas.getBoundingClientRect();
+  const x=Math.round((e.clientX-rect.left)*(canvas.width/rect.width));
+  const y=Math.round((e.clientY-rect.top)*(canvas.height/rect.height));
+  const ctx=canvas.getContext('2d');const p=ctx.getImageData(x,y,1,1).data;
+  const hex='#'+[p[0],p[1],p[2]].map(v=>v.toString(16).padStart(2,'0')).join('');
+  document.getElementById('colorPicker').value=hex;document.getElementById('swatch').style.background=hex;preview();
+});
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

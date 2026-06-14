@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>회의 비용 계산기 - 회의 시간 낭비 계산 | 모두의 툴</title>
+<meta name="description" content="참석자 수, 평균 연봉, 회의 시간으로 회의 비용을 계산합니다. 회의 생산성을 개선하세요.">
+<link rel="canonical" href="https://modoohub.com/meeting-cost-calculator.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/meeting-cost-calculator.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/meeting-cost-calculator.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/meeting-cost-calculator.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/meeting-cost-calculator.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/meeting-cost-calculator.html">
+<!-- GA -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<!-- AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Meeting Cost Calculator","url":"https://modoohub.com/meeting-cost-calculator.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Calculate the true cost of meetings based on attendees, salary, and meeting duration."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"회의 비용 계산 방법은?","acceptedAnswer":{"@type":"Answer","text":"참석자 수 × 시간당 인건비 × 회의 시간. 시간당 인건비 = 연봉 / (근무일 × 8시간)."}},{"@type":"Question","name":"간접비는 왜 포함되나요?","acceptedAnswer":{"@type":"Answer","text":"임대료, 전기, 장비 등 오버헤드를 인건비에 반영합니다. 일반적으로 인건비의 30-50%로 추정합니다."}}]}</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:20px;}
+.wrap{max-width:680px;margin:0 auto;}
+.top-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;}
+.back-link{color:var(--text-muted);text-decoration:none;font-size:14px;}.back-link:hover{color:var(--accent);}
+.lang-btn{background:none;border:1px solid var(--border);color:var(--text-muted);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:13px;}.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+h1{font-size:26px;font-weight:700;margin-bottom:8px;}
+.sub{color:var(--text-muted);font-size:15px;margin-bottom:28px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:20px;}
+.field{margin-bottom:16px;}
+.field label{display:block;font-size:13px;color:var(--text-muted);margin-bottom:6px;}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+input[type=number],select{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:8px;font-size:14px;font-family:'DM Mono',monospace;}
+input:focus,select:focus{outline:none;border-color:var(--accent);}
+.slider-row{display:flex;align-items:center;gap:12px;}
+input[type=range]{flex:1;accent-color:var(--accent);}
+.slider-val{font-family:'DM Mono',monospace;font-size:14px;color:var(--accent);min-width:50px;text-align:right;}
+.result-big{text-align:center;padding:20px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;margin-top:16px;}
+.cost-num{font-size:52px;font-weight:700;font-family:'DM Mono',monospace;color:var(--red);}
+.cost-lbl{font-size:13px;color:var(--text-muted);margin-top:6px;}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;}
+.detail-item{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center;}
+.detail-num{font-size:18px;font-weight:700;font-family:'DM Mono',monospace;color:var(--accent);}
+.detail-lbl{font-size:12px;color:var(--text-muted);margin-top:4px;}
+.timer-box{display:flex;flex-direction:column;align-items:center;gap:12px;padding:20px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;}
+.timer-num{font-size:36px;font-weight:700;font-family:'DM Mono',monospace;color:var(--red);}
+.timer-btns{display:flex;gap:8px;}
+.btn{padding:9px 20px;border-radius:8px;border:none;cursor:pointer;font-weight:700;font-size:14px;}
+.btn-start{background:var(--green);color:#000;}
+.btn-stop{background:var(--red);color:#fff;}
+.btn-reset{background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo strong{color:var(--text-muted);}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+@media(max-width:480px){.field-row,.detail-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top-nav">
+    <a class="back-link" href="index.html" data-i18n="backLink">← 모두의 툴</a>
+    <button class="lang-btn" onclick="toggleLang()" data-i18n="langBtn">🌐 EN</button>
+  </div>
+  <h1 data-i18n="h1">💸 회의 비용 계산기</h1>
+  <p class="sub" data-i18n="sub">이 회의의 실제 비용을 계산합니다</p>
+
+  <div class="card">
+    <div class="field-row">
+      <div class="field"><label data-i18n="attendeesLabel">참석자 수</label><input type="number" id="attendees" value="5" min="1" oninput="calc()"></div>
+      <div class="field">
+        <label data-i18n="salaryLabel">평균 연봉 (만원)</label>
+        <input type="number" id="salary" value="5000" oninput="calc()">
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label data-i18n="workDaysLabel">연 근무일 수</label>
+        <select id="workDays" onchange="calc()">
+          <option value="250">250일 (표준)</option>
+          <option value="240">240일</option>
+          <option value="260">260일</option>
+        </select>
+      </div>
+      <div class="field">
+        <label data-i18n="overheadLabel">간접비 비율</label>
+        <select id="overhead" onchange="calc()">
+          <option value="1.3">130% (+30%)</option>
+          <option value="1.5">150% (+50%)</option>
+          <option value="1.0">100% (인건비만)</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label data-i18n="durationLabel">회의 시간: <span id="durVal">60분</span></label>
+      <div class="slider-row">
+        <input type="range" id="duration" min="5" max="480" step="5" value="60" oninput="document.getElementById('durVal').textContent=this.value+'분';calc()">
+      </div>
+    </div>
+
+    <div class="result-big">
+      <div class="cost-num" id="costNum">₩0</div>
+      <div class="cost-lbl" data-i18n="costLbl">이 회의의 총 비용</div>
+    </div>
+    <div class="detail-grid">
+      <div class="detail-item"><div class="detail-num" id="perPerson">₩0</div><div class="detail-lbl" data-i18n="perPersonLbl">1인당</div></div>
+      <div class="detail-item"><div class="detail-num" id="perHour">₩0</div><div class="detail-lbl" data-i18n="perHourLbl">시간당 총비용</div></div>
+      <div class="detail-item"><div class="detail-num" id="perMin">₩0</div><div class="detail-lbl" data-i18n="perMinLbl">분당 비용</div></div>
+      <div class="detail-item"><div class="detail-num" id="hourlyRate">₩0</div><div class="detail-lbl" data-i18n="hourlyRateLbl">1인 시간당 단가</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <strong data-i18n="timerTitle">실시간 회의 비용 타이머</strong>
+    <div class="timer-box" style="margin-top:16px;">
+      <div class="timer-num" id="timerCost">₩0</div>
+      <div style="font-size:13px;color:var(--text-muted)" id="timerTime">00:00:00</div>
+      <div class="timer-btns">
+        <button class="btn btn-start" onclick="startTimer()" data-i18n="startBtn">시작</button>
+        <button class="btn btn-stop" onclick="stopTimer()" data-i18n="stopBtn">정지</button>
+        <button class="btn btn-reset" onclick="resetTimer()" data-i18n="resetBtn">초기화</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="seo"><div id="seoContent"></div></div>
+</div>
+<script>
+const _i18n={
+  ko:{pageTitle:'회의 비용 계산기 | 모두의 툴',h1:'💸 회의 비용 계산기',sub:'이 회의의 실제 비용을 계산합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',attendeesLabel:'참석자 수',salaryLabel:'평균 연봉 (만원)',workDaysLabel:'연 근무일 수',overheadLabel:'간접비 비율',durationLabel:'회의 시간: ',costLbl:'이 회의의 총 비용',perPersonLbl:'1인당',perHourLbl:'시간당 총비용',perMinLbl:'분당 비용',hourlyRateLbl:'1인 시간당 단가',timerTitle:'실시간 회의 비용 타이머',startBtn:'시작',stopBtn:'정지',resetBtn:'초기화',seoHtml:`<h2>회의 비용 계산기란?</h2><p>참석자 수, 평균 연봉, 회의 시간을 입력해 회의에 투입되는 실제 인건비를 계산합니다. 간접비(오버헤드)를 포함한 실질 비용을 산출하며, 실시간 타이머로 현재 진행 중인 회의의 누적 비용을 확인할 수 있습니다. 불필요한 회의를 줄이고 생산성을 높이는 데 도움이 됩니다. 시간당 비용 = (연봉 / 근무일 / 8시간) × 간접비 비율. 총 비용 = 시간당 비용 × 참석자 수 × 회의 시간(시간).</p><h2 class="seo-sub">자주 묻는 질문</h2><details class="faq-item"><summary>Q. 회의 비용은 어떻게 계산되나요?</summary><p>A. 시간당 인건비 = 연봉 / 근무일 / 8시간. 총 비용 = 시간당 인건비 × 간접비 × 참석자 수 × 회의 시간.</p></details><details class="faq-item"><summary>Q. 간접비는 무엇인가요?</summary><p>A. 임대료, 전기, 장비, 관리비 등 인건비 외 비용입니다. 일반적으로 인건비의 30~50%로 추정합니다.</p></details><details class="faq-item"><summary>Q. 실시간 타이머는 무엇인가요?</summary><p>A. 현재 진행 중인 회의의 경과 시간에 따라 비용이 실시간으로 늘어나는 것을 보여줍니다.</p></details><details class="faq-item"><summary>Q. 5명이 1시간 회의하면 얼마인가요?</summary><p>A. 평균 연봉 5000만원 기준, 간접비 130%: 약 81,500원. 연 50회 회의면 연간 400만원 이상.</p></details><details class="faq-item"><summary>Q. 회의를 줄이면 얼마나 절약되나요?</summary><p>A. 주 1회 1시간 회의를 없애면 연간 약 20만원(5명 기준) 절약됩니다.</p></details><details class="faq-item"><summary>Q. 화상 회의와 대면 회의 비용 차이는?</summary><p>A. 이 도구는 인건비 기준으로 계산합니다. 대면 회의는 이동 시간, 장소 비용이 추가됩니다.</p></details><details class="faq-item"><summary>Q. 연봉이 다른 참석자가 섞여 있으면?</summary><p>A. 평균 연봉을 입력하거나, 각자 계산 후 합산하세요.</p></details><details class="faq-item"><summary>Q. 효율적인 회의 시간은?</summary><p>A. 연구에 따르면 30분 이내 집중 회의가 가장 생산적입니다. 1시간 이상은 참여도가 급격히 하락합니다.</p></details>`},
+  en:{pageTitle:'Meeting Cost Calculator | Modoo Tools',h1:'💸 Meeting Cost Calculator',sub:'Calculate the real cost of this meeting',backLink:'← All Tools',langBtn:'🌐 中文',attendeesLabel:'Attendees',salaryLabel:'Avg. Annual Salary ($)',workDaysLabel:'Working Days/Year',overheadLabel:'Overhead Rate',durationLabel:'Meeting Duration: ',costLbl:'Total Meeting Cost',perPersonLbl:'Per Person',perHourLbl:'Cost per Hour',perMinLbl:'Cost per Minute',hourlyRateLbl:'Per-person Hourly Rate',timerTitle:'Live Meeting Cost Timer',startBtn:'Start',stopBtn:'Stop',resetBtn:'Reset',seoHtml:`<h2>Meeting Cost Calculator</h2><p>Enter the number of attendees, average annual salary, and meeting duration to calculate the true cost of a meeting including overhead. Use the live timer to track costs in real time during a meeting. Formula: Hourly cost = (Annual salary / working days / 8 hours) × overhead rate. Total cost = hourly cost × attendees × meeting hours.</p><h2 class="seo-sub">FAQ</h2><details class="faq-item"><summary>Q. How is meeting cost calculated?</summary><p>A. Hourly labor cost = salary / working days / 8h. Total = hourly × overhead × attendees × meeting hours.</p></details><details class="faq-item"><summary>Q. What is overhead?</summary><p>A. Overhead includes rent, electricity, equipment, and admin costs — typically 30-50% on top of labor costs.</p></details><details class="faq-item"><summary>Q. What does the live timer do?</summary><p>A. It shows costs accumulating in real time as your meeting progresses.</p></details><details class="faq-item"><summary>Q. How much does a 5-person, 1-hour meeting cost?</summary><p>A. At $80K average salary with 30% overhead: about $240/hour total.</p></details><details class="faq-item"><summary>Q. How much can I save by cutting one meeting per week?</summary><p>A. Eliminating one 1-hour weekly meeting (5 people, $80K) saves ~$12,500/year.</p></details><details class="faq-item"><summary>Q. Do virtual meetings cost less?</summary><p>A. This tool calculates labor costs only. In-person meetings add travel time and venue costs.</p></details><details class="faq-item"><summary>Q. What if attendees have different salaries?</summary><p>A. Enter the average salary or calculate separately for each group and sum.</p></details><details class="faq-item"><summary>Q. What is the ideal meeting length?</summary><p>A. Research shows 25-30 minute focused meetings are most productive. Engagement drops sharply after 60 minutes.</p></details>`},
+  zh:{pageTitle:'会议成本计算器 | Modoo工具',h1:'💸 会议成本计算器',sub:'计算本次会议的真实成本',backLink:'← 首页',langBtn:'🌐 日本語',attendeesLabel:'与会人数',salaryLabel:'平均年薪（元）',workDaysLabel:'年工作天数',overheadLabel:'间接费用比率',durationLabel:'会议时长：',costLbl:'会议总成本',perPersonLbl:'每人',perHourLbl:'每小时总成本',perMinLbl:'每分钟成本',hourlyRateLbl:'每人时薪',timerTitle:'实时会议成本计时器',startBtn:'开始',stopBtn:'暂停',resetBtn:'重置',seoHtml:`<h2>会议成本计算器</h2><p>输入与会人数、平均年薪和会议时长，计算包含间接费用的真实会议成本。实时计时器可在会议进行中追踪成本。公式：时薪 = 年薪/工作天数/8小时。总成本 = 时薪 × 间接费用比率 × 人数 × 会议时长。</p><h2 class="seo-sub">常见问题</h2><details class="faq-item"><summary>Q. 会议成本如何计算？</summary><p>A. 时薪 = 年薪/工作天数/8小时。总成本 = 时薪×间接费用×人数×会议时长。</p></details><details class="faq-item"><summary>Q. 间接费用是什么？</summary><p>A. 包括租金、电费、设备、管理费等，通常为人力成本的30-50%。</p></details><details class="faq-item"><summary>Q. 实时计时器有什么用？</summary><p>A. 可实时显示会议进行中不断累积的成本。</p></details><details class="faq-item"><summary>Q. 5人开1小时会议要多少钱？</summary><p>A. 以年薪20万元、间接费用130%计，约813元/小时。</p></details><details class="faq-item"><summary>Q. 减少会议能节省多少？</summary><p>A. 每周减少一次1小时会议（5人），一年可节省数万元。</p></details><details class="faq-item"><summary>Q. 线上会议比线下便宜吗？</summary><p>A. 本工具只计算人力成本。线下会议还需加上交通和场地费用。</p></details><details class="faq-item"><summary>Q. 参与者薪资不同怎么办？</summary><p>A. 输入平均薪资，或分组计算后合计。</p></details><details class="faq-item"><summary>Q. 理想的会议时长是多少？</summary><p>A. 研究表明25-30分钟的聚焦会议效率最高，60分钟后参与度急剧下降。</p></details>`},
+  ja:{pageTitle:'会議コスト計算機 | Modooツール',h1:'💸 会議コスト計算機',sub:'この会議の本当のコストを計算します',backLink:'← ホーム',langBtn:'🌐 한국어',attendeesLabel:'参加者数',salaryLabel:'平均年収（万円）',workDaysLabel:'年間勤務日数',overheadLabel:'間接費用比率',durationLabel:'会議時間：',costLbl:'会議の総コスト',perPersonLbl:'1人あたり',perHourLbl:'時間あたり総コスト',perMinLbl:'分あたりコスト',hourlyRateLbl:'1人の時給',timerTitle:'リアルタイム会議コストタイマー',startBtn:'開始',stopBtn:'停止',resetBtn:'リセット',seoHtml:`<h2>会議コスト計算機とは</h2><p>参加者数、平均年収、会議時間を入力して、間接費用を含む会議の実際のコストを計算します。リアルタイムタイマーで進行中の会議のコストをリアルタイムで追跡できます。公式：時給 = 年収/勤務日数/8時間。総コスト = 時給×間接費用×参加者数×会議時間。</p><h2 class="seo-sub">よくある質問</h2><details class="faq-item"><summary>Q. 会議コストの計算方法は？</summary><p>A. 時給 = 年収/勤務日数/8時間。総コスト = 時給×間接費用比率×参加者数×会議時間。</p></details><details class="faq-item"><summary>Q. 間接費用とは何ですか？</summary><p>A. 賃料、電気代、設備費、管理費など。一般的に人件費の30-50%で推定します。</p></details><details class="faq-item"><summary>Q. リアルタイムタイマーとは？</summary><p>A. 会議の進行に合わせてコストがリアルタイムで積み上がっていくのを表示します。</p></details><details class="faq-item"><summary>Q. 5人で1時間の会議のコストは？</summary><p>A. 平均年収500万円、間接費130%の場合、約8,150円。年50回なら40万円以上。</p></details><details class="faq-item"><summary>Q. 会議を減らすといくら節約できますか？</summary><p>A. 週1回1時間の会議（5人）をなくすと、年間約20万円節約できます。</p></details><details class="faq-item"><summary>Q. オンライン会議とオフライン会議でコストは違いますか？</summary><p>A. このツールは人件費のみ計算します。オフラインは移動時間や会場費が加わります。</p></details><details class="faq-item"><summary>Q. 参加者の年収が異なる場合は？</summary><p>A. 平均年収を入力するか、グループ別に計算して合計してください。</p></details><details class="faq-item"><summary>Q. 理想的な会議時間は？</summary><p>A. 研究では25-30分の集中会議が最も生産的とされています。60分を超えると参加率が急激に低下します。</p></details>`}
+};
+let currentLang='ko';
+function detectLang(){const p=new URLSearchParams(location.search).get('lang');if(p&&_i18n[p])return p;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=navigator.language||'';if(n.startsWith('zh'))return'zh';if(n.startsWith('ja'))return'ja';if(n.startsWith('ko'))return'ko';return'en';}
+function applyLang(l){const t=_i18n[l]||_i18n.ko;document.title=t.pageTitle;document.documentElement.lang=l;document.querySelectorAll('[data-i18n]').forEach(el=>{const v=t[el.dataset.i18n];if(v!==undefined)el.innerHTML=v;});document.getElementById('seoContent').innerHTML=t.seoHtml||'';}
+function toggleLang(){const order=['ko','en','zh','ja'];const next=order[(order.indexOf(currentLang)+1)%order.length];currentLang=next;localStorage.setItem('modoo_lang',next);const url=new URL(location.href);url.searchParams.set('lang',next);history.replaceState(null,'',url);applyLang(next);}
+currentLang=detectLang();
+document.addEventListener('DOMContentLoaded',()=>applyLang(currentLang));
+
+const fmt=(n)=>{if(n>=10000)return'₩'+Math.round(n/10000)+'만';return'₩'+Math.round(n).toLocaleString();};
+let perSecond=0;
+function calc(){
+  const att=parseFloat(document.getElementById('attendees').value)||1;
+  const sal=parseFloat(document.getElementById('salary').value)||0;
+  const wd=parseFloat(document.getElementById('workDays').value)||250;
+  const oh=parseFloat(document.getElementById('overhead').value)||1.3;
+  const dur=parseFloat(document.getElementById('duration').value)||60;
+  // Korean salary in 만원
+  const salKRW=sal*10000;
+  const hourly=salKRW/wd/8*oh;
+  perSecond=att*hourly/3600;
+  const totalCost=att*hourly*(dur/60);
+  document.getElementById('costNum').textContent=fmt(totalCost);
+  document.getElementById('perPerson').textContent=fmt(totalCost/att);
+  document.getElementById('perHour').textContent=fmt(att*hourly);
+  document.getElementById('perMin').textContent=fmt(att*hourly/60);
+  document.getElementById('hourlyRate').textContent=fmt(hourly);
+}
+calc();
+
+let timerInterval=null, timerSeconds=0, running=false;
+function startTimer(){if(running)return;running=true;timerInterval=setInterval(()=>{timerSeconds++;updateTimer();},1000);}
+function stopTimer(){running=false;clearInterval(timerInterval);}
+function resetTimer(){stopTimer();timerSeconds=0;updateTimer();}
+function updateTimer(){
+  const h=Math.floor(timerSeconds/3600),m=Math.floor((timerSeconds%3600)/60),s=timerSeconds%60;
+  document.getElementById('timerTime').textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  document.getElementById('timerCost').textContent=fmt(timerSeconds*perSecond);
+}
+</script>
+<script src="related.js"></script>
+</body>
+</html>

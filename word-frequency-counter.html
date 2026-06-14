@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>단어 빈도 분석기 - Word Frequency Counter | MODOO HUB</title>
+<meta name="description" content="텍스트에서 단어 빈도를 분석합니다. 빈도 순 정렬, 불용어 제거, 최소 빈도 필터 지원. 무료 온라인 단어 빈도 분석 도구.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/word-frequency-counter.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/word-frequency-counter.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/word-frequency-counter.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/word-frequency-counter.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/word-frequency-counter.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/word-frequency-counter.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:880px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
+.opts{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin-bottom:14px;display:flex;gap:16px;flex-wrap:wrap;align-items:center;}
+label.chk{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);cursor:pointer;}
+label.chk input{accent-color:var(--accent);}
+.min-label{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;}
+input.num-in{width:50px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 8px;color:var(--text);font-size:12px;font-family:'DM Mono',monospace;outline:none;text-align:center;}
+input.num-in:focus{border-color:var(--accent);}
+.layout{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+@media(max-width:640px){.layout{grid-template-columns:1fr;}}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.panel-head{padding:10px 14px;background:var(--surface2);font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+textarea{width:100%;background:transparent;border:none;color:var(--text);font-size:13px;font-family:'Noto Sans KR',sans-serif;min-height:260px;outline:none;resize:vertical;padding:12px;line-height:1.6;}
+.result-panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.word-table{width:100%;border-collapse:collapse;}
+.word-table th{padding:8px 12px;font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;text-align:left;background:var(--surface2);border-bottom:1px solid var(--border);}
+.word-table td{padding:7px 12px;font-size:12px;color:var(--text-muted);border-bottom:1px solid var(--border);}
+.word-table tr:last-child td{border-bottom:none;}
+.word-table tr:hover td{background:var(--surface2);}
+.freq-num{font-family:'DM Mono',monospace;color:var(--accent);}
+.pct{font-family:'DM Mono',monospace;color:var(--text-dim);font-size:11px;}
+.bar{height:4px;background:var(--accent);border-radius:2px;opacity:0.5;min-width:2px;}
+.result-wrap{max-height:320px;overflow-y:auto;}
+.stats-row{font-size:11px;font-family:'DM Mono',monospace;color:var(--text-dim);padding:8px 12px;border-top:1px solid var(--border);}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+.btn{padding:7px 18px;border-radius:7px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:'Noto Sans KR',sans-serif;}
+.btn-sec{background:var(--surface2);color:var(--text-muted);border:1px solid var(--border);}
+.btn-sec:hover{border-color:var(--accent);}
+.small-btn{padding:3px 10px;border-radius:5px;border:none;cursor:pointer;font-size:11px;font-family:'DM Mono',monospace;background:var(--surface2);color:var(--text-muted);}
+.small-btn:hover{color:var(--accent);}
+.empty{padding:40px;text-align:center;font-size:12px;color:var(--text-dim);}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Word Frequency Counter","url":"https://modoohub.com/word-frequency-counter.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"텍스트에서 단어 빈도를 분석하는 무료 온라인 도구."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"단어 빈도 분석은 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"텍스트에서 각 단어가 몇 번 등장하는지 세어 빈도순으로 정렬합니다. 핵심 주제 파악에 활용합니다."}},{"@type":"Question","name":"불용어(Stop Word)를 제외할 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"'이', '그', 'the', 'a' 같은 의미 없는 단어를 제외하고 핵심 단어만 분석합니다."}},{"@type":"Question","name":"분석 결과를 시각화할 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"상위 빈도 단어를 막대 그래프 또는 워드 클라우드로 시각화해 직관적으로 확인할 수 있습니다."}},{"@type":"Question","name":"CSV나 JSON으로 결과를 내보낼 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"빈도 분석 결과를 CSV나 JSON으로 내보내 추가 분석에 활용할 수 있습니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>단어 빈도 <span id="h1Accent">분석기</span></h1>
+  <p class="sub" id="subEl">텍스트의 단어 빈도를 분석합니다</p>
+  <div class="opts">
+    <label class="chk"><input type="checkbox" id="chkCase" checked onchange="analyze()"><span id="lblCase">대소문자 통합</span></label>
+    <label class="chk"><input type="checkbox" id="chkStop" onchange="analyze()"><span id="lblStop">불용어 제거</span></label>
+    <label class="chk"><input type="checkbox" id="chkPunct" checked onchange="analyze()"><span id="lblPunct">구두점 제거</span></label>
+    <span class="min-label" id="lblMin">최소 빈도:</span>
+    <input class="num-in" id="minFreq" type="number" min="1" value="1" oninput="analyze()">
+    <span class="min-label" id="lblTop">상위:</span>
+    <input class="num-in" id="topN" type="number" min="1" value="50" oninput="analyze()">
+  </div>
+  <div class="layout">
+    <div class="panel">
+      <div class="panel-head"><span id="lblInput">입력</span><button class="small-btn" onclick="clearInput()" id="btnClear">지우기</button></div>
+      <textarea id="textIn" oninput="analyze()" placeholder="텍스트를 입력하세요..."></textarea>
+    </div>
+    <div class="result-panel">
+      <div class="panel-head"><span id="lblResult">단어 빈도</span><button class="small-btn" onclick="exportCsv()" id="btnCsv">CSV</button></div>
+      <div class="result-wrap" id="resultWrap"><div class="empty" id="emptyMsg">텍스트를 입력하면 분석합니다</div></div>
+      <div class="stats-row" id="statsRow"></div>
+    </div>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-sec" onclick="loadSample()" id="btnSample">샘플</button>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const LANGS=['ko','en','zh','ja'];let _lang='ko';
+const EN_STOP=new Set(['a','an','the','and','or','but','in','on','at','to','for','of','with','by','from','is','are','was','were','be','been','being','have','has','had','do','does','did','will','would','could','should','may','might','i','you','he','she','it','we','they','this','that','these','those','not','no','so','as','if','then','than','up','out','into','about','after','before','between','through']);
+const _i18n={
+  ko:{h1Accent:'분석기',sub:'텍스트의 단어 빈도를 분석합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',lblCase:'대소문자 통합',lblStop:'불용어 제거',lblPunct:'구두점 제거',lblMin:'최소 빈도:',lblTop:'상위:',lblInput:'입력',lblResult:'단어 빈도',btnClear:'지우기',btnCsv:'CSV',btnSample:'샘플',colWord:'단어',colFreq:'빈도',colPct:'비율',emptyMsg:'텍스트를 입력하면 분석합니다',
+    stats:(total,unique)=>`총 ${total}개 단어 · 고유 ${unique}개`,
+    seoHtml:`<h2>단어 빈도 분석기</h2><p>텍스트에서 각 단어가 몇 번 등장하는지 분석합니다. SEO 키워드 분석, 학술 논문 단어 빈도 통계, 글쓰기 패턴 파악 등에 활용하세요. 대소문자 통합, 불용어 제거, 최소 빈도 필터, 상위 N개 표시 등 다양한 옵션을 제공합니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>불용어(Stopword)란 무엇인가요?</summary><p>분석에서 큰 의미가 없는 일반적인 단어입니다. 영어 기준으로 a, the, is, are 등이 해당합니다.</p></details>
+<details class="faq-item"><summary>한국어 단어 빈도도 분석 가능한가요?</summary><p>기본 공백 기준 분리로 분석합니다. 한국어는 조사가 붙어 있어 정확한 형태소 분석은 별도 NLP 라이브러리가 필요합니다.</p></details>
+<details class="faq-item"><summary>결과를 CSV로 저장할 수 있나요?</summary><p>예, CSV 버튼을 클릭하면 단어와 빈도가 담긴 CSV 파일이 다운로드됩니다.</p></details>
+<details class="faq-item"><summary>대소문자 통합이란?</summary><p>Hello와 hello를 같은 단어로 처리하여 빈도를 합산합니다.</p></details>
+<details class="faq-item"><summary>최소 빈도 필터는 어떻게 사용하나요?</summary><p>예를 들어 최소 빈도를 3으로 설정하면 3번 이상 등장한 단어만 결과에 표시됩니다.</p></details>
+<details class="faq-item"><summary>단어 경계는 어떻게 구분하나요?</summary><p>공백과 특수 문자를 기준으로 단어를 분리합니다.</p></details>
+<details class="faq-item"><summary>숫자도 단어로 인식되나요?</summary><p>예, 숫자도 단어 토큰으로 인식됩니다.</p></details>
+<details class="faq-item"><summary>처리 속도는 어떻게 되나요?</summary><p>브라우저에서 즉시 처리됩니다. 수만 단어도 빠르게 분석됩니다.</p></details>`
+  },
+  en:{h1Accent:'Counter',sub:'Analyze word frequency in text',backLink:'← All Tools',langBtn:'🌐 中文',lblCase:'Case-insensitive',lblStop:'Remove stopwords',lblPunct:'Remove punctuation',lblMin:'Min freq:',lblTop:'Top:',lblInput:'Input',lblResult:'Word Frequency',btnClear:'Clear',btnCsv:'CSV',btnSample:'Sample',colWord:'Word',colFreq:'Count',colPct:'%',emptyMsg:'Enter text to analyze',
+    stats:(total,unique)=>`${total} total words · ${unique} unique`,
+    seoHtml:`<h2>Word Frequency Counter</h2><p>Analyze how often each word appears in text. Useful for SEO keyword analysis, academic research, and identifying writing patterns. Options include case-insensitive matching, stopword removal, minimum frequency filtering, and top-N display.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>What are stopwords?</summary><p>Common words with little analytical value — e.g., a, the, is, are in English.</p></details>
+<details class="faq-item"><summary>Does it work with Korean text?</summary><p>Basic whitespace tokenization is applied. For accurate Korean morpheme analysis, a dedicated NLP library is needed.</p></details>
+<details class="faq-item"><summary>Can I export results to CSV?</summary><p>Yes — click the CSV button to download a file with words and counts.</p></details>
+<details class="faq-item"><summary>What does "Case-insensitive" do?</summary><p>Treats "Hello" and "hello" as the same word and combines their counts.</p></details>
+<details class="faq-item"><summary>How does the minimum frequency filter work?</summary><p>E.g., setting min freq to 3 shows only words appearing 3+ times.</p></details>
+<details class="faq-item"><summary>How are word boundaries determined?</summary><p>Words are split on whitespace and special characters.</p></details>
+<details class="faq-item"><summary>Are numbers counted as words?</summary><p>Yes — numeric tokens are counted as words.</p></details>
+<details class="faq-item"><summary>How fast is it?</summary><p>Instant — processed in-browser. Tens of thousands of words analyze quickly.</p></details>`
+  },
+  zh:{h1Accent:'计数器',sub:'分析文本中的词频',backLink:'← 所有工具',langBtn:'🌐 日本語',lblCase:'不区分大小写',lblStop:'删除停用词',lblPunct:'删除标点',lblMin:'最小频率:',lblTop:'前N个:',lblInput:'输入',lblResult:'词频',btnClear:'清除',btnCsv:'CSV',btnSample:'示例',colWord:'单词',colFreq:'频次',colPct:'比例',emptyMsg:'输入文本以开始分析',
+    stats:(total,unique)=>`共${total}个词 · ${unique}个唯一词`,
+    seoHtml:`<h2>词频分析器</h2><p>分析文本中每个单词出现的频率。适用于SEO关键词分析、学术研究和识别写作模式。支持大小写不敏感匹配、停用词删除、最小频率过滤和前N个显示等选项。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>什么是停用词？</summary><p>分析价值不大的常见词，如英语中的a、the、is、are等。</p></details>
+<details class="faq-item"><summary>支持中文文本分析吗？</summary><p>使用基本空格分词。对于准确的中文分词，需要专门的NLP库。</p></details>
+<details class="faq-item"><summary>可以导出CSV结果吗？</summary><p>可以，点击CSV按钮下载包含词语和频次的文件。</p></details>
+<details class="faq-item"><summary>"不区分大小写"是什么意思？</summary><p>将"Hello"和"hello"视为同一词并合并频次。</p></details>
+<details class="faq-item"><summary>最小频率过滤如何使用？</summary><p>例如将最小频率设为3，则只显示出现3次及以上的词。</p></details>
+<details class="faq-item"><summary>如何确定词语边界？</summary><p>以空格和特殊字符为分隔符拆分词语。</p></details>
+<details class="faq-item"><summary>数字也算词语吗？</summary><p>是的，数字标记也被计为词语。</p></details>
+<details class="faq-item"><summary>处理速度如何？</summary><p>即时处理，在浏览器中运行。数万词也能快速分析。</p></details>`
+  },
+  ja:{h1Accent:'カウンター',sub:'テキスト内の単語頻度を分析します',backLink:'← ホーム',langBtn:'🌐 한국어',lblCase:'大小文字を統合',lblStop:'ストップワード削除',lblPunct:'句読点削除',lblMin:'最小頻度:',lblTop:'上位:',lblInput:'入力',lblResult:'単語頻度',btnClear:'クリア',btnCsv:'CSV',btnSample:'サンプル',colWord:'単語',colFreq:'頻度',colPct:'比率',emptyMsg:'テキストを入力して分析',
+    stats:(total,unique)=>`合計${total}語 · ユニーク${unique}語`,
+    seoHtml:`<h2>単語頻度分析器</h2><p>テキスト中に各単語が何回出現するか分析します。SEOキーワード分析、学術研究、文章パターンの把握などに活用できます。大小文字統合、ストップワード削除、最小頻度フィルタ、上位N件表示などのオプションを提供します。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>ストップワードとは何ですか？</summary><p>分析上あまり意味のない一般的な単語です。英語ではa、the、is、areなどが該当します。</p></details>
+<details class="faq-item"><summary>日本語テキストの分析はできますか？</summary><p>基本的なスペース分かち書きで処理します。正確な形態素解析には専用のNLPライブラリが必要です。</p></details>
+<details class="faq-item"><summary>結果をCSVでエクスポートできますか？</summary><p>はい — CSVボタンをクリックすると単語と頻度を含むファイルがダウンロードされます。</p></details>
+<details class="faq-item"><summary>「大小文字を統合」とは？</summary><p>「Hello」と「hello」を同じ単語として扱い、頻度を合算します。</p></details>
+<details class="faq-item"><summary>最小頻度フィルタはどう使いますか？</summary><p>例えば最小頻度を3に設定すると、3回以上出現した単語だけが表示されます。</p></details>
+<details class="faq-item"><summary>単語の境界はどう判断されますか？</summary><p>空白と特殊文字を基準に単語を分割します。</p></details>
+<details class="faq-item"><summary>数字も単語として認識されますか？</summary><p>はい、数字トークンも単語として計数されます。</p></details>
+<details class="faq-item"><summary>処理速度はどうですか？</summary><p>ブラウザで即座に処理されます。数万語も素早く分析できます。</p></details>`
+  }
+};
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){
+  const t=_i18n[_lang];document.documentElement.lang=_lang;
+  ['h1Accent','subEl','backLink','langBtn','lblCase','lblStop','lblPunct','lblMin','lblTop','lblInput','lblResult','btnClear','btnCsv','btnSample','emptyMsg'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id]||el.textContent;});
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+  analyze();
+}
+function gch(id){return document.getElementById(id).checked;}
+let _lastFreq=[];
+function analyze(){
+  const t=_i18n[_lang];const raw=document.getElementById('textIn').value;
+  if(!raw.trim()){document.getElementById('resultWrap').innerHTML='<div class="empty">'+t.emptyMsg+'</div>';document.getElementById('statsRow').textContent='';_lastFreq=[];return;}
+  let text=raw;
+  if(gch('chkPunct'))text=text.replace(/[^\w\s가-힣぀-ヿ一-鿿]/g,' ');
+  const tokens=text.trim().split(/\s+/).filter(w=>w.length>0);
+  const total=tokens.length;
+  const freqMap={};
+  for(let w of tokens){
+    if(gch('chkCase'))w=w.toLowerCase();
+    if(gch('chkStop')&&EN_STOP.has(w.toLowerCase()))continue;
+    freqMap[w]=(freqMap[w]||0)+1;
+  }
+  const minF=parseInt(document.getElementById('minFreq').value)||1;
+  const topN=parseInt(document.getElementById('topN').value)||50;
+  let entries=Object.entries(freqMap).filter(([,c])=>c>=minF).sort((a,b)=>b[1]-a[1]).slice(0,topN);
+  _lastFreq=entries;
+  const maxC=entries[0]?entries[0][1]:1;
+  const unique=Object.keys(freqMap).length;
+  const rows=entries.map(([w,c])=>{
+    const pct=((c/total)*100).toFixed(1);
+    const bw=Math.round((c/maxC)*100);
+    return`<tr><td>${w}</td><td class="freq-num">${c}</td><td><div class="bar" style="width:${bw}%"></div></td><td class="pct">${pct}%</td></tr>`;
+  }).join('');
+  document.getElementById('resultWrap').innerHTML=`<table class="word-table"><thead><tr><th>${t.colWord}</th><th>${t.colFreq}</th><th style="min-width:60px"></th><th>${t.colPct}</th></tr></thead><tbody>${rows}</tbody></table>`;
+  document.getElementById('statsRow').textContent=t.stats(total,unique);
+}
+function clearInput(){document.getElementById('textIn').value='';analyze();}
+function exportCsv(){
+  if(!_lastFreq.length)return;
+  const t=_i18n[_lang];const csv=t.colWord+','+t.colFreq+'\n'+_lastFreq.map(([w,c])=>`"${w}",${c}`).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='word-frequency.csv';a.click();
+}
+function loadSample(){document.getElementById('textIn').value='The quick brown fox jumps over the lazy dog. The fox was very quick and the dog was very lazy. A quick fox and a lazy dog made the day interesting.';analyze();}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

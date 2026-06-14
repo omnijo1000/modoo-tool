@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDF 단어 수 카운터 - PDF Word Counter | MODOO HUB</title>
+<meta name="description" content="PDF 파일의 단어 수, 문자 수, 페이지 수를 계산합니다. PDF.js 사용, 브라우저 직접 처리. 무료 온라인 PDF 단어 수 카운터.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/pdf-word-counter.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/pdf-word-counter.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/pdf-word-counter.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/pdf-word-counter.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/pdf-word-counter.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/pdf-word-counter.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:720px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
+.drop-zone{border:2px dashed var(--border);border-radius:12px;padding:44px 20px;text-align:center;cursor:pointer;transition:border-color .2s;background:var(--surface);margin-bottom:16px;}
+.drop-zone:hover,.drop-zone.drag{border-color:var(--accent);}
+.drop-icon{font-size:32px;margin-bottom:8px;}
+.drop-text{font-size:13px;color:var(--text-muted);}
+.drop-hint{font-size:11px;color:var(--text-dim);margin-top:5px;}
+#fileInput{display:none;}
+.progress-bar{height:4px;background:var(--surface2);border-radius:2px;margin:12px 0;overflow:hidden;display:none;}
+.progress-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .3s;}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:16px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center;}
+.stat-num{font-size:28px;font-weight:900;font-family:'DM Mono',monospace;color:var(--accent);}
+.stat-label{font-size:11px;color:var(--text-dim);margin-top:4px;}
+.page-table{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px;}
+.pt-header{padding:8px 14px;background:var(--surface2);border-bottom:1px solid var(--border);font-size:11px;font-weight:700;color:var(--text-muted);font-family:'DM Mono',monospace;text-transform:uppercase;}
+.pt-row{display:grid;grid-template-columns:60px 1fr 1fr 1fr;padding:6px 14px;border-bottom:1px solid var(--border);font-size:11px;font-family:'DM Mono',monospace;}
+.pt-row:last-child{border-bottom:none;}
+.pt-row.head{color:var(--text-muted);background:var(--surface2);}
+.pt-row.data{color:var(--text-dim);}
+.pt-row.data:hover{background:var(--surface2);}
+.text-preview{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;max-height:200px;overflow-y:auto;font-size:12px;color:var(--text-dim);line-height:1.7;font-family:'DM Mono',monospace;white-space:pre-wrap;}
+.btn-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.btn{padding:7px 18px;border-radius:7px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:'Noto Sans KR',sans-serif;background:var(--surface2);color:var(--text-muted);border:1px solid var(--border);}
+.btn:hover{border-color:var(--accent);}
+.scanned-note{font-size:11px;color:var(--text-dim);padding:8px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:12px;line-height:1.5;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"PDF Word Counter","url":"https://modoohub.com/pdf-word-counter.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"PDF 파일의 단어 수, 문자 수를 계산하는 무료 온라인 도구."}</script>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"PDF 단어 수를 정확하게 세는 방법은?","acceptedAnswer":{"@type":"Answer","text":"PDF 텍스트를 추출한 후 공백으로 구분된 단어를 카운트합니다. 표나 특수 레이아웃은 오차가 생길 수 있습니다."}},{"@type":"Question","name":"스캔된 PDF도 단어를 셀 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"스캔 PDF는 이미지로만 저장되어 텍스트 추출이 불가합니다. OCR 처리된 PDF만 단어 수 계산이 가능합니다."}},{"@type":"Question","name":"여러 페이지를 한번에 분석할 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"네, 전체 PDF의 총 단어 수, 문자 수, 페이지별 분포를 한번에 확인할 수 있습니다."}},{"@type":"Question","name":"한국어 PDF의 단어 수도 정확한가요?","acceptedAnswer":{"@type":"Answer","text":"한국어는 공백 기준으로 어절을 세므로 영어의 단어 수 개념과 다를 수 있습니다. 문자 수로 비교하는 것이 더 정확합니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>PDF <span id="h1Accent">단어 수 카운터</span></h1>
+  <p class="sub" id="subEl">PDF에서 텍스트를 추출하고 단어 수, 문자 수를 분석합니다</p>
+  <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+    <div class="drop-icon">📄</div>
+    <div class="drop-text" id="dropText">PDF 파일을 드래그하거나 클릭하세요</div>
+    <div class="drop-hint" id="dropHint">텍스트 레이어가 있는 PDF만 가능 · 스캔된 PDF는 지원 안 됨</div>
+  </div>
+  <input type="file" id="fileInput" accept=".pdf,application/pdf">
+  <div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="scanned-note" id="scannedNote" style="display:none"></div>
+  <div id="resultArea"></div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+const LANGS=['ko','en','zh','ja'];let _lang='ko';
+const _i18n={
+  ko:{h1Accent:'단어 수 카운터',sub:'PDF에서 텍스트를 추출하고 단어 수, 문자 수를 분석합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',dropText:'PDF 파일을 드래그하거나 클릭하세요',dropHint:'텍스트 레이어가 있는 PDF만 가능 · 스캔된 PDF는 지원 안 됨',
+    lblWords:'단어 수',lblChars:'문자 수',lblCharsNoSp:'공백 제외',lblPages:'페이지',lblPage:'페이지',lblPgWords:'단어',lblPgChars:'문자',lblPgCharsN:'공백 제외',
+    txtPreview:'추출된 텍스트 미리보기',btnCopy:'텍스트 복사',btnClear:'초기화',
+    scannedNote:'⚠️ 이 PDF에서 텍스트를 추출할 수 없습니다. 스캔된 이미지 PDF이거나 텍스트가 이미지로 저장되어 있을 수 있습니다. PDF OCR 도구를 사용해 보세요.',
+    seoHtml:`<h2>PDF 단어 수 카운터</h2><p>PDF 파일에서 텍스트를 추출하고 단어 수, 문자 수, 공백 제외 문자 수를 계산합니다. 페이지별 통계도 제공됩니다. PDF.js 라이브러리를 사용하여 브라우저에서 직접 처리하므로 파일이 서버에 업로드되지 않습니다. 단, 스캔된 이미지 PDF나 텍스트가 이미지로 저장된 PDF는 처리할 수 없습니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>스캔된 PDF도 처리할 수 있나요?</summary><p>아니요. 이 도구는 PDF 텍스트 레이어를 추출합니다. 스캔된 이미지 PDF는 PDF OCR 도구를 사용해야 합니다.</p></details>
+<details class="faq-item"><summary>파일이 서버에 업로드되나요?</summary><p>아니요. PDF.js를 사용하여 브라우저에서 직접 처리됩니다.</p></details>
+<details class="faq-item"><summary>단어 수 계산 기준은?</summary><p>공백으로 구분된 문자열을 단어로 계산합니다. 한국어는 어절(띄어쓰기) 기준으로 계산됩니다.</p></details>
+<details class="faq-item"><summary>대용량 PDF도 처리 가능한가요?</summary><p>브라우저 메모리 한도 내에서 가능합니다. 일반적으로 100MB 이하 파일은 문제없이 처리됩니다.</p></details>
+<details class="faq-item"><summary>한국어 PDF도 지원하나요?</summary><p>예, UTF-8 인코딩 PDF는 대부분 지원됩니다. 구형 한국어 PDF는 일부 문자가 깨질 수 있습니다.</p></details>
+<details class="faq-item"><summary>페이지별 단어 수를 확인할 수 있나요?</summary><p>예, 결과에서 페이지별 단어 수, 문자 수 테이블을 확인할 수 있습니다.</p></details>
+<details class="faq-item"><summary>추출된 텍스트를 저장할 수 있나요?</summary><p>텍스트 복사 버튼으로 클립보드에 복사할 수 있습니다.</p></details>
+<details class="faq-item"><summary>암호로 보호된 PDF도 처리되나요?</summary><p>아니요. 암호로 보호된 PDF는 먼저 PDF 잠금 해제 도구로 잠금을 해제해야 합니다.</p></details>`
+  },
+  en:{h1Accent:'Word Counter',sub:'Extract text from PDF and count words, characters',backLink:'← All Tools',langBtn:'🌐 中文',dropText:'Drop a PDF file here or click to browse',dropHint:'Requires text layer PDF · Scanned PDFs not supported',
+    lblWords:'Words',lblChars:'Chars',lblCharsNoSp:'No spaces',lblPages:'Pages',lblPage:'Page',lblPgWords:'Words',lblPgChars:'Chars',lblPgCharsN:'No sp.',
+    txtPreview:'Extracted text preview',btnCopy:'Copy text',btnClear:'Reset',
+    scannedNote:'⚠️ No text could be extracted from this PDF. It may be a scanned image PDF. Try the PDF OCR tool instead.',
+    seoHtml:`<h2>PDF Word Counter</h2><p>Extract text from PDF files and count words, characters, and characters without spaces. Page-by-page statistics are also provided. Uses PDF.js to process files directly in your browser — nothing is uploaded to a server. Note: scanned image PDFs without a text layer cannot be processed.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>Can scanned PDFs be processed?</summary><p>No — this tool extracts the PDF text layer. For scanned image PDFs, use the PDF OCR tool.</p></details>
+<details class="faq-item"><summary>Are files uploaded to a server?</summary><p>No — PDF.js processes everything locally in your browser.</p></details>
+<details class="faq-item"><summary>How are words counted?</summary><p>Words are counted by splitting on whitespace. For CJK languages, each word/character segment is counted.</p></details>
+<details class="faq-item"><summary>Can large PDFs be processed?</summary><p>Yes, within browser memory limits — files under 100MB generally work fine.</p></details>
+<details class="faq-item"><summary>Are non-English PDFs supported?</summary><p>Yes — most UTF-8 encoded PDFs are supported regardless of language.</p></details>
+<details class="faq-item"><summary>Can I see per-page word counts?</summary><p>Yes — the results include a per-page breakdown of word and character counts.</p></details>
+<details class="faq-item"><summary>Can I save the extracted text?</summary><p>Use the Copy text button to copy to clipboard.</p></details>
+<details class="faq-item"><summary>What about password-protected PDFs?</summary><p>Password-protected PDFs must first be unlocked with a PDF unlock tool.</p></details>`
+  },
+  zh:{h1Accent:'单词计数器',sub:'从PDF提取文本并统计单词数、字符数',backLink:'← 所有工具',langBtn:'🌐 日本語',dropText:'将PDF文件拖放到此处或点击浏览',dropHint:'需要包含文本层的PDF · 不支持扫描PDF',
+    lblWords:'单词数',lblChars:'字符数',lblCharsNoSp:'不含空格',lblPages:'页数',lblPage:'页',lblPgWords:'单词',lblPgChars:'字符',lblPgCharsN:'不含空格',
+    txtPreview:'提取的文本预览',btnCopy:'复制文本',btnClear:'重置',
+    scannedNote:'⚠️ 无法从此PDF中提取文本。可能是扫描图像PDF，请尝试PDF OCR工具。',
+    seoHtml:`<h2>PDF单词计数器</h2><p>从PDF文件中提取文本并统计单词数、字符数和不含空格的字符数，同时提供逐页统计。使用PDF.js在浏览器中直接处理文件，不会上传到服务器。注意：没有文本层的扫描图像PDF无法处理。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>可以处理扫描的PDF吗？</summary><p>不能，该工具提取PDF文本层，扫描图像PDF请使用PDF OCR工具。</p></details>
+<details class="faq-item"><summary>文件会上传到服务器吗？</summary><p>不会，PDF.js在浏览器本地处理所有内容。</p></details>
+<details class="faq-item"><summary>如何计算单词数？</summary><p>按空格分割计算单词数，中文按词/字符段落计算。</p></details>
+<details class="faq-item"><summary>可以处理大文件吗？</summary><p>在浏览器内存限制内可以，100MB以下的文件通常没问题。</p></details>
+<details class="faq-item"><summary>支持中文PDF吗？</summary><p>支持，大多数UTF-8编码的PDF都支持。</p></details>
+<details class="faq-item"><summary>可以查看逐页单词数吗？</summary><p>可以，结果中包含逐页单词和字符数统计。</p></details>
+<details class="faq-item"><summary>可以保存提取的文本吗？</summary><p>使用复制文本按钮复制到剪贴板。</p></details>
+<details class="faq-item"><summary>密码保护的PDF可以处理吗？</summary><p>不行，需要先用PDF解锁工具解锁。</p></details>`
+  },
+  ja:{h1Accent:'ワードカウンター',sub:'PDFからテキストを抽出し単語数・文字数を分析します',backLink:'← ホーム',langBtn:'🌐 한국어',dropText:'PDFファイルをドラッグするかクリックしてください',dropHint:'テキストレイヤーのあるPDFのみ対応 · スキャンPDF非対応',
+    lblWords:'単語数',lblChars:'文字数',lblCharsNoSp:'スペース除く',lblPages:'ページ数',lblPage:'ページ',lblPgWords:'単語',lblPgChars:'文字',lblPgCharsN:'スペース除く',
+    txtPreview:'抽出テキストプレビュー',btnCopy:'テキストをコピー',btnClear:'リセット',
+    scannedNote:'⚠️ このPDFからテキストを抽出できませんでした。スキャン画像PDFの可能性があります。PDF OCRツールをご利用ください。',
+    seoHtml:`<h2>PDFワードカウンター</h2><p>PDFファイルからテキストを抽出し、単語数、文字数、スペースを除く文字数を計算します。ページ別の統計も提供されます。PDF.jsを使用してブラウザで直接処理するため、ファイルはサーバーにアップロードされません。スキャン画像PDFにはテキストレイヤーがないため処理できません。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>スキャンされたPDFは処理できますか？</summary><p>いいえ、このツールはPDFテキストレイヤーを抽出します。スキャン画像PDFにはPDF OCRツールをご利用ください。</p></details>
+<details class="faq-item"><summary>ファイルはサーバーにアップロードされますか？</summary><p>いいえ、PDF.jsがブラウザのローカルですべて処理します。</p></details>
+<details class="faq-item"><summary>単語数の計算方法は？</summary><p>空白で分割して単語数を計算します。日本語・中国語は文字/語セグメントで計算します。</p></details>
+<details class="faq-item"><summary>大きなPDFも処理できますか？</summary><p>ブラウザのメモリ限度内で可能です。100MB以下のファイルは通常問題ありません。</p></details>
+<details class="faq-item"><summary>日本語PDFもサポートされますか？</summary><p>はい、ほとんどのUTF-8エンコードPDFが対応しています。</p></details>
+<details class="faq-item"><summary>ページ別の単語数を確認できますか？</summary><p>はい、結果にページ別の単語数と文字数の内訳が含まれます。</p></details>
+<details class="faq-item"><summary>抽出したテキストを保存できますか？</summary><p>テキストをコピーボタンでクリップボードにコピーできます。</p></details>
+<details class="faq-item"><summary>パスワード保護されたPDFは？</summary><p>まずPDFアンロックツールでロックを解除してください。</p></details>`
+  }
+};
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){
+  const t=_i18n[_lang];document.documentElement.lang=_lang;
+  ['h1Accent','subEl','backLink','langBtn','dropText','dropHint'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id];});
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+}
+const dz=document.getElementById('dropZone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag');if(e.dataTransfer.files[0])handleFile(e.dataTransfer.files[0]);});
+document.getElementById('fileInput').addEventListener('change',e=>{if(e.target.files[0])handleFile(e.target.files[0]);});
+let _allText='';
+async function handleFile(file){
+  const t=_i18n[_lang];
+  document.getElementById('progressBar').style.display='block';
+  document.getElementById('progressFill').style.width='0%';
+  document.getElementById('resultArea').innerHTML='';
+  document.getElementById('scannedNote').style.display='none';
+  const ab=await file.arrayBuffer();
+  const pdf=await pdfjsLib.getDocument({data:ab}).promise;
+  const n=pdf.numPages;const pageStats=[];let fullText='';
+  for(let i=1;i<=n;i++){
+    const pg=await pdf.getPage(i);const tc=await pg.getTextContent();
+    const txt=tc.items.map(x=>x.str).join(' ');
+    const words=txt.trim().split(/\s+/).filter(w=>w.length>0).length;
+    const chars=txt.length;const charsNoSp=txt.replace(/\s/g,'').length;
+    pageStats.push({page:i,words,chars,charsNoSp,txt});
+    fullText+=txt+'\n';
+    document.getElementById('progressFill').style.width=`${(i/n)*100}%`;
+  }
+  document.getElementById('progressBar').style.display='none';
+  const totalWords=pageStats.reduce((a,b)=>a+b.words,0);
+  const totalChars=fullText.length;const totalNoSp=fullText.replace(/\s/g,'').length;
+  _allText=fullText;
+  if(totalWords===0){document.getElementById('scannedNote').textContent=t.scannedNote;document.getElementById('scannedNote').style.display='block';return;}
+  const ra=document.getElementById('resultArea');
+  ra.innerHTML=`<div class="stats-grid">
+<div class="stat-card"><div class="stat-num">${totalWords.toLocaleString()}</div><div class="stat-label">${t.lblWords}</div></div>
+<div class="stat-card"><div class="stat-num">${totalChars.toLocaleString()}</div><div class="stat-label">${t.lblChars}</div></div>
+<div class="stat-card"><div class="stat-num">${totalNoSp.toLocaleString()}</div><div class="stat-label">${t.lblCharsNoSp}</div></div>
+<div class="stat-card"><div class="stat-num">${n}</div><div class="stat-label">${t.lblPages}</div></div>
+</div>
+<div class="btn-row" style="margin-bottom:14px">
+<button class="btn" onclick="navigator.clipboard.writeText(_allText)">${t.btnCopy}</button>
+<button class="btn" onclick="document.getElementById('resultArea').innerHTML=''">${t.btnClear}</button>
+</div>
+<div class="page-table">
+<div class="pt-header">${t.txtPreview}</div>
+<div class="pt-row head"><span>${t.lblPage}</span><span>${t.lblPgWords}</span><span>${t.lblPgChars}</span><span>${t.lblPgCharsN}</span></div>
+${pageStats.map(p=>`<div class="pt-row data"><span>${p.page}</span><span>${p.words.toLocaleString()}</span><span>${p.chars.toLocaleString()}</span><span>${p.charsNoSp.toLocaleString()}</span></div>`).join('')}
+</div>
+<div style="margin-top:12px;font-size:11px;color:var(--text-dim);margin-bottom:6px;font-family:'DM Mono',monospace">${t.txtPreview}</div>
+<div class="text-preview">${fullText.slice(0,2000)}${fullText.length>2000?'...':''}</div>`;
+}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

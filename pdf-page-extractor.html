@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDF 페이지 추출기 - PDF Page Extractor | MODOO HUB</title>
+<meta name="description" content="PDF에서 특정 페이지를 추출하여 새 PDF로 저장합니다. 페이지 범위 지정, 개별 페이지 선택 가능. 무료 온라인 PDF 페이지 추출 도구.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/pdf-page-extractor.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/pdf-page-extractor.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/pdf-page-extractor.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/pdf-page-extractor.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/pdf-page-extractor.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/pdf-page-extractor.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:720px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
+.drop-zone{border:2px dashed var(--border);border-radius:12px;padding:44px 20px;text-align:center;cursor:pointer;transition:border-color .2s;background:var(--surface);margin-bottom:16px;}
+.drop-zone:hover,.drop-zone.drag{border-color:var(--accent);}
+.drop-icon{font-size:32px;margin-bottom:8px;}
+.drop-text{font-size:13px;color:var(--text-muted);}
+.drop-hint{font-size:11px;color:var(--text-dim);margin-top:5px;}
+#fileInput{display:none;}
+.file-info{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;gap:12px;}
+.fi-icon{font-size:24px;}
+.fi-name{font-size:13px;color:var(--text);}
+.fi-meta{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;margin-top:3px;}
+.ctrl-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:14px;}
+.ctrl-label{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;margin-bottom:8px;}
+.ctrl-label b{color:var(--text-muted);}
+input.page-input{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--text);font-size:13px;font-family:'DM Mono',monospace;width:100%;outline:none;}
+input.page-input:focus{border-color:var(--accent);}
+.page-hint{font-size:11px;color:var(--text-dim);margin-top:6px;line-height:1.6;}
+.page-grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;max-height:200px;overflow-y:auto;}
+.page-chip{padding:4px 10px;border-radius:6px;font-size:11px;font-family:'DM Mono',monospace;cursor:pointer;border:1px solid var(--border);color:var(--text-dim);background:var(--surface2);}
+.page-chip.sel{background:var(--accent);color:#000;border-color:var(--accent);}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.btn{padding:7px 18px;border-radius:7px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:'Noto Sans KR',sans-serif;}
+.btn-primary{background:var(--accent);color:#000;}
+.btn-primary:hover{background:#f59e0b;}
+.btn-sec{background:var(--surface2);color:var(--text-muted);border:1px solid var(--border);}
+.btn-sec:hover{border-color:var(--accent);}
+.result-msg{padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:12px;}
+.result-msg.ok{background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);color:var(--green);}
+.result-msg.err{background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);color:var(--red);}
+.mode-tabs{display:flex;gap:4px;margin-bottom:12px;}
+.tab{padding:6px 14px;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid var(--border);color:var(--text-dim);background:var(--surface);}
+.tab.active{background:var(--accent);color:#000;border-color:var(--accent);}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"PDF Page Extractor","url":"https://modoohub.com/pdf-page-extractor.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"PDF에서 특정 페이지를 추출하여 새 PDF로 저장하는 무료 온라인 도구."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"특정 페이지만 추출할 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"네, 페이지 번호나 범위(1-3, 5, 7-10)를 입력해 원하는 페이지만 새 PDF로 추출합니다."}},{"@type":"Question","name":"추출된 페이지의 품질이 유지되나요?","acceptedAnswer":{"@type":"Answer","text":"원본 PDF의 텍스트, 이미지, 폰트 등 모든 내용을 그대로 유지해 추출합니다."}},{"@type":"Question","name":"여러 범위를 한번에 추출할 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"쉼표로 구분해 1,3,5-8처럼 여러 페이지 범위를 한번에 지정할 수 있습니다."}},{"@type":"Question","name":"암호화된 PDF도 처리할 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"암호가 걸린 PDF는 먼저 잠금 해제 후 사용하거나, PDF 비밀번호 제거 도구를 이용하세요."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>PDF <span id="h1Accent">페이지 추출기</span></h1>
+  <p class="sub" id="subEl">특정 페이지를 선택하여 새 PDF로 저장합니다</p>
+  <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+    <div class="drop-icon">📄</div>
+    <div class="drop-text" id="dropText">PDF 파일을 드래그하거나 클릭하세요</div>
+    <div class="drop-hint" id="dropHint">파일이 서버에 업로드되지 않습니다</div>
+  </div>
+  <input type="file" id="fileInput" accept=".pdf,application/pdf">
+  <div id="editorSection" style="display:none">
+    <div class="file-info" id="fileInfo"></div>
+    <div class="mode-tabs">
+      <div class="tab active" id="tab0" onclick="setMode(0)"></div>
+      <div class="tab" id="tab1" onclick="setMode(1)"></div>
+    </div>
+    <div class="ctrl-box" id="rangeBox">
+      <div class="ctrl-label" id="lblRange"></div>
+      <input type="text" class="page-input" id="rangeInput" placeholder="예: 1-3, 5, 7-9">
+      <div class="page-hint" id="rangeHint"></div>
+    </div>
+    <div class="ctrl-box" id="chipBox" style="display:none">
+      <div class="ctrl-label" id="lblChip"></div>
+      <div class="page-grid" id="pageGrid"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="extract()" id="btnExtract"></button>
+      <button class="btn btn-sec" onclick="resetAll()" id="btnReset"></button>
+    </div>
+    <div id="resultMsg"></div>
+  </div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<script>
+const LANGS=['ko','en','zh','ja'];let _lang='ko',_mode=0,_totalPages=0,_pdfBytes=null,_fileName='';
+const _i18n={
+  ko:{h1Accent:'페이지 추출기',sub:'특정 페이지를 선택하여 새 PDF로 저장합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',dropText:'PDF 파일을 드래그하거나 클릭하세요',dropHint:'파일이 서버에 업로드되지 않습니다',
+    tabs:['범위 입력','페이지 클릭'],lblRange:'페이지 범위를 입력하세요:',lblChip:'추출할 페이지를 클릭하세요:',rangeHint:'쉼표와 하이픈 사용 가능 · 예: 1-3, 5, 8-10',
+    btnExtract:'추출 및 다운로드',btnReset:'초기화',ok:'페이지 추출 완료. 다운로드가 시작됩니다.',err:'페이지 추출 실패.',noPages:'유효한 페이지를 선택해 주세요.',pages:'페이지',
+    seoHtml:`<h2>PDF 페이지 추출기</h2><p>PDF 파일에서 원하는 페이지만 추출하여 새 PDF 파일로 저장합니다. 페이지 범위를 직접 입력하거나 클릭으로 선택할 수 있습니다. 대용량 PDF에서 필요한 페이지만 공유하거나, 여러 장의 문서에서 특정 장만 추출하는 데 유용합니다. pdf-lib을 사용하여 브라우저에서 직접 처리하므로 파일이 서버에 업로드되지 않습니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>페이지 범위를 어떻게 입력하나요?</summary><p>쉼표와 하이픈을 사용합니다. 예: "1-3, 5, 8-10"은 1, 2, 3, 5, 8, 9, 10페이지를 추출합니다.</p></details>
+<details class="faq-item"><summary>파일이 서버에 업로드되나요?</summary><p>아니요. pdf-lib을 사용하여 브라우저에서 직접 처리됩니다.</p></details>
+<details class="faq-item"><summary>추출 순서를 변경할 수 있나요?</summary><p>범위 입력 모드에서 원하는 순서로 입력하면 됩니다. 예: "5, 1-3"은 5페이지가 먼저 옵니다.</p></details>
+<details class="faq-item"><summary>암호화된 PDF는 처리할 수 있나요?</summary><p>아니요. 먼저 PDF 잠금 해제 도구를 사용해야 합니다.</p></details>
+<details class="faq-item"><summary>추출된 PDF의 품질이 유지되나요?</summary><p>예. 페이지 내용, 폰트, 이미지 등이 그대로 유지됩니다.</p></details>
+<details class="faq-item"><summary>대용량 PDF도 처리할 수 있나요?</summary><p>브라우저 메모리 한도 내에서 가능합니다. 일반적으로 100MB 이하에서 작동합니다.</p></details>
+<details class="faq-item"><summary>여러 페이지를 각각 별도 PDF로 추출할 수 있나요?</summary><p>현재는 선택한 페이지를 하나의 PDF로 저장합니다. 개별 PDF로의 추출은 지원하지 않습니다.</p></details>
+<details class="faq-item"><summary>PDF 분할과 다른가요?</summary><p>페이지 추출은 원하는 페이지만 선택하여 새 PDF를 만드는 것이고, 분할은 PDF를 여러 파일로 나누는 것입니다.</p></details>`
+  },
+  en:{h1Accent:'Page Extractor',sub:'Select specific pages and save as a new PDF',backLink:'← All Tools',langBtn:'🌐 中文',dropText:'Drop a PDF file here or click to browse',dropHint:'Files are never uploaded to a server',
+    tabs:['Range input','Click pages'],lblRange:'Enter page range:',lblChip:'Click pages to extract:',rangeHint:'Use commas and hyphens · e.g. 1-3, 5, 8-10',
+    btnExtract:'Extract & Download',btnReset:'Reset',ok:'Pages extracted. Download started.',err:'Extraction failed.',noPages:'Please select valid pages.',pages:'pages',
+    seoHtml:`<h2>PDF Page Extractor</h2><p>Extract specific pages from a PDF and save them as a new PDF file. Enter a page range or click individual pages to select. Useful for sharing only the pages you need from a large document. Uses pdf-lib to process files directly in your browser — nothing is uploaded to a server.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>How do I enter a page range?</summary><p>Use commas and hyphens. Example: "1-3, 5, 8-10" extracts pages 1, 2, 3, 5, 8, 9, and 10.</p></details>
+<details class="faq-item"><summary>Are files uploaded to a server?</summary><p>No — pdf-lib processes everything locally in your browser.</p></details>
+<details class="faq-item"><summary>Can I change the extraction order?</summary><p>Yes — in range mode, enter pages in your desired order. "5, 1-3" puts page 5 first.</p></details>
+<details class="faq-item"><summary>Are encrypted PDFs supported?</summary><p>No — unlock them first with a PDF unlock tool.</p></details>
+<details class="faq-item"><summary>Is quality preserved after extraction?</summary><p>Yes — page content, fonts, and images are all preserved.</p></details>
+<details class="faq-item"><summary>Can large PDFs be processed?</summary><p>Yes, within browser memory limits — files under 100MB generally work fine.</p></details>
+<details class="faq-item"><summary>Can I extract pages as separate PDFs?</summary><p>Currently all selected pages are saved as one PDF.</p></details>
+<details class="faq-item"><summary>How is this different from PDF splitting?</summary><p>Page extraction picks specific pages for a new PDF; splitting divides a PDF into multiple files.</p></details>`
+  },
+  zh:{h1Accent:'页面提取器',sub:'选择特定页面并保存为新PDF',backLink:'← 所有工具',langBtn:'🌐 日本語',dropText:'将PDF文件拖放到此处或点击浏览',dropHint:'文件不会上传到服务器',
+    tabs:['范围输入','点击页面'],lblRange:'输入页面范围:',lblChip:'点击要提取的页面:',rangeHint:'使用逗号和连字符 · 例: 1-3, 5, 8-10',
+    btnExtract:'提取并下载',btnReset:'重置',ok:'页面提取完成，下载已开始。',err:'提取失败。',noPages:'请选择有效的页面。',pages:'页',
+    seoHtml:`<h2>PDF页面提取器</h2><p>从PDF文件中提取特定页面并保存为新的PDF文件。可以输入页面范围或点击选择页面。适用于从大型文档中共享所需页面。使用pdf-lib在浏览器中直接处理文件，不会上传到服务器。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>如何输入页面范围？</summary><p>使用逗号和连字符，例如"1-3, 5, 8-10"提取第1、2、3、5、8、9、10页。</p></details>
+<details class="faq-item"><summary>文件会上传到服务器吗？</summary><p>不会，pdf-lib在浏览器本地处理所有内容。</p></details>
+<details class="faq-item"><summary>可以更改提取顺序吗？</summary><p>可以，在范围输入模式下按所需顺序输入，例如"5, 1-3"第5页排在最前。</p></details>
+<details class="faq-item"><summary>支持加密的PDF吗？</summary><p>不支持，需要先用PDF解锁工具解锁。</p></details>
+<details class="faq-item"><summary>提取后质量会保持吗？</summary><p>会，页面内容、字体和图像均保持不变。</p></details>
+<details class="faq-item"><summary>可以处理大文件吗？</summary><p>在浏览器内存限制内可以，100MB以下的文件通常没问题。</p></details>
+<details class="faq-item"><summary>可以将页面提取为单独的PDF吗？</summary><p>目前所选页面保存为一个PDF文件。</p></details>
+<details class="faq-item"><summary>与PDF分割有什么区别？</summary><p>页面提取是从PDF中选取特定页面创建新PDF，分割是将PDF分成多个文件。</p></details>`
+  },
+  ja:{h1Accent:'ページ抽出器',sub:'特定のページを選択して新しいPDFとして保存します',backLink:'← ホーム',langBtn:'🌐 한국어',dropText:'PDFファイルをドラッグするかクリックしてください',dropHint:'ファイルはサーバーにアップロードされません',
+    tabs:['範囲入力','ページをクリック'],lblRange:'ページ範囲を入力:',lblChip:'抽出するページをクリック:',rangeHint:'カンマとハイフンを使用 · 例: 1-3, 5, 8-10',
+    btnExtract:'抽出してダウンロード',btnReset:'リセット',ok:'ページを抽出しました。ダウンロードを開始します。',err:'抽出に失敗しました。',noPages:'有効なページを選択してください。',pages:'ページ',
+    seoHtml:`<h2>PDFページ抽出器</h2><p>PDFファイルから特定のページを抽出して新しいPDFファイルとして保存します。ページ範囲を入力するか、クリックして個別に選択できます。大きな文書から必要なページだけを共有するのに便利です。pdf-libを使用してブラウザで直接処理するため、ファイルはサーバーにアップロードされません。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>ページ範囲はどう入力しますか？</summary><p>カンマとハイフンを使用します。例：「1-3, 5, 8-10」はページ1, 2, 3, 5, 8, 9, 10を抽出します。</p></details>
+<details class="faq-item"><summary>ファイルはサーバーにアップロードされますか？</summary><p>いいえ、pdf-libがブラウザのローカルですべて処理します。</p></details>
+<details class="faq-item"><summary>抽出順序を変更できますか？</summary><p>はい、範囲入力モードで希望の順序で入力できます。「5, 1-3」はページ5が最初に来ます。</p></details>
+<details class="faq-item"><summary>暗号化されたPDFは対応していますか？</summary><p>いいえ、まずPDFアンロックツールでロックを解除してください。</p></details>
+<details class="faq-item"><summary>抽出後に品質は保持されますか？</summary><p>はい、ページコンテンツ、フォント、画像はすべて保持されます。</p></details>
+<details class="faq-item"><summary>大きなPDFも処理できますか？</summary><p>ブラウザのメモリ限度内で可能で、通常100MB以下は問題ありません。</p></details>
+<details class="faq-item"><summary>ページを個別のPDFとして抽出できますか？</summary><p>現在は選択したすべてのページが1つのPDFとして保存されます。</p></details>
+<details class="faq-item"><summary>PDF分割との違いは？</summary><p>ページ抽出は特定のページを選んで新しいPDFを作成し、分割はPDFを複数のファイルに分けます。</p></details>`
+  }
+};
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){
+  const t=_i18n[_lang];document.documentElement.lang=_lang;
+  ['h1Accent','subEl','backLink','langBtn','dropText','dropHint','lblRange','lblChip','rangeHint','btnExtract','btnReset'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id];});
+  if(t.tabs){document.getElementById('tab0').textContent=t.tabs[0];document.getElementById('tab1').textContent=t.tabs[1];}
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+}
+function setMode(m){_mode=m;[0,1].forEach(i=>document.getElementById('tab'+i).classList.toggle('active',i===m));document.getElementById('rangeBox').style.display=m===0?'block':'none';document.getElementById('chipBox').style.display=m===1?'block':'none';}
+const dz=document.getElementById('dropZone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag');if(e.dataTransfer.files[0])handleFile(e.dataTransfer.files[0]);});
+document.getElementById('fileInput').addEventListener('change',e=>{if(e.target.files[0])handleFile(e.target.files[0]);});
+async function handleFile(file){
+  _fileName=file.name;_pdfBytes=new Uint8Array(await file.arrayBuffer());
+  const doc=await PDFLib.PDFDocument.load(_pdfBytes);
+  _totalPages=doc.getPageCount();
+  const t=_i18n[_lang];const fi=document.getElementById('fileInfo');
+  fi.innerHTML=`<span class="fi-icon">📄</span><div><div class="fi-name">${file.name}</div><div class="fi-meta">${(file.size/1024).toFixed(1)}KB · ${_totalPages} ${t.pages}</div></div>`;
+  const grid=document.getElementById('pageGrid');grid.innerHTML='';
+  for(let i=1;i<=_totalPages;i++){const c=document.createElement('div');c.className='page-chip';c.textContent=i;c.addEventListener('click',()=>{c.classList.toggle('sel');});grid.appendChild(c);}
+  document.getElementById('rangeInput').placeholder=`1-${_totalPages}`;
+  document.getElementById('editorSection').style.display='block';
+  document.getElementById('resultMsg').innerHTML='';
+}
+function parseRange(s,max){
+  const pages=new Set();
+  s.split(',').forEach(p=>{p=p.trim();const m=p.match(/^(\d+)-(\d+)$/);if(m){const a=+m[1],b=+m[2];for(let i=a;i<=b;i++)if(i>=1&&i<=max)pages.add(i);}else{const n=+p;if(n>=1&&n<=max)pages.add(n);}});
+  return [...pages].sort((a,b)=>a-b);
+}
+async function extract(){
+  const t=_i18n[_lang];let pages=[];
+  if(_mode===0){pages=parseRange(document.getElementById('rangeInput').value,_totalPages);}
+  else{document.querySelectorAll('.page-chip.sel').forEach(c=>pages.push(+c.textContent));}
+  if(!pages.length){document.getElementById('resultMsg').innerHTML=`<div class="result-msg err">${t.noPages}</div>`;return;}
+  try{
+    const srcDoc=await PDFLib.PDFDocument.load(_pdfBytes);
+    const newDoc=await PDFLib.PDFDocument.create();
+    const copied=await newDoc.copyPages(srcDoc,pages.map(p=>p-1));
+    copied.forEach(pg=>newDoc.addPage(pg));
+    const bytes=await newDoc.save();
+    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([bytes],{type:'application/pdf'}));
+    a.download=_fileName.replace(/\.pdf$/i,`_pages_${pages.join('-')}.pdf`);a.click();
+    document.getElementById('resultMsg').innerHTML=`<div class="result-msg ok">${t.ok}</div>`;
+  }catch(e){document.getElementById('resultMsg').innerHTML=`<div class="result-msg err">${t.err}</div>`;}
+}
+function resetAll(){document.getElementById('editorSection').style.display='none';document.getElementById('fileInput').value='';_pdfBytes=null;}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>이미지 DPI 확인기 - Image DPI Checker | MODOO HUB</title>
+<meta name="description" content="이미지 파일의 DPI(해상도), 픽셀 크기, 인쇄 크기를 확인합니다. JPEG EXIF 메타데이터에서 DPI 정보 추출. 무료 온라인 이미지 DPI 확인 도구.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://modoohub.com/image-dpi-checker.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/image-dpi-checker.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/image-dpi-checker.html?lang=en">
+<link rel="alternate" hreflang="zh" href="https://modoohub.com/image-dpi-checker.html?lang=zh">
+<link rel="alternate" hreflang="ja" href="https://modoohub.com/image-dpi-checker.html?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/image-dpi-checker.html">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+main{max-width:720px;margin:0 auto;padding:36px 20px 60px;}
+h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
+h1 span{color:var(--accent);}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
+.drop-zone{border:2px dashed var(--border);border-radius:12px;padding:44px 20px;text-align:center;cursor:pointer;transition:border-color .2s;background:var(--surface);margin-bottom:16px;}
+.drop-zone:hover,.drop-zone.drag{border-color:var(--accent);}
+.drop-icon{font-size:32px;margin-bottom:8px;}
+.drop-text{font-size:13px;color:var(--text-muted);}
+.drop-hint{font-size:11px;color:var(--text-dim);margin-top:5px;}
+#fileInput{display:none;}
+.result-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-top:16px;}
+.preview-area{background:var(--surface2);padding:16px;display:flex;align-items:center;justify-content:center;min-height:140px;border-bottom:1px solid var(--border);}
+.preview-area img{max-width:100%;max-height:160px;object-fit:contain;border-radius:6px;}
+.info-section{padding:16px;}
+.info-row{display:flex;align-items:baseline;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);}
+.info-row:last-child{border-bottom:none;}
+.info-label{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;width:140px;flex-shrink:0;}
+.info-value{font-size:13px;font-weight:600;color:var(--text);}
+.info-value.accent{color:var(--accent);}
+.info-value.green{color:var(--green);}
+.info-value.red{color:var(--red);}
+.info-badge{font-size:10px;padding:2px 8px;border-radius:12px;font-family:'DM Mono',monospace;}
+.badge-ok{background:rgba(74,222,128,0.1);color:var(--green);border:1px solid rgba(74,222,128,0.2);}
+.badge-warn{background:rgba(251,191,36,0.1);color:var(--accent);border:1px solid rgba(251,191,36,0.2);}
+.badge-no{background:rgba(248,113,113,0.1);color:var(--red);border:1px solid rgba(248,113,113,0.2);}
+.dpi-gauge{height:8px;background:var(--surface2);border-radius:4px;margin-top:8px;overflow:hidden;}
+.dpi-fill{height:100%;border-radius:4px;transition:width .5s;}
+.print-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border);margin-top:0;}
+.print-cell{background:var(--surface);padding:10px 14px;text-align:center;}
+.print-name{font-size:10px;color:var(--text-dim);margin-bottom:4px;}
+.print-size{font-size:12px;font-weight:700;color:var(--text-muted);}
+.info-note{font-size:11px;color:var(--text-dim);padding:10px 14px;background:var(--surface2);border-top:1px solid var(--border);line-height:1.6;}
+.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
+.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Image DPI Checker","url":"https://modoohub.com/image-dpi-checker.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"이미지 파일의 DPI 해상도를 확인하고 인쇄 크기를 계산하는 무료 온라인 도구."}</script>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"DPI란 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"DPI(Dots Per Inch)는 인치당 점 수를 의미하며, 인쇄 해상도를 나타냅니다. 높을수록 선명하게 인쇄됩니다."}},{"@type":"Question","name":"인쇄에 적합한 DPI는 얼마인가요?","acceptedAnswer":{"@type":"Answer","text":"일반 인쇄물은 300 DPI, 대형 배너는 72-150 DPI, 웹 이미지는 72-96 DPI가 적합합니다."}},{"@type":"Question","name":"웹 이미지를 인쇄하면 왜 흐리게 나오나요?","acceptedAnswer":{"@type":"Answer","text":"웹 이미지는 72 DPI로 제작되어 화면에서는 선명하지만, 인쇄 시 300 DPI 기준에 미달하여 흐릿해집니다."}},{"@type":"Question","name":"DPI를 높이면 인쇄 품질이 좋아지나요?","acceptedAnswer":{"@type":"Answer","text":"원본 해상도가 낮으면 DPI를 높여도 품질이 개선되지 않습니다. 원본 픽셀 수 자체가 충분해야 합니다."}}]}</script>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
+  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+</header>
+<main>
+  <h1>이미지 <span id="h1Accent">DPI 확인기</span></h1>
+  <p class="sub" id="subEl">EXIF 메타데이터에서 DPI를 읽고 인쇄 크기를 계산합니다</p>
+  <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+    <div class="drop-icon">🔍</div>
+    <div class="drop-text" id="dropText">이미지 파일을 드래그하거나 클릭하세요</div>
+    <div class="drop-hint" id="dropHint">JPEG, PNG, TIFF, WebP 지원 · JPEG는 EXIF에서 정밀 DPI 추출</div>
+  </div>
+  <input type="file" id="fileInput" accept="image/*">
+  <div id="resultArea"></div>
+  <div class="seo" id="seoDiv"></div>
+</main>
+<script>
+const LANGS=['ko','en','zh','ja'];let _lang='ko';
+const _i18n={
+  ko:{h1Accent:'DPI 확인기',sub:'EXIF 메타데이터에서 DPI를 읽고 인쇄 크기를 계산합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',dropText:'이미지 파일을 드래그하거나 클릭하세요',dropHint:'JPEG, PNG, TIFF, WebP 지원 · JPEG는 EXIF에서 정밀 DPI 추출',
+    lblFile:'파일명',lblSize:'파일 크기',lblFmt:'포맷',lblDim:'픽셀 크기',lblDpi:'DPI (해상도)',lblPrintW:'인쇄 너비',lblPrintH:'인쇄 높이',lblPrintCm:'인쇄 (cm)',lblExifSrc:'DPI 출처',
+    dpiOk:'인쇄 적합 (300+)',dpiWarn:'최소 해상도 (150+)',dpiLow:'낮은 해상도',
+    srcExif:'EXIF 메타데이터',srcDefault:'기본값 (EXIF 없음)',
+    noteText:'⚠️ PNG/WebP/AVIF 파일은 일반적으로 EXIF DPI 정보가 없어 72 또는 96 DPI로 표시됩니다. 인쇄 시 실제 DPI는 프린터 설정에 따라 달라집니다.',
+    printSizes:'인쇄 크기 참고',
+    seoHtml:`<h2>이미지 DPI 확인기</h2><p>이미지 파일의 DPI(Dots Per Inch) 해상도를 확인합니다. JPEG 파일의 경우 EXIF 메타데이터에서 실제 DPI 값을 읽어오며, PNG와 같은 형식은 일반적으로 EXIF가 없어 기본값(72 또는 96 DPI)으로 표시됩니다. DPI는 인쇄 품질에 매우 중요하며, 일반 문서 인쇄는 150 DPI, 고품질 인쇄는 300 DPI 이상이 권장됩니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>DPI란 무엇인가요?</summary><p>Dots Per Inch의 약자로, 1인치에 들어가는 픽셀 수입니다. 높을수록 인쇄 품질이 좋습니다.</p></details>
+<details class="faq-item"><summary>인쇄 시 몇 DPI가 필요한가요?</summary><p>일반 문서: 150 DPI 이상, 사진/고품질 인쇄: 300 DPI 이상, 아트북/전문 인쇄: 600 DPI 이상을 권장합니다.</p></details>
+<details class="faq-item"><summary>PNG 파일의 DPI가 72로 나오는 이유는?</summary><p>PNG 파일은 대부분 DPI 정보를 EXIF에 저장하지 않습니다. 화면 표준 해상도인 72 또는 96이 기본값으로 사용됩니다.</p></details>
+<details class="faq-item"><summary>JPEG EXIF에서 DPI를 읽을 수 있나요?</summary><p>예, 이 도구는 JPEG 파일의 EXIF APP1 마커에서 직접 XResolution/YResolution 값을 파싱합니다.</p></details>
+<details class="faq-item"><summary>인쇄 크기는 어떻게 계산되나요?</summary><p>픽셀 크기 ÷ DPI = 인치 크기입니다. 예: 3000픽셀 / 300 DPI = 10인치(약 25.4cm).</p></details>
+<details class="faq-item"><summary>웹 이미지의 DPI가 낮아도 문제없나요?</summary><p>웹 화면 표시에는 DPI가 관계없습니다. DPI는 인쇄 시에만 의미가 있습니다.</p></details>
+<details class="faq-item"><summary>파일이 서버에 업로드되나요?</summary><p>아니요. 모든 처리가 브라우저에서 직접 이루어집니다.</p></details>
+<details class="faq-item"><summary>DPI를 변경하려면 어떻게 해야 하나요?</summary><p>Photoshop, GIMP 등의 이미지 편집 프로그램에서 이미지 크기 조정 시 해상도를 변경할 수 있습니다.</p></details>`
+  },
+  en:{h1Accent:'DPI Checker',sub:'Read DPI from EXIF metadata and calculate print dimensions',backLink:'← All Tools',langBtn:'🌐 中文',dropText:'Drop an image file here or click to browse',dropHint:'JPEG, PNG, TIFF, WebP · JPEG: precise DPI from EXIF',
+    lblFile:'Filename',lblSize:'File size',lblFmt:'Format',lblDim:'Dimensions',lblDpi:'DPI (resolution)',lblPrintW:'Print width',lblPrintH:'Print height',lblPrintCm:'Print (cm)',lblExifSrc:'DPI source',
+    dpiOk:'Print-ready (300+)',dpiWarn:'Minimum quality (150+)',dpiLow:'Low resolution',
+    srcExif:'EXIF metadata',srcDefault:'Default (no EXIF)',
+    noteText:'⚠️ PNG/WebP/AVIF files typically have no EXIF DPI info and display 72 or 96 DPI. Actual print DPI depends on printer settings.',
+    printSizes:'Print size reference',
+    seoHtml:`<h2>Image DPI Checker</h2><p>Check the DPI (Dots Per Inch) resolution of image files. For JPEG files, the actual DPI is read from EXIF metadata. For formats like PNG that typically lack EXIF, the default (72 or 96 DPI) is shown. DPI matters for print quality — 150 DPI for basic print, 300+ DPI for high-quality output.</p>
+<h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>What is DPI?</summary><p>Dots Per Inch — the number of pixels per inch. Higher DPI means better print quality.</p></details>
+<details class="faq-item"><summary>What DPI do I need for printing?</summary><p>Documents: 150+ DPI; photos/high-quality: 300+ DPI; art books/professional: 600+ DPI.</p></details>
+<details class="faq-item"><summary>Why does my PNG show 72 DPI?</summary><p>PNG files usually don&apos;t store DPI in EXIF. The screen default (72 or 96) is used as a fallback.</p></details>
+<details class="faq-item"><summary>Can JPEG EXIF DPI be read?</summary><p>Yes — this tool parses the XResolution/YResolution values from the JPEG EXIF APP1 marker directly.</p></details>
+<details class="faq-item"><summary>How is print size calculated?</summary><p>Pixels ÷ DPI = inches. Example: 3000px / 300 DPI = 10 inches (≈ 25.4 cm).</p></details>
+<details class="faq-item"><summary>Does low DPI matter for web images?</summary><p>No — DPI only matters for print. Screen display ignores DPI.</p></details>
+<details class="faq-item"><summary>Are files uploaded to a server?</summary><p>No — all processing happens locally in your browser.</p></details>
+<details class="faq-item"><summary>How do I change an image&apos;s DPI?</summary><p>Use Photoshop or GIMP — change the resolution in the Image Size dialog.</p></details>`
+  },
+  zh:{h1Accent:'DPI检查器',sub:'从EXIF元数据读取DPI并计算打印尺寸',backLink:'← 所有工具',langBtn:'🌐 日本語',dropText:'将图像文件拖放到此处或点击浏览',dropHint:'支持JPEG、PNG、TIFF、WebP · JPEG从EXIF精确提取DPI',
+    lblFile:'文件名',lblSize:'文件大小',lblFmt:'格式',lblDim:'像素尺寸',lblDpi:'DPI（分辨率）',lblPrintW:'打印宽度',lblPrintH:'打印高度',lblPrintCm:'打印（cm）',lblExifSrc:'DPI来源',
+    dpiOk:'适合打印（300+）',dpiWarn:'最低质量（150+）',dpiLow:'低分辨率',
+    srcExif:'EXIF元数据',srcDefault:'默认值（无EXIF）',
+    noteText:'⚠️ PNG/WebP/AVIF文件通常没有EXIF DPI信息，显示72或96 DPI。实际打印DPI取决于打印机设置。',
+    printSizes:'打印尺寸参考',
+    seoHtml:`<h2>图像DPI检查器</h2><p>检查图像文件的DPI（每英寸点数）分辨率。对于JPEG文件，从EXIF元数据读取实际DPI值；对于通常没有EXIF的PNG等格式，显示默认值（72或96 DPI）。DPI对于打印质量非常重要，普通文档建议150 DPI，高质量输出建议300+ DPI。</p>
+<h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>DPI是什么？</summary><p>每英寸点数，每英寸包含的像素数。DPI越高，打印质量越好。</p></details>
+<details class="faq-item"><summary>打印需要多少DPI？</summary><p>普通文档：150+ DPI；照片/高质量：300+ DPI；艺术书/专业印刷：600+ DPI。</p></details>
+<details class="faq-item"><summary>为什么PNG显示72 DPI？</summary><p>PNG文件通常不在EXIF中存储DPI，使用屏幕默认值（72或96）作为备用。</p></details>
+<details class="faq-item"><summary>可以读取JPEG EXIF中的DPI吗？</summary><p>可以，该工具直接解析JPEG EXIF APP1标记中的XResolution/YResolution值。</p></details>
+<details class="faq-item"><summary>如何计算打印尺寸？</summary><p>像素÷DPI=英寸。例如：3000像素/300 DPI=10英寸（约25.4cm）。</p></details>
+<details class="faq-item"><summary>网页图像DPI低有问题吗？</summary><p>没有，DPI只影响打印，屏幕显示忽略DPI。</p></details>
+<details class="faq-item"><summary>文件会上传到服务器吗？</summary><p>不会，所有处理在浏览器本地进行。</p></details>
+<details class="faq-item"><summary>如何更改图像DPI？</summary><p>使用Photoshop或GIMP，在图像尺寸对话框中更改分辨率。</p></details>`
+  },
+  ja:{h1Accent:'DPIチェッカー',sub:'EXIFメタデータからDPIを読み取り印刷サイズを計算します',backLink:'← ホーム',langBtn:'🌐 한국어',dropText:'画像ファイルをドラッグするかクリックしてください',dropHint:'JPEG、PNG、TIFF、WebP対応 · JPEGはEXIFから正確なDPIを抽出',
+    lblFile:'ファイル名',lblSize:'ファイルサイズ',lblFmt:'フォーマット',lblDim:'ピクセルサイズ',lblDpi:'DPI（解像度）',lblPrintW:'印刷幅',lblPrintH:'印刷高さ',lblPrintCm:'印刷（cm）',lblExifSrc:'DPIソース',
+    dpiOk:'印刷に適した解像度（300+）',dpiWarn:'最低品質（150+）',dpiLow:'低解像度',
+    srcExif:'EXIFメタデータ',srcDefault:'デフォルト（EXIF無し）',
+    noteText:'⚠️ PNG/WebP/AVIFファイルは通常EXIF DPI情報がなく、72または96 DPIと表示されます。実際の印刷DPIはプリンタ設定によります。',
+    printSizes:'印刷サイズ参考',
+    seoHtml:`<h2>画像DPIチェッカー</h2><p>画像ファイルのDPI（Dots Per Inch）解像度を確認します。JPEGファイルはEXIFメタデータから実際のDPI値を読み取り、通常EXIFがないPNGなどのフォーマットはデフォルト値（72または96 DPI）を表示します。DPIは印刷品質に重要で、一般文書は150 DPI以上、高品質印刷は300 DPI以上が推奨されます。</p>
+<h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>DPIとは何ですか？</summary><p>Dots Per Inch — 1インチあたりのピクセル数。高いほど印刷品質が良くなります。</p></details>
+<details class="faq-item"><summary>印刷に必要なDPIは？</summary><p>一般文書：150+ DPI；写真/高品質：300+ DPI；アートブック/プロ印刷：600+ DPI。</p></details>
+<details class="faq-item"><summary>PNGが72 DPIと表示されるのはなぜですか？</summary><p>PNGファイルは通常EXIFにDPIを保存しません。画面デフォルト（72または96）がフォールバックとして使用されます。</p></details>
+<details class="faq-item"><summary>JPEG EXIFのDPIを読めますか？</summary><p>はい — このツールはJPEG EXIF APP1マーカーからXResolution/YResolution値を直接パースします。</p></details>
+<details class="faq-item"><summary>印刷サイズはどう計算されますか？</summary><p>ピクセル÷DPI=インチ。例：3000px / 300 DPI = 10インチ（約25.4cm）。</p></details>
+<details class="faq-item"><summary>ウェブ画像のDPIが低くても問題ありませんか？</summary><p>問題ありません — DPIは印刷にのみ意味があり、画面表示ではDPIは無視されます。</p></details>
+<details class="faq-item"><summary>ファイルはサーバーにアップロードされますか？</summary><p>いいえ、すべての処理はブラウザのローカルで行われます。</p></details>
+<details class="faq-item"><summary>DPIを変更するには？</summary><p>PhotoshopやGIMPの画像サイズダイアログで解像度を変更してください。</p></details>`
+  }
+};
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function applyLang(){
+  const t=_i18n[_lang];document.documentElement.lang=_lang;
+  ['h1Accent','subEl','backLink','langBtn','dropText','dropHint'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id];});
+  document.getElementById('seoDiv').innerHTML=t.seoHtml;
+}
+function readExifDpi(buf){
+  const view=new DataView(buf);
+  let offset=0;
+  if(view.getUint16(0)!==0xFFD8)return null;
+  offset=2;
+  while(offset<buf.byteLength-4){
+    const marker=view.getUint16(offset);offset+=2;
+    if(marker===0xFFE1){
+      const len=view.getUint16(offset);offset+=2;
+      const exifHeader=new Uint8Array(buf,offset,6);
+      if(exifHeader[0]===0x45&&exifHeader[1]===0x78&&exifHeader[2]===0x69&&exifHeader[3]===0x66){
+        const tiffStart=offset+6;
+        const tiffView=new DataView(buf,tiffStart);
+        const le=tiffView.getUint16(0)===0x4949;
+        const readU16=o=>le?tiffView.getUint16(o,true):tiffView.getUint16(o,false);
+        const readU32=o=>le?tiffView.getUint32(o,true):tiffView.getUint32(o,false);
+        const ifdOffset=readU32(4);const numEntries=readU16(ifdOffset);
+        let xRes=null,yRes=null;
+        for(let i=0;i<numEntries;i++){
+          const eOff=ifdOffset+2+i*12;const tag=readU16(eOff);const type=readU16(eOff+2);const cnt=readU32(eOff+4);const valOff=eOff+8;
+          if(tag===0x011A||tag===0x011B){
+            let num,den;
+            if(type===5){const rOff=readU32(valOff);num=readU32(rOff);den=readU32(rOff+4);}
+            else{num=readU32(valOff);den=1;}
+            const val=den?num/den:num;
+            if(tag===0x011A)xRes=val;else yRes=val;
+          }
+        }
+        if(xRes)return{x:Math.round(xRes),y:Math.round(yRes||xRes)};
+      }
+      offset+=len-2;
+    } else {
+      const len=view.getUint16(offset);offset+=len;
+    }
+    if(marker===0xFFDA)break;
+  }
+  return null;
+}
+const dz=document.getElementById('dropZone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag');if(e.dataTransfer.files[0])handleFile(e.dataTransfer.files[0]);});
+document.getElementById('fileInput').addEventListener('change',e=>{if(e.target.files[0])handleFile(e.target.files[0]);});
+function handleFile(file){
+  const t=_i18n[_lang];const url=URL.createObjectURL(file);const img=new Image();
+  img.onload=()=>{
+    const w=img.naturalWidth,h=img.naturalHeight;
+    const fmtSize=b=>b>=1048576?(b/1048576).toFixed(2)+'MB':b>=1024?(b/1024).toFixed(1)+'KB':b+'B';
+    const ext=(file.name.match(/\.(\w+)$/)||['',''])[1].toUpperCase();
+    const isJpeg=file.type==='image/jpeg';
+    if(isJpeg){
+      const fr=new FileReader();
+      fr.onload=e=>{
+        const exif=readExifDpi(e.target.result);
+        const dpi=exif?exif.x:72;
+        const fromExif=!!exif;
+        renderResult(file,url,w,h,dpi,fromExif,fmtSize(file.size),ext);
+      };
+      fr.readAsArrayBuffer(file);
+    } else {
+      renderResult(file,url,w,h,72,false,fmtSize(file.size),ext);
+    }
+  };
+  img.onerror=()=>URL.revokeObjectURL(url);
+  img.src=url;
+}
+function renderResult(file,url,w,h,dpi,fromExif,szStr,ext){
+  const t=_i18n[_lang];
+  const printInW=(w/dpi).toFixed(2);const printInH=(h/dpi).toFixed(2);
+  const printCmW=(w/dpi*2.54).toFixed(2);const printCmH=(h/dpi*2.54).toFixed(2);
+  let dpiClass='',dpiLabel='';
+  if(dpi>=300){dpiClass='badge-ok';dpiLabel=t.dpiOk;}
+  else if(dpi>=150){dpiClass='badge-warn';dpiLabel=t.dpiWarn;}
+  else{dpiClass='badge-no';dpiLabel=t.dpiLow;}
+  const gaugePct=Math.min(100,(dpi/600)*100);
+  const gaugeColor=dpi>=300?'var(--green)':dpi>=150?'var(--accent)':'var(--red)';
+  const printPapers=[
+    {name:'A4',wIn:8.27,hIn:11.69},{name:'Letter',wIn:8.5,hIn:11},{name:'4×6"',wIn:4,hIn:6}
+  ];
+  const paperHtml=printPapers.map(p=>{
+    const minDim=Math.min(w/p.wIn,h/p.hIn);
+    const cls=minDim>=300?'badge-ok':minDim>=150?'badge-warn':'badge-no';
+    return `<div class="print-cell"><div class="print-name">${p.name}</div><div class="print-size ${cls}">${Math.floor(minDim)} DPI</div></div>`;
+  }).join('');
+  const div=document.createElement('div');div.className='result-card';
+  div.innerHTML=`<div class="preview-area"><img src="${url}" alt="preview"></div>
+<div class="info-section">
+<div class="info-row"><span class="info-label">${t.lblFile}</span><span class="info-value">${file.name}</span></div>
+<div class="info-row"><span class="info-label">${t.lblFmt}</span><span class="info-value">${ext}</span></div>
+<div class="info-row"><span class="info-label">${t.lblSize}</span><span class="info-value">${szStr}</span></div>
+<div class="info-row"><span class="info-label">${t.lblDim}</span><span class="info-value accent">${w} × ${h} px</span></div>
+<div class="info-row"><span class="info-label">${t.lblDpi}</span><span class="info-value"><span class="info-badge ${dpiClass}">${dpi} DPI · ${dpiLabel}</span></span></div>
+<div class="dpi-gauge"><div class="dpi-fill" style="width:${gaugePct}%;background:${gaugeColor}"></div></div>
+<div class="info-row"><span class="info-label">${t.lblExifSrc}</span><span class="info-value">${fromExif?t.srcExif:t.srcDefault}</span></div>
+<div class="info-row"><span class="info-label">${t.lblPrintW}</span><span class="info-value">${printInW}" / ${printCmW}cm</span></div>
+<div class="info-row"><span class="info-label">${t.lblPrintH}</span><span class="info-value">${printInH}" / ${printCmH}cm</span></div>
+</div>
+<div style="padding:8px 16px;font-size:11px;color:var(--text-dim);border-top:1px solid var(--border)">${t.printSizes}</div>
+<div class="print-grid">${paperHtml}</div>
+<div class="info-note">${t.noteText}</div>`;
+  const ra=document.getElementById('resultArea');ra.innerHTML='';ra.appendChild(div);
+}
+_lang=detectLang();applyLang();
+</script>
+<script src="related.js"></script>
+</body>
+</html>

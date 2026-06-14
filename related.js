@@ -53,6 +53,7 @@
     'tip-calculator':            { ko: '팁 계산기',            en: 'Tip Calculator',             zh: '小费计算器',          ja: 'チップ計算機',         icon: '💵' },
     'split-calculator':          { ko: '더치페이 계산기',      en: 'Split Calculator',           zh: 'AA制计算器',          ja: '割り勘計算機',         icon: '🍽️' },
     'percent-calc':              { ko: '퍼센트 계산기',        en: 'Percent Calculator',         zh: '百分比计算器',        ja: 'パーセント計算機',     icon: '🔢' },
+    'vat-calc':                  { ko: '부가세 계산기',         en: 'VAT Calculator (KR)',         zh: '韩国增值税计算器',    ja: '韓国VAT計算機',        icon: '🧾' },
     'fuel-cost-calculator':      { ko: '연료비 계산기',        en: 'Fuel Cost Calculator',       zh: '油费计算器',          ja: '燃料費計算機',         icon: '⛽' },
     'electricity-cost-calculator': { ko: '전기요금 계산기',   en: 'Electricity Cost Calculator', zh: '电费计算器',         ja: '電気料金計算機',       icon: '⚡' },
     /* ── 개발자: 포맷터 ── */
@@ -372,6 +373,72 @@
     'uuid-bulk-generator':       { ko: 'UUID 대량 생성기', en: 'UUID Bulk Generator', zh: 'UUID批量生成器', ja: 'UUID一括生成器', icon: '🔢' },
     'uuid-extractor':            { ko: 'UUID 추출기', en: 'UUID Extractor', zh: 'UUID提取器', ja: 'UUID抽出器', icon: 'UUID↑' },
     'api-response-viewer':       { ko: 'API 응답 뷰어', en: 'API Response Viewer', zh: 'API响应查看器', ja: 'APIレスポンスビューア', icon: '🔍' },
+    /* ── 배치 24: SEO 도구 ── */
+    'keyword-difficulty-estimator': { ko: '키워드 난이도 평가기', en: 'Keyword Difficulty Estimator', zh: '关键词难度评估器', ja: 'キーワード難易度評価ツール', icon: '📊' },
+    'sitemap-extractor':         { ko: '사이트맵 URL 추출기', en: 'Sitemap Extractor', zh: '站点地图提取器', ja: 'サイトマップ抽出器', icon: '🗺️' },
+    'robots-txt-tester':         { ko: 'Robots.txt 테스터', en: 'Robots.txt Tester', zh: 'Robots.txt测试器', ja: 'Robots.txtテスター', icon: '🤖' },
+    'meta-tag-preview':          { ko: '메타 태그 미리보기', en: 'Meta Tag Preview', zh: '元标签预览', ja: 'メタタグプレビュー', icon: '<M>' },
+    'serp-snippet-preview':      { ko: 'SERP 스니펫 미리보기', en: 'SERP Snippet Preview', zh: 'SERP摘要预览', ja: 'SERPスニペットプレビュー', icon: '🔍' },
+    'open-graph-preview':        { ko: 'Open Graph 미리보기', en: 'Open Graph Preview', zh: 'OG标签预览', ja: 'OGプレビュー', icon: '🌐' },
+    'schema-generator-faq':      { ko: 'FAQ 스키마 생성기', en: 'FAQ Schema Generator', zh: 'FAQ结构化数据生成器', ja: 'FAQスキーマジェネレーター', icon: '❓' },
+    'schema-generator-product':  { ko: '제품 스키마 생성기', en: 'Product Schema Generator', zh: '商品结构化数据生成器', ja: '商品スキーマジェネレーター', icon: '🛍️' },
+    'schema-generator-article':  { ko: '기사 스키마 생성기', en: 'Article Schema Generator', zh: '文章结构化数据生成器', ja: '記事スキーマジェネレーター', icon: '📰' },
+    'keyword-cannibalization-checker': { ko: '키워드 카니발리제이션 검사기', en: 'Keyword Cannibalization Checker', zh: '关键词蚕食检查器', ja: 'キーワードカニバリゼーションチェッカー', icon: '🔑' },
+    /* ── 배치 24: 텍스트 도구 ── */
+    'uppercase-converter':       { ko: '대문자 변환기', en: 'Uppercase Converter', zh: '大写转换器', ja: '大文字変換器', icon: 'AA' },
+    'lowercase-converter':       { ko: '소문자 변환기', en: 'Lowercase Converter', zh: '小写转换器', ja: '小文字変換器', icon: 'aa' },
+    'sentence-case-converter':   { ko: '대소문자 형식 변환기', en: 'Case Converter', zh: '大小写格式转换器', ja: '大小文字フォーマット変換器', icon: 'Aa' },
+    'remove-special-characters': { ko: '특수 문자 제거기', en: 'Remove Special Characters', zh: '删除特殊字符', ja: '特殊文字除去器', icon: '✂️' },
+    'text-deduplicator':         { ko: '중복 줄 제거기', en: 'Text Deduplicator', zh: '文本去重器', ja: 'テキスト重複削除器', icon: '🗑️' },
+    'text-summarizer':           { ko: '텍스트 요약기', en: 'Text Summarizer', zh: '文本摘要器', ja: 'テキスト要約器', icon: '📝' },
+    'word-frequency-counter':    { ko: '단어 빈도 분석기', en: 'Word Frequency Counter', zh: '词频分析器', ja: '単語頻度分析器', icon: '📊' },
+    'ngram-analyzer':            { ko: 'N-그램 분석기', en: 'N-Gram Analyzer', zh: 'N-gram分析器', ja: 'N-gramアナライザー', icon: 'N-g' },
+    'text-similarity-checker':   { ko: '텍스트 유사도 검사기', en: 'Text Similarity Checker', zh: '文本相似度检查器', ja: 'テキスト類似度チェッカー', icon: '≈' },
+    // 배치 25
+    'pdf-page-extractor':        { ko: 'PDF 페이지 추출기', en: 'PDF Page Extractor', zh: 'PDF页面提取器', ja: 'PDFページ抽出器', icon: '📑' },
+    'pdf-thumbnail-generator':   { ko: 'PDF 썸네일 생성기', en: 'PDF Thumbnail Generator', zh: 'PDF缩略图生成器', ja: 'PDFサムネイル生成器', icon: '🖼️' },
+    'pdf-ocr':                   { ko: 'PDF OCR 텍스트 추출기', en: 'PDF OCR Text Extractor', zh: 'PDF OCR文字提取器', ja: 'PDF OCRテキスト抽出器', icon: '🔍' },
+    'gradient-generator':        { ko: '그라디언트 생성기', en: 'Gradient Generator', zh: '渐变生成器', ja: 'グラデーション生成器', icon: '🎨' },
+    'css-gradient-generator':    { ko: 'CSS 그라디언트 편집기', en: 'CSS Gradient Editor', zh: 'CSS渐变编辑器', ja: 'CSSグラデーションエディター', icon: '🌈' },
+    'tailwind-color-generator':  { ko: 'Tailwind 색상 찾기', en: 'Tailwind Color Finder', zh: 'Tailwind颜色匹配', ja: 'Tailwindカラーファインダー', icon: '🎨' },
+    'color-blindness-simulator': { ko: '색맹 시뮬레이터', en: 'Color Blindness Simulator', zh: '色盲模拟器', ja: '色覚異常シミュレーター', icon: '👁️' },
+    'accessibility-color-checker':{ ko: '접근성 색상 검사기', en: 'Accessibility Color Checker', zh: '无障碍颜色检查器', ja: 'アクセシビリティカラーチェッカー', icon: '♿' },
+    // finance calculators
+    'cagr-calculator':           { ko: 'CAGR 계산기', en: 'CAGR Calculator', zh: 'CAGR计算器', ja: 'CAGR計算機', icon: '📈' },
+    'compound-annual-growth-rate-calculator': { ko: '복합 성장률 계산기', en: 'Compound Growth Rate Calculator', zh: '复合年均增长率计算器', ja: '複合成長率計算機', icon: '📊' },
+    'margin-calculator':         { ko: '마진 계산기', en: 'Margin Calculator', zh: '毛利率计算器', ja: '粗利率計算機', icon: '💰' },
+    'profit-calculator':         { ko: '손익 계산기', en: 'Profit Calculator', zh: '损益计算器', ja: '損益計算機', icon: '📋' },
+    'break-even-calculator':     { ko: '손익분기점 계산기', en: 'Break-Even Calculator', zh: '盈亏平衡计算器', ja: '損益分岐点計算機', icon: '⚖️' },
+    'commission-calculator':     { ko: '수수료 계산기', en: 'Commission Calculator', zh: '佣金计算器', ja: '手数料計算機', icon: '🤝' },
+    'vat-reverse-calculator':    { ko: '부가세 역산 계산기', en: 'VAT Reverse Calculator', zh: '含税价还原计算器', ja: '消費税逆算計算機', icon: '🧾' },
+    'discount-calculator':       { ko: '할인 계산기', en: 'Discount Calculator', zh: '折扣计算器', ja: '割引計算機', icon: '🏷️' },
+    'percentage-increase-calculator': { ko: '퍼센트 증가 계산기', en: 'Percentage Increase Calculator', zh: '百分比增长计算器', ja: 'パーセント増加計算機', icon: '📈' },
+    'percentage-decrease-calculator': { ko: '퍼센트 감소 계산기', en: 'Percentage Decrease Calculator', zh: '百分比减少计算器', ja: 'パーセント減少計算機', icon: '📉' },
+    // productivity
+    'meeting-cost-calculator':   { ko: '회의 비용 계산기', en: 'Meeting Cost Calculator', zh: '会议成本计算器', ja: '会議コスト計算機', icon: '💸' },
+    'salary-per-hour-calculator':{ ko: '시간당 급여 계산기', en: 'Salary Per Hour Calculator', zh: '时薪换算器', ja: '時給換算計算機', icon: '💰' },
+    'hourly-rate-calculator':    { ko: '시급 계산기', en: 'Hourly Rate Calculator', zh: '时薪计算器', ja: '時給計算機', icon: '⏱' },
+    'freelancer-rate-calculator':{ ko: '프리랜서 요율 계산기', en: 'Freelancer Rate Calculator', zh: '自由职业报价计算器', ja: 'フリーランス料金計算機', icon: '🧮' },
+    'time-zone-meeting-planner': { ko: '시간대 회의 플래너', en: 'Time Zone Meeting Planner', zh: '时区会议规划器', ja: 'タイムゾーン会議プランナー', icon: '🌍' },
+    // 배치 27 (고아 페이지)
+    'avif-to-jpg':               { ko: 'AVIF → JPG 변환기', en: 'AVIF to JPG Converter', zh: 'AVIF转JPG', ja: 'AVIF→JPG変換器', icon: '🖼️' },
+    'heic-to-jpg':               { ko: 'HEIC → JPG 변환기', en: 'HEIC to JPG Converter', zh: 'HEIC转JPG', ja: 'HEIC→JPG変換器', icon: '📷' },
+    'image-dimension-checker':   { ko: '이미지 크기 확인기', en: 'Image Dimension Checker', zh: '图片尺寸查看器', ja: '画像サイズ確認器', icon: '📐' },
+    'image-dpi-checker':         { ko: '이미지 DPI 확인기', en: 'Image DPI Checker', zh: '图片DPI查看器', ja: '画像DPI確認器', icon: '🔍' },
+    'jpg-to-avif':               { ko: 'JPG → AVIF 변환기', en: 'JPG to AVIF Converter', zh: 'JPG转AVIF', ja: 'JPG→AVIF変換器', icon: '🖼️' },
+    'jpg-to-heic':               { ko: 'JPG → HEIC 변환기', en: 'JPG to HEIC Converter', zh: 'JPG转HEIC', ja: 'JPG→HEIC変換器', icon: '🖼️' },
+    'transparent-background-maker':{ ko: '투명 배경 만들기', en: 'Transparent Background Maker', zh: '透明背景制作器', ja: '透過背景メーカー', icon: '🪄' },
+    'svg-cleaner':               { ko: 'SVG 클리너', en: 'SVG Cleaner', zh: 'SVG清理器', ja: 'SVGクリーナー', icon: '🧹' },
+    'svg-optimizer':             { ko: 'SVG 최적화', en: 'SVG Optimizer', zh: 'SVG优化器', ja: 'SVG最適化ツール', icon: '🔧' },
+    'pdf-metadata-remover':      { ko: 'PDF 메타데이터 제거기', en: 'PDF Metadata Remover', zh: 'PDF元数据删除器', ja: 'PDFメタデータ削除器', icon: '🗑️' },
+    'pdf-size-analyzer':         { ko: 'PDF 크기 분석기', en: 'PDF Size Analyzer', zh: 'PDF大小分析器', ja: 'PDFサイズ分析器', icon: '📊' },
+    'pdf-word-counter':          { ko: 'PDF 단어 수 카운터', en: 'PDF Word Counter', zh: 'PDF字数统计器', ja: 'PDF単語数カウンター', icon: '📄' },
+    // 배치 28
+    'qr-code-generator':         { ko: 'QR코드 생성기', en: 'QR Code Generator', zh: 'QR码生成器', ja: 'QRコード生成器', icon: '📲' },
+    'lorem-ipsum-generator':     { ko: '로렘 입숨 생성기', en: 'Lorem Ipsum Generator', zh: 'Lorem Ipsum生成器', ja: 'Lorem Ipsum生成器', icon: '📝' },
+    'severance-pay-calculator':  { ko: '퇴직금 계산기', en: 'Severance Pay Calculator', zh: '退职金计算器', ja: '退職金計算機', icon: '🏦' },
+    'health-insurance-calculator':{ ko: '건강보험료 계산기', en: 'Health Insurance Calculator', zh: '健康保险费计算器', ja: '健康保険料計算機', icon: '🏥' },
+    'national-pension-calculator':{ ko: '국민연금 계산기', en: 'National Pension Calculator', zh: '国民年金计算器', ja: '国民年金計算機', icon: '🏛️' },
   };
 
   // ── 토픽 클러스터 ────────────────────────────────────────────────
@@ -478,6 +545,27 @@
     ['uuid-bulk-generator','uuid-extractor','uuid-converter','uuid-validator','ulid-generator','nanoid-generator'],
     // 배치 23: API 도구
     ['api-response-viewer','api-tester','http-request-builder','curl-generator','curl-parser','webhook-tester'],
+    // 배치 24: SEO 도구
+    ['keyword-difficulty-estimator','keyword-clustering-tool','keyword-grouping-tool','keyword-density-checker','keyword-extractor'],
+    ['sitemap-extractor','sitemap-generator','sitemap-validator','robots-txt-tester','robots-txt-validator'],
+    ['robots-txt-tester','robots-txt-generator','robots-txt-validator','sitemap-extractor','meta-tag-analyzer'],
+    ['meta-tag-preview','serp-snippet-preview','open-graph-preview','meta-tag-generator','meta-tag-analyzer'],
+    ['serp-snippet-preview','meta-tag-preview','seo-title-generator','meta-description-generator','keyword-difficulty-estimator'],
+    ['open-graph-preview','open-graph-generator','twitter-card-generator','meta-tag-preview','meta-tag-analyzer'],
+    ['schema-generator-faq','schema-generator-product','schema-generator-article','schema-markup-generator','schema-validator'],
+    ['schema-generator-product','schema-generator-faq','schema-generator-article','schema-markup-generator','schema-validator'],
+    ['schema-generator-article','schema-generator-faq','schema-generator-product','schema-markup-generator','hreflang-generator'],
+    ['keyword-cannibalization-checker','keyword-difficulty-estimator','keyword-clustering-tool','keyword-grouping-tool','keyword-density-checker'],
+    // 배치 24: 텍스트 도구
+    ['uppercase-converter','lowercase-converter','sentence-case-converter','text-case-detector','case-converter'],
+    ['lowercase-converter','uppercase-converter','sentence-case-converter','text-case-detector','case-converter'],
+    ['sentence-case-converter','uppercase-converter','lowercase-converter','text-case-detector','case-converter'],
+    ['remove-special-characters','text-cleaner','emoji-remover','stopword-remover','text-deduplicator'],
+    ['text-deduplicator','duplicate-line-finder','remove-duplicate-lines','text-sorter','text-merger'],
+    ['text-summarizer','word-frequency-counter','keyword-extractor','reading-level-checker','text-statistics'],
+    ['word-frequency-counter','ngram-analyzer','keyword-extractor','text-statistics','stopword-remover'],
+    ['ngram-analyzer','word-frequency-counter','keyword-extractor','text-similarity-checker','keyword-density-checker'],
+    ['text-similarity-checker','text-diff-checker','ngram-analyzer','word-frequency-counter','text-statistics'],
     // AI 도구
     ['ai-token-counter','ai-cost-calculator','chatgpt-token-counter','prompt-formatter','word-counter','character-counter'],
     ['utm-builder','slug-generator','url-encoder','url-decoder','qr-generator'],
@@ -517,6 +605,7 @@
     // 배치 14: JWT·보안
     ['jwt-validator','jwt-inspector','jwt-decoder','jwt-generator','hmac-generator'],
     ['hmac-generator','hash-checker','bcrypt-generator','bcrypt-validator','rsa-key-generator'],
+    ['md5-generator','sha256-generator','hash-checker','hmac-generator','bcrypt-generator'],
     ['bcrypt-generator','bcrypt-validator','hash-checker','hmac-generator','password-generator'],
     ['rsa-key-generator','ssh-key-generator','ssl-checker','csr-generator','hmac-generator'],
     ['ssh-key-generator','rsa-key-generator','csr-generator','ssl-checker','htaccess-generator'],
@@ -591,6 +680,42 @@
     ['loan-calc','ltv-calculator','dsr-calc','prepayment-fee','realestate-fee','rent-convert','acquisition-tax','property-tax','cheongyak-score','credit-loan-limit'],
     // 한국: 날짜
     ['korean-age','dday','working-days-calc','age-calculator','date-calc'],
+    // PDF 도구
+    ['pdf-page-extractor','pdf-thumbnail-generator','pdf-ocr','pdf-page-counter','pdf-compressor'],
+    ['pdf-ocr','pdf-page-extractor','pdf-extract-text','pdf-to-text','pdf-thumbnail-generator'],
+    // 색상/그라디언트 도구
+    ['gradient-generator','css-gradient-generator','tailwind-color-generator','hex-to-rgb','rgb-to-hex'],
+    ['tailwind-color-generator','color-blindness-simulator','accessibility-color-checker','hex-to-rgb','dominant-color-finder'],
+    ['color-blindness-simulator','accessibility-color-checker','tailwind-color-generator','image-color-extractor','color-contrast-checker'],
+    ['accessibility-color-checker','color-blindness-simulator','color-contrast-checker','tailwind-color-generator','gradient-generator'],
+    // 금융 계산기
+    ['cagr-calculator','compound-annual-growth-rate-calculator','roi-calculator','investment-return-calculator','compound-interest'],
+    ['margin-calculator','profit-calculator','break-even-calculator','commission-calculator','roi-calculator'],
+    ['discount-calculator','vat-reverse-calculator','percentage-decrease-calculator','percentage-increase-calculator','gst-calculator'],
+    ['vat-calc','vat-reverse-calculator','discount-calculator','percent-calc','gst-calculator'],
+    ['percentage-increase-calculator','percentage-decrease-calculator','discount-calculator','percent-calc','cagr-calculator'],
+    // 생산성 도구
+    ['meeting-cost-calculator','salary-per-hour-calculator','hourly-rate-calculator','freelancer-rate-calculator','time-zone-meeting-planner'],
+    ['hourly-rate-calculator','salary-per-hour-calculator','freelancer-rate-calculator','meeting-cost-calculator','wpm-calculator'],
+    ['time-zone-meeting-planner','meeting-cost-calculator','epoch-converter','time-calculator','business-days-calculator'],
+    // 배치 27 이미지 변환
+    ['avif-to-jpg','jpg-to-avif','heic-to-jpg','jpg-to-heic','webp-to-jpg'],
+    ['heic-to-jpg','avif-to-jpg','jpg-to-heic','jpg-to-webp','image-dimension-checker'],
+    ['image-dimension-checker','image-dpi-checker','exif-viewer','image-metadata-viewer','image-color-extractor'],
+    ['image-dpi-checker','image-dimension-checker','exif-viewer','image-metadata-viewer','image-base64-encoder'],
+    ['transparent-background-maker','image-cropper','blur-image','pixelate-image','image-rotator'],
+    ['svg-cleaner','svg-optimizer','svg-minifier','svg-viewer','svg-to-png'],
+    ['svg-optimizer','svg-cleaner','svg-minifier','svg-to-png','png-to-svg'],
+    // 배치 27 PDF
+    ['pdf-metadata-remover','pdf-metadata-viewer','pdf-unlock','pdf-size-analyzer','pdf-word-counter'],
+    ['pdf-size-analyzer','pdf-metadata-remover','pdf-word-counter','pdf-compressor','pdf-page-counter'],
+    ['pdf-word-counter','pdf-size-analyzer','pdf-extract-text','pdf-to-text','pdf-ocr'],
+    // 배치 28
+    ['qr-code-generator','lorem-ipsum-generator','uuid-generator','nanoid-generator','password-generator'],
+    ['lorem-ipsum-generator','qr-code-generator','random-word-generator','text-merger','markdown-to-html'],
+    ['severance-pay-calculator','health-insurance-calculator','national-pension-calculator','salary-per-hour-calculator','hourly-rate-calculator'],
+    ['health-insurance-calculator','national-pension-calculator','severance-pay-calculator','salary-per-hour-calculator','meeting-cost-calculator'],
+    ['national-pension-calculator','health-insurance-calculator','severance-pay-calculator','cagr-calculator','compound-annual-growth-rate-calculator'],
   ];
 
   // ── 관련 도구 맵 빌드 ────────────────────────────────────────────
@@ -697,6 +822,18 @@
     'ai-blog-title-generator':'generator-tools','ai-youtube-title-generator':'generator-tools',
     'ai-thumbnail-title-generator':'generator-tools','ai-tweet-generator':'generator-tools','ai-linkedin-post-generator':'generator-tools',
     'jwt-expiration-checker':'security-tools',
+    // Batch 24: SEO
+    'keyword-difficulty-estimator':'developer-tools','sitemap-extractor':'developer-tools',
+    'robots-txt-tester':'developer-tools','meta-tag-preview':'developer-tools',
+    'serp-snippet-preview':'developer-tools','open-graph-preview':'developer-tools',
+    'schema-generator-faq':'generator-tools','schema-generator-product':'generator-tools',
+    'schema-generator-article':'generator-tools','keyword-cannibalization-checker':'developer-tools',
+    // Batch 24: Text
+    'uppercase-converter':'text-tools','lowercase-converter':'text-tools',
+    'sentence-case-converter':'text-tools','remove-special-characters':'text-tools',
+    'text-deduplicator':'text-tools','text-summarizer':'text-tools',
+    'word-frequency-counter':'text-tools','ngram-analyzer':'text-tools',
+    'text-similarity-checker':'text-tools',
     'json-schema-generator':'developer-tools','json-schema-validator':'developer-tools',
     'xml-beautifier':'developer-tools',
     'yaml-diff-checker':'developer-tools','csv-diff-checker':'developer-tools',
@@ -756,20 +893,70 @@
     'palindrome-checker':'text-tools','anagram-checker':'text-tools','text-statistics':'text-tools',
     'keyword-extractor':'text-tools','stopword-remover':'text-tools','text-merger':'text-tools',
     'line-merger':'text-tools','random-word-generator':'text-tools',
+    // 배치 25
+    'pdf-page-extractor':'pdf-tools','pdf-thumbnail-generator':'pdf-tools','pdf-ocr':'pdf-tools',
+    'gradient-generator':'image-tools','css-gradient-generator':'image-tools',
+    'tailwind-color-generator':'developer-tools','color-blindness-simulator':'image-tools','accessibility-color-checker':'developer-tools',
+    'cagr-calculator':'finance-calculators','compound-annual-growth-rate-calculator':'finance-calculators',
+    'margin-calculator':'finance-calculators','profit-calculator':'finance-calculators','break-even-calculator':'finance-calculators',
+    'commission-calculator':'finance-calculators','vat-reverse-calculator':'finance-calculators','discount-calculator':'finance-calculators',
+    'percentage-increase-calculator':'finance-calculators','percentage-decrease-calculator':'finance-calculators',
+    'meeting-cost-calculator':'date-time-tools','salary-per-hour-calculator':'finance-calculators',
+    'hourly-rate-calculator':'finance-calculators','freelancer-rate-calculator':'finance-calculators',
+    'time-zone-meeting-planner':'date-time-tools',
+    // 배치 27 (고아 페이지)
+    'avif-to-jpg':'image-tools','heic-to-jpg':'image-tools',
+    'image-dimension-checker':'image-tools','image-dpi-checker':'image-tools',
+    'jpg-to-avif':'image-tools','jpg-to-heic':'image-tools',
+    'transparent-background-maker':'image-tools',
+    'svg-cleaner':'image-tools','svg-optimizer':'image-tools',
+    'pdf-metadata-remover':'pdf-tools','pdf-size-analyzer':'pdf-tools','pdf-word-counter':'pdf-tools',
+    // 배치 28
+    'qr-code-generator':'generator-tools','lorem-ipsum-generator':'generator-tools',
+    'severance-pay-calculator':'finance-calculators','health-insurance-calculator':'finance-calculators',
+    'national-pension-calculator':'finance-calculators',
+    // 구형 KO 금융 툴
+    'acquisition-tax':'finance-calculators','annual-leave':'finance-calculators',
+    'capital-gains-tax':'finance-calculators','cheongyak-score':'finance-calculators',
+    'credit-loan-limit':'finance-calculators','dsr-calc':'finance-calculators',
+    'electricity-cost-calculator':'finance-calculators','four-insurance':'finance-calculators',
+    'freelancer-tax':'finance-calculators','fuel-cost-calculator':'finance-calculators',
+    'gift-tax':'finance-calculators','income-tax':'finance-calculators',
+    'inheritance-tax':'finance-calculators','loan-calc':'finance-calculators',
+    'ltv-calculator':'finance-calculators','minimum-wage':'finance-calculators',
+    'overtime-pay':'finance-calculators','parental-leave':'finance-calculators',
+    'payslip-calc':'finance-calculators','percent-calc':'finance-calculators',
+    'prepayment-fee':'finance-calculators','property-tax':'finance-calculators',
+    'realestate-fee':'finance-calculators','rent-convert':'finance-calculators',
+    'retirement-calc':'finance-calculators','retirement-pension':'finance-calculators',
+    'salary':'finance-calculators','salary-negotiation':'finance-calculators',
+    'salary-raise':'finance-calculators','salary-reverse':'finance-calculators',
+    'severance':'finance-calculators','severance-tax':'finance-calculators',
+    'split-calculator':'finance-calculators','stock-tax':'finance-calculators',
+    'tip-calculator':'finance-calculators','unemployment':'finance-calculators',
+    'unemployment-benefit':'finance-calculators','vat-calc':'finance-calculators',
+    'weekly-holiday':'finance-calculators',
+    // 구형 KO 건강 툴
+    'health-insurance':'health-calculators','health-insurance-calc':'health-calculators',
+    'national-pension':'health-calculators','sleep-calculator':'health-calculators',
+    // 텍스트 툴
+    'hashtag-generator':'text-tools','remove-duplicate-words':'text-tools',
+    // 개발자 툴
+    'number-converter':'developer-tools','slug-generator':'developer-tools','unit-converter':'developer-tools',
   };
 
   var CAT_INFO = {
-    'finance-calculators':  { ko:'금융 계산기',     en:'Finance Calculators',      zh:'金融计算器',   ja:'金融計算機',   icon:'💰', count:15 },
-    'health-calculators':   { ko:'건강 계산기',     en:'Health Calculators',       zh:'健康计算器',   ja:'健康計算機',   icon:'🩺', count:8  },
-    'date-time-tools':      { ko:'날짜 & 시간',     en:'Date & Time Tools',        zh:'日期时间工具', ja:'日時ツール',   icon:'📅', count:11 },
-    'data-tools':           { ko:'데이터 포맷터',   en:'Data Formatter Tools',     zh:'数据工具',     ja:'データフォーマッター', icon:'📊', count:6  },
-    'security-tools':       { ko:'보안 & 인코딩',   en:'Security & Encoding',      zh:'安全工具',     ja:'セキュリティ & エンコード', icon:'🔐', count:9  },
-    'text-tools':           { ko:'텍스트 도구',     en:'Text Tools',               zh:'文本工具',     ja:'テキストツール', icon:'✍️', count:22 },
-    'ai-tools':             { ko:'AI 도구',         en:'AI Tools',                 zh:'AI工具',       ja:'AIツール',     icon:'🤖', count:2  },
-    'developer-tools':      { ko:'개발자 도구',     en:'Developer Tools',          zh:'开发工具',     ja:'開発者ツール', icon:'💻', count:6  },
-    'image-tools':          { ko:'이미지 도구',     en:'Image Tools',              zh:'图片工具',     ja:'画像ツール',   icon:'🖼️', count:27 },
-    'pdf-tools':            { ko:'PDF 도구',        en:'PDF Tools',                zh:'PDF工具',      ja:'PDFツール',    icon:'📄', count:14 },
-    'generator-tools':      { ko:'생성기 도구',     en:'Generator Tools',          zh:'生成器',       ja:'ジェネレーターツール', icon:'⚡', count:8  },
+    'finance-calculators':  { ko:'금융 계산기',     en:'Finance Calculators',      zh:'金融计算器',   ja:'金融計算機',   icon:'💰', count:70 },
+    'health-calculators':   { ko:'건강 계산기',     en:'Health Calculators',       zh:'健康计算器',   ja:'健康計算機',   icon:'🩺', count:12 },
+    'date-time-tools':      { ko:'날짜 & 시간',     en:'Date & Time Tools',        zh:'日期时间工具', ja:'日時ツール',   icon:'📅', count:14 },
+    'data-tools':           { ko:'데이터 포맷터',   en:'Data Formatter Tools',     zh:'数据工具',     ja:'データフォーマッター', icon:'📊', count:17 },
+    'security-tools':       { ko:'보안 & 인코딩',   en:'Security & Encoding',      zh:'安全工具',     ja:'セキュリティ & エンコード', icon:'🔐', count:30 },
+    'text-tools':           { ko:'텍스트 도구',     en:'Text Tools',               zh:'文本工具',     ja:'テキストツール', icon:'✍️', count:53 },
+    'ai-tools':             { ko:'AI 도구',         en:'AI Tools',                 zh:'AI工具',       ja:'AIツール',     icon:'🤖', count:20 },
+    'developer-tools':      { ko:'개발자 도구',     en:'Developer Tools',          zh:'开发工具',     ja:'開発者ツール', icon:'💻', count:70 },
+    'image-tools':          { ko:'이미지 도구',     en:'Image Tools',              zh:'图片工具',     ja:'画像ツール',   icon:'🖼️', count:44 },
+    'pdf-tools':            { ko:'PDF 도구',        en:'PDF Tools',                zh:'PDF工具',      ja:'PDFツール',    icon:'📄', count:22 },
+    'generator-tools':      { ko:'생성기 도구',     en:'Generator Tools',          zh:'生成器',       ja:'ジェネレーターツール', icon:'⚡', count:35 },
   };
 
   // ── 브레드크럼 JSON-LD 주입 ──────────────────────────────────────
@@ -799,6 +986,33 @@
 
   // ── 현재 페이지 감지 & 렌더링 ────────────────────────────────────
   var page = location.pathname.split('/').pop().replace(/\.html$/, '') || '';
+
+  // 브레드크럼 스키마 + 헤더 카테고리 링크 주입 (related 없어도 항상 실행)
+  var pageCat = CATEGORY_MAP[page];
+  if (page && pageCat) {
+    injectBreadcrumbSchema(page, pageCat);
+    // 헤더에 카테고리 chip 삽입 (내부 링크 강화)
+    if (!document.getElementById('rt-hdr-style')) {
+      var hs = document.createElement('style');
+      hs.id = 'rt-hdr-style';
+      hs.textContent = '.rt-hdr-cat{font-size:11px;color:#444;font-family:"DM Mono",monospace;text-decoration:none;padding:3px 8px;border:1px solid #252525;border-radius:4px;transition:color .15s,border-color .15s;white-space:nowrap;}.rt-hdr-cat:hover{color:var(--accent,#fbbf24);border-color:var(--accent,#fbbf24);}';
+      document.head.appendChild(hs);
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+      var hdr = document.querySelector('header');
+      if (!hdr || hdr.querySelector('.rt-hdr-cat')) return;
+      var cI = CAT_INFO[pageCat];
+      if (!cI) return;
+      var lg = getLang();
+      var nm = cI[lg] || cI.en;
+      var a = document.createElement('a');
+      a.href = 'category/' + pageCat + '.html';
+      a.className = 'rt-hdr-cat';
+      a.textContent = cI.icon + ' ' + nm;
+      hdr.appendChild(a);
+    });
+  }
+
   if (!page || !RELATED[page]) return;
 
   var relatedSlugs = RELATED[page]
@@ -809,10 +1023,6 @@
   var lang = getLang();
   var LABELS = { ko: '관련 도구', en: 'Related Tools', zh: '相关工具', ja: '関連ツール' };
   var CAT_LABELS = { ko: '카테고리 전체 보기', en: 'Browse all', zh: '查看全部', ja: 'カテゴリをすべて見る' };
-
-  // 브레드크럼 스키마 주입
-  var pageCat = CATEGORY_MAP[page];
-  if (pageCat) injectBreadcrumbSchema(page, pageCat);
 
   // CSS 주입 (한 번만)
   if (!document.getElementById('rt-style')) {
