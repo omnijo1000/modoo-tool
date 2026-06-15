@@ -5,7 +5,7 @@
 - **구성**: 단일 HTML 파일 집합 (SPA 아님, 각 툴마다 별도 .html)
 - **현재 툴 수**: 394개 (index.html footer 카운터 기준)
 - **HTML 파일**: 387개 (index.html, privacy.html, naverfc…html, category/×11 제외)
-- **sitemap.xml**: 400 URL 항목
+- **sitemap.xml**: 403 URL 항목
 - **카테고리 허브**: /category/ 디렉토리, 11개 HTML + category-i18n.js
 
 ## 필수 코드 (모든 새 HTML 파일에 공통)
