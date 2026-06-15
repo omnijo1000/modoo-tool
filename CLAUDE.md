@@ -209,7 +209,7 @@ details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-h
 
 개발자 도구 섹션 (line ~97) 마지막 항목 뒤에 추가:
 ```xml
-<url><loc>https://modoohub.com/SLUG.html</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://modoohub.com/SLUG.html</loc><lastmod>2026-06-15</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
 ```
 
 ## related.js 업데이트 방법
