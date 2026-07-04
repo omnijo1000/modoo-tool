@@ -327,7 +327,7 @@
     'cron-generator.html': { ko: 'Cron \uc0dd\uc131\uae30', en: 'Cron Generator', zh: 'Cron\u8868\u8fbe\u5f0f\u751f\u6210\u5668' },
     'regex-tester.html': { ko: '\uc815\uaddc\uc2dd \ud14c\uc2a4\ud130', en: 'Regex Tester', zh: '\u6b63\u5219\u8868\u8fbe\u5f0f\u6d4b\u8bd5\u5668' },
     'markdown-preview.html': { ko: '\ub9c8\ud06c\ub2e4\uc6b4 \ubbf8\ub9ac\ubcf4\uae30', en: 'Markdown Preview', zh: 'Markdown\u9884\u89c8' },
-    'lorem-ipsum.html': { ko: 'Lorem Ipsum \uc0dd\uc131\uae30', en: 'Lorem Ipsum Generator', zh: 'Lorem Ipsum\u751f\u6210\u5668' },
+    'lorem-ipsum-generator.html': { ko: 'Lorem Ipsum \uc0dd\uc131\uae30', en: 'Lorem Ipsum Generator', zh: 'Lorem Ipsum\u751f\u6210\u5668' },
     'image-compressor.html': { ko: '\uc774\ubbf8\uc9c0 \uc555\ucd95\uae30', en: 'Image Compressor', zh: '\u56fe\u7247\u538b\u7f29' },
     'image-resizer.html': { ko: '\uc774\ubbf8\uc9c0 \ub9ac\uc0ac\uc774\uc800', en: 'Image Resizer', zh: '\u56fe\u7247\u8c03\u6574\u5927\u5c0f' },
     'image-to-webp.html': { ko: '\uc774\ubbf8\uc9c0 \u2192 WebP', en: 'Image -> WebP', zh: '\u56fe\u7247 -> WebP' },

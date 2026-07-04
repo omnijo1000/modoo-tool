@@ -96,7 +96,6 @@
     'unit-converter':            { ko: '단위 변환기',          en: 'Unit Converter',             zh: '单位换算',            ja: '単位変換器',           icon: '📏' },
     'timezone-converter':        { ko: '시간대 변환기',        en: 'Time Zone Converter',        zh: '时区转换器',          ja: 'タイムゾーン変換器',   icon: '🕐' },
     'random-string':             { ko: '랜덤 문자열 생성기',  en: 'Random String Generator',    zh: '随机字符串生成器',    ja: 'ランダム文字列生成器', icon: '🎲' },
-    'lorem-ipsum':               { ko: 'Lorem Ipsum 생성기',  en: 'Lorem Ipsum Generator',      zh: 'Lorem Ipsum生成器',   ja: 'Lorem Ipsum生成器',    icon: '📜' },
     'password-generator':        { ko: '비밀번호 생성기',      en: 'Password Generator',         zh: '密码生成器',          ja: 'パスワード生成器',     icon: '🔐' },
     'case-converter':            { ko: '케이스 변환기',        en: 'Case Converter',             zh: '大小写转换',          ja: 'ケース変換器',         icon: 'Aa' },
     'json-to-csv':               { ko: 'JSON → CSV',           en: 'JSON → CSV',                 zh: 'JSON → CSV',         ja: 'JSON → CSV',           icon: '📊' },
@@ -427,6 +426,7 @@
     'pdf-word-counter':          { ko: 'PDF 단어 수 카운터', en: 'PDF Word Counter', zh: 'PDF字数统计器', ja: 'PDF単語数カウンター', icon: '📄' },
     // 배치 28
     'qr-code-generator':         { ko: 'QR코드 생성기', en: 'QR Code Generator', zh: 'QR码生成器', ja: 'QRコード生成器', icon: '📲' },
+    'lorem-ipsum-generator':     { ko: '로렘 입숨 생성기', en: 'Lorem Ipsum Generator', zh: 'Lorem Ipsum生成器', ja: 'Lorem Ipsum生成器', icon: '📝' },
   };
 
   // ── 토픽 클러스터 ────────────────────────────────────────────────
@@ -454,7 +454,7 @@
     // 개발자: 개발 유틸
     ['cron-generator','cron-parser','cron-validator','regex-tester','timestamp','uuid-generator','uuid-validator','jwt-decoder','jwt-generator'],
     // 개발자: 생성기
-    ['qr-code-generator','barcode-generator','random-string','lorem-ipsum','password-generator','uuid-generator'],
+    ['qr-code-generator','barcode-generator','random-string','lorem-ipsum-generator','password-generator','uuid-generator'],
     // 개발자: 변환
     ['number-converter','unit-converter','timezone-converter','case-converter','json-to-csv','csv-to-json'],
     // 개발자: 색상
@@ -651,7 +651,7 @@
     // 배치 16: 병합
     ['text-merger','line-merger','text-sorter','text-diff-checker','find-replace'],
     ['line-merger','text-merger','remove-empty-lines','remove-duplicate-lines','text-sorter'],
-    ['random-word-generator','lorem-ipsum','random-string','hashtag-generator','keyword-extractor'],
+    ['random-word-generator','lorem-ipsum-generator','random-string','hashtag-generator','keyword-extractor'],
     // 텍스트: 분석·카운팅
     ['word-counter','character-counter','line-counter','sentence-counter','read-time-calculator','keyword-density-checker'],
     // 텍스트: 편집·클리닝
@@ -699,8 +699,8 @@
     ['pdf-size-analyzer','pdf-metadata-remover','pdf-word-counter','pdf-compressor','pdf-page-counter'],
     ['pdf-word-counter','pdf-size-analyzer','pdf-extract-text','pdf-to-text','pdf-ocr'],
     // 배치 28
-    ['qr-code-generator','lorem-ipsum','uuid-generator','nanoid-generator','password-generator'],
-    ['lorem-ipsum','qr-code-generator','random-word-generator','text-merger','markdown-to-html'],
+    ['qr-code-generator','lorem-ipsum-generator','uuid-generator','nanoid-generator','password-generator'],
+    ['lorem-ipsum-generator','qr-code-generator','random-word-generator','text-merger','markdown-to-html'],
     ['severance','health-insurance','national-pension','salary-per-hour-calculator','hourly-rate-calculator'],
     ['health-insurance','national-pension','severance','salary-per-hour-calculator','meeting-cost-calculator'],
     ['national-pension','health-insurance','severance','cagr-calculator'],
@@ -777,7 +777,6 @@
     'cron-generator':'developer-tools','cron-parser':'developer-tools','cron-validator':'developer-tools',
     'uuid-validator':'developer-tools','regex-tester':'developer-tools',
     'markdown-preview':'developer-tools','markdown-to-html':'developer-tools','html-to-markdown':'developer-tools',
-    'lorem-ipsum':'developer-tools',
     // Image
     'csv-viewer':'data-tools',
     'image-compressor':'image-tools','image-resizer':'image-tools','webp-to-png':'image-tools','png-to-jpg':'image-tools',
@@ -899,7 +898,7 @@
     'svg-cleaner':'image-tools','svg-optimizer':'image-tools',
     'pdf-metadata-remover':'pdf-tools','pdf-size-analyzer':'pdf-tools','pdf-word-counter':'pdf-tools',
     // 배치 28
-    'qr-code-generator':'generator-tools',    // 구형 KO 금융 툴
+    'qr-code-generator':'generator-tools','lorem-ipsum-generator':'generator-tools',    // 구형 KO 금융 툴
     'acquisition-tax':'finance-calculators','annual-leave':'finance-calculators',
     'capital-gains-tax':'finance-calculators','cheongyak-score':'finance-calculators',
     'credit-loan-limit':'finance-calculators','dsr-calc':'finance-calculators',
