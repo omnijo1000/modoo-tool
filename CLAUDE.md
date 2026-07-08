@@ -31,8 +31,11 @@
 
 ### 폰트
 ```html
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 ```
+**주의:** `fonts.gstatic.com` preconnect 누락이 2026-07-08 PageSpeed 실측 감사에서 발견됨(402개 파일 중 다수가 googleapis preconnect만 있고 실제 폰트파일 서버인 gstatic 누락 — 크리티컬 렌더링 체인 지연의 원인). 신규 파일은 반드시 위 2줄 preconnect 다 포함할 것.
 
 ### SEO 메타/hreflang (SLUG 교체)
 ```html

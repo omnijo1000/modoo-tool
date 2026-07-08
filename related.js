@@ -261,7 +261,7 @@
     'severance':                 { ko: '퇴직금 계산기',        en: 'Severance Pay (KR)',         zh: '韩国退职金',          ja: '韓国退職金計算機',     icon: '📦' },
     /* ── 한국 전용: 보험·연금 ── */
     'four-insurance':            { ko: '4대보험 계산기',       en: '4 Major Insurance (KR)',     zh: '韩国四大保险',        ja: '韓国四大保険',         icon: '🏥' },
-    'national-pension':          { ko: '국민연금 계산기',      en: 'National Pension (KR)',      zh: '韩国国民年金',        ja: '韓国国民年金',         icon: '🏛️' },
+    'national-pension':          { ko: '국민연금 조기·연기수령 비교',      en: 'National Pension Early/Late Comparison (KR)',      zh: '韩国国民年金提前/延后领取比较',        ja: '韓国国民年金繰上げ・繰下げ比較',         icon: '🏛️' },
     'health-insurance':          { ko: '건강보험 계산기',      en: 'Health Insurance (KR)',      zh: '韩国健康保险',        ja: '韓国健康保険',         icon: '💊' },
     'retirement-calc':           { ko: '퇴직연금 계산기',      en: 'Retirement Pension (KR)',    zh: '韩国退休年金',        ja: '韓国退職年金',         icon: '👴' },
     'retirement-pension':        { ko: '개인연금 계산기',      en: 'Personal Pension (KR)',      zh: '韩国个人年金',        ja: '韓国個人年金',         icon: '💼' },
