@@ -387,6 +387,26 @@ avif-to-jpg, heic-to-jpg, image-dimension-checker, image-dpi-checker, jpg-to-avi
 ### 배치 28 ✅ (고검색량 신규)
 qr-code-generator, lorem-ipsum-generator, severance-pay-calculator, health-insurance-calculator, national-pension-calculator
 
+### 배치 29 ✅ (2026-07-08, 고아 페이지 등록 + 전수 재점검)
+bmi-calculator, compound-annual-growth-rate-calculator, health-insurance-calc, health-insurance-calculator, keyword-density, national-pension-calculator, qr-generator, severance-pay-calculator, unemployment-benefit, url-slug-generator, xml-beautifier — 위 5개(배치 26-28에서 만들었지만 related.js/sitemap 등록 누락됐던 것)는 CATEGORY_MAP·T{}·GROUPS[]·sitemap.xml에 정식 등록 완료. 5개(bmi-calculator, qr-generator, url-slug-generator, xml-beautifier, compound-annual-growth-rate-calculator)는 글로벌 카테고리 허브(/category/*.html)에도 카드 추가.
+
+**주의:** "배치 완료 = 전부 등록됨"이 아니었음. 배치 작업 후 CATEGORY_MAP/sitemap 등록을 빠뜨린 파일이 실제로 존재했으므로, 새 배치 만들 때마다 `grep -c "'SLUG':" related.js`로 등록 여부 직접 확인할 것.
+
+## 연도별 정기 점검 필요 항목 (매년 수치 바뀌는 계산기)
+
+아래 파일들은 매년/반기별로 바뀌는 법정 수치를 하드코딩하고 있음. **연초, 그리고 하반기 제도 변경 시점(7월)에 반드시 재확인**할 것 — 2026-07-08 점검에서 national-pension-calculator.html이 2024년 수치를 그대로 쓰고 있던 것을 발견함(값 자체가 실제로 2026년 7월부터 바뀌었는데 코드가 안 따라감).
+
+| 파일 | 하드코딩된 수치 | 갱신 주기 |
+|---|---|---|
+| working-days-calc.html | `HOLIDAYS_2026` 공휴일 날짜 목록 (설날/추석 등 음력 기준) | 매년 (다음해 초 필수) |
+| national-pension-calculator.html | 보험료율(9.5%), 상한(659만원)·하한(41만원) | 매년 7월 |
+| health-insurance.html / health-insurance-calc.html / health-insurance-calculator.html | 보험료율(7.19%), 장기요양보험료율(13.14%), 점수당 금액(208.4원) | 매년 |
+| minimum-wage.html | 최저시급(10,320원) | 매년 1월 |
+| ltv-calculator.html | 지역별 LTV%(9억원 구간 차등), 규제지역 목록, DSR 기준 | 부동산 대책 발표 시 수시(연 1~2회) |
+| severance.html / severance-tax.html 등 4대보험·세금 계열 전체 | 요율 전반 | 매년 |
+
+새 회계연도 진입 시 이 표 파일들부터 웹서치로 "OO년 X월 기준 최신 수치" 확인 후 갱신. 갱신 후 이 표의 갱신 주기 옆에 마지막 확인일 메모 남기기.
+
 ## JS 문자열 이스케이프 주의사항
 
 - 싱글쿼트 문자열 내 아포스트로피: `don\'t`, `&apos; (\')`
