@@ -427,6 +427,18 @@
     // 배치 28
     'qr-code-generator':         { ko: 'QR코드 생성기', en: 'QR Code Generator', zh: 'QR码生成器', ja: 'QRコード生成器', icon: '📲' },
     'lorem-ipsum-generator':     { ko: '로렘 입숨 생성기', en: 'Lorem Ipsum Generator', zh: 'Lorem Ipsum生成器', ja: 'Lorem Ipsum生成器', icon: '📝' },
+    // 배치 29 (고아 페이지 등록)
+    'bmi-calculator':            { ko: '체질량지수 계산기', en: 'BMI Calculator (BMR/TDEE)', zh: '体质指数计算器', ja: 'BMI計算機', icon: '⚖️' },
+    'compound-annual-growth-rate-calculator': { ko: '복합 연평균 성장률 계산기', en: 'CAGR Calculator (Detailed)', zh: '复合年增长率计算器', ja: '複合年間成長率計算機', icon: '📈' },
+    'health-insurance-calc':     { ko: '건강보험료 정산 계산기', en: 'Health Insurance Settlement Calculator', zh: '健康保险费结算计算器', ja: '健康保険料精算計算機', icon: '💊' },
+    'health-insurance-calculator': { ko: '건강보험료 계산기', en: 'Health Insurance Calculator (KR)', zh: '韩国健康保险费计算器', ja: '韓国健康保険料計算機', icon: '💊' },
+    'keyword-density':           { ko: '키워드 밀도 체커', en: 'Keyword Density Checker', zh: '关键词密度检测器', ja: 'キーワード密度チェッカー', icon: '🔑' },
+    'national-pension-calculator': { ko: '국민연금 계산기', en: 'National Pension Calculator (KR)', zh: '韩国国民年金计算器', ja: '韓国国民年金計算機', icon: '🏛️' },
+    'qr-generator':              { ko: 'QR 코드 생성기', en: 'QR Generator', zh: 'QR码生成工具', ja: 'QR生成ツール', icon: '📱' },
+    'severance-pay-calculator':  { ko: '퇴직금 계산기 (간편)', en: 'Severance Pay Calculator', zh: '退职金计算器', ja: '退職金計算機', icon: '📦' },
+    'unemployment-benefit':      { ko: '구직급여 모의계산', en: 'Unemployment Benefit Estimator', zh: '求职津贴模拟计算', ja: '求職給付試算', icon: '📋' },
+    'url-slug-generator':        { ko: 'URL 슬러그 생성기', en: 'URL Slug Generator', zh: 'URL Slug生成器', ja: 'URLスラッグ生成器', icon: '🔗' },
+    'xml-beautifier':            { ko: 'XML 예쁘게 정렬', en: 'XML Beautifier', zh: 'XML美化工具', ja: 'XML整形ツール', icon: 'XML' },
   };
 
   // ── 토픽 클러스터 ────────────────────────────────────────────────
@@ -439,7 +451,7 @@
     // 금융: 세금·환율
     ['gst-calculator','vat-calculator-global','currency-converter','inflation-calculator'],
     // 건강
-    ['bmi-calc','body-fat-calculator','calorie-calculator','macro-calculator','water-intake','pace-calculator'],
+    ['bmi-calc','bmi-calculator','body-fat-calculator','calorie-calculator','macro-calculator','water-intake','pace-calculator'],
     // 임신
     ['pregnancy-due-date','bmi-calc','calorie-calculator','water-intake'],
     // 일상: 시간·날짜
@@ -454,7 +466,7 @@
     // 개발자: 개발 유틸
     ['cron-generator','cron-parser','cron-validator','regex-tester','timestamp','uuid-generator','uuid-validator','jwt-decoder','jwt-generator'],
     // 개발자: 생성기
-    ['qr-code-generator','barcode-generator','random-string','lorem-ipsum-generator','password-generator','uuid-generator'],
+    ['qr-code-generator','qr-generator','barcode-generator','random-string','lorem-ipsum-generator','password-generator','uuid-generator'],
     // 개발자: 변환
     ['number-converter','unit-converter','timezone-converter','case-converter','json-to-csv','csv-to-json'],
     // 개발자: 색상
@@ -494,11 +506,11 @@
     // 배치 19: SEO 콘텐츠 도구
     ['seo-title-generator','meta-description-generator','keyword-density-checker','slug-checker','slug-generator'],
     // 배치 19: 슬러그/URL
-    ['slug-checker','url-encoder','url-decoder','slug-generator'],
+    ['slug-checker','url-slug-generator','url-encoder','url-decoder','slug-generator'],
     // 배치 19: 텍스트 분석
-    ['reading-level-checker','keyword-density-checker','word-counter','character-counter','text-statistics'],
+    ['reading-level-checker','keyword-density-checker','keyword-density','word-counter','character-counter','text-statistics'],
     // 배치 20: YAML/XML 변환
-    ['yaml-validator','yaml-to-json','json-to-yaml','json-to-xml','xml-to-json','xml-validator'],
+    ['yaml-validator','yaml-to-json','json-to-yaml','json-to-xml','xml-to-json','xml-validator','xml-beautifier'],
     // 배치 20: 압축기
     ['html-minifier','css-minifier','javascript-minifier','sql-minifier','json-minifier'],
     // 배치 20: 포매터
@@ -659,9 +671,9 @@
     // 텍스트: 정렬·변환
     ['text-sorter','alphabetizer','text-reverser','text-shuffler','slug-generator','hashtag-generator','case-converter'],
     // 한국: 급여
-    ['salary','salary-reverse','salary-raise','salary-negotiation','payslip-calc','overtime-pay','minimum-wage','weekly-holiday','annual-leave','parental-leave','severance'],
+    ['salary','salary-reverse','salary-raise','salary-negotiation','payslip-calc','overtime-pay','minimum-wage','weekly-holiday','annual-leave','parental-leave','severance','severance-pay-calculator'],
     // 한국: 보험·연금
-    ['four-insurance','national-pension','health-insurance','retirement-calc','retirement-pension','unemployment'],
+    ['four-insurance','national-pension','national-pension-calculator','health-insurance','health-insurance-calc','health-insurance-calculator','retirement-calc','retirement-pension','unemployment','unemployment-benefit'],
     // 한국: 세금
     ['income-tax','freelancer-tax','capital-gains-tax','stock-tax','severance-tax','gift-tax','inheritance-tax'],
     // 한국: 부동산
@@ -677,7 +689,7 @@
     ['color-blindness-simulator','accessibility-color-checker','tailwind-color-generator','image-color-extractor','color-contrast-checker'],
     ['accessibility-color-checker','color-blindness-simulator','color-contrast-checker','tailwind-color-generator','gradient-generator'],
     // 금융 계산기
-    ['cagr-calculator','roi-calculator','investment-return-calculator','compound-interest'],
+    ['cagr-calculator','compound-annual-growth-rate-calculator','roi-calculator','investment-return-calculator','compound-interest'],
     ['margin-calculator','profit-calculator','break-even-calculator','commission-calculator','roi-calculator'],
     ['discount-calculator','vat-reverse-calculator','percentage-decrease-calculator','percentage-increase-calculator','gst-calculator'],
     ['vat-calc','vat-reverse-calculator','discount-calculator','percent-calc','gst-calculator'],
@@ -898,7 +910,15 @@
     'svg-cleaner':'image-tools','svg-optimizer':'image-tools',
     'pdf-metadata-remover':'pdf-tools','pdf-size-analyzer':'pdf-tools','pdf-word-counter':'pdf-tools',
     // 배치 28
-    'qr-code-generator':'generator-tools','lorem-ipsum-generator':'generator-tools',    // 구형 KO 금융 툴
+    'qr-code-generator':'generator-tools','lorem-ipsum-generator':'generator-tools',
+    // 배치 29 (고아 페이지 등록)
+    'bmi-calculator':'health-calculators','compound-annual-growth-rate-calculator':'finance-calculators',
+    'health-insurance-calc':'health-calculators','health-insurance-calculator':'health-calculators',
+    'keyword-density':'text-tools','national-pension-calculator':'health-calculators',
+    'qr-generator':'generator-tools','severance-pay-calculator':'finance-calculators',
+    'unemployment-benefit':'finance-calculators','url-slug-generator':'developer-tools',
+    'xml-beautifier':'developer-tools',
+    // 구형 KO 금융 툴
     'acquisition-tax':'finance-calculators','annual-leave':'finance-calculators',
     'capital-gains-tax':'finance-calculators','cheongyak-score':'finance-calculators',
     'credit-loan-limit':'finance-calculators','dsr-calc':'finance-calculators',
@@ -929,17 +949,17 @@
   };
 
   var CAT_INFO = {
-    'finance-calculators':  { ko:'금융 계산기',     en:'Finance Calculators',      zh:'金融计算器',   ja:'金融計算機',   icon:'💰', count:65 },
-    'health-calculators':   { ko:'건강 계산기',     en:'Health Calculators',       zh:'健康计算器',   ja:'健康計算機',   icon:'🩺', count:10 },
+    'finance-calculators':  { ko:'금융 계산기',     en:'Finance Calculators',      zh:'金融计算器',   ja:'金融計算機',   icon:'💰', count:68 },
+    'health-calculators':   { ko:'건강 계산기',     en:'Health Calculators',       zh:'健康计算器',   ja:'健康計算機',   icon:'🩺', count:14 },
     'date-time-tools':      { ko:'날짜 & 시간',     en:'Date & Time Tools',        zh:'日期时间工具', ja:'日時ツール',   icon:'📅', count:14 },
     'data-tools':           { ko:'데이터 포맷터',   en:'Data Formatter Tools',     zh:'数据工具',     ja:'データフォーマッター', icon:'📊', count:17 },
     'security-tools':       { ko:'보안 & 인코딩',   en:'Security & Encoding',      zh:'安全工具',     ja:'セキュリティ & エンコード', icon:'🔐', count:30 },
-    'text-tools':           { ko:'텍스트 도구',     en:'Text Tools',               zh:'文本工具',     ja:'テキストツール', icon:'✍️', count:52 },
+    'text-tools':           { ko:'텍스트 도구',     en:'Text Tools',               zh:'文本工具',     ja:'テキストツール', icon:'✍️', count:53 },
     'ai-tools':             { ko:'AI 도구',         en:'AI Tools',                 zh:'AI工具',       ja:'AIツール',     icon:'🤖', count:20 },
-    'developer-tools':      { ko:'개발자 도구',     en:'Developer Tools',          zh:'开发工具',     ja:'開発者ツール', icon:'💻', count:68 },
+    'developer-tools':      { ko:'개발자 도구',     en:'Developer Tools',          zh:'开发工具',     ja:'開発者ツール', icon:'💻', count:70 },
     'image-tools':          { ko:'이미지 도구',     en:'Image Tools',              zh:'图片工具',     ja:'画像ツール',   icon:'🖼️', count:44 },
     'pdf-tools':            { ko:'PDF 도구',        en:'PDF Tools',                zh:'PDF工具',      ja:'PDFツール',    icon:'📄', count:22 },
-    'generator-tools':      { ko:'생성기 도구',     en:'Generator Tools',          zh:'生成器',       ja:'ジェネレーターツール', icon:'⚡', count:33 },
+    'generator-tools':      { ko:'생성기 도구',     en:'Generator Tools',          zh:'生成器',       ja:'ジェネレーターツール', icon:'⚡', count:34 },
   };
 
   // ── 브레드크럼 JSON-LD 주입 ──────────────────────────────────────
