@@ -161,7 +161,17 @@ footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:40px;}
     <div class="next-list" id="nextList"></div>
   </div>
 
-  <div class="seo" data-i18n="seoHtml"></div>
+  <div class="seo" data-i18n="seoHtml"><h2>Cron 표현식 파싱이란?</h2>
+<p>Cron 표현식은 리눅스/유닉스 시스템에서 정기 작업을 자동 실행하기 위한 문자열입니다. 표준 5개 필드(분·시·일·월·요일)로 구성되며, <strong>AWS EventBridge</strong>, <strong>GitHub Actions</strong>, <strong>Spring @Scheduled</strong> 등 다양한 환경에서 사용됩니다. 6번째 필드(초)를 추가하는 확장 형식도 있습니다.</p>
+<p>이 도구는 cron 표현식을 파싱하여 인간이 이해할 수 있는 언어로 설명하고, 순수 자바스크립트로 다음 10회 실행 시간을 계산합니다. 외부 라이브러리를 전혀 사용하지 않아 브라우저에서 완전히 동작합니다.</p>
+<details class="faq-item"><summary>Cron이란 무엇인가요?</summary><p>Cron은 유닉스 계열 운영 체제에서 정해진 시간에 명령이나 스크립트를 자동으로 실행하는 데몬입니다. crontab 파일에 "언제 무엇을 실행할지"를 cron 표현식으로 정의합니다.</p></details>
+<details class="faq-item"><summary>5필드 cron과 6필드 cron의 차이는?</summary><p>표준 cron은 분·시·일·월·요일의 5개 필드를 씁니다. Spring @Scheduled, AWS EventBridge는 맨 앞에 초(0–59) 필드를 추가해 6개 필드를 사용합니다. 이 파서는 두 형식을 모두 지원합니다.</p></details>
+<details class="faq-item"><summary>특수 문자 * / - , 는 각각 무슨 의미인가요?</summary><p>* 는 모든 값, / 는 간격(*/5 = 5마다), - 는 범위(1-5 = 1부터 5까지), , 는 목록(1,3,5 = 1, 3, 5 각각)을 의미합니다.</p></details>
+<details class="faq-item"><summary>자주 쓰는 cron 패턴에는 어떤 것이 있나요?</summary><p>매분: * * * * * | 매시 정각: 0 * * * * | 매일 자정: 0 0 * * * | 5분마다: */5 * * * * | 평일 오전 9시: 0 9 * * 1-5 | 매월 1일 자정: 0 0 1 * *</p></details>
+<details class="faq-item"><summary>Cron에서 타임존 문제는 어떻게 처리하나요?</summary><p>표준 crontab은 서버의 시스템 타임존을 따릅니다. AWS EventBridge는 UTC 기준이지만 스케줄 표현식에 타임존을 지정할 수 있고, GitHub Actions는 UTC를 기본으로 합니다. 항상 사용 환경의 타임존을 확인하세요.</p></details>
+<details class="faq-item"><summary>Cron과 crontab의 차이는?</summary><p>Cron은 주기적 작업을 실행하는 데몬(백그라운드 프로세스)이고, Crontab은 실행할 작업과 시간을 정의한 설정 파일입니다. <code>crontab -e</code>로 편집합니다.</p></details>
+<details class="faq-item"><summary>Cron의 최소 실행 주기는?</summary><p>표준 cron의 최소 단위는 1분(* * * * *)입니다. 1분 미만의 주기가 필요하면 systemd 타이머, 작업 큐, 또는 cron 내에서 sleep 루프를 사용합니다.</p></details>
+<details class="faq-item"><summary>DOM과 DOW를 모두 지정하면 어떻게 되나요?</summary><p>두 필드 모두 와일드카드(*)가 아닐 때, Vixie cron을 비롯한 대부분의 구현체는 둘 중 하나만 일치해도 실행합니다(OR 조건). 예: 0 0 15 * 1 은 매월 15일이거나 매주 월요일 자정에 실행됩니다.</p></details><details class="faq-item"><summary>L과 W 특수문자도 지원되나요?</summary><p>L(마지막 날)과 W(가장 가까운 평일)는 Quartz Scheduler와 Spring @Scheduled의 확장 문자로, 표준 Linux crontab에서는 지원되지 않습니다. AWS EventBridge는 별도의 특수문자 체계를 가지므로 사용 전 대상 플랫폼의 cron 방언을 확인하세요.</p></details></div>
   <footer>Cron Parser · 5-field &amp; 6-field · No external library</footer>
 </main>
 <script>
@@ -210,7 +220,7 @@ const i18n = {
 <details class="faq-item"><summary>Cron에서 타임존 문제는 어떻게 처리하나요?</summary><p>표준 crontab은 서버의 시스템 타임존을 따릅니다. AWS EventBridge는 UTC 기준이지만 스케줄 표현식에 타임존을 지정할 수 있고, GitHub Actions는 UTC를 기본으로 합니다. 항상 사용 환경의 타임존을 확인하세요.</p></details>
 <details class="faq-item"><summary>Cron과 crontab의 차이는?</summary><p>Cron은 주기적 작업을 실행하는 데몬(백그라운드 프로세스)이고, Crontab은 실행할 작업과 시간을 정의한 설정 파일입니다. <code>crontab -e</code>로 편집합니다.</p></details>
 <details class="faq-item"><summary>Cron의 최소 실행 주기는?</summary><p>표준 cron의 최소 단위는 1분(* * * * *)입니다. 1분 미만의 주기가 필요하면 systemd 타이머, 작업 큐, 또는 cron 내에서 sleep 루프를 사용합니다.</p></details>
-<details class="faq-item"><summary>DOM과 DOW를 모두 지정하면 어떻게 되나요?</summary><p>두 필드 모두 와일드카드(*)가 아닐 때, Vixie cron을 비롯한 대부분의 구현체는 둘 중 하나만 일치해도 실행합니다(OR 조건). 예: 0 0 15 * 1 은 매월 15일이거나 매주 월요일 자정에 실행됩니다.</p></details>`
+<details class="faq-item"><summary>DOM과 DOW를 모두 지정하면 어떻게 되나요?</summary><p>두 필드 모두 와일드카드(*)가 아닐 때, Vixie cron을 비롯한 대부분의 구현체는 둘 중 하나만 일치해도 실행합니다(OR 조건). 예: 0 0 15 * 1 은 매월 15일이거나 매주 월요일 자정에 실행됩니다.</p></details><details class="faq-item"><summary>L과 W 특수문자도 지원되나요?</summary><p>L(마지막 날)과 W(가장 가까운 평일)는 Quartz Scheduler와 Spring @Scheduled의 확장 문자로, 표준 Linux crontab에서는 지원되지 않습니다. AWS EventBridge는 별도의 특수문자 체계를 가지므로 사용 전 대상 플랫폼의 cron 방언을 확인하세요.</p></details>`
   },
   en: {
     pageTitle: 'Cron Expression Parser - Explain & Next Run Times',
@@ -255,7 +265,7 @@ const i18n = {
 <details class="faq-item"><summary>How does cron handle timezones?</summary><p>Standard crontab uses the system timezone. AWS EventBridge is UTC by default but supports timezone-specific schedules. GitHub Actions uses UTC. Always confirm which timezone your cron environment uses.</p></details>
 <details class="faq-item"><summary>What is the difference between cron and crontab?</summary><p>Cron is the daemon (background process) that runs scheduled tasks. Crontab is the configuration file listing the schedule and commands. Edit it with crontab -e.</p></details>
 <details class="faq-item"><summary>What is the maximum cron frequency?</summary><p>Standard cron runs at most every minute (* * * * *). For sub-minute intervals, use systemd timers, a job queue system, or a sleep loop within a cron job.</p></details>
-<details class="faq-item"><summary>What happens when both DOM and DOW are specified?</summary><p>When both day-of-month and day-of-week are non-wildcard, most cron implementations (Vixie cron) fire the job when either condition is met (OR logic), not both. Example: 0 0 15 * 1 fires on the 15th OR every Monday.</p></details>`
+<details class="faq-item"><summary>What happens when both DOM and DOW are specified?</summary><p>When both day-of-month and day-of-week are non-wildcard, most cron implementations (Vixie cron) fire the job when either condition is met (OR logic), not both. Example: 0 0 15 * 1 fires on the 15th OR every Monday.</p></details><details class="faq-item"><summary>Are the L and W special characters supported?</summary><p>L (last day) and W (nearest weekday) are Quartz Scheduler and Spring @Scheduled extensions — standard Linux crontab does not support them. AWS EventBridge has its own separate special-character scheme, so check your target platform's cron dialect before using them.</p></details>`
   },
   zh: {
     pageTitle: 'Cron 表达式解析器 - 在线 Cron 工具',
@@ -300,7 +310,7 @@ const i18n = {
 <details class="faq-item"><summary>Cron 如何处理时区问题？</summary><p>标准 crontab 使用服务器系统时区。AWS EventBridge 默认 UTC，但支持指定时区的调度表达式；GitHub Actions 默认 UTC。使用前务必确认所在环境的时区设置。</p></details>
 <details class="faq-item"><summary>Cron 和 crontab 的区别是什么？</summary><p>Cron 是运行定时任务的守护进程（后台进程），crontab 是定义任务计划和命令的配置文件，通过 crontab -e 编辑。</p></details>
 <details class="faq-item"><summary>Cron 的最小执行频率是多少？</summary><p>标准 cron 最小间隔为 1 分钟（* * * * *）。需要亚分钟级调度可使用 systemd 定时器、任务队列或在 cron 任务内使用 sleep 循环。</p></details>
-<details class="faq-item"><summary>同时指定 DOM 和 DOW 会怎样？</summary><p>当日（DOM）和星期（DOW）字段均非通配符时，大多数 cron 实现（如 Vixie cron）采用 OR 逻辑：任一条件满足即执行。例：0 0 15 * 1 表示每月 15 日或每周一午夜执行。</p></details>`
+<details class="faq-item"><summary>同时指定 DOM 和 DOW 会怎样？</summary><p>当日（DOM）和星期（DOW）字段均非通配符时，大多数 cron 实现（如 Vixie cron）采用 OR 逻辑：任一条件满足即执行。例：0 0 15 * 1 表示每月 15 日或每周一午夜执行。</p></details><details class="faq-item"><summary>支持 L 和 W 特殊字符吗？</summary><p>L（最后一天）和 W（最近的工作日）是 Quartz Scheduler 和 Spring @Scheduled 的扩展字符，标准 Linux crontab 不支持。AWS EventBridge 有自己独立的特殊字符体系，使用前请确认目标平台的 cron 方言。</p></details>`
   },
   ja: {
     pageTitle: 'Cron 式パーサー - 無料オンライン Cron 解析ツール',
@@ -345,7 +355,7 @@ const i18n = {
 <details class="faq-item"><summary>Cron のタイムゾーン問題は？</summary><p>標準 crontab はサーバーのシステムタイムゾーンを使用します。AWS EventBridge はデフォルト UTC、GitHub Actions も UTC です。使用環境のタイムゾーンを必ず確認してください。</p></details>
 <details class="faq-item"><summary>Cron と crontab の違いは？</summary><p>Cron はスケジュールされたジョブを実行するデーモン（バックグラウンドプロセス）で、crontab は実行するジョブとスケジュールを定義する設定ファイルです。crontab -e で編集します。</p></details>
 <details class="faq-item"><summary>Cron の最小実行間隔は？</summary><p>標準 cron の最小単位は 1 分（* * * * *）です。1 分未満が必要な場合は systemd タイマー、ジョブキュー、またはジョブ内の sleep ループを使用します。</p></details>
-<details class="faq-item"><summary>DOM と DOW を同時に指定するとどうなりますか？</summary><p>日（DOM）と曜日（DOW）が両方ともワイルドカード以外の場合、Vixie cron など多くの実装は OR 条件で実行します。例：0 0 15 * 1 は毎月 15 日または毎週月曜日の深夜に実行されます。</p></details>`
+<details class="faq-item"><summary>DOM と DOW を同時に指定するとどうなりますか？</summary><p>日（DOM）と曜日（DOW）が両方ともワイルドカード以外の場合、Vixie cron など多くの実装は OR 条件で実行します。例：0 0 15 * 1 は毎月 15 日または毎週月曜日の深夜に実行されます。</p></details><details class="faq-item"><summary>L や W などの特殊文字は使えますか？</summary><p>L（最終日）や W（最も近い平日）は Quartz Scheduler や Spring @Scheduled の拡張文字で、標準の Linux crontab では使用できません。AWS EventBridge は独自の特殊文字体系を持つため、使用前に対象プラットフォームの cron 方言を確認してください。</p></details>`
   }
 };
 

@@ -107,7 +107,16 @@ details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-h
       <button class="btn primary" onclick="copyCode()" id="btnCopy">복사</button>
     </div>
   </div>
-  <div class="seo" id="seoDiv"></div>
+  <div class="seo" id="seoDiv"><h2>HTTP 요청 빌더란?</h2><p>URL, HTTP 메서드, 쿼리 파라미터, 헤더, 요청 본문을 시각적으로 설정하고 <strong>cURL, fetch(), axios</strong> 코드를 자동 생성합니다. API 문서 작성, 팀 협업, 학습 목적에 유용합니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>실제로 API를 호출하나요?</summary><p>HTTP 요청 빌더는 코드만 생성합니다. 실제 호출은 api-tester 도구를 사용하세요.</p></details>
+<details class="faq-item"><summary>쿼리 파라미터는 자동으로 URL에 추가되나요?</summary><p>네. Key-Value로 입력한 파라미터는 자동으로 인코딩되어 URL에 추가됩니다.</p></details>
+<details class="faq-item"><summary>fetch() 코드를 바로 사용할 수 있나요?</summary><p>모던 브라우저나 Node.js 18+ 환경에서 바로 사용 가능합니다.</p></details>
+<details class="faq-item"><summary>Bearer Token은 어떻게 추가하나요?</summary><p>헤더에 Authorization: Bearer {token}을 직접 입력하세요.</p></details>
+<details class="faq-item"><summary>form-data 본문도 지원하나요?</summary><p>현재는 JSON 본문만 지원합니다. multipart form-data는 추후 지원 예정입니다.</p></details>
+<details class="faq-item"><summary>axios 코드도 생성되나요?</summary><p>네. axios 탭에서 axios 스타일의 요청 코드를 확인할 수 있습니다.</p></details>
+<details class="faq-item"><summary>URL 인코딩은 자동으로 처리되나요?</summary><p>쿼리 파라미터 값은 encodeURIComponent로 자동 인코딩됩니다.</p></details>
+<details class="faq-item"><summary>복수의 헤더를 추가할 수 있나요?</summary><p>+ Add 버튼으로 원하는 만큼 헤더를 추가할 수 있습니다.</p></details></div>
 </main>
 <script>
 const _i18n={
@@ -121,7 +130,10 @@ const _i18n={
 <details class="faq-item"><summary>form-data 본문도 지원하나요?</summary><p>현재는 JSON 본문만 지원합니다. multipart form-data는 추후 지원 예정입니다.</p></details>
 <details class="faq-item"><summary>axios 코드도 생성되나요?</summary><p>네. axios 탭에서 axios 스타일의 요청 코드를 확인할 수 있습니다.</p></details>
 <details class="faq-item"><summary>URL 인코딩은 자동으로 처리되나요?</summary><p>쿼리 파라미터 값은 encodeURIComponent로 자동 인코딩됩니다.</p></details>
-<details class="faq-item"><summary>복수의 헤더를 추가할 수 있나요?</summary><p>+ Add 버튼으로 원하는 만큼 헤더를 추가할 수 있습니다.</p></details>`
+<details class="faq-item"><summary>복수의 헤더를 추가할 수 있나요?</summary><p>+ Add 버튼으로 원하는 만큼 헤더를 추가할 수 있습니다.</p></details>
+<details class="faq-item"><summary>POST + JSON 본문 + Bearer 인증 조합의 3종 코드는 어떻게 다른가요?</summary><p>동일한 요청도 라이브러리마다 문법이 다릅니다. <br><strong>cURL:</strong> <code>curl -X POST https://api.example.com/users -H "Authorization: Bearer TOKEN" -H "Content-Type: application/json" -d '{"name":"Kim"}'</code><br><strong>fetch:</strong> <code>fetch(url,{method:'POST',headers:{Authorization:'Bearer TOKEN','Content-Type':'application/json'},body:JSON.stringify({name:'Kim'})})</code><br><strong>axios:</strong> <code>axios.post(url,{name:'Kim'},{headers:{Authorization:'Bearer TOKEN'}})</code> — axios는 Content-Type과 JSON.stringify를 자동 처리해 코드가 더 짧습니다.</p></details>
+<details class="faq-item"><summary>CORS 프리플라이트(OPTIONS)는 언제 발생하나요?</summary><p>브라우저는 다음 중 하나라도 해당하면 실제 요청 전 OPTIONS 프리플라이트를 먼저 보냅니다: ① 메서드가 GET/HEAD/POST가 아닌 경우(PUT, DELETE, PATCH 등) ② Content-Type이 application/x-www-form-urlencoded, multipart/form-data, text/plain 셋 중 하나가 아닌 경우(예: application/json) ③ Authorization, X-Custom-Header 등 CORS-safelisted가 아닌 커스텀 헤더를 추가한 경우. 세 조건을 모두 피하면(GET/POST + 기본 Content-Type + 표준 헤더만) 프리플라이트 없이 simple request로 처리됩니다.</p></details>
+<details class="faq-item"><summary>자주 틀리는 Content-Type 실수는?</summary><p>① JSON 본문을 보내면서 Content-Type을 지정하지 않아 서버가 text/plain으로 파싱 ② form-urlencoded로 보내야 할 로그인 폼에 application/json을 지정해 400 에러 ③ 파일 업로드 시 boundary가 자동 생성되는 multipart/form-data를 수동으로 헤더에 고정 지정해 파싱 실패 ④ GET 요청에 불필요하게 Content-Type을 넣어 일부 서버가 본문 존재로 오인 ⑤ charset=UTF-8 누락으로 다국어 텍스트 깨짐 ⑥ PATCH 요청에 application/json 대신 application/merge-patch+json이 필요한 API 규격을 놓침.</p></details>`
   },
   en:{pageTitle:'HTTP Request Builder - Build Requests Visually | MODOO HUB',h1b:'Request Builder',sub:'URL · Headers · Params · Body → cURL / fetch code',backLink:'← All Tools',langBtn:'🌐 中文',labelBody:'Body (JSON)',btnCopy:'Copy',copied:'Copied ✓',
     seoHtml:`<h2>HTTP Request Builder</h2><p>Configure URL, HTTP method, query params, headers, and request body visually, then auto-generate <strong>cURL, fetch(), or axios</strong> code. Great for API docs, team collaboration, and learning HTTP.</p>
@@ -133,7 +145,10 @@ const _i18n={
 <details class="faq-item"><summary>Is form-data body supported?</summary><p>Currently only JSON body is supported. Multipart form-data may be added later.</p></details>
 <details class="faq-item"><summary>Is axios code generated too?</summary><p>Yes. Switch to the axios tab to see axios-style request code.</p></details>
 <details class="faq-item"><summary>Is URL encoding handled automatically?</summary><p>Yes. Query param values are encoded with encodeURIComponent.</p></details>
-<details class="faq-item"><summary>Can I add multiple headers?</summary><p>Click + Add as many times as needed.</p></details>`
+<details class="faq-item"><summary>Can I add multiple headers?</summary><p>Click + Add as many times as needed.</p></details>
+<details class="faq-item"><summary>How do the 3 code outputs differ for POST + JSON + Bearer auth?</summary><p><strong>cURL:</strong> <code>curl -X POST https://api.example.com/users -H "Authorization: Bearer TOKEN" -H "Content-Type: application/json" -d '{"name":"Kim"}'</code><br><strong>fetch:</strong> <code>fetch(url,{method:'POST',headers:{Authorization:'Bearer TOKEN','Content-Type':'application/json'},body:JSON.stringify({name:'Kim'})})</code><br><strong>axios:</strong> <code>axios.post(url,{name:'Kim'},{headers:{Authorization:'Bearer TOKEN'}})</code> — axios auto-sets Content-Type and serializes JSON, so the code is shorter.</p></details>
+<details class="faq-item"><summary>When does a CORS preflight (OPTIONS) request fire?</summary><p>The browser sends an OPTIONS preflight first if any of: ① the method isn't GET/HEAD/POST (e.g. PUT, DELETE, PATCH) ② Content-Type isn't one of application/x-www-form-urlencoded, multipart/form-data, or text/plain (e.g. application/json) ③ you add a custom header outside the CORS-safelisted set (Authorization, X-Custom-Header, etc). Avoid all three and the request qualifies as a "simple request" with no preflight.</p></details>
+<details class="faq-item"><summary>What are common Content-Type mistakes?</summary><p>① Sending JSON without setting Content-Type, so the server parses it as text/plain ② Using application/json for a login form that expects form-urlencoded, causing a 400 ③ Manually fixing the multipart/form-data boundary instead of letting the browser generate it, breaking parsing ④ Adding an unnecessary Content-Type on a GET request, confusing some servers into expecting a body ⑤ Missing charset=UTF-8, corrupting non-ASCII text ⑥ Using application/json where an API actually requires application/merge-patch+json for PATCH.</p></details>`
   },
   zh:{pageTitle:'HTTP请求构建器 - 可视化构建HTTP请求 | MODOO HUB',h1b:'请求构建器',sub:'URL·请求头·参数·请求体 → cURL / fetch代码生成',backLink:'← 所有工具',langBtn:'🌐 日本語',labelBody:'请求体 (JSON)',btnCopy:'复制',copied:'已复制 ✓',
     seoHtml:`<h2>HTTP请求构建器</h2><p>可视化配置URL、HTTP方法、查询参数、请求头和请求体，自动生成cURL、fetch()或axios代码。适用于API文档编写、团队协作和HTTP学习。</p>

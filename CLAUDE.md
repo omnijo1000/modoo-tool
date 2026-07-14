@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => applyLang(currentLang));
 
 ## SEO 섹션 패턴
 
-### seoHtml (다국어 backtick 템플릿 리터럴로 저장)
+### seoHtml (다국어 backtick 템플릿 리터럴로 저장 + ko는 정적 프리렌더 필수)
 ```javascript
 seoHtml: `
 <h2>타이틀</h2>
@@ -111,6 +111,12 @@ seoHtml: `
 <!-- FAQ 8개 필수 -->
 `
 ```
+
+**필수: `<div class="seo" id="seoDiv">` 컨테이너를 빈 채로 두지 말 것.** 위 `seoHtml.ko` 값을 빌드 시점(파일 작성 시)에 그대로 컨테이너 안에 정적 HTML로 박아 넣는다 — 즉 최초 페이지 소스(view-source, JS 실행 전)에 이미 `<h2>`·FAQ `<details>`가 보여야 한다.
+```html
+<div class="seo" id="seoDiv"><h2>타이틀</h2><p>설명...</p><h2 class="seo-sub">자주 묻는 질문</h2><details class="faq-item">...</details>...</div>
+```
+JS(`applyLang()`)는 언어 전환 버튼을 눌렀을 때만 `innerHTML`을 다른 언어로 교체한다 — 최초 로드 시 정적 ko 콘텐츠를 다시 덮어써도 무방하지만(내용 동일하므로 무해), 컨테이너를 빈 채로 만들어놓고 JS 삽입에만 의존하는 구조는 금지. 이유: 2026-07-14 재심사 감사에서 크롤러가 JS 실행 전 원본 HTML만 보는 경우(또는 렌더링 실패 시) 본문·FAQ가 완전히 안 보이는 페이지가 다수 발견됨(빈 컨테이너 + JS 주입 방식 301개 파일). 신규 파일은 처음부터 정적 프리렌더 방식으로 작성할 것.
 
 ### FAQ 최소 기준: 8개 필수
 - HTML 파일 내 `class="faq-item"` 실제 인스턴스 8개 이상

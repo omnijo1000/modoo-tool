@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JWT 인증 완전 가이드: 구조·검증·만료·보안 실수 7가지 | MODOO HUB</title>
+<meta name="description" content="JWT(JSON Web Token)의 Header.Payload.Signature 구조, 서명 검증 원리, 만료 처리, 그리고 실무에서 자주 발생하는 보안 실수 7가지를 정리합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/jwt-authentication-guide.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"JWT 인증 완전 가이드: 구조·검증·만료·보안 실수 7가지","description":"JWT의 구조, 서명 검증 원리, 만료 처리, 실무 보안 실수 7가지를 정리합니다.","datePublished":"2026-07-14","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+code{font-family:'DM Mono',monospace;background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:13px;color:var(--accent);}
+pre{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;font-family:'DM Mono',monospace;font-size:12px;color:#ccc;margin:14px 0;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>JWT 인증 완전 가이드: 구조·검증·만료·보안 실수 7가지</h1>
+  <p class="meta">가이드 · 2026.07.14 최종 확인</p>
+
+  <p>JWT(JSON Web Token)는 현대 웹·모바일 API 인증의 사실상 표준입니다. 그런데 "토큰이 세 부분으로 나뉘어 있다"는 것만 알고, 서명이 실제로 무엇을 보장하는지, 왜 만료 시간을 짧게 잡아야 하는지는 모르고 쓰는 경우가 많습니다. 이 가이드는 JWT의 구조부터 실무 보안 실수까지 한 번에 정리합니다.</p>
+
+  <h2>1. JWT의 3단 구조</h2>
+  <p>JWT는 점(.)으로 구분된 세 부분 <code>Header.Payload.Signature</code>로 구성되며, 각 부분은 URL-safe Base64로 인코딩됩니다.</p>
+  <pre>eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0IiwiZXhwIjoxNzUyNDU2MDAwfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c</pre>
+  <ul>
+    <li><strong>Header</strong>: 서명 알고리즘(alg)과 토큰 타입(typ)을 담은 JSON. 예: <code>{"alg":"HS256","typ":"JWT"}</code></li>
+    <li><strong>Payload</strong>: 클레임(claim)이라 불리는 실제 데이터. sub(주체), exp(만료), iat(발급시각) 등 표준 클레임과 커스텀 클레임을 포함합니다.</li>
+    <li><strong>Signature</strong>: Header와 Payload를 합친 값을 비밀키(또는 개인키)로 서명한 값. 이 값이 있어야 토큰 위변조를 감지할 수 있습니다.</li>
+  </ul>
+  <p>토큰 내용을 직접 열어보려면 <a href="../jwt-decoder.html">JWT 디코더</a>에 붙여넣으면 세 부분을 자동으로 분리해 사람이 읽을 수 있는 형태로 보여줍니다.</p>
+
+  <h2>2. Header·Payload는 "암호화"가 아니라 "인코딩"</h2>
+  <p>가장 중요한 오해입니다. Base64는 암호화가 아니라 인코딩이므로 <strong>누구나 디코딩해서 내용을 읽을 수 있습니다</strong>. JWT가 안전한 이유는 내용을 숨겨서가 아니라, Signature로 위변조를 감지할 수 있기 때문입니다. 즉 비밀번호, 주민번호 같은 민감 정보를 Payload에 그대로 넣으면 안 됩니다. Base64 자체의 인코딩·디코딩 원리는 <a href="../base64-decoder.html">Base64 디코더</a>에서 직접 실험해볼 수 있습니다.</p>
+
+  <h2>3. 서명 검증의 원리: HMAC vs RSA</h2>
+  <p>서명 알고리즘은 크게 대칭키(HS256 등, HMAC 기반)와 비대칭키(RS256 등, RSA 기반) 두 계열로 나뉩니다. HMAC 방식은 서버가 발급과 검증에 같은 비밀키를 사용하므로 키가 유출되면 누구나 위조 토큰을 만들 수 있습니다. HMAC 서명이 어떻게 계산되는지는 <a href="../hmac-generator.html">HMAC 생성기</a>로 직접 확인할 수 있습니다. RSA 방식은 발급 서버만 개인키를 갖고, 검증 서버들은 공개키만 배포받아 검증하므로 여러 서비스가 토큰을 검증해야 하는 마이크로서비스 구조에 적합합니다.</p>
+
+  <h2>4. 만료(exp) 처리: 왜 짧게 잡아야 하는가</h2>
+  <p>JWT는 발급 후 서버가 강제로 무효화하기 어렵습니다(세션처럼 서버에 상태를 저장하지 않는 것이 JWT의 장점이자 단점). 그래서 탈취당했을 때 피해를 줄이는 유일한 방법이 <strong>짧은 만료 시간</strong>입니다. 실무에서는 Access Token은 15분~1시간, Refresh Token은 며칠~몇 주로 분리해서, Access Token이 만료되면 Refresh Token으로 재발급받는 구조를 씁니다. exp 클레임은 유닉스 타임스탬프(초 단위)로 저장되므로, 특정 exp 값이 실제 어느 시각인지 확인하려면 <a href="../timestamp.html">타임스탬프 변환기</a>로 바로 변환해보세요.</p>
+
+  <h2>5. 실무에서 자주 발생하는 보안 실수 7가지</h2>
+  <table>
+    <tr><th>#</th><th>실수</th><th>결과</th></tr>
+    <tr><td>1</td><td>alg:none 허용</td><td>서명 없이도 유효 토큰으로 인식 — 완전 무력화</td></tr>
+    <tr><td>2</td><td>클라이언트가 alg를 지정하게 둠</td><td>RS256→HS256 다운그레이드 공격에 노출</td></tr>
+    <tr><td>3</td><td>만료 시간을 길게(며칠~몇 달) 설정</td><td>탈취 시 피해 기간 증가</td></tr>
+    <tr><td>4</td><td>Payload에 민감 정보 저장</td><td>디코딩만으로 정보 유출</td></tr>
+    <tr><td>5</td><td>localStorage에 토큰 저장</td><td>XSS 공격에 그대로 노출</td></tr>
+    <tr><td>6</td><td>서명 검증 없이 Payload만 파싱</td><td>위조 토큰도 그대로 신뢰</td></tr>
+    <tr><td>7</td><td>Refresh Token 재사용 탐지 미구현</td><td>탈취된 Refresh Token 무한 재사용 가능</td></tr>
+  </table>
+  <div class="box"><strong>권장</strong>: 토큰은 HttpOnly, Secure, SameSite 속성이 설정된 쿠키에 저장하고, 서버에서는 반드시 서명 알고리즘을 화이트리스트로 고정해 검증하세요.</div>
+
+  <h2>iss·aud 클레임으로 토큰 오남용 막기</h2>
+  <p>exp만큼 자주 간과되는 것이 iss(발급자)와 aud(대상자) 클레임입니다. 여러 서비스가 같은 인증 서버에서 발급받은 토큰을 공유하는 구조라면, A 서비스용으로 발급된 토큰을 B 서비스가 검증 없이 그대로 받아들이는 실수가 생길 수 있습니다. 검증 로직에서 iss가 신뢰하는 발급자인지, aud가 자신을 가리키는지까지 확인해야 "토큰은 유효하지만 원래 이 서비스용이 아니었던" 케이스를 막을 수 있습니다.</p>
+
+  <h2>자주 묻는 질문</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. JWT를 강제로 만료시킬 수 있나요?</summary><p style="margin-top:8px;">기본적으로 불가능합니다. 블랙리스트(폐기 목록)를 서버에 별도로 유지하거나, 만료 시간을 짧게 두고 Refresh Token 회전 전략을 쓰는 것이 현실적인 대안입니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. iat과 exp 클레임의 차이는?</summary><p style="margin-top:8px;">iat(issued at)은 발급 시각, exp(expiration)는 만료 시각입니다. 둘 다 유닉스 타임스탬프(초)로 저장됩니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 테스트용 JWT는 어떻게 만드나요?</summary><p style="margin-top:8px;"><a href="../jwt-generator.html">JWT 생성기</a>로 원하는 Payload와 비밀키를 넣어 즉시 테스트용 토큰을 만들 수 있습니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../jwt-decoder.html">→ JWT 디코더</a>
+    <a href="../jwt-generator.html">→ JWT 생성기</a>
+    <a href="../hmac-generator.html">→ HMAC 생성기</a>
+    <a href="../base64-decoder.html">→ Base64 디코더</a>
+    <a href="../timestamp.html">→ 타임스탬프 변환기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 기술 정보 제공 목적입니다.</footer>
+</main>
+</body>
+</html>

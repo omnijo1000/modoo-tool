@@ -126,7 +126,16 @@ details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-h
     <button class="vtab" id="vt-info" onclick="setVTab('info')">Info</button>
   </div>
   <div class="output-panel" id="outPanel"></div>
-  <div class="seo" id="seoDiv"></div>
+  <div class="seo" id="seoDiv"><h2>API 응답 뷰어</h2><p>JSON, XML, 텍스트 형식의 API 응답을 붙여넣어 보기 좋게 포맷팅하고 구조를 분석합니다. Pretty Print, 트리 뷰, 상태 코드 해석 기능을 제공합니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>어떤 응답 형식을 지원하나요?</summary><p>JSON, XML, 일반 텍스트를 지원합니다. 형식을 자동으로 감지합니다.</p></details>
+<details class="faq-item"><summary>트리 뷰는 어떻게 작동하나요?</summary><p>JSON 객체의 계층 구조를 트리 형태로 표시합니다. 노드를 클릭하여 접고 펼 수 있습니다.</p></details>
+<details class="faq-item"><summary>HTTP 상태 코드를 해석해주나요?</summary><p>예, 200 OK, 404 Not Found 등 일반적인 상태 코드의 의미를 표시합니다.</p></details>
+<details class="faq-item"><summary>API 요청을 직접 보낼 수 있나요?</summary><p>이 도구는 응답 분석에 초점을 맞춥니다. 실제 API 요청은 API Tester를 이용하세요.</p></details>
+<details class="faq-item"><summary>큰 JSON 응답도 처리할 수 있나요?</summary><p>브라우저 메모리 내에서 처리하므로 매우 큰 응답(수 MB 이상)은 느릴 수 있습니다.</p></details>
+<details class="faq-item"><summary>포맷팅된 결과를 복사할 수 있나요?</summary><p>예, "포맷 복사" 버튼으로 들여쓰기된 JSON을 클립보드에 복사합니다.</p></details>
+<details class="faq-item"><summary>응답 헤더도 분석할 수 있나요?</summary><p>현재는 바디 분석에 집중합니다. 상태 코드는 별도로 입력할 수 있습니다.</p></details>
+<details class="faq-item"><summary>서버로 데이터가 전송되나요?</summary><p>아니오, 모든 처리는 브라우저에서만 이루어집니다.</p></details></div>
 </main>
 <script>
 const LANGS=['ko','en','zh','ja'];let _lang='ko';let _parsed=null;let _rawStr='';let _vTab='pretty';let _type='auto';
@@ -143,7 +152,10 @@ const _i18n={
 <details class="faq-item"><summary>큰 JSON 응답도 처리할 수 있나요?</summary><p>브라우저 메모리 내에서 처리하므로 매우 큰 응답(수 MB 이상)은 느릴 수 있습니다.</p></details>
 <details class="faq-item"><summary>포맷팅된 결과를 복사할 수 있나요?</summary><p>예, "포맷 복사" 버튼으로 들여쓰기된 JSON을 클립보드에 복사합니다.</p></details>
 <details class="faq-item"><summary>응답 헤더도 분석할 수 있나요?</summary><p>현재는 바디 분석에 집중합니다. 상태 코드는 별도로 입력할 수 있습니다.</p></details>
-<details class="faq-item"><summary>서버로 데이터가 전송되나요?</summary><p>아니오, 모든 처리는 브라우저에서만 이루어집니다.</p></details>`
+<details class="faq-item"><summary>서버로 데이터가 전송되나요?</summary><p>아니오, 모든 처리는 브라우저에서만 이루어집니다.</p></details>
+<details class="faq-item"><summary>401과 403의 차이, 그리고 올바른 대응은?</summary><p><strong>401 Unauthorized</strong>는 인증 자체가 안 된 상태(토큰 없음·만료·무효)로, 로그인/토큰 재발급을 유도해야 합니다. <strong>403 Forbidden</strong>은 인증은 됐지만 권한이 없는 상태(다른 사용자의 리소스 접근 시도 등)로, 재로그인이 아니라 권한 안내를 보여줘야 합니다. <strong>502 Bad Gateway</strong>는 프록시/로드밸런서가 백엔드 서버로부터 잘못된 응답을 받은 경우(백엔드 다운·크래시), <strong>504 Gateway Timeout</strong>은 백엔드가 응답 자체를 제시간에 안 준 경우(느린 쿼리·데드락)로 원인 진단 방향이 다릅니다.</p></details>
+<details class="faq-item"><summary>JSON 응답에서 흔한 안티패턴은?</summary><p>① 숫자를 문자열로 감싼 <code>"count":"42"</code> — 클라이언트에서 산술 연산 전 parseInt가 필요해 버그 유발 ② <code>null</code>(값 없음 명시) vs 빈 문자열 <code>""</code>(값은 있으나 비어있음) vs 필드 자체 누락(해당 데이터 미지원)을 구분 없이 섞어 쓰면 클라이언트 로직이 3가지 케이스를 다 처리해야 함 ③ 성공 응답인데 HTTP 200과 함께 바디에 <code>"error":true</code>를 넣는 이중 상태 표현.</p></details>
+<details class="faq-item"><summary>이 도구를 다른 도구와 어떻게 함께 쓰나요?</summary><p>일반적인 워크플로: <a href="curl-generator.html">cURL 생성기</a>로 요청을 만들어 실행 → 받은 API 응답을 이 도구에 붙여넣어 구조 분석 및 상태 코드 확인 → 정리된 JSON을 <a href="json-formatter.html">JSON 포맷터</a>로 넘겨 들여쓰기·검증까지 마무리하는 순서로 사용하면 API 디버깅이 빨라집니다.</p></details>`
   },
   en:{h1Accent:'Response Viewer',sub:'Paste API responses to format and analyze their structure',backLink:'← All Tools',langBtn:'🌐 中文',lblStatus:'Status:',lblType:'Type:',btnView:'Analyze',btnCopy:'Copy formatted',btnSampleJson:'JSON sample',btnClear:'Clear',copied:'Copied!',
     infoLabels:{type:'Type',size:'Size',lines:'Lines',keys:'Top-level keys',depth:'Depth'},
@@ -156,7 +168,10 @@ const _i18n={
 <details class="faq-item"><summary>Can it handle large JSON responses?</summary><p>Processed in-browser — very large responses (several MB) may be slow.</p></details>
 <details class="faq-item"><summary>Can I copy the formatted result?</summary><p>Yes — "Copy formatted" copies the indented JSON to clipboard.</p></details>
 <details class="faq-item"><summary>Can response headers be analyzed?</summary><p>Currently focuses on body analysis. Status code can be entered separately.</p></details>
-<details class="faq-item"><summary>Is data sent to a server?</summary><p>No — all processing happens in your browser only.</p></details>`
+<details class="faq-item"><summary>Is data sent to a server?</summary><p>No — all processing happens in your browser only.</p></details>
+<details class="faq-item"><summary>401 vs 403 — what's the difference and how should each be handled?</summary><p><strong>401 Unauthorized</strong> means authentication itself failed (missing, expired, or invalid token) — the correct response is to prompt re-login or refresh the token. <strong>403 Forbidden</strong> means the user IS authenticated but lacks permission (e.g. trying to access another user's resource) — show a permissions message, not a login prompt. <strong>502 Bad Gateway</strong> means the proxy/load balancer got an invalid response from the backend (backend crashed or down); <strong>504 Gateway Timeout</strong> means the backend never responded in time (slow query, deadlock) — the diagnostic path differs for each.</p></details>
+<details class="faq-item"><summary>What are common JSON response anti-patterns?</summary><p>① Wrapping numbers as strings like <code>"count":"42"</code> — forces clients to parseInt before arithmetic, a common bug source. ② Mixing <code>null</code> (explicitly no value), empty string <code>""</code> (value exists but is empty), and a missing field entirely (data not supported) without a consistent convention forces clients to handle all three cases. ③ Returning HTTP 200 while embedding <code>"error":true</code> in the body — a confusing dual status representation.</p></details>
+<details class="faq-item"><summary>How does this fit into a broader API debugging workflow?</summary><p>Typical flow: build and fire the request with the <a href="curl-generator.html">cURL Generator</a> → paste the resulting API response here to inspect its structure and status code → hand the cleaned-up JSON to the <a href="json-formatter.html">JSON Formatter</a> for final indentation and validation. Chaining these three tools speeds up API debugging significantly.</p></details>`
   },
   zh:{h1Accent:'响应查看器',sub:'粘贴API响应以格式化并分析其结构',backLink:'← 所有工具',langBtn:'🌐 日本語',lblStatus:'状态码:',lblType:'类型:',btnView:'分析',btnCopy:'复制格式化',btnSampleJson:'JSON示例',btnClear:'清除',copied:'已复制!',
     infoLabels:{type:'类型',size:'大小',lines:'行数',keys:'顶级键',depth:'深度'},

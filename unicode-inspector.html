@@ -88,7 +88,16 @@ details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-h
     <label class="label" id="charLabel">문자 분석 결과</label>
     <div class="char-grid" id="charGrid"><div style="font-size:12px;color:var(--text-dim);text-align:center;padding:20px" id="emptyMsg">텍스트를 입력하면 문자별 유니코드 정보가 표시됩니다.</div></div>
   </div>
-  <div class="seo" id="seoDiv"></div>
+  <div class="seo" id="seoDiv"><h2>유니코드 인스펙터란?</h2><p>텍스트의 각 문자에 대해 <strong>유니코드 코드포인트(U+XXXX), UTF-8 바이트 시퀀스, HTML 엔티티</strong>를 한눈에 분석합니다. 특수문자, 이모지, 한글, CJK 문자 디버깅에 필수 도구입니다.</p>
+<h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>유니코드 코드포인트란?</summary><p>각 문자에 할당된 고유 번호입니다. 'A'는 U+0041, '가'는 U+AC00입니다.</p></details>
+<details class="faq-item"><summary>UTF-8 바이트란?</summary><p>유니코드 문자를 인코딩한 실제 바이트 값입니다. 영문은 1바이트, 한글은 3바이트입니다.</p></details>
+<details class="faq-item"><summary>HTML 엔티티란?</summary><p>HTML에서 특수문자를 표현하는 방법입니다. '&lt;'는 &amp;lt;, '>'는 &amp;gt;입니다.</p></details>
+<details class="faq-item"><summary>이모지는 몇 바이트인가요?</summary><p>대부분의 이모지는 UTF-8에서 4바이트, 일부 복합 이모지는 더 많은 바이트를 차지합니다.</p></details>
+<details class="faq-item"><summary>BOM(Byte Order Mark)이란?</summary><p>UTF-8 파일 시작에 붙는 특수 바이트 시퀀스(EF BB BF)로, 파일 인코딩을 나타냅니다.</p></details>
+<details class="faq-item"><summary>제어 문자가 포함된 경우 어떻게 되나요?</summary><p>탭(U+0009), 줄바꿈(U+000A) 등 제어 문자도 코드포인트와 함께 표시됩니다.</p></details>
+<details class="faq-item"><summary>특수문자를 복사할 수 있나요?</summary><p>네, 각 문자 카드를 클릭하면 해당 문자를 클립보드에 복사합니다.</p></details>
+<details class="faq-item"><summary>최대 몇 자까지 분석 가능한가요?</summary><p>브라우저 성능을 고려해 500자 이내를 권장합니다.</p></details></div>
 </main>
 <script>
 const LANGS=['ko','en','zh','ja'];
@@ -104,7 +113,10 @@ const _i18n={
 <details class="faq-item"><summary>BOM(Byte Order Mark)이란?</summary><p>UTF-8 파일 시작에 붙는 특수 바이트 시퀀스(EF BB BF)로, 파일 인코딩을 나타냅니다.</p></details>
 <details class="faq-item"><summary>제어 문자가 포함된 경우 어떻게 되나요?</summary><p>탭(U+0009), 줄바꿈(U+000A) 등 제어 문자도 코드포인트와 함께 표시됩니다.</p></details>
 <details class="faq-item"><summary>특수문자를 복사할 수 있나요?</summary><p>네, 각 문자 카드를 클릭하면 해당 문자를 클립보드에 복사합니다.</p></details>
-<details class="faq-item"><summary>최대 몇 자까지 분석 가능한가요?</summary><p>브라우저 성능을 고려해 500자 이내를 권장합니다.</p></details>`
+<details class="faq-item"><summary>최대 몇 자까지 분석 가능한가요?</summary><p>브라우저 성능을 고려해 500자 이내를 권장합니다.</p></details>
+<details class="faq-item"><summary>호모글리프(동형이의 문자) 피싱이란?</summary><p>육안으로는 완전히 동일해 보이지만 실제로는 다른 유니코드 문자인 경우를 호모글리프라고 합니다. 예를 들어 라틴 알파벳 'a'(U+0061)와 키릴 문자 'а'(U+0430)는 화면에서 거의 구분이 안 되지만 서로 다른 코드포인트입니다. 이를 악용해 apple.com처럼 보이지만 실제로는 키릴 문자가 섞인 가짜 도메인으로 사용자를 속이는 피싱 공격(IDN 호모그래프 공격)이 실제로 발생합니다. 의심스러운 링크의 문자를 이 도구로 분석하면 코드포인트 차이를 즉시 확인할 수 있습니다.</p></details>
+<details class="faq-item"><summary>NFC/NFD 정규화 차이로 파일명이 깨지는 문제는?</summary><p>한글은 자모를 결합해 표현하는 방식이 두 가지입니다: <strong>NFC</strong>(완성형, 결합된 하나의 코드포인트로 저장, 예: '가'=U+AC00 하나)와 <strong>NFD</strong>(조합형, 자모를 분리해 저장, 예: 'ㄱ'+'ㅏ' 두 코드포인트). macOS(HFS+/APFS)는 파일명을 NFD로 저장하는 반면 Windows·대부분의 웹 환경은 NFC를 사용합니다. 그 결과 맥에서 만든 한글 파일명이 담긴 폴더를 Windows나 리눅스 서버에 압축 해제하면 파일명이 깨지거나 검색이 안 되는 문제가 실제로 자주 발생합니다.</p></details>
+<details class="faq-item"><summary>화면에 안 보이는 특수문자는 어떻게 찾나요?</summary><p><strong>ZWSP(Zero-Width Space, U+200B)</strong>처럼 폭이 0이라 화면에 전혀 보이지 않는 문자가 텍스트에 섞여 있으면 복사-붙여넣기 시 예상치 못한 검색 실패나 문자열 비교 오류가 발생합니다. 이 도구에 텍스트를 붙여넣으면 각 문자의 코드포인트가 모두 표시되므로, 화면상 빈칸처럼 보이는 위치에 U+200B, U+FEFF(BOM), U+00A0(줄바꿈 없는 공백) 등이 숨어있는지 즉시 확인할 수 있습니다.</p></details>`
   },
   en:{pageTitle:'Unicode Inspector - Code Point, UTF-8, HTML Entity per Character | MODOO HUB',h1b:'Inspector',sub:'Inspect code points, UTF-8 bytes, and HTML entities per character',backLink:'← All Tools',langBtn:'🌐 中文',inputLabel:'Input Text',charLabel:'Character Analysis',placeholder:'Enter text to analyze (Hello 안녕 🎉)...',emptyMsg:'Enter text to see per-character Unicode information.',hChars:'chars',hBytes:'bytes',hCodePts:'code points',
     seoHtml:`<h2>Unicode Inspector</h2><p>Analyze each character in text to show its <strong>Unicode code point (U+XXXX), UTF-8 byte sequence, and HTML entity</strong>. Essential for debugging special characters, emoji, and CJK text.</p>
@@ -116,7 +128,10 @@ const _i18n={
 <details class="faq-item"><summary>What is BOM?</summary><p>Byte Order Mark — a special byte sequence (EF BB BF) at the start of a UTF-8 file indicating encoding.</p></details>
 <details class="faq-item"><summary>Are control characters shown?</summary><p>Yes — tab (U+0009), newline (U+000A) and other control characters are shown with their code points.</p></details>
 <details class="faq-item"><summary>Can I copy individual characters?</summary><p>Yes — click any character card to copy it to the clipboard.</p></details>
-<details class="faq-item"><summary>What is the character limit?</summary><p>We recommend under 500 characters for best browser performance.</p></details>`
+<details class="faq-item"><summary>What is the character limit?</summary><p>We recommend under 500 characters for best browser performance.</p></details>
+<details class="faq-item"><summary>What is homoglyph phishing?</summary><p>A homoglyph is a character that looks visually identical to another but is actually a different Unicode code point. For example, Latin 'a' (U+0061) and Cyrillic 'а' (U+0430) are nearly indistinguishable on screen but are different characters. This is exploited in real IDN homograph attacks — a fake domain that visually reads as apple.com but secretly contains Cyrillic characters. Paste a suspicious link's text into this tool to instantly reveal the code point differences.</p></details>
+<details class="faq-item"><summary>Why do Korean filenames break between macOS and Windows?</summary><p>Korean text can be stored two ways: <strong>NFC</strong> (precomposed — one combined code point, e.g. '가' = U+AC00) and <strong>NFD</strong> (decomposed — separate jamo code points, e.g. 'ㄱ'+'ㅏ'). macOS (HFS+/APFS) stores filenames in NFD, while Windows and most web environments use NFC. As a result, a folder of Korean-named files created on a Mac often shows garbled or unsearchable filenames when unzipped on Windows or a Linux server.</p></details>
+<details class="faq-item"><summary>How do I find invisible special characters?</summary><p>Characters like <strong>ZWSP (Zero-Width Space, U+200B)</strong> have zero visual width, so they're invisible on screen but can cause unexpected search failures or string-comparison bugs after copy-paste. Paste your text into this tool and every code point is shown, so you can spot hidden U+200B, U+FEFF (BOM), or U+00A0 (non-breaking space) at what looks like a blank spot.</p></details>`
   },
   zh:{pageTitle:'Unicode检查器 - 每字符代码点·UTF-8·HTML实体分析 | MODOO HUB',h1b:'检查器',sub:'分析每个字符的Unicode代码点·UTF-8字节·HTML实体',backLink:'← 所有工具',langBtn:'🌐 日本語',inputLabel:'输入文本',charLabel:'字符分析结果',placeholder:'输入要分析的文本（Hello 안녕 🎉）...',emptyMsg:'输入文本后将显示每个字符的Unicode信息。',hChars:'字符',hBytes:'字节',hCodePts:'代码点',
     seoHtml:`<h2>Unicode检查器</h2><p>分析文本中每个字符的<strong>Unicode代码点(U+XXXX)、UTF-8字节序列和HTML实体</strong>，是调试特殊字符、表情符号和CJK文本的必备工具。</p>

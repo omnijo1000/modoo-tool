@@ -123,7 +123,7 @@
 
   var CAT = {
     'ai-tools': {
-      count: 2,
+      count: 12,
       icon: '\ud83e\udd16',
       name: { ko: 'AI \ub3c4\uad6c', en: 'AI Tools', zh: 'AI\u5de5\u5177' },
       heading: { ko: '<span>AI</span> \ub3c4\uad6c', en: '<span>AI</span> Tools', zh: '<span>AI</span>\u5de5\u5177' },
@@ -134,7 +134,7 @@
       }
     },
     'data-tools': {
-      count: 6,
+      count: 15,
       icon: '\ud83d\udcca',
       name: { ko: '\ub370\uc774\ud130 \ub3c4\uad6c', en: 'Data Tools', zh: '\u6570\u636e\u5de5\u5177' },
       heading: { ko: '<span>\ub370\uc774\ud130</span> \ub3c4\uad6c', en: '<span>Data</span> Tools', zh: '<span>\u6570\u636e</span>\u5de5\u5177' },
@@ -145,7 +145,7 @@
       }
     },
     'date-time-tools': {
-      count: 11,
+      count: 13,
       icon: '\ud83d\udcc5',
       name: { ko: '\ub0a0\uc9dc \u0026 \uc2dc\uac04 \ub3c4\uad6c', en: 'Date & Time Tools', zh: '\u65e5\u671f\u4e0e\u65f6\u95f4\u5de5\u5177' },
       heading: { ko: '<span>\ub0a0\uc9dc \u0026 \uc2dc\uac04</span> \ub3c4\uad6c', en: '<span>Date & Time</span> Tools', zh: '<span>\u65e5\u671f\u4e0e\u65f6\u95f4</span>\u5de5\u5177' },
@@ -156,7 +156,7 @@
       }
     },
     'developer-tools': {
-      count: 4,
+      count: 59,
       icon: '\ud83d\udcbb',
       name: { ko: '\uac1c\ubc1c\uc790 \ub3c4\uad6c', en: 'Developer Tools', zh: '\u5f00\u53d1\u5de5\u5177' },
       heading: { ko: '<span>\uac1c\ubc1c\uc790</span> \ub3c4\uad6c', en: '<span>Developer</span> Tools', zh: '<span>\u5f00\u53d1</span>\u5de5\u5177' },
@@ -167,7 +167,7 @@
       }
     },
     'finance-calculators': {
-      count: 15,
+      count: 28,
       icon: '\ud83d\udcb0',
       name: { ko: '\uae08\uc735 \uacc4\uc0b0\uae30', en: 'Finance Calculators', zh: '\u91d1\u878d\u8ba1\u7b97\u5668' },
       heading: { ko: '<span>\uae08\uc735</span> \uacc4\uc0b0\uae30', en: '<span>Finance</span> Calculators', zh: '<span>\u91d1\u878d</span>\u8ba1\u7b97\u5668' },
@@ -178,7 +178,7 @@
       }
     },
     'generator-tools': {
-      count: 6,
+      count: 33,
       icon: '\u26a1',
       name: { ko: '\uc0dd\uc131\uae30 \ub3c4\uad6c', en: 'Generator Tools', zh: '\u751f\u6210\u5668\u5de5\u5177' },
       heading: { ko: '<span>\uc0dd\uc131\uae30</span> \ub3c4\uad6c', en: '<span>Generator</span> Tools', zh: '<span>\u751f\u6210\u5668</span>\u5de5\u5177' },
@@ -200,7 +200,7 @@
       }
     },
     'image-tools': {
-      count: 7,
+      count: 33,
       icon: '\ud83d\uddbc\ufe0f',
       name: { ko: '\uc774\ubbf8\uc9c0 \ub3c4\uad6c', en: 'Image Tools', zh: '\u56fe\u50cf\u5de5\u5177' },
       heading: { ko: '<span>\uc774\ubbf8\uc9c0</span> \ub3c4\uad6c', en: '<span>Image</span> Tools', zh: '<span>\u56fe\u50cf</span>\u5de5\u5177' },
@@ -211,7 +211,7 @@
       }
     },
     'pdf-tools': {
-      count: 4,
+      count: 18,
       icon: '\ud83d\udcc4',
       name: { ko: 'PDF \ub3c4\uad6c', en: 'PDF Tools', zh: 'PDF\u5de5\u5177' },
       heading: { ko: '<span>PDF</span> \ub3c4\uad6c', en: '<span>PDF</span> Tools', zh: '<span>PDF</span>\u5de5\u5177' },
@@ -222,7 +222,7 @@
       }
     },
     'security-tools': {
-      count: 9,
+      count: 26,
       icon: '\ud83d\udd10',
       name: { ko: '\ubcf4\uc548 \u0026 \uc778\ucf54\ub529 \ub3c4\uad6c', en: 'Security Tools', zh: '\u5b89\u5168\u4e0e\u7f16\u7801\u5de5\u5177' },
       heading: { ko: '<span>\ubcf4\uc548</span> \ub3c4\uad6c', en: '<span>Security</span> Tools', zh: '<span>\u5b89\u5168</span>\u5de5\u5177' },
@@ -233,7 +233,7 @@
       }
     },
     'text-tools': {
-      count: 16,
+      count: 43,
       icon: '\u270d\ufe0f',
       name: { ko: '\ud14d\uc2a4\ud2b8 \ub3c4\uad6c', en: 'Text Tools', zh: '\u6587\u672c\u5de5\u5177' },
       heading: { ko: '<span>\ud14d\uc2a4\ud2b8</span> \ub3c4\uad6c', en: '<span>Text</span> Tools', zh: '<span>\u6587\u672c</span>\u5de5\u5177' },
