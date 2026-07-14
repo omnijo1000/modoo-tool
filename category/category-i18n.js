@@ -275,7 +275,6 @@
     'loan-payoff-calculator.html': { ko: '\ub300\ucd9c \uc0c1\ud658 \uacc4\uc0b0\uae30', en: 'Loan Payoff Calculator', zh: '\u8d37\u6b3e\u8fd8\u6e05\u8ba1\u7b97\u5668' },
     'investment-return-calculator.html': { ko: '\ud22c\uc790 \uc218\uc775\ub960 \uacc4\uc0b0\uae30', en: 'Investment Return Calculator', zh: '\u6295\u8d44\u6536\u76ca\u8ba1\u7b97\u5668' },
     'fire-calculator.html': { ko: 'FIRE \uacc4\uc0b0\uae30', en: 'FIRE Calculator', zh: 'FIRE\u8ba1\u7b97\u5668' },
-    'bmi-calculator.html': { ko: 'BMI \uacc4\uc0b0\uae30 (Pro)', en: 'BMI Calculator (Pro)', zh: 'BMI\u8ba1\u7b97\u5668(Pro)' },
     'bmi-calc.html': { ko: 'BMI \uacc4\uc0b0\uae30', en: 'BMI Calculator', zh: 'BMI\u8ba1\u7b97\u5668' },
     'body-fat-calculator.html': { ko: '\uccb4\uc9c0\ubc29\ub960 \uacc4\uc0b0\uae30', en: 'Body Fat Calculator', zh: '\u4f53\u8102\u7387\u8ba1\u7b97\u5668' },
     'calorie-calculator.html': { ko: '\uce7c\ub85c\ub9ac \uacc4\uc0b0\uae30', en: 'Calorie Calculator', zh: '\u5361\u8def\u91cc\u8ba1\u7b97\u5668' },
@@ -300,7 +299,6 @@
     'sql-formatter.html': { ko: 'SQL \ud3ec\ub9f7\ud130', en: 'SQL Formatter', zh: 'SQL\u683c\u5f0f\u5316' },
     'json-to-csv.html': { ko: 'JSON \u2192 CSV', en: 'JSON -> CSV', zh: 'JSON -> CSV' },
     'csv-to-json.html': { ko: 'CSV \u2192 JSON', en: 'CSV -> JSON', zh: 'CSV -> JSON' },
-    'base64-url.html': { ko: 'Base64 \u0026 URL \uc778\ucf54\ub354', en: 'Base64 & URL Encoder', zh: 'Base64\u0026URL\u7f16\u7801' },
     'html-encoder.html': { ko: 'HTML \uc778\ucf54\ub354/\ub514\ucf54\ub354', en: 'HTML Encoder/Decoder', zh: 'HTML\u7f16\u7801/\u89e3\u7801' },
     'hash-generator.html': { ko: 'Hash \uc0dd\uc131\uae30', en: 'Hash Generator', zh: 'Hash\u751f\u6210\u5668' },
     'jwt-decoder.html': { ko: 'JWT \ub514\ucf54\ub354', en: 'JWT Decoder', zh: 'JWT\u89e3\u6790\u5668' },
@@ -312,7 +310,6 @@
     'line-counter.html': { ko: '\uc904 \uc218 \uc138\uae30', en: 'Line Counter', zh: '\u884c\u6570\u7edf\u8ba1' },
     'sentence-counter.html': { ko: '\ubb38\uc7a5 \uc218 \uc138\uae30', en: 'Sentence Counter', zh: '\u53e5\u5b50\u8ba1\u6570\u5668' },
     'read-time-calculator.html': { ko: '\uc77d\uae30 \uc2dc\uac04 \uacc4\uc0b0\uae30', en: 'Read Time Calculator', zh: '\u9605\u8bfb\u65f6\u95f4\u8ba1\u7b97\u5668' },
-    'keyword-density.html': { ko: '\ud0a4\uc6cc\ub4dc \ubc00\ub3c4 \ubd84\uc11d\uae30', en: 'Keyword Density Analyzer', zh: '\u5173\u952e\u8bcd\u5bc6\u5ea6\u5206\u6790\u5668' },
     'find-replace.html': { ko: '\ucc3e\uae30 \u0026 \ubc14\uafb8\uae30', en: 'Find & Replace', zh: '\u67e5\u627e\u66ff\u6362' },
     'text-reverser.html': { ko: '\ud14d\uc2a4\ud2b8 \ub4a4\uc9d1\uae30', en: 'Text Reverser', zh: '\u6587\u5b57\u53cd\u8f6c' },
     'text-shuffler.html': { ko: '\ud14d\uc2a4\ud2b8 \uc154\ud50c', en: 'Text Shuffler', zh: '\u6587\u672c\u968f\u673a\u6392\u5217' },
@@ -340,7 +337,6 @@
     'pdf-to-image.html': { ko: 'PDF -> \uc774\ubbf8\uc9c0', en: 'PDF -> Image', zh: 'PDF -> \u56fe\u7247' },
     'image-to-pdf.html': { ko: '\uc774\ubbf8\uc9c0 -> PDF', en: 'Image -> PDF', zh: '\u56fe\u7247 -> PDF' },
     'uuid-generator.html': { ko: 'UUID \uc0dd\uc131\uae30', en: 'UUID Generator', zh: 'UUID\u751f\u6210\u5668' },
-    'qr-generator.html': { ko: 'QR \ucf54\ub4dc \uc0dd\uc131\uae30', en: 'QR Code Generator', zh: 'QR\u7801\u751f\u6210\u5668' },
     'barcode-generator.html': { ko: '\ubc14\ucf54\ub4dc \uc0dd\uc131\uae30', en: 'Barcode Generator', zh: '\u6761\u7801\u751f\u6210\u5668' }
   };
 
