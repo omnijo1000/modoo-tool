@@ -9,86 +9,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme-instrument.css">
 <style>
-  :root {
-    --bg: #0a0a14;
-    --surface: #11111e;
-    --surface2: #191928;
-    --border: #1e1e32;
-    --accent: #818cf8;
-    --accent2: #6366f1;
-    --accent-dim: rgba(129,140,248,0.08);
-    --text: #f0f0ff;
-    --text-muted: #7878a8;
-    --text-dim: #3a3a5a;
-    --green: #4ade80;
-    --yellow: #facc15;
-    --pink: #f472b6;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: 'Noto Sans KR', sans-serif; min-height: 100vh; }
-
-  header { border-bottom: 1px solid var(--border); padding: 20px 24px; display: flex; align-items: center; gap: 12px; }
-  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
-  .header-label { font-size: 13px; color: var(--text-muted); letter-spacing: 0.1em; font-family: 'DM Mono', monospace; }
-  .back-link { margin-left: auto; font-size: 13px; color: var(--text-muted); text-decoration: none; }
-  .back-link:hover { color: var(--accent); }
-
-  main { max-width: 560px; margin: 0 auto; padding: 48px 24px; }
-
-  .title-block { margin-bottom: 40px; }
-  h1 { font-size: clamp(28px, 6vw, 42px); font-weight: 900; line-height: 1.1; margin-bottom: 12px; }
-  h1 span { color: var(--accent); }
-  .subtitle { color: var(--text-muted); font-size: 14px; line-height: 1.7; }
-
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; margin-bottom: 16px; transition: border-color 0.2s; }
-  .card:focus-within { border-color: var(--accent2); }
-  label { font-size: 12px; color: var(--text-muted); letter-spacing: 0.08em; display: block; margin-bottom: 10px; }
-  input[type=date] { width: 100%; background: transparent; border: none; outline: none; font-size: 26px; font-weight: 700; color: var(--text); font-family: 'DM Mono', monospace; cursor: pointer; }
-  input[type=date]::-webkit-calendar-picker-indicator { filter: invert(0.5); cursor: pointer; }
-
-  /* 결과 카드들 */
-  .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; display: none; }
-  .result-grid.show { display: grid; }
-
-  .res-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; }
-  .res-label { font-size: 11px; color: var(--text-muted); letter-spacing: 0.08em; margin-bottom: 10px; text-transform: uppercase; }
-  .res-value { font-family: 'DM Mono', monospace; font-size: 36px; font-weight: 700; line-height: 1; margin-bottom: 4px; }
-  .res-sub { font-size: 12px; color: var(--text-dim); }
-  .res-card.main { border-color: var(--accent2); background: var(--accent-dim); grid-column: 1 / -1; }
-  .res-card.main .res-value { font-size: 52px; color: var(--accent); }
-
-  /* 생일 카운트다운 */
-  .birthday-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; margin-bottom: 16px; display: none; }
-  .birthday-card.show { display: block; }
-  .bday-label { font-size: 12px; color: var(--text-muted); letter-spacing: 0.08em; margin-bottom: 14px; }
-  .bday-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
-  .bday-key { font-size: 14px; color: var(--text-muted); }
-  .bday-val { font-family: 'DM Mono', monospace; font-size: 16px; color: var(--text); }
-  .bday-val.highlight { color: var(--yellow); }
-  .bday-val.green { color: var(--green); }
-  .bday-val.pink { color: var(--pink); }
-
-  /* 나이 비교 */
-  .age-compare { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; margin-bottom: 40px; display: none; }
-  .age-compare.show { display: block; }
-  .compare-title { font-size: 12px; color: var(--text-muted); letter-spacing: 0.08em; margin-bottom: 14px; }
-  .compare-rows { display: flex; flex-direction: column; gap: 8px; }
-  .compare-row { display: flex; justify-content: space-between; font-size: 13px; padding: 6px 0; border-bottom: 1px solid var(--border); }
-  .compare-row:last-child { border-bottom: none; }
-  .compare-key { color: var(--text-dim); }
-  .compare-val { font-family: 'DM Mono', monospace; color: var(--text-muted); }
-
-  .seo { border-top: 1px solid var(--border); padding-top: 32px; }
-  .seo h2 { font-size: 16px; font-weight: 700; margin-bottom: 12px; }
-  .seo p { font-size: 13px; color: var(--text-muted); line-height: 1.8; margin-bottom: 24px; }
-  .seo strong { color: var(--text); }
-  details.faq-item { border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; }
-  details.faq-item summary { padding: 12px 16px; font-size: 13px; font-weight: 600; cursor: pointer; list-style: none; }
-  details.faq-item summary::-webkit-details-marker { display: none; }
-  details.faq-item summary::before { content: 'Q. '; color: var(--primary, #4f8cff); }
-  details.faq-item p { padding: 0 16px 12px; font-size: 13px; color: var(--text-muted); line-height: 1.8; margin: 0; }
-  footer { text-align: center; font-size: 12px; color: var(--text-dim); margin-top: 48px; }
+/* page-specific: FAQ "Q. " prefix convention used sitewide, kept local since theme-instrument.css's .faq-item doesn't inject it */
+.seo details.faq-item summary::before{content:'Q. '; color:var(--cyan);}
 </style>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
@@ -125,70 +49,51 @@
 </header>
 
 <main>
-  <div class="title-block">
-    <h1>만나이<br><span>계산기</span></h1>
-    <p class="subtitle">2023년 만나이 통일법 기준 · 생년월일 입력으로 즉시 계산</p>
-  </div>
+  <div class="eyebrow">Date · Instrument</div>
+  <h1><span>만나이</span> 계산기</h1>
+  <p class="subtitle">2023년 만나이 통일법 기준 · 생년월일 입력으로 즉시 계산</p>
 
-  <div class="card">
-    <label>생년월일</label>
-    <input type="date" id="birthdate" oninput="calc()" max="">
-  </div>
+  <div class="grid">
+    <div class="panel">
+      <div class="card">
+        <div class="field-label">생년월일</div>
+        <div class="input-wrap"><input type="date" id="birthdate" oninput="calc()" max=""></div>
+      </div>
+    </div>
 
-  <!-- 메인 결과 -->
-  <div class="result-grid" id="resultGrid">
-    <div class="res-card main">
-      <div class="res-label">만 나이</div>
-      <div class="res-value" id="ageValue"></div>
-      <div class="res-sub" id="ageSub"></div>
-    </div>
-    <div class="res-card">
-      <div class="res-label">한국 나이</div>
-      <div class="res-value" id="koreanAge" style="color:var(--yellow)"></div>
-      <div class="res-sub">세</div>
-    </div>
-    <div class="res-card">
-      <div class="res-label">연 나이</div>
-      <div class="res-value" id="yearAge" style="color:var(--pink)"></div>
-      <div class="res-sub">세</div>
-    </div>
-  </div>
+    <div class="readout" id="resultGrid" style="display:none;">
+      <div class="readout-head">
+        <span class="readout-label">Readout</span>
+        <span class="pill" style="background:rgba(63,216,200,0.15); color:var(--cyan);">만 나이</span>
+      </div>
+      <div class="bmi-display">
+        <span class="bmi-num" id="ageValue" style="color:var(--cyan);">—</span>
+        <div style="color:var(--text-dim); font-size:13px; margin-top:4px;" id="ageSub">세</div>
+      </div>
 
-  <!-- 생일 정보 -->
-  <div class="birthday-card" id="birthdayCard">
-    <div class="bday-label">생일 정보</div>
-    <div class="bday-row">
-      <span class="bday-key">다음 생일</span>
-      <span class="bday-val highlight" id="nextBirthday"></span>
-    </div>
-    <div class="bday-row">
-      <span class="bday-key">생일까지 남은 날</span>
-      <span class="bday-val green" id="daysUntil"></span>
-    </div>
-    <div class="bday-row">
-      <span class="bday-key">태어난 지</span>
-      <span class="bday-val" id="daysLived"></span>
-    </div>
-    <div class="bday-row">
-      <span class="bday-key">태어난 요일</span>
-      <span class="bday-val pink" id="birthDay"></span>
-    </div>
-  </div>
+      <div class="cal-grid">
+        <div class="cal-card"><div class="cal-label">한국 나이</div><div class="cal-val" id="koreanAge" style="color:var(--warn);">—</div></div>
+        <div class="cal-card"><div class="cal-label">연 나이</div><div class="cal-val" id="yearAge" style="color:var(--violet);">—</div></div>
+      </div>
 
-  <!-- 나이 비교 -->
-  <div class="age-compare" id="ageCompare">
-    <div class="compare-title">나이 계산 방식 비교</div>
-    <div class="compare-rows">
-      <div class="compare-row"><span class="compare-key">만 나이 (법적 기준)</span><span class="compare-val" id="c1"></span></div>
-      <div class="compare-row"><span class="compare-key">한국 나이 (세는 나이)</span><span class="compare-val" id="c2"></span></div>
-      <div class="compare-row"><span class="compare-key">연 나이 (현재연도 - 출생연도)</span><span class="compare-val" id="c3"></span></div>
+      <div class="divider" style="margin-top:16px;"></div>
+      <div class="row"><span class="lk">다음 생일</span><span class="lv" id="nextBirthday" style="color:var(--warn);">—</span></div>
+      <div class="row"><span class="lk">생일까지 남은 날</span><span class="lv good" id="daysUntil">—</span></div>
+      <div class="row"><span class="lk">태어난 지</span><span class="lv" id="daysLived">—</span></div>
+      <div class="row"><span class="lk">태어난 요일</span><span class="lv" id="birthDay" style="color:var(--violet);">—</span></div>
+
+      <div class="divider"></div>
+      <div class="field-label" style="margin-bottom:10px;">나이 계산 방식 비교</div>
+      <div class="row"><span class="lk">만 나이 (법적 기준)</span><span class="lv" id="c1">—</span></div>
+      <div class="row"><span class="lk">한국 나이 (세는 나이)</span><span class="lv" id="c2">—</span></div>
+      <div class="row"><span class="lk">연 나이 (현재연도 − 출생연도)</span><span class="lv" id="c3">—</span></div>
     </div>
   </div>
 
   <div class="seo">
     <h2>만나이 계산기란?</h2>
     <p>만나이는 태어난 날을 0세로 시작해 생일이 지날 때마다 1살씩 더하는 국제 표준 나이 계산법입니다. 2023년 6월 28일부터 한국도 법적·행정적 나이 기준이 만나이로 통일되었습니다. 한국 세는나이(연 나이)와 최대 2살 차이가 날 수 있으므로, 법적 서류·의료·보험·학교 입학 기준 등 공식 용도에서는 반드시 만나이를 확인하세요.</p>
-    <h2>자주 묻는 질문 (FAQ)</h2>
+    <h2 class="seo-sub">자주 묻는 질문 (FAQ)</h2>
     <details class="faq-item"><summary>만나이 통일법은 언제부터 시행됐나요?</summary><p>2023년 6월 28일부터 시행됐습니다. 이후 모든 법적·행정적 나이 계산은 만나이를 기준으로 합니다.</p></details>
     <details class="faq-item"><summary>생일이 지나지 않았을 때 만나이 계산은?</summary><p>올해 생일이 아직 지나지 않았다면 (현재 연도 − 출생 연도 − 1)세입니다. 생일이 지났으면 (현재 연도 − 출생 연도)세입니다.</p></details>
     <details class="faq-item"><summary>연 나이, 세는 나이, 만나이의 차이는?</summary><p>세는 나이(한국 나이)는 태어난 해를 1살로 시작해 매년 1월 1일 1살 증가합니다. 연 나이는 현재 연도에서 출생 연도를 빼며 생일 무관합니다. 만나이는 생일이 지났는지 반영하는 국제 표준입니다.</p></details>
@@ -216,10 +121,8 @@ function calc() {
   today.setHours(0, 0, 0, 0);
 
   const gridEl = document.getElementById('resultGrid');
-  const bdayEl = document.getElementById('birthdayCard');
-  const compareEl = document.getElementById('ageCompare');
 
-  if (birth > today) { gridEl.classList.remove('show'); bdayEl.classList.remove('show'); compareEl.classList.remove('show'); return; }
+  if (birth > today) { gridEl.style.display = 'none'; return; }
 
   // 만나이
   let age = today.getFullYear() - birth.getFullYear();
@@ -237,7 +140,6 @@ function calc() {
   let nextBirthday = new Date(today.getFullYear(), birth.getMonth(), birth.getDate());
   if (nextBirthday <= today) nextBirthday.setFullYear(today.getFullYear() + 1);
   const daysUntil = Math.ceil((nextBirthday - today) / (1000 * 60 * 60 * 24));
-  const isTodayBirthday = daysUntil === 365 || daysUntil === 366;
 
   // 살아온 날
   const daysLived = Math.floor((today - birth) / (1000 * 60 * 60 * 24));
@@ -245,9 +147,7 @@ function calc() {
   // 태어난 요일
   const birthDayName = DAYS[birth.getDay()];
 
-  gridEl.classList.add('show');
-  bdayEl.classList.add('show');
-  compareEl.classList.add('show');
+  gridEl.style.display = 'block';
 
   document.getElementById('ageValue').textContent = age;
   document.getElementById('ageSub').textContent = '세';
@@ -273,6 +173,7 @@ function calc() {
   document.getElementById('c3').textContent = `${yearAge}세`;
 }
 </script>
+<script src="theme-instrument.js"></script>
 <script src="related.js"></script>
 </body>
 </html>

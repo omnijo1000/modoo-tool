@@ -13,69 +13,18 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme-instrument.css">
 <style>
-  :root{--bg:#0a0a0f;--surface:#11111a;--surface2:#181828;--border:#202035;--accent:#a78bfa;--accent2:#7c3aed;--accent-dim:rgba(167,139,250,0.08);--text:#f0f0ff;--text-muted:#7878a8;--text-dim:#3a3a5a;--green:#4ade80;--red:#f87171;--yellow:#facc15;}
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
-  header{border-bottom:1px solid var(--border);padding:20px 24px;display:flex;align-items:center;gap:12px;}
-  .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);}
-  .header-label{font-size:13px;color:var(--text-muted);letter-spacing:0.1em;font-family:'DM Mono',monospace;}
-  .back-link{margin-left:auto;font-size:13px;color:var(--text-muted);text-decoration:none;}
-  .back-link:hover{color:var(--accent);}
-  .lang-toggle{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 10px;border:1px solid var(--border);border-radius:6px;font-family:'DM Mono',monospace;transition:all 0.15s;margin-left:8px;}
-  .lang-toggle:hover{border-color:var(--accent);color:var(--accent);}
-  main{max-width:640px;margin:0 auto;padding:48px 24px;}
-  h1{font-size:clamp(24px,5vw,36px);font-weight:900;line-height:1.1;margin-bottom:12px;}
-  h1 span{color:var(--accent);}
-  .subtitle{color:var(--text-muted);font-size:14px;margin-bottom:32px;}
-
-  /* 현재 시간 */
-  .now-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
-  .now-label{font-size:12px;color:var(--text-muted);margin-bottom:4px;}
-  .now-value{font-family:'DM Mono',monospace;font-size:22px;font-weight:700;color:var(--accent);}
-  .now-date{font-family:'DM Mono',monospace;font-size:14px;color:var(--text-muted);margin-top:4px;}
-  .copy-btn-sm{font-size:11px;color:var(--text-dim);cursor:pointer;padding:4px 10px;border:1px solid var(--border);border-radius:5px;}
-  .copy-btn-sm:hover{color:var(--accent);border-color:var(--accent);}
-
-  .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:14px;transition:border-color 0.2s;}
-  .card:focus-within{border-color:var(--accent2);}
-  label{font-size:12px;color:var(--text-muted);letter-spacing:0.08em;display:block;margin-bottom:10px;}
-  .input-row{display:flex;align-items:center;gap:8px;}
-  input[type=text],input[type=number]{flex:1;background:transparent;border:none;outline:none;font-size:22px;font-weight:700;color:var(--text);font-family:'DM Mono',monospace;width:100%;min-width:0;}
-  input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;}
-  .unit{color:var(--text-dim);font-size:13px;white-space:nowrap;}
-  .helper{font-size:11px;color:var(--text-dim);margin-top:6px;}
-
-  .unit-btns{display:flex;gap:6px;margin-top:10px;}
-  .unit-btn{background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:4px 10px;font-size:12px;color:var(--text-muted);cursor:pointer;font-family:'DM Mono',monospace;}
-  .unit-btn.active{background:var(--accent-dim);border-color:var(--accent2);color:var(--accent);}
-
-  .result{background:var(--accent-dim);border:1px solid var(--accent2);border-radius:12px;padding:22px 24px;margin-bottom:24px;display:none;}
-  .result.show{display:block;}
-  .result-rows{display:flex;flex-direction:column;gap:10px;}
-  .result-row{display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:1px solid var(--border);}
-  .result-row:last-child{border-bottom:none;}
-  .result-label{font-size:13px;color:var(--text-muted);}
-  .result-value{font-family:'DM Mono',monospace;font-size:14px;color:var(--text);}
-  .result-value.main{font-size:20px;color:var(--accent);font-weight:700;}
-
-  .datetime-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:24px;}
-  .datetime-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px;}
-  .dt-input{background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:8px 10px;}
-  .dt-label{font-size:10px;color:var(--text-dim);margin-bottom:4px;}
-  .dt-input input{background:transparent;border:none;outline:none;font-family:'DM Mono',monospace;font-size:16px;color:var(--text);width:100%;}
-  .convert-btn{width:100%;margin-top:12px;background:var(--accent2);border:none;border-radius:8px;padding:10px;font-size:14px;color:#fff;cursor:pointer;font-family:'Noto Sans KR',sans-serif;font-weight:700;}
-
-  .seo{border-top:1px solid var(--border);padding-top:32px;}
-  .seo h2{font-size:16px;font-weight:700;margin-bottom:12px;}
-  .seo p{font-size:13px;color:var(--text-muted);line-height:1.8;margin-bottom:24px;}
-  .seo strong{color:var(--text);}
-  details.faq-item{border:1px solid var(--border);border-radius:8px;margin-bottom:8px;}
-  details.faq-item summary{padding:12px 16px;font-size:13px;font-weight:600;cursor:pointer;list-style:none;}
-  details.faq-item summary::-webkit-details-marker{display:none;}
-  details.faq-item summary::before{content:'Q. ';color:var(--primary,#4f8cff);}
-  details.faq-item p{padding:0 16px 12px;font-size:13px;color:var(--text-dim);line-height:1.8;margin:0;}
-  footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:48px;}
+  /* page-specific: compact 6-cell date/time grid, not covered by shared theme */
+  .dt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px;}
+  .dt-cell{background:rgba(255,255,255,0.03);border:1px solid var(--glass-border);border-radius:8px;padding:8px 10px;}
+  .dt-cell .dt-label{font-size:10px;color:var(--text-dim);margin-bottom:4px;font-family:var(--mono);}
+  .dt-cell input{background:transparent;border:none;outline:none;font-family:var(--mono);font-size:16px;color:var(--text);width:100%;font-variant-numeric:tabular-nums;}
+  .now-box{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
+  .now-value{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--cyan);font-variant-numeric:tabular-nums;}
+  .now-date{font-family:var(--mono);font-size:13px;color:var(--text-muted);margin-top:4px;}
+  .copy-btn-sm{font-size:11px;color:var(--text-dim);cursor:pointer;padding:5px 12px;border:1px solid var(--glass-border);border-radius:8px;background:transparent;}
+  .copy-btn-sm:hover{color:var(--cyan);border-color:var(--cyan);}
 </style>
 <meta property="og:type" content="website">
 <meta property="og:title" content="Timestamp 변환기 | MODOO HUB">
@@ -136,59 +85,56 @@
   <div class="lang-toggle" onclick="toggleLang()" id="langBtn">🌐 EN</div>
 </header>
 <main>
+  <div class="eyebrow">Time · Instrument</div>
   <h1 id="h1Title">Timestamp<br><span>변환기</span></h1>
   <p class="subtitle" id="h1Sub">Unix Timestamp ↔ 날짜/시간 변환</p>
 
   <!-- 현재 시간 -->
-  <div class="now-box">
+  <div class="card now-box">
     <div>
-      <div class="now-label" id="nowLabel">현재 Unix Timestamp</div>
+      <div class="field-label" id="nowLabel" style="margin-bottom:6px;">현재 Unix Timestamp</div>
       <div class="now-value" id="nowTs"></div>
       <div class="now-date" id="nowDate"></div>
     </div>
-    <span class="copy-btn-sm" onclick="copyNow()" id="copyNowBtn">복사</span>
+    <button type="button" class="copy-btn-sm" onclick="copyNow()" id="copyNowBtn">복사</button>
   </div>
 
   <!-- Timestamp → 날짜 -->
   <div class="card">
-    <label id="label1">Timestamp → 날짜 변환</label>
-    <div class="input-row">
+    <div class="field-label" id="label1">Timestamp → 날짜 변환</div>
+    <div class="input-wrap">
       <input type="number" id="tsInput" placeholder="1716239022" oninput="tsToDate()">
     </div>
-    <div class="unit-btns">
-      <div class="unit-btn active" data-unit="s" onclick="selectUnit('s')" id="unitS">초 (s)</div>
-      <div class="unit-btn" data-unit="ms" onclick="selectUnit('ms')" id="unitMs">밀리초 (ms)</div>
+    <div class="rbtn-row" style="margin-top:10px;">
+      <div class="rbtn on" data-unit="s" onclick="selectUnit('s')" id="unitS">초 (s)</div>
+      <div class="rbtn" data-unit="ms" onclick="selectUnit('ms')" id="unitMs">밀리초 (ms)</div>
     </div>
   </div>
 
-  <div class="result" id="result1">
-    <div class="result-rows">
-      <div class="result-row"><span class="result-label" id="rLocal">로컬 시간</span><span class="result-value main" id="r1Local"></span></div>
-      <div class="result-row"><span class="result-label">UTC</span><span class="result-value" id="r1Utc"></span></div>
-      <div class="result-row"><span class="result-label">ISO 8601</span><span class="result-value" id="r1Iso"></span></div>
-      <div class="result-row"><span class="result-label" id="rAgo">경과 시간</span><span class="result-value" id="r1Ago"></span></div>
-    </div>
+  <div class="readout" id="result1" style="display:none;">
+    <div class="row"><span class="lk" id="rLocal">로컬 시간</span><span class="lv good" id="r1Local"></span></div>
+    <div class="row"><span class="lk">UTC</span><span class="lv" id="r1Utc"></span></div>
+    <div class="row"><span class="lk">ISO 8601</span><span class="lv" id="r1Iso"></span></div>
+    <div class="row"><span class="lk" id="rAgo">경과 시간</span><span class="lv" id="r1Ago"></span></div>
   </div>
 
   <!-- 날짜 → Timestamp -->
-  <div class="datetime-card">
-    <label id="label2">날짜/시간 → Timestamp 변환</label>
-    <div class="datetime-grid">
-      <div class="dt-input"><div class="dt-label" id="dtYear">년</div><input type="number" id="dtY" placeholder="2026" min="1970" max="2100"></div>
-      <div class="dt-input"><div class="dt-label" id="dtMonth">월</div><input type="number" id="dtM" placeholder="1" min="1" max="12"></div>
-      <div class="dt-input"><div class="dt-label" id="dtDay">일</div><input type="number" id="dtD" placeholder="1" min="1" max="31"></div>
-      <div class="dt-input"><div class="dt-label" id="dtHour">시</div><input type="number" id="dtH" placeholder="0" min="0" max="23"></div>
-      <div class="dt-input"><div class="dt-label" id="dtMin">분</div><input type="number" id="dtMi" placeholder="0" min="0" max="59"></div>
-      <div class="dt-input"><div class="dt-label" id="dtSec">초</div><input type="number" id="dtS" placeholder="0" min="0" max="59"></div>
+  <div class="card" style="margin-top:14px;">
+    <div class="field-label" id="label2">날짜/시간 → Timestamp 변환</div>
+    <div class="dt-grid">
+      <div class="dt-cell"><div class="dt-label" id="dtYear">년</div><input type="number" id="dtY" placeholder="2026" min="1970" max="2100"></div>
+      <div class="dt-cell"><div class="dt-label" id="dtMonth">월</div><input type="number" id="dtM" placeholder="1" min="1" max="12"></div>
+      <div class="dt-cell"><div class="dt-label" id="dtDay">일</div><input type="number" id="dtD" placeholder="1" min="1" max="31"></div>
+      <div class="dt-cell"><div class="dt-label" id="dtHour">시</div><input type="number" id="dtH" placeholder="0" min="0" max="23"></div>
+      <div class="dt-cell"><div class="dt-label" id="dtMin">분</div><input type="number" id="dtMi" placeholder="0" min="0" max="59"></div>
+      <div class="dt-cell"><div class="dt-label" id="dtSec">초</div><input type="number" id="dtS" placeholder="0" min="0" max="59"></div>
     </div>
-    <button class="convert-btn" id="convertBtn" onclick="dateToTs()">변환하기</button>
+    <button type="button" class="calc-btn" id="convertBtn" onclick="dateToTs()">변환하기</button>
   </div>
 
-  <div class="result" id="result2">
-    <div class="result-rows">
-      <div class="result-row"><span class="result-label" id="rTs">Timestamp (초)</span><span class="result-value main" id="r2Ts"></span></div>
-      <div class="result-row"><span class="result-label" id="rTsMs">Timestamp (밀리초)</span><span class="result-value" id="r2TsMs"></span></div>
-    </div>
+  <div class="readout" id="result2" style="display:none;margin-top:14px;">
+    <div class="row"><span class="lk" id="rTs">Timestamp (초)</span><span class="lv good" id="r2Ts"></span></div>
+    <div class="row"><span class="lk" id="rTsMs">Timestamp (밀리초)</span><span class="lv" id="r2TsMs"></span></div>
   </div>
 
   <div class="seo" data-i18n="seoHtml"><h2>Unix Timestamp란?</h2><p>Unix Timestamp는 1970년 1월 1일 00:00:00 UTC부터 경과한 초를 나타내는 숫자입니다. 서버 로그, 데이터베이스, API 응답에서 자주 사용됩니다.</p><details class="faq-item"><summary>초와 밀리초 타임스탬프를 어떻게 구분하나요?</summary><p>2026년 기준 초 단위는 약 10자리(17억대), 밀리초 단위는 약 13자리(1조대)입니다.</p></details><details class="faq-item"><summary>JavaScript에서 현재 타임스탬프를 구하려면?</summary><p>Date.now()는 밀리초, Math.floor(Date.now()/1000)은 초 단위 타임스탬프를 반환합니다.</p></details><details class="faq-item"><summary>타임스탬프는 시간대의 영향을 받나요?</summary><p>타임스탬프 자체는 UTC 기준이므로 시간대 영향을 받지 않습니다. 표시할 때만 로컬 시간으로 변환됩니다.</p></details><details class="faq-item"><summary>2038년 문제란 무엇인가요?</summary><p>32비트 정수로 타임스탬프를 저장하는 시스템에서 2038년 1월 19일 이후 오버플로우가 발생하는 문제입니다. 64비트 시스템은 영향을 받지 않습니다.</p></details><details class="faq-item"><summary>Unix Epoch이 1970년 1월 1일인 이유는?</summary><p>초기 Unix 운영체제가 개발되던 시기를 기준으로 설정된 관례입니다. 1970년 1월 1일 00:00:00 UTC를 0으로 정의합니다.</p></details><details class="faq-item"><summary>유닉스 타임스탬프는 2038년 문제가 있나요?</summary><p>32비트 정수로 저장된 유닉스 타임스탬프는 2038년 1월 19일에 오버플로우됩니다(Y2K38 문제). 64비트 시스템은 이 문제가 없으며 현대 언어는 대부분 64비트 타임스탬프를 사용합니다.</p></details><details class="faq-item"><summary>타임스탬프를 특정 시간대로 변환하려면?</summary><p>유닉스 타임스탬프는 UTC 기준입니다. 한국 시간(KST=UTC+9)으로 변환하려면 32,400초를 더하거나, JavaScript에서 new Date(timestamp * 1000).toLocaleString("ko-KR", {timeZone:"Asia/Seoul"})을 사용합니다.</p></details><details class="faq-item"><summary>밀리초 타임스탬프와 초 타임스탬프의 차이는?</summary><p>유닉스 타임스탬프는 보통 초(seconds) 단위입니다. JavaScript의 Date.now()는 밀리초(ms)를 반환합니다. 밀리초를 초로 변환하려면 1000으로 나누세요. API에서 받은 타임스탬프가 초인지 밀리초인지 반드시 확인하세요.</p></details><details class="faq-item"><summary>음수 타임스탬프는 무엇을 의미하나요?</summary><p>1970년 1월 1일 이전의 날짜를 나타냅니다. 예: -86400은 1969년 12월 31일 00:00:00 UTC입니다.</p></details></div>
@@ -249,7 +195,7 @@ function toggleLang() {
   localStorage.setItem('lang', lang);
   applyLang();
 }
-function selectUnit(u){unit=u;document.querySelectorAll('.unit-btn').forEach(b=>b.classList.toggle('active',b.dataset.unit===u));tsToDate();}
+function selectUnit(u){unit=u;document.querySelectorAll('.rbtn[data-unit]').forEach(b=>b.classList.toggle('on',b.dataset.unit===u));tsToDate();}
 
 function updateNow(){
   const now=Date.now();
@@ -275,11 +221,11 @@ function timeAgo(ms){
 function tsToDate(){
   const val=parseFloat(document.getElementById('tsInput').value);
   const r1=document.getElementById('result1');
-  if(!val){r1.classList.remove('show');return;}
+  if(!val){r1.style.display='none';return;}
   const ms=unit==='s'?val*1000:val;
   const d=new Date(ms);
-  if(isNaN(d.getTime())){r1.classList.remove('show');return;}
-  r1.classList.add('show');
+  if(isNaN(d.getTime())){r1.style.display='none';return;}
+  r1.style.display='block';
   if (document.getElementById('r1Local')) document.getElementById('r1Local').textContent = d.toLocaleString(i18n[lang].locale);
   if (document.getElementById('r1Utc')) document.getElementById('r1Utc').textContent = d.toUTCString();
   if (document.getElementById('r1Iso')) document.getElementById('r1Iso').textContent = d.toISOString();
@@ -295,7 +241,7 @@ function dateToTs(){
   const s=parseInt(document.getElementById('dtS').value)||0;
   const date=new Date(y,mo-1,d,h,mi,s);
   const ts=Math.floor(date.getTime()/1000);
-  document.getElementById('result2').classList.add('show');
+  document.getElementById('result2').style.display='block';
   if (document.getElementById('r2Ts')) document.getElementById('r2Ts').textContent = ts.toLocaleString();
   if (document.getElementById('r2TsMs')) document.getElementById('r2TsMs').textContent = (ts*1000).toLocaleString();
 }
@@ -310,6 +256,7 @@ applyLang();
 updateNow();
 setInterval(updateNow,1000);
 </script>
+<script src="theme-instrument.js"></script>
 <script src="related.js"></script>
 </body>
 </html>

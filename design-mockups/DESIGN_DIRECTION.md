@@ -65,6 +65,21 @@ bmi-calc/calorie-calculator 제외한 health-calculators 카테고리 나머지 
 - [ ] 아직 브라우저로 스팟체크 안 한 나머지 8개 중 8개(`water-intake`/`national-pension` 2개만 확인함) — 최소 `pace-calculator`(가장 복잡, 457줄)와 `pregnancy-due-date`(게이지 적용 여부 확인 필요)는 다음 세션에서 브라우저 확인 권장
 - [ ] git add/commit (아직 스테이징 전, 아래 커밋에 포함시킬 예정)
 
+### 배치 4: date-time-tools 카테고리 10개 병렬 전환 완료 (2026-07-15, 계속 이어서)
+`age-calculator`, `date-calc`, `time-calculator`, `business-days-calculator`, `dday`, `korean-age`, `working-days-calc`, `timezone-converter`, `timestamp`, `meeting-cost-calculator` — 10개 전부 fork 병렬 전환, 이번엔 **10/10 전부 정상 완료 보고**(지난 배치처럼 세션 한도로 끊긴 것 없음).
+
+**품질이 이전 배치보다 좋아짐 — fork들이 자체적으로 버그를 발견하고 고침:**
+- `time-calculator.html` 변환 중 fork가 영어 `seoHtml` 문자열 안 이스케이프 안 된 아포스트로피("Korea's")를 발견 → Node 문법체크로 잡아내고 원본과 diff 대조해서 직접 수정함
+- `working-days-calc.html`은 `HOLIDAYS_2026` 공휴일 목록을 `git diff`로 명시적으로 대조해서 "1바이트도 안 바뀜" 확인까지 하고 보고함
+
+**패턴 다양성 확인:** 게이지 없는 페이지 다수(날짜/시간엔 임상 범위 개념이 없음 — 예상대로), 라이브 틱 표시(timestamp.html의 실시간 현재 타임스탬프, meeting-cost-calculator.html의 러닝 타이머)도 기존 mechanism 그대로 유지한 채 스타일만 입힘, 탭 전환 UI(`date-calc`/`dday`/`working-days-calc`/`time-calculator`)는 `.tab/.active` → `.rbtn-row/.rbtn.on` 컨벤션으로 통일(JS의 탭 전환 함수만 클래스명 변경, 로직 불변), JS 템플릿 생성 카드(`timezone-converter`의 다중 시간대 카드)는 기존 자체 스타일 유지하며 토큰만 재활용.
+
+**직접 검증 완료:**
+- 10개 파일 전부 Node로 인라인 JS 문법 재검증 통과, `</html>` 1회, `theme-instrument.css/js`·`related.js` 정상 링크, 중복 `:root` 블록 없음
+- 브라우저 3개 스팟체크: `dday.html`(JS로 날짜 세팅 → D-170 정확), `timestamp.html`(라이브 현재 타임스탬프 실제 epoch 값과 일치, UI 전부 정상)
+
+**결론: health-calculators(12) + date-time-tools(10/13, 남은 3개는 countdown-timer/pomodoro-timer/time-zone-meeting-planner) = 총 22개 파일 전환 완료.**
+
 ### 다음에 할 일 (미결)
 - [x] `related.js` 위젯 스타일을 theme-instrument.css 토큰 참조하도록 정리 완료 (2026-07-15). `.rt-hdr-cat`, `.rt-card`, `.rt-cat-link` 등 하드코딩 hex를 `var(--glass-border, var(--border, fallback))` 식 체이닝 fallback으로 교체 — **신규 하이브리드A+ 페이지(--glass/--cyan 등 정의)와 기존 미마이그레이션 페이지(--surface/--border/--accent 정의) 양쪽에서 다 자연스럽게 작동**하도록 함(각 페이지가 정의한 토큰이 없으면 다음 순서로 폴백, 최종 폴백은 원래 하드코딩 hex). `.rt-card`에 `backdrop-filter:blur(10px)` 추가해 새 글래스 페이지에서 위젯도 유리질감으로 보이게 함.
 - [ ] 사용자가 `bmi-calc.html` 실제로 열어서 최종 확인 (git 미커밋 상태 — 로컬 파일만 변경됨)
