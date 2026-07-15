@@ -80,12 +80,66 @@ bmi-calc/calorie-calculator 제외한 health-calculators 카테고리 나머지 
 
 **결론: health-calculators(12) + date-time-tools(10/13, 남은 3개는 countdown-timer/pomodoro-timer/time-zone-meeting-planner) = 총 22개 파일 전환 완료.**
 
-### 다음에 할 일 (미결)
+### 다음에 할 일 (미결, 2026-07-15 세션 종료 시점)
 - [x] `related.js` 위젯 스타일을 theme-instrument.css 토큰 참조하도록 정리 완료 (2026-07-15). `.rt-hdr-cat`, `.rt-card`, `.rt-cat-link` 등 하드코딩 hex를 `var(--glass-border, var(--border, fallback))` 식 체이닝 fallback으로 교체 — **신규 하이브리드A+ 페이지(--glass/--cyan 등 정의)와 기존 미마이그레이션 페이지(--surface/--border/--accent 정의) 양쪽에서 다 자연스럽게 작동**하도록 함(각 페이지가 정의한 토큰이 없으면 다음 순서로 폴백, 최종 폴백은 원래 하드코딩 hex). `.rt-card`에 `backdrop-filter:blur(10px)` 추가해 새 글래스 페이지에서 위젯도 유리질감으로 보이게 함.
-- [ ] 사용자가 `bmi-calc.html` 실제로 열어서 최종 확인 (git 미커밋 상태 — 로컬 파일만 변경됨)
-- [ ] 확정되면 나머지 386개 파일에 순차 적용 — 각 파일: `<style>` 블록 제거하고 `<link rel="stylesheet" href="theme-instrument.css">` + `<script src="theme-instrument.js"></script>` 추가, 계산기별 입력/출력 마크업만 하이브리드 A+ 클래스 구조로 교체. 페이지별 필수 SEO/i18n/JSON-LD 요소는 절대 건드리지 않음.
+- [x] 사용자가 `bmi-calc.html` 확인, 컨셉 확정 승인 → 전체 롤아웃 지시 받음 (2026-07-16, "나머지 파일 모두 다 진행해")
 - [ ] index.html 홈페이지 자체의 히어로/카드그리드도 같은 토큰으로 별도 리프레시 필요 (지금까지는 개별 계산기 페이지 기준으로만 진행함)
-- [ ] **git 커밋 여부 확인 필요** — 이 레포는 `CNAME` 파일이 있어 GitHub Pages 등으로 자동배포될 가능성이 있음. push는 사용자 명시 승인 없이 하지 않음. 로컬 커밋만 할지, 아예 안 할지도 다음 세션에서 확인.
+- [x] **git 커밋함, push는 안 함.** 브랜치 `design/hybrid-instrument-glass`, 커밋 `00a7d93`("Convert 60 more files (batch 0+1) to Hybrid A+ theme"). origin에 push된 상태 아님 — 다른 PC에서 이어가려면 이 로컬 저장소를 그대로 가져가거나(git bundle/clone), 사용자가 명시적으로 push를 요청해야 함(에이전트는 push를 임의로 하지 않음).
+
+---
+
+## 전체 사이트 롤아웃 진행 상황 (2026-07-16 시작)
+
+### 방법론 (배치 0/1에서 확립됨)
+- 전체 `*.html` 393개 중 이미 전환된 22개(health-calculators 12 + date-time-tools 10) + 인프라 페이지 5개(index/privacy/about/contact/terms) + 리다이렉트 스텁 68개(`http-equiv="refresh"` 있는 파일, 시각 전환 불필요)를 제외한 **298개 파일이 전환 대상**.
+- 298개를 30개씩 10개 배치로 나눔(마지막 배치만 27~28개). 배치 하나당 **fork 에이전트 5개를 병렬로 띄워 6개 파일씩 담당**시키는 방식으로 진행.
+- fork 프롬프트 템플릿(재사용):
+  1. bmi-calc.html/calorie-calculator.html을 레퍼런스로 참고할 것 명시
+  2. 루트의 `theme-instrument.css`/`theme-instrument.js` 재사용, 새로 만들지 말 것
+  3. **theme-instrument.css에 새 클래스 추가 전 grep으로 기존 정의 확인 필수** — 같은 배치 안 다른 fork들이 동시에 같은 파일을 편집 중이라 클래스명 충돌 위험 있음 (`.opt-label`이 실제로 2가지 다른 용도로 중복 정의된 적 있음 → `.opt-label`/`.opt-label-inline`으로 분리해 해결)
+  4. 각 파일: `<style>` 블록 제거 → `<link rel="stylesheet" href="theme-instrument.css">` 추가 → `</body>` 직전(related.js 앞)에 `<script src="theme-instrument.js"></script>` 추가 → 계산기 UI만 하이브리드 A+ 클래스로 리마크업
+  5. **절대 불가침**: GA/AdSense, canonical/hreflang, JSON-LD 2개, i18n `_i18n` 객체·로직 함수, 정적 `<div class="seo">` FAQ 본문 텍스트(이전 세션에 보강한 파일 — compound-interest/break-even-calculator/cagr-calculator/roi-calculator/gst-calculator/mortgage-calculator 등은 특히 주의), `related.js` 태그
+  6. 라이트/다크 토글 넣지 않음(사이트는 다크 전용)
+  7. 세율/법정 수치 있는 파일(세금·연금·최저임금류)은 숫자 절대 변경 금지, git diff로 확인
+  8. 파일 하나 끝낼 때마다 바로 Node 문법 검증 (세션 중간에 끊겨도 이미 끝낸 파일은 안전하게 남도록)
+- **부모(오케스트레이터) 쪽 필수 검증** (fork의 자체 보고를 그대로 믿지 않고 매 배치 후 직접 재확인):
+  ```
+  # 파일별: theme 링크 확인 + related.js 유지 확인 + JS 문법 검증
+  grep -q 'theme-instrument.css' "$f" && grep -q 'theme-instrument.js' "$f" && grep -q 'related.js' "$f"
+  node -e "...vm.Script(...)..."  # 인라인 <script> 블록 문법 체크, JSON-LD 제외
+
+  # theme-instrument.css 전체 무결성
+  python3 -c "s=open('theme-instrument.css').read(); print(s.count('{'), s.count('}'))"  # 중괄호 짝 확인
+  python3 -c "..."  # 중복 셀렉터 탐지 (Counter로 셀렉터 텍스트 집계, count>1이면 조사 — @media/@keyframes 안에 있는 정당한 재정의는 무시)
+
+  # 법정 수치 파일: git diff로 숫자만 훑기
+  git diff --unified=0 파일.html | grep -E '[0-9]+%|[0-9]+원|[0-9]+억'
+
+  # 사이트 전체 SEO 콘텐츠 회귀 확인 (있으면 재사용, 없으면 audit/ 폴더의 이전 스캔 스크립트 참고해 재작성)
+  # 정적 <div class="seo"> vs JS seoHtml 글자수 10%+ 격차 있는 파일 0건이어야 함
+  ```
+- **세션 사용량 한도 주의**: fork 5개를 동시에 띄우면 세션 한도(리셋 시각 있음, 예: "resets 6:10am")에 걸려 `status: failed`로 죽는 경우 있음. **이 경우 fork의 마지막 result 메시지를 믿지 말고, 실제 파일 상태(`grep theme-instrument.css` 여부)를 직접 확인해서 뭐가 됐고 안 됐는지 판정할 것** — 다행히 fork들은 파일 단위로 원자적으로 작업해서 파일 중간에 깨진 상태로 남는 경우는 없었음(전부 정상 종료했거나 아예 손 안 댄 상태). 안 된 파일만 추려서 더 작은 fork 배치로 재시도.
+
+### 완료: 배치 0 (30개, 2026-07-16)
+acquisition-tax, ai-blog-title-generator, ai-cost-calculator, ai-cover-letter-generator, ai-email-generator, ai-linkedin-post-generator, ai-model-comparison, ai-product-description-generator, ai-resume-generator, ai-thumbnail-title-generator, ai-token-counter, ai-tweet-generator, ai-youtube-title-generator, alphabetizer, anagram-checker, annual-leave, apache-config-generator, api-response-viewer, api-tester, apr-calculator, ascii-converter, ascii-table, avif-to-jpg, barcode-generator, base64-decoder, base64-encoder, base64-image, bcrypt-generator, bcrypt-validator, blur-image — **30/30 성공, 전량 검증 완료.**
+
+### 완료: 배치 1 (30개, 2026-07-16)
+break-even-calculator, cagr-calculator, canonical-tag-checker, capital-gains-tax, case-converter, character-counter, chatgpt-token-counter, cheongyak-score, color-blindness-simulator, color-contrast-checker, color-converter, color-palette, color-picker, commission-calculator, compound-interest, cors-header-checker, countdown-timer, cps-calculator, credit-loan-limit, cron-generator, cron-parser, csp-generator, csp-validator, csr-generator, css-beautifier, css-gradient-generator, css-minifier, csv-diff-checker, csv-to-json, csv-viewer — **30/30 성공, 전량 검증 완료.** (세션 한도로 fork 5개 중 일부가 중간에 끊겨서 재시도 2회 발생 — 최종 전부 완료.)
+
+**누적: 22(기존) + 30(배치0) + 30(배치1) = 82개 파일 전환 완료.**
+
+### 다음 세션에서 이어갈 것: 배치 2~9 (남은 237개)
+정확한 파일 목록은 `design-mockups/ROLLOUT_REMAINING_BATCHES.txt`에 배치별로 저장돼 있음(재생성 불필요, 이 파일 그대로 사용). 배치 2부터 순서대로 위 방법론 그대로 반복하면 됨:
+- 배치 2 (30개): curl-generator ~ find-replace
+- 배치 3~8 (각 30개), 배치 9 (27개): `ROLLOUT_REMAINING_BATCHES.txt` 참고
+
+사용자 지시(2026-07-16): "10개씩 끊지 말고 쭉 진행해" — 배치 완료마다 사용자에게 승인 구하지 말고 검증만 하고 바로 다음 배치로 진행할 것. 배치 1까지 끝낸 시점에 사용자가 "다른 PC에서 이어가겠다"며 중단 요청해서 여기서 멈춤 — 다음 세션은 이 문서 읽고 배치 2부터 바로 시작하면 됨.
+
+**다음 세션 시작 체크리스트**:
+1. `git log --oneline -3`으로 `00a7d93` 커밋이 브랜치에 있는지 확인 (있으면 이어서, 없으면 이 문서에 적힌 origin push 여부부터 사용자에게 확인)
+2. `ROLLOUT_REMAINING_BATCHES.txt`에서 배치 2 파일 목록 확인
+3. 위 fork 프롬프트 템플릿으로 배치 2 실행 → 검증 → 배치 3 → ... 반복
+4. 각 배치 끝날 때마다 이 문서(`### 완료: 배치 N` 섹션)와 git commit 갱신
 
 ## 참고 — 이전에 나온 별도 이슈(디자인 컨셉과 무관, 아직 미착수)
 현재 CLAUDE.md에 없는, 이번 세션에서 fable5 에이전트가 지적한 기존 실행 버그들(별도 작업 필요):
