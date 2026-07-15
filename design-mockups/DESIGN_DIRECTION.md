@@ -128,18 +128,29 @@ break-even-calculator, cagr-calculator, canonical-tag-checker, capital-gains-tax
 
 **누적: 22(기존) + 30(배치0) + 30(배치1) = 82개 파일 전환 완료.**
 
-### 다음 세션에서 이어갈 것: 배치 2~9 (남은 237개)
-정확한 파일 목록은 `design-mockups/ROLLOUT_REMAINING_BATCHES.txt`에 배치별로 저장돼 있음(재생성 불필요, 이 파일 그대로 사용). 배치 2부터 순서대로 위 방법론 그대로 반복하면 됨:
-- 배치 2 (30개): curl-generator ~ find-replace
-- 배치 3~8 (각 30개), 배치 9 (27개): `ROLLOUT_REMAINING_BATCHES.txt` 참고
+### 완료: 배치 2, 1부 (10개, 2026-07-16, 다른 세션에서 이어받아 진행)
+**주의: 이번엔 사용자가 "10개씩 끊어서 진행하자"로 지시 변경** — 배치 2(30개)를 통째로 안 하고 앞 10개만 먼저 처리: `curl-generator`, `curl-parser`, `currency-converter`, `discount-calculator`, `dns-lookup`(1차 시도 transient 서버 에러로 실패 → 재시도해서 성공), `dsr-calc`, `electricity-cost-calculator`, `emi-calculator`, `emoji-counter`, `emoji-remover` — **10/10 성공**.
 
-사용자 지시(2026-07-16): "10개씩 끊지 말고 쭉 진행해" — 배치 완료마다 사용자에게 승인 구하지 말고 검증만 하고 바로 다음 배치로 진행할 것. 배치 1까지 끝낸 시점에 사용자가 "다른 PC에서 이어가겠다"며 중단 요청해서 여기서 멈춤 — 다음 세션은 이 문서 읽고 배치 2부터 바로 시작하면 됨.
+이번 배치부터 fork들에게 "theme-instrument.css에 새 클래스 추가 금지, 필요하면 페이지별 supplemental `<style>` 블록으로 해결"을 명시적으로 강제함(병렬 fork들이 같은 공유 파일 동시 편집하는 race 방지) — 결과: `git diff --stat theme-instrument.css theme-instrument.js` 완전히 비어있음(단 1바이트도 안 건드림), 셀렉터 충돌 0건.
+
+**직접 검증:**
+- 10개 파일 전부 Node 문법 검증 통과, `</html>` 1회, 링크 3종(css/js/related) 각 1회, `:root` 중복 0건
+- `theme-instrument.css` 중괄호 짝 247/247 일치(무결성 확인)
+- `dsr-calc.html`은 법정 DSR 규제 파일이라 특히 꼼꼼히 확인: fork가 `git diff`로 40%/50%/0.40/0.85 등 규제 수치 byte-identical 확인 보고 + 내가 직접 브라우저에서 연소득 6000만원/기존대출 2억(4.5%,20년)/신규대출 1억(4.0%) 입력 → DSR 43.9% 계산되고 1금융권 40% 한도 초과로 "대출 불가" 경고 정확히 뜨는 것까지 실측 확인
+- 원형 SVG 게이지(DSR 계산기 전용, 기존 bmi 스타일 막대 게이지와 다른 형태) 새로 등장 — 페이지별 supplemental style로 처리해서 공유 테마 안 건드림
+
+**남은 배치 2: 나머지 20개** (electricity-cost-calculator 이후부터 find-replace까지) — `ROLLOUT_REMAINING_BATCHES.txt`의 "Batch 02" 섹션에서 이미 완료된 10개(`curl-generator`~`emoji-remover`) 제외한 나머지.
+
+### 다음 세션(또는 다음 배치)에서 이어갈 것
+방법론은 위 "방법론 (배치 0/1에서 확립됨)" 섹션 그대로 + 이번에 추가된 규칙: **theme-instrument.css/js는 절대 동시 수정 금지, 필요한 컴포넌트는 각 파일의 page-specific `<style>` 블록으로 해결.**
+
+정확한 잔여 파일 목록은 `design-mockups/ROLLOUT_REMAINING_BATCHES.txt` 참고(재생성 불필요). 사용자 지시가 "10개씩 끊어서"이므로, 한 번에 10개씩만 fork 병렬 전환 → 검증 → md 업데이트 → 커밋 → (push는 인증 없어서 실패, 사용자가 직접) → 다음 10개, 순서로 진행. 배치 완료마다 사용자 승인 기다리지 말고 계속 진행(단, 한 번에 10개 단위로 끊어서).
 
 **다음 세션 시작 체크리스트**:
-1. `git log --oneline -3`으로 `00a7d93` 커밋이 브랜치에 있는지 확인 (있으면 이어서, 없으면 이 문서에 적힌 origin push 여부부터 사용자에게 확인)
-2. `ROLLOUT_REMAINING_BATCHES.txt`에서 배치 2 파일 목록 확인
-3. 위 fork 프롬프트 템플릿으로 배치 2 실행 → 검증 → 배치 3 → ... 반복
-4. 각 배치 끝날 때마다 이 문서(`### 완료: 배치 N` 섹션)와 git commit 갱신
+1. `git log --oneline -3`으로 최신 커밋 확인
+2. `ROLLOUT_REMAINING_BATCHES.txt`에서 다음 10개 파일 목록 확인 (Batch 02의 나머지 20개부터)
+3. 위 fork 프롬프트 템플릿(+ theme-instrument.css 동시수정 금지 규칙)으로 10개 실행 → 검증 → 다음 10개 반복
+4. 10개 끝날 때마다 이 문서와 git commit 갱신
 
 ## 참고 — 이전에 나온 별도 이슈(디자인 컨셉과 무관, 아직 미착수)
 현재 CLAUDE.md에 없는, 이번 세션에서 fable5 에이전트가 지적한 기존 실행 버그들(별도 작업 필요):
