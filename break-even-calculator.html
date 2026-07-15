@@ -14,45 +14,13 @@
 <link rel="alternate" hreflang="zh" href="https://modoohub.com/break-even-calculator.html?lang=zh">
 <link rel="alternate" hreflang="ja" href="https://modoohub.com/break-even-calculator.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/break-even-calculator.html">
+<link rel="stylesheet" href="theme-instrument.css">
 <style>
-:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
-header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
-.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;}
-.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
-.back-link:hover{color:var(--text-muted);}
-.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
-.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
-main{max-width:640px;margin:0 auto;padding:36px 20px 60px;}
-h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
-h1 span{color:var(--accent);}
-.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:14px;}
-.field-label{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;margin-bottom:6px;}
-.input-row{display:flex;gap:8px;align-items:center;margin-bottom:14px;}
-.f-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:10px 14px;color:var(--text);font-size:15px;font-family:'DM Mono',monospace;outline:none;}
-.f-input:focus{border-color:var(--accent);}
-.results-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.res-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center;}
-.res-box.highlight{background:rgba(251,191,36,0.08);border-color:rgba(251,191,36,0.3);}
-.res-val{font-size:28px;font-weight:900;font-family:'DM Mono',monospace;color:var(--accent);}
-.res-label{font-size:10px;color:var(--text-dim);margin-top:4px;}
 .chart-container{margin-top:16px;position:relative;height:160px;}
 canvas{width:100%;height:160px;}
 .chart-legend{display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;}
 .legend-item{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text-dim);}
 .legend-dot{width:10px;height:10px;border-radius:50%;}
-.formula-box{font-size:11px;font-family:'DM Mono',monospace;color:var(--blue);background:var(--surface2);border-radius:6px;padding:8px 12px;margin-top:10px;line-height:1.7;}
-.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
-.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
-.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
-.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
-details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
-details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
-details.faq-item summary::-webkit-details-marker{display:none;}
-details.faq-item[open] summary{border-bottom:1px solid var(--border);}
-details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
 </style>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
@@ -70,33 +38,34 @@ details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-h
 </head>
 <body>
 <header>
-  <span class="logo">MODOO HUB</span>
+  <div class="dot"></div>
+  <span class="header-label">MODOO HUB</span>
   <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
-  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+  <button class="lang-toggle" onclick="cycleLang()" id="langBtn">🌐 EN</button>
 </header>
 <main>
   <h1><span id="h1Accent">손익분기점</span> 계산기</h1>
-  <p class="sub" id="subEl">BEP 판매량과 매출을 계산합니다</p>
+  <p class="subtitle" id="subEl">BEP 판매량과 매출을 계산합니다</p>
   <div class="card">
     <div class="field-label" id="lblFixed"></div>
-    <div class="input-row"><input class="f-input" id="fixedCost" type="number" placeholder="5000000" oninput="calc()"></div>
-    <div class="field-label" id="lblVariable"></div>
-    <div class="input-row"><input class="f-input" id="varCost" type="number" placeholder="3000" oninput="calc()"></div>
-    <div class="field-label" id="lblPrice"></div>
-    <div class="input-row"><input class="f-input" id="salePrice" type="number" placeholder="5000" oninput="calc()"></div>
-    <div class="field-label" id="lblTarget"></div>
-    <div class="input-row"><input class="f-input" id="targetProfit" type="number" placeholder="0" oninput="calc()"></div>
-    <div class="formula-box" id="formulaBox"></div>
+    <div class="input-wrap"><input id="fixedCost" type="number" placeholder="5000000" oninput="calc()"></div>
+    <div class="field-label" id="lblVariable" style="margin-top:14px;"></div>
+    <div class="input-wrap"><input id="varCost" type="number" placeholder="3000" oninput="calc()"></div>
+    <div class="field-label" id="lblPrice" style="margin-top:14px;"></div>
+    <div class="input-wrap"><input id="salePrice" type="number" placeholder="5000" oninput="calc()"></div>
+    <div class="field-label" id="lblTarget" style="margin-top:14px;"></div>
+    <div class="input-wrap"><input id="targetProfit" type="number" placeholder="0" oninput="calc()"></div>
+    <div class="formula" id="formulaBox" style="margin-top:10px;"></div>
   </div>
-  <div class="card" id="resultCard" style="display:none">
-    <div class="results-grid" id="resultsGrid"></div>
+  <div class="card" id="resultCard" style="display:none; margin-top:14px;">
+    <div class="cal-grid" id="resultsGrid"></div>
     <div class="chart-container">
       <canvas id="bepChart"></canvas>
     </div>
     <div class="chart-legend">
-      <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div><span id="lgRev"></span></div>
-      <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div><span id="lgCost"></span></div>
-      <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div><span id="lgBep"></span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--info)"></div><span id="lgRev"></span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--danger)"></div><span id="lgCost"></span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--violet)"></div><span id="lgBep"></span></div>
     </div>
   </div>
   <div class="seo" id="seoDiv"><h2>손익분기점(BEP) 계산기</h2><p>손익분기점(Break-Even Point)은 총수익과 총비용이 같아지는 시점으로, 이익도 손실도 없는 판매량입니다. 고정비(임대료, 보험료), 단위당 변동비(원재료, 운송비), 판매가를 입력하면 BEP 수량과 매출이 자동으로 계산됩니다. 스타트업 사업 계획, 신제품 출시, 가격 전략 수립에 필수 도구입니다.</p>
@@ -204,13 +173,13 @@ function drawChart(bep,fixed,varCost,price){
   const pad={l:40,r:10,t:10,b:20};const cw=W-pad.l-pad.r,ch=H-pad.t-pad.b;
   const sx=q=>(q/maxQ)*cw+pad.l,sy=v=>H-pad.b-(v/maxV)*ch;
   ctx.clearRect(0,0,W,H);
-  ctx.strokeStyle='#252525';ctx.lineWidth=1;
+  ctx.strokeStyle='rgba(255,255,255,0.08)';ctx.lineWidth=1;
   for(let i=0;i<=4;i++){const y=H-pad.b-(i/4)*ch;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();}
   function polyline(data,key,color){ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=2;data.forEach((p,i)=>{i===0?ctx.moveTo(sx(p.q),sy(p[key])):ctx.lineTo(sx(p.q),sy(p[key]));});ctx.stroke();}
-  polyline(pts,'rev','#60a5fa');polyline(pts,'cost','#f87171');
+  polyline(pts,'rev','#4FA6E8');polyline(pts,'cost','#F2725E');
   const bx=sx(bep),by=sy(bep*price);
-  ctx.beginPath();ctx.arc(bx,by,5,0,Math.PI*2);ctx.fillStyle='#fbbf24';ctx.fill();
-  ctx.strokeStyle='#fbbf24';ctx.setLineDash([4,4]);ctx.lineWidth=1;
+  ctx.beginPath();ctx.arc(bx,by,5,0,Math.PI*2);ctx.fillStyle='#8B7CFA';ctx.fill();
+  ctx.strokeStyle='#8B7CFA';ctx.setLineDash([4,4]);ctx.lineWidth=1;
   ctx.beginPath();ctx.moveTo(bx,H-pad.b);ctx.lineTo(bx,by);ctx.stroke();ctx.setLineDash([]);
 }
 function calc(){
@@ -225,18 +194,19 @@ function calc(){
   const contribRatio=(contrib/sp*100).toFixed(1)+'%';
   const grid=document.getElementById('resultsGrid');grid.innerHTML='';
   const results=[
-    {l:t.rBepQty,v:fmt(bepQ)+' 개',c:'var(--accent)',hl:true},
-    {l:t.rBepRev,v:fmt(bepRev),c:'var(--accent)',hl:true},
-    {l:t.rContrib,v:fmt(contrib),c:'var(--green)'},
-    {l:t.rMargin,v:contribRatio,c:'var(--green)'},
-    ...(tp>0?[{l:t.rTargetQty,v:fmt(targetQ)+' 개',c:'var(--blue)'},{l:t.rTargetRev,v:fmt(targetRev),c:'var(--blue)'}]:[])
+    {l:t.rBepQty,v:fmt(bepQ)+' 개',c:'var(--violet)',hl:true},
+    {l:t.rBepRev,v:fmt(bepRev),c:'var(--violet)',hl:true},
+    {l:t.rContrib,v:fmt(contrib),c:'var(--good)'},
+    {l:t.rMargin,v:contribRatio,c:'var(--good)'},
+    ...(tp>0?[{l:t.rTargetQty,v:fmt(targetQ)+' 개',c:'var(--info)'},{l:t.rTargetRev,v:fmt(targetRev),c:'var(--info)'}]:[])
   ];
-  results.forEach(r=>{grid.innerHTML+=`<div class="res-box${r.hl?' highlight':''}"><div class="res-val" style="color:${r.c}">${r.v}</div><div class="res-label">${r.l}</div></div>`;});
+  results.forEach(r=>{grid.innerHTML+=`<div class="cal-card${r.hl?' highlight':''}"><div class="cal-val" style="color:${r.c}">${r.v}</div><div class="cal-label">${r.l}</div></div>`;});
   document.getElementById('resultCard').style.display='block';
   drawChart(bepQ,fc,vc,sp);
 }
 _lang=detectLang();applyLang();
 </script>
+<script src="theme-instrument.js"></script>
 <script src="related.js"></script>
 </body>
 </html>

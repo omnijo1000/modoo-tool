@@ -9,75 +9,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme-instrument.css">
 <style>
-  :root {
-    --bg:#0d0d0d; --surface:#161616; --surface2:#1f1f1f; --border:#2a2a2a;
-    --accent:#a78bfa; --accent2:#7c3aed; --accent-dim:rgba(167,139,250,0.1);
-    --text:#f0f0f0; --text-muted:#888; --text-dim:#444;
-    --green:#4ade80; --yellow:#facc15; --red:#f87171;
-  }
-  * { box-sizing:border-box; margin:0; padding:0; }
-  body { background:var(--bg); color:var(--text); font-family:'Noto Sans KR',sans-serif; min-height:100vh; }
-  header { border-bottom:1px solid var(--border); padding:20px 24px; display:flex; align-items:center; gap:12px; }
-  .dot { width:8px; height:8px; border-radius:50%; background:var(--accent); }
-  .header-label { font-size:13px; color:var(--text-muted); letter-spacing:0.1em; font-family:'DM Mono',monospace; }
-  .back-link { margin-left:auto; font-size:13px; color:var(--text-muted); text-decoration:none; }
-  .back-link:hover { color:var(--accent); }
-  .lang-toggle { font-size:12px; color:var(--text-muted); cursor:pointer; padding:4px 10px; border:1px solid var(--border); border-radius:6px; font-family:'DM Mono',monospace; transition:all 0.15s; margin-left:8px; }
-  .lang-toggle:hover { border-color:var(--accent); color:var(--accent); }
-  main { max-width:680px; margin:0 auto; padding:48px 24px; }
-  h1 { font-size:clamp(26px,5vw,38px); font-weight:900; line-height:1.1; margin-bottom:12px; }
-  h1 span { color:var(--accent); }
-  .subtitle { color:var(--text-muted); font-size:14px; margin-bottom:32px; }
-  .cron-display { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:20px 24px; margin-bottom:24px; }
-  .cron-label { font-size:11px; color:var(--text-muted); letter-spacing:0.1em; margin-bottom:12px; text-transform:uppercase; }
-  .cron-expr { font-family:'DM Mono',monospace; font-size:28px; font-weight:500; color:var(--accent); letter-spacing:0.05em; word-break:break-all; margin-bottom:12px; cursor:pointer; }
-  .cron-parts { display:flex; gap:6px; flex-wrap:wrap; }
-  .cron-part { font-family:'DM Mono',monospace; font-size:11px; padding:3px 8px; border-radius:4px; background:var(--surface2); border:1px solid var(--border); }
-  .cron-part span { color:var(--text-dim); margin-right:4px; }
-  .cron-desc { margin-top:14px; font-size:14px; color:var(--green); font-weight:500; }
-  .copy-btn { margin-top:12px; background:var(--accent-dim); border:1px solid var(--accent2); border-radius:6px; padding:6px 16px; font-size:12px; color:var(--accent); cursor:pointer; font-family:'DM Mono',monospace; transition:all 0.15s; }
-  .copy-btn:hover { background:var(--accent2); color:#fff; }
-  .presets { margin-bottom:28px; }
-  .section-title { font-size:12px; color:var(--text-muted); letter-spacing:0.08em; margin-bottom:12px; text-transform:uppercase; }
-  .preset-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:8px; }
-  .preset-btn { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:10px 14px; cursor:pointer; text-align:left; transition:all 0.15s; }
-  .preset-btn:hover { border-color:var(--accent2); background:var(--accent-dim); }
-  .preset-name { font-size:13px; color:var(--text); display:block; margin-bottom:3px; }
-  .preset-expr { font-family:'DM Mono',monospace; font-size:11px; color:var(--accent); }
-  .builder { display:flex; flex-direction:column; gap:12px; margin-bottom:28px; }
-  .field { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px 20px; }
-  .field-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
-  .field-name { font-size:13px; font-weight:700; color:var(--text); }
-  .field-input { font-family:'DM Mono',monospace; font-size:18px; color:var(--accent); background:var(--surface2); border:1px solid var(--border); border-radius:6px; padding:6px 12px; width:100px; outline:none; text-align:center; }
-  .field-input:focus { border-color:var(--accent2); }
-  .field-desc { font-size:12px; color:var(--text-dim); margin-bottom:10px; }
-  .option-btns { display:flex; gap:6px; flex-wrap:wrap; }
-  .opt-btn { background:var(--surface2); border:1px solid var(--border); border-radius:5px; padding:4px 10px; font-size:12px; color:var(--text-muted); cursor:pointer; font-family:'DM Mono',monospace; transition:all 0.15s; }
-  .opt-btn:hover { border-color:var(--accent); color:var(--accent); }
-  .manual-input { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px 20px; margin-bottom:28px; }
-  .manual-field { width:100%; font-family:'DM Mono',monospace; font-size:20px; background:var(--surface2); border:1px solid var(--border); border-radius:6px; padding:8px 12px; color:var(--accent); outline:none; }
-  .manual-field:focus { border-color:var(--accent2); }
-  .next-runs { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px 20px; margin-bottom:40px; }
-  .next-list { display:flex; flex-direction:column; gap:6px; margin-top:10px; }
-  .next-item { font-family:'DM Mono',monospace; font-size:13px; color:var(--text-muted); padding:6px 0; border-bottom:1px solid var(--border); display:flex; gap:12px; }
-  .next-item:last-child { border-bottom:none; }
-  .next-num { color:var(--text-dim); min-width:20px; }
-  .reference { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px 20px; margin-bottom:40px; }
-  .ref-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px; }
-  .ref-item { font-size:12px; padding:6px 0; border-bottom:1px solid var(--border); }
-  .ref-expr { font-family:'DM Mono',monospace; color:var(--accent); font-size:12px; }
-  .ref-desc { color:var(--text-muted); font-size:11px; margin-top:2px; }
-  .seo { border-top:1px solid var(--border); padding-top:32px; }
-  .seo h2 { font-size:16px; font-weight:700; margin-bottom:12px; }
-  .seo p { font-size:13px; color:var(--text-muted); line-height:1.8; margin-bottom:24px; }
-  .seo strong{color:var(--text);}
-  details.faq-item{border:1px solid var(--border);border-radius:8px;margin-bottom:8px;}
-  details.faq-item summary{padding:12px 16px;font-size:13px;font-weight:600;cursor:pointer;list-style:none;}
-  details.faq-item summary::-webkit-details-marker{display:none;}
-  details.faq-item summary::before{content:'Q. ';color:var(--primary,#4f8cff);}
-  details.faq-item p{padding:0 16px 12px;font-size:13px;color:var(--text-dim);line-height:1.8;margin:0;}
-  footer { text-align:center; font-size:12px; color:var(--text-dim); margin-top:48px; }
+  .section-title{font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--text-dim); margin-bottom:12px; font-family:var(--mono);}
+  .field-input{font-family:var(--mono); font-size:18px; color:var(--cyan); background:rgba(255,255,255,0.03); border:1px solid var(--glass-border); border-radius:6px; padding:6px 12px; width:100px; outline:none; text-align:center;}
+  .field-input:focus{border-color:var(--cyan);}
+  .manual-field{width:100%; font-family:var(--mono); font-size:20px; background:rgba(255,255,255,0.03); border:1px solid var(--glass-border); border-radius:8px; padding:10px 14px; color:var(--cyan); outline:none;}
+  .manual-field:focus{border-color:var(--cyan);}
 </style>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
@@ -106,6 +44,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Cron 표현식이란 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"리눅스/유닉스 시스템에서 작업 스케줄을 설정하는 문자열입니다. 분·시·일·월·요일 순서로 구성됩니다."}},{"@type":"Question","name":"매일 오전 9시 실행하는 Cron 표현식은?","acceptedAnswer":{"@type":"Answer","text":"0 9 * * *입니다. 왼쪽부터 분(0), 시(9), 일(*), 월(*), 요일(*)입니다."}},{"@type":"Question","name":"*/5는 무슨 의미인가요?","acceptedAnswer":{"@type":"Answer","text":"'매 5마다'를 의미합니다. 분 위치에 */5를 쓰면 5분마다 실행됩니다."}},{"@type":"Question","name":"Cron 표현식을 테스트하는 방법은?","acceptedAnswer":{"@type":"Answer","text":"이 생성기에서 다음 실행 시간을 미리 확인할 수 있습니다. cron-parser 도구로 유효성도 검사하세요."}}]}</script>
 </head>
 <body>
+<div class="mesh"></div>
 <header>
   <div class="dot"></div>
   <span class="header-label">MODOO HUB</span>
@@ -113,39 +52,40 @@
   <div class="lang-toggle" onclick="toggleLang()" id="langBtn">🌐 EN</div>
 </header>
 <main>
+  <div class="eyebrow">Developer · Instrument</div>
   <h1 id="h1Title">Cron 표현식<br><span>생성기</span></h1>
   <p class="subtitle" id="h1Sub">클릭만으로 cron 표현식을 생성하고 다음 실행 시간을 확인하세요</p>
 
-  <div class="cron-display">
-    <div class="cron-label" id="labelExpr">생성된 Cron 표현식</div>
-    <div class="cron-expr" id="cronExpr" onclick="copyExpr()">0 0 * * *</div>
-    <div class="cron-parts" id="cronParts"></div>
-    <div class="cron-desc" id="cronDesc"></div>
-    <button class="copy-btn" id="copyBtn" onclick="copyExpr()">복사하기</button>
+  <div class="readout" style="position:static; margin-bottom:24px;">
+    <div class="readout-head"><span class="readout-label" id="labelExpr">생성된 Cron 표현식</span></div>
+    <div class="bmi-display"><span class="bmi-num" id="cronExpr" onclick="copyExpr()" style="font-size:26px; cursor:pointer; word-break:break-all;">0 0 * * *</span></div>
+    <div class="pill-row" id="cronParts" style="margin-top:14px;"></div>
+    <div class="delta-line" id="cronDesc"></div>
+    <button class="calc-btn" id="copyBtn" onclick="copyExpr()">복사하기</button>
   </div>
 
-  <div class="presets">
+  <div class="card" style="margin-bottom:24px;">
     <div class="section-title" id="labelPresets">자주 쓰는 표현식</div>
-    <div class="preset-grid" id="presetGrid"></div>
+    <div class="chip-grid" id="presetGrid"></div>
   </div>
 
   <div class="section-title" id="labelBuilder" style="margin-bottom:12px;">직접 만들기</div>
-  <div class="builder" id="builderEl"></div>
+  <div class="panel" id="builderEl" style="margin-bottom:24px;"></div>
 
-  <div class="manual-input">
+  <div class="card" style="margin-bottom:24px;">
     <div class="section-title" id="labelManual" style="margin-bottom:10px;">직접 입력 & 검증</div>
     <input type="text" class="manual-field" id="manualExpr" placeholder="* * * * *" oninput="validateManual()">
-    <div style="font-size:12px;color:var(--text-dim);margin-top:8px;" id="manualHint">표현식을 직접 입력하면 자동으로 빌더에 반영됩니다</div>
+    <div class="note" id="manualHint">표현식을 직접 입력하면 자동으로 빌더에 반영됩니다</div>
   </div>
 
-  <div class="next-runs">
+  <div class="card" style="margin-bottom:24px;">
     <div class="section-title" id="labelNext">다음 실행 예정 시간</div>
-    <div class="next-list" id="nextRuns"></div>
+    <div id="nextRuns"></div>
   </div>
 
-  <div class="reference">
+  <div class="card" style="margin-bottom:24px;">
     <div class="section-title" id="labelRef">특수 문자 참고</div>
-    <div class="ref-grid" id="refGrid"></div>
+    <div class="kv-grid" id="refGrid"></div>
   </div>
 
   <div class="seo" data-i18n="seoHtml"><h2>Cron 표현식이란?</h2><p>Cron은 Unix 계열 시스템에서 특정 시간에 자동으로 작업을 실행하는 스케줄러입니다. Cron 표현식은 "분 시 일 월 요일" 5개 필드로 구성되며, Spring @Scheduled, Jenkins, GitHub Actions, Linux crontab 등에서 사용합니다.</p><details class="faq-item"><summary>Spring @Scheduled cron과 표준 cron의 차이는?</summary><p>Spring은 초(second) 필드가 추가되어 6개 필드를 사용합니다. 맨 앞에 초(0~59)를 추가해야 합니다. 예: "0 0 9 * * MON-FRI"</p></details><details class="faq-item"><summary>*/5 * * * * 는 무슨 의미인가요?</summary><p>매 5분마다 실행을 의미합니다. */n은 n분(시간/일)마다 실행하는 간격 표현입니다. 예) */10은 10분마다, 시 필드의 */2는 2시간마다를 의미합니다.</p></details><details class="faq-item"><summary>평일 오전 9시에만 실행하려면?</summary><p>0 9 * * 1-5 를 사용합니다. 1-5는 월요일(1)부터 금요일(5)까지를 의미합니다. 주말만 실행하려면 0 9 * * 0,6 을 사용합니다.</p></details><details class="faq-item"><summary>매월 말일에 실행하려면?</summary><p>일 필드에 L을 사용합니다. 예: 0 0 L * * (매월 마지막 날 자정). L은 표준 Linux crontab에서는 지원되지 않고 Jenkins, Spring 등 일부 스케줄러에서만 지원합니다.</p></details><details class="faq-item"><summary>서버가 꺼져 있어 작업이 누락되면 어떻게 되나요?</summary><p>표준 cron은 누락된 작업을 자동으로 재실행하지 않습니다. 서버가 복구되면 다음 예정 시간에만 실행됩니다. 누락된 작업 처리가 필요하면 Quartz Scheduler나 APScheduler 같은 라이브러리를 고려하세요.</p></details><details class="faq-item"><summary>크론 표현식에서 L(Last)과 W(Weekday)는 무엇인가요?</summary><p>L은 "마지막"을 의미합니다. 날짜 필드에 L이면 해당 월의 마지막 날, 요일 필드에 L이면 마지막 해당 요일을 뜻합니다. W는 가장 가까운 평일을 선택합니다. Quartz와 Spring Cron에서 지원합니다.</p></details><details class="faq-item"><summary>크론잡이 예상 시간에 실행되지 않으면 어떻게 디버깅하나요?</summary><p>1) 서버 시간대 확인(TZ 설정), 2) 크론 로그 확인(/var/log/cron), 3) crontab -l로 등록 확인, 4) crond 서비스 상태 점검. 시간대 불일치가 가장 흔한 원인입니다.</p></details><details class="faq-item"><summary>크론잡 실행 시 환경 변수 문제가 발생합니다.</summary><p>크론은 최소한의 환경 변수만 로드합니다. 스크립트 시작 부분에 PATH 등 필요한 환경 변수를 명시하거나 `source /etc/profile`을 추가해 전체 환경을 로드하세요.</p></details></div>
@@ -318,24 +258,24 @@ function toggleLang() {
 
 function renderPresets() {
   if (document.getElementById('presetGrid')) document.getElementById('presetGrid').innerHTML = i18n[lang].presets.map(p=>
-    `<button class="preset-btn" onclick="applyPreset('${p.expr}','${p.name}')"><span class="preset-name">${p.name}</span><span class="preset-expr">${p.expr}</span></button>`
+    `<button class="chip-btn" onclick="applyPreset('${p.expr}','${p.name}')"><span class="chip-name">${p.name}</span><span class="chip-val">${p.expr}</span></button>`
   ).join('');
 }
 
 function renderBuilder() {
   const defaults = ['0','0','*','*','*'];
   if (document.getElementById('builderEl')) document.getElementById('builderEl').innerHTML = i18n[lang].fields.map((f,i)=>`
-    <div class="field">
-      <div class="field-header"><span class="field-name">${f.name}</span><input type="text" class="field-input" id="${fieldIds[i]}" value="${defaults[i]}" oninput="buildCron()"></div>
-      <div class="field-desc">${f.desc}</div>
-      <div class="option-btns">${f.opts.map(o=>`<button class="opt-btn" onclick="setField('${fieldIds[i]}','${o.v}')">${o.l}</button>`).join('')}</div>
+    <div class="card">
+      <div class="field-label"><span>${f.name}</span><input type="text" class="field-input" id="${fieldIds[i]}" value="${defaults[i]}" oninput="buildCron()"></div>
+      <div class="formula" style="margin-bottom:10px;">${f.desc}</div>
+      <div class="options-row">${f.opts.map(o=>`<button class="opt-btn" onclick="setField('${fieldIds[i]}','${o.v}')">${o.l}</button>`).join('')}</div>
     </div>`
   ).join('');
 }
 
 function renderRefs() {
   if (document.getElementById('refGrid')) document.getElementById('refGrid').innerHTML = i18n[lang].refs.map(r=>
-    `<div class="ref-item"><div class="ref-expr">${r.e}</div><div class="ref-desc">${r.d}</div></div>`
+    `<div class="kv-item"><div class="kv-key">${r.e}</div><div class="kv-val">${r.d}</div></div>`
   ).join('');
 }
 
@@ -349,7 +289,7 @@ function buildCron() {
   if (document.getElementById('cronExpr')) document.getElementById('cronExpr').textContent = expr;
   document.getElementById('manualExpr').value = expr;
   const labels = i18n[lang].fields.map(f=>f.name.split(' ')[0]);
-  if (document.getElementById('cronParts')) document.getElementById('cronParts').innerHTML = f.map((v,i)=>`<div class="cron-part"><span>${labels[i]}</span>${v}</div>`).join('');
+  if (document.getElementById('cronParts')) document.getElementById('cronParts').innerHTML = f.map((v,i)=>`<div class="pill-chip"><span>${labels[i]}</span>${v}</div>`).join('');
   updateDesc(f);
   updateNextRuns(expr);
 }
@@ -363,7 +303,7 @@ function applyPreset(expr, name) {
   if (document.getElementById('cronExpr')) document.getElementById('cronExpr').textContent = expr;
   document.getElementById('manualExpr').value=expr;
   if (document.getElementById('cronDesc')) document.getElementById('cronDesc').textContent = '→ '+name;
-  if (document.getElementById('cronParts')) document.getElementById('cronParts').innerHTML = parts.map((v,i)=>`<div class="cron-part"><span>${i18n[lang].fields[i].name.split(' ')[0]}</span>${v}</div>`).join('');
+  if (document.getElementById('cronParts')) document.getElementById('cronParts').innerHTML = parts.map((v,i)=>`<div class="pill-chip"><span>${i18n[lang].fields[i].name.split(' ')[0]}</span>${v}</div>`).join('');
   updateNextRuns(expr);
 }
 
@@ -405,7 +345,7 @@ function updateNextRuns(expr) {
   const parts=expr.split(/\s+/);
   if(parts.length!==5) return;
   const runs=calcNextRuns(parts,5);
-  if (document.getElementById('nextRuns')) document.getElementById('nextRuns').innerHTML = runs.map((d,i)=>`<div class="next-item"><span class="next-num">${i+1}</span>${formatDate(d)}</div>`).join('');
+  if (document.getElementById('nextRuns')) document.getElementById('nextRuns').innerHTML = runs.map((d,i)=>`<div class="row"><span class="lk">${i+1}</span><span class="lv">${formatDate(d)}</span></div>`).join('');
 }
 
 function calcNextRuns(parts,count) {
@@ -441,6 +381,7 @@ function copyExpr() {
 
 applyLang();
 </script>
+<script src="theme-instrument.js"></script>
 <script src="related.js"></script>
 </body>
 </html>

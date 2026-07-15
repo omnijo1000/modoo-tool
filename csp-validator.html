@@ -14,6 +14,7 @@
 <link rel="alternate" hreflang="zh" href="https://modoohub.com/csp-validator.html?lang=zh">
 <link rel="alternate" hreflang="ja" href="https://modoohub.com/csp-validator.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/csp-validator.html">
+<link rel="stylesheet" href="theme-instrument.css">
 <meta property="og:title" content="CSP 검증기 - Content Security Policy 분석 & 오류 진단">
 <meta property="og:description" content="CSP 헤더를 파싱해 지시어 분석, 위험 키워드 경고, 누락 항목 진단.">
 <meta property="og:image" content="https://modoohub.com/og-image.png">
@@ -24,56 +25,28 @@
 <meta property="og:url" content="https://modoohub.com/csp-validator.html">
 <meta property="og:type" content="website">
 <style>
-:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
-header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
-.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
-.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;font-family:'DM Mono',monospace;}
-.back-link:hover{color:var(--text-muted);}
-.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;font-family:'DM Mono',monospace;background:none;}
-.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
-main{max-width:800px;margin:0 auto;padding:36px 20px 60px;}
-h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
-h1 span{color:var(--accent);}
-.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;line-height:1.6;}
-.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:14px;}
-.field-label{font-size:11px;color:var(--text-dim);letter-spacing:.06em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:6px;display:block;}
-.field-ta{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:10px 12px;color:var(--text);font-size:12px;font-family:'DM Mono',monospace;resize:vertical;min-height:80px;outline:none;line-height:1.7;transition:border-color .15s;}
-.field-ta:focus{border-color:var(--accent);}
+main{max-width:800px;}
+.field-ta{width:100%;background:rgba(255,255,255,0.03);border:1px solid var(--glass-border);border-radius:8px;padding:10px 12px;color:var(--text);font-size:12px;font-family:var(--mono);resize:vertical;min-height:80px;outline:none;line-height:1.7;transition:border-color .15s;}
+.field-ta:focus{border-color:var(--cyan);}
 .btn-row{display:flex;gap:8px;margin-top:12px;}
-.btn{padding:8px 20px;border:1px solid var(--border);border-radius:7px;font-size:12px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;background:none;color:var(--text-muted);transition:all .15s;}
-.btn:hover{border-color:var(--accent);color:var(--accent);}
-.btn.primary{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;}
-.btn.primary:hover{opacity:.85;}
 .results{display:none;}
 .results.show{display:block;}
-.section-title{font-size:11px;color:var(--text-dim);letter-spacing:.07em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:8px;}
+.section-title{font-size:11px;color:var(--text-dim);letter-spacing:.07em;text-transform:uppercase;font-family:var(--mono);margin-bottom:8px;}
 .issue-list{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
-.issue{padding:9px 12px;border-radius:7px;border:1px solid;font-size:12px;display:flex;gap:8px;align-items:flex-start;}
-.issue.error{border-color:rgba(248,113,113,.3);background:rgba(248,113,113,.05);color:var(--red);}
-.issue.warn{border-color:rgba(251,191,36,.3);background:rgba(251,191,36,.05);color:var(--accent);}
-.issue.info{border-color:rgba(96,165,250,.3);background:rgba(96,165,250,.05);color:var(--blue);}
+.issue{padding:9px 12px;border-radius:8px;border:1px solid;font-size:12px;display:flex;gap:8px;align-items:flex-start;}
+.issue.error{border-color:rgba(242,114,94,.3);background:rgba(242,114,94,.07);color:var(--danger);}
+.issue.warn{border-color:rgba(232,193,85,.3);background:rgba(232,193,85,.07);color:var(--warn);}
+.issue.info{border-color:rgba(79,166,232,.3);background:rgba(79,166,232,.07);color:var(--info);}
 .issue-icon{flex-shrink:0;font-size:13px;}
 .dir-table{width:100%;border-collapse:collapse;font-size:12px;}
-.dir-table th{text-align:left;padding:7px 10px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.07em;color:var(--text-dim);border-bottom:1px solid var(--border);}
-.dir-table td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
+.dir-table th{text-align:left;padding:7px 10px;font-family:var(--mono);font-size:10px;letter-spacing:.07em;color:var(--text-dim);border-bottom:1px solid var(--glass-border);}
+.dir-table td{padding:8px 10px;border-bottom:1px solid var(--glass-border);vertical-align:top;}
 .dir-table tr:last-child td{border-bottom:none;}
-.dir-table td:first-child{font-family:'DM Mono',monospace;font-size:11px;color:var(--blue);white-space:nowrap;}
-.dir-table td:last-child{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);word-break:break-all;}
-.tag{display:inline-block;padding:1px 6px;border-radius:3px;font-size:10px;font-family:'DM Mono',monospace;margin-right:3px;}
-.tag.unsafe{background:rgba(248,113,113,.15);color:var(--red);border:1px solid rgba(248,113,113,.3);}
-.tag.safe{background:rgba(74,222,128,.1);color:var(--green);border:1px solid rgba(74,222,128,.2);}
-.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
-.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
-.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
-.seo strong{color:var(--text-muted);}
-.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
-details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
-details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
-details.faq-item summary::-webkit-details-marker{display:none;}
-details.faq-item[open] summary{border-bottom:1px solid var(--border);}
-details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+.dir-table td:first-child{font-family:var(--mono);font-size:11px;color:var(--cyan);white-space:nowrap;}
+.dir-table td:last-child{font-family:var(--mono);font-size:11px;color:var(--text-muted);word-break:break-all;}
+.tag{display:inline-block;padding:1px 6px;border-radius:4px;font-size:10px;font-family:var(--mono);margin-right:3px;}
+.tag.unsafe{background:rgba(242,114,94,.15);color:var(--danger);border:1px solid rgba(242,114,94,.3);}
+.tag.safe{background:rgba(79,203,154,.1);color:var(--good);border:1px solid rgba(79,203,154,.25);}
 footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:32px;}
 </style>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
@@ -83,24 +56,27 @@ footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:32px;}
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"CSP 검증이 필요한 이유는?","acceptedAnswer":{"@type":"Answer","text":"잘못된 CSP는 사이트를 깨뜨리거나 보안 효과가 없을 수 있습니다. 검증을 통해 'unsafe-inline' 등 위험 키워드, 누락된 지시어를 확인하세요."}},{"@type":"Question","name":"CSP에서 'unsafe-inline'이 경고되는 이유는?","acceptedAnswer":{"@type":"Answer","text":"'unsafe-inline'은 인라인 스크립트를 허용해 XSS 공격에 취약해집니다. nonce 또는 hash 기반 방식으로 교체하는 것이 권장됩니다."}}]}</script>
 </head>
 <body>
+<div class="mesh"></div>
 <header>
-  <span class="logo">MODOO HUB</span>
+  <span class="dot"></span>
+  <span class="header-label">MODOO HUB</span>
   <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
-  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+  <button class="lang-toggle" onclick="cycleLang()" id="langBtn">🌐 EN</button>
 </header>
 <main>
+  <div class="eyebrow">SECURITY</div>
   <h1>CSP <span id="h1Span">검증기</span></h1>
-  <p class="sub" id="subEl">CSP 헤더 파싱·위험 키워드 경고·누락 지시어 진단</p>
-  <div class="panel">
+  <p class="subtitle" id="subEl">CSP 헤더 파싱·위험 키워드 경고·누락 지시어 진단</p>
+  <div class="card" style="margin-bottom:14px;">
     <label class="field-label" id="labelInput">Content-Security-Policy 헤더 값 또는 전체 헤더</label>
     <textarea class="field-ta" id="cspInput" placeholder="default-src 'self'; script-src 'self' https://cdn.example.com; style-src 'self' 'unsafe-inline';"></textarea>
     <div class="btn-row">
-      <button class="btn primary" id="btnValidate" onclick="validate()">검증</button>
-      <button class="btn" id="btnClear" onclick="clearAll()">초기화</button>
+      <button class="calc-btn" id="btnValidate" onclick="validate()" style="width:auto;padding:9px 24px;">검증</button>
+      <button class="copy-btn" id="btnClear" onclick="clearAll()">초기화</button>
     </div>
   </div>
   <div class="results" id="resultsArea">
-    <div class="panel">
+    <div class="card">
       <div class="section-title" id="titleIssues">진단 결과</div>
       <div class="issue-list" id="issueList"></div>
       <div class="section-title" id="titleDirectives">파싱된 지시어</div>
@@ -254,6 +230,7 @@ function validate(){
 function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 _lang=detectLang();applyLang();
 </script>
+<script src="theme-instrument.js"></script>
 <script src="related.js"></script>
 </body>
 </html>

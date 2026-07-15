@@ -14,6 +14,7 @@
 <link rel="alternate" hreflang="ja" href="https://modoohub.com/chatgpt-token-counter.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/chatgpt-token-counter.html">
 <link rel="canonical" href="https://modoohub.com/chatgpt-token-counter.html">
+<link rel="stylesheet" href="theme-instrument.css">
 <meta property="og:title" content="ChatGPT Token Counter - GPT-4 토큰 카운터">
 <meta property="og:description" content="GPT-4o, GPT-4.1, o1 등 OpenAI 모델 토큰 수 추정 및 컨텍스트 한도 확인. API 비용 계산기 포함.">
 <meta property="og:image" content="https://modoohub.com/og-image.png">
@@ -23,66 +24,6 @@
 <meta name="twitter:image" content="https://modoohub.com/og-image.png">
 <meta property="og:url" content="https://modoohub.com/chatgpt-token-counter.html">
 <meta property="og:type" content="website">
-<style>
-:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
-header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
-.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
-.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;font-family:'DM Mono',monospace;}
-.back-link:hover{color:var(--text-muted);}
-.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;font-family:'DM Mono',monospace;background:none;}
-.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
-main{max-width:760px;margin:0 auto;padding:36px 20px 60px;}
-h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
-h1 span{color:var(--accent);}
-.sub{font-size:13px;color:var(--text-muted);margin-bottom:16px;line-height:1.6;}
-.model-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
-.tab-btn{padding:6px 14px;border:1px solid var(--border);border-radius:20px;font-size:12px;font-family:'DM Mono',monospace;cursor:pointer;background:none;color:var(--text-muted);transition:all .15s;}
-.tab-btn:hover{border-color:var(--accent);color:var(--accent);}
-.tab-btn.active{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;}
-.textarea-wrap{position:relative;margin-bottom:14px;}
-textarea{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;resize:vertical;min-height:200px;outline:none;line-height:1.7;}
-textarea:focus{border-color:var(--accent);}
-.char-info{position:absolute;bottom:10px;right:14px;font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;}
-.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;}
-@media(max-width:480px){.stats-grid{grid-template-columns:1fr 1fr;}}
-.stat-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;}
-.stat-box.hi{border-color:var(--accent);background:rgba(251,191,36,.06);}
-.stat-v{font-size:22px;font-weight:900;font-family:'DM Mono',monospace;color:var(--accent);}
-.stat-box:not(.hi) .stat-v{color:var(--text);}
-.stat-l{font-size:11px;color:var(--text-dim);margin-top:3px;}
-.ctx-panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px;}
-.ctx-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
-.ctx-title{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;}
-.ctx-pct{font-size:20px;font-weight:900;font-family:'DM Mono',monospace;color:var(--accent);}
-.ctx-bar-bg{width:100%;height:10px;background:var(--surface2);border-radius:6px;overflow:hidden;margin-bottom:8px;}
-.ctx-bar-fill{height:100%;border-radius:6px;background:var(--green);transition:width .3s,background .3s;}
-.ctx-bar-fill.warn80{background:var(--accent);}
-.ctx-bar-fill.warn95{background:var(--red);}
-.ctx-nums{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;}
-.ctx-warning{font-size:12px;padding:8px 12px;border-radius:7px;margin-top:8px;display:none;}
-.ctx-warning.show{display:block;}
-.ctx-warning.w80{background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);color:var(--accent);}
-.ctx-warning.w95{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);color:var(--red);}
-.cost-panel{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
-@media(max-width:440px){.cost-panel{grid-template-columns:1fr;}}
-.cost-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;}
-.cost-label{font-size:11px;color:var(--text-dim);letter-spacing:.05em;margin-bottom:6px;font-family:'DM Mono',monospace;}
-.cost-val{font-size:18px;font-weight:700;font-family:'DM Mono',monospace;color:var(--accent);}
-.overhead-note{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;padding:8px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:14px;line-height:1.6;}
-.note{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;text-align:center;margin-bottom:28px;line-height:1.6;}
-.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
-.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
-.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:12px;}
-.seo strong{color:var(--text);}
-details.faq-item{border:1px solid var(--border);border-radius:8px;margin-bottom:8px;}
-details.faq-item summary{padding:12px 16px;font-size:13px;font-weight:600;cursor:pointer;list-style:none;}
-details.faq-item summary::-webkit-details-marker{display:none;}
-details.faq-item summary::before{content:'Q. ';color:var(--accent);}
-details.faq-item p{padding:0 16px 12px;font-size:13px;color:var(--text-dim);line-height:1.8;margin:0;}
-footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:32px;}
-</style>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
@@ -117,52 +58,60 @@ footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:32px;}
 </head>
 <body>
 <header>
-  <span class="logo">MODOO HUB</span>
+  <div class="dot"></div>
+  <span class="header-label">MODOO HUB</span>
   <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
-  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+  <div class="lang-toggle" onclick="cycleLang()" id="langBtn">🌐 EN</div>
 </header>
 <main>
+  <div class="eyebrow">AI · Instrument</div>
   <h1>ChatGPT <span id="h1Span">토큰 카운터</span></h1>
-  <p class="sub" id="subEl">ChatGPT·GPT-4 토큰 수 추정 · 컨텍스트 한도 확인</p>
+  <p class="subtitle" id="subEl">ChatGPT·GPT-4 토큰 수 추정 · 컨텍스트 한도 확인</p>
 
-  <div class="model-tabs" id="modelTabs"></div>
-
-  <div class="textarea-wrap">
-    <textarea id="inputText" placeholder="텍스트를 입력하세요..." oninput="update()"></textarea>
-    <span class="char-info" id="charInfo">0 chars</span>
+  <div class="card">
+    <div class="field-label">모델</div>
+    <div class="rbtn-row" id="modelTabs"></div>
   </div>
 
-  <div class="stats-grid">
-    <div class="stat-box hi"><div class="stat-v" id="sTokens">0</div><div class="stat-l" id="labelTokens">추정 토큰</div></div>
-    <div class="stat-box"><div class="stat-v" id="sChars">0</div><div class="stat-l" id="labelChars">문자수</div></div>
-    <div class="stat-box"><div class="stat-v" id="sWords">0</div><div class="stat-l" id="labelWords">단어수</div></div>
+  <div class="box">
+    <div class="editor-label">
+      <span></span>
+      <span class="char-count" id="charInfo">0 chars</span>
+    </div>
+    <textarea id="inputText" placeholder="텍스트를 입력하세요..." oninput="update()" style="min-height:200px;"></textarea>
   </div>
 
-  <div class="ctx-panel">
-    <div class="ctx-header">
-      <span class="ctx-title" id="labelCtxUsage">컨텍스트 사용량</span>
-      <span class="ctx-pct" id="ctxPct">0%</span>
-    </div>
-    <div class="ctx-bar-bg">
-      <div class="ctx-bar-fill" id="ctxBar" style="width:0%"></div>
-    </div>
-    <div class="ctx-nums" id="ctxNums">0 / 128,000 tokens</div>
-    <div class="ctx-warning w80" id="warn80" id="labelCtxWarning80"></div>
-    <div class="ctx-warning w95" id="warn95" id="labelCtxWarning95"></div>
+  <div class="cal-grid" style="grid-template-columns:repeat(3,1fr);">
+    <div class="cal-card"><div class="cal-val" id="sTokens">0</div><div class="cal-label" id="labelTokens">추정 토큰</div></div>
+    <div class="cal-card"><div class="cal-val" id="sChars">0</div><div class="cal-label" id="labelChars">문자수</div></div>
+    <div class="cal-card"><div class="cal-val" id="sWords">0</div><div class="cal-label" id="labelWords">단어수</div></div>
   </div>
 
-  <div class="cost-panel">
-    <div class="cost-box">
-      <div class="cost-label" id="labelInputCost">입력 비용 (현재 토큰 기준)</div>
-      <div class="cost-val" id="inCostVal">$0.000000</div>
+  <div class="box">
+    <div class="readout-head">
+      <span class="readout-label" id="labelCtxUsage">컨텍스트 사용량</span>
+      <span class="pill" id="ctxPct">0%</span>
     </div>
-    <div class="cost-box">
-      <div class="cost-label" id="labelOutputCost">예상 출력 비용 (2× 입력 추정)</div>
-      <div class="cost-val" id="outCostVal">$0.000000</div>
+    <div class="bar-track">
+      <div class="bar-fill" id="ctxBar" style="width:0%"></div>
+    </div>
+    <div class="cal-label" id="ctxNums">0 / 128,000 tokens</div>
+    <div class="bar-warning warn" id="warn80"></div>
+    <div class="bar-warning danger" id="warn95"></div>
+  </div>
+
+  <div class="cal-grid">
+    <div class="cal-card">
+      <div class="cal-label" id="labelInputCost">입력 비용 (현재 토큰 기준)</div>
+      <div class="cal-val" id="inCostVal">$0.000000</div>
+    </div>
+    <div class="cal-card">
+      <div class="cal-label" id="labelOutputCost">예상 출력 비용 (2× 입력 추정)</div>
+      <div class="cal-val" id="outCostVal">$0.000000</div>
     </div>
   </div>
 
-  <div class="overhead-note" id="msgOverhead">※ ChatGPT API는 메시지당 ~4토큰의 포맷 오버헤드를 추가합니다.</div>
+  <div class="compat-note" id="msgOverhead">※ ChatGPT API는 메시지당 ~4토큰의 포맷 오버헤드를 추가합니다.</div>
   <div class="note" id="noteApprox">※ 토큰 수는 BPE 근사값입니다. 정확한 계산에는 OpenAI의 공식 tiktoken 라이브러리를 사용하세요.</div>
 
   <div class="seo" id="seoDiv"><h2>ChatGPT 토큰 카운터란?</h2><p>OpenAI GPT 모델은 텍스트를 <strong>토큰</strong> 단위로 처리합니다. API 비용은 처리한 토큰 수에 비례하므로, 정확한 토큰 추정이 비용 관리에 필수적입니다. 이 도구는 GPT-4o, GPT-4.1, o1, o3 mini 등 주요 OpenAI 모델의 토큰 수를 실시간으로 추정하고, 컨텍스트 윈도우 사용량과 예상 API 비용을 함께 보여줍니다.</p>
@@ -333,7 +282,7 @@ function applyLang(){
 
 function renderTabs(){
   document.getElementById('modelTabs').innerHTML=GPT_MODELS.map(m=>`
-    <button class="tab-btn${m.id===_selectedModel.id?' active':''}" onclick="selectModel('${m.id}')">${m.name}</button>
+    <div class="rbtn${m.id===_selectedModel.id?' on':''}" onclick="selectModel('${m.id}')">${m.name}</div>
   `).join('');
 }
 
@@ -377,12 +326,12 @@ function update(){
 
   const bar=document.getElementById('ctxBar');
   bar.style.width=Math.min(100,pct)+'%';
-  bar.className='ctx-bar-fill'+(pct>=95?' warn95':pct>=80?' warn80':'');
+  bar.className='bar-fill'+(pct>=95?' danger':pct>=80?' warn':'');
 
   const w80=document.getElementById('warn80');
   const w95=document.getElementById('warn95');
-  w80.className='ctx-warning w80'+(pct>=80&&pct<95?' show':'');
-  w95.className='ctx-warning w95'+(pct>=95?' show':'');
+  w80.className='bar-warning warn'+(pct>=80&&pct<95?' show':'');
+  w95.className='bar-warning danger'+(pct>=95?' show':'');
 
   const inCost=(tokens/1_000_000)*m.inPer1M;
   const outCost=(tokens*2/1_000_000)*m.outPer1M;
@@ -393,6 +342,7 @@ function update(){
 _lang=detectLang();
 applyLang();
 </script>
+<script src="theme-instrument.js"></script>
 <script src="related.js"></script>
 </body>
 </html>

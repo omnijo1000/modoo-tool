@@ -28,95 +28,30 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme-instrument.css">
 <style>
-:root { --bg:#0a0a0a; --surface:#141414; --border:#222; --text:#f0f0f0; --text-muted:#777; --text-dim:#444; --accent:#4ade80; }
-* { box-sizing:border-box; margin:0; padding:0; }
-body { background:var(--bg); color:var(--text); font-family:'Noto Sans KR',sans-serif; min-height:100vh; }
-
-header { border-bottom:1px solid var(--border); padding:20px 24px; display:flex; align-items:center; gap:12px; }
-.dots { display:flex; gap:5px; }
-.dot { width:7px; height:7px; border-radius:50%; }
-.d1{background:#4ade80}.d2{background:#4f8ef7}.d3{background:#c084fc}.d4{background:#fb923c}.d5{background:#2dd4bf}.d6{background:#fcd34d}
-.header-label { font-size:13px; color:var(--text-muted); letter-spacing:0.1em; font-family:'DM Mono',monospace; }
-.back-btn { margin-left:auto; font-size:12px; color:var(--text-muted); text-decoration:none; padding:4px 12px; border:1px solid var(--border); border-radius:6px; font-family:'DM Mono',monospace; transition:all 0.15s; }
-.back-btn:hover { border-color:var(--accent); color:var(--accent); }
-
-main { max-width:720px; margin:0 auto; padding:48px 24px; }
-h1 { font-size:28px; font-weight:900; margin-bottom:8px; }
-h1 span { background:linear-gradient(90deg,#4ade80,#86efac); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-.subtitle { font-size:13px; color:var(--text-muted); margin-bottom:32px; }
-
-/* 글자 제한 설정 */
-.limit-bar { display:flex; align-items:center; gap:10px; margin-bottom:12px; flex-wrap:wrap; }
-.limit-label { font-size:12px; color:var(--text-muted); font-family:'DM Mono',monospace; }
-.limit-input { background:var(--surface); border:1px solid var(--border); border-radius:6px; color:var(--text); font-size:13px; font-family:'DM Mono',monospace; padding:4px 10px; width:90px; outline:none; transition:border-color 0.15s; }
-.limit-input:focus { border-color:var(--accent); }
-.limit-toggle { font-size:12px; color:var(--text-muted); cursor:pointer; padding:4px 10px; border:1px solid var(--border); border-radius:6px; transition:all 0.15s; user-select:none; }
-.limit-toggle.active { border-color:var(--accent); color:var(--accent); }
-
-/* 텍스트에어리어 */
-.textarea-wrap { position:relative; margin-bottom:16px; }
-textarea {
-  width:100%; min-height:240px; background:var(--surface); border:1px solid var(--border);
-  border-radius:12px; color:var(--text); font-size:15px; font-family:'Noto Sans KR',sans-serif;
-  padding:18px; resize:vertical; outline:none; line-height:1.8; transition:border-color 0.15s;
-}
-textarea:focus { border-color:var(--accent); }
-textarea.over-limit { border-color:#ef4444; }
-.clear-btn {
-  position:absolute; top:12px; right:12px; background:none; border:none;
-  color:var(--text-dim); cursor:pointer; font-size:18px; line-height:1;
-  padding:4px; border-radius:4px; transition:color 0.15s;
-}
-.clear-btn:hover { color:var(--text-muted); }
-
-/* 진행 바 */
-.progress-wrap { margin-bottom:20px; }
-.progress-bg { background:var(--border); border-radius:99px; height:4px; overflow:hidden; }
-.progress-fill { height:100%; border-radius:99px; background:var(--accent); transition:width 0.15s, background 0.15s; width:0%; }
-.progress-fill.warn { background:#fcd34d; }
-.progress-fill.over { background:#ef4444; }
-.progress-label { font-size:11px; color:var(--text-dim); font-family:'DM Mono',monospace; margin-top:6px; text-align:right; }
-
-/* 스탯 그리드 */
-.stats { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:24px; }
-@media(max-width:500px) { .stats { grid-template-columns:repeat(2,1fr); } }
-.stat-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px; text-align:center; transition:border-color 0.2s; }
-.stat-card.highlight { border-color:var(--accent); }
-.stat-num { font-size:28px; font-weight:900; font-family:'DM Mono',monospace; color:var(--accent); line-height:1; margin-bottom:4px; }
-.stat-num.warn { color:#fcd34d; }
-.stat-num.over { color:#ef4444; }
-.stat-label { font-size:11px; color:var(--text-muted); }
-
-/* 바이트 카드 */
-.byte-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px; margin-bottom:16px; }
-.byte-title { font-size:12px; color:var(--text-dim); letter-spacing:0.1em; font-family:'DM Mono',monospace; margin-bottom:14px; }
-.byte-row { display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid var(--border); }
-.byte-row:last-child { border-bottom:none; }
-.byte-name { font-size:13px; color:var(--text-muted); }
-.byte-val { font-size:14px; font-weight:700; font-family:'DM Mono',monospace; color:var(--text); }
-
-/* 자소서 프리셋 */
-.preset-title { font-size:12px; color:var(--text-dim); letter-spacing:0.1em; font-family:'DM Mono',monospace; margin-bottom:10px; }
-.presets { display:flex; gap:8px; flex-wrap:wrap; }
-.preset-btn { font-size:12px; color:var(--text-muted); cursor:pointer; padding:5px 12px; border:1px solid var(--border); border-radius:20px; transition:all 0.15s; background:none; font-family:'Noto Sans KR',sans-serif; }
-.preset-btn:hover, .preset-btn.active { border-color:var(--accent); color:var(--accent); }
-
-footer { text-align:center; font-size:12px; color:var(--text-dim); margin-top:48px; }
-  .back-link { margin-left:auto; font-size:13px; color:var(--text-muted); text-decoration:none; }
-  .back-link:hover { color:var(--accent2); }
-  .lang-toggle { margin-left:4px; font-size:12px; color:var(--text-muted); cursor:pointer; padding:4px 12px; border:1px solid var(--border); border-radius:6px; font-family:'DM Mono',monospace; transition:all 0.15s; }
-  .lang-toggle:hover { border-color:var(--accent2,#4ade80); color:var(--accent2,#4ade80); }
-  .seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
-  .seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
-  .seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
-  .seo strong{color:var(--text-muted);}
-  .seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
-  details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
-  details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
-  details.faq-item summary::-webkit-details-marker{display:none;}
-  details.faq-item[open] summary{border-bottom:1px solid var(--border);}
-  details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+.limit-bar{display:flex; align-items:center; gap:10px; margin-bottom:14px; flex-wrap:wrap;}
+.limit-label{font-size:12px; color:var(--text-muted); font-family:var(--mono);}
+.limit-input{background:rgba(255,255,255,0.03); border:1px solid var(--glass-border); border-radius:8px; color:var(--text); font-size:13px; font-family:var(--mono); padding:6px 10px; width:90px; outline:none; transition:border-color 0.15s;}
+.limit-input:focus{border-color:var(--cyan);}
+.limit-toggle{font-size:12px; color:var(--text-muted); cursor:pointer; padding:6px 12px; border:1px solid var(--glass-border); border-radius:8px; transition:all 0.15s; user-select:none;}
+.limit-toggle.active{border-color:var(--cyan); color:var(--cyan);}
+.textarea-wrap{position:relative;}
+.textarea-wrap textarea{min-height:220px; padding:16px; line-height:1.8; border:1px solid var(--glass-border); border-radius:14px; background:var(--glass);}
+.textarea-wrap textarea.over-limit{border-color:var(--danger);}
+.clear-btn{position:absolute; top:12px; right:12px; background:none; border:none; color:var(--text-dim); cursor:pointer; font-size:18px; line-height:1; padding:4px; border-radius:4px; transition:color 0.15s;}
+.clear-btn:hover{color:var(--text-muted);}
+.progress-wrap{margin:14px 0;}
+.progress-bg{background:var(--glass-border); border-radius:99px; height:4px; overflow:hidden;}
+.progress-fill{height:100%; border-radius:99px; background:var(--cyan); transition:width 0.15s, background 0.15s; width:0%;}
+.progress-fill.warn{background:var(--warn);}
+.progress-fill.over{background:var(--danger);}
+.progress-label{font-size:11px; color:var(--text-dim); font-family:var(--mono); margin-top:6px; text-align:right;}
+.stats3{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:16px 0;}
+@media(max-width:500px){.stats3{grid-template-columns:repeat(2,1fr);}}
+.cal-val.warn{color:var(--warn);}
+.cal-val.over{color:var(--danger);}
+.preset-title{font-size:12px; color:var(--text-dim); letter-spacing:0.1em; font-family:var(--mono); margin-bottom:10px;}
 </style>
 <!-- Google tag -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
@@ -133,79 +68,82 @@ footer { text-align:center; font-size:12px; color:var(--text-dim); margin-top:48
   <div class="lang-toggle" onclick="cycleLang()" id="langBtn">🌐 EN</div>
 </header>
 
-<main>
+<main style="max-width:720px;">
+  <div class="eyebrow">Text · Instrument</div>
   <h1>✍️ <span>글자수 세기</span></h1>
   <p class="subtitle">공백 포함/제외 글자수, 바이트 수, 단어 수 실시간 계산</p>
 
-  <!-- 글자 제한 설정 -->
-  <div class="limit-bar">
-    <span class="limit-label" data-i18n="limitLabel">글자 제한</span>
-    <input type="number" class="limit-input" id="limitInput" placeholder="0 = 무제한" min="0" value="">
-    <div class="limit-toggle" id="limitModeBtn" onclick="toggleLimitMode()">공백 포함</div>
-    <div class="preset-btn" onclick="setPreset(500)" data-i18n="preset500">500자</div>
-    <div class="preset-btn" onclick="setPreset(800)" data-i18n="preset800">800자</div>
-    <div class="preset-btn" onclick="setPreset(1000)" data-i18n="preset1000">1000자</div>
-    <div class="preset-btn" onclick="setPreset(1500)" data-i18n="preset1500">1500자</div>
-  </div>
+  <div class="card">
+    <!-- 글자 제한 설정 -->
+    <div class="limit-bar">
+      <span class="limit-label" data-i18n="limitLabel">글자 제한</span>
+      <input type="number" class="limit-input" id="limitInput" placeholder="0 = 무제한" min="0" value="">
+      <div class="limit-toggle" id="limitModeBtn" onclick="toggleLimitMode()">공백 포함</div>
+      <div class="rbtn" onclick="setPreset(500)" data-i18n="preset500">500자</div>
+      <div class="rbtn" onclick="setPreset(800)" data-i18n="preset800">800자</div>
+      <div class="rbtn" onclick="setPreset(1000)" data-i18n="preset1000">1000자</div>
+      <div class="rbtn" onclick="setPreset(1500)" data-i18n="preset1500">1500자</div>
+    </div>
 
-  <!-- 텍스트에어리어 -->
-  <div class="textarea-wrap">
-    <textarea id="inputText" placeholder="여기에 텍스트를 입력하거나 붙여넣으세요..."></textarea>
-    <button class="clear-btn" onclick="clearText()" title="지우기">✕</button>
-  </div>
+    <!-- 텍스트에어리어 -->
+    <div class="textarea-wrap">
+      <textarea id="inputText" placeholder="여기에 텍스트를 입력하거나 붙여넣으세요..."></textarea>
+      <button class="clear-btn" onclick="clearText()" title="지우기">✕</button>
+    </div>
 
-  <!-- 진행 바 (제한 설정 시) -->
-  <div class="progress-wrap" id="progressWrap" style="display:none">
-    <div class="progress-bg"><div class="progress-fill" id="progressFill"></div></div>
-    <div class="progress-label" id="progressLabel"></div>
+    <!-- 진행 바 (제한 설정 시) -->
+    <div class="progress-wrap" id="progressWrap" style="display:none">
+      <div class="progress-bg"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-label" id="progressLabel"></div>
+    </div>
   </div>
 
   <!-- 주요 스탯 -->
-  <div class="stats">
-    <div class="stat-card highlight" id="cardWithSpace">
-      <div class="stat-num" id="numWithSpace">0</div>
-      <div class="stat-label" data-i18n="statWithSpace">글자수 (공백 포함)</div>
+  <div class="stats3">
+    <div class="cal-card highlight" id="cardWithSpace">
+      <div class="cal-val" id="numWithSpace">0</div>
+      <div class="cal-label" data-i18n="statWithSpace">글자수 (공백 포함)</div>
     </div>
-    <div class="stat-card" id="cardNoSpace">
-      <div class="stat-num" id="numNoSpace">0</div>
-      <div class="stat-label" data-i18n="statNoSpace">글자수 (공백 제외)</div>
+    <div class="cal-card" id="cardNoSpace">
+      <div class="cal-val" id="numNoSpace">0</div>
+      <div class="cal-label" data-i18n="statNoSpace">글자수 (공백 제외)</div>
     </div>
-    <div class="stat-card">
-      <div class="stat-num" id="numWords">0</div>
-      <div class="stat-label" data-i18n="statWords">단어 수</div>
+    <div class="cal-card">
+      <div class="cal-val" id="numWords">0</div>
+      <div class="cal-label" data-i18n="statWords">단어 수</div>
     </div>
-    <div class="stat-card">
-      <div class="stat-num" id="numLines">0</div>
-      <div class="stat-label" data-i18n="statLines">줄 수</div>
+    <div class="cal-card">
+      <div class="cal-val" id="numLines">0</div>
+      <div class="cal-label" data-i18n="statLines">줄 수</div>
     </div>
-    <div class="stat-card">
-      <div class="stat-num" id="numSentences">0</div>
-      <div class="stat-label" data-i18n="statSentences">문장 수</div>
+    <div class="cal-card">
+      <div class="cal-val" id="numSentences">0</div>
+      <div class="cal-label" data-i18n="statSentences">문장 수</div>
     </div>
-    <div class="stat-card">
-      <div class="stat-num" id="numParagraphs">0</div>
-      <div class="stat-label" data-i18n="statParagraphs">문단 수</div>
+    <div class="cal-card">
+      <div class="cal-val" id="numParagraphs">0</div>
+      <div class="cal-label" data-i18n="statParagraphs">문단 수</div>
     </div>
   </div>
 
   <!-- 바이트 정보 -->
-  <div class="byte-card">
-    <div class="byte-title">BYTE INFO</div>
-    <div class="byte-row">
-      <span class="byte-name" data-i18n="byteUtf8Label">UTF-8 바이트</span>
-      <span class="byte-val" id="byteUtf8">0 B</span>
+  <div class="card">
+    <div class="readout-label" style="margin-bottom:10px;">BYTE INFO</div>
+    <div class="row">
+      <span class="lk" data-i18n="byteUtf8Label">UTF-8 바이트</span>
+      <span class="lv" id="byteUtf8">0 B</span>
     </div>
-    <div class="byte-row">
-      <span class="byte-name" data-i18n="byteEuckrLabel">EUC-KR 추정 바이트</span>
-      <span class="byte-val" id="byteEuckr">0 B</span>
+    <div class="row">
+      <span class="lk" data-i18n="byteEuckrLabel">EUC-KR 추정 바이트</span>
+      <span class="lv" id="byteEuckr">0 B</span>
     </div>
-    <div class="byte-row">
-      <span class="byte-name" data-i18n="byteAsciiLabel">ASCII (영문/숫자)</span>
-      <span class="byte-val" id="byteAscii">0</span>
+    <div class="row">
+      <span class="lk" data-i18n="byteAsciiLabel">ASCII (영문/숫자)</span>
+      <span class="lv" id="byteAscii">0</span>
     </div>
-    <div class="byte-row">
-      <span class="byte-name" data-i18n="byteKoreanLabel">한글 글자 수</span>
-      <span class="byte-val" id="byteKorean">0</span>
+    <div class="row">
+      <span class="lk" data-i18n="byteKoreanLabel">한글 글자 수</span>
+      <span class="lv" id="byteKorean">0</span>
     </div>
   </div>
   <div class="seo" data-i18n="seoHtml"><h2>글자수 세기 완전 가이드</h2>
@@ -222,7 +160,7 @@ footer { text-align:center; font-size:12px; color:var(--text-dim); margin-top:48
 <details class="faq-item"><summary>Q. 여러 언어가 혼합된 텍스트도 정확히 세나요?</summary><p>네, 한글·영문·일본어·중국어 혼합 텍스트도 정확히 카운팅합니다. 이모지는 유니코드 기준 1개로 카운팅됩니다.</p></details></div>
 </main>
 
-<footer>모두의 툴 · 무료 · <a href="index.html" style="color:var(--text-dim);text-decoration:none;">← 도구 목록</a></footer>
+<footer style="text-align:center; font-size:12px; color:var(--text-dim); margin-top:48px;">모두의 툴 · 무료 · <a href="index.html" style="color:var(--text-dim);text-decoration:none;">← 도구 목록</a></footer>
 
 <script>
 const textarea = document.getElementById('inputText');
@@ -306,7 +244,7 @@ function update() {
 
   // 색상 처리
   const activeEl = limitMode === 'include' ? numWithSpaceEl : numNoSpaceEl;
-  [numWithSpaceEl, numNoSpaceEl].forEach(el => el.className = 'stat-num');
+  [numWithSpaceEl, numNoSpaceEl].forEach(el => el.className = 'cal-val');
   if (isOver) activeEl.classList.add('over');
   else if (isWarn) activeEl.classList.add('warn');
   textarea.className = isOver ? 'over-limit' : '';
@@ -465,6 +403,7 @@ function cycleLang() {
 }
 _applyLang();
 </script>
+<script src="theme-instrument.js"></script>
 <script src="related.js"></script>
 </body>
 </html>

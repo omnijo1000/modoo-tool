@@ -14,6 +14,7 @@
 <link rel="alternate" hreflang="zh" href="https://modoohub.com/csr-generator.html?lang=zh">
 <link rel="alternate" hreflang="ja" href="https://modoohub.com/csr-generator.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/csr-generator.html">
+<link rel="stylesheet" href="theme-instrument.css">
 <meta property="og:title" content="CSR 생성기 - SSL 인증서 서명 요청 & OpenSSL 명령어">
 <meta property="og:description" content="CSR 필드 입력 후 OpenSSL 명령어 즉시 생성. SSL 인증서 발급 준비 가이드.">
 <meta property="og:image" content="https://modoohub.com/og-image.png">
@@ -24,54 +25,22 @@
 <meta property="og:url" content="https://modoohub.com/csr-generator.html">
 <meta property="og:type" content="website">
 <style>
-:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
-header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
-.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
-.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;font-family:'DM Mono',monospace;}
-.back-link:hover{color:var(--text-muted);}
-.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;font-family:'DM Mono',monospace;background:none;}
-.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
-main{max-width:860px;margin:0 auto;padding:36px 20px 60px;}
-h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
-h1 span{color:var(--accent);}
-.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;line-height:1.6;}
+main{max-width:860px;}
 .layout{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
 @media(max-width:680px){.layout{grid-template-columns:1fr;}}
-.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;}
-.panel-label{font-size:11px;color:var(--text-dim);letter-spacing:.07em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:14px;}
-.form-group{margin-bottom:10px;}
-.field-label{font-size:11px;color:var(--text-dim);letter-spacing:.06em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:4px;display:flex;justify-content:space-between;}
+.form-group{margin-bottom:12px;}
 .field-hint{font-size:10px;color:var(--text-dim);font-style:italic;}
-.field-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:8px 10px;color:var(--text);font-size:12px;font-family:'DM Mono',monospace;outline:none;transition:border-color .15s;}
-.field-input:focus{border-color:var(--accent);}
-.field-select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:8px 10px;color:var(--text);font-size:12px;font-family:'DM Mono',monospace;outline:none;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;}
-.field-select:focus{border-color:var(--accent);}
-.divider{height:1px;background:var(--border);margin:12px 0;}
+.field-select{width:100%;background:rgba(255,255,255,0.03);border:1px solid var(--glass-border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:12px;font-family:var(--mono);outline:none;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;}
+.field-select:focus{border-color:var(--cyan);}
+.divider{height:1px;background:var(--glass-border);margin:12px 0;}
 .btn-row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
-.btn{padding:8px 20px;border:1px solid var(--border);border-radius:7px;font-size:12px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;background:none;color:var(--text-muted);transition:all .15s;}
-.btn:hover{border-color:var(--accent);color:var(--accent);}
-.btn.primary{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;}
-.btn.primary:hover{opacity:.85;}
-.output-section{margin-top:16px;}
-.output-label{font-size:11px;color:var(--text-dim);letter-spacing:.07em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:8px;}
-.output-ta{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;resize:vertical;min-height:120px;outline:none;line-height:1.7;}
+.output-ta{width:100%;background:rgba(255,255,255,0.03);border:1px solid var(--glass-border);border-radius:8px;padding:12px;color:var(--text);font-family:var(--mono);font-size:11px;resize:vertical;min-height:120px;outline:none;line-height:1.7;}
 .step-list{list-style:none;counter-reset:step;}
 .step-list li{counter-increment:step;display:flex;gap:10px;margin-bottom:10px;align-items:flex-start;}
-.step-list li::before{content:counter(step);min-width:22px;height:22px;background:var(--accent);color:#000;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;}
+.step-list li::before{content:counter(step);min-width:22px;height:22px;background:linear-gradient(135deg,var(--violet),var(--cyan));color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;}
 .step-list li p{font-size:12px;color:var(--text-muted);line-height:1.6;}
-.step-list li code{font-family:'DM Mono',monospace;font-size:10px;background:var(--surface2);padding:1px 4px;border-radius:3px;color:var(--blue);}
-.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
-.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
-.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
-.seo strong{color:var(--text-muted);}
-.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
-details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
-details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
-details.faq-item summary::-webkit-details-marker{display:none;}
-details.faq-item[open] summary{border-bottom:1px solid var(--border);}
-details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+.step-list li code{font-family:var(--mono);font-size:10px;background:rgba(255,255,255,0.05);padding:1px 4px;border-radius:3px;color:var(--cyan);}
+.copy-btn.copied{background:rgba(79,203,154,0.15);color:var(--good);border-color:rgba(79,203,154,0.4);}
 footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:32px;}
 </style>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
@@ -101,41 +70,44 @@ footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:32px;}
 </script>
 </head>
 <body>
+<div class="mesh"></div>
 <header>
-  <span class="logo">MODOO HUB</span>
+  <span class="dot"></span>
+  <span class="header-label">MODOO HUB</span>
   <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
-  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+  <button class="lang-toggle" onclick="cycleLang()" id="langBtn">🌐 EN</button>
 </header>
 <main>
+  <div class="eyebrow">SECURITY</div>
   <h1>CSR <span id="h1Span">생성기</span></h1>
-  <p class="sub" id="subEl">SSL 인증서 서명 요청 정보 입력 → OpenSSL 명령어 생성</p>
+  <p class="subtitle" id="subEl">SSL 인증서 서명 요청 정보 입력 → OpenSSL 명령어 생성</p>
 
   <div class="layout">
-    <div class="panel">
-      <div class="panel-label" id="labelForm">인증서 정보 입력</div>
+    <div class="card">
+      <div class="field-label" id="labelForm">인증서 정보 입력</div>
       <div class="form-group">
         <div class="field-label"><span>CN (Common Name)</span><span class="field-hint" id="hintCn">도메인</span></div>
-        <input type="text" class="field-input" id="fCn" placeholder="example.com" oninput="generate()">
+        <input type="text" id="fCn" placeholder="example.com" oninput="generate()">
       </div>
       <div class="form-group">
         <div class="field-label"><span>O (Organization)</span><span class="field-hint" id="hintO">회사명</span></div>
-        <input type="text" class="field-input" id="fO" placeholder="My Company Ltd" oninput="generate()">
+        <input type="text" id="fO" placeholder="My Company Ltd" oninput="generate()">
       </div>
       <div class="form-group">
         <div class="field-label"><span>OU (Org Unit)</span><span class="field-hint" id="hintOu">부서</span></div>
-        <input type="text" class="field-input" id="fOu" placeholder="IT Department" oninput="generate()">
+        <input type="text" id="fOu" placeholder="IT Department" oninput="generate()">
       </div>
       <div class="form-group">
         <div class="field-label"><span>L (Locality)</span><span class="field-hint" id="hintL">도시</span></div>
-        <input type="text" class="field-input" id="fL" placeholder="Seoul" oninput="generate()">
+        <input type="text" id="fL" placeholder="Seoul" oninput="generate()">
       </div>
       <div class="form-group">
         <div class="field-label"><span>ST (State)</span><span class="field-hint" id="hintSt">주/도</span></div>
-        <input type="text" class="field-input" id="fSt" placeholder="Seoul" oninput="generate()">
+        <input type="text" id="fSt" placeholder="Seoul" oninput="generate()">
       </div>
       <div class="form-group">
         <div class="field-label"><span>C (Country)</span><span class="field-hint" id="hintC">2자리 국가코드</span></div>
-        <input type="text" class="field-input" id="fC" maxlength="2" placeholder="KR" oninput="generate()">
+        <input type="text" id="fC" maxlength="2" placeholder="KR" oninput="generate()">
       </div>
       <div class="divider"></div>
       <div class="form-group">
@@ -148,27 +120,27 @@ footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:32px;}
       </div>
       <div class="form-group">
         <div class="field-label"><span id="labelSan">SAN (Subject Alternative Names)</span></div>
-        <input type="text" class="field-input" id="fSan" placeholder="www.example.com, api.example.com" oninput="generate()">
+        <input type="text" id="fSan" placeholder="www.example.com, api.example.com" oninput="generate()">
       </div>
     </div>
 
     <div>
-      <div class="panel">
-        <div class="output-label" id="labelOutput1">1단계: 개인 키 & CSR 생성</div>
+      <div class="card">
+        <div class="field-label" id="labelOutput1">1단계: 개인 키 & CSR 생성</div>
         <textarea class="output-ta" id="outCmd" readonly></textarea>
         <div class="btn-row">
-          <button class="btn primary" id="btnCopy1" onclick="copyCmd('outCmd','btnCopy1')">복사</button>
+          <button class="copy-btn" id="btnCopy1" onclick="copyCmd('outCmd','btnCopy1')">복사</button>
         </div>
       </div>
-      <div class="panel" style="margin-top:12px;">
-        <div class="output-label" id="labelOutput2">2단계: CSR 내용 확인</div>
+      <div class="card" style="margin-top:12px;">
+        <div class="field-label" id="labelOutput2">2단계: CSR 내용 확인</div>
         <textarea class="output-ta" id="outVerify" readonly></textarea>
         <div class="btn-row">
-          <button class="btn primary" id="btnCopy2" onclick="copyCmd('outVerify','btnCopy2')">복사</button>
+          <button class="copy-btn" id="btnCopy2" onclick="copyCmd('outVerify','btnCopy2')">복사</button>
         </div>
       </div>
-      <div class="panel" style="margin-top:12px;">
-        <div class="output-label" id="labelSteps">다음 단계</div>
+      <div class="card" style="margin-top:12px;">
+        <div class="field-label" id="labelSteps">다음 단계</div>
         <ul class="step-list" id="stepList"></ul>
       </div>
     </div>
@@ -385,13 +357,14 @@ function copyCmd(id,btnId){
     const btn=document.getElementById(btnId);
     const orig=btn.textContent;
     btn.textContent=t.copyDone;
-    btn.style.background='var(--green)';btn.style.borderColor='var(--green)';btn.style.color='#000';
-    setTimeout(()=>{btn.textContent=orig;btn.style.background='';btn.style.borderColor='';btn.style.color='';},2000);
+    btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent=orig;btn.classList.remove('copied');},2000);
   });
 }
 _lang=detectLang();
 applyLang();
 </script>
+<script src="theme-instrument.js"></script>
 <script src="related.js"></script>
 </body>
 </html>
