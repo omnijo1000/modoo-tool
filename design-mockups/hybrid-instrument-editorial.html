@@ -1,0 +1,245 @@
+<title>하이브리드B(추천): 계기판+지면 주석 — BMI</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+:root{
+  --bg:#0B0E13; --surface:#12161D; --surface2:#171C25; --border:#232A36;
+  --text:#E8ECF2; --text-muted:#7C8798; --text-dim:#4A5568;
+  --accent:#FFB454; --accent-dim:rgba(255,180,84,0.10); --accent-line:rgba(255,180,84,0.35);
+  --good:#5FBFA3; --warn:#E8B339; --danger:#E2685A; --info:#6FA8DC;
+  --mono: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace;
+  --sans: -apple-system, "Segoe UI", "Pretendard", "Noto Sans KR", sans-serif;
+  --serif: ui-serif, Georgia, "Iowan Old Style", "Noto Serif KR", serif;
+}
+:root[data-theme="light"]{
+  --bg:#F3F4F7; --surface:#FFFFFF; --surface2:#ECEEF2; --border:#DBDEE5;
+  --text:#161A22; --text-muted:#5B6472; --text-dim:#9AA2AF;
+  --accent:#B8722A; --accent-dim:rgba(184,114,42,0.10); --accent-line:rgba(184,114,42,0.35);
+  --good:#1F8A6C; --warn:#A9760F; --danger:#B8433A; --info:#3A6FB0;
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#F3F4F7; --surface:#FFFFFF; --surface2:#ECEEF2; --border:#DBDEE5;
+    --text:#161A22; --text-muted:#5B6472; --text-dim:#9AA2AF;
+    --accent:#B8722A; --accent-dim:rgba(184,114,42,0.10); --accent-line:rgba(184,114,42,0.35);
+    --good:#1F8A6C; --warn:#A9760F; --danger:#B8433A; --info:#3A6FB0;
+  }
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{background:
+    linear-gradient(var(--bg),var(--bg)),
+    repeating-linear-gradient(0deg, transparent 0 31px, rgba(127,140,160,0.05) 31px 32px),
+    repeating-linear-gradient(90deg, transparent 0 31px, rgba(127,140,160,0.05) 31px 32px);
+  color:var(--text); font-family:var(--sans); min-height:100vh; -webkit-font-smoothing:antialiased;}
+
+header{border-bottom:1px solid var(--border); padding:16px 24px; display:flex; align-items:center; gap:12px; background:var(--surface);}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--accent); box-shadow:0 0 6px var(--accent);}
+.header-label{font-family:var(--mono); font-size:11px; letter-spacing:.14em; color:var(--text-muted); text-transform:uppercase;}
+.theme-note{margin-left:auto; font-family:var(--mono); font-size:11px; color:var(--text-dim);}
+
+main{max-width:920px; margin:0 auto; padding:40px 24px 80px;}
+.eyebrow{font-family:var(--mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--accent); margin-bottom:10px;}
+h1{font-size:clamp(24px,4vw,32px); font-weight:600; letter-spacing:-0.01em; margin:0 0 8px; text-wrap:balance;}
+h1 em{font-family:var(--serif); font-style:italic; color:var(--accent); font-weight:600;}
+.sub{color:var(--text-muted); font-size:14px; line-height:1.7; margin-bottom:36px; max-width:60ch;}
+
+.grid{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.15fr); gap:16px; align-items:start;}
+@media (max-width:820px){ .grid{grid-template-columns:1fr;} .readout{position:static !important;} }
+
+.panel{display:flex; flex-direction:column; gap:10px;}
+.card{background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:16px 18px; transition:border-color .15s;}
+.card:focus-within{border-color:var(--accent-line);}
+.field-label{font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--text-dim); margin-bottom:8px; display:flex; justify-content:space-between;}
+.formula{color:var(--text-dim); font-family:var(--mono); font-size:10px;}
+.input-row{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+.input-wrap{display:flex; align-items:baseline; gap:6px; border-bottom:1px solid var(--border); padding-bottom:6px;}
+.input-wrap:focus-within{border-color:var(--accent);}
+input[type=number]{flex:1; background:transparent; border:none; outline:none; font-size:24px; font-weight:500; color:var(--text); font-family:var(--mono); width:100%; min-width:0; font-variant-numeric:tabular-nums;}
+input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
+.unit{color:var(--text-dim); font-size:12px; font-family:var(--mono);}
+
+.rbtn-row{display:flex; gap:6px; flex-wrap:wrap;}
+.rbtn{flex:1; padding:8px 6px; border:1px solid var(--border); border-radius:5px; text-align:center; font-size:12px; cursor:pointer; color:var(--text-muted); background:var(--surface2); transition:all .15s; font-family:var(--mono); white-space:nowrap;}
+.rbtn:hover{border-color:var(--text-dim);}
+.rbtn.on{border-color:var(--accent-line); color:var(--accent); background:var(--accent-dim);}
+
+.readout{position:sticky; top:20px; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:26px 26px 22px;}
+.readout-head{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px;}
+.readout-label{font-family:var(--mono); font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--text-dim);}
+.readout-status{font-family:var(--mono); font-size:13px; font-weight:600; padding:2px 8px; border-radius:4px;}
+
+.bmi-num{font-family:var(--mono); font-size:64px; font-weight:600; line-height:1; color:var(--accent); font-variant-numeric:tabular-nums; letter-spacing:-.02em;}
+.bmi-unit{font-size:20px; color:var(--text-dim); font-weight:400;}
+
+.gauge{margin:22px 0 6px;}
+.gauge-track{height:4px; border-radius:2px; background:var(--border); position:relative;}
+.gauge-zone{position:absolute; top:0; bottom:0; border-radius:2px;}
+.gauge-marker{position:absolute; top:50%; width:2px; height:16px; background:var(--text); transform:translate(-50%,-50%); transition:left .6s cubic-bezier(.16,1,.3,1);}
+.gauge-marker::after{content:''; position:absolute; left:50%; top:-5px; width:6px; height:6px; border-radius:50%; background:var(--accent); transform:translateX(-50%); box-shadow:0 0 8px var(--accent);}
+.gauge-ticks{display:flex; justify-content:space-between; margin-top:10px; font-family:var(--mono); font-size:9.5px; color:var(--text-dim);}
+
+/* borrowed from Editorial: the result reads as a sentence, not a chip */
+.editorial-callout{margin:20px 0 18px; padding:16px 18px; background:var(--surface2); border-radius:8px; border-left:2px solid var(--accent-line);}
+.editorial-callout p{font-family:var(--serif); font-size:16px; line-height:1.75; color:var(--text); margin:0;}
+.editorial-callout p b{color:var(--accent); font-weight:600; font-family:var(--mono); font-style:normal; font-variant-numeric:tabular-nums;}
+.editorial-callout p em{font-style:italic; color:var(--text-muted);}
+
+.divider{height:1px; background:var(--border); margin:2px 0;}
+.row{display:flex; justify-content:space-between; align-items:baseline; font-size:12.5px; padding:9px 0; border-bottom:1px solid var(--border);}
+.row:last-child{border-bottom:none;}
+.lk{color:var(--text-muted);}
+.lv{font-family:var(--mono); color:var(--text); font-variant-numeric:tabular-nums;}
+.lv.good{color:var(--good);}
+
+.cal-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:14px;}
+.cal-card{background:var(--surface2); border:1px solid var(--border); border-radius:6px; padding:12px; text-align:center;}
+.cal-tag{font-family:var(--mono); font-size:9.5px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.08em;}
+.cal-val{font-family:var(--mono); font-size:19px; font-weight:600; color:var(--text); margin-top:5px; font-variant-numeric:tabular-nums;}
+.cal-val span{font-size:11px; color:var(--text-dim); font-weight:400;}
+
+/* borrowed from Editorial: footnote treatment for the clinical caveat */
+.footnote{margin-top:18px; padding:12px 0 0 16px; border-left:2px solid var(--border); font-family:var(--serif); font-style:italic; font-size:12.5px; color:var(--text-dim); line-height:1.7;}
+
+.concept-note{max-width:920px; margin:56px auto 0; padding:20px 24px; border-top:1px solid var(--border); font-size:12px; color:var(--text-dim); line-height:1.7;}
+.concept-note b{color:var(--text-muted);}
+</style>
+
+<header>
+  <div class="dot"></div>
+  <span class="header-label">MODOO HUB · Instrument</span>
+  <span class="theme-note">하이브리드 B (추천) — 계기판 + 지면 주석</span>
+</header>
+
+<main>
+  <div class="eyebrow">Hybrid B · Recommended</div>
+  <h1>BMI 계산기, <em>당신의 숫자로 읽는다</em></h1>
+  <p class="sub">계기판의 정확함은 그대로 두고, 결과 한 줄만 사람이 읽는 문장으로 말한다.</p>
+
+  <div class="grid">
+    <div class="panel">
+      <div class="card">
+        <div class="field-label"><span>키 / 몸무게</span></div>
+        <div class="input-row">
+          <div class="input-wrap"><input type="number" id="height" value="170" oninput="calc()"><span class="unit">cm</span></div>
+          <div class="input-wrap"><input type="number" id="weight" value="70" oninput="calc()"><span class="unit">kg</span></div>
+        </div>
+        <div class="formula" style="margin-top:10px;">BMI = kg / m²</div>
+      </div>
+      <div class="card">
+        <div class="field-label"><span>나이</span><span class="formula">Mifflin–St Jeor</span></div>
+        <div class="input-wrap"><input type="number" id="age" value="30" oninput="calc()"><span class="unit">세</span></div>
+      </div>
+      <div class="card">
+        <div class="field-label">성별</div>
+        <div class="rbtn-row" id="gender">
+          <div class="rbtn on" onclick="sel(this,'gender');calc()">남성</div>
+          <div class="rbtn" onclick="sel(this,'gender');calc()">여성</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="field-label">활동 수준</div>
+        <div class="rbtn-row" id="activity">
+          <div class="rbtn" onclick="sel(this,'activity');calc()">거의 안 함</div>
+          <div class="rbtn on" onclick="sel(this,'activity');calc()">가벼운 운동</div>
+          <div class="rbtn" onclick="sel(this,'activity');calc()">보통 운동</div>
+          <div class="rbtn" onclick="sel(this,'activity');calc()">격렬한 운동</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="readout">
+      <div class="readout-head">
+        <span class="readout-label">Readout</span>
+        <span class="readout-status" id="r_status">—</span>
+      </div>
+      <div><span class="bmi-num" id="r_bmi">—</span><span class="bmi-unit"> kg/m²</span></div>
+
+      <div class="gauge">
+        <div class="gauge-track">
+          <div class="gauge-zone" style="left:0%; width:17.5%; background:var(--info);"></div>
+          <div class="gauge-zone" style="left:17.5%; width:22.5%; background:var(--good);"></div>
+          <div class="gauge-zone" style="left:40%; width:10%; background:var(--warn);"></div>
+          <div class="gauge-zone" style="left:50%; width:25%; background:#D97C4A;"></div>
+          <div class="gauge-zone" style="left:75%; width:25%; background:var(--danger);"></div>
+          <div class="gauge-marker" id="gauge_marker" style="left:50%"></div>
+        </div>
+        <div class="gauge-ticks"><span>15</span><span>18.5</span><span>23</span><span>25</span><span>30</span><span>35</span></div>
+      </div>
+
+      <div class="editorial-callout">
+        <p id="r_sentence">키와 몸무게를 입력하면 표준체중 대비 편차를 문장으로 설명합니다.</p>
+      </div>
+
+      <div class="row"><span class="lk">표준체중</span><span class="lv good" id="r_std">—</span></div>
+      <div class="row"><span class="lk">정상 범위</span><span class="lv" id="r_range">—</span></div>
+      <div class="divider"></div>
+      <div class="row"><span class="lk">기초대사량 (BMR)</span><span class="lv" id="r_bmr">—</span></div>
+      <div class="row"><span class="lk">일일 권장칼로리 (TDEE)</span><span class="lv good" id="r_tdee">—</span></div>
+
+      <div class="cal-grid">
+        <div class="cal-card"><div class="cal-tag">감량 -0.5kg/주</div><div class="cal-val" id="c_lose">—<span> kcal</span></div></div>
+        <div class="cal-card"><div class="cal-tag">증량 +0.5kg/주</div><div class="cal-val" id="c_gain">—<span> kcal</span></div></div>
+      </div>
+
+      <div class="footnote">아시아 기준 분류를 따르며, 근육량이 많거나 노년기인 경우 해석이 달라질 수 있습니다.</div>
+    </div>
+  </div>
+</main>
+
+<div class="concept-note">
+  <b>컨셉 노트 — 하이브리드 B (추천).</b> 계기판(방향1)의 정확성 — tabular mono 숫자, 임상 경계 게이지, 값에만 붙는 accent — 은 그대로 두고, 딱 두 곳만 지면(방향2)에서 빌려옴: ① 결과의 delta를 칩이 아니라 세리프 강조가 섞인 <b>완전한 문장</b>으로 말하기(왼쪽 accent 라인이 있는 콜아웃 박스), ② 하단 임상 주석을 각주 스타일(border-left + italic)로. h1에도 세리프 이탤릭 강조 단어 하나만 심어 "차갑기만 한 계기판"이 아니라는 인상. 이식 비용: <b>낮음</b> — 방향1과 거의 동일한 토큰/마크업, 콜아웃·각주 컴포넌트 2개만 추가하면 됨. 사용자 스캔 흐름(빠른 확인)과 "설명해주는 느낌" 둘 다 잃지 않는 조합이라 추천.
+</div>
+
+<script>
+function sel(el,g){document.querySelectorAll('#'+g+' .rbtn').forEach(b=>b.classList.remove('on'));el.classList.add('on');}
+function getVal(g){return document.querySelector('#'+g+' .rbtn.on')?.textContent.trim()||'';}
+function fmt(n){return Math.round(n).toLocaleString('ko-KR');}
+
+function calc(){
+  const h=parseFloat(document.getElementById('height').value)||0;
+  const w=parseFloat(document.getElementById('weight').value)||0;
+  const age=parseFloat(document.getElementById('age').value)||30;
+  if(h<=0||w<=0)return;
+
+  const hm=h/100;
+  const bmi=w/(hm*hm);
+  const gender=getVal('gender');
+  const act=getVal('activity');
+
+  let status='',bg='',fg='';
+  if(bmi<18.5){status='저체중';bg='rgba(111,168,220,.15)';fg='var(--info)';}
+  else if(bmi<23){status='정상';bg='rgba(95,191,163,.15)';fg='var(--good)';}
+  else if(bmi<25){status='과체중';bg='rgba(232,179,57,.15)';fg='var(--warn)';}
+  else if(bmi<30){status='비만';bg='rgba(217,124,74,.15)';fg='#D97C4A';}
+  else{status='고도비만';bg='rgba(226,104,90,.15)';fg='var(--danger)';}
+
+  const stdW=hm*hm*22, normalMin=hm*hm*18.5, normalMax=hm*hm*22.9;
+  let bmr=gender==='남성'?(10*w)+(6.25*h)-(5*age)+5:(10*w)+(6.25*h)-(5*age)-161;
+  const actMult=act==='거의 안 함'?1.2:act==='보통 운동'?1.55:act==='격렬한 운동'?1.725:1.375;
+  const tdee=bmr*actMult;
+  const pct=Math.min(100,Math.max(0,(bmi-15)/(35-15)*100));
+
+  document.getElementById('r_bmi').textContent=bmi.toFixed(1);
+  const st=document.getElementById('r_status');
+  st.textContent=status; st.style.background=bg; st.style.color=fg;
+  document.getElementById('gauge_marker').style.left=pct+'%';
+  document.getElementById('r_std').textContent=stdW.toFixed(1)+' kg';
+  document.getElementById('r_range').textContent=normalMin.toFixed(1)+'–'+normalMax.toFixed(1)+' kg';
+  document.getElementById('r_bmr').textContent=fmt(bmr)+' kcal';
+  document.getElementById('r_tdee').textContent=fmt(tdee)+' kcal';
+  document.getElementById('c_lose').innerHTML=fmt(tdee-500)+'<span> kcal</span>';
+  document.getElementById('c_gain').innerHTML=fmt(tdee+500)+'<span> kcal</span>';
+
+  const diff=w-stdW;
+  const sEl=document.getElementById('r_sentence');
+  const bmiTxt='<b>'+bmi.toFixed(1)+'</b>';
+  if(Math.abs(diff)<=1){
+    sEl.innerHTML='BMI '+bmiTxt+'로 <em>'+status+'</em> 범주이며, 표준체중과 거의 일치합니다.';
+  } else if(diff>0){
+    sEl.innerHTML='BMI '+bmiTxt+'로 <em>'+status+'</em> 범주. 표준체중보다 <b>+'+diff.toFixed(1)+'kg</b> 많아, 감량 시 정상 범위에 도달합니다.';
+  } else {
+    sEl.innerHTML='BMI '+bmiTxt+'로 <em>'+status+'</em> 범주. 표준체중보다 <b>'+Math.abs(diff).toFixed(1)+'kg</b> 적어, 증량 시 정상 범위에 도달합니다.';
+  }
+}
+calc();
+</script>

@@ -1,0 +1,179 @@
+<title>조용한 지면 — BMI 계산기</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+:root{
+  --bg:#F7F4EE; --surface:#FFFFFF; --surface2:#F1EDE3; --border:#E2DCCB;
+  --text:#26261F; --text-muted:#6E6C5E; --text-dim:#9A9784;
+  --accent:#2F4160; --accent-soft:#E7EAF0; --accent-line:#B9C2D4;
+  --good:#3D6B52; --warn:#93641F; --danger:#8E362F;
+  --serif: ui-serif, Georgia, "Iowan Old Style", "Noto Serif KR", serif;
+  --sans: -apple-system, "Segoe UI", "Pretendard", "Noto Sans KR", sans-serif;
+}
+:root[data-theme="dark"]{
+  --bg:#1B1A16; --surface:#232019; --surface2:#2A271F; --border:#3A362B;
+  --text:#EDE9DD; --text-muted:#B2AC98; --text-dim:#736D5B;
+  --accent:#9FB0D0; --accent-soft:#2E3644; --accent-line:#48566E;
+  --good:#7FB79A; --warn:#D3A855; --danger:#D08A7D;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#1B1A16; --surface:#232019; --surface2:#2A271F; --border:#3A362B;
+    --text:#EDE9DD; --text-muted:#B2AC98; --text-dim:#736D5B;
+    --accent:#9FB0D0; --accent-soft:#2E3644; --accent-line:#48566E;
+    --good:#7FB79A; --warn:#D3A855; --danger:#D08A7D;
+  }
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{background:var(--bg); color:var(--text); font-family:var(--sans); min-height:100vh; -webkit-font-smoothing:antialiased;}
+
+header{border-bottom:1px solid var(--border); padding:22px 24px; display:flex; align-items:baseline; gap:14px;}
+.wordmark{font-family:var(--serif); font-size:15px; font-weight:600; letter-spacing:.02em;}
+.header-sub{font-size:12px; color:var(--text-dim);}
+.theme-note{margin-left:auto; font-size:11px; color:var(--text-dim); font-style:italic;}
+
+main{max-width:600px; margin:0 auto; padding:64px 24px 100px;}
+.eyebrow{font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); margin-bottom:14px; font-weight:600;}
+h1{font-family:var(--serif); font-size:clamp(32px,6vw,44px); font-weight:600; line-height:1.15; margin:0 0 16px; text-wrap:balance; letter-spacing:-0.01em;}
+.sub{color:var(--text-muted); font-size:16px; line-height:1.75; margin-bottom:48px; max-width:52ch; font-family:var(--serif); font-style:italic;}
+
+.sentence{font-family:var(--serif); font-size:19px; line-height:2.1; color:var(--text); margin-bottom:6px;}
+.sentence .blank{position:relative; display:inline-block;}
+input[type=number]{
+  font-family:var(--serif); font-size:19px; color:var(--accent); font-weight:600;
+  background:transparent; border:none; border-bottom:1.5px solid var(--accent-line);
+  outline:none; width:4.2ch; text-align:center; padding:0 2px; font-variant-numeric:tabular-nums;
+}
+input[type=number]:focus{border-bottom-color:var(--accent);}
+input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
+.unit-word{color:var(--text-muted); font-size:15px;}
+
+.choice-line{display:flex; align-items:baseline; gap:10px; margin:2px 0 28px; flex-wrap:wrap; font-family:var(--serif); font-size:19px;}
+.choice-line .label{color:var(--text-muted); font-size:15px; font-family:var(--sans);}
+.chip{font-family:var(--sans); font-size:13px; padding:5px 12px; border:1px solid var(--border); border-radius:2px; color:var(--text-muted); cursor:pointer; background:var(--surface);}
+.chip.on{border-color:var(--accent); color:var(--accent); background:var(--accent-soft);}
+
+hr{border:none; border-top:1px solid var(--border); margin:44px 0;}
+
+.result{display:none;}
+.result.show{display:block;}
+.result-eyebrow{font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--text-dim); margin-bottom:14px;}
+.result-p{font-family:var(--serif); font-size:20px; line-height:1.85; color:var(--text); margin-bottom:8px;}
+.result-p b{color:var(--accent); font-weight:600; font-variant-numeric:tabular-nums;}
+.result-p .status-word{font-style:italic;}
+.footnote{font-size:13px; color:var(--text-dim); line-height:1.7; margin-top:6px; padding-left:16px; border-left:2px solid var(--border);}
+
+table{width:100%; border-collapse:collapse; margin-top:30px; font-size:14px;}
+table caption{text-align:left; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--text-dim); margin-bottom:10px; font-weight:600;}
+td{padding:10px 0; border-bottom:1px solid var(--border); font-family:var(--sans);}
+td.k{color:var(--text-muted);}
+td.v{text-align:right; font-family:var(--serif); font-weight:600; color:var(--text); font-variant-numeric:tabular-nums;}
+tr:last-child td{border-bottom:none;}
+
+.concept-note{max-width:600px; margin:56px auto 0; padding:24px 24px 0; border-top:1px solid var(--border); font-size:12.5px; color:var(--text-dim); line-height:1.75; font-family:var(--sans);}
+.concept-note b{color:var(--text-muted);}
+</style>
+
+<header>
+  <span class="wordmark">MODOO HUB</span>
+  <span class="header-sub">Ledger</span>
+  <span class="theme-note">방향 2 / 3 — 조용한 지면</span>
+</header>
+
+<main>
+  <div class="eyebrow">신체 지표 · 04</div>
+  <h1>체질량지수를 살펴봅니다</h1>
+  <p class="sub">숫자 하나가 아니라, 그 숫자가 놓인 맥락을 함께 읽습니다.</p>
+
+  <p class="sentence">
+    키 <span class="blank"><input type="number" id="height" value="170" oninput="calc()"></span><span class="unit-word">cm</span>,
+    몸무게 <span class="blank"><input type="number" id="weight" value="70" oninput="calc()"></span><span class="unit-word">kg</span>인
+    <span class="blank"><input type="number" id="age" value="30" style="width:2.6ch;" oninput="calc()"></span><span class="unit-word">세</span> 사람의 이야기.
+  </p>
+
+  <div class="choice-line">
+    <span class="label">성별</span>
+    <div class="chip on" onclick="sel(this,'gender');calc()">남성</div>
+    <div class="chip" onclick="sel(this,'gender');calc()">여성</div>
+  </div>
+  <div class="choice-line" id="activity">
+    <span class="label">평소 활동</span>
+    <div class="chip" onclick="sel(this,'activity');calc()">거의 안 함</div>
+    <div class="chip on" onclick="sel(this,'activity');calc()">가벼운 운동</div>
+    <div class="chip" onclick="sel(this,'activity');calc()">보통 운동</div>
+    <div class="chip" onclick="sel(this,'activity');calc()">격렬한 운동</div>
+  </div>
+  <hr>
+
+  <div class="result show" id="result">
+    <div class="result-eyebrow">읽어보면</div>
+    <p class="result-p">
+      BMI는 <b id="r_bmi">24.2</b>로, <span class="status-word" id="r_status">과체중</span> 범주에 놓입니다.
+      한국 기준 정상 범위(18.5–22.9)와 비교하면 <b id="r_delta">체중 1.7kg</b> 차이입니다.
+    </p>
+    <p class="footnote" id="r_annotate">참고 — 이 계산은 아시아 기준 분류를 따르며, 근육량이 많거나 노년기인 경우 해석이 달라질 수 있습니다.</p>
+
+    <table>
+      <caption>세부 수치</caption>
+      <tr><td class="k">표준체중</td><td class="v" id="r_std">67.4 kg</td></tr>
+      <tr><td class="k">정상 범위</td><td class="v" id="r_range">53.5–66.2 kg</td></tr>
+      <tr><td class="k">기초대사량 (BMR)</td><td class="v" id="r_bmr">— kcal</td></tr>
+      <tr><td class="k">일일 권장칼로리 (TDEE)</td><td class="v" id="r_tdee">— kcal</td></tr>
+      <tr><td class="k">감량 목표 (-0.5kg/주)</td><td class="v" id="c_lose">— kcal</td></tr>
+      <tr><td class="k">증량 목표 (+0.5kg/주)</td><td class="v" id="c_gain">— kcal</td></tr>
+    </table>
+  </div>
+</main>
+
+<div class="concept-note">
+  <b>컨셉 노트 — 조용한 지면(Editorial Calm).</b> 배경은 순백이 아닌 따뜻한 종이색, accent는 클리셰인 테라코타 대신 차분한 잉크블루. 인풋을 빈칸 채우기 문장 속에 심어 "계산기를 조작한다"가 아니라 "내 이야기를 채운다"는 느낌을 줌 — 결과도 표가 아니라 문단으로 먼저 등장하고, 표는 그 아래 참고 자료로만 존재. 이식 비용: <b>중하</b> — 다크 배경 전제가 깨지므로 387개 파일의 광고/SEO 섹션 배색을 전부 다시 맞춰야 상충이 안 생김. 이 목업은 두 테마(라이트=기본, 다크=대안) 모두 정의해 뒀지만, 실제 적용 시 기존 다크 브랜드 자산을 포기하는 대가가 있음.
+</div>
+
+<script>
+function sel(el,g){
+  const scope = g==='gender' ? document.querySelector('.choice-line') : document.getElementById('activity');
+  scope.querySelectorAll('.chip').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+}
+function getVal(g){
+  const scope = g==='gender' ? document.querySelectorAll('.choice-line')[0] : document.getElementById('activity');
+  return scope.querySelector('.chip.on')?.textContent.trim()||'';
+}
+function fmt(n){return Math.round(n).toLocaleString('ko-KR');}
+
+function calc(){
+  const h=parseFloat(document.getElementById('height').value)||0;
+  const w=parseFloat(document.getElementById('weight').value)||0;
+  const age=parseFloat(document.getElementById('age').value)||30;
+  if(h<=0||w<=0)return;
+
+  const hm=h/100;
+  const bmi=w/(hm*hm);
+  const gender=getVal('gender');
+  const act=getVal('activity');
+
+  let status='';
+  if(bmi<18.5)status='저체중';
+  else if(bmi<23)status='정상';
+  else if(bmi<25)status='과체중';
+  else if(bmi<30)status='비만';
+  else status='고도비만';
+
+  const stdW=hm*hm*22, normalMin=hm*hm*18.5, normalMax=hm*hm*22.9;
+  let bmr=gender==='남성'?(10*w)+(6.25*h)-(5*age)+5:(10*w)+(6.25*h)-(5*age)-161;
+  const actMult=act==='거의 안 함'?1.2:act==='보통 운동'?1.55:act==='격렬한 운동'?1.725:1.375;
+  const tdee=bmr*actMult;
+  const diff=w-stdW;
+
+  document.getElementById('r_bmi').textContent=bmi.toFixed(1);
+  document.getElementById('r_status').textContent=status;
+  document.getElementById('r_std').textContent=stdW.toFixed(1)+' kg';
+  document.getElementById('r_range').textContent=normalMin.toFixed(1)+'–'+normalMax.toFixed(1)+' kg';
+  document.getElementById('r_bmr').textContent=fmt(bmr)+' kcal';
+  document.getElementById('r_tdee').textContent=fmt(tdee)+' kcal';
+  document.getElementById('c_lose').textContent=fmt(tdee-500)+' kcal';
+  document.getElementById('c_gain').textContent=fmt(tdee+500)+' kcal';
+  document.getElementById('r_delta').textContent = Math.abs(diff)<=1 ? '표준체중과 거의 일치하는' : (diff>0? '체중 '+diff.toFixed(1)+'kg 초과':'체중 '+Math.abs(diff).toFixed(1)+'kg 부족');
+}
+calc();
+</script>
