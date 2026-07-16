@@ -259,8 +259,23 @@ break-even-calculator, cagr-calculator, canonical-tag-checker, capital-gains-tax
 
 **누적: 182개 파일 완료** (health/date-time 22 + 배치0/1 60 + 배치2 30 + 배치3 30 + 배치4 30 + 배치5(1부) 10).
 
-### 다음 세션에서 이어갈 것: 배치 5, 나머지 20개부터
-`Batch 05` 목록 중 아직 안 한 나머지(`payslip-calc`부터 `pdf-watermark`까지, `ROLLOUT_REMAINING_BATCHES.txt` "Batch 05" 후반부). 방법론은 위 "방법론 (배치 0/1에서 확립됨)" 섹션 + theme-instrument.css/js 동시수정 금지 규칙 그대로. **주의: 매 배치 시작 전에 grep으로 해당 파일들이 이미 다른 세션에 의해 전환돼 있지 않은지 먼저 확인할 것** (계속 반복 발생 중 — 다른 PC 세션이 병행 작업 중인 것으로 추정). fork 병렬 실행이 막히면("Fork is not available inside a forked worker") 오케스트레이터가 직접 Read/Write로 전환(이번 세션에 두 번째로 발생, 드물지 않은 패턴으로 확인됨).
+### 완료: 배치 5, 2부 (10개, 2026-07-17)
+`payslip-calc`, `pdf-compressor`, `pdf-extract-images`, `pdf-merge`, `pdf-metadata-remover`, `pdf-metadata-viewer`, `pdf-ocr`, `pdf-page-counter`, `pdf-password-adder`, `pdf-password-remover` — **10/10 완료.** `payslip-calc`/`pdf-compressor`는 검증 시작 시점에 이미 다른 세션(동시 작업 중이던 프로세스)이 전환해둔 상태로 발견 — grep 재확인 후 채택, `pdf-compressor.html`에 `theme-instrument.js` 링크가 누락돼 있어 오케스트레이터가 직접 한 줄 추가로 수정. 나머지 8개는 fork 4개 병렬(2파일씩)로 전환, 세션 한도 끊김 0건.
+
+**직접 검증 완료:**
+- 10개 파일 전부 링크 3종(css/js/related) 각 1회, `</html>` 1회, 구 `:root{}` 잔재 0건
+- Node 인라인 `<script>` 전체 문법 재검증(JSON-LD 및 src 외부 스크립트 제외) — 전부 통과
+- `theme-instrument.css` 중괄호 247/247 일치, `git diff --stat theme-instrument.css theme-instrument.js` 완전히 빈 상태
+- `payslip-calc.html`(4대보험 요율 등 하드코딩 가능성 있는 급여명세서 계산기) — CSS/링크 값만 diff에 걸림, 요율 상수 변경 0건 확인
+
+**패턴 메모:** PDF 처리 유틸리티(`pdf-metadata-viewer`/`pdf-password-adder` 등) 다수가 구식 미정의 클래스(`.logo`/`.lang-btn`) 잔재를 갖고 있었음 — `keyword-density-checker` 이후로도 계속 발견되는 패턴, 다음 배치에서도 유의. `pdf-metadata-viewer.html`은 fork가 page-local로 새로 만들려던 `.box`/`.section-label`이 이미 theme-instrument.css에 있는 걸 grep으로 발견해 중복 방지한 사례 있음 — "새 클래스 추가 전 grep 필수" 규칙이 실제로 작동함을 재확인.
+
+**누적: 202개 파일 완료** (health/date-time 22 + 배치0/1 60 + 배치2 30 + 배치3 30 + 배치4 30 + 배치5(1부+2부) 30). **배치 5(30개) 전체 완료.**
+
+### 다음 세션에서 이어갈 것: 배치 6부터
+`ROLLOUT_REMAINING_BATCHES.txt` "Batch 06"부터 10개씩. 방법론은 위 "방법론 (배치 0/1에서 확립됨)" 섹션 + theme-instrument.css/js 동시수정 금지 규칙 그대로. **주의: 매 배치 시작 전에 grep으로 해당 파일들이 이미 다른 세션에 의해 전환돼 있지 않은지 먼저 확인할 것** (계속 반복 발생 중 — 다른 PC 세션이 병행 작업 중인 것으로 추정). fork 병렬 실행이 막히면("Fork is not available inside a forked worker") 오케스트레이터가 직접 Read/Write로 전환.
+
+**⚠️ 세션 시작 시 권한 확인:** 이 세션은 사용자가 `--dangerously-skip-permissions`로 시작했다고 확인했으나, 실행 중 harness가 일부 tool(Agent/fork spawn 등)에 대해 승인 팝업을 띄우는 현상이 있었음(원인 불명 — flag 자체 문제인지 harness 설정 문제인지 미확정). **다음 세션 시작 시 사용자가 `claude --dangerously-skip-permissions`로 재실행했는지, 그리고 fork 배치 작업 중 승인 팝업이 안 뜨는지 먼저 확인할 것.** 팝업이 계속 뜨면 배치당 fork 5개 병렬 실행이 매번 수동 승인을 요구하게 되어 무인 진행이 불가능해짐 — 이 경우 사용자에게 원인 확인 요청.
 
 ## 참고 — 이전에 나온 별도 이슈(디자인 컨셉과 무관, 아직 미착수)
 현재 CLAUDE.md에 없는, 이번 세션에서 fable5 에이전트가 지적한 기존 실행 버그들(별도 작업 필요):
