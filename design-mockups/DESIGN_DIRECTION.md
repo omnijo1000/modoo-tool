@@ -217,8 +217,20 @@ break-even-calculator, cagr-calculator, canonical-tag-checker, capital-gains-tax
 
 **누적: 152개 파일 완료** (health/date-time 22 + 배치0/1 60 + 배치2 30 + 배치3 30).
 
-### 다음 세션에서 이어갈 것: 배치 4~9
-`ROLLOUT_REMAINING_BATCHES.txt` "Batch 04"부터 순서대로. 10개씩 계속 진행(사용자 지시). **주의: 매 배치 시작 전에 grep으로 해당 파일들이 이미 다른 세션에 의해 전환돼 있지 않은지 먼저 확인할 것** — 이번 배치처럼 일부가 이미 완료돼 있을 수 있음. 또한 fork 병렬 실행이 다시 막히면("Fork is not available inside a forked worker") 당황하지 말고 남은 파일을 오케스트레이터가 직접 Read/Write로 전환하면 됨 — 방법론은 동일(theme-instrument.css/js 링크, 구 style 제거, 카드/readout 클래스 재사용, 절대불가침 리스트 보존).
+### 완료: 배치 4, 1부 (10개, 2026-07-16)
+**주의: 배치 시작 전 확인 결과 배치4 앞쪽 10개(`json-minifier`~`jwt-decoder`)는 이미 다른 세션("update files" 커밋)이 전환 완료해둔 상태였음** — grep으로 확인 후 건너뜀. 이번에 실제로 전환한 건 그 다음 10개: `jwt-generator`, `keyword-cannibalization-checker`, `keyword-density-checker`, `keyword-difficulty-estimator`, `keyword-extractor`, `keyword-grouping-tool`, `line-counter`, `line-merger`, `loan-calc`, `loan-calculator-en` — fork 5개 병렬(2파일씩), **10/10 성공, 세션 한도 끊김 0건.**
+
+**직접 검증 완료:**
+- 10개 파일 전부 링크 3종(css/js/related) 각 1회, `</html>` 1회, 구 `:root{}` 잔재 0건
+- Node로 인라인 `<script>` 전체 문법 재검증(JSON-LD 제외) — 전부 통과
+- `theme-instrument.css` 중괄호 247/247 일치, `git diff --stat theme-instrument.css theme-instrument.js` 완전히 빈 상태(공유 파일 무수정 확인), 중복 셀렉터 스캔 결과 `.blob`(media query 재정의)·`from`/`to`(keyframes) 외 실질 충돌 0건
+
+**패턴 메모:** 게이지 있는 페이지 없음(키워드/JWT/라인 툴은 임상 범위 개념 없음), `loan-calc.html`은 `.tabs/.tab` → `.rbtn-row/.rbtn.on` 컨벤션 전환, `keyword-difficulty-estimator.html`은 원형 score-ring을 DSR 계산기 선례처럼 page-local 유지, `csv-viewer.html`에 있던 구식 미정의 클래스(`.logo`/`.lang-btn`) 잔재를 `keyword-density-checker` fork가 발견해 정확한 테마 클래스로 교체(다른 미전환 파일에도 같은 잔재 있을 수 있음, 다음 배치에서 유의).
+
+**누적: 162개 파일 완료** (health/date-time 22 + 배치0/1 60 + 배치2 30 + 배치3 30 + 배치4(1부, 다른세션10+이번10) 20).
+
+### 다음 세션에서 이어갈 것: 배치 4 나머지 10개부터
+배치4 남은 10개: `ltv-calculator`(⚠️ 법정 LTV%/규제지역 수치 있음, 숫자 절대 변경 금지), `margin-calculator`, `markdown-chat-exporter`, `markdown-preview`, `meta-description-generator`, `meta-tag-analyzer`, `meta-tag-generator`, `mime-type-finder` + `ROLLOUT_REMAINING_BATCHES.txt` "Batch 05" 앞부분 2개로 10개 채움. 방법론은 위 "방법론 (배치 0/1에서 확립됨)" 섹션 그대로 + theme-instrument.css/js 동시수정 금지 규칙. **주의: 매 배치 시작 전에 grep으로 해당 파일들이 이미 다른 세션에 의해 전환돼 있지 않은지 먼저 확인할 것.** fork 병렬 실행이 막히면("Fork is not available inside a forked worker") 오케스트레이터가 직접 Read/Write로 전환.
 
 ## 참고 — 이전에 나온 별도 이슈(디자인 컨셉과 무관, 아직 미착수)
 현재 CLAUDE.md에 없는, 이번 세션에서 fable5 에이전트가 지적한 기존 실행 버그들(별도 작업 필요):
