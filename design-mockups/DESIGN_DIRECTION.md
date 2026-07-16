@@ -189,8 +189,21 @@ break-even-calculator, cagr-calculator, canonical-tag-checker, capital-gains-tax
 
 **누적: 122개 파일 완료** (health/date-time 22 + 배치0/1 60 + 배치2 30 + 배치3(1부) 10).
 
-### 다음: 배치 3 남은 20개
-`ROLLOUT_REMAINING_BATCHES.txt` "Batch 03"에서 image-dimension-checker부터 json-formatter까지. 10개씩 계속.
+### 완료: 배치 3, 2부 (10개, 2026-07-16)
+`image-dimension-checker`, `image-dpi-checker`, `image-prompt-generator`, `image-resizer`, `image-rotator`, `image-to-pdf`, `image-to-webp`, `image-watermark`, `income-tax`, `inflation-calculator` — **10/10 성공, 끊김 0건.**
+
+**주목할 점:**
+- `image-rotator.html`: fork가 버튼 행 재구성 중 실수로 180도 회전 버튼(`id="btn180"`)을 통째로 빠뜨렸다가, 자체 리뷰 과정에서 발견하고 스스로 복구함 — fork 자체 검증 루프가 실제로 회귀를 잡아낸 사례.
+- `image-watermark.html`: 원본에 있던 사소한 기존 버그(포지션 버튼 2개가 동시에 `active` 클래스 가진 정적 마크업, JS가 로드시 정규화)를 발견해서 정적 마크업만 정리(런타임 동작 변화 없음, JS 로직 불변) — 과함 없이 딱 화면 깜빡임 순간의 잠재적 시각 결함만 없앤 선에서 그침.
+- `image-dpi-checker.html`: 0-600 DPI 범위에 150/300 임계값 있는 실질적 게이지가 이미 있었음 — 공유 `.gauge` 컴포넌트로 강제 이관하지 않고 페이지 전용 게이지 유지, 색상 토큰만 교체.
+- `income-tax.html`(종합소득세, 2026년 과세표준 구간 6~45%): fork가 `calculate()` 전체를 diff, 모든 세율/공제식/세액공제 캡 수치 byte-identical 확인 + 손으로 직접 재계산까지 해서 대조. **내가 직접 브라우저에서 재검증**: 연소득 6000만원 근로소득, 국민연금+건강보험공제 on → 과세표준 4,074만원, 최종 461만원(소득세 419+지방세 42) — fork 보고와 정확히 일치.
+- `inflation-calculator.html`: 6개국 CPI 평균치(미국 3.0%, 영국 2.8%, EU 2.3%, 한국 2.5%, 인도 5.5%, 일본 2.0%) 전부 diff로 byte-identical 확인.
+- `theme-instrument.css`/`.js` 이번 배치도 무결 유지.
+
+**누적: 142개 파일 완료** (health/date-time 22 + 배치0/1 60 + 배치2 30 + 배치3(1부+2부) 20).
+
+### 다음: 배치 3 남은 10개, 그리고 배치 4~9
+`ROLLOUT_REMAINING_BATCHES.txt` "Batch 03" 마지막 10줄(inheritance-tax부터 json-formatter까지)만 하면 배치3(30개)도 끝남. 그 다음은 "Batch 04"부터 순서대로. 10개씩 계속.
 
 ## 참고 — 이전에 나온 별도 이슈(디자인 컨셉과 무관, 아직 미착수)
 현재 CLAUDE.md에 없는, 이번 세션에서 fable5 에이전트가 지적한 기존 실행 버그들(별도 작업 필요):
