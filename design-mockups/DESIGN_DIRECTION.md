@@ -229,8 +229,25 @@ break-even-calculator, cagr-calculator, canonical-tag-checker, capital-gains-tax
 
 **누적: 162개 파일 완료** (health/date-time 22 + 배치0/1 60 + 배치2 30 + 배치3 30 + 배치4(1부, 다른세션10+이번10) 20).
 
-### 다음 세션에서 이어갈 것: 배치 4 나머지 10개부터
-배치4 남은 10개: `ltv-calculator`(⚠️ 법정 LTV%/규제지역 수치 있음, 숫자 절대 변경 금지), `margin-calculator`, `markdown-chat-exporter`, `markdown-preview`, `meta-description-generator`, `meta-tag-analyzer`, `meta-tag-generator`, `mime-type-finder` + `ROLLOUT_REMAINING_BATCHES.txt` "Batch 05" 앞부분 2개로 10개 채움. 방법론은 위 "방법론 (배치 0/1에서 확립됨)" 섹션 그대로 + theme-instrument.css/js 동시수정 금지 규칙. **주의: 매 배치 시작 전에 grep으로 해당 파일들이 이미 다른 세션에 의해 전환돼 있지 않은지 먼저 확인할 것.** fork 병렬 실행이 막히면("Fork is not available inside a forked worker") 오케스트레이터가 직접 Read/Write로 전환.
+### 완료: 배치 4, 2부 (10개, 2026-07-16) — 배치4(30개) 전체 완료
+`ltv-calculator`, `margin-calculator`, `markdown-chat-exporter`, `markdown-preview`, `meta-description-generator`, `meta-tag-analyzer`, `meta-tag-generator`, `mime-type-finder`, `minimum-wage`, `mortgage-calculator` — fork 5개 병렬(2파일씩), **10/10 성공, 세션 한도 끊김 0건.**
+
+**법정수치 파일 2개 특별 검증:**
+- `ltv-calculator.html`: fork가 규제구간(40%/20%, 50%/30%, 70%, 9억원 기준 `NINE_EOK` 상수) 전부 diff로 byte-identical 확인. 오케스트레이터가 직접 `git diff --unified=0 | grep -E '%|원|억'`로 재확인 — CSS 스타일 값만 걸리고 실제 규제 수치는 0건 변경.
+- `minimum-wage.html`: fork가 19곳 수치(10,320원/10,030원/9,288원/2,156,880원 등) diff 확인 + 오케스트레이터 직접 재확인 — CSS/뱃지 텍스트("2026 최저임금 기준")만 걸리고 숫자 변경 없음.
+- `mortgage-calculator.html`: 이전 세션에 SEO FAQ 보강된 파일이라 특히 강조 지시 — fork가 `Q. ` 개수 전후 60개 동일, FAQ/seoHtml diff 0라인으로 byte-identical 확인.
+
+**직접 검증 완료:**
+- 10개 파일 전부 링크 3종(css/js/related) 각 1회, `</html>` 1회, 구 `:root{}` 잔재 0건
+- Node 인라인 `<script>` 전체 문법 재검증(JSON-LD 제외) — 전부 통과
+- `theme-instrument.css` 중괄호 247/247 일치, `git diff --stat theme-instrument.css theme-instrument.js` 완전히 빈 상태(공유 파일 무수정 확인)
+
+**패턴 메모:** 탭 UI 있는 파일(`ltv-calculator`/`meta-tag-analyzer`) 계속 `.tab/.active` → `.rbtn-row/.rbtn.on` 컨벤션 통일, `meta-tag-analyzer.html`은 JS 내 하드코딩 hex(`#4ade80` 등)까지 새 팔레트 hex로 치환(점수 계산 로직 자체는 불변), `.show` 클래스 토글 → `style.display` 직접 제어로 통일하는 추세 계속(http-header-checker 선례 따름).
+
+**누적: 172개 파일 완료** (health/date-time 22 + 배치0/1 60 + 배치2 30 + 배치3 30 + 배치4 30). **배치 4(30개) 전체 완료.**
+
+### 다음 세션에서 이어갈 것: 배치 5부터
+`ROLLOUT_REMAINING_BATCHES.txt` "Batch 05"부터 10개씩. 방법론은 위 "방법론 (배치 0/1에서 확립됨)" 섹션 그대로 + theme-instrument.css/js 동시수정 금지 규칙. **주의: 매 배치 시작 전에 grep으로 해당 파일들이 이미 다른 세션에 의해 전환돼 있지 않은지 먼저 확인할 것** (이번 세션 시작 시 배치4 앞 10개가 이미 다른 PC 세션에 의해 전환돼 있었음 — 계속 발생 가능). fork 병렬 실행이 막히면("Fork is not available inside a forked worker") 오케스트레이터가 직접 Read/Write로 전환. `Batch 05`에 `naverfc35bcbb70f824fb8fba2e8491a4dbec.html` 같은 특수 파일명이 섞여 있을 수 있음 — CLAUDE.md에 언급된 제외 대상(naverfc…html)인지 먼저 확인 후 스킵할 것.
 
 ## 참고 — 이전에 나온 별도 이슈(디자인 컨셉과 무관, 아직 미착수)
 현재 CLAUDE.md에 없는, 이번 세션에서 fable5 에이전트가 지적한 기존 실행 버그들(별도 작업 필요):
