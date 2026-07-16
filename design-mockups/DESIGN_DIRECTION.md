@@ -177,8 +177,20 @@ break-even-calculator, cagr-calculator, canonical-tag-checker, capital-gains-tax
 
 **누적: 112개 파일 완료** (health/date-time 22 + 배치0/1 60 + 배치2 30). **배치 2(30개) 전체 완료.**
 
-### 다음: 배치 3 (30개, 아직 미착수)
-`ROLLOUT_REMAINING_BATCHES.txt`의 "Batch 03" 섹션 참고: html-decoder부터 시작. 10개씩 끊어서 계속 (사용자 지시).
+### 완료: 배치 3, 1부 (10개, 2026-07-16)
+`html-decoder`, `html-encoder`, `html-minifier`, `html-to-markdown`, `http-header-checker`, `http-request-builder`, `ico-converter`, `image-color-extractor`, `image-compressor`, `image-cropper` — **10/10 성공, 세션 한도 끊김 0건.**
+
+**참고할 만한 점:**
+- `html-minifier.html`은 검증 스크립트에서 `</html>` 3회 검출돼서 구조 손상 의심했는데, 실제로는 HTML 압축 툴이라 placeholder 속성값·JS 샘플 문자열 안에 `</html>`이 그냥 텍스트 데이터로 들어있는 것뿐(진짜 닫는 태그는 1개, 나머지 2개는 예시 콘텐츠) — false positive. **검증 스크립트로 이상 신호 뜨면 무조건 파일 열어서 실제 맥락 확인할 것, 특히 인코더/디코더/포매터류 툴은 원래 HTML 태그 문자열을 예시 데이터로 담고 있을 수 있음.**
+- `image-cropper.html`은 canvas 좌표 계산 로직(드래그 선택, crop 영역 sync)이 있는 위험도 높은 파일이었는데 fork가 CSS/색상만 건드리고 로직은 전혀 안 건드림 확인.
+- `http-header-checker.html`은 탭 패널 표시 방식을 클래스 토글에서 인라인 `style.display`로 바꿈(다른 변환 파일들의 `.readout` 컨벤션과 통일) — 시각적 동작은 동일.
+- `theme-instrument.css`/`.js` 이번 배치도 계속 무결.
+- `image-compressor.html` 브라우저 스팟체크: 드롭존/관련도구/SEO 가이드 렌더링 정상 확인(파일 업로드 자체는 자동화 테스트 환경 제약으로 실측 안 함, 코드 로직은 손대지 않았음 fork 보고 신뢰).
+
+**누적: 122개 파일 완료** (health/date-time 22 + 배치0/1 60 + 배치2 30 + 배치3(1부) 10).
+
+### 다음: 배치 3 남은 20개
+`ROLLOUT_REMAINING_BATCHES.txt` "Batch 03"에서 image-dimension-checker부터 json-formatter까지. 10개씩 계속.
 
 ## 참고 — 이전에 나온 별도 이슈(디자인 컨셉과 무관, 아직 미착수)
 현재 CLAUDE.md에 없는, 이번 세션에서 fable5 에이전트가 지적한 기존 실행 버그들(별도 작업 필요):
