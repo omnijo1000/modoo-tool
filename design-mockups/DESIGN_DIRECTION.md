@@ -302,8 +302,25 @@ break-even-calculator, cagr-calculator, canonical-tag-checker, capital-gains-tax
 
 **누적: 222개 파일 완료** (health/date-time 22 + 배치0/1 60 + 배치2 30 + 배치3 30 + 배치4 30 + 배치5 30 + 배치6 30). **배치 6(30개) 전체 완료.** **커밋:** `a7baa65` ("Convert batch 6 part 2 (10 files) to Hybrid A+ theme -- batch 6 complete"), push 안 함.
 
+### 완료: 배치 6 최종 마무리 (10개, 2026-07-17, 세션 3개 병행 상황에서 진행)
+이 세션에서 batch 6 part1(10개, 이미 다른 세션이 커밋 `92ae7d7`) 확인 후 이어서 fork 5개(2파일씩)를 띄워 `prompt-optimizer`/`prompt-template-generator`/`prompt-variable-extractor`/`regex-generator`/`regex-tester`/`remove-duplicate-lines`/`remove-duplicate-words`/`remove-empty-lines`/`remove-special-characters`/`rent-convert` 10개를 진행하던 중, **세션 사용량 한도(4:20am 리셋) 도달로 fork 6개 전부 중도 종료**. 동시에 별도 세션이 `property-tax`~`regex-generator` 10개를 자체적으로 완료·커밋(`a7baa65`, "batch 6 part 2 -- batch 6 complete"라고 표기했으나 실제로는 8개 파일이 아직 미완이었음).
+
+**오케스트레이터가 직접 잔여 작업 정리:**
+- fork 6개가 죽으며 남긴 상태를 grep으로 실사 확인 → `prompt-template-generator`/`regex-tester`/`rent-convert` 3개는 CSS 링크는 됐지만 `theme-instrument.js` 스크립트 태그 추가 직전에 끊김 → 직접 한 줄씩 추가해 마무리.
+- `remove-duplicate-lines.html`은 fork가 시작도 못 하고 끊긴 상태(구 `:root{}` 스타일 그대로) → 오케스트레이터가 직접 처음부터 `theme-instrument.css` 링크+마크업 재작성(`.box`/`.editor-wrap`/`.editor-box`/`.opt-label`/`.copy-small` 재사용, `_i18n`/SEO FAQ/JSON-LD 전부 그대로 보존).
+- `regex-generator.html`은 다른 세션 커밋본과 내 fork 결과가 완전히 동일해 충돌 없음(git diff 0).
+- 나머지 6개(`prompt-optimizer`/`prompt-variable-extractor`/`remove-duplicate-words`/`remove-empty-lines`/`remove-special-characters`)는 fork가 끊기기 전에 이미 정상 완료해둔 상태 확인.
+
+**batch 6 파일 목록 재검산 결과 실제로는 29/30이었고 `retirement-calc.html` 1개가 완전히 누락돼 있었음** (다른 세션의 "batch 6 complete" 표기가 부정확했음) — 오케스트레이터가 직접 전환: `.card`/`.section-label`/`.cal-grid`/`.cal-card`/`.field-label`/`.input-wrap`/`.unit`/`.calc-btn` 등 기존 테마 클래스 재사용, `result-hero`/`fire-box`/`fire-row`/`notice`는 페이지 전용 supplemental style로 유지(테마 토큰 `--violet`/`--cyan`/`--glass-border` 등 사용). 은퇴자금 계산 로직(4% 룰, FIRE 배수, 물가·수익률 복리식) 전부 불변 확인, `git diff`로 CSS 라인만 걸리고 숫자 리터럴 무변경 확인.
+
+**직접 검증 완료(10개 전부):** 링크 3종(css/js/related) 각 1회, `</html>` 1회, 구 `:root{--bg` 잔재 0건, Node 인라인 `<script>` 문법 재검증 전부 통과, `theme-instrument.css` 중괄호 247/247 일치, `git diff --stat theme-instrument.css theme-instrument.js` 완전히 빈 상태.
+
+**주의 — `retirement-pension.html`은 이 커밋에서 제외함:** 검증 도중 또 다른 동시 세션이 이 파일을 한창 편집 중인 상태(uncommitted, `theme-instrument.css` 링크는 있지만 다른 세션 소유)로 발견 — 충돌 방지를 위해 손대지 않고 그대로 둠, 다음 세션에서 그 파일이 완료·커밋됐는지 먼저 확인할 것.
+
+**누적: 232개 파일 완료** (health/date-time 22 + 배치0/1 60 + 배치2 30 + 배치3 30 + 배치4 30 + 배치5 30 + 배치6 30). **배치 6(30개) 진짜 전체 완료.**
+
 ### 다음 세션에서 이어갈 것: 배치 7부터
-`ROLLOUT_REMAINING_BATCHES.txt` "Batch 07"부터 10개씩. 방법론은 위 "방법론 (배치 0/1에서 확립됨)" 섹션 + theme-instrument.css/js 동시수정 금지 규칙 그대로. **주의: 매 배치 시작 전에 grep으로 해당 파일들이 이미 다른 세션에 의해 전환돼 있지 않은지 먼저 확인할 것** (계속 반복 발생 중 — 다른 PC 세션이 병행 작업 중인 것으로 추정). **이 세션에서는 fork 병렬 실행이 배치6 내내 100% 막혀 있었음("Fork is not available inside a forked worker")** — 다음 세션 시작 시 fork가 다시 되는지 한 번만 테스트해보고, 안 되면 바로 오케스트레이터 직접 Read/Write 방식으로 전환할 것(재시도로 시간 낭비하지 말 것).
+`ROLLOUT_REMAINING_BATCHES.txt` "Batch 07"부터 10개씩. `retirement-pension.html`은 다른 세션이 이미 작업 중이었으므로 먼저 완료 여부 확인(grep) 후 배치 7 목록에서 처리 여부 판단. 방법론은 위 "방법론 (배치 0/1에서 확립됨)" 섹션 + theme-instrument.css/js 동시수정 금지 규칙 그대로. **주의: 매 배치 시작 전에 grep으로 해당 파일들이 이미 다른 세션에 의해 전환돼 있지 않은지 먼저 확인할 것** (세션 3개 이상이 동시에 병행 작업 중인 것으로 확정 — 배치6에서 같은 파일을 서로 다른 두 세션이 동시에 처리하려는 경우가 실제로 발생함). **fork가 살아있으면 병렬로 쓰되, 세션 한도(리셋 시각 있음)로 죽으면 fork의 마지막 메시지를 믿지 말고 파일 상태(grep theme-instrument.css/js)로 직접 판정, 안 된 부분은 오케스트레이터가 직접 Read/Write로 마무리할 것.**
 
 **⚠️ 세션 시작 시 권한 확인:** 이 세션은 사용자가 `--dangerously-skip-permissions`로 시작했다고 확인했으나, 실행 중 harness가 일부 tool(Agent/fork spawn 등)에 대해 승인 팝업을 띄우는 현상이 있었음(원인 불명 — flag 자체 문제인지 harness 설정 문제인지 미확정). **다음 세션 시작 시 사용자가 `claude --dangerously-skip-permissions`로 재실행했는지, 그리고 fork 배치 작업 중 승인 팝업이 안 뜨는지 먼저 확인할 것.** 팝업이 계속 뜨면 배치당 fork 5개 병렬 실행이 매번 수동 승인을 요구하게 되어 무인 진행이 불가능해짐 — 이 경우 사용자에게 원인 확인 요청.
 
