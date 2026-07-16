@@ -346,8 +346,19 @@ break-even-calculator, cagr-calculator, canonical-tag-checker, capital-gains-tax
 
 **누적: 263개 파일 완료** (health/date-time 22 + 배치0/1 60 + 배치2 30 + 배치3 30 + 배치4 30 + 배치5 30 + 배치6 30 + 배치7 20). **배치 7(30개) 전체 완료.**
 
-### 다음 세션(또는 다음 배치)에서 이어갈 것: 배치 8부터
-`ROLLOUT_REMAINING_BATCHES.txt` "Batch 08"부터 10개씩. 방법론은 위 "방법론 (배치 0/1에서 확립됨)" 섹션 + theme-instrument.css/js 동시수정 금지 규칙 그대로. **주의: 매 배치 시작 전에 grep으로 해당 파일들이 이미 다른 세션에 의해 전환돼 있지 않은지 먼저 확인할 것** (세션 여러 개가 동시에 병행 작업 중인 것으로 확정됨 — 이번 배치에서는 한 파일을 동시에 3번 연속 편집 충돌까지 겪음). **fork가 살아있으면 병렬로 쓰되, 세션 한도(리셋 시각 있음)로 죽으면 fork의 마지막 메시지를 믿지 말고 파일 상태(grep theme-instrument.css/js)로 직접 판정, 안 된 부분은 오케스트레이터가 직접 Read/Write로 마무리할 것.** Agent 호출이 매번 정상적으로 백그라운드 fork를 띄운다는 보장이 없음 — 호출 직후 결과가 바로 텍스트로 돌아오면(비동기 알림이 아니라) 그건 인라인 실행된 것이므로 오케스트레이터가 그 결과를 이어받아 검증하면 됨.
+### 완료: 배치 8, 1부 (10개, 2026-07-17)
+`ssl-checker`, `ssl-decoder`, `stock-tax`, `stopword-remover`, `svg-cleaner`, `svg-to-png`, `svg-viewer`, `system-prompt-generator`, `tailwind-color-generator`, `text-case-detector` — **10/10 완료, 이번 배치는 다른 세션과 충돌 0건(전부 오케스트레이터가 처음부터 직접 전환).**
+
+이번 배치 시작 시 Agent(fork) 호출이 즉시 "Fork is not available inside a forked worker" 에러를 반환 — 재시도 없이 바로 오케스트레이터가 10개 전부 Read/Edit로 순차 전환. `ssl-checker`/`ssl-decoder`/`stock-tax`(주식 양도세, 250만원 기본공제·22%/20%/30%/10% 세율)/`stopword-remover`/`svg-cleaner`/`svg-to-png`/`svg-viewer`/`system-prompt-generator`/`tailwind-color-generator`/`text-case-detector` 모두 `<header>`+`<main>` 구조가 없던 구형 레이아웃(div만 존재)이라 `<main>` 래퍼를 새로 추가하고 `</main>` 닫는 태그 위치를 직접 확인. `.drag`→`.dragover` 클래스명 통일(svg-cleaner/svg-to-png 드롭존), `.tab`/`.preset-btn`→`.rbtn-row`/`.rbtn` 통일(stock-tax 탭, system-prompt-generator 프리셋 버튼) 계속 적용.
+
+**법정수치 파일:** `stock-tax.html`(해외주식·국내대주주·비상장주식 양도세) — `git diff --unified=0`으로 250(기본공제)·0.20/0.30/0.10(세율) 등 JS 상수 재확인, CSS 클래스명 변경만 diff에 걸림.
+
+**직접 검증 완료:** 10개 파일 전부 링크 3종(css/js/related) 각 1회, `</html>` 1회, 구 `:root{--bg` 잔재 0건, Node 인라인 `<script>` 문법 재검증 전부 통과, `theme-instrument.css` 중괄호 247/247 일치, `git diff --stat theme-instrument.css theme-instrument.js` 완전히 빈 상태.
+
+**누적: 273개 파일 완료** (health/date-time 22 + 배치0/1 60 + 배치2 30 + 배치3 30 + 배치4 30 + 배치5 30 + 배치6 30 + 배치7 30 + 배치8(1부) 10).
+
+### 다음 세션(또는 다음 배치)에서 이어갈 것: 배치 8, 2부부터
+`ROLLOUT_REMAINING_BATCHES.txt` "Batch 08"의 나머지 20개(`text-cleaner`부터 `unit-converter`까지)부터 10개씩. 방법론은 위 "방법론 (배치 0/1에서 확립됨)" 섹션 + theme-instrument.css/js 동시수정 금지 규칙 그대로. **주의: 매 배치 시작 전에 grep으로 해당 파일들이 이미 다른 세션에 의해 전환돼 있지 않은지 먼저 확인할 것** (세션 여러 개가 동시에 병행 작업 중인 것으로 확정됨). **fork가 살아있으면 병렬로 쓰되, 세션 한도(리셋 시각 있음)로 죽으면 fork의 마지막 메시지를 믿지 말고 파일 상태(grep theme-instrument.css/js)로 직접 판정, 안 된 부분은 오케스트레이터가 직접 Read/Write로 마무리할 것.** Agent 호출이 매번 정상적으로 백그라운드 fork를 띄운다는 보장이 없음 — "Fork is not available inside a forked worker" 에러가 뜨거나 호출 직후 결과가 바로 텍스트로 돌아오면(비동기 알림이 아니라) 그건 인라인 실행된 것이므로 오케스트레이터가 직접 Read/Edit로 계속 진행하면 됨(재시도로 시간 낭비하지 말 것).
 
 **⚠️ 세션 시작 시 권한 확인:** 이 세션은 사용자가 `--dangerously-skip-permissions`로 시작했다고 확인했으나, 실행 중 harness가 일부 tool(Agent/fork spawn 등)에 대해 승인 팝업을 띄우는 현상이 있었음(원인 불명 — flag 자체 문제인지 harness 설정 문제인지 미확정). **다음 세션 시작 시 사용자가 `claude --dangerously-skip-permissions`로 재실행했는지, 그리고 fork 배치 작업 중 승인 팝업이 안 뜨는지 먼저 확인할 것.** 팝업이 계속 뜨면 배치당 fork 5개 병렬 실행이 매번 수동 승인을 요구하게 되어 무인 진행이 불가능해짐 — 이 경우 사용자에게 원인 확인 요청.
 
