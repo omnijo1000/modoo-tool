@@ -319,8 +319,24 @@ break-even-calculator, cagr-calculator, canonical-tag-checker, capital-gains-tax
 
 **누적: 232개 파일 완료** (health/date-time 22 + 배치0/1 60 + 배치2 30 + 배치3 30 + 배치4 30 + 배치5 30 + 배치6 30). **배치 6(30개) 진짜 전체 완료.**
 
-### 다음 세션에서 이어갈 것: 배치 7부터
-`ROLLOUT_REMAINING_BATCHES.txt` "Batch 07"부터 10개씩. `retirement-pension.html`은 다른 세션이 이미 작업 중이었으므로 먼저 완료 여부 확인(grep) 후 배치 7 목록에서 처리 여부 판단. 방법론은 위 "방법론 (배치 0/1에서 확립됨)" 섹션 + theme-instrument.css/js 동시수정 금지 규칙 그대로. **주의: 매 배치 시작 전에 grep으로 해당 파일들이 이미 다른 세션에 의해 전환돼 있지 않은지 먼저 확인할 것** (세션 3개 이상이 동시에 병행 작업 중인 것으로 확정 — 배치6에서 같은 파일을 서로 다른 두 세션이 동시에 처리하려는 경우가 실제로 발생함). **fork가 살아있으면 병렬로 쓰되, 세션 한도(리셋 시각 있음)로 죽으면 fork의 마지막 메시지를 믿지 말고 파일 상태(grep theme-instrument.css/js)로 직접 판정, 안 된 부분은 오케스트레이터가 직접 Read/Write로 마무리할 것.**
+### 완료: 배치 7, 1부 (11개, 2026-07-17)
+`retirement-pension`(다른 세션이 편집 중이던 걸 이어받음), `robots-txt-generator`, `robots-txt-validator`, `roi-calculator`, `rsa-key-generator`, `salary-negotiation`, `salary-per-hour-calculator`, `salary-raise`, `salary-reverse`, `salary`, `savings-calc` — **11/11 완료.**
+
+`retirement-pension.html`은 이전 배치 마무리 시점에 다른 세션이 편집 중이라 제외했었는데, 이번 배치 시작 시 재확인하니 `theme-instrument.js` 스크립트 태그 추가 직전에 그 세션도 끊긴 상태였음(누적된 패턴과 동일) — 오케스트레이터가 한 줄 추가로 마무리, `git diff`로 DC형 수익률 3/5/7% 등 옵션 버튼 수치 무변경 확인. 나머지 10개는 fork 5개(2파일씩) 병렬로 전환, 이번엔 세션 한도 끊김 없이 5개 전부 정상 완료.
+
+**법정/고정수치 파일 검증:**
+- `salary.html`(연봉 실수령액, CLAUDE.md에 연 1회 점검 필요 파일로 명시된 4대보험 요율 보유): 4.75%/3.595%/13.14%/0.9%/10% 등 요율과 `getIncomeTax()` 세율구간, `calc()` 로직 전부 `git diff`로 byte-identical 확인. 구형 `div.faq-item`/`.faq-q`/`.faq-a` 마크업은 CLAUDE.md가 "구형 KO 툴 혼용 허용"으로 명시한 그대로 유지(신규 `<details>` 형식 강제 안 함).
+- `salary-per-hour-calculator.html`: 최저시급 10,320원 초기값 무변경 확인.
+- `salary-raise.html`/`salary-reverse.html`: 소득세 4.75%/3.595%/13.14%/0.9% 등 보험료율 byte-identical, 역산 계산 알고리즘(이진 탐색) 로직 불변. 두 파일 모두 구형 `div.faq-item` → `<details class="faq-item">` 형식으로 전환하며 텍스트는 그대로 옮김(내용 변경 없음). `.show` 클래스 토글이 죽어있던 잠재 버그(구 CSS `.show` 룰 삭제로 무력화됨)를 fork가 발견해 `style.display` 직접 제어로 수정.
+
+**사소한 i18n 버그 직접 발견 및 수정:** `savings-calc.html`의 h1 다국어 문자열(`_i18n.ko/en/zh/ja.h1`)에 `<span>`/`<br>` 마크업이 빠져 있어 언어 전환 시 그라디언트 강조와 줄바꿈이 사라지는 버그 발견(bmi-calc/percent-calc에서 이미 고쳤던 것과 동일 패턴) — 4개 언어 전부 정적 마크업(`<span>적금 만기</span><br>계산기`)과 일치하도록 수정.
+
+**직접 검증 완료:** 11개 파일 전부 링크 3종(css/js/related) 각 1회, `</html>` 1회, 구 `:root{--bg` 잔재 0건, Node 인라인 `<script>` 문법 재검증 전부 통과, `theme-instrument.css` 중괄호 247/247 일치, `git diff --stat theme-instrument.css theme-instrument.js` 완전히 빈 상태(공유 파일 무수정 확인). 이번 배치는 다른 세션과 파일 충돌 0건.
+
+**누적: 243개 파일 완료** (health/date-time 22 + 배치0/1 60 + 배치2 30 + 배치3 30 + 배치4 30 + 배치5 30 + 배치6 30 + 배치7(1부) 11).
+
+### 다음 세션(또는 다음 배치)에서 이어갈 것: 배치 7, 2부부터
+`ROLLOUT_REMAINING_BATCHES.txt` "Batch 07"의 나머지 19개(`schema-markup-generator`부터 `ssh-key-generator`까지)부터 10개씩. 방법론은 위 "방법론 (배치 0/1에서 확립됨)" 섹션 + theme-instrument.css/js 동시수정 금지 규칙 그대로. **주의: 매 배치 시작 전에 grep으로 해당 파일들이 이미 다른 세션에 의해 전환돼 있지 않은지 먼저 확인할 것** (세션 여러 개가 동시에 병행 작업 중인 것으로 확정됨). **fork가 살아있으면 병렬로 쓰되, 세션 한도(리셋 시각 있음)로 죽으면 fork의 마지막 메시지를 믿지 말고 파일 상태(grep theme-instrument.css/js)로 직접 판정, 안 된 부분은 오케스트레이터가 직접 Read/Write로 마무리할 것.**
 
 **⚠️ 세션 시작 시 권한 확인:** 이 세션은 사용자가 `--dangerously-skip-permissions`로 시작했다고 확인했으나, 실행 중 harness가 일부 tool(Agent/fork spawn 등)에 대해 승인 팝업을 띄우는 현상이 있었음(원인 불명 — flag 자체 문제인지 harness 설정 문제인지 미확정). **다음 세션 시작 시 사용자가 `claude --dangerously-skip-permissions`로 재실행했는지, 그리고 fork 배치 작업 중 승인 팝업이 안 뜨는지 먼저 확인할 것.** 팝업이 계속 뜨면 배치당 fork 5개 병렬 실행이 매번 수동 승인을 요구하게 되어 무인 진행이 불가능해짐 — 이 경우 사용자에게 원인 확인 요청.
 
