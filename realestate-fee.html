@@ -9,76 +9,24 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme-instrument.css">
 <style>
-  :root {
-    --bg:#0a0f0a; --surface:#111811; --surface2:#182018; --border:#1e2e1e;
-    --accent:#34d399; --accent2:#10b981; --accent-dim:rgba(52,211,153,0.08);
-    --text:#f0fff5; --text-muted:#6a9a7a; --text-dim:#2a4a2a;
-    --yellow:#facc15; --red:#f87171; --blue:#60a5fa;
-  }
-  * { box-sizing:border-box; margin:0; padding:0; }
-  body { background:var(--bg); color:var(--text); font-family:'Noto Sans KR',sans-serif; min-height:100vh; }
-  header { border-bottom:1px solid var(--border); padding:20px 24px; display:flex; align-items:center; gap:12px; }
-  .dot { width:8px; height:8px; border-radius:50%; background:var(--accent); }
-  .header-label { font-size:13px; color:var(--text-muted); letter-spacing:0.1em; font-family:'DM Mono',monospace; }
-  .back-link { margin-left:auto; font-size:13px; color:var(--text-muted); text-decoration:none; }
-  .back-link:hover { color:var(--accent); }
-  main { max-width:600px; margin:0 auto; padding:48px 24px; }
-  .title-block { margin-bottom:40px; }
-  h1 { font-size:clamp(26px,5vw,38px); font-weight:900; line-height:1.1; margin-bottom:12px; }
-  h1 span { color:var(--accent); }
-  .subtitle { color:var(--text-muted); font-size:14px; line-height:1.7; }
-
-  /* 거래 유형 탭 */
-  .tabs { display:flex; gap:8px; margin-bottom:20px; }
-  .tab { flex:1; padding:12px; text-align:center; border:1px solid var(--border); border-radius:10px; cursor:pointer; font-size:14px; font-weight:700; color:var(--text-muted); background:var(--surface); transition:all 0.15s; }
-  .tab.active { border-color:var(--accent2); color:var(--accent); background:var(--accent-dim); }
-
-  .card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:20px 24px; margin-bottom:14px; transition:border-color 0.2s; }
-  .card:focus-within { border-color:var(--accent2); }
-  .card-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-  label { font-size:12px; color:var(--text-muted); letter-spacing:0.08em; display:block; margin-bottom:10px; }
-  input[type=number] { width:100%; background:transparent; border:none; outline:none; font-size:26px; font-weight:700; color:var(--text); font-family:'DM Mono',monospace; min-width:0; }
-  input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
-  .input-wrap { display:flex; align-items:center; gap:8px; }
-  .unit { color:var(--text-dim); font-size:14px; white-space:nowrap; }
-  .helper { font-size:11px; color:var(--text-dim); margin-top:8px; }
-
-  .quick-btns { display:flex; gap:6px; margin-top:10px; flex-wrap:wrap; }
-  .qbtn { background:var(--surface2); border:1px solid var(--border); border-radius:5px; padding:4px 10px; font-size:11px; color:var(--text-muted); cursor:pointer; font-family:'DM Mono',monospace; transition:all 0.15s; }
-  .qbtn:hover { border-color:var(--accent2); color:var(--accent); }
-
-  .result { border-radius:16px; padding:28px; margin-bottom:20px; display:none; background:var(--accent-dim); border:1px solid var(--accent2); }
-  .result.show { display:block; }
-  .result-tag { font-size:12px; color:var(--accent); letter-spacing:0.1em; margin-bottom:20px; }
-  .result-main { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:16px; }
-  .result-label { font-size:14px; color:var(--text-muted); }
-  .result-value { font-family:'DM Mono',monospace; font-size:30px; font-weight:700; color:var(--accent); }
-  .divider { height:1px; background:var(--border); margin:14px 0; }
-  .detail-row { display:flex; justify-content:space-between; font-size:13px; padding:4px 0; }
-  .detail-label { color:var(--text-muted); }
-  .detail-value { font-family:'DM Mono',monospace; color:var(--text); }
-
-  /* 요율표 */
-  .rate-table { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:20px 24px; margin-bottom:40px; }
-  .rate-title { font-size:12px; color:var(--text-muted); letter-spacing:0.08em; margin-bottom:14px; }
-  table { width:100%; border-collapse:collapse; font-size:12px; }
-  th { color:var(--text-dim); font-weight:500; padding:6px 4px; text-align:left; border-bottom:1px solid var(--border); }
-  td { padding:7px 4px; border-bottom:1px solid var(--border); color:var(--text-muted); }
-  td:last-child,th:last-child { text-align:right; }
-  tr.highlight td { color:var(--accent); }
-  tr:last-child td { border-bottom:none; }
-
-  .seo { border-top:1px solid var(--border); padding-top:32px; }
-  .seo h2 { font-size:16px; font-weight:700; margin-bottom:12px; }
-  .seo p { font-size:13px; color:var(--text-muted); line-height:1.8; margin-bottom:24px; }
-  footer { text-align:center; font-size:12px; color:var(--text-dim); margin-top:48px; }
-
-  .faq-list { margin-top: 12px; }
-  .faq-item { background: #111; border-radius: 10px; padding: 16px 18px; margin-bottom: 10px; }
-  .faq-q { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 8px; line-height: 1.5; }
-  .faq-a { font-size: 13px; color: var(--text-muted); line-height: 1.8; }
-
+main{max-width:600px;}
+.card-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.helper{font-size:11px;color:var(--text-dim);margin-top:8px;}
+.quick-btns{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;}
+.rate-table{background:rgba(255,255,255,0.03);border:1px solid var(--glass-border);border-radius:12px;padding:20px 24px;margin-bottom:40px;}
+.rate-title{font-size:12px;color:var(--text-muted);letter-spacing:0.08em;margin-bottom:14px;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+th{color:var(--text-dim);font-weight:500;padding:6px 4px;text-align:left;border-bottom:1px solid var(--glass-border);}
+td{padding:7px 4px;border-bottom:1px solid var(--glass-border);color:var(--text-muted);}
+td:last-child,th:last-child{text-align:right;}
+tr:last-child td{border-bottom:none;}
+.faq-list{margin-top:12px;}
+.faq-item{background:rgba(255,255,255,0.03);border:1px solid var(--glass-border);border-radius:10px;padding:16px 18px;margin-bottom:10px;}
+.faq-q{font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px;line-height:1.5;}
+.faq-a{font-size:13px;color:var(--text-muted);line-height:1.8;}
+footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:48px;}
 </style>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
@@ -121,31 +69,30 @@
   <a href="index.html" class="back-link">← 모두의 툴</a>
 </header>
 <main>
-  <div class="title-block">
-    <h1>중개수수료<br><span>계산기</span></h1>
-    <p class="subtitle">2026년 법정 상한 요율 기준 · 매매·전세·월세 복비 계산</p>
-  </div>
+  <div class="eyebrow">Real Estate · Instrument</div>
+  <h1>중개수수료<br><span>계산기</span></h1>
+  <p class="subtitle">2026년 법정 상한 요율 기준 · 매매·전세·월세 복비 계산</p>
 
-  <div class="tabs">
-    <div class="tab active" onclick="switchTab('buy')">매매</div>
-    <div class="tab" onclick="switchTab('lease')">전세</div>
-    <div class="tab" onclick="switchTab('rent')">월세</div>
+  <div class="rbtn-row" style="margin-bottom:20px;">
+    <div class="rbtn on" onclick="switchTab('buy')">매매</div>
+    <div class="rbtn" onclick="switchTab('lease')">전세</div>
+    <div class="rbtn" onclick="switchTab('rent')">월세</div>
   </div>
 
   <!-- 매매 -->
   <div id="tabBuy">
     <div class="card">
-      <label>매매 금액</label>
+      <div class="field-label">매매 금액</div>
       <div class="input-wrap">
         <input type="number" id="buyPrice" placeholder="300000000" oninput="calc()">
         <span class="unit">원</span>
       </div>
       <div class="quick-btns">
-        <button class="qbtn" onclick="setVal('buyPrice',200000000)">2억</button>
-        <button class="qbtn" onclick="setVal('buyPrice',300000000)">3억</button>
-        <button class="qbtn" onclick="setVal('buyPrice',500000000)">5억</button>
-        <button class="qbtn" onclick="setVal('buyPrice',900000000)">9억</button>
-        <button class="qbtn" onclick="setVal('buyPrice',1000000000)">10억</button>
+        <button class="opt-btn" onclick="setVal('buyPrice',200000000)">2억</button>
+        <button class="opt-btn" onclick="setVal('buyPrice',300000000)">3억</button>
+        <button class="opt-btn" onclick="setVal('buyPrice',500000000)">5억</button>
+        <button class="opt-btn" onclick="setVal('buyPrice',900000000)">9억</button>
+        <button class="opt-btn" onclick="setVal('buyPrice',1000000000)">10억</button>
       </div>
     </div>
   </div>
@@ -153,16 +100,16 @@
   <!-- 전세 -->
   <div id="tabLease" style="display:none">
     <div class="card">
-      <label>전세 보증금</label>
+      <div class="field-label">전세 보증금</div>
       <div class="input-wrap">
         <input type="number" id="leasePrice" placeholder="200000000" oninput="calc()">
         <span class="unit">원</span>
       </div>
       <div class="quick-btns">
-        <button class="qbtn" onclick="setVal('leasePrice',100000000)">1억</button>
-        <button class="qbtn" onclick="setVal('leasePrice',200000000)">2억</button>
-        <button class="qbtn" onclick="setVal('leasePrice',300000000)">3억</button>
-        <button class="qbtn" onclick="setVal('leasePrice',500000000)">5억</button>
+        <button class="opt-btn" onclick="setVal('leasePrice',100000000)">1억</button>
+        <button class="opt-btn" onclick="setVal('leasePrice',200000000)">2억</button>
+        <button class="opt-btn" onclick="setVal('leasePrice',300000000)">3억</button>
+        <button class="opt-btn" onclick="setVal('leasePrice',500000000)">5억</button>
       </div>
     </div>
   </div>
@@ -171,36 +118,33 @@
   <div id="tabRent" style="display:none">
     <div class="card-row">
       <div class="card">
-        <label>보증금</label>
+        <div class="field-label">보증금</div>
         <div class="input-wrap">
           <input type="number" id="rentDeposit" placeholder="10000000" oninput="calc()">
           <span class="unit">원</span>
         </div>
       </div>
       <div class="card">
-        <label>월세</label>
+        <div class="field-label">월세</div>
         <div class="input-wrap">
           <input type="number" id="rentMonthly" placeholder="500000" oninput="calc()">
           <span class="unit">원</span>
         </div>
       </div>
     </div>
-    <div class="helper" style="margin-bottom:14px;padding:0 4px;color:var(--text-dim);font-size:12px;">거래금액 = 보증금 + (월세 × 100), 5000만원 미만 시 월세 × 70 적용</div>
+    <div class="helper" style="margin-bottom:14px;padding:0 4px;">거래금액 = 보증금 + (월세 × 100), 5000만원 미만 시 월세 × 70 적용</div>
   </div>
 
-  <div class="result" id="result">
-    <div class="result-tag">✓ 중개수수료 계산 결과</div>
-    <div class="result-main">
-      <span class="result-label">최대 중개수수료</span>
-      <span class="result-value" id="maxFee"></span>
+  <div class="readout" id="result" style="display:none;">
+    <div class="readout-head">
+      <span class="readout-label">✓ 중개수수료 계산 결과</span>
     </div>
+    <div class="row"><span class="lk" style="font-weight:600;color:var(--text)">최대 중개수수료</span><span class="lv good" style="font-size:20px" id="maxFee"></span></div>
     <div class="divider"></div>
-    <div class="detail-row"><span class="detail-label">거래금액</span><span class="detail-value" id="tradePrice"></span></div>
-    <div class="detail-row"><span class="detail-label">적용 요율</span><span class="detail-value" id="rateApplied"></span></div>
-    <div class="detail-row"><span class="detail-label">한도액</span><span class="detail-value" id="limitAmt"></span></div>
-    <div class="detail-row" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
-      <span class="detail-label" style="color:var(--yellow);font-size:12px;">💡 실제 수수료는 협의 가능 (상한액 이하)</span>
-    </div>
+    <div class="row"><span class="lk">거래금액</span><span class="lv" id="tradePrice"></span></div>
+    <div class="row"><span class="lk">적용 요율</span><span class="lv good" id="rateApplied"></span></div>
+    <div class="row"><span class="lk">한도액</span><span class="lv" id="limitAmt"></span></div>
+    <div class="delta-line">💡 실제 수수료는 협의 가능 (상한액 이하)</div>
   </div>
 
   <!-- 요율표 -->
@@ -260,11 +204,11 @@ function switchTab(tab) {
   ['buy','lease','rent'].forEach(t => {
     document.getElementById('tab'+t.charAt(0).toUpperCase()+t.slice(1)).style.display = t===tab?'':'none';
   });
-  document.querySelectorAll('.tab').forEach((el,i) => el.classList.toggle('active', ['buy','lease','rent'][i]===tab));
+  document.querySelectorAll('.rbtn-row .rbtn').forEach((el,i) => el.classList.toggle('on', ['buy','lease','rent'][i]===tab));
   document.getElementById('rateTableBuy').style.display = tab==='buy'?'':'none';
   document.getElementById('rateTableLease').style.display = tab!=='buy'?'':'none';
   document.getElementById('rateTableTitle').textContent = tab==='buy'?'매매 법정 상한 요율표':'전월세 법정 상한 요율표';
-  document.getElementById('result').classList.remove('show');
+  document.getElementById('result').style.display='none';
   calc();
 }
 
@@ -304,19 +248,20 @@ function calc() {
     price = calc1 < 50000000 ? calc2 : calc1;
   }
 
-  if (!price) { resultEl.classList.remove('show'); return; }
+  if (!price) { resultEl.style.display='none'; return; }
 
   const rateInfo = currentTab === 'buy' ? getBuyRate(price) : getLeaseRate(price);
   let fee = price * rateInfo.rate;
   if (rateInfo.limit) fee = Math.min(fee, rateInfo.limit);
 
-  resultEl.classList.add('show');
+  resultEl.style.display='block';
   document.getElementById('maxFee').textContent = fmt(fee);
   document.getElementById('tradePrice').textContent = fmtShort(price);
   document.getElementById('rateApplied').textContent = (rateInfo.rate * 100).toFixed(1) + '%';
   document.getElementById('limitAmt').textContent = rateInfo.limit ? fmt(rateInfo.limit) : '한도 없음';
 }
 </script>
+<script src="theme-instrument.js"></script>
 <script src="related.js"></script>
 </body>
 </html>
