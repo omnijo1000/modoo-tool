@@ -285,8 +285,25 @@ break-even-calculator, cagr-calculator, canonical-tag-checker, capital-gains-tax
 
 **누적: 212개 파일 완료** (health/date-time 22 + 배치0/1 60 + 배치2 30 + 배치3 30 + 배치4 30 + 배치5 30 + 배치6(1부) 10). **커밋:** `92ae7d7` ("Convert batch 6 part 1 (10 files) to Hybrid A+ theme"), push 안 함.
 
-### 다음 세션에서 이어갈 것: 배치 6, 2부부터
-`ROLLOUT_REMAINING_BATCHES.txt` "Batch 06"의 나머지 20개(`property-tax`부터 `retirement-calc`까지)부터 10개씩. 방법론은 위 "방법론 (배치 0/1에서 확립됨)" 섹션 + theme-instrument.css/js 동시수정 금지 규칙 그대로. **주의: 매 배치 시작 전에 grep으로 해당 파일들이 이미 다른 세션에 의해 전환돼 있지 않은지 먼저 확인할 것** (계속 반복 발생 중 — 다른 PC 세션이 병행 작업 중인 것으로 추정). fork 병렬 실행이 막히면("Fork is not available inside a forked worker") 오케스트레이터가 직접 Read/Write로 전환.
+### 완료: 배치 6, 2부 (10개, 2026-07-17) — 배치6(20개) 전체 완료
+`property-tax`, `qr-code-generator`, `random-string`, `random-word-generator`, `read-time-calculator`, `reading-level-checker`, `realestate-fee`, `redirect-checker`, `regex-cheatsheet`, `regex-generator` — **10/10 완료.**
+
+**이번 배치도 "Fork is not available inside a forked worker" 재발** — 배치 시작 직후 fork 2개 연속 시도 모두 즉시 이 에러로 실패, 이번엔 재시도 없이 바로 오케스트레이터가 직접 전환 진행(패턴이 이제 배치3-3부/배치5-1부에 이어 계속 반복 확인됨 — 이 세션에서는 fork가 사실상 항상 막혀있는 것으로 보고 처음부터 직접 처리하는 편이 효율적). `png-to-svg.html`은 확인 시점에 이미 다른 세션이 전환 완료해둔 상태 발견 — grep 재확인 후 스킵, 대신 목록에 없던 `property-tax`를 포함시켜 10개 채움. `pdf-word-counter`/`percent-calc`는 이전에 백그라운드로 띄웠던 fork(`a5f2f6dec437bf23b`)가 알아서 완료해둔 상태를 나중에 grep으로 확인(최종 보고 메시지 기다리지 않고 파일 상태로 직접 판정). `prepayment-fee`/`profit-calculator`/`prompt-cleaner`/`prompt-formatter` 4개도 검증 시점에 이미 다른 동시 세션이 전환해둔 상태로 발견 — grep+diff 재확인 후 채택.
+
+**실제로 처음부터 직접 전환한 파일**(레퍼런스 없이 새로 마크업): `pixelate-image`(blur-image.html 그대로 참고, 거의 1:1), `png-to-jpg`(배치 파일 컨버터, image-to-webp.html 패턴), `pomodoro-timer`(원형 SVG 타이머 게이지 — 세션 진행점 클래스명이 테마 공용 헤더 로고 점 `.dot`과 충돌해 `.session-dot`으로 리네임), `property-tax`(종부세 계산기, income-tax.html의 `.readout`/`.tax-bracket` 패턴 재사용), `qr-code-generator`(4-tab 타입 선택 `.rbtn-row`로 통일), `random-string`/`random-word-generator`(password-generator.html의 카드+옵션+출력박스 패턴), `read-time-calculator`(`.cal-card` 4-스탯 그리드 재사용), `reading-level-checker`(Flesch/Gunning Fog/SMOG 4개 스코어 카드), `realestate-fee`(중개수수료 계산기, `.readout`+`.tabs`→`.rbtn-row` 통일), `redirect-checker`(리다이렉트 체인 빌더, 상태코드별 색상을 테마 토큰 --warn/--info/--violet/--cyan/--good으로 매핑), `regex-cheatsheet`(치트시트 그리드 — 테마의 고정 2열 `.grid`와 충돌 방지 위해 `.cheat-grid`로 분리 네이밍), `regex-generator`(패턴 버튼 그리드 + 실시간 테스터) — 총 12개.
+
+**법정수치 파일 직접 검증:**
+- `property-tax.html`(종합부동산세 2026년 기준): 공제금액(9억/12억), 누진 세율표(`calcNormal`/`calcHeavy` 배열의 0.5~2.7%/0.5~6.0% 구간), 농특세 20% — `git diff --unified=0`으로 재확인, CSS 클래스명 변경 외 숫자 리터럴 0건 변경.
+- `realestate-fee.html`(중개수수료/복비): `getBuyRate`/`getLeaseRate` 함수의 요율·한도표(매매 0.6→0.4→0.7%, 전세 0.5→0.3→0.6%) 및 HTML 요율표 byte-identical `git diff` 확인 — rate/limit 숫자 리터럴이 diff에 전혀 등장하지 않음(클래스명 변경 라인만 diff에 걸림).
+
+**패턴 메모:** `pomodoro-timer.html`처럼 페이지 전용 클래스가 테마 공용 클래스(`.dot`)와 충돌하는 사례가 계속 나옴 — 새 클래스 추가 전 grep 필수 규칙이 실제로 반복 유효함. `regex-cheatsheet.html`의 `.grid`도 테마의 고정 2열 그리드와 충돌할 뻔해서 `.cheat-grid`로 회피. 색상 팔레트가 순수 장식용(포모도로 모드탭, redirect 상태코드뱃지, random-word 단어 색상)인 경우 구식 hex를 테마 토큰(`--danger`/`--good`/`--info`/`--violet`/`--cyan`/`--warn`)으로 자연스럽게 매핑하는 패턴이 자리잡음.
+
+**직접 검증 완료:** 10개 파일 전부 링크 3종(css/js/related) 각 1회, `</html>` 1회, 구 `:root{--bg` 잔재 0건, Node 인라인 `<script>` 문법 재검증 전부 통과, `theme-instrument.css` 중괄호 247/247 일치, `git diff --stat theme-instrument.css theme-instrument.js` 완전히 빈 상태(공유 파일 무수정 확인).
+
+**누적: 222개 파일 완료** (health/date-time 22 + 배치0/1 60 + 배치2 30 + 배치3 30 + 배치4 30 + 배치5 30 + 배치6 30). **배치 6(30개) 전체 완료.** **커밋:** `a7baa65` ("Convert batch 6 part 2 (10 files) to Hybrid A+ theme -- batch 6 complete"), push 안 함.
+
+### 다음 세션에서 이어갈 것: 배치 7부터
+`ROLLOUT_REMAINING_BATCHES.txt` "Batch 07"부터 10개씩. 방법론은 위 "방법론 (배치 0/1에서 확립됨)" 섹션 + theme-instrument.css/js 동시수정 금지 규칙 그대로. **주의: 매 배치 시작 전에 grep으로 해당 파일들이 이미 다른 세션에 의해 전환돼 있지 않은지 먼저 확인할 것** (계속 반복 발생 중 — 다른 PC 세션이 병행 작업 중인 것으로 추정). **이 세션에서는 fork 병렬 실행이 배치6 내내 100% 막혀 있었음("Fork is not available inside a forked worker")** — 다음 세션 시작 시 fork가 다시 되는지 한 번만 테스트해보고, 안 되면 바로 오케스트레이터 직접 Read/Write 방식으로 전환할 것(재시도로 시간 낭비하지 말 것).
 
 **⚠️ 세션 시작 시 권한 확인:** 이 세션은 사용자가 `--dangerously-skip-permissions`로 시작했다고 확인했으나, 실행 중 harness가 일부 tool(Agent/fork spawn 등)에 대해 승인 팝업을 띄우는 현상이 있었음(원인 불명 — flag 자체 문제인지 harness 설정 문제인지 미확정). **다음 세션 시작 시 사용자가 `claude --dangerously-skip-permissions`로 재실행했는지, 그리고 fork 배치 작업 중 승인 팝업이 안 뜨는지 먼저 확인할 것.** 팝업이 계속 뜨면 배치당 fork 5개 병렬 실행이 매번 수동 승인을 요구하게 되어 무인 진행이 불가능해짐 — 이 경우 사용자에게 원인 확인 요청.
 
