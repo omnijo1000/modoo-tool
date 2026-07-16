@@ -246,8 +246,21 @@ break-even-calculator, cagr-calculator, canonical-tag-checker, capital-gains-tax
 
 **누적: 172개 파일 완료** (health/date-time 22 + 배치0/1 60 + 배치2 30 + 배치3 30 + 배치4 30). **배치 4(30개) 전체 완료.**
 
-### 다음 세션에서 이어갈 것: 배치 5부터
-`ROLLOUT_REMAINING_BATCHES.txt` "Batch 05"부터 10개씩. 방법론은 위 "방법론 (배치 0/1에서 확립됨)" 섹션 그대로 + theme-instrument.css/js 동시수정 금지 규칙. **주의: 매 배치 시작 전에 grep으로 해당 파일들이 이미 다른 세션에 의해 전환돼 있지 않은지 먼저 확인할 것** (이번 세션 시작 시 배치4 앞 10개가 이미 다른 PC 세션에 의해 전환돼 있었음 — 계속 발생 가능). fork 병렬 실행이 막히면("Fork is not available inside a forked worker") 오케스트레이터가 직접 Read/Write로 전환. `Batch 05`에 `naverfc35bcbb70f824fb8fba2e8491a4dbec.html` 같은 특수 파일명이 섞여 있을 수 있음 — CLAUDE.md에 언급된 제외 대상(naverfc…html)인지 먼저 확인 후 스킵할 것.
+### 완료: 배치 5, 1부 (10개, 2026-07-16)
+`minimum-wage`/`mortgage-calculator`는 배치4에서 이미 전환 완료했고, `naverfc…html`은 CLAUDE.md 제외 대상이라 스킵 — 대신 `Batch 05` 목록에서 `nanoid-generator`, `nginx-config-generator`, `ngram-analyzer`, `number-converter`, `open-graph-generator`, `open-graph-preview`, `overtime-pay`, `palindrome-checker`, `parental-leave`, `password-generator` 10개로 채움.
+
+**중간에 "Fork is not available inside a forked worker" 에러 재발** (배치3 3부에서 겪었던 것과 동일 현상) — 5번째 fork(`overtime-pay`+`palindrome-checker` 담당)가 fork-worker 컨텍스트로 오케스트레이터 자신에게 되돌아옴. 매뉴얼대로 오케스트레이터가 직접 Read/Write로 두 파일 전환(법정 가산율 1.5/0.5/2.0배·최저시급 10,320원 초기값 등 `git diff`로 byte-identical 확인). 나머지 4개 fork(`nanoid-generator`+`nginx-config-generator`, `ngram-analyzer`+`number-converter`, `open-graph-generator`+`open-graph-preview`)는 정상 완료. `parental-leave`/`password-generator` 2개는 검증 단계에서 **이미 다른 세션이 전환해둔 상태**(또는 동시 작업 중이던 백그라운드 프로세스)로 발견 — grep 재확인 후 그대로 채택.
+
+**직접 검증 중 발견/수정한 문제:**
+- `password-generator.html`: `theme-instrument.js` 링크 누락 감지 → Edit 시도 중 "파일이 읽은 이후 변경됨" 에러 발생(동시에 다른 프로세스가 같은 줄을 이미 추가하고 있었음) → 재확인 결과 이미 정상 삽입되어 있어 추가 조치 불필요.
+- `nginx-config-generator.html`(css=2 검출)·`open-graph-preview.html`(`</html>` 3회 검출)은 둘 다 false positive — 각각 CSS 주석 텍스트, textarea placeholder/템플릿 리터럴 안의 문자열이었음(html-minifier 선례와 동일 패턴). 실제 구조 이상 없음.
+
+**직접 검증 완료:** 10개 파일 전부 Node 문법검증 통과, `theme-instrument.css` 중괄호 247/247 일치, `git diff --stat theme-instrument.css theme-instrument.js` 완전히 빈 상태, `overtime-pay.html`/`parental-leave.html` 법정수치(가산수당 배율·초기값, 육아휴직 급여 수치) `git diff`로 byte-identical 확인.
+
+**누적: 182개 파일 완료** (health/date-time 22 + 배치0/1 60 + 배치2 30 + 배치3 30 + 배치4 30 + 배치5(1부) 10).
+
+### 다음 세션에서 이어갈 것: 배치 5, 나머지 20개부터
+`Batch 05` 목록 중 아직 안 한 나머지(`payslip-calc`부터 `pdf-watermark`까지, `ROLLOUT_REMAINING_BATCHES.txt` "Batch 05" 후반부). 방법론은 위 "방법론 (배치 0/1에서 확립됨)" 섹션 + theme-instrument.css/js 동시수정 금지 규칙 그대로. **주의: 매 배치 시작 전에 grep으로 해당 파일들이 이미 다른 세션에 의해 전환돼 있지 않은지 먼저 확인할 것** (계속 반복 발생 중 — 다른 PC 세션이 병행 작업 중인 것으로 추정). fork 병렬 실행이 막히면("Fork is not available inside a forked worker") 오케스트레이터가 직접 Read/Write로 전환(이번 세션에 두 번째로 발생, 드물지 않은 패턴으로 확인됨).
 
 ## 참고 — 이전에 나온 별도 이슈(디자인 컨셉과 무관, 아직 미착수)
 현재 CLAUDE.md에 없는, 이번 세션에서 fable5 에이전트가 지적한 기존 실행 버그들(별도 작업 필요):
