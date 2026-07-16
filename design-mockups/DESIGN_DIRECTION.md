@@ -165,6 +165,21 @@ break-even-calculator, cagr-calculator, canonical-tag-checker, capital-gains-tax
 **누적: 102개 파일 완료** (health/date-time 22 + 배치0/1 60 + 배치2(1부+2부) 20).
 **배치 2 남은 것: 10개** (graphql-formatter ~ htaccess-generator, `ROLLOUT_REMAINING_BATCHES.txt` "Batch 02" 마지막 10줄).
 
+### 완료: 배치 2, 3부 (10개, 2026-07-16) — 배치 2(30개) 전체 완료
+`graphql-formatter`, `graphql-query-builder`, `gst-calculator`, `hash-checker`, `hash-generator`, `hashtag-generator`, `heic-to-jpg`, `hmac-generator`, `hreflang-generator`, `htaccess-generator` — **10/10 성공, 이번엔 세션 한도 끊김 0건.**
+
+**주목할 점:**
+- `gst-calculator.html`(인도 GST세율 파일)은 fork가 자체적으로 브라우저 스팟체크까지 하고 보고함: ₹1000 at 18% → GST ₹180, 합계 ₹1180, CGST/SGST 각 ₹90, IGST ₹180 — 전부 정확. 세율/한도(₹40·20 lakh, ₹5 crore HSN, TCS 1%/0.5%) 텍스트 diff로 byte-identical 확인.
+- `htaccess-generator.html`(654줄, 이 배치 최대 파일) — 12개 토글 규칙 전부 원본 id/핸들러 유지 확인. 내가 직접 브라우저에서 HTTPS 강제 리다이렉트 + GZIP 압축 토글 켜서 실제 `.htaccess` 규칙(RewriteEngine/RewriteCond/AddOutputFilterByType 등)이 정확히 생성되는 것까지 확인.
+- `hash-generator.html`은 FAQ가 두 군데(정적 `.seo` div + JS로 렌더링되는 별도 `#faqSection`)라 서로 다른 클래스 체계(`details.faq-item` vs `.faq-item .faq-q .faq-a`)를 쓰는 걸 fork가 발견하고, page-specific CSS를 `.faq-section .faq-item`으로 스코핑해서 충돌 없이 처리.
+- 탭 UI 있는 파일(`hreflang-generator`)은 계속 `.tab/.active` → `.rbtn-row/.rbtn.on` 컨벤션으로 통일.
+- `theme-instrument.css`/`.js` 이번 배치도 `git diff --stat` 완전히 빈 상태 유지.
+
+**누적: 112개 파일 완료** (health/date-time 22 + 배치0/1 60 + 배치2 30). **배치 2(30개) 전체 완료.**
+
+### 다음: 배치 3 (30개, 아직 미착수)
+`ROLLOUT_REMAINING_BATCHES.txt`의 "Batch 03" 섹션 참고: html-decoder부터 시작. 10개씩 끊어서 계속 (사용자 지시).
+
 ## 참고 — 이전에 나온 별도 이슈(디자인 컨셉과 무관, 아직 미착수)
 현재 CLAUDE.md에 없는, 이번 세션에서 fable5 에이전트가 지적한 기존 실행 버그들(별도 작업 필요):
 - index.html에 검색 기능 없음 (327개 카드, 필터칩만 있음)
