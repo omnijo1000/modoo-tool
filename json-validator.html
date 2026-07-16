@@ -15,62 +15,21 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme-instrument.css">
 <style>
-  :root {
-    --bg:#0a0a0a; --surface:#141414; --surface2:#1a1a1a; --border:#252525;
-    --accent:#fbbf24; --accent2:#f59e0b; --accent-dim:rgba(251,191,36,0.08);
-    --text:#f5f5f5; --text-muted:#888; --text-dim:#444;
-    --green:#4ade80; --red:#f87171; --blue:#60a5fa; --purple:#c084fc;
-  }
-  * { box-sizing:border-box; margin:0; padding:0; }
-  body { background:var(--bg); color:var(--text); font-family:'Noto Sans KR',sans-serif; min-height:100vh; }
-  header { border-bottom:1px solid var(--border); padding:20px 24px; display:flex; align-items:center; gap:12px; }
-  .dot { width:8px; height:8px; border-radius:50%; background:var(--accent); }
-  .header-label { font-size:13px; color:var(--text-muted); letter-spacing:0.1em; font-family:'DM Mono',monospace; }
-  .back-link { margin-left:auto; font-size:13px; color:var(--text-muted); text-decoration:none; }
-  .back-link:hover { color:var(--accent); }
-  .lang-toggle { font-size:12px; color:var(--text-muted); cursor:pointer; padding:4px 10px; border:1px solid var(--border); border-radius:6px; font-family:'DM Mono',monospace; transition:all 0.15s; margin-left:8px; }
-  .lang-toggle:hover { border-color:var(--accent); color:var(--accent); }
-  main { max-width:900px; margin:0 auto; padding:40px 24px; }
-  h1 { font-size:clamp(24px,4vw,34px); font-weight:900; line-height:1.1; margin-bottom:10px; }
-  h1 span { color:var(--accent); }
-  .subtitle { color:var(--text-muted); font-size:14px; margin-bottom:28px; }
-  .toolbar { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; align-items:center; }
-  .btn { background:var(--surface2); border:1px solid var(--border); border-radius:7px; padding:7px 14px; font-size:13px; color:var(--text-muted); cursor:pointer; font-family:'Noto Sans KR',sans-serif; transition:all 0.15s; }
-  .btn:hover { border-color:var(--accent2); color:var(--accent); }
-  .btn.primary { background:var(--accent2); border-color:var(--accent2); color:#000; font-weight:700; }
-  .btn.primary:hover { opacity:0.85; color:#000; }
-  .btn.danger:hover { border-color:var(--red); color:var(--red); }
-  textarea { width:100%; min-height:400px; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:16px; font-family:'DM Mono',monospace; font-size:13px; color:var(--text); outline:none; resize:vertical; line-height:1.6; }
-  textarea:focus { border-color:var(--accent2); }
-  textarea.error { border-color:var(--red); }
-  textarea.success { border-color:var(--green); }
-  .status { display:flex; align-items:center; gap:10px; padding:10px 16px; border-radius:8px; font-size:13px; margin-bottom:20px; }
-  .status.idle { background:var(--surface); border:1px solid var(--border); color:var(--text-muted); }
-  .status.ok { background:rgba(74,222,128,0.08); border:1px solid rgba(74,222,128,0.3); color:var(--green); }
-  .status.err { background:rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.3); color:var(--red); }
+  .toolbar { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; align-items:center; }
+  .btn-sm { background:rgba(255,255,255,0.03); border:1px solid var(--glass-border); border-radius:8px; padding:8px 14px; font-size:13px; color:var(--text-muted); cursor:pointer; font-family:var(--sans); transition:all 0.15s; }
+  .btn-sm:hover { border-color:var(--cyan); color:var(--text); }
+  .btn-sm.danger:hover { border-color:var(--danger); color:var(--danger); }
+  .status-bar { display:flex; align-items:center; gap:10px; padding:12px 16px; border-radius:12px; font-size:13px; margin-bottom:16px; border:1px solid var(--glass-border); background:var(--glass); }
+  .status-bar.ok { border-color:rgba(79,203,154,0.35); background:rgba(79,203,154,0.08); color:var(--good); }
+  .status-bar.err { border-color:rgba(242,114,94,0.35); background:rgba(242,114,94,0.08); color:var(--danger); }
   .status-dot { width:7px; height:7px; border-radius:50%; background:currentColor; flex-shrink:0; }
-  .stats { display:flex; gap:12px; flex-wrap:wrap; margin-top:16px; margin-bottom:32px; }
-  .stat { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:10px 16px; font-size:12px; }
-  .stat-label { color:var(--text-dim); margin-bottom:3px; }
-  .stat-value { font-family:'DM Mono',monospace; color:var(--text-muted); font-size:14px; }
-  .editor-box { display:flex; flex-direction:column; margin-bottom:12px; }
-  .editor-label { font-size:11px; color:var(--text-dim); letter-spacing:0.08em; margin-bottom:8px; text-transform:uppercase; display:flex; justify-content:space-between; align-items:center; }
-  .copy-small { font-size:11px; color:var(--text-dim); cursor:pointer; padding:3px 8px; border:1px solid var(--border); border-radius:4px; transition:all 0.15s; }
-  .copy-small:hover { color:var(--accent); border-color:var(--accent2); }
-  .seo { border-top:1px solid var(--border); padding-top:32px; }
-  .seo h2 { font-size:16px; font-weight:700; margin-bottom:12px; }
-  .seo p { font-size:13px; color:var(--text-muted); line-height:1.8; margin-bottom:24px; }
-  footer { text-align:center; font-size:12px; color:var(--text-dim); margin-top:48px; padding-bottom:32px; }
-  details.faq-item { border:1px solid var(--border); border-radius:10px; margin-bottom:8px; overflow:hidden; }
-  details.faq-item summary { font-size:14px; font-weight:600; padding:14px 18px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; background:var(--surface); user-select:none; list-style:none; }
-  details.faq-item summary::-webkit-details-marker { display:none; }
-  details.faq-item summary::after { content:'▼'; font-size:11px; color:var(--text-muted); transition:transform .2s; flex-shrink:0; margin-left:12px; }
-  details.faq-item[open] summary::after { transform:rotate(180deg); }
-  details.faq-item summary:hover { color:var(--accent); }
-  details.faq-item p { font-size:13px; color:var(--text-muted); line-height:1.8; padding:0 18px 14px; background:var(--surface); }
-  .faq-section { margin-top:40px; border-top:1px solid var(--border); padding-top:32px; }
-  .faq-section h2 { font-size:16px; font-weight:700; margin-bottom:16px; }
+  textarea.error { border-color: var(--danger) !important; }
+  textarea.success { border-color: var(--good) !important; }
+  .editor-label { font-size:11px; color:var(--text-dim); letter-spacing:0.08em; margin-bottom:10px; text-transform:uppercase; display:flex; justify-content:space-between; align-items:center; font-family:var(--mono); }
+  .copy-small { font-size:11px; color:var(--text-dim); cursor:pointer; padding:3px 8px; border:1px solid var(--glass-border); border-radius:4px; transition:all 0.15s; }
+  .copy-small:hover { color:var(--cyan); border-color:var(--cyan); }
 </style>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
@@ -186,32 +145,33 @@
   <div class="lang-toggle" onclick="toggleLang()" id="langBtn">🌐 EN</div>
 </header>
 <main>
-  <h1 id="h1Title">JSON<br><span>검증기</span></h1>
+  <div class="eyebrow">Dev · Instrument</div>
+  <h1 id="h1Title">JSON <span>검증기</span></h1>
   <p class="subtitle" id="h1Sub">JSON을 붙여넣으면 즉시 유효성을 검사합니다</p>
 
   <div class="toolbar">
-    <button class="btn" id="btnPaste" onclick="pasteClipboard()">붙여넣기</button>
-    <button class="btn danger" id="btnClear" onclick="clearAll()">지우기</button>
-    <button class="btn" id="btnSample" onclick="loadSample()">샘플</button>
+    <button class="btn-sm" id="btnPaste" onclick="pasteClipboard()">붙여넣기</button>
+    <button class="btn-sm danger" id="btnClear" onclick="clearAll()">지우기</button>
+    <button class="btn-sm" id="btnSample" onclick="loadSample()">샘플</button>
   </div>
 
-  <div class="status idle" id="status">
+  <div class="status-bar" id="status">
     <div class="status-dot"></div>
     <span id="statusText">JSON을 입력하거나 붙여넣으세요</span>
   </div>
 
-  <div class="editor-box">
+  <div class="card">
     <div class="editor-label">
       <span id="labelInput">입력</span>
       <span class="copy-small" id="copyBtn" onclick="copyInput()">복사</span>
     </div>
-    <textarea id="taInput" placeholder='{"name":"Alice","age":30}' oninput="validate()"></textarea>
+    <textarea id="taInput" style="min-height:360px;" placeholder='{"name":"Alice","age":30}' oninput="validate()"></textarea>
   </div>
 
-  <div class="stats" id="statsRow" style="display:none">
-    <div class="stat"><div class="stat-label" id="statKeysLabel">키 수</div><div class="stat-value" id="statKeysVal">-</div></div>
-    <div class="stat"><div class="stat-label" id="statDepthLabel">깊이</div><div class="stat-value" id="statDepthVal">-</div></div>
-    <div class="stat"><div class="stat-label" id="statCharsLabel">문자 수</div><div class="stat-value" id="statCharsVal">-</div></div>
+  <div class="cal-grid" id="statsRow" style="display:none; grid-template-columns:repeat(3,1fr); margin-top:16px;">
+    <div class="cal-card"><div class="cal-label" id="statKeysLabel">키 수</div><div class="cal-val" id="statKeysVal">-</div></div>
+    <div class="cal-card"><div class="cal-label" id="statDepthLabel">깊이</div><div class="cal-val" id="statDepthVal">-</div></div>
+    <div class="cal-card"><div class="cal-label" id="statCharsLabel">문자 수</div><div class="cal-val" id="statCharsVal">-</div></div>
   </div>
 
   <div class="seo" id="seoSection"><h2>JSON 검증기란?</h2>
@@ -234,7 +194,7 @@
 const i18n = {
   ko: {
     pageTitle: 'JSON 검증기 - JSON 유효성 검사 도구',
-    h1: 'JSON<br><span>검증기</span>',
+    h1: 'JSON <span>검증기</span>',
     sub: 'JSON을 붙여넣으면 즉시 유효성을 검사합니다',
     backLink: '← 모두의 툴',
     langBtn: '🌐 EN',
@@ -266,7 +226,7 @@ const i18n = {
   },
   en: {
     pageTitle: 'JSON Validator - Check JSON Syntax Instantly',
-    h1: 'JSON<br><span>Validator</span>',
+    h1: 'JSON <span>Validator</span>',
     sub: 'Paste JSON to validate syntax and see stats instantly',
     backLink: '← Modoo Hub',
     langBtn: '🌐 中文',
@@ -298,7 +258,7 @@ const i18n = {
   },
   zh: {
     pageTitle: 'JSON 验证器 - 在线检查 JSON 语法',
-    h1: 'JSON<br><span>验证器</span>',
+    h1: 'JSON <span>验证器</span>',
     sub: '粘贴 JSON 即可立即验证语法',
     backLink: '← 首页',
     langBtn: '🌐 日本語',
@@ -330,7 +290,7 @@ const i18n = {
   },
   ja: {
     pageTitle: 'JSON バリデーター - JSON 構文チェックツール',
-    h1: 'JSON<br><span>バリデーター</span>',
+    h1: 'JSON <span>バリデーター</span>',
     sub: 'JSONを貼り付けて構文を即座に検証',
     backLink: '← ホーム',
     langBtn: '🌐 한국어',
@@ -392,7 +352,7 @@ function applyLang() {
   if (document.getElementById('seoSection')) document.getElementById('seoSection').innerHTML = t.seoHtml;
   // reset status text to idle
   const st = document.getElementById('status');
-  if (st && st.classList.contains('idle')) {
+  if (st && !st.classList.contains('ok') && !st.classList.contains('err')) {
     document.getElementById('statusText').textContent = t.statusIdle;
   }
 }
@@ -428,7 +388,7 @@ function countKeys(obj) {
 
 function showStatus(type, msg) {
   const el = document.getElementById('status');
-  el.className = 'status ' + type;
+  el.className = 'status-bar' + (type === 'idle' ? '' : (' ' + type));
   document.getElementById('statusText').textContent = msg;
 }
 
@@ -440,7 +400,7 @@ function showStats(keys, depth, chars) {
   document.getElementById('statKeysVal').textContent = keys;
   document.getElementById('statDepthVal').textContent = depth;
   document.getElementById('statCharsVal').textContent = chars;
-  document.getElementById('statsRow').style.display = 'flex';
+  document.getElementById('statsRow').style.display = 'grid';
 }
 
 function validate() {
@@ -495,7 +455,7 @@ function copyInput() {
   navigator.clipboard.writeText(text).then(function() {
     const btn = document.getElementById('copyBtn');
     btn.textContent = i18n[lang].copyDone;
-    btn.style.color = 'var(--green)';
+    btn.style.color = 'var(--good)';
     setTimeout(function(){ btn.textContent = i18n[lang].copyBtn; btn.style.color = ''; }, 2000);
   });
 }
@@ -503,6 +463,7 @@ function copyInput() {
 // ── Init ────────────────────────────────────────────────────────────
 applyLang();
 </script>
+<script src="theme-instrument.js"></script>
 <script src="related.js"></script>
 </body>
 </html>

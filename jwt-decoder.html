@@ -9,76 +9,47 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme-instrument.css">
 <style>
-  :root {
-    --bg:#0a0a0f; --surface:#11111a; --surface2:#191928; --border:#252535;
-    --accent:#67e8f9; --accent2:#22d3ee; --accent-dim:rgba(103,232,249,0.08);
-    --text:#f0f5ff; --text-muted:#7888a8; --text-dim:#3a4060;
-    --green:#4ade80; --red:#f87171; --yellow:#facc15; --purple:#c084fc;
-  }
-  * { box-sizing:border-box; margin:0; padding:0; }
-  body { background:var(--bg); color:var(--text); font-family:'Noto Sans KR',sans-serif; min-height:100vh; }
-  header { border-bottom:1px solid var(--border); padding:20px 24px; display:flex; align-items:center; gap:12px; }
-  .dot { width:8px; height:8px; border-radius:50%; background:var(--accent2); }
-  .header-label { font-size:13px; color:var(--text-muted); letter-spacing:0.1em; font-family:'DM Mono',monospace; }
-  .back-link { margin-left:auto; font-size:13px; color:var(--text-muted); text-decoration:none; }
-  .back-link:hover { color:var(--accent2); }
-  .lang-toggle { font-size:12px; color:var(--text-muted); cursor:pointer; padding:4px 10px; border:1px solid var(--border); border-radius:6px; font-family:'DM Mono',monospace; transition:all 0.15s; margin-left:8px; }
-  .lang-toggle:hover { border-color:var(--accent2); color:var(--accent2); }
-  main { max-width:800px; margin:0 auto; padding:48px 24px; }
-  h1 { font-size:clamp(26px,5vw,38px); font-weight:900; line-height:1.1; margin-bottom:12px; }
-  h1 span { color:var(--accent2); }
-  .subtitle { color:var(--text-muted); font-size:14px; margin-bottom:32px; }
-  .input-area { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:20px; margin-bottom:16px; }
-  .input-label { font-size:11px; color:var(--text-muted); letter-spacing:0.08em; margin-bottom:10px; display:flex; justify-content:space-between; }
-  textarea { width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:14px; font-family:'DM Mono',monospace; font-size:13px; color:var(--text); outline:none; resize:vertical; min-height:100px; line-height:1.5; }
-  textarea:focus { border-color:var(--accent2); }
-  .paste-btn { font-size:11px; color:var(--text-dim); cursor:pointer; padding:3px 8px; border:1px solid var(--border); border-radius:4px; }
-  .paste-btn:hover { color:var(--accent2); border-color:var(--accent2); }
-  .jwt-colored { font-family:'DM Mono',monospace; font-size:13px; word-break:break-all; line-height:1.7; padding:14px; background:var(--surface2); border-radius:8px; margin-top:10px; display:none; }
+  .jwt-colored { font-family:var(--mono); font-size:13px; word-break:break-all; line-height:1.7; padding:14px; background:rgba(255,255,255,0.03); border:1px solid var(--glass-border); border-radius:8px; margin-top:10px; display:none; }
   .jwt-colored.show { display:block; }
-  .part-header { color:var(--red); }
-  .part-payload { color:var(--purple); }
-  .part-sig { color:var(--green); }
+  .part-header { color:var(--danger); }
+  .part-payload { color:var(--violet); }
+  .part-sig { color:var(--good); }
   .part-dot { color:var(--text-dim); }
   .status { display:flex; align-items:center; gap:8px; padding:10px 16px; border-radius:8px; font-size:13px; margin-bottom:20px; }
-  .status.ok { background:rgba(74,222,128,0.08); border:1px solid rgba(74,222,128,0.3); color:var(--green); }
-  .status.err { background:rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.3); color:var(--red); }
-  .status.warn { background:rgba(250,204,21,0.08); border:1px solid rgba(250,204,21,0.3); color:var(--yellow); }
+  .status.ok { background:rgba(79,203,154,0.10); border:1px solid rgba(79,203,154,0.3); color:var(--good); }
+  .status.err { background:rgba(242,114,94,0.10); border:1px solid rgba(242,114,94,0.3); color:var(--danger); }
+  .status.warn { background:rgba(232,193,85,0.10); border:1px solid rgba(232,193,85,0.3); color:var(--warn); }
   .status-dot { width:7px; height:7px; border-radius:50%; background:currentColor; flex-shrink:0; }
   .sections { display:flex; flex-direction:column; gap:16px; margin-bottom:32px; }
-  .section { background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
-  .section-header { padding:14px 20px; display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--border); }
-  .section-badge { font-size:10px; font-family:'DM Mono',monospace; padding:3px 8px; border-radius:4px; font-weight:700; }
-  .badge-header { background:rgba(248,113,113,0.15); color:var(--red); }
-  .badge-payload { background:rgba(192,132,252,0.15); color:var(--purple); }
-  .badge-sig { background:rgba(74,222,128,0.15); color:var(--green); }
-  .section-title { font-size:14px; font-weight:700; }
-  .section-body { padding:16px 20px; }
-  pre { font-family:'DM Mono',monospace; font-size:13px; color:var(--text); white-space:pre-wrap; word-break:break-all; line-height:1.6; }
-  .copy-btn { margin-left:auto; font-size:11px; color:var(--text-dim); cursor:pointer; padding:3px 8px; border:1px solid var(--border); border-radius:4px; }
-  .copy-btn:hover { color:var(--accent2); border-color:var(--accent2); }
-  .claims { display:flex; flex-direction:column; gap:6px; margin-top:12px; padding-top:12px; border-top:1px solid var(--border); }
+  .section-header { padding:14px 20px; display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--glass-border); margin:-18px -20px 14px; }
+  .section-badge { font-size:10px; font-family:var(--mono); padding:3px 8px; border-radius:4px; font-weight:700; }
+  .badge-header { background:rgba(242,114,94,0.15); color:var(--danger); }
+  .badge-payload { background:rgba(139,124,250,0.15); color:var(--violet); }
+  .badge-sig { background:rgba(79,203,154,0.15); color:var(--good); }
+  .section-title { font-size:14px; font-weight:700; color:var(--text); }
+  pre { font-family:var(--mono); font-size:13px; color:var(--text); white-space:pre-wrap; word-break:break-all; line-height:1.6; }
+  .copy-btn, .paste-btn { margin-left:auto; font-size:11px; color:var(--text-dim); cursor:pointer; padding:3px 8px; border:1px solid var(--glass-border); border-radius:4px; }
+  .copy-btn:hover, .paste-btn:hover { color:var(--cyan); border-color:var(--cyan); }
+  .claims { display:flex; flex-direction:column; gap:6px; margin-top:12px; padding-top:12px; border-top:1px solid var(--glass-border); }
   .claim-row { display:flex; gap:12px; font-size:12px; align-items:flex-start; }
-  .claim-key { color:var(--text-dim); min-width:80px; font-family:'DM Mono',monospace; padding-top:2px; }
+  .claim-key { color:var(--text-dim); min-width:80px; font-family:var(--mono); padding-top:2px; }
   .claim-val { color:var(--text-muted); }
-  .claim-val.expired { color:var(--red); font-weight:700; }
-  .claim-val.valid { color:var(--green); font-weight:700; }
-  .example-btn { background:var(--surface2); border:1px solid var(--border); border-radius:7px; padding:8px 14px; font-size:12px; color:var(--text-muted); cursor:pointer; font-family:'DM Mono',monospace; transition:all 0.15s; margin-bottom:20px; }
-  .example-btn:hover { border-color:var(--accent2); color:var(--accent2); }
-  .seo { border-top:1px solid var(--border); padding-top:32px; }
-  .seo h2 { font-size:16px; font-weight:700; margin-bottom:12px; }
-  .seo p { font-size:13px; color:var(--text-muted); line-height:1.8; margin-bottom:24px; }
+  .claim-val.expired { color:var(--danger); font-weight:700; }
+  .claim-val.valid { color:var(--good); font-weight:700; }
+  .example-btn { background:rgba(255,255,255,0.02); border:1px solid var(--glass-border); border-radius:8px; padding:8px 14px; font-size:12px; color:var(--text-muted); cursor:pointer; font-family:var(--mono); transition:all 0.15s; margin-bottom:20px; }
+  .example-btn:hover { border-color:var(--cyan); color:var(--cyan); }
   footer { text-align:center; font-size:12px; color:var(--text-dim); margin-top:48px; }
 
-.faq-section{margin-top:40px;border-top:1px solid var(--border);padding-top:32px;}
+.faq-section{margin-top:40px;border-top:1px solid var(--glass-border);padding-top:32px;}
 .faq-section h2{font-size:16px;font-weight:700;margin-bottom:16px;color:var(--text);}
-.faq-item{border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden;}
-.faq-q{font-size:14px;font-weight:600;padding:14px 18px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;user-select:none;background:var(--surface);}
-.faq-q:hover{color:var(--accent,#60a5fa);}
+.faq-item{border:1px solid var(--glass-border);border-radius:10px;margin-bottom:8px;overflow:hidden;background:var(--glass);}
+.faq-q{font-size:14px;font-weight:600;padding:14px 18px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;user-select:none;}
+.faq-q:hover{color:var(--cyan);}
 .faq-chevron{font-size:11px;color:var(--text-muted);transition:transform .2s;flex-shrink:0;}
 .faq-item.open .faq-chevron{transform:rotate(180deg);}
-.faq-a{font-size:13px;color:var(--text-muted);line-height:1.8;padding:0 18px 14px;display:none;background:var(--surface);}
+.faq-a{font-size:13px;color:var(--text-muted);line-height:1.8;padding:0 18px 14px;display:none;}
 .faq-item.open .faq-a{display:block;}
 </style>
 <!-- Google tag (gtag.js) -->
@@ -267,17 +238,18 @@
   <div class="lang-toggle" onclick="toggleLang()" id="langBtn">🌐 EN</div>
 </header>
 <main>
+  <div class="eyebrow">Dev · Instrument</div>
   <h1 id="h1Title">JWT<br><span>디코더</span></h1>
   <p class="subtitle" id="h1Sub">JWT 토큰을 붙여넣으면 Header, Payload, Signature를 즉시 분석합니다</p>
 
   <button class="example-btn" id="exampleBtn" onclick="loadExample()">예시 토큰 불러오기</button>
 
-  <div class="input-area">
-    <div class="input-label">
+  <div class="card">
+    <div class="field-label">
       <span>JWT TOKEN</span>
       <span class="paste-btn" id="pasteBtn" onclick="pasteToken()">붙여넣기</span>
     </div>
-    <textarea id="jwtInput" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." oninput="decode()"></textarea>
+    <textarea id="jwtInput" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." oninput="decode()" style="min-height:100px;"></textarea>
     <div class="jwt-colored" id="jwtColored"></div>
   </div>
 
@@ -287,28 +259,28 @@
   </div>
 
   <div class="sections" id="sections" style="display:none">
-    <div class="section">
+    <div class="card">
       <div class="section-header">
         <span class="section-badge badge-header">HEADER</span>
         <span class="section-title" id="labelHeader">헤더</span>
         <span class="copy-btn" id="copyHeaderBtn" onclick="copySection('header')">복사</span>
       </div>
-      <div class="section-body"><pre id="headerPre"></pre></div>
+      <pre id="headerPre"></pre>
     </div>
-    <div class="section">
+    <div class="card">
       <div class="section-header">
         <span class="section-badge badge-payload">PAYLOAD</span>
         <span class="section-title" id="labelPayload">페이로드</span>
         <span class="copy-btn" id="copyPayloadBtn" onclick="copySection('payload')">복사</span>
       </div>
-      <div class="section-body"><pre id="payloadPre"></pre><div class="claims" id="claims"></div></div>
+      <pre id="payloadPre"></pre><div class="claims" id="claims"></div>
     </div>
-    <div class="section">
+    <div class="card">
       <div class="section-header">
         <span class="section-badge badge-sig">SIGNATURE</span>
         <span class="section-title" id="labelSig">서명</span>
       </div>
-      <div class="section-body"><pre id="sigPre" style="color:var(--text-dim)"></pre></div>
+      <pre id="sigPre" style="color:var(--text-dim)"></pre>
     </div>
   </div>
 
@@ -523,6 +495,7 @@ applyLang();
 const FAQ_DATA = {"ko": {"h": "자주 묻는 질문", "items": [{"q": "JWT란 무엇인가요?", "a": "JWT(JSON Web Token)는 당사자 간 정보를 안전하게 전달하기 위한 토큰 형식입니다. Header.Payload.Signature 세 부분이 점(.)으로 구분되며 각 부분은 Base64URL로 인코딩됩니다."}, {"q": "JWT는 암호화되어 있나요?", "a": "아닙니다. JWT는 서명으로 무결성을 보장하지만 Payload는 Base64 인코딩만 되어 있어 누구나 읽을 수 있습니다. 민감한 정보(비밀번호, 개인정보 등)를 Payload에 포함하지 마세요."}, {"q": "JWT 만료시간(exp)을 어떻게 확인하나요?", "a": "토큰을 붙여넣으면 Payload의 exp 클레임을 자동으로 파싱해 만료 여부와 시간을 사람이 읽기 쉬운 형태로 표시합니다."}, {"q": "JWT 서명(Signature)을 이 도구로 검증할 수 있나요?", "a": "아닙니다. 서명 검증은 서버의 비밀키(secret)나 공개키가 필요합니다. 이 도구는 토큰 디코딩(내용 확인)만 지원하며 서명 유효성은 확인하지 않습니다."}, {"q": "JWT의 alg 헤더가 none이면 어떤 문제가 있나요?", "a": "alg:none은 서명이 없음을 의미합니다. 이를 허용하는 서버는 토큰 위변조 공격에 취약합니다. 반드시 서버에서 alg:none을 거부하도록 설정하세요."}, {"q": "iat, exp, nbf 클레임의 차이는 무엇인가요?", "a": "iat(Issued At)는 발급 시각, exp(Expiration)는 만료 시각, nbf(Not Before)는 유효 시작 시각을 Unix 타임스탬프로 나타냅니다. 모두 RFC 7519 표준 클레임입니다."}, {"q": "RS256과 HS256의 차이는 무엇인가요?", "a": "HS256은 대칭키 방식으로 동일한 비밀키로 서명과 검증을 합니다. RS256은 비대칭키 방식으로 개인키로 서명하고 공개키로 검증합니다. 외부 서비스와 검증을 공유할 때 RS256이 더 안전합니다."}, {"q": "JWT를 쿠키에 저장할까요, localStorage에 저장할까요?", "a": "HttpOnly + Secure 쿠키 저장이 XSS 공격으로부터 안전합니다. localStorage는 JavaScript로 접근 가능해 XSS에 취약합니다. 쿠키는 CSRF 대책도 함께 적용해야 합니다."}, {"q": "JWT 토큰이 탈취되면 어떻게 해야 하나요?", "a": "JWT는 기본적으로 서버에서 무효화하기 어렵습니다. 대응 방안으로 토큰 블랙리스트, 짧은 만료 시간 설정, Refresh Token 회전(rotation) 방식을 사용합니다."}, {"q": "JWT Payload에 어떤 정보를 담아야 하나요?", "a": "사용자 ID, 역할(role), 권한(scope), 발급자(iss) 등 인증에 필요한 최소한의 정보만 포함하세요. 비밀번호, 카드번호 등 민감한 정보는 절대 포함하지 마세요."}, {"q": "Refresh Token과 Access Token의 차이는 무엇인가요?", "a": "Access Token은 짧은 만료 시간(수 분~1시간)을 가지며 API 요청 인증에 사용됩니다. Refresh Token은 긴 유효기간을 가지며 새로운 Access Token을 발급받는 데만 사용됩니다."}, {"q": "입력한 JWT가 서버로 전송되나요?", "a": "아닙니다. 모든 디코딩은 브라우저의 JavaScript에서 처리됩니다. 실제 서비스의 JWT 토큰도 안전하게 디코딩해 내용을 확인할 수 있습니다."}]}, "en": {"h": "Frequently Asked Questions", "items": [{"q": "What is a JWT?", "a": "JWT (JSON Web Token) is a compact token format for securely transmitting information between parties. It consists of three Base64URL-encoded parts — Header, Payload, Signature — separated by dots."}, {"q": "Is a JWT encrypted?", "a": "No. A standard JWT (JWS) is signed, not encrypted. The Payload is only Base64-encoded, so anyone can read it. Never put sensitive data like passwords or personal IDs in the Payload."}, {"q": "How do I check the expiry time (exp) of a JWT?", "a": "Paste the token and the tool automatically parses the exp claim, displaying the expiry date and time in human-readable format along with whether it has already expired."}, {"q": "Can this tool verify a JWT signature?", "a": "No. Signature verification requires the server's secret key (HS256) or public key (RS256). This tool only decodes the token to inspect its contents."}, {"q": "What is the security risk of alg:none in a JWT header?", "a": "alg:none means no signature. Servers that accept it are vulnerable to token forgery attacks where anyone can craft a valid-looking token. Always reject alg:none on the server side."}, {"q": "What is the difference between iat, exp, and nbf claims?", "a": "iat (Issued At) is the creation time, exp (Expiration) is the expiry time, and nbf (Not Before) is the earliest valid time. All use Unix timestamps and are defined in RFC 7519."}, {"q": "What is the difference between RS256 and HS256?", "a": "HS256 uses a symmetric secret key for both signing and verification. RS256 uses asymmetric keys — private key to sign, public key to verify. RS256 is preferred when sharing verification with external services."}, {"q": "Should I store JWTs in cookies or localStorage?", "a": "HttpOnly + Secure cookies are safer against XSS attacks since JavaScript cannot access them. localStorage is vulnerable to XSS. Cookies require CSRF protection, but that's manageable."}, {"q": "What should I do if a JWT is stolen?", "a": "JWTs are stateless and hard to revoke by default. Mitigations include token blocklists, short expiry times, and Refresh Token rotation to limit the damage window."}, {"q": "What information should I put in the JWT Payload?", "a": "Include only the minimum data needed for authorization: user ID, roles, scopes, issuer. Never include passwords, credit card numbers, or other sensitive data — the Payload is readable by anyone."}, {"q": "What is the difference between an Access Token and a Refresh Token?", "a": "Access Tokens have a short lifetime (minutes to an hour) and authenticate API requests. Refresh Tokens have a longer lifetime and are used only to obtain new Access Tokens."}, {"q": "Is my JWT sent to a server when I use this tool?", "a": "No. All decoding is performed locally in your browser's JavaScript. You can safely paste production JWTs to inspect their contents."}]}, "zh": {"h": "常见问题", "items": [{"q": "什么是 JWT？", "a": "JWT（JSON Web Token）是一种用于在各方间安全传递信息的紧凑令牌格式，由三段 Base64URL 编码内容（Header、Payload、Signature）通过点（.）连接而成。"}, {"q": "JWT 是加密的吗？", "a": "不是。标准 JWT（JWS）只是签名而非加密，Payload 仅经过 Base64 编码，任何人都能读取。切勿在 Payload 中存放密码、身份证号等敏感信息。"}, {"q": "如何查看 JWT 的过期时间（exp）？", "a": "粘贴令牌后工具会自动解析 Payload 中的 exp 字段，以易读格式显示过期时间及是否已过期。"}, {"q": "这个工具能验证 JWT 签名吗？", "a": "不能。签名验证需要服务器的密钥（HS256）或公钥（RS256）。本工具只负责解码令牌查看内容，不进行签名有效性验证。"}, {"q": "JWT Header 中 alg:none 有什么安全风险？", "a": "alg:none 表示无签名，接受该值的服务器容易遭受令牌伪造攻击，服务器端必须强制拒绝 alg:none。"}, {"q": "iat、exp 和 nbf 声明有什么区别？", "a": "iat（发行时间）是令牌创建时间，exp（过期时间）是令牌过期时间，nbf（生效时间）是令牌最早生效时间，均以 Unix 时间戳表示，在 RFC 7519 中定义。"}, {"q": "RS256 和 HS256 有什么区别？", "a": "HS256 使用对称密钥签名和验证；RS256 使用非对称密钥，私钥签名、公钥验证，与外部服务共享验证时更安全。"}, {"q": "JWT 应存储在 Cookie 还是 localStorage 中？", "a": "HttpOnly + Secure Cookie 对 XSS 攻击更安全（JavaScript 无法访问）。localStorage 易受 XSS 攻击。Cookie 需要防范 CSRF，但这是可以解决的问题。"}, {"q": "JWT 被盗用怎么办？", "a": "JWT 是无状态的，默认难以撤销。应对措施包括维护令牌黑名单、使用较短过期时间、实施 Refresh Token 轮换以限制危害窗口。"}, {"q": "JWT Payload 中应该放什么信息？", "a": "仅包含授权所需最少信息：用户 ID、角色、权限范围、发行者等。绝不要放密码、银行卡号等敏感数据——Payload 对任何人都可读。"}, {"q": "Access Token 和 Refresh Token 有什么区别？", "a": "Access Token 生命周期短（数分钟到一小时），用于 API 请求认证；Refresh Token 有效期较长，仅用于获取新的 Access Token。"}, {"q": "我的 JWT 会被发送到服务器吗？", "a": "不会。所有解码均在浏览器本地 JavaScript 中完成，可安全粘贴生产环境 JWT 查看内容，数据不会离开设备。"}]}, "ja": {"h": "よくある質問", "items": [{"q": "JWTとは何ですか？", "a": "JWT（JSON Web Token）は当事者間で情報を安全に伝達するためのコンパクトなトークン形式です。Base64URLエンコードされた3つのパート（Header・Payload・Signature）をピリオドで区切った構造です。"}, {"q": "JWTは暗号化されていますか？", "a": "いいえ。標準JWT（JWS）は署名されているだけで暗号化はされていません。PayloadはBase64エンコードのみで誰でも読めます。パスワードや個人情報をPayloadに含めないでください。"}, {"q": "JWTの有効期限（exp）を確認するには？", "a": "トークンを貼り付けると、Payloadのexpクレームを自動パースしてわかりやすい日時形式で表示し、すでに期限切れかどうかも判定します。"}, {"q": "このツールでJWTの署名を検証できますか？", "a": "できません。署名の検証にはサーバーの秘密鍵（HS256）または公開鍵（RS256）が必要です。このツールはトークンをデコードして内容を確認するだけです。"}, {"q": "JWTヘッダーのalg:noneにはどんなセキュリティリスクがありますか？", "a": "alg:noneは署名なしを意味します。これを受け入れるサーバーはトークン偽造攻撃に脆弱です。サーバー側でalg:noneを必ず拒否する設定が必要です。"}, {"q": "iat・exp・nbfクレームの違いは何ですか？", "a": "iat（Issued At）はトークン発行時刻、exp（Expiration）は有効期限、nbf（Not Before）は有効開始時刻で、すべてUnixタイムスタンプで表現されRFC 7519で定義されています。"}, {"q": "RS256とHS256の違いは何ですか？", "a": "HS256は対称鍵方式で同じ秘密鍵で署名・検証します。RS256は非対称鍵方式で秘密鍵で署名し公開鍵で検証します。外部サービスと検証を共有する場合はRS256がより安全です。"}, {"q": "JWTはCookieとlocalStorageのどちらに保存すべきですか？", "a": "HttpOnly + SecureのCookieの方がXSS攻撃に対して安全です（JavaScriptからアクセスできないため）。localStorageはXSSに脆弱です。CookieはCSRF対策が必要ですが解決可能な問題です。"}, {"q": "JWTが盗まれた場合はどうすればいいですか？", "a": "JWTはステートレスでデフォルトでは無効化が難しいです。対策としてトークンブラックリストの維持、短い有効期限の設定、Refresh Tokenのローテーションによる被害範囲の限定があります。"}, {"q": "JWTのPayloadには何を入れるべきですか？", "a": "認証に必要な最小限の情報（ユーザーID、ロール、スコープ、発行者）のみを含めてください。パスワードやクレジットカード番号などの機密情報は絶対に含めないでください。"}, {"q": "Access TokenとRefresh Tokenの違いは何ですか？", "a": "Access Tokenは有効期間が短く（数分〜1時間）APIリクエストの認証に使用します。Refresh Tokenは有効期間が長く、新しいAccess Tokenを取得する目的にのみ使用します。"}, {"q": "入力したJWTはサーバーに送信されますか？", "a": "いいえ。すべてのデコードはブラウザのJavaScriptでローカルに処理されます。本番環境のJWTを貼り付けてもデータは一切外部に送信されないため安全です。"}]}};
 function renderFaq(l){var el=document.getElementById("faqSection");if(!el||!FAQ_DATA[l])return;var fd=FAQ_DATA[l];el.innerHTML="<h2>"+fd.h+"</h2>"+fd.items.map(function(i){return '<div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle(\'open\')">'+i.q+'<span class="faq-chevron">▼</span></div><div class="faq-a">'+i.a+"</div></div>";}).join("");}
 </script>
+<script src="theme-instrument.js"></script>
 <script src="related.js"></script>
 </body>
 </html>
