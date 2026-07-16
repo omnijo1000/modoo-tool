@@ -272,8 +272,21 @@ break-even-calculator, cagr-calculator, canonical-tag-checker, capital-gains-tax
 
 **누적: 202개 파일 완료** (health/date-time 22 + 배치0/1 60 + 배치2 30 + 배치3 30 + 배치4 30 + 배치5(1부+2부) 30). **배치 5(30개) 전체 완료.**
 
-### 다음 세션에서 이어갈 것: 배치 6부터
-`ROLLOUT_REMAINING_BATCHES.txt` "Batch 06"부터 10개씩. 방법론은 위 "방법론 (배치 0/1에서 확립됨)" 섹션 + theme-instrument.css/js 동시수정 금지 규칙 그대로. **주의: 매 배치 시작 전에 grep으로 해당 파일들이 이미 다른 세션에 의해 전환돼 있지 않은지 먼저 확인할 것** (계속 반복 발생 중 — 다른 PC 세션이 병행 작업 중인 것으로 추정). fork 병렬 실행이 막히면("Fork is not available inside a forked worker") 오케스트레이터가 직접 Read/Write로 전환.
+### 완료: 배치 6, 1부 (10개, 2026-07-17)
+`pdf-word-counter`, `percent-calc`, `pixelate-image`, `png-to-jpg`, `png-to-svg`, `pomodoro-timer`, `prepayment-fee`, `profit-calculator`, `prompt-cleaner`, `prompt-formatter` — **10/10 완료.**
+
+**이번에도 "Fork is not available inside a forked worker" 에러 재발** — 배치 시작 직후 fork 2개 띄우자마자 발생(오케스트레이터 자신이 forked worker 컨텍스트였음). 대응: 오케스트레이터가 직접 전환 진행. `png-to-svg.html`은 확인 시점에 이미 다른 세션이 전환 완료해둔 상태 발견 — grep 재확인 후 스킵. `pdf-word-counter`/`percent-calc`는 앞서 백그라운드로 띄웠던 fork(`a5f2f6dec437bf23b`)가 정상 완료해둔 상태를 나중에 grep으로 확인(그 fork의 최종 보고 메시지는 기다리지 않고 파일 상태로 직접 판정). `prepayment-fee`/`profit-calculator`/`prompt-cleaner`/`prompt-formatter` 4개는 검증 시점에 이미 다른 동시 세션이 전환해둔 상태로 발견 — grep+diff 재확인 후 채택. 오케스트레이터가 실제로 직접 Read/Write로 처음부터 전환한 파일은 `pixelate-image.html`(blur-image.html을 그대로 참고해 거의 1:1 변환)과 `png-to-jpg.html`(배치 파일 컨버터 패턴, image-to-webp.html 참고)와 `pomodoro-timer.html`(타이머 원형 게이지 페이지) 3개뿐.
+
+**`pomodoro-timer.html` 변환 중 주의 깊게 처리한 부분:** 세션 진행 점(`.session-dot`, 완료 세션 표시용 10px 원)이 테마 공용 헤더 로고 점(`.dot`, 6px 그라디언트 원)과 클래스명이 충돌하는 것을 발견 — `.dot` → `.session-dot`으로 리네임(마크업 JS 양쪽 다 수정), 헤더의 `.dot`은 공용 그대로 유지. 3가지 모드(집중/짧은휴식/긴휴식)별 색상 구분(빨강/초록/파랑)은 의미가 있는 정보라 `.rbtn.on` 단일 그라디언트로 강제 통일하지 않고 페이지 전용 `.mode-tab.focus/brk/lng.on` 클래스로 유지, 색상값만 테마 토큰 hex(`--danger:#F2725E`/`--good:#4FCB9A`/`--info:#4FA6E8`)로 교체(SVG 링 stroke 초기값 및 JS `MODES` 객체의 색상 리터럴도 동일 hex로 동기화 — 로직 자체는 불변, 순수 색상값 치환).
+
+**법정수치 파일 직접 검증:** `prepayment-fee.html`(중도상환수수료, 요율 0.5/1.2/1.4/1.5%, 3년 면제, 정책금융 HF 0.5~1.2% 등)은 `git diff --unified=0`으로 전부 byte-identical 확인 — 클래스명(`qbtn`→`rbtn`, `div.faq-item`→`details.faq-item`) 변경만 있고 숫자 자체는 무변경.
+
+**직접 검증 완료:** 10개 파일 전부 링크 3종(css/js/related) 각 1회, `</html>` 1회, 구 `:root{--bg` 잔재 0건, Node 인라인 `<script>` 문법 재검증 전부 통과, `theme-instrument.css`/`.js` `git diff --stat` 완전히 빈 상태(공유 파일 무수정).
+
+**누적: 212개 파일 완료** (health/date-time 22 + 배치0/1 60 + 배치2 30 + 배치3 30 + 배치4 30 + 배치5 30 + 배치6(1부) 10). **커밋:** `92ae7d7` ("Convert batch 6 part 1 (10 files) to Hybrid A+ theme"), push 안 함.
+
+### 다음 세션에서 이어갈 것: 배치 6, 2부부터
+`ROLLOUT_REMAINING_BATCHES.txt` "Batch 06"의 나머지 20개(`property-tax`부터 `retirement-calc`까지)부터 10개씩. 방법론은 위 "방법론 (배치 0/1에서 확립됨)" 섹션 + theme-instrument.css/js 동시수정 금지 규칙 그대로. **주의: 매 배치 시작 전에 grep으로 해당 파일들이 이미 다른 세션에 의해 전환돼 있지 않은지 먼저 확인할 것** (계속 반복 발생 중 — 다른 PC 세션이 병행 작업 중인 것으로 추정). fork 병렬 실행이 막히면("Fork is not available inside a forked worker") 오케스트레이터가 직접 Read/Write로 전환.
 
 **⚠️ 세션 시작 시 권한 확인:** 이 세션은 사용자가 `--dangerously-skip-permissions`로 시작했다고 확인했으나, 실행 중 harness가 일부 tool(Agent/fork spawn 등)에 대해 승인 팝업을 띄우는 현상이 있었음(원인 불명 — flag 자체 문제인지 harness 설정 문제인지 미확정). **다음 세션 시작 시 사용자가 `claude --dangerously-skip-permissions`로 재실행했는지, 그리고 fork 배치 작업 중 승인 팝업이 안 뜨는지 먼저 확인할 것.** 팝업이 계속 뜨면 배치당 fork 5개 병렬 실행이 매번 수동 승인을 요구하게 되어 무인 진행이 불가능해짐 — 이 경우 사용자에게 원인 확인 요청.
 
