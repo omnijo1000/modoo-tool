@@ -152,6 +152,19 @@ break-even-calculator, cagr-calculator, canonical-tag-checker, capital-gains-tax
 3. 위 fork 프롬프트 템플릿(+ theme-instrument.css 동시수정 금지 규칙)으로 10개 실행 → 검증 → 다음 10개 반복
 4. 10개 끝날 때마다 이 문서와 git commit 갱신
 
+### 완료: 배치 2, 2부 (10개, 2026-07-16)
+`exif-remover`, `exif-viewer`, `favicon-generator`, `find-replace`, `fire-calculator`, `four-insurance`, `freelancer-rate-calculator`, `freelancer-tax`, `fuel-cost-calculator`, `gift-tax` — **10/10 완료** (5개는 정상 완료 보고, 5개는 세션 한도로 "failed" 표시됐지만 실제로는 거의 다 끝난 상태였음).
+
+**발견 & 수정한 문제:** `freelancer-tax.html`은 세션 한도로 끊긴 fork가 body 마크업은 다 바꿔놨는데 `<script src="theme-instrument.js">` 태그 추가를 못 하고 끊김 — 직접 확인 후 한 줄 추가로 수정. 이번 배치부터 **"실패" 표시된 파일은 절대 fork 자체 보고를 믿지 말고 직접 grep+diff+Node 문법검사로 완결성 확인 후 필요시 직접 마무리**하는 게 확실한 루틴으로 자리잡음.
+
+**법정세율 파일 직접 검증:**
+- `four-insurance.html`: fork 자체가 "모든 요율 숫자 개수까지 완전 일치 확인"까지 보고하고 세션 한도로 끊김 — 그 보고 신뢰, 추가로 git diff 재확인함
+- `gift-tax.html`: fork가 결과 텍스트 없이 끊겨서 직접 `git diff`로 배우자공제 6억/직계존속 5천만/미성년 2천만/형제자매 1천만, 세율구간 10~50%·누진공제 1천만~4.6억까지 전부 대조 → 텍스트 100% 동일 확인. 브라우저 스팟체크까지 실측: 8억 증여(배우자) → 과세표준 2억 → 산출세액 3,000만원 → 3%공제 90만원 차감 → 최종 2,910만원, 손계산과 정확히 일치.
+- `theme-instrument.css`/`.js` 이번 배치 통틀어 `git diff --stat` 완전히 비어있음 — 동시수정 금지 규칙 이번에도 100% 지켜짐.
+
+**누적: 102개 파일 완료** (health/date-time 22 + 배치0/1 60 + 배치2(1부+2부) 20).
+**배치 2 남은 것: 10개** (graphql-formatter ~ htaccess-generator, `ROLLOUT_REMAINING_BATCHES.txt` "Batch 02" 마지막 10줄).
+
 ## 참고 — 이전에 나온 별도 이슈(디자인 컨셉과 무관, 아직 미착수)
 현재 CLAUDE.md에 없는, 이번 세션에서 fable5 에이전트가 지적한 기존 실행 버그들(별도 작업 필요):
 - index.html에 검색 기능 없음 (327개 카드, 필터칩만 있음)
