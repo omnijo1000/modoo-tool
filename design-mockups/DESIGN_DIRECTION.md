@@ -202,8 +202,23 @@ break-even-calculator, cagr-calculator, canonical-tag-checker, capital-gains-tax
 
 **누적: 142개 파일 완료** (health/date-time 22 + 배치0/1 60 + 배치2 30 + 배치3(1부+2부) 20).
 
-### 다음: 배치 3 남은 10개, 그리고 배치 4~9
-`ROLLOUT_REMAINING_BATCHES.txt` "Batch 03" 마지막 10줄(inheritance-tax부터 json-formatter까지)만 하면 배치3(30개)도 끝남. 그 다음은 "Batch 04"부터 순서대로. 10개씩 계속.
+### 완료: 배치 3, 3부 (10개, 2026-07-16) — 배치3(30개) 전체 완료
+`inheritance-tax`, `investment-return-calculator`, `ip-address-lookup`, `javascript-beautifier`, `javascript-minifier`, `jpg-to-avif`, `jpg-to-heic`, `json-diff`, `json-flattener`, `json-formatter` — **10/10 완료.**
+
+**중요 — 이번 배치 중 fork 병렬 실행이 막힘:** "Fork is not available inside a forked worker" 에러 발생 — 오케스트레이터 자신이 (알 수 없는 이유로) forked worker 컨텍스트 안에서 실행되고 있어서 추가 fork를 못 띄움. **대응: 나머지 파일을 오케스트레이터가 직접 Read/Write/Edit로 전환함.** 확인해보니 10개 중 8개(`inheritance-tax`, `javascript-beautifier`, `javascript-minifier`, `jpg-to-avif`, `jpg-to-heic`, `json-diff`, `json-flattener`)는 이미 다른 프로세스(아마 사용자의 "다른 PC" 세션)가 먼저 전환해둔 상태였음 — grep으로 확인 후 그대로 채택, 검증만 수행. 직접 전환한 건 `ip-address-lookup`(fork 에러 발생 직전, 정상 fork로 완료), `investment-return-calculator`, `json-formatter`(656줄, 이 배치 최대) 3개뿐.
+
+**직접 전환 중 버그 하나 발견 즉시 수정:** `investment-return-calculator.html` 리마크업 과정에서 결과 패널을 감싸던 `id="result"` wrapper div를 실수로 빼먹음 — 원본 JS `calc()`가 마지막에 `document.getElementById('result').style.display='block'` 호출하는데 그 대상이 사라져 있었음. 문법 검사(Node)로는 안 잡히는 종류의 런타임 에러라 브라우저 스팟체크 중 위험했으나, 배포 전 코드 재검토로 미리 발견하고 `<div id="result" style="display:none;">`로 결과 블록 전체를 다시 감싸 수정. 이후 실측: 1,000만원/7%/10년/월복리 → 최종자산 20,096,614원(CAGR 7.23%) 정확히 계산됨.
+
+`json-formatter.html`은 fork 없이 큰 파일(656줄)을 직접 재작성 — 원본에 이미 있던 사소한 결함(`<textarea id="output" ... id="outputArea">` 중복 id 속성, 아무 데서도 참조 안 됨) 하나를 정리하며 진행, JS 로직 변경 없음. 브라우저 실측: JSON 입력 시 실시간 포맷팅·"Valid JSON" 상태 표시·키 정렬(b,a→a,b) 전부 정상 확인.
+
+**법정세율 파일:** `inheritance-tax.html`(상속세, 일괄공제 5억/배우자공제 최대 30억/세율구간 10~50%)은 이미 전환되어 있던 걸 발견해서 git diff로 `:root` 완전 제거·`--accent:#fcd34d` 등 구 토큰 삭제만 확인, 세율 숫자 자체는 건드리지 않음.
+
+**theme-instrument.css/js**: 이번 배치도 무결(내가 직접 작업한 3개 파일 포함 전부 공유 파일 미수정).
+
+**누적: 152개 파일 완료** (health/date-time 22 + 배치0/1 60 + 배치2 30 + 배치3 30).
+
+### 다음 세션에서 이어갈 것: 배치 4~9
+`ROLLOUT_REMAINING_BATCHES.txt` "Batch 04"부터 순서대로. 10개씩 계속 진행(사용자 지시). **주의: 매 배치 시작 전에 grep으로 해당 파일들이 이미 다른 세션에 의해 전환돼 있지 않은지 먼저 확인할 것** — 이번 배치처럼 일부가 이미 완료돼 있을 수 있음. 또한 fork 병렬 실행이 다시 막히면("Fork is not available inside a forked worker") 당황하지 말고 남은 파일을 오케스트레이터가 직접 Read/Write로 전환하면 됨 — 방법론은 동일(theme-instrument.css/js 링크, 구 style 제거, 카드/readout 클래스 재사용, 절대불가침 리스트 보존).
 
 ## 참고 — 이전에 나온 별도 이슈(디자인 컨셉과 무관, 아직 미착수)
 현재 CLAUDE.md에 없는, 이번 세션에서 fable5 에이전트가 지적한 기존 실행 버그들(별도 작업 필요):
