@@ -14,44 +14,14 @@
 <link rel="alternate" hreflang="zh" href="https://modoohub.com/sql-validator.html?lang=zh">
 <link rel="alternate" hreflang="ja" href="https://modoohub.com/sql-validator.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/sql-validator.html">
+<link rel="stylesheet" href="theme-instrument.css">
 <style>
-:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
-header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
-.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
-.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
-.back-link:hover{color:var(--text-muted);}
-.lang-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:none;}
-.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
-main{max-width:900px;margin:0 auto;padding:36px 20px 60px;}
-h1{font-size:clamp(22px,4vw,32px);font-weight:900;margin-bottom:6px;}
-h1 span{color:var(--accent);}
-.sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
-.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;}
-.label{font-size:11px;color:var(--text-dim);letter-spacing:.07em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:6px;}
-textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;resize:vertical;outline:none;min-height:220px;line-height:1.7;}
-textarea:focus{border-color:var(--accent);}
-.btn-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
-.btn{padding:8px 20px;border:1px solid var(--border);border-radius:7px;font-size:12px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;background:none;color:var(--text-muted);transition:all .15s;}
-.btn:hover{border-color:var(--accent);color:var(--accent);}
-.btn.primary{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;}
-.result-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px;font-family:'DM Mono',monospace;font-size:12px;line-height:1.7;min-height:60px;white-space:pre-wrap;word-break:break-all;}
-.ok{color:var(--green);}
-.err{color:var(--red);}
-.warn{color:var(--accent);}
-.formatted{min-height:120px;}
-.kw{color:var(--blue);}
-.seo{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
-.seo h2{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-muted);}
-.seo p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
-.seo strong{color:var(--text-muted);}
-.seo-sub{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text-muted);}
-details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
-details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);list-style:none;}
-details.faq-item summary::-webkit-details-marker{display:none;}
-details.faq-item[open] summary{border-bottom:1px solid var(--border);}
-details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;}
+.sql-result{background:var(--glass); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); border:1px solid var(--glass-border); border-radius:12px; padding:14px; font-family:var(--mono); font-size:12px; line-height:1.7; min-height:60px; white-space:pre-wrap; word-break:break-all; color:var(--text);}
+.sql-result.formatted{min-height:120px;}
+.ok{color:var(--good);}
+.err{color:var(--danger);}
+.warn{color:var(--warn);}
+.kw{color:var(--info);}
 </style>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
@@ -69,30 +39,32 @@ details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-h
 </head>
 <body>
 <header>
-  <span class="logo">MODOO HUB</span>
+  <div class="dot"></div>
+  <span class="header-label">MODOO HUB</span>
   <a href="index.html" class="back-link" id="backLink">← 모두의 툴</a>
-  <button class="lang-btn" onclick="cycleLang()" id="langBtn">🌐 EN</button>
+  <div class="lang-toggle" onclick="cycleLang()" id="langBtn">🌐 EN</div>
 </header>
 <main>
+  <div class="eyebrow">Data · Instrument</div>
   <h1>SQL <span id="h1b">유효성 검사</span></h1>
-  <p class="sub" id="subEl">SQL 구문 체크 및 포맷팅</p>
-  <div class="panel">
-    <div class="label" id="labelIn">SQL 입력</div>
-    <textarea id="sqlIn" placeholder="SELECT u.id, u.name FROM users u WHERE u.active=1 AND u.email IS NOT NULL ORDER BY u.name;"></textarea>
-    <div class="btn-row">
+  <p class="subtitle" id="subEl">SQL 구문 체크 및 포맷팅</p>
+  <div class="editor-box">
+    <div class="editor-label" id="labelIn">SQL 입력</div>
+    <textarea id="sqlIn" style="min-height:160px;" placeholder="SELECT u.id, u.name FROM users u WHERE u.active=1 AND u.email IS NOT NULL ORDER BY u.name;"></textarea>
+    <div class="toolbar">
       <button class="btn primary" onclick="doValidate()" id="btnValidate">검증</button>
       <button class="btn" onclick="doFormat()" id="btnFormat">포맷</button>
       <button class="btn" onclick="clearAll()" id="btnClear">초기화</button>
     </div>
   </div>
-  <div class="panel">
-    <div class="label" id="labelResult">결과</div>
-    <div class="result-box" id="resultBox"></div>
+  <div class="box">
+    <div class="editor-label" id="labelResult">결과</div>
+    <div class="sql-result" id="resultBox"></div>
   </div>
-  <div class="panel">
-    <div class="label" id="labelFormatted">포맷 결과</div>
-    <div class="result-box formatted" id="formattedBox"></div>
-    <div class="btn-row"><button class="btn" onclick="copyFormatted()" id="btnCopy">복사</button></div>
+  <div class="box">
+    <div class="editor-label" id="labelFormatted">포맷 결과</div>
+    <div class="sql-result formatted" id="formattedBox"></div>
+    <div class="toolbar"><button class="btn" onclick="copyFormatted()" id="btnCopy">복사</button></div>
   </div>
   <div class="seo" id="seoDiv"><h2>SQL 유효성 검사란?</h2><p>SQL 쿼리의 기본 구문 오류를 클라이언트 측에서 검사합니다. 괄호 불일치, 인용부호 미닫힘, 필수 키워드 누락 등을 감지합니다. 또한 <strong>SQL 포맷팅</strong> 기능으로 쿼리에 들여쓰기와 줄바꿈을 추가해 가독성을 높입니다.</p>
 <h2 class="seo-sub">자주 묻는 질문</h2>
@@ -224,6 +196,7 @@ function copyFormatted(){
 }
 _lang=detectLang();applyLang();
 </script>
+<script src="theme-instrument.js"></script>
 <script src="related.js"></script>
 </body>
 </html>

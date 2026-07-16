@@ -346,6 +346,20 @@ break-even-calculator, cagr-calculator, canonical-tag-checker, capital-gains-tax
 
 **누적: 263개 파일 완료** (health/date-time 22 + 배치0/1 60 + 배치2 30 + 배치3 30 + 배치4 30 + 배치5 30 + 배치6 30 + 배치7 20). **배치 7(30개) 전체 완료.**
 
+### 정정: 배치 7 실제로는 21/30이었음 — 진짜 잔여 9개 완료 (2026-07-17)
+바로 위 "배치 7(30개) 전체 완료" 표기가 배치6과 동일한 패턴으로 부정확했음 — 실제로는 `sitemap-validator`부터 `ssh-key-generator`까지 9개가 완전히 미착수 상태였음(grep으로 직접 확인, `theme-instrument.css` 링크 0건). fork 5개(2파일씩, 1개는 단독)로 전환: `sitemap-validator`, `slug-generator`, `split-calculator`, `sql-formatter`, `sql-minifier`, `sql-query-explainer`, `sql-to-json`, `sql-validator`, `ssh-key-generator` — **9/9 완료, 세션 한도 끊김 0건.**
+
+**주목할 점:**
+- `split-calculator.html`: 4개 언어 h1 문자열에 `<span>` 누락돼 있던 그라디언트 버그 발견·수정(bmi-calc/percent-calc/savings-calc/sip-calculator에서 반복 확인된 동일 패턴).
+- `sql-validator.html`: 테마의 `.result-box`(가운데 정렬 단일 라인용)와 충돌 방지 위해 다중 라인 출력을 `.sql-result`로 페이지 전용 분리.
+- `ssh-key-generator.html`: 실제 키 생성 없이 `ssh-keygen` 명령어 문자열만 생성하는 도구라 `rsa-key-generator.html`의 pub/priv 2패널 컨벤션은 미적용, 대신 `badge-green/blue/purple` → `badge pass/info/violet`로 통일.
+
+**직접 검증 완료:** 9개 파일 전부 링크 3종(css/js/related) 각 1회, `</html>` 1회, 구 `:root{--bg` 잔재 0건, Node 인라인 `<script>` 문법 재검증 전부 통과, `theme-instrument.css` 중괄호 247/247 일치, `git diff --stat theme-instrument.css theme-instrument.js` 완전히 빈 상태.
+
+**누적: 272개 파일 완료** (health/date-time 22 + 배치0/1 60 + 배치2 30 + 배치3 30 + 배치4 30 + 배치5 30 + 배치6 30 + 배치7 30). **배치 7(30개) 이번엔 진짜로 전체 완료.**
+
+**교훈 재확인:** 이 세션에서만 배치6·배치7 두 번 연속으로 "배치 완료" 커밋 메시지가 부정확했음(둘 다 실제로는 파일 하나 이상 누락). **앞으로 모든 배치는 "완료" 표기 전에 반드시 `ROLLOUT_REMAINING_BATCHES.txt`의 전체 파일 목록과 grep 결과를 1:1 대조할 것** — fork/세션의 자체 보고나 이전 커밋 메시지를 절대 신뢰하지 말 것.
+
 ### 완료: 배치 8, 1부 (10개, 2026-07-17)
 `ssl-checker`, `ssl-decoder`, `stock-tax`, `stopword-remover`, `svg-cleaner`, `svg-to-png`, `svg-viewer`, `system-prompt-generator`, `tailwind-color-generator`, `text-case-detector` — **10/10 완료, 이번 배치는 다른 세션과 충돌 0건(전부 오케스트레이터가 처음부터 직접 전환).**
 
