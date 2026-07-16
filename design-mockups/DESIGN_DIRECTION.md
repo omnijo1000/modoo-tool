@@ -335,8 +335,19 @@ break-even-calculator, cagr-calculator, canonical-tag-checker, capital-gains-tax
 
 **누적: 243개 파일 완료** (health/date-time 22 + 배치0/1 60 + 배치2 30 + 배치3 30 + 배치4 30 + 배치5 30 + 배치6 30 + 배치7(1부) 11).
 
-### 다음 세션(또는 다음 배치)에서 이어갈 것: 배치 7, 2부부터
-`ROLLOUT_REMAINING_BATCHES.txt` "Batch 07"의 나머지 19개(`schema-markup-generator`부터 `ssh-key-generator`까지)부터 10개씩. 방법론은 위 "방법론 (배치 0/1에서 확립됨)" 섹션 + theme-instrument.css/js 동시수정 금지 규칙 그대로. **주의: 매 배치 시작 전에 grep으로 해당 파일들이 이미 다른 세션에 의해 전환돼 있지 않은지 먼저 확인할 것** (세션 여러 개가 동시에 병행 작업 중인 것으로 확정됨). **fork가 살아있으면 병렬로 쓰되, 세션 한도(리셋 시각 있음)로 죽으면 fork의 마지막 메시지를 믿지 말고 파일 상태(grep theme-instrument.css/js)로 직접 판정, 안 된 부분은 오케스트레이터가 직접 Read/Write로 마무리할 것.**
+### 완료: 배치 7, 2부 (10개, 2026-07-17)
+`schema-markup-generator`, `schema-validator`, `sentence-counter`, `seo-title-generator`, `serp-snippet-preview`, `severance-tax`, `severance`, `sip-calculator`, `sitemap-extractor`, `sitemap-generator` — **10/10 완료.**
+
+**이번 배치는 다른 세션과의 동시편집 경쟁이 가장 심했던 배치.** 첫 fork(`schema-markup-generator`+`schema-validator`)를 띄웠는데 "Fork is not available inside a forked worker" 없이도 백그라운드로 안 가고 오케스트레이터 자신의 턴 안에서 인라인으로 실행되는 새로운 패턴 발견(이전엔 명시적 에러가 떴는데 이번엔 조용히 인라인 실행됨) — 두 파일 다 오케스트레이터가 직접 전환. 그 다음 `sentence-counter`~`sitemap-generator` 7개는 확인해보니 이미 다른 세션이 전환 완료해 있어 grep+diff 재확인 후 채택. `sip-calculator.html`은 검증 도중 실시간으로 다른 세션이 계속 편집 중이라(Edit 시도 3회 연속 "파일이 읽은 이후 변경됨" 충돌) 매번 재확인 후 이어감 — 최종적으로 다른 세션이 CSS+본문 마크업 대부분을 완성해뒀고, 오케스트레이터는 (1) 중간에 죽은 미사용 CSS 잔재(summary-grid/s-item 등, 마크업이 이미 cal-grid로 바뀌어 안 쓰던 것) 정리, (2) 누락된 `theme-instrument.js` 링크 추가, (3) `ko`/`en`/`zh` 언어는 이미 고쳐져 있었지만 `ja` h1 문자열에만 `<span>` 누락돼 있던 걸 발견해 마저 수정.
+
+**법정/세율 파일 검증:** `severance-tax.html`/`severance.html`(퇴직소득세) `git diff --unified=0 | grep -E '%|원|만원'`로 CSS 스타일 값만 걸리고 세율·공제 로직 숫자는 0건 변경 확인.
+
+**직접 검증 완료:** 10개 파일 전부 링크 3종(css/js/related) 각 1회, `</html>` 1회, 구 `:root{--bg` 잔재 0건, Node 인라인 `<script>` 문법 재검증 전부 통과, `theme-instrument.css` 중괄호 247/247 일치, `git diff --stat theme-instrument.css theme-instrument.js` 완전히 빈 상태.
+
+**누적: 263개 파일 완료** (health/date-time 22 + 배치0/1 60 + 배치2 30 + 배치3 30 + 배치4 30 + 배치5 30 + 배치6 30 + 배치7 20). **배치 7(30개) 전체 완료.**
+
+### 다음 세션(또는 다음 배치)에서 이어갈 것: 배치 8부터
+`ROLLOUT_REMAINING_BATCHES.txt` "Batch 08"부터 10개씩. 방법론은 위 "방법론 (배치 0/1에서 확립됨)" 섹션 + theme-instrument.css/js 동시수정 금지 규칙 그대로. **주의: 매 배치 시작 전에 grep으로 해당 파일들이 이미 다른 세션에 의해 전환돼 있지 않은지 먼저 확인할 것** (세션 여러 개가 동시에 병행 작업 중인 것으로 확정됨 — 이번 배치에서는 한 파일을 동시에 3번 연속 편집 충돌까지 겪음). **fork가 살아있으면 병렬로 쓰되, 세션 한도(리셋 시각 있음)로 죽으면 fork의 마지막 메시지를 믿지 말고 파일 상태(grep theme-instrument.css/js)로 직접 판정, 안 된 부분은 오케스트레이터가 직접 Read/Write로 마무리할 것.** Agent 호출이 매번 정상적으로 백그라운드 fork를 띄운다는 보장이 없음 — 호출 직후 결과가 바로 텍스트로 돌아오면(비동기 알림이 아니라) 그건 인라인 실행된 것이므로 오케스트레이터가 그 결과를 이어받아 검증하면 됨.
 
 **⚠️ 세션 시작 시 권한 확인:** 이 세션은 사용자가 `--dangerously-skip-permissions`로 시작했다고 확인했으나, 실행 중 harness가 일부 tool(Agent/fork spawn 등)에 대해 승인 팝업을 띄우는 현상이 있었음(원인 불명 — flag 자체 문제인지 harness 설정 문제인지 미확정). **다음 세션 시작 시 사용자가 `claude --dangerously-skip-permissions`로 재실행했는지, 그리고 fork 배치 작업 중 승인 팝업이 안 뜨는지 먼저 확인할 것.** 팝업이 계속 뜨면 배치당 fork 5개 병렬 실행이 매번 수동 승인을 요구하게 되어 무인 진행이 불가능해짐 — 이 경우 사용자에게 원인 확인 요청.
 
