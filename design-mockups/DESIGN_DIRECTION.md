@@ -433,6 +433,21 @@ break-even-calculator, cagr-calculator, canonical-tag-checker, capital-gains-tax
 ### 다음 세션(또는 다음 배치)에서 이어갈 것: 배치 10부터
 `ROLLOUT_REMAINING_BATCHES.txt` "Batch 10"부터 10개씩(마지막 배치까지 이 방식 반복). 방법론은 위 섹션들 + theme-instrument.css/js 동시수정 금지 규칙 그대로. **주의: 매 배치 시작 전에 grep으로 해당 파일들이 이미 다른 세션에 의해 전환돼 있지 않은지 먼저 확인할 것** (세션 여러 개가 동시에 병행 작업 중인 것으로 확정됨 — 배치9에서 실시간으로 파일 하나를 두 세션이 거의 동시에 고치는 경우까지 발생함). **"배치 완료" 표기는 절대 커밋 메시지나 fork 자체보고만으로 믿지 말고, 매번 전체 목록 대 grep 결과 1:1 대조로 확정할 것.** **Agent(fork) 호출이 "processing in background"라고 답하고 나서 이후 호출부터 "Fork is not available inside a forked worker" 에러가 뜨거나, 응답이 즉시 텍스트로 돌아오는 경우, 오케스트레이터 자신이 fork 워커 컨텍스트로 전환된 것 — 이후엔 재시도 없이 바로 오케스트레이터가 직접 Read/Write로 나머지 파일을 처리할 것.**
 
+### 🎉 전체 사이트 롤아웃 완료 확인 (2026-07-17)
+`ROLLOUT_REMAINING_BATCHES.txt`에는 실제로 "Batch 10"이 존재하지 않음(Batch 09가 마지막 배치, 27개로 종료) — 배치 목록에 없던 파일들(`loan-payoff-calculator`, `lorem-ipsum-generator`, `pdf-reorder-pages`, `pdf-rotate`, `pdf-size-analyzer`, `pdf-split`, `pdf-watermark`, `pdf-to-image`, `pdf-to-text` 등)은 여러 동시 세션이 각자 발견해서 마무리한 것으로 확인됨.
+
+**사이트 전체 재스캔 결과(직접 실행, 배치 문서·커밋 메시지 신뢰하지 않고 파일시스템 1:1 확인):**
+```
+전체 *.html 393개 중 리다이렉트 스텁·index/privacy/about/contact/terms/naverfc 제외한
+모든 파일에서 grep 'theme-instrument.css' → 미검출 0건
+```
+**즉 하이브리드 A+ 테마 전환 대상 전 파일이 100% 완료됨.** `theme-instrument.css` 중괄호 247/247 균형 유지, 공유 파일(`theme-instrument.css`/`.js`)은 전체 롤아웃 기간 동안 단 한 번도 동시수정 충돌 없이 보존됨.
+
+**남은 것(디자인 컨셉과 무관, 별도 작업):**
+1. index.html 홈페이지 자체의 히어로/카드그리드 리프레시 — 지금까지는 개별 계산기 페이지 기준으로만 진행했고 아직 미착수(위 "다음에 할 일" 섹션에 이미 기록됨).
+2. 아래 "참고 — 이전에 나온 별도 이슈" 섹션의 기존 실행 버그들(검색 기능 부재, `related.js` 하드코딩 색상, SEO 텍스트 대비율 등) — 디자인 리프레시와 무관한 별도 감사 항목.
+3. `git push` 안 됨 — 브랜치 `design/hybrid-instrument-glass`가 로컬에만 존재, origin에 반영하려면 사용자가 명시적으로 요청할 것.
+
 ## 🎉 전체 사이트 롤아웃 완료 (2026-07-17)
 
 `ROLLOUT_REMAINING_BATCHES.txt`는 Batch 09(27개)에서 끝나 있었지만, 전체 사이트를 `theme-instrument.css` 보유 여부로 직접 grep 재검사한 결과 **배치 목록에 아예 없던 고아 파일 8개**를 추가로 발견함: `lorem-ipsum-generator`, `pdf-split`, `pdf-rotate`, `pdf-size-analyzer`, `pdf-to-image`, `pdf-to-text`, `pdf-reorder-pages`, `pdf-watermark` (+ 다른 세션이 별도로 발견해 처리한 `loan-payoff-calculator` 1개). 이 9개까지 전부 전환 완료.
@@ -441,6 +456,8 @@ break-even-calculator, cagr-calculator, canonical-tag-checker, capital-gains-tax
 - `theme-instrument.css` 보유: **319개**
 - 제외 대상(정상): 리다이렉트 스텁 68개(`http-equiv="refresh"`), 인프라 페이지 4개(`about`/`contact`/`privacy`/`terms`), CLAUDE.md 명시 제외 파일 1개(`naverfc...html`), `index.html` 1개(홈페이지 자체 리프레시는 별도 태스크로 명시적으로 남겨둠 — 지금까지는 개별 툴 페이지만 대상)
 - 68+4+1+1 = 74, 319+74 = 393 → **정확히 일치, 전환 대상 319개 전부 완료**
+
+**추가 발견 및 수정 (같은 날, 정밀 재검사):** `theme-instrument.css`만 보고 "완료"로 셌던 319개 중 실제로는 3개(`color-contrast-checker`, `cron-parser`, `csv-viewer`)가 `theme-instrument.js` 링크만 누락된 상태였음 — 아주 초기 배치(배치 0/1 시절, theme-instrument.js 파일 자체가 생기기 전에 전환된 파일들로 추정). 한 줄씩 추가해 마무리, Node 문법 재검증 통과. **이걸로 `theme-instrument.css`/`theme-instrument.js` 둘 다 보유한 파일 정확히 319개, 누락 0건 확인.**
 
 **즉, 이번 세션에서 진행한 계산기/툴 페이지 단위 하이브리드 A+ 전환은 완결됨.** 남은 작업은 문서 최상단 "다음에 할 일" 목록에 있던 별도 항목들뿐:
 - [ ] index.html 홈페이지 히어로/카드그리드 자체 리프레시 (아직 미착수)
