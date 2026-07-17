@@ -415,8 +415,23 @@ break-even-calculator, cagr-calculator, canonical-tag-checker, capital-gains-tax
 
 **누적: 312개 파일 완료** (health/date-time 22 + 배치0/1 60 + 배치2 30 + 배치3 30 + 배치4 30 + 배치5 30 + 배치6 30 + 배치7 30 + 배치8 30 + 배치9(1부) 10).
 
-### 다음 세션(또는 다음 배치)에서 이어갈 것: 배치 9, 2부부터
-`ROLLOUT_REMAINING_BATCHES.txt` "Batch 09"의 나머지 17개(`webhook-generator`부터 `youtube-script-generator`까지)부터 10개씩. 방법론은 위 섹션들 + theme-instrument.css/js 동시수정 금지 규칙 그대로. **주의: 매 배치 시작 전에 grep으로 해당 파일들이 이미 다른 세션에 의해 전환돼 있지 않은지 먼저 확인할 것** (세션 여러 개가 동시에 병행 작업 중인 것으로 확정됨). **"배치 완료" 표기는 절대 커밋 메시지나 fork 자체보고만으로 믿지 말고, 매번 전체 목록 대 grep 결과 1:1 대조로 확정할 것.** **Agent(fork) 호출이 "processing in background"라고 답하고 나서 이후 호출부터 "Fork is not available inside a forked worker" 에러가 뜨는 경우, 오케스트레이터 자신이 fork 워커 컨텍스트로 전환된 것 — 이후엔 재시도 없이 바로 오케스트레이터가 직접 Read/Write로 나머지 파일을 처리할 것.**
+### 완료: 배치 9 나머지 17개 — 배치 9(27개) 진짜 전체 완료 (2026-07-17)
+`webhook-generator`, `webhook-tester`, `webp-to-jpg`, `webp-to-png`, `website-speed-estimator`, `weekly-holiday`, `whois-lookup`, `word-counter`, `word-frequency-counter`, `wpm-calculator`, `xml-formatter`, `xml-to-json`, `xml-validator`, `yaml-diff-checker`, `yaml-formatter`, `yaml-to-json`, `yaml-validator`, `youtube-script-generator` — **17/17 완료.**
+
+**세션 여러 개가 동시에 이 배치를 처리 중이었음이 실시간으로 확인됨** — 오케스트레이터가 fork를 띄우는 사이 다른 세션이 `webhook-generator`~`wpm-calculator`(10개)와 `xml-formatter`+`xml-to-json`을 이미 커밋 완료(각각 2파일 단위 개별 커밋). fork 호출 하나(`xml-to-json`+`xml-validator` 담당)는 "Fork started — processing in background" 응답 후 즉시 오케스트레이터 자신이 그 fork 워커 컨텍스트로 전환되는 새로운 패턴 발견 — 재시도 없이 그 자리에서 직접 두 파일 전환 완료.
+
+**race condition 직접 목격 및 수정:**
+- `xml-to-json.html`: 편집 도중 다른 세션이 이미 완료해둔 상태를 발견, 오케스트레이터의 CSS 정리 편집이 실수로 아직 마크업에서 참조 중이던 `.cols` 그리드 규칙을 지워버림 — 즉시 grep으로 발견해 페이지 전용 스타일로 복원.
+- `xml-formatter.html`/`yaml-formatter.html`: 오케스트레이터와 다른 세션이 거의 동시에 각각 누락된 `theme-instrument.js` 링크를 추가해 중복 `<script>` 태그가 생겼던 것을 재확인 과정에서 발견·제거(`yaml-formatter.html`은 재확인 시점에 이미 다른 세션이 직접 고쳐둔 상태였음).
+
+**직접 전환:** `xml-validator.html`은 테마의 `.status`/`.status.ok`/`.status.err`(결과 배너), `.cal-grid`/`.cal-card`(요소·속성·깊이 통계)로 재구성, JS의 `banner.className` 값과 `var(--green)` 하드코딩 색상 참조를 각각 `status ok/err`, `var(--good)`로 수정.
+
+**직접 검증 완료:** 17개 파일 전부(재확인 포함) 링크 3종(css/js/related) 각 1회, `</html>` 1회, 구 `:root{--bg` 잔재 0건, Node 인라인 `<script>` 문법 재검증 전부 통과, `theme-instrument.css` 중괄호 247/247 일치, `git diff --stat theme-instrument.css theme-instrument.js` 완전히 빈 상태.
+
+**누적: 329개 파일 완료** (health/date-time 22 + 배치0/1 60 + 배치2 30 + 배치3 30 + 배치4 30 + 배치5 30 + 배치6 30 + 배치7 30 + 배치8 30 + 배치9 27). **배치 9(27개) 진짜 전체 완료.**
+
+### 다음 세션(또는 다음 배치)에서 이어갈 것: 배치 10부터
+`ROLLOUT_REMAINING_BATCHES.txt` "Batch 10"부터 10개씩(마지막 배치까지 이 방식 반복). 방법론은 위 섹션들 + theme-instrument.css/js 동시수정 금지 규칙 그대로. **주의: 매 배치 시작 전에 grep으로 해당 파일들이 이미 다른 세션에 의해 전환돼 있지 않은지 먼저 확인할 것** (세션 여러 개가 동시에 병행 작업 중인 것으로 확정됨 — 배치9에서 실시간으로 파일 하나를 두 세션이 거의 동시에 고치는 경우까지 발생함). **"배치 완료" 표기는 절대 커밋 메시지나 fork 자체보고만으로 믿지 말고, 매번 전체 목록 대 grep 결과 1:1 대조로 확정할 것.** **Agent(fork) 호출이 "processing in background"라고 답하고 나서 이후 호출부터 "Fork is not available inside a forked worker" 에러가 뜨거나, 응답이 즉시 텍스트로 돌아오는 경우, 오케스트레이터 자신이 fork 워커 컨텍스트로 전환된 것 — 이후엔 재시도 없이 바로 오케스트레이터가 직접 Read/Write로 나머지 파일을 처리할 것.**
 
 ## 참고 — 이전에 나온 별도 이슈(디자인 컨셉과 무관, 아직 미착수)
 현재 CLAUDE.md에 없는, 이번 세션에서 fable5 에이전트가 지적한 기존 실행 버그들(별도 작업 필요):
