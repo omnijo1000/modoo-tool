@@ -384,8 +384,23 @@ break-even-calculator, cagr-calculator, canonical-tag-checker, capital-gains-tax
 
 **누적: 296개 파일 완료** (health/date-time 22 + 배치0/1 60 + 배치2 30 + 배치3 30 + 배치4 30 + 배치5 30 + 배치6 30 + 배치7 30 + 배치8(1부+2부) 24).
 
-### 다음 세션(또는 다음 배치)에서 이어갈 것: 배치 8 나머지 6개 + 배치 9부터
-`ROLLOUT_REMAINING_BATCHES.txt` "Batch 08"의 마지막 6개(`typing-speed-test`, `ulid-generator`, `unemployment`, `unicode-converter`, `unicode-inspector`, `unit-converter`)부터 처리해 배치 8(30개)을 완결한 뒤 "Batch 09"(27개)로 진행. 방법론은 위 "방법론 (배치 0/1에서 확립됨)" 섹션 + theme-instrument.css/js 동시수정 금지 규칙 그대로. **주의: 매 배치 시작 전에 grep으로 해당 파일들이 이미 다른 세션에 의해 전환돼 있지 않은지 먼저 확인할 것** (세션 여러 개가 동시에 병행 작업 중인 것으로 확정됨). **"배치 완료" 표기는 절대 커밋 메시지나 fork 자체보고만으로 믿지 말고, 매번 `ROLLOUT_REMAINING_BATCHES.txt` 전체 목록 대 grep 결과 1:1 대조로 확정할 것** (배치6·배치7에서 반복적으로 파일 누락 상태에서 "완료"로 잘못 표기된 전례 있음). **fork가 살아있으면 병렬로 쓰되, 세션 한도(리셋 시각 있음)로 죽으면 fork의 마지막 메시지를 믿지 말고 파일 상태(grep theme-instrument.css/js)로 직접 판정, 안 된 부분은 오케스트레이터가 직접 Read/Write로 마무리할 것.** Agent 호출이 매번 정상적으로 백그라운드 fork를 띄운다는 보장이 없음 — "Fork is not available inside a forked worker" 에러가 뜨거나 호출 직후 결과가 바로 텍스트로 돌아오면(비동기 알림이 아니라) 그건 인라인 실행된 것이므로 오케스트레이터가 직접 Read/Edit로 계속 진행하면 됨(재시도로 시간 낭비하지 말 것).
+### 완료: 배치 8 마지막 6개 — 배치 8(30개) 진짜 전체 완료 (2026-07-17)
+`typing-speed-test`, `ulid-generator`, `unemployment`, `unicode-converter`, `unicode-inspector`, `unit-converter` — **6/6 완료.**
+
+**세션 한도 재도달(리셋 10:10am) — 2개 fork(4파일 담당) 전부 시작도 못 하고 즉시 종료됨.** grep으로 확인 결과 6개 파일 전부 완전 미착수 상태(theme-instrument.css 링크 0건) — fork 자체 보고를 기다리지 않고 바로 오케스트레이터가 직접 Read/Write로 6개 전부 처음부터 전환.
+
+**주목할 점:**
+- `typing-speed-test.html`/`unit-converter.html`: 4-카테고리 탭(`unit-converter`)과 4-스탯 바(`typing-speed-test`)를 각각 `.rbtn-row`/`.rbtn.on`, `.cal-grid`/`.cal-card`(`.cal-val`/`.cal-label` 정확한 클래스명 사용)로 통일. `setCat()` JS의 `.cat-btn`/`active` 클래스 참조도 `.rbtn`/`on`으로 동기화.
+- `unemployment.html`(실업급여, 법정수치 파일): 상한 68,100원/하한 66,048원/나이·가입기간별 지급일수 테이블(120~270일) 등 `dayTable` 상수와 텍스트 내 명시된 최저시급 10,320원 — `git diff`에 CSS 클래스명 변경 라인만 걸리고 숫자 리터럴은 diff에 전혀 등장하지 않음(무변경 확인). 구형 `div.faq-item` 형식은 CLAUDE.md 허용대로 유지.
+- `unicode-inspector.html`: 테마의 기존 `.chip-btn`/`.chip-val` 조합과 충돌 방지 위해 페이지 자체 통계 pill을 `.stat-chip`으로 분리 명명(JS 템플릿 리터럴도 함께 수정).
+- 6개 파일 전부 `_i18n` 객체·`applyLang`/`cycleLang` 로직, 정적 SEO/FAQ 텍스트, JSON-LD, GA/AdSense 완전 불변.
+
+**직접 검증 완료:** 6개 파일 전부 링크 3종(css/js/related) 각 1회, `</html>` 1회, 구 `:root{--bg` 잔재 0건, Node 인라인 `<script>` 문법 재검증 전부 통과, `theme-instrument.css` 중괄호 247/247 일치, `git diff --stat theme-instrument.css theme-instrument.js` 완전히 빈 상태.
+
+**누적: 302개 파일 완료** (health/date-time 22 + 배치0/1 60 + 배치2 30 + 배치3 30 + 배치4 30 + 배치5 30 + 배치6 30 + 배치7 30 + 배치8 30). **배치 8(30개) 진짜 전체 완료.**
+
+### 다음 세션(또는 다음 배치)에서 이어갈 것: 배치 9부터
+`ROLLOUT_REMAINING_BATCHES.txt` "Batch 09"(27개)부터 10개씩. 방법론은 위 "방법론 (배치 0/1에서 확립됨)" 섹션 + theme-instrument.css/js 동시수정 금지 규칙 그대로. **주의: 매 배치 시작 전에 grep으로 해당 파일들이 이미 다른 세션에 의해 전환돼 있지 않은지 먼저 확인할 것** (세션 여러 개가 동시에 병행 작업 중인 것으로 확정됨). **"배치 완료" 표기는 절대 커밋 메시지나 fork 자체보고만으로 믿지 말고, 매번 `ROLLOUT_REMAINING_BATCHES.txt` 전체 목록 대 grep 결과 1:1 대조로 확정할 것** (배치6·배치7에서 반복적으로 파일 누락 상태에서 "완료"로 잘못 표기된 전례 있음). **세션 사용량 한도가 이 세션에서만 이미 2회 발생(4:20am, 10:10am 리셋) — fork가 죽으면 자체 보고를 기다리지 말고 즉시 grep으로 실제 상태 판정 후 오케스트레이터가 직접 Read/Write로 마무리할 것, 재시도로 시간 낭비하지 말 것.** Agent 호출이 매번 정상적으로 백그라운드 fork를 띄운다는 보장이 없음 — "Fork is not available inside a forked worker" 에러가 뜨거나 호출 직후 결과가 바로 텍스트로 돌아오면(비동기 알림이 아니라) 그건 인라인 실행된 것이므로 오케스트레이터가 직접 Read/Edit로 계속 진행하면 됨.
 
 **⚠️ 세션 시작 시 권한 확인:** 이 세션은 사용자가 `--dangerously-skip-permissions`로 시작했다고 확인했으나, 실행 중 harness가 일부 tool(Agent/fork spawn 등)에 대해 승인 팝업을 띄우는 현상이 있었음(원인 불명 — flag 자체 문제인지 harness 설정 문제인지 미확정). **다음 세션 시작 시 사용자가 `claude --dangerously-skip-permissions`로 재실행했는지, 그리고 fork 배치 작업 중 승인 팝업이 안 뜨는지 먼저 확인할 것.** 팝업이 계속 뜨면 배치당 fork 5개 병렬 실행이 매번 수동 승인을 요구하게 되어 무인 진행이 불가능해짐 — 이 경우 사용자에게 원인 확인 요청.
 
