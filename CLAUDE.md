@@ -3,7 +3,7 @@
 ## 프로젝트 개요
 - **사이트**: https://modoohub.com
 - **구성**: 단일 HTML 파일 집합 (SPA 아님, 각 툴마다 별도 .html)
-- **현재 툴 수**: 394개 (index.html footer 카운터 기준)
+- **현재 툴 수**: 317개 (index.html footer 카운터 기준, 2026-07-17 실제 카드 수 재계산 후 정정 — 이전 표기 394/336/327은 오래된 스냅샷과 실제 카드 수 사이 드리프트였음)
 - **HTML 파일**: 387개 (index.html, privacy.html, naverfc…html, category/×11 제외)
 - **sitemap.xml**: 403 URL 항목
 - **카테고리 허브**: /category/ 디렉토리, 11개 HTML + category-i18n.js
