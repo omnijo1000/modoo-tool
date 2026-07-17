@@ -404,6 +404,20 @@ break-even-calculator, cagr-calculator, canonical-tag-checker, capital-gains-tax
 
 **⚠️ 세션 시작 시 권한 확인:** 이 세션은 사용자가 `--dangerously-skip-permissions`로 시작했다고 확인했으나, 실행 중 harness가 일부 tool(Agent/fork spawn 등)에 대해 승인 팝업을 띄우는 현상이 있었음(원인 불명 — flag 자체 문제인지 harness 설정 문제인지 미확정). **다음 세션 시작 시 사용자가 `claude --dangerously-skip-permissions`로 재실행했는지, 그리고 fork 배치 작업 중 승인 팝업이 안 뜨는지 먼저 확인할 것.** 팝업이 계속 뜨면 배치당 fork 5개 병렬 실행이 매번 수동 승인을 요구하게 되어 무인 진행이 불가능해짐 — 이 경우 사용자에게 원인 확인 요청.
 
+### 완료: 배치 9, 1부 (10개, 2026-07-17)
+`url-decoder`, `url-encoder`, `user-agent-parser`, `utm-builder`, `uuid-converter`, `uuid-extractor`, `uuid-generator`, `uuid-validator`, `vat-calc`, `vat-calculator-global` — **10/10 완료.**
+
+**이 배치부터 새로운 패턴 발견: Agent(fork) 호출이 "Fork started — processing in background"라고 응답한 뒤, 다음 호출부터는 명시적으로 "Fork is not available inside a forked worker" 에러가 뜸 — 즉 오케스트레이터 자신이 어느 순간부터 포크 워커 컨텍스트 안에 있었음이 확인됨.** `uuid-converter`+`uuid-extractor`는 그 직전 호출이 인라인으로 즉시 실행되어 오케스트레이터가 직접 처리, 이후 `uuid-generator`+`uuid-validator`용 fork 호출은 즉시 에러 반환 → 오케스트레이터가 직접 확인해보니 `uuid-generator.html`은 이미 다른 세션이 완료해둔 상태, `uuid-validator.html`은 `theme-instrument.js` 링크만 누락돼 있어 한 줄 추가로 마무리. `vat-calc.html`도 이미 다른 세션이 완료, `vat-calculator-global.html`도 같은 누락 패턴이라 한 줄 추가.
+
+**주목할 점:** `vat-calc.html`은 `.rate-btn`/`active` → `.rbtn`/`on`으로 통일하며 10%/0% 등 세율 값 자체는 `git diff`로 무변경 확인. `vat-calculator-global.html`(글로벌 40개국 VAT/GST 세율표)은 국가별 세율 리터럴(UK 20%/5%, 독일 19→20%, 프랑스 20%, 이탈리아 22%, 호주 GST 10% 등)이 diff에 전혀 등장하지 않아 무변경 확인.
+
+**직접 검증 완료:** 10개 파일 전부 링크 3종(css/js/related) 각 1회, `</html>` 1회, Node 인라인 `<script>` 문법 재검증 전부 통과, `theme-instrument.css` 중괄호 247/247 일치, `git diff --stat theme-instrument.css theme-instrument.js` 완전히 빈 상태.
+
+**누적: 312개 파일 완료** (health/date-time 22 + 배치0/1 60 + 배치2 30 + 배치3 30 + 배치4 30 + 배치5 30 + 배치6 30 + 배치7 30 + 배치8 30 + 배치9(1부) 10).
+
+### 다음 세션(또는 다음 배치)에서 이어갈 것: 배치 9, 2부부터
+`ROLLOUT_REMAINING_BATCHES.txt` "Batch 09"의 나머지 17개(`webhook-generator`부터 `youtube-script-generator`까지)부터 10개씩. 방법론은 위 섹션들 + theme-instrument.css/js 동시수정 금지 규칙 그대로. **주의: 매 배치 시작 전에 grep으로 해당 파일들이 이미 다른 세션에 의해 전환돼 있지 않은지 먼저 확인할 것** (세션 여러 개가 동시에 병행 작업 중인 것으로 확정됨). **"배치 완료" 표기는 절대 커밋 메시지나 fork 자체보고만으로 믿지 말고, 매번 전체 목록 대 grep 결과 1:1 대조로 확정할 것.** **Agent(fork) 호출이 "processing in background"라고 답하고 나서 이후 호출부터 "Fork is not available inside a forked worker" 에러가 뜨는 경우, 오케스트레이터 자신이 fork 워커 컨텍스트로 전환된 것 — 이후엔 재시도 없이 바로 오케스트레이터가 직접 Read/Write로 나머지 파일을 처리할 것.**
+
 ## 참고 — 이전에 나온 별도 이슈(디자인 컨셉과 무관, 아직 미착수)
 현재 CLAUDE.md에 없는, 이번 세션에서 fable5 에이전트가 지적한 기존 실행 버그들(별도 작업 필요):
 - index.html에 검색 기능 없음 (327개 카드, 필터칩만 있음)
