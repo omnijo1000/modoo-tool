@@ -9,162 +9,35 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme-instrument.css">
 <style>
-  :root {
-    --bg: #0f0f0f;
-    --surface: #1a1a1a;
-    --border: #2e2e2e;
-    --accent: #00e5a0;
-    --accent2: #00b37a;
-    --text: #f0f0f0;
-    --text-muted: #888;
-    --text-dim: #555;
-    --error: #ff6b6b;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Noto Sans KR', sans-serif;
-    min-height: 100vh;
-  }
-  .mono { font-family: 'DM Mono', monospace; }
-
-  header {
-    border-bottom: 1px solid var(--border);
-    padding: 20px 24px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--accent);
-  }
-  .header-label {
-    font-size: 13px;
-    color: var(--text-muted);
-    letter-spacing: 0.1em;
-    font-family: 'DM Mono', monospace;
-  }
-
-  main {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 48px 24px;
-  }
-
-  .title-block { margin-bottom: 48px; }
-  h1 { font-size: clamp(28px, 6vw, 42px); font-weight: 900; line-height: 1.1; margin-bottom: 12px; }
-  h1 span { color: var(--accent); }
-  .subtitle { color: var(--text-muted); font-size: 14px; line-height: 1.7; }
-  .subtitle b { color: var(--accent); font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 400; }
-
-  .inputs { display: flex; flex-direction: column; gap: 16px; margin-bottom: 32px; }
-
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 20px 24px;
-    transition: border-color 0.2s;
-  }
-  .card:focus-within { border-color: var(--accent2); }
-
   .card-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
-  label {
-    font-size: 12px;
-    color: var(--text-muted);
-    letter-spacing: 0.08em;
-    display: block;
-    margin-bottom: 10px;
-  }
-  .input-wrap { display: flex; align-items: center; gap: 8px; }
-  input[type=number] {
-    flex: 1;
-    background: transparent;
-    border: none;
-    outline: none;
-    font-size: 28px;
-    font-weight: 700;
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    width: 100%;
-    min-width: 0;
-  }
-  input[type=number]::-webkit-inner-spin-button,
-  input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
-  .unit { color: var(--text-dim); font-size: 14px; white-space: nowrap; }
-
-  .warn { margin-top: 8px; font-size: 12px; color: var(--error); }
-
-  /* Result */
-  .result {
-    border-radius: 16px;
-    padding: 28px;
-    margin-bottom: 32px;
-    display: none;
-  }
+  .warn { margin-top: 8px; font-size: 12px; color: var(--danger); }
+  .result { border-radius: 16px; padding: 28px; margin-bottom: 32px; display: none; }
   .result.show { display: block; }
-  .result.eligible {
-    background: rgba(0,229,160,0.06);
-    border: 1px solid var(--accent2);
-  }
-  .result.ineligible {
-    background: rgba(255,107,107,0.06);
-    border: 1px solid var(--error);
-  }
-
-  .result-tag {
-    font-size: 12px;
-    letter-spacing: 0.1em;
-    margin-bottom: 20px;
-  }
-  .result-tag.ok { color: var(--accent); }
-  .result-tag.no { color: var(--error); }
-
+  .result.eligible { background: rgba(79,203,154,0.06); border: 1px solid var(--good); }
+  .result.ineligible { background: rgba(242,114,94,0.06); border: 1px solid var(--danger); }
+  .result-tag { font-size: 12px; letter-spacing: 0.1em; margin-bottom: 20px; }
+  .result-tag.ok { color: var(--good); }
+  .result-tag.no { color: var(--danger); }
   .result-rows { display: flex; flex-direction: column; gap: 14px; }
   .result-row { display: flex; justify-content: space-between; align-items: baseline; }
   .result-label { color: var(--text-muted); font-size: 14px; }
-  .result-value { font-family: 'DM Mono', monospace; font-weight: 700; }
-  .result-value.main { font-size: 24px; color: var(--accent); }
+  .result-value { font-family: var(--mono); font-weight: 700; }
+  .result-value.main { font-size: 24px; background:linear-gradient(135deg,var(--violet),var(--cyan)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
   .result-value.sub { font-size: 18px; color: var(--text); }
   .result-value.dim { font-size: 18px; color: var(--text-muted); font-weight: 500; }
-  .divider { height: 1px; background: var(--border); }
-
   .ineligible-msg { color: var(--text-muted); font-size: 14px; margin-bottom: 8px; }
   .ineligible-hint { font-size: 13px; color: var(--text-dim); }
-
-  /* Info box */
-  .info-box {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 20px 24px;
-    margin-bottom: 48px;
-  }
   .info-title { font-size: 12px; color: var(--text-muted); letter-spacing: 0.08em; margin-bottom: 14px; }
   .info-rows { display: flex; flex-direction: column; gap: 8px; }
   .info-row { display: flex; justify-content: space-between; font-size: 13px; }
   .info-key { color: var(--text-dim); }
   .info-val { color: var(--text-muted); }
-
-  /* SEO text */
-  .seo { border-top: 1px solid var(--border); padding-top: 32px; }
-  .seo h2 { font-size: 16px; font-weight: 700; margin-bottom: 12px; }
-  .seo p { font-size: 13px; color: var(--text-muted); line-height: 1.8; margin-bottom: 24px; }
-
-  footer { text-align: center; font-size: 12px; color: var(--text-dim); margin-top: 48px; }
-
   .faq-list { margin-top: 12px; }
-  .faq-item { background: #111; border-radius: 10px; padding: 16px 18px; margin-bottom: 10px; }
+  .faq-item { background: rgba(255,255,255,0.03); border-radius: 10px; padding: 16px 18px; margin-bottom: 10px; }
   .faq-q { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 8px; line-height: 1.5; }
   .faq-a { font-size: 13px; color: var(--text-muted); line-height: 1.8; }
-
-  .back-link { margin-left:auto; font-size:13px; color:var(--text-muted); text-decoration:none; }
-  .back-link:hover { color:var(--accent2); }
 </style>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
 <meta property="og:type" content="website">
@@ -203,6 +76,7 @@
 </header>
 
 <main>
+  <div class="eyebrow">Finance · Instrument</div>
   <div class="title-block">
     <h1>주휴수당<br><span>계산기</span></h1>
     <p class="subtitle">2026년 최저임금 <b>10,320원/h</b> 기준</p>
@@ -210,7 +84,7 @@
 
   <div class="inputs">
     <div class="card">
-      <label>시급 (원)</label>
+      <div class="field-label">시급 (원)</div>
       <div class="input-wrap">
         <input type="number" id="wage" placeholder="10320" min="0" oninput="calc()">
         <span class="unit">원</span>
@@ -220,14 +94,14 @@
 
     <div class="card-row">
       <div class="card">
-        <label>하루 근무시간</label>
+        <div class="field-label">하루 근무시간</div>
         <div class="input-wrap">
           <input type="number" id="hours" placeholder="8" min="1" max="24" oninput="calc()">
           <span class="unit">시간</span>
         </div>
       </div>
       <div class="card">
-        <label>주 근무일수</label>
+        <div class="field-label">주 근무일수</div>
         <div class="input-wrap">
           <input type="number" id="days" placeholder="5" min="1" max="7" oninput="calc()">
           <span class="unit">일</span>
@@ -263,7 +137,7 @@
     <div class="ineligible-hint" id="ineligibleHint"></div>
   </div>
 
-  <div class="info-box">
+  <div class="box">
     <div class="info-title">주휴수당 지급 조건</div>
     <div class="info-rows">
       <div class="info-row"><span class="info-key">주 소정근로시간</span><span class="info-val">15시간 이상</span></div>
@@ -348,6 +222,7 @@
   }
 </script>
 
+<script src="theme-instrument.js"></script>
 <script src="related.js"></script>
 </body>
 </html>
