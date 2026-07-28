@@ -65,16 +65,16 @@
   <div id="statsEl" class="status-bar"></div>
   <div id="listEl"></div>
   <div id="highlightEl" class="highlighted" style="display:none;"></div>
-  <div class="seo" id="seoDiv"><h2>UUID 추출기</h2><p>텍스트, 서버 로그, JSON, API 응답 등 어떤 형식에서도 UUID를 자동으로 찾아 추출합니다. 중복 제거, 소문자 정규화, 버전 감지 기능을 제공합니다.</p>
+  <div class="seo" id="seoDiv"><h2>UUID 추출기</h2><p>이 도구는 UUID의 표준 하이픈 구조(8-4-4-4-12자리, 총 36자)를 정규식으로 정의해 텍스트 전체를 스캔하고, 이 패턴에 맞는 모든 문자열을 위치와 관계없이 찾아냅니다. 정규식에는 13번째 자리가 1~5(버전 식별자), 19번째 자리가 8·9·a·b 중 하나(RFC 4122 변형 비트)여야 한다는 조건이 포함되어 있어, 단순히 하이픈으로 구분된 32자리 16진수 문자열이 아니라 실제 규격을 만족하는 UUID만 정확히 골라냅니다. 서버 로그에서 특정 세션·주문 ID를 한꺼번에 뽑아내거나, JSON API 응답에서 모든 리소스 ID만 따로 정리하거나, 코드베이스에 하드코딩된 UUID 목록을 감사할 때 활용됩니다.</p>
 <h2 class="seo-sub">자주 묻는 질문</h2>
-<details class="faq-item"><summary>어떤 형식의 UUID를 추출할 수 있나요?</summary><p>표준 하이픈 형식(8-4-4-4-12)의 v1~v5 UUID를 모두 추출합니다.</p></details>
-<details class="faq-item"><summary>중복 제거는 어떻게 작동하나요?</summary><p>같은 UUID가 여러 번 등장해도 한 번만 추출합니다.</p></details>
-<details class="faq-item"><summary>UUID 버전을 확인할 수 있나요?</summary><p>"버전 표시" 옵션을 켜면 각 UUID의 버전(v1~v5)을 표시합니다.</p></details>
-<details class="faq-item"><summary>JSON에서 추출하면 따옴표도 제거되나요?</summary><p>예, UUID 값만 추출하고 따옴표는 제거됩니다.</p></details>
-<details class="faq-item"><summary>하이픈 없는 UUID도 추출하나요?</summary><p>현재 표준 하이픈 형식만 지원합니다.</p></details>
-<details class="faq-item"><summary>로그 파일에서도 사용할 수 있나요?</summary><p>예, 로그 텍스트를 붙여넣으면 UUID가 자동으로 추출됩니다.</p></details>
-<details class="faq-item"><summary>추출 결과를 복사할 수 있나요?</summary><p>예, "전체 복사" 버튼으로 모든 UUID를 클립보드에 복사합니다.</p></details>
-<details class="faq-item"><summary>원본 텍스트에서 UUID 위치를 확인할 수 있나요?</summary><p>예, 추출 후 원본 텍스트에 UUID가 강조 표시됩니다.</p></details></div>
+<details class="faq-item"><summary>어떤 형식의 UUID를 추출할 수 있나요?</summary><p>8-4-4-4-12 자리로 하이픈이 구분된 표준 형식의 UUID를 추출하며, 버전 필드(13번째 자리)가 1부터 5 사이인 v1~v5 UUID를 모두 인식합니다.</p></details>
+<details class="faq-item"><summary>중복 제거는 어떻게 작동하나요?</summary><p>정규식으로 찾아낸 모든 UUID를 JavaScript의 Set 객체에 넣어 동일한 문자열을 자동으로 하나로 합칩니다. 로그 파일처럼 같은 UUID가 여러 줄에 걸쳐 반복 등장하는 텍스트에서 고유 ID 목록만 뽑아낼 때 유용합니다.</p></details>
+<details class="faq-item"><summary>UUID 버전을 확인할 수 있나요?</summary><p>'버전 표시' 옵션을 켜면 각 UUID의 14번째 문자(하이픈 포함 기준)를 읽어 v1, v3, v4, v5처럼 버전 배지를 붙여줍니다. 이 자리는 UUID 규격상 항상 버전 번호를 나타내도록 정해져 있습니다.</p></details>
+<details class="faq-item"><summary>JSON에서 추출하면 따옴표도 제거되나요?</summary><p>네. 정규식이 UUID 패턴 자체만 매칭하기 때문에 "id":"550e8400-..." 같은 JSON 구조에서도 앞뒤 따옴표나 키 이름 없이 UUID 값만 정확히 뽑아냅니다.</p></details>
+<details class="faq-item"><summary>하이픈 없는 UUID도 추출하나요?</summary><p>아니요. 현재 정규식은 8-4-4-4-12 하이픈 구분 형식만 매칭하도록 작성되어 있어, 하이픈이 제거된 32자리 연속 16진수 문자열은 인식하지 못합니다.</p></details>
+<details class="faq-item"><summary>로그 파일에서도 사용할 수 있나요?</summary><p>네. 타임스탬프, 로그 레벨, 메시지가 뒤섞인 로그 텍스트를 그대로 붙여넣어도 정규식이 UUID 패턴에 해당하는 부분만 위치와 상관없이 찾아내 추출합니다.</p></details>
+<details class="faq-item"><summary>추출 결과를 복사할 수 있나요?</summary><p>네. '전체 복사' 버튼을 누르면 추출된 모든 UUID가 줄바꿈으로 구분된 텍스트로 클립보드에 복사됩니다.</p></details>
+<details class="faq-item"><summary>원본 텍스트에서 UUID 위치를 확인할 수 있나요?</summary><p>네. 추출 버튼을 누르면 원본 텍스트 전체가 그대로 아래에 다시 표시되면서, UUID로 인식된 부분만 배경색이 입혀져 원문 맥락 속에서 위치를 바로 확인할 수 있습니다.</p></details></div>
 </main>
 <script>
 const LANGS=['ko','en','zh','ja'];let _lang='ko';let _extracted=[];
@@ -82,55 +82,55 @@ const UUID_RE=/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-
 const _i18n={
   ko:{h1Accent:'추출기',sub:'텍스트, 로그, JSON에서 UUID를 모두 찾아 추출합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',lblDedup:'중복 제거',lblLower:'소문자 정규화',lblVersion:'버전 표시',btnExtract:'추출',btnCopy:'전체 복사',btnSample:'샘플',btnClear:'초기화',copyBtn:'복사',copied:'복사됨!',noMatch:'UUID를 찾을 수 없습니다.',
     stats:(n,u)=>`총 ${n}개 발견 (고유 ${u}개)`,
-    seoHtml:`<h2>UUID 추출기</h2><p>텍스트, 서버 로그, JSON, API 응답 등 어떤 형식에서도 UUID를 자동으로 찾아 추출합니다. 중복 제거, 소문자 정규화, 버전 감지 기능을 제공합니다.</p>
+    seoHtml:`<h2>UUID 추출기</h2><p>이 도구는 UUID의 표준 하이픈 구조(8-4-4-4-12자리, 총 36자)를 정규식으로 정의해 텍스트 전체를 스캔하고, 이 패턴에 맞는 모든 문자열을 위치와 관계없이 찾아냅니다. 정규식에는 13번째 자리가 1~5(버전 식별자), 19번째 자리가 8·9·a·b 중 하나(RFC 4122 변형 비트)여야 한다는 조건이 포함되어 있어, 단순히 하이픈으로 구분된 32자리 16진수 문자열이 아니라 실제 규격을 만족하는 UUID만 정확히 골라냅니다. 서버 로그에서 특정 세션·주문 ID를 한꺼번에 뽑아내거나, JSON API 응답에서 모든 리소스 ID만 따로 정리하거나, 코드베이스에 하드코딩된 UUID 목록을 감사할 때 활용됩니다.</p>
 <h2 class="seo-sub">자주 묻는 질문</h2>
-<details class="faq-item"><summary>어떤 형식의 UUID를 추출할 수 있나요?</summary><p>표준 하이픈 형식(8-4-4-4-12)의 v1~v5 UUID를 모두 추출합니다.</p></details>
-<details class="faq-item"><summary>중복 제거는 어떻게 작동하나요?</summary><p>같은 UUID가 여러 번 등장해도 한 번만 추출합니다.</p></details>
-<details class="faq-item"><summary>UUID 버전을 확인할 수 있나요?</summary><p>"버전 표시" 옵션을 켜면 각 UUID의 버전(v1~v5)을 표시합니다.</p></details>
-<details class="faq-item"><summary>JSON에서 추출하면 따옴표도 제거되나요?</summary><p>예, UUID 값만 추출하고 따옴표는 제거됩니다.</p></details>
-<details class="faq-item"><summary>하이픈 없는 UUID도 추출하나요?</summary><p>현재 표준 하이픈 형식만 지원합니다.</p></details>
-<details class="faq-item"><summary>로그 파일에서도 사용할 수 있나요?</summary><p>예, 로그 텍스트를 붙여넣으면 UUID가 자동으로 추출됩니다.</p></details>
-<details class="faq-item"><summary>추출 결과를 복사할 수 있나요?</summary><p>예, "전체 복사" 버튼으로 모든 UUID를 클립보드에 복사합니다.</p></details>
-<details class="faq-item"><summary>원본 텍스트에서 UUID 위치를 확인할 수 있나요?</summary><p>예, 추출 후 원본 텍스트에 UUID가 강조 표시됩니다.</p></details>`
+<details class="faq-item"><summary>어떤 형식의 UUID를 추출할 수 있나요?</summary><p>8-4-4-4-12 자리로 하이픈이 구분된 표준 형식의 UUID를 추출하며, 버전 필드(13번째 자리)가 1부터 5 사이인 v1~v5 UUID를 모두 인식합니다.</p></details>
+<details class="faq-item"><summary>중복 제거는 어떻게 작동하나요?</summary><p>정규식으로 찾아낸 모든 UUID를 JavaScript의 Set 객체에 넣어 동일한 문자열을 자동으로 하나로 합칩니다. 로그 파일처럼 같은 UUID가 여러 줄에 걸쳐 반복 등장하는 텍스트에서 고유 ID 목록만 뽑아낼 때 유용합니다.</p></details>
+<details class="faq-item"><summary>UUID 버전을 확인할 수 있나요?</summary><p>'버전 표시' 옵션을 켜면 각 UUID의 14번째 문자(하이픈 포함 기준)를 읽어 v1, v3, v4, v5처럼 버전 배지를 붙여줍니다. 이 자리는 UUID 규격상 항상 버전 번호를 나타내도록 정해져 있습니다.</p></details>
+<details class="faq-item"><summary>JSON에서 추출하면 따옴표도 제거되나요?</summary><p>네. 정규식이 UUID 패턴 자체만 매칭하기 때문에 "id":"550e8400-..." 같은 JSON 구조에서도 앞뒤 따옴표나 키 이름 없이 UUID 값만 정확히 뽑아냅니다.</p></details>
+<details class="faq-item"><summary>하이픈 없는 UUID도 추출하나요?</summary><p>아니요. 현재 정규식은 8-4-4-4-12 하이픈 구분 형식만 매칭하도록 작성되어 있어, 하이픈이 제거된 32자리 연속 16진수 문자열은 인식하지 못합니다.</p></details>
+<details class="faq-item"><summary>로그 파일에서도 사용할 수 있나요?</summary><p>네. 타임스탬프, 로그 레벨, 메시지가 뒤섞인 로그 텍스트를 그대로 붙여넣어도 정규식이 UUID 패턴에 해당하는 부분만 위치와 상관없이 찾아내 추출합니다.</p></details>
+<details class="faq-item"><summary>추출 결과를 복사할 수 있나요?</summary><p>네. '전체 복사' 버튼을 누르면 추출된 모든 UUID가 줄바꿈으로 구분된 텍스트로 클립보드에 복사됩니다.</p></details>
+<details class="faq-item"><summary>원본 텍스트에서 UUID 위치를 확인할 수 있나요?</summary><p>네. 추출 버튼을 누르면 원본 텍스트 전체가 그대로 아래에 다시 표시되면서, UUID로 인식된 부분만 배경색이 입혀져 원문 맥락 속에서 위치를 바로 확인할 수 있습니다.</p></details>`
   },
   en:{h1Accent:'Extractor',sub:'Find and extract all UUIDs from text, logs, or JSON',backLink:'← All Tools',langBtn:'🌐 中文',lblDedup:'Deduplicate',lblLower:'Lowercase normalize',lblVersion:'Show version',btnExtract:'Extract',btnCopy:'Copy all',btnSample:'Sample',btnClear:'Clear',copyBtn:'Copy',copied:'Copied!',noMatch:'No UUIDs found.',
     stats:(n,u)=>`${n} found (${u} unique)`,
-    seoHtml:`<h2>UUID Extractor</h2><p>Automatically find and extract all UUIDs from text, server logs, JSON, API responses, or any format. Supports deduplication, lowercase normalization, and version detection (v1–v5).</p>
+    seoHtml:`<h2>UUID Extractor</h2><p>This tool defines the standard UUID hyphen structure (8-4-4-4-12 digits, 36 characters total) as a regular expression and scans the entire input for every substring matching that pattern, regardless of position. The regex also requires the 13th character to be 1-5 (the version identifier) and the 19th to be 8, 9, a, or b (the RFC 4122 variant bits), so it picks out only strings that satisfy the actual UUID specification — not just any 32-character hex string separated by hyphens. It's used for pulling every session or order ID out of server logs at once, isolating all resource IDs from a JSON API response, or auditing a codebase for hardcoded UUIDs.</p>
 <h2 class="seo-sub">FAQ</h2>
-<details class="faq-item"><summary>What UUID formats are extracted?</summary><p>Standard hyphenated (8-4-4-4-12) v1–v5 UUIDs.</p></details>
-<details class="faq-item"><summary>How does deduplication work?</summary><p>If the same UUID appears multiple times, only one copy is kept.</p></details>
-<details class="faq-item"><summary>Can I detect UUID version?</summary><p>Enable "Show version" to display v1–v5 for each UUID.</p></details>
-<details class="faq-item"><summary>Are quotes removed from JSON?</summary><p>Yes — only the UUID value is extracted, without surrounding quotes.</p></details>
-<details class="faq-item"><summary>What about UUID without hyphens?</summary><p>Only standard hyphenated format is supported currently.</p></details>
-<details class="faq-item"><summary>Works with log files?</summary><p>Yes — paste log text and UUIDs are extracted automatically.</p></details>
-<details class="faq-item"><summary>Can I copy results?</summary><p>Yes — "Copy all" copies all extracted UUIDs to clipboard.</p></details>
-<details class="faq-item"><summary>Can I see where UUIDs appear in the original text?</summary><p>Yes — after extraction, UUIDs are highlighted in the original text.</p></details>`
+<details class="faq-item"><summary>What UUID formats are extracted?</summary><p>Standard hyphenated UUIDs in 8-4-4-4-12 format, recognizing every version from v1 to v5 based on the version field (the 13th character) being between 1 and 5.</p></details>
+<details class="faq-item"><summary>How does deduplication work?</summary><p>Every UUID found by the regex is placed into a JavaScript Set object, which automatically collapses identical strings into one. This is useful for pulling a unique ID list out of a log file where the same UUID repeats across many lines.</p></details>
+<details class="faq-item"><summary>Can I detect UUID version?</summary><p>Enabling "Show version" reads the 14th character of each UUID (counting the hyphens) and attaches a badge like v1, v3, v4, or v5 — this position is always reserved for the version number by the UUID spec.</p></details>
+<details class="faq-item"><summary>Are quotes removed from JSON?</summary><p>Yes. Since the regex matches only the UUID pattern itself, it correctly pulls just the UUID value out of JSON structures like "id":"550e8400-...", without the surrounding quotes or key name.</p></details>
+<details class="faq-item"><summary>What about UUID without hyphens?</summary><p>No. The current regex is written to match only the hyphenated 8-4-4-4-12 format, so a 32-character continuous hex string with the hyphens stripped out won't be recognized.</p></details>
+<details class="faq-item"><summary>Works with log files?</summary><p>Yes. Even if you paste raw log text mixed with timestamps, log levels, and messages, the regex finds every substring matching the UUID pattern regardless of where it appears.</p></details>
+<details class="faq-item"><summary>Can I copy results?</summary><p>Yes. Clicking "Copy all" copies every extracted UUID to the clipboard as newline-separated text.</p></details>
+<details class="faq-item"><summary>Can I see where UUIDs appear in the original text?</summary><p>Yes. After clicking Extract, the entire original text is redisplayed below with the recognized UUID substrings highlighted, so you can see exactly where each one appears in context.</p></details>`
   },
   zh:{h1Accent:'提取器',sub:'从文本、日志或JSON中查找并提取所有UUID',backLink:'← 所有工具',langBtn:'🌐 日本語',lblDedup:'去重',lblLower:'小写规范化',lblVersion:'显示版本',btnExtract:'提取',btnCopy:'复制全部',btnSample:'示例',btnClear:'清除',copyBtn:'复制',copied:'已复制!',noMatch:'未找到UUID。',
     stats:(n,u)=>`共找到${n}个（唯一${u}个）`,
-    seoHtml:`<h2>UUID提取器</h2><p>从文本、服务器日志、JSON、API响应或任何格式中自动查找并提取所有UUID。支持去重、小写规范化和版本检测(v1-v5)。</p>
+    seoHtml:`<h2>UUID提取器</h2><p>本工具把 UUID 的标准连字符结构（8-4-4-4-12 位，共 36 个字符）定义为正则表达式，扫描整段文本，找出所有符合该模式的字符串，不论其出现在何处。该正则还要求第 13 位字符必须是 1~5（版本标识符），第 19 位必须是 8、9、a 或 b 之一（RFC 4122 变体位），因此只会精确挑出真正符合 UUID 规范的字符串，而非仅仅是用连字符分隔的 32 位十六进制字符串。适用于一次性从服务器日志中提取所有会话或订单 ID、从 JSON API 响应中单独整理出所有资源 ID，或审计代码库中硬编码的 UUID 列表。</p>
 <h2 class="seo-sub">常见问题</h2>
-<details class="faq-item"><summary>可以提取哪些格式的UUID？</summary><p>标准连字符格式(8-4-4-4-12)的v1-v5 UUID。</p></details>
-<details class="faq-item"><summary>去重功能如何工作？</summary><p>如果同一UUID多次出现，只保留一个。</p></details>
-<details class="faq-item"><summary>可以检测UUID版本吗？</summary><p>启用"显示版本"可显示每个UUID的版本(v1-v5)。</p></details>
-<details class="faq-item"><summary>从JSON提取时会删除引号吗？</summary><p>是的，只提取UUID值，不含周围的引号。</p></details>
-<details class="faq-item"><summary>支持无连字符的UUID吗？</summary><p>目前仅支持标准连字符格式。</p></details>
-<details class="faq-item"><summary>可以用于日志文件吗？</summary><p>是的，粘贴日志文本，UUID会自动提取。</p></details>
-<details class="faq-item"><summary>可以复制结果吗？</summary><p>是的，"复制全部"将所有提取的UUID复制到剪贴板。</p></details>
-<details class="faq-item"><summary>可以看到UUID在原文中的位置吗？</summary><p>是的，提取后UUID在原文中会高亮显示。</p></details>`
+<details class="faq-item"><summary>可以提取哪些格式的UUID？</summary><p>提取 8-4-4-4-12 位、以连字符分隔的标准格式 UUID，能识别版本字段（第 13 位字符）在 1 到 5 之间的所有 v1~v5 版本。</p></details>
+<details class="faq-item"><summary>去重功能如何工作？</summary><p>正则表达式找到的所有 UUID 都会被放入 JavaScript 的 Set 对象中，自动把相同的字符串合并为一个。这在日志文件里同一个 UUID 反复出现在多行时，能有效提取出唯一 ID 列表。</p></details>
+<details class="faq-item"><summary>可以检测UUID版本吗？</summary><p>启用「显示版本」后，会读取每个 UUID 第 14 个字符（含连字符计数）并标注 v1、v3、v4、v5 等版本徽章——这个位置在 UUID 规范中始终固定表示版本号。</p></details>
+<details class="faq-item"><summary>从JSON提取时会删除引号吗？</summary><p>会。由于正则只匹配 UUID 模式本身，即使在 "id":"550e8400-..." 这样的 JSON 结构中，也只会精确提取 UUID 值，不含前后引号或键名。</p></details>
+<details class="faq-item"><summary>支持无连字符的UUID吗？</summary><p>不支持。目前的正则表达式只匹配带连字符的 8-4-4-4-12 格式，去掉连字符后连续的 32 位十六进制字符串无法被识别。</p></details>
+<details class="faq-item"><summary>可以用于日志文件吗？</summary><p>可以。即使粘贴混杂着时间戳、日志级别和消息的原始日志文本，正则也会找出所有符合 UUID 模式的部分，不论其出现在什么位置。</p></details>
+<details class="faq-item"><summary>可以复制结果吗？</summary><p>可以。点击「复制全部」会把所有提取出的 UUID 以换行分隔的文本形式复制到剪贴板。</p></details>
+<details class="faq-item"><summary>可以看到UUID在原文中的位置吗？</summary><p>可以。点击提取按钮后，原始文本会完整地重新显示在下方，被识别为 UUID 的部分会高亮显示，方便您直接在上下文中看到每个 UUID 的位置。</p></details>`
   },
   ja:{h1Accent:'抽出器',sub:'テキスト、ログ、JSONからすべてのUUIDを検索・抽出します',backLink:'← ホーム',langBtn:'🌐 한국어',lblDedup:'重複排除',lblLower:'小文字正規化',lblVersion:'バージョン表示',btnExtract:'抽出',btnCopy:'全コピー',btnSample:'サンプル',btnClear:'クリア',copyBtn:'コピー',copied:'コピー済み!',noMatch:'UUIDが見つかりません。',
     stats:(n,u)=>`${n}件発見（ユニーク${u}件）`,
-    seoHtml:`<h2>UUID抽出器</h2><p>テキスト、サーバーログ、JSON、APIレスポンスなど任意の形式からUUIDを自動検索・抽出します。重複排除、小文字正規化、バージョン検出(v1-v5)をサポートします。</p>
+    seoHtml:`<h2>UUID抽出器</h2><p>本ツールはUUIDの標準ハイフン構造（8-4-4-4-12桁、合計36文字）を正規表現として定義し、テキスト全体をスキャンしてこのパターンに一致するすべての文字列を、出現位置に関係なく検出します。この正規表現には13文字目が1〜5（バージョン識別子）、19文字目が8・9・a・bのいずれか（RFC 4122のバリアントビット）である必要があるという条件も含まれており、単にハイフンで区切られた32桁の16進文字列ではなく、実際の仕様を満たすUUIDだけを正確に抽出します。サーバーログから特定のセッションIDや注文IDをまとめて抽出したり、JSON APIレスポンスからすべてのリソースIDだけを整理したり、コードベースにハードコードされたUUID一覧を監査する際に活用されています。</p>
 <h2 class="seo-sub">よくある質問</h2>
-<details class="faq-item"><summary>どのUUID形式が抽出されますか？</summary><p>標準ハイフン形式(8-4-4-4-12)のv1-v5 UUID。</p></details>
-<details class="faq-item"><summary>重複排除はどう機能しますか？</summary><p>同じUUIDが複数回現れても、1つだけ保持します。</p></details>
-<details class="faq-item"><summary>UUIDバージョンを確認できますか？</summary><p>「バージョン表示」を有効にすると各UUIDのバージョン(v1-v5)が表示されます。</p></details>
-<details class="faq-item"><summary>JSONから抽出すると引用符は削除されますか？</summary><p>はい、UUID値のみが抽出され、周囲の引用符は削除されます。</p></details>
-<details class="faq-item"><summary>ハイフンなしのUUIDは？</summary><p>現在は標準ハイフン形式のみサポートしています。</p></details>
-<details class="faq-item"><summary>ログファイルでも使えますか？</summary><p>はい、ログテキストを貼り付けるとUUIDが自動抽出されます。</p></details>
-<details class="faq-item"><summary>結果をコピーできますか？</summary><p>はい、「全コピー」で全UUIDをクリップボードにコピーできます。</p></details>
-<details class="faq-item"><summary>原文でUUIDの位置を確認できますか？</summary><p>はい、抽出後に原文でUUIDがハイライト表示されます。</p></details>`
+<details class="faq-item"><summary>どのUUID形式が抽出されますか？</summary><p>8-4-4-4-12桁でハイフン区切りの標準形式のUUIDを抽出し、バージョンフィールド（13文字目）が1〜5であるv1〜v5のUUIDをすべて認識します。</p></details>
+<details class="faq-item"><summary>重複排除はどう機能しますか？</summary><p>正規表現で見つかったすべてのUUIDはJavaScriptのSetオブジェクトに格納され、同じ文字列は自動的に1つにまとめられます。ログファイルのように同じUUIDが複数行にわたって繰り返し登場するテキストから、ユニークなID一覧だけを抽出する際に便利です。</p></details>
+<details class="faq-item"><summary>UUIDバージョンを確認できますか？</summary><p>「バージョン表示」をオンにすると、各UUIDの14文字目（ハイフンを含めた位置）を読み取り、v1・v3・v4・v5のようなバージョンバッジを表示します。この位置はUUID仕様上、常にバージョン番号を表すよう定められています。</p></details>
+<details class="faq-item"><summary>JSONから抽出すると引用符は削除されますか？</summary><p>はい。正規表現はUUIDパターン自体にのみマッチするため、"id":"550e8400-..."のようなJSON構造からも、前後の引用符やキー名を含まずUUID値だけを正確に抽出します。</p></details>
+<details class="faq-item"><summary>ハイフンなしのUUIDは？</summary><p>対応していません。現在の正規表現はハイフン区切りの8-4-4-4-12形式のみにマッチするよう作成されているため、ハイフンを除去した32桁連続の16進文字列は認識されません。</p></details>
+<details class="faq-item"><summary>ログファイルでも使えますか？</summary><p>はい。タイムスタンプ、ログレベル、メッセージが混在した生のログテキストをそのまま貼り付けても、正規表現がUUIDパターンに該当する部分を位置に関わらず検出して抽出します。</p></details>
+<details class="faq-item"><summary>結果をコピーできますか？</summary><p>はい。「全コピー」ボタンをクリックすると、抽出されたすべてのUUIDが改行区切りのテキストとしてクリップボードにコピーされます。</p></details>
+<details class="faq-item"><summary>原文でUUIDの位置を確認できますか？</summary><p>はい。抽出ボタンを押すと、元のテキスト全体がそのまま下に再表示され、UUIDと認識された部分だけ背景色が付くため、原文の文脈の中でその位置をすぐに確認できます。</p></details>`
   }
 };
 function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
