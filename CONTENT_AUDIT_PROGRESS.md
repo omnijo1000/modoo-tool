@@ -191,9 +191,124 @@ read-time-calculator(이 세션 최대급 발견 — head FAQ가 "한국어는 �
 
 **주의 4 (배치 22~23에서 반복 발생)**: 딥닝 인트로 문단 영문 카피를 작성할 때 아포스트로피("it's", "doesn't", "aren't", "editor's")를 single-quote JS 문자열 안에 그대로 쓰면 `node --check`에서 즉시 SyntaxError남 — json-to-yaml, line-counter 두 파일에서 실제로 발생. 영문 카피 작성 시 처음부터 `\'`로 이스케이프하거나 축약형을 풀어 쓸 것("it is" 등), 그리고 4종 검증의 `node --check` 단계를 절대 생략하지 말 것(이번에도 이 단계가 실제로 잡아냄).
 
-## 다음 단계: 1000~1500자 구간 스캔 필요
+## 4차 스캔 (1000~1500자, worst-first) — 진행중
 
-700~1000자 구간(70개)이 전부 끝났으므로, 다음 세션은 이 파일 상단의 스캔 스크립트로 `1000 <= len < 1500` 범위를 재스캔해 worst-first 목록을 뽑고 동일한 배치(3개씩) 프로세스로 진행할 것. 이전 스캔 시점(2026-06-14 근방) 기준 227개로 파악됐으나, 그 사이 배치 1~23에서 다수 파일이 이 구간으로 새로 진입했거나(내용이 깊어져서) 반대로 빠져나갔을 수 있으므로 반드시 재스캔부터 시작.
+재스캔 결과(이미 완료한 1~3차 파일 제외): **111개**. 스캔 방법은 위와 동일, 범위만 `1000 <= len < 1500`. 이미 완료한 파일이 이 범위로 새로 들어온 경우(내용을 깊게 만들면서 글자수가 늘어난 자연스러운 결과) 재작업 대상에서 제외했음 — 이미 완료 목록(1~3차, 아래 "완료 파일 전체 목록" 참고)에 있으면 이 구간 스캔에서 나와도 건너뛸 것.
+
+### 완료 (4차 배치 1/N, content-depth-audit 브랜치에 커밋됨 — 커밋 fa0e1db, 803c621, 02794d8)
+image-to-pdf(버그도 수정 — JPEG 입력도 무조건 canvas에 그려 무손실 PNG로 재인코딩(embedPng)하던 것을, JPEG는 원본 압축 바이트를 그대로 pdf-lib embedJpg()로 직접 삽입하도록 수정해 화질 저하 없이 파일 크기 폭증도 방지(사진 콘텐츠는 PNG가 JPEG보다 압축 효율이 훨씬 낮음) + "품질 옵션 조절 가능"이라던 거짓 FAQ 주장 정정), dday(이 배치 최대 발견 — `new Date("2026-08-15")` 같은 날짜전용 문자열이 UTC 자정으로 파싱되는데 "오늘"은 로컬 자정으로 만들어 비교하던 문제, TZ=Asia/Seoul(한국 대상 사이트의 실제 사용자 시간대)로 재현한 결과 오늘 날짜를 목표일로 선택해도 D-0이 아닌 D-1이 표시됨을 확인 — 이는 페이지 자체 FAQ("당일은 D-Day(0)")와 정면으로 모순되고 diff===0일 때만 뜨는 "🎉 오늘!" 문구가 사실상 한국 사용자에게 절대 안 뜨던 상황, 연/월/일을 로컬 Date로 직접 구성하는 parseLocalDate()로 3곳 모두 수정 후 재검증), graphql-query-builder(FAQ가 예시로 든 "id: $userId → query($userId: ID!)"가 실제로는 모든 변수 타입을 무조건 String으로 하드코딩해 실제 출력이 예시와 전혀 다르던 문제, 인수 이름 패턴 기반 타입 추론(id로 끝나면 ID!, count/limit 등은 Int!, is/has 등은 Boolean!) 구현 후 FAQ의 자체 예시와 정확히 일치하는 출력 재확인)
+
+## 남은 108개 (worst-first, char count) — 다음 배치는 여기서부터 3개씩
+```
+1037  vat-calc.html                        ⬜ 다음 배치 시작점
+1063  svg-cleaner.html
+1067  salary-per-hour-calculator.html
+1069  korean-age.html
+1077  discount-calculator.html
+1084  alphabetizer.html
+1085  hashtag-generator.html
+1086  json-to-csv.html
+1088  remove-duplicate-lines.html
+1089  margin-calculator.html
+1097  rent-convert.html
+1100  freelancer-rate-calculator.html
+1104  break-even-calculator.html
+1111  cagr-calculator.html
+1112  find-replace.html
+1114  text-diff-checker.html
+1128  business-days-calculator.html
+1133  sql-formatter.html
+1156  loan-calculator-en.html
+1158  pdf-to-image.html
+1158  timestamp.html
+1167  apr-calculator.html
+1171  text-cleaner.html
+1177  ip-address-lookup.html
+1183  split-calculator.html
+1183  pixelate-image.html
+1189  tip-calculator.html
+1193  text-sorter.html
+1195  pdf-split.html
+1197  prepayment-fee.html
+1199  salary-raise.html
+1207  body-fat-calculator.html
+1210  random-string.html
+1212  water-intake.html
+1218  electricity-cost-calculator.html
+1241  image-to-webp.html
+1241  age-calculator.html
+1242  xml-formatter.html
+1245  emoji-counter.html
+1246  fuel-cost-calculator.html
+1247  color-converter.html
+1252  color-palette.html
+1258  wpm-calculator.html
+1258  sleep-calculator.html
+1260  fire-calculator.html
+1261  loan-payoff-calculator.html
+1264  yaml-formatter.html
+1266  salary-reverse.html
+1266  ai-youtube-title-generator.html
+1269  cron-generator.html
+1270  inflation-calculator.html
+1279  keyword-density-checker.html
+1284  retirement-calc.html
+1292  qr-code-generator.html
+1294  website-speed-estimator.html
+1303  base64-image.html
+1303  credit-loan-limit.html
+1305  payslip-calc.html
+1307  sitemap-validator.html
+1310  pace-calculator.html
+1315  json-viewer.html
+1315  pomodoro-timer.html
+1317  jwt-generator.html
+1330  pdf-page-counter.html
+1330  macro-calculator.html
+1332  pregnancy-due-date.html
+1344  seo-title-generator.html
+1349  favicon-generator.html
+1349  health-insurance-calc.html
+1350  mime-type-finder.html
+1350  csr-generator.html
+1352  pdf-compressor.html
+1353  csp-validator.html
+1354  api-response-viewer.html
+1357  html-encoder.html
+1360  meta-tag-analyzer.html
+1360  json-validator.html
+1367  sip-calculator.html
+1381  htaccess-generator.html
+1382  number-converter.html
+1388  csv-viewer.html
+1390  property-tax.html
+1396  text-case-detector.html
+1397  robots-txt-validator.html
+1399  annual-leave.html
+1401  yaml-validator.html
+1403  user-agent-parser.html
+1403  csp-generator.html
+1404  json-minifier.html
+1408  overtime-pay.html
+1410  schema-validator.html
+1412  weekly-holiday.html
+1416  bmi-calc.html
+1427  png-to-jpg.html
+1427  hreflang-generator.html
+1429  severance.html
+1432  ai-token-counter.html
+1446  prompt-formatter.html
+1447  whois-lookup.html
+1452  parental-leave.html
+1456  csv-diff-checker.html
+1462  stock-tax.html
+1482  freelancer-tax.html
+1483  commission-calculator.html
+1486  dns-lookup.html
+1488  severance-tax.html
+1490  html-to-markdown.html
+```
+(1500자 이상은 이 구간이 끝나면 재스캔해서 다음 구간 산정)
 
 ## 새 컴퓨터에서 이어할 때 체크리스트
 1. `git fetch && git checkout content-depth-audit && git pull`
