@@ -19,7 +19,7 @@
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"API Tester","url":"https://modoohub.com/api-tester.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Test HTTP API requests directly from the browser. Configure method, headers, body, and see responses instantly."}</script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"CORS 오류가 발생하면 어떻게 하나요?","acceptedAnswer":{"@type":"Answer","text":"CORS는 브라우저 보안 정책입니다. 서버가 Access-Control-Allow-Origin 헤더를 포함하지 않으면 브라우저에서 요청이 차단됩니다. 서버에 CORS를 활성화하거나 프록시를 사용하세요."}},{"@type":"Question","name":"응답 바디가 JSON이면 자동으로 포맷되나요?","acceptedAnswer":{"@type":"Answer","text":"네. 응답 Content-Type이 application/json이면 자동으로 pretty-print합니다."}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"CORS 오류가 발생하는 이유는?","acceptedAnswer":{"@type":"Answer","text":"응답에 Access-Control-Allow-Origin 헤더가 없으면 브라우저가 응답 내용을 자바스크립트에 넘기지 않고 차단합니다. 서버가 이 헤더를 명시적으로 설정해야 합니다."}},{"@type":"Question","name":"요청 실패 메시지가 뜨면 항상 CORS 문제인가요?","acceptedAnswer":{"@type":"Answer","text":"아닙니다. fetch()는 보안 정책상 CORS 차단과 순수 네트워크 오류를 구분해서 알려주지 않고 동일한 TypeError로 처리하므로, 두 가능성을 모두 안내합니다."}},{"@type":"Question","name":"DELETE 요청에도 본문을 보낼 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"네. HTTP 스펙상 DELETE도 본문을 가질 수 있으며, 이 도구는 POST·PUT·PATCH와 동일하게 DELETE에도 입력한 본문을 그대로 전송합니다."}},{"@type":"Question","name":"응답 바디가 JSON이면 자동으로 포맷되나요?","acceptedAnswer":{"@type":"Answer","text":"네. 응답 본문을 JSON.parse로 시도해 성공하면 2칸 들여쓰기로 재포맷합니다."}}]}</script>
 <meta property="og:type" content="website">
 <meta property="og:title" content="API 테스터 - 브라우저에서 HTTP 요청 테스트 | MODOO HUB">
 <meta property="og:description" content="브라우저에서 API 요청 테스트. GET/POST/PUT/DELETE, 헤더·본문 설정. 응답 코드·바디 즉시 확인.">
@@ -66,71 +66,71 @@
     <div class="btn-row"><button type="button" class="btn" onclick="copyResp()" id="btnCopyResp">복사</button></div>
   </div>
   <div class="cors-warn" id="corsWarn" style="display:none"></div>
-  <div class="seo" id="seoDiv"><h2>API 테스터란?</h2><p>브라우저에서 직접 HTTP API 요청을 테스트합니다. GET, POST, PUT, PATCH, DELETE 메서드와 커스텀 헤더, JSON 본문을 지원합니다. 응답 상태 코드, 응답 헤더, 바디를 즉시 확인하세요. 단, <strong>CORS 정책</strong>으로 일부 API는 브라우저에서 직접 호출되지 않을 수 있습니다.</p>
+  <div class="seo" id="seoDiv"><h2>API 테스터란?</h2><p>브라우저 내장 fetch()로 HTTP API 요청을 직접 보냅니다. 메서드·헤더·JSON 본문을 구성해 요청을 보내면 응답 상태 코드, 응답 헤더, 바디를 즉시 확인할 수 있고, 응답 Content-Type이 application/json이면 자동으로 들여쓰기해 보여줍니다. 요청 본문은 POST·PUT·PATCH뿐 아니라 <strong>DELETE</strong>에도 입력한 대로 전송됩니다 — DELETE도 HTTP 스펙상 본문을 가질 수 있고 일부 API(대량 삭제 등)가 실제로 이를 사용하기 때문입니다. 요청이 실패하면 브라우저는 보안상의 이유로 "CORS 정책에 막힌 것"과 "URL 오타·서버 다운·네트워크 단절 같은 순수 연결 실패"를 구분해서 알려주지 않고 똑같이 TypeError만 던지므로, 이 도구도 두 경우를 하나의 안내 메시지로 함께 보여드립니다. 모든 요청은 이 사이트 서버를 거치지 않고 브라우저에서 API 서버로 직접 전송됩니다.</p>
 <h2 class="seo-sub">자주 묻는 질문</h2>
-<details class="faq-item"><summary>CORS 오류가 발생하는 이유는?</summary><p>브라우저는 다른 도메인의 API를 호출할 때 서버의 CORS 허용 헤더를 확인합니다. 서버에서 Access-Control-Allow-Origin 헤더를 설정해야 합니다.</p></details>
-<details class="faq-item"><summary>인증이 필요한 API도 테스트할 수 있나요?</summary><p>Authorization 헤더에 Bearer Token 또는 API 키를 추가해 테스트할 수 있습니다.</p></details>
-<details class="faq-item"><summary>응답 JSON이 자동으로 포맷되나요?</summary><p>응답 Content-Type이 application/json이면 자동으로 들여쓰기 처리합니다.</p></details>
-<details class="faq-item"><summary>HTTPS API도 테스트할 수 있나요?</summary><p>네. HTTPS URL을 입력하면 바로 테스트 가능합니다.</p></details>
-<details class="faq-item"><summary>전송된 데이터는 안전한가요?</summary><p>요청은 브라우저에서 직접 API 서버로 전달됩니다. 이 사이트의 서버를 경유하지 않습니다.</p></details>
-<details class="faq-item"><summary>요청 시간 초과가 있나요?</summary><p>브라우저 기본 타임아웃이 적용됩니다. 응답이 오래 걸리면 브라우저가 자동으로 중단합니다.</p></details>
-<details class="faq-item"><summary>응답 헤더를 모두 볼 수 있나요?</summary><p>CORS 정책상 일부 응답 헤더는 브라우저에서 노출되지 않을 수 있습니다.</p></details>
-<details class="faq-item"><summary>POST 본문 형식은?</summary><p>JSON 형식을 사용하세요. Content-Type: application/json 헤더를 함께 설정하는 것을 권장합니다.</p></details></div>
+<details class="faq-item"><summary>CORS 오류가 발생하는 이유는?</summary><p>브라우저는 페이지와 다른 오리진(도메인·포트·프로토콜)의 API를 fetch로 호출할 때, 응답에 Access-Control-Allow-Origin 헤더가 없으면 응답 내용을 자바스크립트에 넘기지 않고 차단합니다. 서버가 이 헤더를 명시적으로 설정해야 브라우저에서 직접 호출할 수 있습니다.</p></details>
+<details class="faq-item"><summary>"요청 실패" 메시지가 뜨면 항상 CORS 문제인가요?</summary><p>아닌 경우도 많습니다. fetch()는 보안 정책상 CORS 차단과 순수 네트워크 오류(URL 오타, 서버 다운, DNS 실패, HTTPS 페이지에서 HTTP API 호출 등)를 구분해서 알려주지 않고 둘 다 동일한 TypeError로 처리합니다. 그래서 이 도구도 원인을 하나로 특정하지 않고, 두 가능성을 모두 안내하는 메시지를 보여줍니다.</p></details>
+<details class="faq-item"><summary>DELETE 요청에도 본문을 보낼 수 있나요?</summary><p>네. HTTP 스펙상 DELETE도 본문을 가질 수 있으며, 대량 삭제처럼 삭제 대상 목록을 본문에 담아 받는 API가 실제로 존재합니다. 이 도구는 POST·PUT·PATCH와 동일하게 DELETE를 선택했을 때도 입력한 본문을 그대로 전송합니다.</p></details>
+<details class="faq-item"><summary>인증이 필요한 API도 테스트할 수 있나요?</summary><p>Authorization 헤더에 Bearer Token 또는 API 키를 추가해 테스트할 수 있습니다. 헤더 행을 추가해 Key/Value를 입력하면 됩니다.</p></details>
+<details class="faq-item"><summary>응답 JSON이 자동으로 포맷되나요?</summary><p>응답 본문을 JSON.parse로 시도해 성공하면 2칸 들여쓰기로 재포맷합니다. 실패하면(HTML, 텍스트 등) 원본 그대로 표시합니다.</p></details>
+<details class="faq-item"><summary>전송된 데이터는 안전한가요?</summary><p>요청은 브라우저에서 API 서버로 직접 전달되며 이 사이트의 서버를 경유하지 않습니다. 단, 입력한 URL·헤더·본문(토큰 등 민감정보 포함)은 브라우저 메모리에만 존재하고 새로고침하면 사라집니다.</p></details>
+<details class="faq-item"><summary>응답 헤더를 모두 볼 수 있나요?</summary><p>아니요. CORS 명세상 브라우저는 기본적으로 Cache-Control, Content-Type 등 일부 "안전한" 헤더만 자바스크립트에 노출하며, 서버가 Access-Control-Expose-Headers로 명시하지 않은 커스텀 헤더는 보이지 않습니다.</p></details>
+<details class="faq-item"><summary>요청 시간 초과가 있나요?</summary><p>이 도구 자체는 타임아웃을 걸지 않으며, 브라우저의 기본 fetch 타임아웃 동작을 따릅니다. 응답이 매우 오래 걸리는 API는 무기한 대기할 수 있습니다.</p></details></div>
 </main>
 <script>
 const _i18n={
   ko:{pageTitle:'API 테스터 - 브라우저에서 HTTP 요청 테스트 | MODOO HUB',h1b:'테스터',sub:'브라우저에서 HTTP API 요청 즉시 테스트',backLink:'← 모두의 툴',langBtn:'🌐 EN',labelBody:'Body (JSON)',labelRespHeaders:'응답 헤더',labelRespBody:'응답 바디',btnSend:'요청 전송',btnClear:'초기화',btnCopyResp:'복사',loading:'요청 중...',copied:'복사됨 ✓',
-    corsMsg:'⚠️ CORS 오류: 브라우저 보안 정책으로 인해 이 API는 브라우저에서 직접 호출할 수 없습니다. 서버에 CORS 헤더를 추가하거나, 서버 사이드에서 호출하세요.',
+    corsMsg:'⚠️ 요청이 실패했습니다: CORS 정책으로 차단되었거나, URL 오타·서버 다운·네트워크 연결 문제일 수 있습니다. fetch()는 보안상 두 경우를 구분해 알려주지 않습니다. CORS가 원인이라면 서버에 Access-Control-Allow-Origin 헤더를 추가하거나 서버 사이드에서 호출하세요.',
     errMsg:'요청 실패: ',
-    seoHtml:`<h2>API 테스터란?</h2><p>브라우저에서 직접 HTTP API 요청을 테스트합니다. GET, POST, PUT, PATCH, DELETE 메서드와 커스텀 헤더, JSON 본문을 지원합니다. 응답 상태 코드, 응답 헤더, 바디를 즉시 확인하세요. 단, <strong>CORS 정책</strong>으로 일부 API는 브라우저에서 직접 호출되지 않을 수 있습니다.</p>
+    seoHtml:`<h2>API 테스터란?</h2><p>브라우저 내장 fetch()로 HTTP API 요청을 직접 보냅니다. 메서드·헤더·JSON 본문을 구성해 요청을 보내면 응답 상태 코드, 응답 헤더, 바디를 즉시 확인할 수 있고, 응답 Content-Type이 application/json이면 자동으로 들여쓰기해 보여줍니다. 요청 본문은 POST·PUT·PATCH뿐 아니라 <strong>DELETE</strong>에도 입력한 대로 전송됩니다 — DELETE도 HTTP 스펙상 본문을 가질 수 있고 일부 API(대량 삭제 등)가 실제로 이를 사용하기 때문입니다. 요청이 실패하면 브라우저는 보안상의 이유로 "CORS 정책에 막힌 것"과 "URL 오타·서버 다운·네트워크 단절 같은 순수 연결 실패"를 구분해서 알려주지 않고 똑같이 TypeError만 던지므로, 이 도구도 두 경우를 하나의 안내 메시지로 함께 보여드립니다. 모든 요청은 이 사이트 서버를 거치지 않고 브라우저에서 API 서버로 직접 전송됩니다.</p>
 <h2 class="seo-sub">자주 묻는 질문</h2>
-<details class="faq-item"><summary>CORS 오류가 발생하는 이유는?</summary><p>브라우저는 다른 도메인의 API를 호출할 때 서버의 CORS 허용 헤더를 확인합니다. 서버에서 Access-Control-Allow-Origin 헤더를 설정해야 합니다.</p></details>
-<details class="faq-item"><summary>인증이 필요한 API도 테스트할 수 있나요?</summary><p>Authorization 헤더에 Bearer Token 또는 API 키를 추가해 테스트할 수 있습니다.</p></details>
-<details class="faq-item"><summary>응답 JSON이 자동으로 포맷되나요?</summary><p>응답 Content-Type이 application/json이면 자동으로 들여쓰기 처리합니다.</p></details>
-<details class="faq-item"><summary>HTTPS API도 테스트할 수 있나요?</summary><p>네. HTTPS URL을 입력하면 바로 테스트 가능합니다.</p></details>
-<details class="faq-item"><summary>전송된 데이터는 안전한가요?</summary><p>요청은 브라우저에서 직접 API 서버로 전달됩니다. 이 사이트의 서버를 경유하지 않습니다.</p></details>
-<details class="faq-item"><summary>요청 시간 초과가 있나요?</summary><p>브라우저 기본 타임아웃이 적용됩니다. 응답이 오래 걸리면 브라우저가 자동으로 중단합니다.</p></details>
-<details class="faq-item"><summary>응답 헤더를 모두 볼 수 있나요?</summary><p>CORS 정책상 일부 응답 헤더는 브라우저에서 노출되지 않을 수 있습니다.</p></details>
-<details class="faq-item"><summary>POST 본문 형식은?</summary><p>JSON 형식을 사용하세요. Content-Type: application/json 헤더를 함께 설정하는 것을 권장합니다.</p></details>`
+<details class="faq-item"><summary>CORS 오류가 발생하는 이유는?</summary><p>브라우저는 페이지와 다른 오리진(도메인·포트·프로토콜)의 API를 fetch로 호출할 때, 응답에 Access-Control-Allow-Origin 헤더가 없으면 응답 내용을 자바스크립트에 넘기지 않고 차단합니다. 서버가 이 헤더를 명시적으로 설정해야 브라우저에서 직접 호출할 수 있습니다.</p></details>
+<details class="faq-item"><summary>"요청 실패" 메시지가 뜨면 항상 CORS 문제인가요?</summary><p>아닌 경우도 많습니다. fetch()는 보안 정책상 CORS 차단과 순수 네트워크 오류(URL 오타, 서버 다운, DNS 실패, HTTPS 페이지에서 HTTP API 호출 등)를 구분해서 알려주지 않고 둘 다 동일한 TypeError로 처리합니다. 그래서 이 도구도 원인을 하나로 특정하지 않고, 두 가능성을 모두 안내하는 메시지를 보여줍니다.</p></details>
+<details class="faq-item"><summary>DELETE 요청에도 본문을 보낼 수 있나요?</summary><p>네. HTTP 스펙상 DELETE도 본문을 가질 수 있으며, 대량 삭제처럼 삭제 대상 목록을 본문에 담아 받는 API가 실제로 존재합니다. 이 도구는 POST·PUT·PATCH와 동일하게 DELETE를 선택했을 때도 입력한 본문을 그대로 전송합니다.</p></details>
+<details class="faq-item"><summary>인증이 필요한 API도 테스트할 수 있나요?</summary><p>Authorization 헤더에 Bearer Token 또는 API 키를 추가해 테스트할 수 있습니다. 헤더 행을 추가해 Key/Value를 입력하면 됩니다.</p></details>
+<details class="faq-item"><summary>응답 JSON이 자동으로 포맷되나요?</summary><p>응답 본문을 JSON.parse로 시도해 성공하면 2칸 들여쓰기로 재포맷합니다. 실패하면(HTML, 텍스트 등) 원본 그대로 표시합니다.</p></details>
+<details class="faq-item"><summary>전송된 데이터는 안전한가요?</summary><p>요청은 브라우저에서 API 서버로 직접 전달되며 이 사이트의 서버를 경유하지 않습니다. 단, 입력한 URL·헤더·본문(토큰 등 민감정보 포함)은 브라우저 메모리에만 존재하고 새로고침하면 사라집니다.</p></details>
+<details class="faq-item"><summary>응답 헤더를 모두 볼 수 있나요?</summary><p>아니요. CORS 명세상 브라우저는 기본적으로 Cache-Control, Content-Type 등 일부 "안전한" 헤더만 자바스크립트에 노출하며, 서버가 Access-Control-Expose-Headers로 명시하지 않은 커스텀 헤더는 보이지 않습니다.</p></details>
+<details class="faq-item"><summary>요청 시간 초과가 있나요?</summary><p>이 도구 자체는 타임아웃을 걸지 않으며, 브라우저의 기본 fetch 타임아웃 동작을 따릅니다. 응답이 매우 오래 걸리는 API는 무기한 대기할 수 있습니다.</p></details>`
   },
   en:{pageTitle:'API Tester - Test HTTP Requests from Browser | MODOO HUB',h1b:'Tester',sub:'Test HTTP API requests directly from the browser',backLink:'← All Tools',langBtn:'🌐 中文',labelBody:'Body (JSON)',labelRespHeaders:'Response Headers',labelRespBody:'Response Body',btnSend:'Send Request',btnClear:'Clear',btnCopyResp:'Copy',loading:'Sending...',copied:'Copied ✓',
-    corsMsg:'⚠️ CORS Error: This API cannot be called directly from the browser due to browser security policy. Add CORS headers to the server, or call it server-side.',errMsg:'Request failed: ',
-    seoHtml:`<h2>API Tester</h2><p>Test HTTP API requests directly from the browser. Supports GET, POST, PUT, PATCH, DELETE, custom headers, and JSON body. See response status code, headers, and body instantly. Note: <strong>CORS policy</strong> may block some APIs from being called in the browser.</p>
+    corsMsg:'⚠️ Request failed: this could be a CORS block, a mistyped URL, a server that’s down, or a network issue. fetch() intentionally doesn’t distinguish between these for security reasons. If it’s CORS, add an Access-Control-Allow-Origin header on the server, or call the API server-side instead.',errMsg:'Request failed: ',
+    seoHtml:`<h2>API Tester</h2><p>Sends HTTP API requests directly through the browser's built-in fetch(). Build a method, headers, and JSON body, send the request, and see the response status code, headers, and body instantly — if the response Content-Type is application/json, it's auto-formatted with indentation. The request body is sent as typed not just for POST/PUT/PATCH but also for <strong>DELETE</strong>, since DELETE is allowed to carry a body per the HTTP spec and some APIs (bulk-delete endpoints, for instance) actually rely on it. When a request fails, the browser doesn't distinguish between "blocked by CORS policy" and "a plain connection failure" (typo'd URL, server down, network dropped) for security reasons — both throw the same generic TypeError — so this tool shows one message covering both possibilities rather than guessing which one it was. Every request goes straight from your browser to the API server; none of it passes through this site's server.</p>
 <h2 class="seo-sub">FAQ</h2>
-<details class="faq-item"><summary>Why do I get a CORS error?</summary><p>Browsers check CORS headers when calling APIs on other domains. The server must set Access-Control-Allow-Origin headers.</p></details>
-<details class="faq-item"><summary>Can I test authenticated APIs?</summary><p>Yes. Add a Bearer Token or API key in the Authorization header.</p></details>
-<details class="faq-item"><summary>Is JSON response auto-formatted?</summary><p>Yes. If the response Content-Type is application/json, the body is automatically pretty-printed.</p></details>
-<details class="faq-item"><summary>Can I test HTTPS APIs?</summary><p>Yes. Enter an HTTPS URL and test immediately.</p></details>
-<details class="faq-item"><summary>Is data sent securely?</summary><p>Requests go directly from your browser to the API server — not through this site&apos;s server.</p></details>
-<details class="faq-item"><summary>Is there a request timeout?</summary><p>The browser&apos;s default timeout applies. Long responses may be aborted automatically.</p></details>
-<details class="faq-item"><summary>Can I see all response headers?</summary><p>Some headers may be hidden due to CORS policy restrictions in the browser.</p></details>
-<details class="faq-item"><summary>What format should the POST body be?</summary><p>Use JSON format. Also set the Content-Type: application/json header.</p></details>`
+<details class="faq-item"><summary>Why do I get a CORS error?</summary><p>When a page calls an API on a different origin (domain, port, or protocol) via fetch, the browser blocks the response from reaching your JavaScript unless the response includes an Access-Control-Allow-Origin header. The server has to set that header explicitly for browser-side calls to work.</p></details>
+<details class="faq-item"><summary>Does a "Request failed" message always mean CORS?</summary><p>Not necessarily. For security reasons, fetch() treats a CORS block and a plain network error (typo'd URL, server down, DNS failure, calling an HTTP API from an HTTPS page, etc.) identically — both surface as the same generic TypeError. Since this tool can't tell which one actually happened, it shows a message covering both possibilities instead of guessing.</p></details>
+<details class="faq-item"><summary>Can a DELETE request carry a body?</summary><p>Yes. DELETE is allowed to have a request body per the HTTP spec, and some real-world APIs (bulk-delete endpoints that take a list of IDs, for example) actually require it. This tool sends whatever you typed in the body field for DELETE, the same as it does for POST/PUT/PATCH.</p></details>
+<details class="faq-item"><summary>Can I test authenticated APIs?</summary><p>Yes — add a Bearer Token or API key in the Authorization header. Just add a header row and enter the key/value.</p></details>
+<details class="faq-item"><summary>Is JSON response auto-formatted?</summary><p>The response body is run through JSON.parse; if that succeeds, it's reformatted with 2-space indentation. If it fails (HTML, plain text, etc.), the raw response is shown as-is.</p></details>
+<details class="faq-item"><summary>Is data sent securely?</summary><p>Requests go directly from your browser to the API server, not through this site's server. That said, the URL, headers, and body you enter (including any tokens) live only in browser memory and disappear on refresh.</p></details>
+<details class="faq-item"><summary>Can I see all response headers?</summary><p>No. Under the CORS spec, browsers only expose a small set of "safe" headers to JavaScript by default (Cache-Control, Content-Type, etc.) — custom headers stay hidden unless the server explicitly lists them in Access-Control-Expose-Headers.</p></details>
+<details class="faq-item"><summary>Is there a request timeout?</summary><p>This tool doesn't set one itself — it follows the browser's default fetch behavior, so an API with an extremely slow response could keep it waiting indefinitely.</p></details>`
   },
   zh:{pageTitle:'API测试器 - 在浏览器中测试HTTP请求 | MODOO HUB',h1b:'测试器',sub:'直接在浏览器中测试HTTP API请求',backLink:'← 所有工具',langBtn:'🌐 日本語',labelBody:'请求体 (JSON)',labelRespHeaders:'响应头',labelRespBody:'响应体',btnSend:'发送请求',btnClear:'清除',btnCopyResp:'复制',loading:'请求中...',copied:'已复制 ✓',
-    corsMsg:'⚠️ CORS错误：由于浏览器安全策略，此API无法直接从浏览器调用。请在服务器添加CORS头，或在服务器端调用。',errMsg:'请求失败：',
-    seoHtml:`<h2>API测试器</h2><p>直接在浏览器中测试HTTP API请求。支持GET、POST、PUT、PATCH、DELETE方法，自定义请求头和JSON请求体。即时查看响应状态码、响应头和响应体。注意：CORS策略可能阻止某些API在浏览器中直接调用。</p>
+    corsMsg:'⚠️ 请求失败：可能是被CORS策略拦截，也可能是URL拼写错误、服务器宕机或网络问题。出于安全考虑，fetch()不会区分具体是哪种原因。如果是CORS问题，请在服务器添加Access-Control-Allow-Origin头，或改为在服务器端调用。',errMsg:'请求失败：',
+    seoHtml:`<h2>API测试器</h2><p>通过浏览器内置的fetch()直接发送HTTP API请求。设置方法、请求头和JSON请求体后发送，即可立即查看响应状态码、响应头和响应体；如果响应Content-Type是application/json，会自动缩进格式化。请求体不仅在POST、PUT、PATCH时按输入内容发送，<strong>DELETE</strong>也一样——因为HTTP规范允许DELETE携带请求体，一些API（例如批量删除接口）实际上依赖这一点。请求失败时，出于安全考虑，浏览器不会区分"被CORS策略拦截"和"单纯的连接失败"（URL拼写错误、服务器宕机、网络中断等），两者都会抛出同样通用的TypeError，因此本工具也不会猜测具体原因，而是用一条消息同时说明这两种可能性。所有请求都从浏览器直接发送到API服务器，不经过本站服务器。</p>
 <h2 class="seo-sub">常见问题</h2>
-<details class="faq-item"><summary>为什么会出现CORS错误？</summary><p>浏览器在调用其他域的API时会检查CORS头。服务器必须设置Access-Control-Allow-Origin头。</p></details>
-<details class="faq-item"><summary>可以测试需要认证的API吗？</summary><p>可以，在Authorization请求头中添加Bearer Token或API密钥。</p></details>
-<details class="faq-item"><summary>JSON响应会自动格式化吗？</summary><p>是的，如果响应Content-Type是application/json，会自动格式化显示。</p></details>
-<details class="faq-item"><summary>可以测试HTTPS API吗？</summary><p>可以，输入HTTPS URL即可测试。</p></details>
-<details class="faq-item"><summary>数据传输安全吗？</summary><p>请求从浏览器直接发送到API服务器，不经过本站服务器。</p></details>
-<details class="faq-item"><summary>有请求超时吗？</summary><p>适用浏览器默认超时，长时间无响应可能自动中断。</p></details>
-<details class="faq-item"><summary>能看到所有响应头吗？</summary><p>由于CORS策略，某些响应头可能在浏览器中无法显示。</p></details>
-<details class="faq-item"><summary>POST请求体格式是什么？</summary><p>使用JSON格式，同时建议设置Content-Type: application/json请求头。</p></details>`
+<details class="faq-item"><summary>为什么会出现CORS错误？</summary><p>当页面通过fetch调用不同源（域名、端口或协议不同）的API时，如果响应中没有Access-Control-Allow-Origin头，浏览器会阻止响应内容传递给JavaScript。服务器必须显式设置该头，浏览器端才能直接调用成功。</p></details>
+<details class="faq-item"><summary>出现"请求失败"提示就一定是CORS问题吗？</summary><p>不一定。出于安全考虑，fetch()对CORS拦截和单纯的网络错误（URL拼写错误、服务器宕机、DNS失败、在HTTPS页面调用HTTP接口等）一视同仁，都抛出同样通用的TypeError。由于本工具无法判断具体是哪种情况，因此会用同一条消息说明这两种可能性，而不是妄下结论。</p></details>
+<details class="faq-item"><summary>DELETE请求也能携带请求体吗？</summary><p>可以。HTTP规范允许DELETE携带请求体，实际也存在依赖这一点的API（例如接收待删除ID列表的批量删除接口）。本工具在选择DELETE时会像POST、PUT、PATCH一样，按输入内容原样发送请求体。</p></details>
+<details class="faq-item"><summary>可以测试需要认证的API吗？</summary><p>可以，在Authorization请求头中添加Bearer Token或API密钥即可，添加一行请求头并填入键/值即可。</p></details>
+<details class="faq-item"><summary>JSON响应会自动格式化吗？</summary><p>会对响应体尝试JSON.parse，成功则用2格缩进重新格式化；失败（如HTML、纯文本等）则原样显示原始内容。</p></details>
+<details class="faq-item"><summary>数据传输安全吗？</summary><p>请求从浏览器直接发送到API服务器，不经过本站服务器。不过你输入的URL、请求头、请求体（包括其中的令牌等敏感信息）只存在于浏览器内存中，刷新页面即消失。</p></details>
+<details class="faq-item"><summary>能看到所有响应头吗？</summary><p>不能。根据CORS规范，浏览器默认只向JavaScript暴露少数"安全"的响应头（如Cache-Control、Content-Type等），除非服务器通过Access-Control-Expose-Headers明确列出，否则自定义响应头不可见。</p></details>
+<details class="faq-item"><summary>有请求超时吗？</summary><p>本工具本身不设置超时，遵循浏览器fetch的默认行为，因此响应极慢的API可能会导致无限期等待。</p></details>`
   },
   ja:{pageTitle:'APIテスター - ブラウザからHTTPリクエストをテスト | MODOO HUB',h1b:'テスター',sub:'ブラウザから直接HTTP APIリクエストをテスト',backLink:'← ホーム',langBtn:'🌐 한국어',labelBody:'ボディ (JSON)',labelRespHeaders:'レスポンスヘッダー',labelRespBody:'レスポンスボディ',btnSend:'リクエスト送信',btnClear:'クリア',btnCopyResp:'コピー',loading:'送信中...',copied:'コピー完了 ✓',
-    corsMsg:'⚠️ CORSエラー：ブラウザのセキュリティポリシーにより、このAPIはブラウザから直接呼び出せません。サーバーにCORSヘッダーを追加するか、サーバーサイドから呼び出してください。',errMsg:'リクエスト失敗：',
-    seoHtml:`<h2>APIテスターとは</h2><p>ブラウザから直接HTTP APIリクエストをテストします。GET・POST・PUT・PATCH・DELETEメソッド、カスタムヘッダー、JSONボディをサポート。レスポンスのステータスコード・ヘッダー・ボディを即座に確認できます。CORSポリシーにより一部のAPIはブラウザから直接呼び出せない場合があります。</p>
+    corsMsg:'⚠️ リクエストが失敗しました:CORSブロック、URLの誤り、サーバーダウン、ネットワークの問題のいずれかが考えられます。セキュリティ上の理由からfetch()はこれらを区別して通知しません。CORSが原因の場合は、サーバーにAccess-Control-Allow-Originヘッダーを追加するか、サーバーサイドから呼び出してください。',errMsg:'リクエスト失敗：',
+    seoHtml:`<h2>APIテスターとは</h2><p>ブラウザ内蔵のfetch()を使ってHTTP APIリクエストを直接送信します。メソッド・ヘッダー・JSONボディを組み立てて送信すると、レスポンスのステータスコード・ヘッダー・ボディを即座に確認でき、レスポンスのContent-Typeがapplication/jsonの場合は自動でインデント整形されます。リクエストボディはPOST・PUT・PATCHだけでなく<strong>DELETE</strong>でも入力した内容がそのまま送信されます——HTTP仕様上DELETEもボディを持つことができ、一括削除エンドポイントなど実際にこれを利用するAPIが存在するためです。リクエストが失敗した場合、セキュリティ上の理由からブラウザは「CORSポリシーによるブロック」と「URLの誤り・サーバーダウン・ネットワーク切断といった単純な接続失敗」を区別せず、どちらも同じ汎用的なTypeErrorとして扱います。そのため本ツールも原因を特定せず、両方の可能性を併記したメッセージを表示します。すべてのリクエストは本サイトのサーバーを経由せず、ブラウザからAPIサーバーへ直接送信されます。</p>
 <h2 class="seo-sub">よくある質問</h2>
-<details class="faq-item"><summary>CORSエラーが発生する理由は？</summary><p>ブラウザは他のドメインのAPIを呼び出す際にCORSヘッダーを確認します。サーバーがAccess-Control-Allow-Originヘッダーを設定する必要があります。</p></details>
-<details class="faq-item"><summary>認証が必要なAPIもテストできますか？</summary><p>はい。AuthorizationヘッダーにBearer TokenやAPIキーを追加してテストできます。</p></details>
-<details class="faq-item"><summary>JSONレスポンスは自動でフォーマットされますか？</summary><p>はい。レスポンスのContent-Typeがapplication/jsonの場合、自動でpretty-printします。</p></details>
-<details class="faq-item"><summary>HTTPS APIもテストできますか？</summary><p>はい。HTTPS URLを入力してすぐにテストできます。</p></details>
-<details class="faq-item"><summary>データは安全に送信されますか？</summary><p>リクエストはブラウザから直接APIサーバーに送信され、このサイトのサーバーを経由しません。</p></details>
-<details class="faq-item"><summary>タイムアウトはありますか？</summary><p>ブラウザのデフォルトタイムアウトが適用されます。</p></details>
-<details class="faq-item"><summary>すべてのレスポンスヘッダーを見られますか？</summary><p>CORSポリシーにより一部ヘッダーはブラウザで表示されない場合があります。</p></details>
-<details class="faq-item"><summary>POSTボディの形式は？</summary><p>JSON形式を使用してください。Content-Type: application/jsonヘッダーも設定することを推奨します。</p></details>`
+<details class="faq-item"><summary>CORSエラーが発生する理由は？</summary><p>ページがfetchで別オリジン(ドメイン・ポート・プロトコルのいずれかが異なる)のAPIを呼び出す際、レスポンスにAccess-Control-Allow-Originヘッダーがないと、ブラウザはレスポンス内容をJavaScriptに渡さずブロックします。サーバー側でこのヘッダーを明示的に設定して初めてブラウザから直接呼び出せます。</p></details>
+<details class="faq-item"><summary>「リクエスト失敗」と表示されたら必ずCORSが原因ですか？</summary><p>そうとは限りません。セキュリティ上の理由から、fetch()はCORSブロックと純粋なネットワークエラー(URLの誤り、サーバーダウン、DNS失敗、HTTPSページからHTTP APIを呼び出す場合など)を区別せず、どちらも同じ汎用的なTypeErrorとして扱います。本ツールも原因を特定できないため、両方の可能性を併記したメッセージを表示しています。</p></details>
+<details class="faq-item"><summary>DELETEリクエストにもボディを送信できますか？</summary><p>はい。HTTP仕様上DELETEもリクエストボディを持つことができ、一括削除のように削除対象のリストをボディで受け取る実際のAPIも存在します。本ツールはDELETEを選択した場合もPOST・PUT・PATCHと同様、入力したボディをそのまま送信します。</p></details>
+<details class="faq-item"><summary>認証が必要なAPIもテストできますか？</summary><p>はい。AuthorizationヘッダーにBearer TokenやAPIキーを追加してテストできます。ヘッダー行を追加してキー/値を入力するだけです。</p></details>
+<details class="faq-item"><summary>JSONレスポンスは自動でフォーマットされますか？</summary><p>レスポンスボディをJSON.parseで試み、成功すればスペース2つのインデントで再フォーマットします。失敗する場合(HTML、プレーンテキストなど)は元の内容をそのまま表示します。</p></details>
+<details class="faq-item"><summary>データは安全に送信されますか？</summary><p>リクエストはブラウザから直接APIサーバーに送信され、このサイトのサーバーを経由しません。ただし入力したURL・ヘッダー・ボディ(トークンなどの機密情報を含む)はブラウザのメモリ内にのみ存在し、リロードすると消えます。</p></details>
+<details class="faq-item"><summary>すべてのレスポンスヘッダーを見られますか？</summary><p>いいえ。CORS仕様上、ブラウザはデフォルトでCache-ControlやContent-Typeなど一部の「安全な」ヘッダーのみJavaScriptに公開し、サーバーがAccess-Control-Expose-Headersで明示しないカスタムヘッダーは見えません。</p></details>
+<details class="faq-item"><summary>タイムアウトはありますか？</summary><p>本ツール自体はタイムアウトを設定しておらず、ブラウザのfetchのデフォルト動作に従います。応答が非常に遅いAPIの場合、無期限に待機し続ける可能性があります。</p></details>`
   }
 };
 const LANGS=['ko','en','zh','ja'];
@@ -158,7 +158,7 @@ async function sendReq(){
   document.getElementById('loadingEl').style.display='';document.getElementById('respPanel').style.display='none';document.getElementById('corsWarn').style.display='none';
   try{
     const opts={method,headers};
-    if(body&&['POST','PUT','PATCH'].includes(method))opts.body=body;
+    if(body&&['POST','PUT','PATCH','DELETE'].includes(method))opts.body=body;
     const r=await fetch(url,opts);
     const respText=await r.text();
     let respBody=respText;try{respBody=JSON.stringify(JSON.parse(respText),null,2);}catch{}
@@ -169,7 +169,7 @@ async function sendReq(){
     document.getElementById('respBody').textContent=respBody;
     document.getElementById('respPanel').style.display='';
   }catch(e){
-    if(e.name==='TypeError'&&e.message.toLowerCase().includes('failed to fetch')){
+    if(e.name==='TypeError'){
       document.getElementById('corsWarn').textContent=t.corsMsg;document.getElementById('corsWarn').style.display='';
     }else{document.getElementById('corsWarn').textContent=t.errMsg+e.message;document.getElementById('corsWarn').style.display='';}
   }finally{document.getElementById('loadingEl').style.display='none';}

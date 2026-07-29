@@ -20,7 +20,7 @@
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Bcrypt Validator","url":"https://modoohub.com/bcrypt-validator.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Verify a password against a bcrypt hash online. Compare plain text password with stored bcrypt hash securely."}</script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"bcrypt 검증은 어떻게 작동하나요?","acceptedAnswer":{"@type":"Answer","text":"bcrypt.compare()는 입력 비밀번호를 해시에 내장된 salt로 해싱한 후 저장된 해시와 비교합니다. 평문 비교가 아니라 해시 비교입니다."}},{"@type":"Question","name":"같은 비밀번호인데 다른 해시가 나오는 이유는?","acceptedAnswer":{"@type":"Answer","text":"bcrypt은 매 해시마다 랜덤 salt를 사용합니다. 같은 비밀번호도 다른 해시를 생성하지만, bcrypt.compare()로 올바르게 검증할 수 있습니다."}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"bcrypt 검증은 어떻게 작동하나요?","acceptedAnswer":{"@type":"Answer","text":"해시 문자열 앞부분(버전+cost+salt, 총 29자)을 그대로 salt로 재사용해 입력 비밀번호를 동일한 cost로 다시 해싱하고, 그 결과를 저장된 해시의 나머지 부분과 비교합니다."}},{"@type":"Question","name":"bcrypt 해시 버전(2, 2a, 2b, 2x, 2y)은 다 검증되나요?","acceptedAnswer":{"@type":"Answer","text":"네. $2, $2a$, $2b$, $2x$, $2y$ 접두사를 모두 인식합니다. 특히 PHP password_hash()가 기본 생성하는 $2y$ 형식도 형식 오류 없이 검증됩니다."}},{"@type":"Question","name":"비밀번호와 해시가 서버로 전송되나요?","acceptedAnswer":{"@type":"Answer","text":"아니요. bcryptjs 라이브러리가 브라우저에서만 실행되며 입력값은 네트워크로 전송되지 않습니다."}},{"@type":"Question","name":"bcrypt 검증 시간은 얼마나 걸리나요?","acceptedAnswer":{"@type":"Answer","text":"cost 10 기준 약 100ms, cost 12는 약 400ms입니다. cost가 높을수록 의도적으로 느려지도록 설계된 정상 동작입니다."}}]}</script>
 <meta property="og:type" content="website">
 <meta property="og:title" content="Bcrypt 검증기 - 비밀번호 bcrypt 해시 비교 | MODOO HUB">
 <meta property="og:description" content="비밀번호와 bcrypt 해시를 비교해 일치 여부 확인. 온라인 Bcrypt Password Validator.">
@@ -54,66 +54,66 @@
     <div id="resultBox"></div>
     <div id="hashInfoBox"></div>
   </div>
-  <div class="seo" id="seoDiv"><h2>Bcrypt 검증기란?</h2><p>bcrypt.compare()를 사용해 평문 비밀번호와 저장된 bcrypt 해시를 비교합니다. bcrypt 해시에 내장된 <strong>salt를 자동 추출</strong>해 검증하므로, 원본 salt를 따로 저장할 필요가 없습니다. 로그인 구현, bcrypt 라이브러리 테스트에 유용합니다.</p>
+  <div class="seo" id="seoDiv"><h2>Bcrypt 검증기란?</h2><p>bcryptjs 라이브러리의 bcrypt.compare()로 평문 비밀번호와 저장된 bcrypt 해시를 비교합니다. bcrypt 해시 문자열 자체가 <code>$버전$cost$salt+해시결과</code> 구조라 salt가 이미 해시 안에 내장되어 있으므로, compare() 내부에서 해시 앞부분(첫 29자)을 salt로 그대로 재사용해 같은 조건으로 다시 해싱한 뒤 나머지 부분과 비교합니다. 입력 형식 검사는 <code>$2</code>, <code>$2a$</code>, <code>$2b$</code>, <code>$2x$</code>, <code>$2y$</code> 버전 접두사를 모두 허용하는데, 특히 <strong>$2y$</strong>는 PHP의 password_hash()가 기본으로 생성하는 형식이라 Laravel·WordPress 등 PHP 기반 서비스의 해시를 그대로 붙여넣어 검증할 수 있어야 합니다. 로그인 구현이나 bcrypt 라이브러리 동작 테스트에 유용하며, 비밀번호와 해시는 브라우저 안에서만 처리되고 서버로 전송되지 않습니다.</p>
 <h2 class="seo-sub">자주 묻는 질문</h2>
-<details class="faq-item"><summary>bcrypt 검증은 어떻게 작동하나요?</summary><p>해시에서 salt를 추출해 입력 비밀번호를 같은 salt로 해싱 후 저장 해시와 비교합니다.</p></details>
-<details class="faq-item"><summary>같은 비밀번호인데 왜 검증에 실패하나요?</summary><p>bcrypt 해시가 올바른지 확인하세요. 대소문자, 공백, 특수문자가 정확히 일치해야 합니다.</p></details>
-<details class="faq-item"><summary>비밀번호와 해시가 서버로 전송되나요?</summary><p>아니요. bcryptjs 라이브러리가 브라우저에서만 실행됩니다.</p></details>
-<details class="faq-item"><summary>bcrypt 해시 형식이 $2a$, $2b$로 다른 이유는?</summary><p>$2a$, $2b$는 bcrypt 알고리즘 버전입니다. $2b$가 더 최신이며 일부 경계 케이스를 수정했습니다. 모두 bcrypt.compare()로 검증 가능합니다.</p></details>
-<details class="faq-item"><summary>검증 속도가 느린 이유는?</summary><p>bcrypt는 의도적으로 느리게 설계되어 있습니다. cost factor가 높을수록 더 느립니다.</p></details>
-<details class="faq-item"><summary>bcrypt 검증 시간은 얼마나 걸리나요?</summary><p>cost 10 기준 약 100ms, cost 12는 약 400ms입니다. 정상적인 동작입니다.</p></details>
-<details class="faq-item"><summary>해시를 생성하려면?</summary><p>bcrypt-generator 도구에서 비밀번호를 bcrypt 해시로 변환할 수 있습니다.</p></details>
-<details class="faq-item"><summary>bcrypt 검증이 실패하는 일반적인 원인은?</summary><p>잘못된 비밀번호, 손상된 해시, 비밀번호 앞뒤 공백, 해시 잘림 등이 원인일 수 있습니다.</p></details></div>
+<details class="faq-item"><summary>bcrypt 검증은 어떻게 작동하나요?</summary><p>해시 문자열 앞부분(버전+cost+salt, 총 29자)을 그대로 salt로 재사용해 입력 비밀번호를 동일한 cost로 다시 해싱하고, 그 결과를 저장된 해시의 나머지 부분과 비교합니다. 평문끼리 비교하는 게 아니라 해시 결과끼리 비교하는 방식입니다.</p></details>
+<details class="faq-item"><summary>bcrypt 해시 버전(2, 2a, 2b, 2x, 2y)은 다 검증되나요?</summary><p>네, 이 도구는 $2$, $2a$, $2b$, $2x$, $2y$ 접두사를 모두 유효한 형식으로 인식합니다. 특히 PHP의 password_hash()가 기본 생성하는 $2y$ 형식은 실무에서 매우 흔하므로, Laravel·WordPress 등에서 가져온 해시도 형식 오류 없이 그대로 검증할 수 있습니다.</p></details>
+<details class="faq-item"><summary>같은 비밀번호인데 왜 검증에 실패하나요?</summary><p>bcrypt 해시 문자열이 정확한지 먼저 확인하세요. 해시는 버전·cost·salt·결과값이 하나로 이어진 문자열이라 한 글자만 달라져도 검증에 실패하며, 비밀번호의 대소문자·공백·특수문자도 정확히 일치해야 합니다.</p></details>
+<details class="faq-item"><summary>비밀번호와 해시가 서버로 전송되나요?</summary><p>아니요. bcryptjs 라이브러리가 브라우저에서만 실행되며 입력값은 네트워크로 전송되지 않습니다.</p></details>
+<details class="faq-item"><summary>검증 속도가 느린 이유는?</summary><p>bcrypt는 Blowfish 기반 키 스케줄을 cost factor에 지정된 횟수(2^cost번)만큼 반복해 의도적으로 느리게 설계되어 있습니다. 무차별 대입 공격 비용을 높이기 위한 설계이며, cost factor가 1 오를 때마다 연산량이 2배가 됩니다.</p></details>
+<details class="faq-item"><summary>bcrypt 검증 시간은 얼마나 걸리나요?</summary><p>일반적인 데스크톱 브라우저 기준 cost 10은 약 100ms, cost 12는 약 400ms 정도로, cost가 2 오르면 소요 시간이 대략 4배가 됩니다. 정상적인 동작이며 느려 보여도 오류가 아닙니다.</p></details>
+<details class="faq-item"><summary>해시를 생성하려면?</summary><p>bcrypt-generator 도구에서 비밀번호를 원하는 cost factor의 bcrypt 해시로 변환할 수 있습니다.</p></details>
+<details class="faq-item"><summary>bcrypt 검증이 실패하는 일반적인 원인은?</summary><p>잘못된 비밀번호, 복사 과정에서 손상되거나 잘린 해시, 비밀번호 앞뒤에 실수로 들어간 공백, 지원하지 않는 해시 알고리즘(bcrypt가 아닌 다른 형식)을 붙여넣은 경우 등이 흔한 원인입니다.</p></details></div>
 </main>
 <script>
 const _i18n={
   ko:{pageTitle:'Bcrypt 검증기 - 비밀번호 bcrypt 해시 비교 | MODOO HUB',h1b:'검증기',sub:'비밀번호와 bcrypt 해시 일치 여부 확인',backLink:'← 모두의 툴',langBtn:'🌐 EN',labelPwd:'비밀번호 (평문)',labelHash:'bcrypt 해시',btnVerify:'검증',btnClear:'초기화',loadMsg:'검증 중...',matchOk:'✓ 비밀번호 일치',matchFail:'✗ 비밀번호 불일치',invalidHash:'유효하지 않은 bcrypt 해시 형식',needBoth:'비밀번호와 해시를 모두 입력하세요.',
-    seoHtml:`<h2>Bcrypt 검증기란?</h2><p>bcrypt.compare()를 사용해 평문 비밀번호와 저장된 bcrypt 해시를 비교합니다. bcrypt 해시에 내장된 <strong>salt를 자동 추출</strong>해 검증하므로, 원본 salt를 따로 저장할 필요가 없습니다. 로그인 구현, bcrypt 라이브러리 테스트에 유용합니다.</p>
+    seoHtml:`<h2>Bcrypt 검증기란?</h2><p>bcryptjs 라이브러리의 bcrypt.compare()로 평문 비밀번호와 저장된 bcrypt 해시를 비교합니다. bcrypt 해시 문자열 자체가 <code>$버전$cost$salt+해시결과</code> 구조라 salt가 이미 해시 안에 내장되어 있으므로, compare() 내부에서 해시 앞부분(첫 29자)을 salt로 그대로 재사용해 같은 조건으로 다시 해싱한 뒤 나머지 부분과 비교합니다. 입력 형식 검사는 <code>$2</code>, <code>$2a$</code>, <code>$2b$</code>, <code>$2x$</code>, <code>$2y$</code> 버전 접두사를 모두 허용하는데, 특히 <strong>$2y$</strong>는 PHP의 password_hash()가 기본으로 생성하는 형식이라 Laravel·WordPress 등 PHP 기반 서비스의 해시를 그대로 붙여넣어 검증할 수 있어야 합니다. 로그인 구현이나 bcrypt 라이브러리 동작 테스트에 유용하며, 비밀번호와 해시는 브라우저 안에서만 처리되고 서버로 전송되지 않습니다.</p>
 <h2 class="seo-sub">자주 묻는 질문</h2>
-<details class="faq-item"><summary>bcrypt 검증은 어떻게 작동하나요?</summary><p>해시에서 salt를 추출해 입력 비밀번호를 같은 salt로 해싱 후 저장 해시와 비교합니다.</p></details>
-<details class="faq-item"><summary>같은 비밀번호인데 왜 검증에 실패하나요?</summary><p>bcrypt 해시가 올바른지 확인하세요. 대소문자, 공백, 특수문자가 정확히 일치해야 합니다.</p></details>
-<details class="faq-item"><summary>비밀번호와 해시가 서버로 전송되나요?</summary><p>아니요. bcryptjs 라이브러리가 브라우저에서만 실행됩니다.</p></details>
-<details class="faq-item"><summary>bcrypt 해시 형식이 $2a$, $2b$로 다른 이유는?</summary><p>$2a$, $2b$는 bcrypt 알고리즘 버전입니다. $2b$가 더 최신이며 일부 경계 케이스를 수정했습니다. 모두 bcrypt.compare()로 검증 가능합니다.</p></details>
-<details class="faq-item"><summary>검증 속도가 느린 이유는?</summary><p>bcrypt는 의도적으로 느리게 설계되어 있습니다. cost factor가 높을수록 더 느립니다.</p></details>
-<details class="faq-item"><summary>bcrypt 검증 시간은 얼마나 걸리나요?</summary><p>cost 10 기준 약 100ms, cost 12는 약 400ms입니다. 정상적인 동작입니다.</p></details>
-<details class="faq-item"><summary>해시를 생성하려면?</summary><p>bcrypt-generator 도구에서 비밀번호를 bcrypt 해시로 변환할 수 있습니다.</p></details>
-<details class="faq-item"><summary>bcrypt 검증이 실패하는 일반적인 원인은?</summary><p>잘못된 비밀번호, 손상된 해시, 비밀번호 앞뒤 공백, 해시 잘림 등이 원인일 수 있습니다.</p></details>`
+<details class="faq-item"><summary>bcrypt 검증은 어떻게 작동하나요?</summary><p>해시 문자열 앞부분(버전+cost+salt, 총 29자)을 그대로 salt로 재사용해 입력 비밀번호를 동일한 cost로 다시 해싱하고, 그 결과를 저장된 해시의 나머지 부분과 비교합니다. 평문끼리 비교하는 게 아니라 해시 결과끼리 비교하는 방식입니다.</p></details>
+<details class="faq-item"><summary>bcrypt 해시 버전(2, 2a, 2b, 2x, 2y)은 다 검증되나요?</summary><p>네, 이 도구는 $2$, $2a$, $2b$, $2x$, $2y$ 접두사를 모두 유효한 형식으로 인식합니다. 특히 PHP의 password_hash()가 기본 생성하는 $2y$ 형식은 실무에서 매우 흔하므로, Laravel·WordPress 등에서 가져온 해시도 형식 오류 없이 그대로 검증할 수 있습니다.</p></details>
+<details class="faq-item"><summary>같은 비밀번호인데 왜 검증에 실패하나요?</summary><p>bcrypt 해시 문자열이 정확한지 먼저 확인하세요. 해시는 버전·cost·salt·결과값이 하나로 이어진 문자열이라 한 글자만 달라져도 검증에 실패하며, 비밀번호의 대소문자·공백·특수문자도 정확히 일치해야 합니다.</p></details>
+<details class="faq-item"><summary>비밀번호와 해시가 서버로 전송되나요?</summary><p>아니요. bcryptjs 라이브러리가 브라우저에서만 실행되며 입력값은 네트워크로 전송되지 않습니다.</p></details>
+<details class="faq-item"><summary>검증 속도가 느린 이유는?</summary><p>bcrypt는 Blowfish 기반 키 스케줄을 cost factor에 지정된 횟수(2^cost번)만큼 반복해 의도적으로 느리게 설계되어 있습니다. 무차별 대입 공격 비용을 높이기 위한 설계이며, cost factor가 1 오를 때마다 연산량이 2배가 됩니다.</p></details>
+<details class="faq-item"><summary>bcrypt 검증 시간은 얼마나 걸리나요?</summary><p>일반적인 데스크톱 브라우저 기준 cost 10은 약 100ms, cost 12는 약 400ms 정도로, cost가 2 오르면 소요 시간이 대략 4배가 됩니다. 정상적인 동작이며 느려 보여도 오류가 아닙니다.</p></details>
+<details class="faq-item"><summary>해시를 생성하려면?</summary><p>bcrypt-generator 도구에서 비밀번호를 원하는 cost factor의 bcrypt 해시로 변환할 수 있습니다.</p></details>
+<details class="faq-item"><summary>bcrypt 검증이 실패하는 일반적인 원인은?</summary><p>잘못된 비밀번호, 복사 과정에서 손상되거나 잘린 해시, 비밀번호 앞뒤에 실수로 들어간 공백, 지원하지 않는 해시 알고리즘(bcrypt가 아닌 다른 형식)을 붙여넣은 경우 등이 흔한 원인입니다.</p></details>`
   },
   en:{pageTitle:'Bcrypt Validator - Verify Passwords Against Bcrypt Hash | MODOO HUB',h1b:'Validator',sub:'Verify if a password matches a bcrypt hash',backLink:'← All Tools',langBtn:'🌐 中文',labelPwd:'Password (plaintext)',labelHash:'Bcrypt Hash',btnVerify:'Verify',btnClear:'Clear',loadMsg:'Verifying...',matchOk:'✓ Password MATCH',matchFail:'✗ Password MISMATCH',invalidHash:'Invalid bcrypt hash format',needBoth:'Enter both password and hash.',
-    seoHtml:`<h2>Bcrypt Validator</h2><p>Compares a plaintext password with a stored bcrypt hash using bcrypt.compare(). The hash contains an embedded salt — no need to store it separately. Useful for login implementation testing and bcrypt library verification.</p>
+    seoHtml:`<h2>Bcrypt Validator</h2><p>Compares a plaintext password with a stored bcrypt hash using the bcryptjs library's bcrypt.compare(). A bcrypt hash string has the structure <code>$version$cost$salt+hashresult</code>, so the salt is already embedded in the hash — compare() reuses the first 29 characters of the hash as the salt, re-hashes the input with the same cost, and compares the result against the rest of the string. Format validation accepts the <code>$2</code>, <code>$2a$</code>, <code>$2b$</code>, <code>$2x$</code>, and <code>$2y$</code> version prefixes; <strong>$2y$</strong> in particular is what PHP's password_hash() generates by default, so hashes pasted straight from Laravel, WordPress, or other PHP-based services need to verify without a format error. Useful for testing login implementations or bcrypt library behavior — the password and hash are processed entirely in your browser and never sent to a server.</p>
 <h2 class="seo-sub">FAQ</h2>
-<details class="faq-item"><summary>How does bcrypt verification work?</summary><p>The salt is extracted from the hash; the password is re-hashed with that salt and compared to the stored hash.</p></details>
-<details class="faq-item"><summary>Why does verification fail for the same password?</summary><p>Check the hash is correct — case, whitespace, and special chars must match exactly.</p></details>
-<details class="faq-item"><summary>Is the password sent to a server?</summary><p>No — bcryptjs runs entirely in the browser.</p></details>
-<details class="faq-item"><summary>Why $2a$ vs $2b$?</summary><p>These are bcrypt version identifiers. $2b$ is newer with a minor fix. Both work with bcrypt.compare().</p></details>
-<details class="faq-item"><summary>Why is verification slow?</summary><p>bcrypt is intentionally slow — this is a feature, not a bug. Higher cost factor = slower.</p></details>
-<details class="faq-item"><summary>How long does verification take?</summary><p>~100ms at cost 10, ~400ms at cost 12 — this is normal.</p></details>
-<details class="faq-item"><summary>How do I generate a hash?</summary><p>Use the bcrypt-generator tool to hash a password with bcrypt.</p></details>
-<details class="faq-item"><summary>Common reasons verification fails?</summary><p>Wrong password, corrupted hash, leading/trailing spaces, or a truncated hash.</p></details>`
+<details class="faq-item"><summary>How does bcrypt verification work?</summary><p>The first 29 characters of the hash (version + cost + salt) are reused as the salt, the input password is re-hashed at the same cost, and that result is compared against the rest of the stored hash. It's a hash-to-hash comparison, not a plaintext comparison.</p></details>
+<details class="faq-item"><summary>Are all bcrypt hash versions (2, 2a, 2b, 2x, 2y) supported?</summary><p>Yes — this tool recognizes $2, $2a$, $2b$, $2x$, and $2y$ as valid prefixes. $2y$ in particular, the default PHP password_hash() format, is extremely common in practice, so hashes copied from Laravel, WordPress, and similar PHP apps verify without a format error.</p></details>
+<details class="faq-item"><summary>Why does verification fail for the same password?</summary><p>First double-check the bcrypt hash string is exactly correct — since version, cost, salt, and result are all concatenated into one string, a single wrong character anywhere breaks verification. Case, whitespace, and special characters in the password must also match exactly.</p></details>
+<details class="faq-item"><summary>Is the password sent to a server?</summary><p>No — bcryptjs runs entirely in the browser, and nothing you enter is sent over the network.</p></details>
+<details class="faq-item"><summary>Why is verification slow?</summary><p>bcrypt deliberately runs a Blowfish-based key schedule 2^cost times, by design, to make brute-force attacks expensive. Each +1 to the cost factor doubles the amount of computation.</p></details>
+<details class="faq-item"><summary>How long does verification take?</summary><p>On a typical desktop browser, roughly 100ms at cost 10 and 400ms at cost 12 — each +2 to cost is about 4x slower. That's expected behavior, not an error.</p></details>
+<details class="faq-item"><summary>How do I generate a hash?</summary><p>Use the bcrypt-generator tool to hash a password at whatever cost factor you need.</p></details>
+<details class="faq-item"><summary>Common reasons verification fails?</summary><p>The wrong password, a hash that got corrupted or truncated during copy-paste, accidental leading/trailing spaces in the password, or pasting a hash from a different algorithm entirely (not bcrypt).</p></details>`
   },
   zh:{pageTitle:'Bcrypt验证器 - 密码与bcrypt哈希比较 | MODOO HUB',h1b:'验证器',sub:'验证密码是否与bcrypt哈希匹配',backLink:'← 所有工具',langBtn:'🌐 日本語',labelPwd:'密码（明文）',labelHash:'Bcrypt哈希',btnVerify:'验证',btnClear:'清除',loadMsg:'验证中...',matchOk:'✓ 密码匹配',matchFail:'✗ 密码不匹配',invalidHash:'无效的bcrypt哈希格式',needBoth:'请同时输入密码和哈希。',
-    seoHtml:`<h2>Bcrypt验证器</h2><p>使用bcrypt.compare()比较明文密码和存储的bcrypt哈希。哈希中内嵌了盐值，无需单独存储。适用于登录实现测试和bcrypt库验证。</p>
+    seoHtml:`<h2>Bcrypt验证器</h2><p>使用bcryptjs库的bcrypt.compare()比较明文密码和存储的bcrypt哈希。bcrypt哈希字符串本身是<code>$版本$cost$盐值+哈希结果</code>结构，盐值已经内嵌在哈希中，compare()内部会直接复用哈希前29个字符作为盐值，用相同条件重新哈希后与剩余部分比较。格式校验接受<code>$2</code>、<code>$2a$</code>、<code>$2b$</code>、<code>$2x$</code>、<code>$2y$</code>这几种版本前缀，其中<strong>$2y$</strong>是PHP的password_hash()默认生成的格式，因此从Laravel、WordPress等PHP服务复制来的哈希也应该能直接验证而不报格式错误。适用于登录实现测试和bcrypt库行为验证，密码和哈希只在浏览器内处理，不会发送到服务器。</p>
 <h2 class="seo-sub">常见问题</h2>
-<details class="faq-item"><summary>bcrypt验证如何工作？</summary><p>从哈希中提取盐值，用相同盐值重新哈希密码，与存储的哈希比较。</p></details>
-<details class="faq-item"><summary>为什么相同密码验证失败？</summary><p>检查哈希是否正确，大小写、空格和特殊字符必须完全匹配。</p></details>
-<details class="faq-item"><summary>密码会发送到服务器吗？</summary><p>不会，bcryptjs完全在浏览器中运行。</p></details>
-<details class="faq-item"><summary>$2a$与$2b$的区别？</summary><p>这是bcrypt版本标识符，$2b$是较新版本，修复了小问题。两者都可用bcrypt.compare()验证。</p></details>
-<details class="faq-item"><summary>为什么验证很慢？</summary><p>bcrypt故意设计为慢速，这是特性而非缺陷。cost factor越高越慢。</p></details>
-<details class="faq-item"><summary>验证需要多长时间？</summary><p>cost 10约100ms，cost 12约400ms，属正常行为。</p></details>
-<details class="faq-item"><summary>如何生成哈希？</summary><p>使用bcrypt-generator工具将密码转换为bcrypt哈希。</p></details>
-<details class="faq-item"><summary>验证失败的常见原因？</summary><p>密码错误、哈希损坏、前后有空格或哈希被截断。</p></details>`
+<details class="faq-item"><summary>bcrypt验证是如何工作的？</summary><p>直接复用哈希字符串前面部分（版本+cost+盐值，共29个字符）作为盐值，用相同cost重新哈希输入密码，再把结果与存储哈希的剩余部分比较。这是哈希结果之间的比较，而不是明文之间的比较。</p></details>
+<details class="faq-item"><summary>bcrypt的各个哈希版本（2、2a、2b、2x、2y）都能验证吗？</summary><p>可以，本工具将$2、$2a$、$2b$、$2x$、$2y$都识别为有效前缀。其中PHP的password_hash()默认生成的$2y$格式在实际场景中非常常见，因此从Laravel、WordPress等取来的哈希也能直接验证而不会报格式错误。</p></details>
+<details class="faq-item"><summary>为什么相同密码验证会失败？</summary><p>先检查bcrypt哈希字符串是否完全正确——版本、cost、盐值、结果值全部拼接成一个字符串，任何一个字符不同都会导致验证失败，密码中的大小写、空格、特殊字符也必须完全一致。</p></details>
+<details class="faq-item"><summary>密码会发送到服务器吗？</summary><p>不会，bcryptjs完全在浏览器中运行，输入内容不会通过网络发送。</p></details>
+<details class="faq-item"><summary>为什么验证很慢？</summary><p>bcrypt会按cost factor指定的次数（2^cost次）重复执行基于Blowfish的密钥调度，这是刻意设计成慢速以提高暴力破解成本，cost每增加1，运算量就翻倍。</p></details>
+<details class="faq-item"><summary>验证需要多长时间？</summary><p>在普通桌面浏览器上，cost 10约100ms，cost 12约400ms，cost每增加2大约慢4倍，这是正常行为，看起来慢并不代表出错。</p></details>
+<details class="faq-item"><summary>如何生成哈希？</summary><p>可以用bcrypt-generator工具，按需要的cost factor把密码转换成bcrypt哈希。</p></details>
+<details class="faq-item"><summary>验证失败的常见原因？</summary><p>密码错误、复制粘贴过程中损坏或被截断的哈希、密码前后不小心多出的空格，或粘贴了非bcrypt的其他算法哈希，都是常见原因。</p></details>`
   },
   ja:{pageTitle:'Bcrypt検証ツール - パスワードとbcryptハッシュの比較 | MODOO HUB',h1b:'検証ツール',sub:'パスワードとbcryptハッシュが一致するか確認',backLink:'← ホーム',langBtn:'🌐 한국어',labelPwd:'パスワード（平文）',labelHash:'bcryptハッシュ',btnVerify:'検証',btnClear:'クリア',loadMsg:'検証中...',matchOk:'✓ パスワード一致',matchFail:'✗ パスワード不一致',invalidHash:'無効なbcryptハッシュ形式',needBoth:'パスワードとハッシュの両方を入力してください。',
-    seoHtml:`<h2>Bcrypt検証ツールとは</h2><p>bcrypt.compare()を使って平文パスワードと保存されたbcryptハッシュを比較します。ハッシュにsaltが内蔵されているため、saltを別途保存する必要はありません。ログイン実装テストやbcryptライブラリの検証に便利です。</p>
+    seoHtml:`<h2>Bcrypt検証ツールとは</h2><p>bcryptjsライブラリのbcrypt.compare()を使って平文パスワードと保存されたbcryptハッシュを比較します。bcryptハッシュ文字列自体が<code>$バージョン$cost$salt+ハッシュ結果</code>という構造で、saltはすでにハッシュ内に埋め込まれているため、compare()内部ではハッシュの先頭29文字をそのままsaltとして再利用し、同じ条件で再ハッシュした結果を残りの部分と比較します。入力形式のチェックは<code>$2</code>、<code>$2a$</code>、<code>$2b$</code>、<code>$2x$</code>、<code>$2y$</code>のバージョン接頭辞をすべて許可しており、特に<strong>$2y$</strong>はPHPのpassword_hash()がデフォルトで生成する形式のため、Laravel・WordPressなどPHPベースのサービスから取得したハッシュもそのまま形式エラーなく検証できる必要があります。ログイン実装のテストやbcryptライブラリの動作確認に便利で、パスワードとハッシュはブラウザ内のみで処理され、サーバーには送信されません。</p>
 <h2 class="seo-sub">よくある質問</h2>
-<details class="faq-item"><summary>bcrypt検証の仕組みは？</summary><p>ハッシュからsaltを抽出し、同じsaltでパスワードを再ハッシュして保存ハッシュと比較します。</p></details>
-<details class="faq-item"><summary>同じパスワードなのに検証が失敗する理由は？</summary><p>ハッシュが正しいか確認してください。大文字小文字・空白・特殊文字が完全に一致する必要があります。</p></details>
-<details class="faq-item"><summary>パスワードはサーバーに送信されますか？</summary><p>いいえ。bcryptjsはブラウザ内のみで実行されます。</p></details>
-<details class="faq-item"><summary>$2a$と$2b$の違いは？</summary><p>bcryptバージョン識別子です。$2b$はより新しく、細かい修正が加えられています。どちらもbcrypt.compare()で検証できます。</p></details>
-<details class="faq-item"><summary>なぜ検証が遅いのですか？</summary><p>bcryptは意図的に遅く設計されています。cost factorが高いほど遅くなります。</p></details>
-<details class="faq-item"><summary>検証にかかる時間は？</summary><p>cost 10で約100ms、cost 12で約400ms — これは正常な動作です。</p></details>
-<details class="faq-item"><summary>ハッシュを生成するには？</summary><p>bcrypt-generatorツールでパスワードをbcryptハッシュに変換できます。</p></details>
-<details class="faq-item"><summary>検証失敗の一般的な原因は？</summary><p>パスワードの誤り、破損したハッシュ、前後の空白、ハッシュの切り捨てなどです。</p></details>`
+<details class="faq-item"><summary>bcrypt検証はどう動作しますか？</summary><p>ハッシュ文字列の先頭部分(バージョン+cost+salt、計29文字)をそのままsaltとして再利用し、入力パスワードを同じcostで再ハッシュして、その結果を保存ハッシュの残り部分と比較します。平文同士ではなく、ハッシュ結果同士の比較です。</p></details>
+<details class="faq-item"><summary>bcryptハッシュのバージョン(2、2a、2b、2x、2y)はすべて検証できますか？</summary><p>はい、本ツールは$2、$2a$、$2b$、$2x$、$2yのすべてを有効な接頭辞として認識します。特にPHPのpassword_hash()がデフォルトで生成する$2y$形式は実務で非常に多く使われるため、Laravel・WordPressなどから取得したハッシュも形式エラーなくそのまま検証できます。</p></details>
+<details class="faq-item"><summary>同じパスワードなのに検証が失敗する理由は？</summary><p>まずbcryptハッシュ文字列が正確かどうか確認してください。バージョン・cost・salt・結果値が1つの文字列に連結されているため、1文字でも異なると検証に失敗します。パスワードの大文字小文字・空白・特殊文字も完全に一致している必要があります。</p></details>
+<details class="faq-item"><summary>パスワードはサーバーに送信されますか？</summary><p>いいえ。bcryptjsはブラウザ内のみで実行され、入力内容はネットワークに送信されません。</p></details>
+<details class="faq-item"><summary>なぜ検証が遅いのですか？</summary><p>bcryptはBlowfishベースの鍵スケジュールをcost factorで指定された回数(2^cost回)だけ繰り返す設計になっており、総当たり攻撃のコストを高めるため意図的に遅くしています。costが1上がるごとに計算量は2倍になります。</p></details>
+<details class="faq-item"><summary>検証にかかる時間は？</summary><p>一般的なデスクトップブラウザではcost 10で約100ms、cost 12で約400ms程度で、costが2上がるごとに所要時間はおよそ4倍になります。これは正常な動作で、遅く感じてもエラーではありません。</p></details>
+<details class="faq-item"><summary>ハッシュを生成するには？</summary><p>bcrypt-generatorツールで、任意のcost factorでパスワードをbcryptハッシュに変換できます。</p></details>
+<details class="faq-item"><summary>検証失敗の一般的な原因は？</summary><p>パスワードの誤り、コピー時に破損・切り捨てられたハッシュ、パスワードの前後に誤って入った空白、bcrypt以外の別アルゴリズムのハッシュを貼り付けてしまった場合などがよくある原因です。</p></details>`
   }
 };
 const LANGS=['ko','en','zh','ja'];
@@ -130,7 +130,7 @@ function applyLang(){const t=_i18n[_lang];document.documentElement.lang=_lang;do
 async function verifyPwd(){
   const t=_i18n[_lang];const pwd=document.getElementById('pwdIn').value;const hash=document.getElementById('hashIn').value.trim();const rBox=document.getElementById('resultBox');const iBox=document.getElementById('hashInfoBox');
   if(!pwd||!hash){rBox.innerHTML=`<div class="result-box" style="color:var(--text-dim)">${t.needBoth}</div>`;iBox.innerHTML='';return;}
-  if(!/^\$2[ab]\$\d{2}\$/.test(hash)){rBox.innerHTML=`<div class="result-box match-fail">${t.invalidHash}</div>`;iBox.innerHTML='';return;}
+  if(!/^\$2[abxy]?\$\d{2}\$/.test(hash)){rBox.innerHTML=`<div class="result-box match-fail">${t.invalidHash}</div>`;iBox.innerHTML='';return;}
   document.getElementById('btnVerify').disabled=true;document.getElementById('loadMsg').style.display='';rBox.innerHTML='';iBox.innerHTML='';
   await new Promise(r=>setTimeout(r,10));
   const match=await bcrypt.compare(pwd,hash);
