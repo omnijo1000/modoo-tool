@@ -19,7 +19,7 @@
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"SQL to JSON Converter","url":"https://modoohub.com/sql-to-json.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Convert SQL INSERT statements or CSV data to JSON array format online."}</script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"SQL INSERT를 JSON으로 어떻게 변환하나요?","acceptedAnswer":{"@type":"Answer","text":"INSERT INTO 테이블명 (컬럼1, 컬럼2) VALUES (값1, 값2); 형식의 SQL을 붙여넣으면 JSON 배열로 자동 변환됩니다."}},{"@type":"Question","name":"어떤 입력 형식을 지원하나요?","acceptedAnswer":{"@type":"Answer","text":"SQL INSERT 문과 CSV(첫 줄 헤더) 형식을 지원합니다."}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"SQL에서 이스케이프된 작은따옴표('')가 실제로 보존되나요?","acceptedAnswer":{"@type":"Answer","text":"아니요. 두 번 겹친 작은따옴표는 파서가 문자열 종료로 오인해 문자가 통째로 사라집니다."}},{"@type":"Question","name":"한 값 안에 작은따옴표와 큰따옴표를 섞어 쓰면 어떻게 되나요?","acceptedAnswer":{"@type":"Answer","text":"두 따옴표 종류를 구분하지 않는 공유 플래그 때문에 내부 쉼표가 필드 구분자로 잘못 처리될 수 있습니다."}},{"@type":"Question","name":"INSERT 문을 여러 개 붙여넣으면 각각의 컬럼명이 정확히 적용되나요?","acceptedAnswer":{"@type":"Answer","text":"아니요. 첫 번째 INSERT 문의 컬럼명만 읽어와 이후 모든 문장에 그대로 재사용합니다."}},{"@type":"Question","name":"어떤 입력 형식을 지원하나요?","acceptedAnswer":{"@type":"Answer","text":"SQL INSERT 문과 CSV(첫 줄 헤더) 형식을 지원합니다."}}]}</script>
 <meta property="og:type" content="website">
 <meta property="og:title" content="SQL to JSON - SQL INSERT/CSV 데이터 → JSON 변환 | MODOO HUB">
 <meta property="og:description" content="SQL INSERT 문 또는 CSV 형식 데이터를 JSON 배열로 변환. 온라인 SQL to JSON 컨버터.">
@@ -59,66 +59,66 @@
       </div>
     </div>
   </div>
-  <div class="seo" id="seoDiv"><h2>SQL to JSON 변환기</h2><p>SQL INSERT 문 또는 CSV 형식 데이터를 JSON 배열로 변환합니다. API 응답 시뮬레이션, 테스트 데이터 생성, 데이터 마이그레이션 등 다양한 용도로 활용합니다. <strong>INSERT INTO</strong> 구문의 컬럼명과 VALUES를 자동 파싱하고, CSV의 첫 번째 행을 헤더로 인식합니다.</p>
+  <div class="seo" id="seoDiv"><h2>SQL to JSON 변환기</h2><p>값을 나누는 <code>splitCSVLine</code> 함수는 문자를 하나씩 훑으며 따옴표를 만날 때마다 '따옴표 안' 여부를 나타내는 플래그 하나만 뒤집을 뿐, 따옴표 문자 자체는 결과에 포함하지 않습니다. 그래서 이후 코드에 있는 "값이 따옴표로 감싸여 있는지" 검사하는 정규식은 이미 따옴표가 다 제거된 값을 보게 되어 사실상 한 번도 참이 되지 않는 죽은 코드이며, <code>'O''Brien'</code>처럼 SQL에서 작은따옴표를 이스케이프하려고 두 번 겹쳐 쓴 부분은 보존되지 않고 통째로 사라져 "OBrien"이 됩니다. 또한 이 플래그는 작은따옴표와 큰따옴표를 구분하지 않고 공유하기 때문에, 한 값 안에 두 종류 따옴표가 섞여 있으면 그 안의 쉼표가 필드 구분자로 잘못 인식될 수 있습니다.</p>
 <h2 class="seo-sub">자주 묻는 질문</h2>
-<details class="faq-item"><summary>여러 VALUES가 있는 INSERT도 처리되나요?</summary><p>네. VALUES (a,b,c),(d,e,f); 와 같이 다중 행 INSERT를 지원합니다.</p></details>
-<details class="faq-item"><summary>NULL 값은 어떻게 처리되나요?</summary><p>SQL NULL은 JSON null로 변환됩니다.</p></details>
-<details class="faq-item"><summary>숫자와 문자열을 자동으로 인식하나요?</summary><p>따옴표 없는 숫자는 JSON number 타입으로, 따옴표로 감싼 값은 string 타입으로 처리합니다.</p></details>
-<details class="faq-item"><summary>CSV에서 첫 번째 행이 헤더인가요?</summary><p>네. CSV 모드에서는 첫 번째 행을 키 이름으로 사용합니다.</p></details>
-<details class="faq-item"><summary>서버로 데이터가 전송되나요?</summary><p>아니요. 모든 변환은 브라우저에서 이루어집니다.</p></details>
-<details class="faq-item"><summary>결과 JSON은 pretty-printed인가요?</summary><p>네. 2 스페이스 들여쓰기가 적용된 읽기 쉬운 형식으로 출력됩니다.</p></details>
-<details class="faq-item"><summary>특수문자가 포함된 문자열도 처리되나요?</summary><p>작은따옴표 이스케이프(&#39;&#39;)나 특수문자는 최대한 보존합니다.</p></details>
-<details class="faq-item"><summary>JSON 이외 형식도 지원할 예정인가요?</summary><p>현재 JSON만 지원합니다. 다른 도구를 이용해 추가 변환하세요.</p></details></div>
+<details class="faq-item"><summary>SQL에서 이스케이프된 작은따옴표('')가 실제로 보존되나요?</summary><p>아니요. <code>'O''Brien'</code>처럼 작은따옴표를 두 번 겹쳐 이스케이프한 부분은 문자를 하나씩 읽는 파서가 두 번째 따옴표까지 '따옴표 종료'로 오인해버려, 실제 아포스트로피 문자 없이 "OBrien"으로 통째로 사라집니다.</p></details>
+<details class="faq-item"><summary>"값이 따옴표로 감싸여 있는지" 판단하는 정규식이 실제로 동작하나요?</summary><p>사실상 동작하지 않습니다. 이 정규식이 검사하는 시점에는 이미 앞 단계의 문자 스캐너가 따옴표 문자를 전부 제거한 뒤이므로, 검사 대상 값에 따옴표가 남아있을 수 없어 이 조건은 항상 거짓이 되는 죽은 코드입니다.</p></details>
+<details class="faq-item"><summary>한 값 안에 작은따옴표와 큰따옴표를 섞어 쓰면 어떻게 되나요?</summary><p>문제가 생길 수 있습니다. '따옴표 안' 여부를 나타내는 플래그가 두 종류의 따옴표를 구분하지 않고 하나로 공유되므로, 큰따옴표로 감싼 값 안에 작은따옴표(아포스트로피)가 들어있으면 그 시점에 플래그가 꺼져버려 그 뒤에 나오는 쉼표가 필드 구분자로 잘못 처리될 수 있습니다.</p></details>
+<details class="faq-item"><summary>INSERT 문을 여러 개 한 번에 붙여넣으면 각각의 컬럼명이 정확히 적용되나요?</summary><p>아니요. 컬럼명은 입력에서 처음 매칭된 INSERT 문에서 딱 한 번만 읽어와 이후 발견되는 모든 INSERT 문에 그대로 재사용합니다. 서로 다른 테이블·컬럼 구성의 INSERT 문을 여러 개 붙여넣으면 두 번째 문장부터는 실제 컬럼명이 무시되고 첫 번째 문장의 컬럼명이 잘못 적용될 수 있습니다.</p></details>
+<details class="faq-item"><summary>NULL 값은 어떻게 처리되나요?</summary><p>따옴표 없이 쓰인 <code>NULL</code>(대소문자 무관)은 JSON의 <code>null</code>로 변환됩니다.</p></details>
+<details class="faq-item"><summary>숫자와 문자열은 실제로 어떤 기준으로 구분되나요?</summary><p>앞서 설명했듯 따옴표 유무로 문자열을 판별하는 코드는 죽어 있으므로, 실제로는 값이 숫자 형식 정규식(<code>-?\d+(\.\d+)?</code>)과 일치하는지만으로 숫자/문자열이 갈립니다. 숫자 패턴에 맞지 않고 NULL도 아니면 원래 따옴표로 감쌌든 아니든 그대로 문자열로 남습니다.</p></details>
+<details class="faq-item"><summary>CSV 모드에서 큰따옴표로 감싼 값 안의 쉼표도 안전하게 처리되나요?</summary><p>단순한 경우(따옴표 하나로만 감싸고 내부에 다른 따옴표가 없는 경우)는 안전하게 처리됩니다. 다만 이스케이프된 <code>""</code>(RFC 4180 방식)나 따옴표가 섞인 값은 위에서 설명한 것과 같은 방식으로 잘못 분리될 수 있습니다.</p></details>
+<details class="faq-item"><summary>변환 중에 데이터가 서버로 전송되나요?</summary><p>아니요. 정규식 파싱과 JSON 직렬화 모두 브라우저 안에서만 이루어지며, 입력한 SQL이나 CSV는 어디로도 전송되지 않습니다.</p></details></div>
 </main>
 <script>
 const _i18n={
   ko:{pageTitle:'SQL to JSON - SQL INSERT/CSV 데이터 → JSON 변환 | MODOO HUB',sub:'SQL INSERT 또는 CSV → JSON 배열 변환',backLink:'← 모두의 툴',langBtn:'🌐 EN',labelIn:'SQL 입력',labelOut:'JSON 출력',btnCopy:'복사',btnClear:'초기화',copied:'복사됨 ✓',rows:'행',
-    seoHtml:`<h2>SQL to JSON 변환기</h2><p>SQL INSERT 문 또는 CSV 형식 데이터를 JSON 배열로 변환합니다. API 응답 시뮬레이션, 테스트 데이터 생성, 데이터 마이그레이션 등 다양한 용도로 활용합니다. <strong>INSERT INTO</strong> 구문의 컬럼명과 VALUES를 자동 파싱하고, CSV의 첫 번째 행을 헤더로 인식합니다.</p>
+    seoHtml:`<h2>SQL to JSON 변환기</h2><p>값을 나누는 <code>splitCSVLine</code> 함수는 문자를 하나씩 훑으며 따옴표를 만날 때마다 '따옴표 안' 여부를 나타내는 플래그 하나만 뒤집을 뿐, 따옴표 문자 자체는 결과에 포함하지 않습니다. 그래서 이후 코드에 있는 "값이 따옴표로 감싸여 있는지" 검사하는 정규식은 이미 따옴표가 다 제거된 값을 보게 되어 사실상 한 번도 참이 되지 않는 죽은 코드이며, <code>'O''Brien'</code>처럼 SQL에서 작은따옴표를 이스케이프하려고 두 번 겹쳐 쓴 부분은 보존되지 않고 통째로 사라져 "OBrien"이 됩니다. 또한 이 플래그는 작은따옴표와 큰따옴표를 구분하지 않고 공유하기 때문에, 한 값 안에 두 종류 따옴표가 섞여 있으면 그 안의 쉼표가 필드 구분자로 잘못 인식될 수 있습니다.</p>
 <h2 class="seo-sub">자주 묻는 질문</h2>
-<details class="faq-item"><summary>여러 VALUES가 있는 INSERT도 처리되나요?</summary><p>네. VALUES (a,b,c),(d,e,f); 와 같이 다중 행 INSERT를 지원합니다.</p></details>
-<details class="faq-item"><summary>NULL 값은 어떻게 처리되나요?</summary><p>SQL NULL은 JSON null로 변환됩니다.</p></details>
-<details class="faq-item"><summary>숫자와 문자열을 자동으로 인식하나요?</summary><p>따옴표 없는 숫자는 JSON number 타입으로, 따옴표로 감싼 값은 string 타입으로 처리합니다.</p></details>
-<details class="faq-item"><summary>CSV에서 첫 번째 행이 헤더인가요?</summary><p>네. CSV 모드에서는 첫 번째 행을 키 이름으로 사용합니다.</p></details>
-<details class="faq-item"><summary>서버로 데이터가 전송되나요?</summary><p>아니요. 모든 변환은 브라우저에서 이루어집니다.</p></details>
-<details class="faq-item"><summary>결과 JSON은 pretty-printed인가요?</summary><p>네. 2 스페이스 들여쓰기가 적용된 읽기 쉬운 형식으로 출력됩니다.</p></details>
-<details class="faq-item"><summary>특수문자가 포함된 문자열도 처리되나요?</summary><p>작은따옴표 이스케이프(&#39;&#39;)나 특수문자는 최대한 보존합니다.</p></details>
-<details class="faq-item"><summary>JSON 이외 형식도 지원할 예정인가요?</summary><p>현재 JSON만 지원합니다. 다른 도구를 이용해 추가 변환하세요.</p></details>`
+<details class="faq-item"><summary>SQL에서 이스케이프된 작은따옴표('')가 실제로 보존되나요?</summary><p>아니요. <code>'O''Brien'</code>처럼 작은따옴표를 두 번 겹쳐 이스케이프한 부분은 문자를 하나씩 읽는 파서가 두 번째 따옴표까지 '따옴표 종료'로 오인해버려, 실제 아포스트로피 문자 없이 "OBrien"으로 통째로 사라집니다.</p></details>
+<details class="faq-item"><summary>"값이 따옴표로 감싸여 있는지" 판단하는 정규식이 실제로 동작하나요?</summary><p>사실상 동작하지 않습니다. 이 정규식이 검사하는 시점에는 이미 앞 단계의 문자 스캐너가 따옴표 문자를 전부 제거한 뒤이므로, 검사 대상 값에 따옴표가 남아있을 수 없어 이 조건은 항상 거짓이 되는 죽은 코드입니다.</p></details>
+<details class="faq-item"><summary>한 값 안에 작은따옴표와 큰따옴표를 섞어 쓰면 어떻게 되나요?</summary><p>문제가 생길 수 있습니다. '따옴표 안' 여부를 나타내는 플래그가 두 종류의 따옴표를 구분하지 않고 하나로 공유되므로, 큰따옴표로 감싼 값 안에 작은따옴표(아포스트로피)가 들어있으면 그 시점에 플래그가 꺼져버려 그 뒤에 나오는 쉼표가 필드 구분자로 잘못 처리될 수 있습니다.</p></details>
+<details class="faq-item"><summary>INSERT 문을 여러 개 한 번에 붙여넣으면 각각의 컬럼명이 정확히 적용되나요?</summary><p>아니요. 컬럼명은 입력에서 처음 매칭된 INSERT 문에서 딱 한 번만 읽어와 이후 발견되는 모든 INSERT 문에 그대로 재사용합니다. 서로 다른 테이블·컬럼 구성의 INSERT 문을 여러 개 붙여넣으면 두 번째 문장부터는 실제 컬럼명이 무시되고 첫 번째 문장의 컬럼명이 잘못 적용될 수 있습니다.</p></details>
+<details class="faq-item"><summary>NULL 값은 어떻게 처리되나요?</summary><p>따옴표 없이 쓰인 <code>NULL</code>(대소문자 무관)은 JSON의 <code>null</code>로 변환됩니다.</p></details>
+<details class="faq-item"><summary>숫자와 문자열은 실제로 어떤 기준으로 구분되나요?</summary><p>앞서 설명했듯 따옴표 유무로 문자열을 판별하는 코드는 죽어 있으므로, 실제로는 값이 숫자 형식 정규식(<code>-?\\d+(\\.\\d+)?</code>)과 일치하는지만으로 숫자/문자열이 갈립니다. 숫자 패턴에 맞지 않고 NULL도 아니면 원래 따옴표로 감쌌든 아니든 그대로 문자열로 남습니다.</p></details>
+<details class="faq-item"><summary>CSV 모드에서 큰따옴표로 감싼 값 안의 쉼표도 안전하게 처리되나요?</summary><p>단순한 경우(따옴표 하나로만 감싸고 내부에 다른 따옴표가 없는 경우)는 안전하게 처리됩니다. 다만 이스케이프된 <code>""</code>(RFC 4180 방식)나 따옴표가 섞인 값은 위에서 설명한 것과 같은 방식으로 잘못 분리될 수 있습니다.</p></details>
+<details class="faq-item"><summary>변환 중에 데이터가 서버로 전송되나요?</summary><p>아니요. 정규식 파싱과 JSON 직렬화 모두 브라우저 안에서만 이루어지며, 입력한 SQL이나 CSV는 어디로도 전송되지 않습니다.</p></details>`
   },
   en:{pageTitle:'SQL to JSON Converter - SQL INSERT/CSV to JSON | MODOO HUB',sub:'SQL INSERT or CSV → JSON array',backLink:'← All Tools',langBtn:'🌐 中文',labelIn:'SQL Input',labelOut:'JSON Output',btnCopy:'Copy',btnClear:'Clear',copied:'Copied ✓',rows:'rows',
-    seoHtml:`<h2>SQL to JSON Converter</h2><p>Convert SQL INSERT statements or CSV data to JSON arrays. Useful for API response simulation, test data generation, and data migration. Auto-parses <strong>INSERT INTO</strong> column names and VALUES, and treats the first CSV row as headers.</p>
+    seoHtml:`<h2>SQL to JSON Converter</h2><p>The <code>splitCSVLine</code> function that splits values scans character by character and flips a single "inside quotes" flag whenever it hits a quote character, without including that quote character in the result. That means the regex later in the code that checks "is this value wrapped in quotes" always sees a value that already had its quotes stripped — it\'s dead code that never actually fires. It also means a doubled single-quote used to escape an apostrophe in SQL, like <code>'O''Brien'</code>, doesn\'t get preserved at all — it disappears entirely, producing "OBrien." Since that same flag is shared between single and double quotes without distinguishing which one opened a region, mixing both quote types inside one value can also cause an internal comma to get mistaken for a field separator.</p>
 <h2 class="seo-sub">FAQ</h2>
-<details class="faq-item"><summary>Multi-row INSERT supported?</summary><p>Yes. VALUES (a,b,c),(d,e,f); style multi-row inserts are supported.</p></details>
-<details class="faq-item"><summary>How are NULL values handled?</summary><p>SQL NULL is converted to JSON null.</p></details>
-<details class="faq-item"><summary>Are numbers and strings auto-detected?</summary><p>Unquoted numbers become JSON number type; quoted values become strings.</p></details>
-<details class="faq-item"><summary>Is the first CSV row the header?</summary><p>Yes. In CSV mode, the first row is used as key names.</p></details>
-<details class="faq-item"><summary>Is data sent to a server?</summary><p>No. All conversion happens in the browser.</p></details>
-<details class="faq-item"><summary>Is the output pretty-printed?</summary><p>Yes. Output uses 2-space indentation for readability.</p></details>
-<details class="faq-item"><summary>Special characters in strings handled?</summary><p>Escaped single quotes and special characters are preserved as best as possible.</p></details>
-<details class="faq-item"><summary>Other output formats planned?</summary><p>Only JSON is supported currently. Use other tools for further conversion.</p></details>`
+<details class="faq-item"><summary>Is an escaped single quote ('') in SQL actually preserved?</summary><p>No. A doubled single-quote escape like <code>'O''Brien'</code> gets misread by the character-by-character parser as the string simply closing at that second quote, so the actual apostrophe never survives — the result comes out as "OBrien" with the character dropped entirely.</p></details>
+<details class="faq-item"><summary>Does the regex that checks whether a value is quote-wrapped actually do anything?</summary><p>Effectively no. By the time that check runs, an earlier character scanner has already stripped every quote character from the value, so there\'s never anything left for that regex to match — it\'s unreachable dead code.</p></details>
+<details class="faq-item"><summary>What happens if a value mixes single and double quotes?</summary><p>It can break. The "inside quotes" flag is shared between both quote types rather than tracking which one opened the current region, so an apostrophe appearing inside a double-quoted value can flip the flag off early, causing any comma that follows to be mistakenly treated as a field separator.</p></details>
+<details class="faq-item"><summary>If I paste multiple INSERT statements at once, does each one get its own column names applied correctly?</summary><p>No. Column names are read exactly once from the first INSERT statement matched in the input and reused for every subsequent statement found. Pasting multiple INSERT statements for different tables or column layouts means every statement after the first has its real column names ignored and the first statement\'s names applied instead.</p></details>
+<details class="faq-item"><summary>How are NULL values handled?</summary><p>An unquoted <code>NULL</code> (case-insensitive) converts to JSON\'s <code>null</code>.</p></details>
+<details class="faq-item"><summary>What actually distinguishes a number from a string?</summary><p>Since the quote-based string detection is dead code as noted above, whether a value becomes a number or a string in practice depends entirely on matching a numeric regex (<code>-?\\d+(\\.\\d+)?</code>). Anything that doesn\'t match that pattern and isn\'t NULL just stays a string, regardless of whether it was originally quoted.</p></details>
+<details class="faq-item"><summary>In CSV mode, is a comma inside a double-quoted value handled safely?</summary><p>The simple case — one quote type wrapping a value with no other quotes inside it — is handled safely. But a doubled <code>""</code> escape (the RFC 4180 convention) or a value mixing quote types can get mis-split the same way described above.</p></details>
+<details class="faq-item"><summary>Is any data sent to a server during conversion?</summary><p>No. Both the regex-based parsing and the JSON serialization happen entirely in the browser — the SQL or CSV you type is never transmitted anywhere.</p></details>`
   },
   zh:{pageTitle:'SQL转JSON - SQL INSERT/CSV转JSON数组 | MODOO HUB',sub:'SQL INSERT 或 CSV → JSON数组转换',backLink:'← 所有工具',langBtn:'🌐 日本語',labelIn:'SQL输入',labelOut:'JSON输出',btnCopy:'复制',btnClear:'清除',copied:'已复制 ✓',rows:'行',
-    seoHtml:`<h2>SQL转JSON转换器</h2><p>将SQL INSERT语句或CSV格式数据转换为JSON数组。适用于API响应模拟、测试数据生成和数据迁移。自动解析INSERT INTO的列名和VALUES，CSV的第一行作为标题。</p>
+    seoHtml:`<h2>SQL转JSON转换器</h2><p>用于拆分值的<code>splitCSVLine</code>函数逐字符扫描，每遇到一个引号字符就翻转一次"是否在引号内"的标志位，但并不会把引号字符本身放进结果里。因此后面代码中用来判断"这个值是否被引号包裹"的正则表达式，看到的值早已被去掉了引号，这段判断实际上永远不会为真，是死代码；而像<code>'O''Brien'</code>这样在SQL里用两个连续单引号转义出的撇号，也完全不会被保留，会整体消失变成"OBrien"。此外这个标志位不区分单引号和双引号、由两者共用，因此一个值里如果混用两种引号，其中的逗号可能被错误地当成字段分隔符。</p>
 <h2 class="seo-sub">常见问题</h2>
-<details class="faq-item"><summary>支持多行INSERT吗？</summary><p>是的，支持VALUES (a,b,c),(d,e,f);格式的多行插入。</p></details>
-<details class="faq-item"><summary>NULL值如何处理？</summary><p>SQL NULL转换为JSON null。</p></details>
-<details class="faq-item"><summary>数字和字符串会自动识别吗？</summary><p>无引号的数字转为JSON number类型，带引号的值转为string类型。</p></details>
-<details class="faq-item"><summary>CSV的第一行是标题吗？</summary><p>是的，CSV模式下第一行作为键名。</p></details>
-<details class="faq-item"><summary>数据会发送到服务器吗？</summary><p>不会，所有转换在浏览器端完成。</p></details>
-<details class="faq-item"><summary>输出是格式化的吗？</summary><p>是的，输出使用2格缩进，易于阅读。</p></details>
-<details class="faq-item"><summary>支持包含特殊字符的字符串吗？</summary><p>尽量保留转义的单引号和特殊字符。</p></details>
-<details class="faq-item"><summary>计划支持其他输出格式吗？</summary><p>目前仅支持JSON，请使用其他工具进行进一步转换。</p></details>`
+<details class="faq-item"><summary>SQL中转义的单引号('')真的会被保留吗？</summary><p>不会。像<code>'O''Brien'</code>这样用两个连续单引号转义的部分，会被逐字符解析的代码误判为在第二个引号处就已经结束字符串，实际的撇号字符完全不会保留下来，结果会变成"OBrien"。</p></details>
+<details class="faq-item"><summary>判断"值是否被引号包裹"的正则表达式真的起作用吗？</summary><p>实际上不起作用。这个判断执行时，前面的字符扫描器早已把所有引号字符都去掉了，因此被检测的值不可能还带有引号，这个判断条件永远为假，是无法触及的死代码。</p></details>
+<details class="faq-item"><summary>一个值里混用单引号和双引号会怎样？</summary><p>可能出问题。"是否在引号内"这个标志位不区分两种引号、由两者共用，因此如果双引号包裹的值内部含有单引号（撇号），标志位会在那里被提前关闭，导致后面出现的逗号被错误地当成字段分隔符处理。</p></details>
+<details class="faq-item"><summary>一次粘贴多条INSERT语句，每条语句的列名能各自正确应用吗？</summary><p>不能。列名只会从输入中第一条匹配到的INSERT语句里读取一次，之后发现的所有INSERT语句都会原样复用这份列名。如果粘贴的是表结构或列不同的多条INSERT语句，第二条及之后的语句实际列名会被忽略，错误地套用第一条语句的列名。</p></details>
+<details class="faq-item"><summary>NULL值是如何处理的？</summary><p>不带引号书写的<code>NULL</code>（不区分大小写）会转换为JSON的<code>null</code>。</p></details>
+<details class="faq-item"><summary>数字和字符串实际是按什么标准区分的？</summary><p>正如上面所说，基于引号判断字符串的代码是死代码，实际上完全取决于值是否匹配数字格式的正则表达式（<code>-?\\d+(\\.\\d+)?</code>）。不匹配该模式且不是NULL的值，无论原本是否带引号都会保留为字符串。</p></details>
+<details class="faq-item"><summary>CSV模式下双引号内的逗号能安全处理吗？</summary><p>简单情况（只用一种引号包裹、内部没有其他引号）可以安全处理。但转义的<code>""</code>（RFC 4180方式）或引号混用的值，可能会像上面说明的那样被错误拆分。</p></details>
+<details class="faq-item"><summary>转换过程中数据会发送到服务器吗？</summary><p>不会。正则解析和JSON序列化全部在浏览器内完成，输入的SQL或CSV不会被发送到任何地方。</p></details>`
   },
   ja:{pageTitle:'SQL to JSON変換 - SQL INSERT/CSVをJSONに変換 | MODOO HUB',sub:'SQL INSERT またはCSV → JSON配列に変換',backLink:'← ホーム',langBtn:'🌐 한국어',labelIn:'SQL入力',labelOut:'JSON出力',btnCopy:'コピー',btnClear:'クリア',copied:'コピー完了 ✓',rows:'行',
-    seoHtml:`<h2>SQL to JSON変換ツールとは</h2><p>SQL INSERT文またはCSVデータをJSON配列に変換します。APIレスポンスのシミュレーション、テストデータ生成、データ移行などに活用します。INSERT INTOの列名とVALUESを自動解析し、CSVの1行目をヘッダーとして認識します。</p>
+    seoHtml:`<h2>SQL to JSON変換ツールとは</h2><p>値を分割する<code>splitCSVLine</code>関数は1文字ずつ走査し、引用符に出会うたびに「引用符内かどうか」を示すフラグを1つ反転させるだけで、引用符文字自体は結果に含めません。そのため、後続のコードにある「値が引用符で囲まれているか」を判定する正規表現は、すでに引用符が取り除かれた値を見ることになり、実質的に一度も真にならないデッドコードです。また<code>'O''Brien'</code>のようにSQLでアポストロフィをエスケープするために単一引用符を2つ重ねた部分も保持されず、丸ごと消えて「OBrien」になります。さらにこのフラグは単一引用符と二重引用符を区別せず共有しているため、1つの値の中に両方の引用符が混在すると、その中のカンマがフィールド区切りと誤認識されることがあります。</p>
 <h2 class="seo-sub">よくある質問</h2>
-<details class="faq-item"><summary>複数行INSERTも対応？</summary><p>はい。VALUES (a,b,c),(d,e,f);形式の複数行INSERTをサポートします。</p></details>
-<details class="faq-item"><summary>NULL値はどう処理されますか？</summary><p>SQL NULLはJSON nullに変換されます。</p></details>
-<details class="faq-item"><summary>数値と文字列は自動認識されますか？</summary><p>クォートなしの数値はJSON number型、クォート付きはstring型として処理されます。</p></details>
-<details class="faq-item"><summary>CSVの1行目はヘッダーですか？</summary><p>はい。CSVモードでは1行目をキー名として使用します。</p></details>
-<details class="faq-item"><summary>データはサーバーに送信されますか？</summary><p>いいえ。すべての変換はブラウザ内で完結します。</p></details>
-<details class="faq-item"><summary>出力はpretty-printされますか？</summary><p>はい。2スペースのインデントで読みやすく出力されます。</p></details>
-<details class="faq-item"><summary>特殊文字を含む文字列も処理できますか？</summary><p>エスケープされたシングルクォートや特殊文字はできる限り保持されます。</p></details>
-<details class="faq-item"><summary>他の出力形式も予定されていますか？</summary><p>現在はJSONのみです。他ツールでさらに変換してください。</p></details>`
+<details class="faq-item"><summary>SQLでエスケープされた単一引用符('')は実際に保持されますか？</summary><p>いいえ。<code>'O''Brien'</code>のように単一引用符を2つ重ねてエスケープした部分は、1文字ずつ読むパーサーによって2つ目の引用符の時点で文字列が終了したと誤認識され、実際のアポストロフィ文字は残らず「OBrien」という結果になります。</p></details>
+<details class="faq-item"><summary>「値が引用符で囲まれているか」を判定する正規表現は実際に機能していますか？</summary><p>実質的に機能していません。この判定が実行される時点で、その前の文字スキャナーがすでにすべての引用符文字を取り除いているため、判定対象の値に引用符が残っていることはなく、この条件は常に偽になる到達不能なコードです。</p></details>
+<details class="faq-item"><summary>1つの値の中で単一引用符と二重引用符を混在させるとどうなりますか？</summary><p>問題が起きる可能性があります。「引用符内かどうか」を示すフラグが2種類の引用符を区別せず共有されているため、二重引用符で囲んだ値の中に単一引用符（アポストロフィ）が含まれていると、その時点でフラグがオフになってしまい、その後に出てくるカンマがフィールド区切りとして誤って処理されることがあります。</p></details>
+<details class="faq-item"><summary>複数のINSERT文を一度に貼り付けた場合、それぞれの列名は正しく適用されますか？</summary><p>いいえ。列名は入力内で最初にマッチしたINSERT文からただ一度だけ読み取られ、それ以降に見つかるすべてのINSERT文にそのまま再利用されます。テーブルや列構成が異なる複数のINSERT文を貼り付けると、2つ目以降の文では実際の列名が無視され、最初の文の列名が誤って適用されることがあります。</p></details>
+<details class="faq-item"><summary>NULL値はどう処理されますか？</summary><p>引用符なしで書かれた<code>NULL</code>（大文字小文字は区別しません）はJSONの<code>null</code>に変換されます。</p></details>
+<details class="faq-item"><summary>数値と文字列は実際にはどんな基準で区別されますか？</summary><p>前述の通り引用符の有無で文字列を判定するコードはデッドコードのため、実際には値が数値形式の正規表現（<code>-?\\d+(\\.\\d+)?</code>）に一致するかどうかだけで数値か文字列かが決まります。このパターンに一致せずNULLでもない値は、元々引用符で囲まれていたかどうかに関わらずそのまま文字列として残ります。</p></details>
+<details class="faq-item"><summary>CSVモードで二重引用符内のカンマは安全に処理されますか？</summary><p>単純なケース（1種類の引用符だけで囲み、内部に他の引用符がない場合）は安全に処理されます。ただしエスケープされた<code>""</code>（RFC 4180方式）や引用符が混在する値は、上記と同様の理由で誤って分割されることがあります。</p></details>
+<details class="faq-item"><summary>変換中にデータがサーバーに送信されますか？</summary><p>いいえ。正規表現による解析とJSONのシリアライズはすべてブラウザ内で行われ、入力したSQLやCSVはどこにも送信されません。</p></details>`
   }
 };
 const LANGS=['ko','en','zh','ja'];
