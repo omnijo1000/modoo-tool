@@ -110,6 +110,9 @@ markdown-chat-exporter(버그도 수정 — 파싱이 고정 역할 접두사 �
 ### 완료 (3차 배치 3/N, content-depth-audit 브랜치에 커밋됨 — 커밋 8091de8)
 hash-checker(버그도 수정 — title/meta가 MD5 지원을 거짓 광고, Web Crypto API는 MD5 미지원이라 실제로 만들 수 없음. title/meta 태그 자체도 수정함), regex-generator(버그도 수정 — "신용카드"/"JWT" 패턴이 Luhn/BIN 검증이나 실제 JWT 구조 검증 없이 자릿수·구분자 형태만 확인해 오탐 다발), prompt-template-generator(버그는 아니지만 Chain-of-Thought 3단계·Few-Shot 예시 3개가 고정 예시일 뿐 실제로는 난이도에 맞게 편집해야 한다는 실전 지식 보강)
 
+### 완료 (3차 배치 4/N, content-depth-audit 브랜치에 커밋됨 — 커밋 2657d90)
+curl-generator(버그도 수정 — 헤더 값/Bearer/URL의 작은따옴표 미이스케이프로 셸 명령어 깨짐 + DELETE 메서드일 때 본문이 조용히 누락), ngram-analyzer(버그도 수정 — 기본 켜진 "구두점 제거"가 중국어 한자·일본어 가나를 전부 삭제, UI는 중/일 번역까지 있는데 실제 처리 로직은 지원 안 함), json-schema-generator(버그도 수정 — null 필드가 기존 FAQ의 거짓 주장과 달리 type:["string","null"]이 아니라 type:"null"로만 생성되어 실사용 시 검증 실패 + 배열 타입 추론이 첫 요소만 봄)
+
 ### 다음 배치 후보 (top 15, char count)
 ```
 702  json-schema-validator.html      ✅ 완료
@@ -121,10 +124,10 @@ hash-checker(버그도 수정 — title/meta가 MD5 지원을 거짓 광고, Web
 724  hash-checker.html               ✅ 완료
 729  regex-generator.html            ✅ 완료
 742  prompt-template-generator.html  ✅ 완료
-743  curl-generator.html             ⬜ 다음
-749  ngram-analyzer.html             ⬜
-751  json-schema-generator.html      ⬜
-758  png-to-svg.html                 ⬜
+743  curl-generator.html             ✅ 완료
+749  ngram-analyzer.html             ✅ 완료
+751  json-schema-generator.html      ✅ 완료
+758  png-to-svg.html                 ⬜ 다음
 761  yaml-to-json.html               ⬜
 763  pdf-metadata-remover.html       ⬜
 ```
