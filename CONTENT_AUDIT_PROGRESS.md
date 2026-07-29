@@ -50,10 +50,10 @@ typing-speed-test, uuid-extractor, webp-to-jpg
 632  word-frequency-counter.html         ✅ 완료 (batch4)
 640  ai-resume-generator.html            ✅ 완료 (batch4)
 643  javascript-beautifier.html          ✅ 완료 (batch4)
-645  sql-query-explainer.html            ⬜ 다음
-648  ai-product-description-generator.html ⬜
-654  system-prompt-generator.html        ⬜
-657  prompt-cleaner.html                 ⬜
+645  sql-query-explainer.html            ✅ 완료 (batch5)
+648  ai-product-description-generator.html ✅ 완료 (batch5)
+654  system-prompt-generator.html        ✅ 완료 (batch5)
+657  prompt-cleaner.html                 ⬜ 다음
 658  pdf-password-remover.html           ⬜
 661  yaml-diff-checker.html              ⬜
 662  javascript-minifier.html            ⬜
@@ -79,8 +79,11 @@ svg-viewer, ai-email-generator, sql-validator
 ## 완료 (2차 배치 4/9, content-depth-audit 브랜치에 커밋됨 — 커밋 3cd0223)
 word-frequency-counter, ai-resume-generator, javascript-beautifier
 
-## 다음 배치 (5/9)
-sql-query-explainer.html, ai-product-description-generator.html, system-prompt-generator.html
+## 완료 (2차 배치 5/9, content-depth-audit 브랜치에 커밋됨 — 커밋 596ed77)
+sql-query-explainer, ai-product-description-generator, system-prompt-generator
+
+## 다음 배치 (6/9)
+prompt-cleaner.html, pdf-password-remover.html, yaml-diff-checker.html
 
 ## 남은 참고 사항
 - 700~1000자 파일 97개, 1000~1500자 227개 — 27개 끝나면 이 구간도 순차적으로 스캔/처리 검토 필요
