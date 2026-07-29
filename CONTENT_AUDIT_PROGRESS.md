@@ -204,12 +204,12 @@ vat-calc(버그도 수정 — "부가세 (10%)" 결과 라벨에 id가 없어 0%
 ### 완료 (4차 배치 3/N, content-depth-audit 브랜치에 커밋됨 — 커밋 bd2cf99, 1c70c02, 9d243da)
 korean-age(dday.html과 동일한 UTC 자정 파싱 버그 — "태어난 지" 필드가 `new Date(val)` UTC 파싱과 로컬 자정 today 간 시차로 하루 적게 나오던 문제, parseLocalDate()로 수정 후 재검증 + 중복 FAQ(만나이 통일법 날짜 2번 질문) 1개를 실제로 검증한 윤년 2/29 생일 다음생일 자동 3/1 처리 동작으로 교체), discount-calculator(FAQ가 "3개 이상 중복 할인도 계산되나요?"에 공식만 답하고 실제 UI엔 할인율 입력칸이 2개뿐이던 것을 3번째 할인율 입력칸(선택, 빈 값=0%) 실제 구현해 탭 이름도 "이중"→"다중 할인"로 변경 + 중복 FAQ 2쌍 정리), alphabetizer(FAQ가 주장하는 "빈 줄 제거" 옵션이 실제로 존재하지 않아 실제 체크박스로 구현 + "대소문자 구분(Case-sensitive)" 별도 옵션이 있다는 주장을 실제로는 "대소문자 구분 없음" 단일 체크박스를 해제하는 방식이라고 정정 + 콘텐츠 심화 중 localeCompare가 중국어/일본어도 사전순 정렬한다고 과장할 뻔한 것을 Node로 직접 검증(한국어는 정확히 정렬되지만 로캘 미지정 시 중국어는 병음순 정렬 안 됨)해 기존 FAQ의 정직한 유니코드 순서 설명과 모순되지 않게 수정)
 
-## 남은 102개 (worst-first, char count) — 다음 배치는 여기서부터 3개씩
+### 완료 (4차 배치 4/N, content-depth-audit 브랜치에 커밋됨 — 커밋 591ec62, 3ea14d7, c5e5bbf)
+hashtag-generator(이 배치 최대 발견 — 단어 추출 정규식이 `[a-z가-힣]`뿐이라 중국어/일본어 UI까지 있으면서 실제로 중국어·일본어 텍스트를 붙여넣으면 매칭 0건으로 해시태그가 아예 생성되지 않던 문제, Node로 재현 확인 후 한자·히라가나·가타카나 유니코드 범위 추가(문장부호 기준 어구 단위로 추출, 진짜 분어절은 아님을 FAQ에 정직하게 명시) + FAQ가 주장한 "자주 등장하는 단어 우선순위"가 실제로는 첫 등장 순서였던 것을 빈도순 정렬로 실제 구현 + "인기 해시태그 자동 추천"·"플랫폼 선택 기능" 등 존재하지 않는 기능 주장 정정), json-to-csv(다운로드되는 CSV에 UTF-8 BOM이 전혀 없어 Excel 직접 열기 시 한글이 깨지는 고전적 문제를 FAQ는 "데이터 가져오기 사용" 우회법으로만 안내하던 것을, BOM 자동 첨부로 실제 해결 후 FAQ를 "더블클릭으로 바로 열림"으로 수정 + "컬럼 선택 가능" 거짓 주장을 실제 동작(객체마다 키가 달라도 합집합으로 헤더 구성, 없는 키는 빈 셀)으로 교체), remove-duplicate-lines("빈 줄 제거" 옵션을 켜면 total 카운트가 필터링 이후에 계산되어 "전체"·"제거됨" 통계가 원본 줄 수를 반영하지 못하던 문제, Node로 6줄 입력(빈줄2+중복1)이 4/1로 잘못 표시됨을 확인 후 total 계산을 필터 적용 전으로 이동해 6/3으로 수정)
+
+## 남은 99개 (worst-first, char count) — 다음 배치는 여기서부터 3개씩
 ```
-1085  hashtag-generator.html               ⬜ 다음 배치 시작점
-1086  json-to-csv.html
-1088  remove-duplicate-lines.html
-1089  margin-calculator.html
+1089  margin-calculator.html               ⬜ 다음 배치 시작점
 1097  rent-convert.html
 1100  freelancer-rate-calculator.html
 1104  break-even-calculator.html
