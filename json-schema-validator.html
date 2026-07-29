@@ -25,7 +25,7 @@
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"JSON Schema 검증기","url":"https://modoohub.com/json-schema-validator.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"JSON 데이터를 JSON Schema에 따라 검증하는 무료 온라인 도구."}</script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"JSON Schema 검증이란 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"JSON 데이터가 정의된 스키마 규칙을 따르는지 확인하는 과정입니다. 타입, 형식, 필수 필드 등을 검사합니다."}},{"@type":"Question","name":"어떤 스키마 버전을 지원하나요?","acceptedAnswer":{"@type":"Answer","text":"JSON Schema Draft-07, Draft-2019-09, Draft-2020-12를 지원합니다."}},{"@type":"Question","name":"검증 오류 메시지가 상세하게 나오나요?","acceptedAnswer":{"@type":"Answer","text":"어떤 필드에서, 어떤 규칙이, 어떻게 위반됐는지 경로와 함께 상세 오류를 표시합니다."}},{"@type":"Question","name":"배열과 중첩 객체 검증도 되나요?","acceptedAnswer":{"@type":"Answer","text":"items, properties, $ref 등을 활용한 복잡한 중첩 구조 검증을 완전히 지원합니다."}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"숫자나 불리언 값에 enum 제약을 걸어도 검증이 되나요?","acceptedAnswer":{"@type":"Answer","text":"아니요. enum을 검사하는 코드가 문자열 타입 전용 분기 안에만 존재해서, 숫자나 불리언 값은 enum 목록에 없는 값이어도 오류로 잡히지 않고 그대로 유효 판정을 받습니다. 예를 들어 {type:'integer',enum:[1,2,3]} 스키마에 99를 넣어도 통과합니다."}},{"@type":"Question","name":"배열 길이 제한(minItems/maxItems)도 검증하나요?","acceptedAnswer":{"@type":"Answer","text":"아니요. minItems, maxItems, uniqueItems 키워드는 이 도구에 전혀 구현되어 있지 않습니다. 스키마에 적어놓아도 조용히 무시됩니다."}},{"@type":"Question","name":"oneOf, anyOf, allOf, not 같은 조합 키워드는 지원하나요?","acceptedAnswer":{"@type":"Answer","text":"지원하지 않습니다. 이 키워드들이 포함된 스키마를 넣어도 해당 부분은 그냥 무시되고, type·required·properties 등 지원되는 키워드만 검사됩니다."}},{"@type":"Question","name":"required, properties, additionalProperties는 정확히 동작하나요?","acceptedAnswer":{"@type":"Answer","text":"네. required 배열의 모든 필드 존재 여부, properties에 정의된 각 필드의 하위 스키마 재귀 검증, additionalProperties: false일 때 정의되지 않은 필드 검출까지 모두 올바르게 동작합니다. 문제는 enum과 배열/조합 키워드 미구현에 한정됩니다."}}]}</script>
 <meta property="og:type" content="website">
 <meta property="og:title" content="JSON Schema 검증기 - JSON Schema Validator | MODOO HUB">
 <meta property="og:description" content="JSON 데이터를 JSON Schema에 따라 검증합니다. 타입 오류, 필수 필드 누락, 패턴 불일치 등을 즉시 감지합니다. 무료 온라인 JSON Schema Validator.">
@@ -73,16 +73,16 @@
     <div id="errorList" style="margin-top:12px;"></div>
   </div>
 
-  <div class="seo" id="seoDiv"><h2>JSON Schema 검증기</h2><p>JSON 데이터를 JSON Schema에 따라 검증합니다. 타입 불일치, 필수 필드 누락, 최소/최대 값 위반, 패턴 불일치 등의 오류를 즉시 감지합니다.</p>
+  <div class="seo" id="seoDiv"><h2>JSON Schema 검증기</h2><p>JSON 데이터를 JSON Schema 규칙(type, required, properties, minimum/maximum, minLength/maxLength, pattern, additionalProperties, items)에 따라 재귀적으로 검증합니다. 다만 <code>enum</code> 검사 코드가 문자열 값을 처리하는 <code>if(typeof data==='string')</code> 블록 안에만 들어있어, <strong>숫자·불리언 값에 대한 enum 위반은 전혀 감지되지 않고 그냥 통과</strong>합니다. 예를 들어 스키마가 <code>{"type":"integer","enum":[1,2,3]}</code>이고 실제 값이 99여도 오류 없이 유효 판정이 납니다. 또한 <code>minItems</code>·<code>maxItems</code>·<code>uniqueItems</code>·<code>oneOf</code>·<code>anyOf</code>·<code>allOf</code>·<code>not</code>·<code>format</code> 키워드는 아예 구현되어 있지 않아 스키마에 적어도 조용히 무시됩니다.</p>
 <h2 class="seo-sub">자주 묻는 질문</h2>
-<details class="faq-item"><summary>JSON Schema 검증 시 자주 나타나는 오류는?</summary><p>타입 불일치(type mismatch), 필수 필드 누락(required), 값 범위 초과(minimum/maximum), 패턴 불일치(pattern)가 가장 흔합니다.</p></details>
-<details class="faq-item"><summary>required 필드를 모두 검사하나요?</summary><p>예, required 배열에 정의된 모든 필드의 존재 여부를 검사합니다.</p></details>
-<details class="faq-item"><summary>중첩 객체도 검증되나요?</summary><p>예, 재귀적으로 중첩 객체와 배열 아이템도 검증합니다.</p></details>
-<details class="faq-item"><summary>additionalProperties 검증도 지원하나요?</summary><p>예, additionalProperties: false인 경우 정의되지 않은 필드를 오류로 표시합니다.</p></details>
-<details class="faq-item"><summary>AJV와 동일한 결과를 보장하나요?</summary><p>기본적인 검증은 동일하나, 일부 고급 키워드(anyOf 등)는 지원이 제한될 수 있습니다.</p></details>
-<details class="faq-item"><summary>배열 아이템 검증도 지원하나요?</summary><p>예, items 스키마에 정의된 규칙으로 각 배열 요소를 검증합니다.</p></details>
-<details class="faq-item"><summary>오류 경로는 어떻게 표시되나요?</summary><p>점 표기법(예: user.address.city)으로 오류 발생 위치를 표시합니다.</p></details>
-<details class="faq-item"><summary>JSON Schema 버전 차이가 있나요?</summary><p>이 도구는 Draft-07 기준으로 검증합니다. 버전별 키워드 차이가 있을 수 있습니다.</p></details></div>
+<details class="faq-item"><summary>숫자나 불리언 값에 enum 제약을 걸어도 검증이 되나요?</summary><p>아니요. enum을 검사하는 코드가 문자열 타입 전용 분기(<code>if(typeof data==='string')</code>) 안에만 존재해서, 숫자나 불리언 값은 enum 목록에 없는 값이어도 오류로 잡히지 않고 그대로 유효 판정을 받습니다. 예를 들어 <code>{"type":"integer","enum":[1,2,3]}</code> 스키마에 99를 넣어도 통과합니다.</p></details>
+<details class="faq-item"><summary>왜 이런 일이 생기나요?</summary><p>코드에서 enum 검사가 문자열 길이·패턴 검사와 같은 블록에 함께 묶여 있어, 숫자·불리언 값이 들어올 때는 그 블록 자체가 실행되지 않기 때문입니다. 타입별로 별도 처리해야 할 enum 검사가 문자열 처리 로직에 종속되어 버린 구조적 문제입니다.</p></details>
+<details class="faq-item"><summary>배열 길이 제한(minItems/maxItems)도 검증하나요?</summary><p>아니요. minItems, maxItems, uniqueItems 키워드는 이 도구에 전혀 구현되어 있지 않습니다. 스키마에 적어놓아도 조용히 무시되며, 배열이 아무리 짧거나 중복 값을 포함해도 오류가 나지 않습니다.</p></details>
+<details class="faq-item"><summary>oneOf, anyOf, allOf, not 같은 조합 키워드는 지원하나요?</summary><p>지원하지 않습니다. 이 키워드들이 포함된 스키마를 넣어도 해당 부분은 그냥 무시되고, 나머지 type·required·properties 등 지원되는 키워드만 검사됩니다.</p></details>
+<details class="faq-item"><summary>format(예: email, date) 키워드도 검증되나요?</summary><p>아니요. format 키워드는 구현되어 있지 않아 무시됩니다. 이메일 형식을 검증하려면 대신 pattern에 정규식을 직접 작성해야 합니다.</p></details>
+<details class="faq-item"><summary>required, properties, additionalProperties는 정확히 동작하나요?</summary><p>네. required 배열의 모든 필드 존재 여부, properties에 정의된 각 필드의 하위 스키마(재귀 검증), additionalProperties: false일 때 정의되지 않은 필드 검출까지 모두 올바르게 동작합니다. 문제는 enum과 배열/조합 키워드 미구현에 한정됩니다.</p></details>
+<details class="faq-item"><summary>minimum/maximum, minLength/maxLength, pattern은 정확한가요?</summary><p>네, 숫자의 minimum/maximum, 문자열의 minLength/maxLength/pattern 검사는 모두 값 타입에 맞게 올바르게 구현되어 있습니다.</p></details>
+<details class="faq-item"><summary>이 도구는 어떤 스키마 버전을 기준으로 하나요?</summary><p>Draft-07의 기본 키워드를 기준으로 하지만, 앞서 설명한 것처럼 enum이 문자열 값에만 적용되고 배열·조합 키워드가 아예 없다는 점에서 완전한 Draft-07 구현은 아닙니다. 정확한 검증이 중요하다면 AJV 같은 전용 라이브러리와 교차 확인하세요.</p></details></div>
 </main>
 <script>
 const LANGS=['ko','en','zh','ja'];
@@ -92,61 +92,61 @@ const _i18n={
     btnValidate:'검증',btnSample:'샘플',btnClear:'초기화',lblJson:'JSON 데이터',lblSchema:'JSON Schema',
     valid:'✓ 유효 — JSON이 Schema를 만족합니다',invalid:(n)=>`✗ 유효하지 않음 — ${n}개 오류 발견`,
     errInvalidJson:'유효하지 않은 JSON 데이터입니다.',errInvalidSchema:'유효하지 않은 JSON Schema입니다.',
-    seoHtml:`<h2>JSON Schema 검증기</h2><p>JSON 데이터를 JSON Schema에 따라 검증합니다. 타입 불일치, 필수 필드 누락, 최소/최대 값 위반, 패턴 불일치 등의 오류를 즉시 감지합니다.</p>
+    seoHtml:`<h2>JSON Schema 검증기</h2><p>JSON 데이터를 JSON Schema 규칙(type, required, properties, minimum/maximum, minLength/maxLength, pattern, additionalProperties, items)에 따라 재귀적으로 검증합니다. 다만 <code>enum</code> 검사 코드가 문자열 값을 처리하는 <code>if(typeof data==='string')</code> 블록 안에만 들어있어, <strong>숫자·불리언 값에 대한 enum 위반은 전혀 감지되지 않고 그냥 통과</strong>합니다. 예를 들어 스키마가 <code>{"type":"integer","enum":[1,2,3]}</code>이고 실제 값이 99여도 오류 없이 유효 판정이 납니다. 또한 <code>minItems</code>·<code>maxItems</code>·<code>uniqueItems</code>·<code>oneOf</code>·<code>anyOf</code>·<code>allOf</code>·<code>not</code>·<code>format</code> 키워드는 아예 구현되어 있지 않아 스키마에 적어도 조용히 무시됩니다.</p>
 <h2 class="seo-sub">자주 묻는 질문</h2>
-<details class="faq-item"><summary>JSON Schema 검증 시 자주 나타나는 오류는?</summary><p>타입 불일치(type mismatch), 필수 필드 누락(required), 값 범위 초과(minimum/maximum), 패턴 불일치(pattern)가 가장 흔합니다.</p></details>
-<details class="faq-item"><summary>required 필드를 모두 검사하나요?</summary><p>예, required 배열에 정의된 모든 필드의 존재 여부를 검사합니다.</p></details>
-<details class="faq-item"><summary>중첩 객체도 검증되나요?</summary><p>예, 재귀적으로 중첩 객체와 배열 아이템도 검증합니다.</p></details>
-<details class="faq-item"><summary>additionalProperties 검증도 지원하나요?</summary><p>예, additionalProperties: false인 경우 정의되지 않은 필드를 오류로 표시합니다.</p></details>
-<details class="faq-item"><summary>AJV와 동일한 결과를 보장하나요?</summary><p>기본적인 검증은 동일하나, 일부 고급 키워드(anyOf 등)는 지원이 제한될 수 있습니다.</p></details>
-<details class="faq-item"><summary>배열 아이템 검증도 지원하나요?</summary><p>예, items 스키마에 정의된 규칙으로 각 배열 요소를 검증합니다.</p></details>
-<details class="faq-item"><summary>오류 경로는 어떻게 표시되나요?</summary><p>점 표기법(예: user.address.city)으로 오류 발생 위치를 표시합니다.</p></details>
-<details class="faq-item"><summary>JSON Schema 버전 차이가 있나요?</summary><p>이 도구는 Draft-07 기준으로 검증합니다. 버전별 키워드 차이가 있을 수 있습니다.</p></details>`
+<details class="faq-item"><summary>숫자나 불리언 값에 enum 제약을 걸어도 검증이 되나요?</summary><p>아니요. enum을 검사하는 코드가 문자열 타입 전용 분기(<code>if(typeof data==='string')</code>) 안에만 존재해서, 숫자나 불리언 값은 enum 목록에 없는 값이어도 오류로 잡히지 않고 그대로 유효 판정을 받습니다. 예를 들어 <code>{"type":"integer","enum":[1,2,3]}</code> 스키마에 99를 넣어도 통과합니다.</p></details>
+<details class="faq-item"><summary>왜 이런 일이 생기나요?</summary><p>코드에서 enum 검사가 문자열 길이·패턴 검사와 같은 블록에 함께 묶여 있어, 숫자·불리언 값이 들어올 때는 그 블록 자체가 실행되지 않기 때문입니다. 타입별로 별도 처리해야 할 enum 검사가 문자열 처리 로직에 종속되어 버린 구조적 문제입니다.</p></details>
+<details class="faq-item"><summary>배열 길이 제한(minItems/maxItems)도 검증하나요?</summary><p>아니요. minItems, maxItems, uniqueItems 키워드는 이 도구에 전혀 구현되어 있지 않습니다. 스키마에 적어놓아도 조용히 무시되며, 배열이 아무리 짧거나 중복 값을 포함해도 오류가 나지 않습니다.</p></details>
+<details class="faq-item"><summary>oneOf, anyOf, allOf, not 같은 조합 키워드는 지원하나요?</summary><p>지원하지 않습니다. 이 키워드들이 포함된 스키마를 넣어도 해당 부분은 그냥 무시되고, 나머지 type·required·properties 등 지원되는 키워드만 검사됩니다.</p></details>
+<details class="faq-item"><summary>format(예: email, date) 키워드도 검증되나요?</summary><p>아니요. format 키워드는 구현되어 있지 않아 무시됩니다. 이메일 형식을 검증하려면 대신 pattern에 정규식을 직접 작성해야 합니다.</p></details>
+<details class="faq-item"><summary>required, properties, additionalProperties는 정확히 동작하나요?</summary><p>네. required 배열의 모든 필드 존재 여부, properties에 정의된 각 필드의 하위 스키마(재귀 검증), additionalProperties: false일 때 정의되지 않은 필드 검출까지 모두 올바르게 동작합니다. 문제는 enum과 배열/조합 키워드 미구현에 한정됩니다.</p></details>
+<details class="faq-item"><summary>minimum/maximum, minLength/maxLength, pattern은 정확한가요?</summary><p>네, 숫자의 minimum/maximum, 문자열의 minLength/maxLength/pattern 검사는 모두 값 타입에 맞게 올바르게 구현되어 있습니다.</p></details>
+<details class="faq-item"><summary>이 도구는 어떤 스키마 버전을 기준으로 하나요?</summary><p>Draft-07의 기본 키워드를 기준으로 하지만, 앞서 설명한 것처럼 enum이 문자열 값에만 적용되고 배열·조합 키워드가 아예 없다는 점에서 완전한 Draft-07 구현은 아닙니다. 정확한 검증이 중요하다면 AJV 같은 전용 라이브러리와 교차 확인하세요.</p></details>`
   },
   en:{h1Accent:'Validator',sub:'Instantly validate JSON data against a JSON Schema',backLink:'← All Tools',langBtn:'🌐 中文',
     btnValidate:'Validate',btnSample:'Sample',btnClear:'Clear',lblJson:'JSON Data',lblSchema:'JSON Schema',
     valid:'✓ Valid — JSON satisfies the Schema',invalid:(n)=>`✗ Invalid — ${n} error(s) found`,
     errInvalidJson:'Invalid JSON data.',errInvalidSchema:'Invalid JSON Schema.',
-    seoHtml:`<h2>JSON Schema Validator</h2><p>Validate JSON data against a JSON Schema. Instantly detect type mismatches, missing required fields, min/max violations, and pattern mismatches.</p>
+    seoHtml:`<h2>JSON Schema Validator</h2><p>Recursively validates JSON data against JSON Schema rules (type, required, properties, minimum/maximum, minLength/maxLength, pattern, additionalProperties, items). However, the <code>enum</code> check is nested entirely inside the <code>if(typeof data==='string')</code> block, so <strong>enum violations on number or boolean values are never detected and silently pass.</strong> For example, with schema <code>{"type":"integer","enum":[1,2,3]}</code> and an actual value of 99, the tool reports it as valid with no error. Keywords like <code>minItems</code>, <code>maxItems</code>, <code>uniqueItems</code>, <code>oneOf</code>, <code>anyOf</code>, <code>allOf</code>, <code>not</code>, and <code>format</code> aren't implemented at all — they're silently ignored if present in a schema.</p>
 <h2 class="seo-sub">FAQ</h2>
-<details class="faq-item"><summary>Most common JSON Schema errors?</summary><p>Type mismatch, missing required fields, min/max violations, and pattern mismatches.</p></details>
-<details class="faq-item"><summary>Are all required fields checked?</summary><p>Yes — all fields in the required array are checked for presence.</p></details>
-<details class="faq-item"><summary>Are nested objects validated?</summary><p>Yes — nested objects and array items are recursively validated.</p></details>
-<details class="faq-item"><summary>Is additionalProperties supported?</summary><p>Yes — if additionalProperties: false, undefined fields are flagged as errors.</p></details>
-<details class="faq-item"><summary>Same results as AJV?</summary><p>Core validation matches, but some advanced keywords (anyOf etc.) may have limited support.</p></details>
-<details class="faq-item"><summary>Are array items validated?</summary><p>Yes — each array element is validated against the items schema.</p></details>
-<details class="faq-item"><summary>How are error paths shown?</summary><p>Dot notation (e.g. user.address.city) shows the location of each error.</p></details>
-<details class="faq-item"><summary>Which schema version?</summary><p>This tool validates against Draft-07. Keyword differences may exist across versions.</p></details>`
+<details class="faq-item"><summary>Does an enum constraint on a number or boolean actually get validated?</summary><p>No. The enum-checking code exists only inside the string-only branch (<code>if(typeof data==='string')</code>), so a number or boolean value outside the enum list is never flagged as an error and passes as valid. For example, a schema of <code>{"type":"integer","enum":[1,2,3]}</code> will let 99 through.</p></details>
+<details class="faq-item"><summary>Why does this happen?</summary><p>In the code, the enum check is bundled together with the string length/pattern checks, so that block simply never runs when the incoming value is a number or boolean. Enum validation, which should apply regardless of type, ended up structurally tied to the string-handling logic.</p></details>
+<details class="faq-item"><summary>Are array length constraints (minItems/maxItems) validated?</summary><p>No. The minItems, maxItems, and uniqueItems keywords aren't implemented in this tool at all. Even if present in your schema, they're silently ignored — an array can be any length or contain duplicates without triggering an error.</p></details>
+<details class="faq-item"><summary>Are combinator keywords like oneOf, anyOf, allOf, not supported?</summary><p>No. Schemas containing these keywords will have that portion ignored entirely; only the other supported keywords (type, required, properties, etc.) are still checked.</p></details>
+<details class="faq-item"><summary>Is the format keyword (e.g. email, date) validated?</summary><p>No, the format keyword isn't implemented and is ignored. To validate an email format, write the regex directly in pattern instead.</p></details>
+<details class="faq-item"><summary>Do required, properties, and additionalProperties work correctly?</summary><p>Yes. Checking every field in the required array, recursively validating each field's sub-schema under properties, and flagging undefined fields when additionalProperties is false all work correctly. The issues are limited to enum and the missing array/combinator keywords.</p></details>
+<details class="faq-item"><summary>Are minimum/maximum, minLength/maxLength, and pattern accurate?</summary><p>Yes, minimum/maximum for numbers and minLength/maxLength/pattern for strings are all correctly implemented for their respective value types.</p></details>
+<details class="faq-item"><summary>Which schema version does this tool target?</summary><p>It targets the core Draft-07 keywords, but as explained above, enum only applying to string values and the complete absence of array/combinator keywords means it isn't a full Draft-07 implementation. For validation that must be exact, cross-check against a dedicated library like AJV.</p></details>`
   },
   zh:{h1Accent:'验证器',sub:'即时验证JSON数据是否符合JSON Schema规则',backLink:'← 所有工具',langBtn:'🌐 日本語',
     btnValidate:'验证',btnSample:'示例',btnClear:'清除',lblJson:'JSON数据',lblSchema:'JSON Schema',
     valid:'✓ 有效 — JSON满足Schema规则',invalid:(n)=>`✗ 无效 — 发现${n}个错误`,
     errInvalidJson:'无效的JSON数据。',errInvalidSchema:'无效的JSON Schema。',
-    seoHtml:`<h2>JSON Schema验证器</h2><p>根据JSON Schema验证JSON数据，即时检测类型不匹配、必填字段缺失、最小/最大值违规和模式不匹配等错误。</p>
+    seoHtml:`<h2>JSON Schema验证器</h2><p>根据JSON Schema规则（type、required、properties、minimum/maximum、minLength/maxLength、pattern、additionalProperties、items）递归验证JSON数据。但<code>enum</code>检查代码完全嵌套在处理字符串值的<code>if(typeof data==='string')</code>代码块内，因此<strong>数字或布尔值违反enum约束时完全不会被检测到，会被静默放行</strong>。例如schema为<code>{"type":"integer","enum":[1,2,3]}</code>而实际值是99，本工具仍会判定为有效、不报任何错误。另外<code>minItems</code>、<code>maxItems</code>、<code>uniqueItems</code>、<code>oneOf</code>、<code>anyOf</code>、<code>allOf</code>、<code>not</code>、<code>format</code>等关键词完全没有实现，写在schema里也会被静默忽略。</p>
 <h2 class="seo-sub">常见问题</h2>
-<details class="faq-item"><summary>最常见的JSON Schema错误？</summary><p>类型不匹配、必填字段缺失、最小/最大值违规和模式不匹配。</p></details>
-<details class="faq-item"><summary>是否检查所有required字段？</summary><p>是的，检查required数组中所有字段是否存在。</p></details>
-<details class="faq-item"><summary>是否验证嵌套对象？</summary><p>是的，递归验证嵌套对象和数组元素。</p></details>
-<details class="faq-item"><summary>支持additionalProperties验证吗？</summary><p>是的，additionalProperties: false时会将未定义的字段标记为错误。</p></details>
-<details class="faq-item"><summary>结果与AJV相同吗？</summary><p>核心验证相同，但某些高级关键词（anyOf等）可能支持有限。</p></details>
-<details class="faq-item"><summary>是否验证数组元素？</summary><p>是的，根据items schema验证每个数组元素。</p></details>
-<details class="faq-item"><summary>错误路径如何显示？</summary><p>使用点表示法（如user.address.city）显示每个错误的位置。</p></details>
-<details class="faq-item"><summary>使用哪个Schema版本？</summary><p>此工具按Draft-07进行验证，各版本间关键词可能有差异。</p></details>`
+<details class="faq-item"><summary>对数字或布尔值设置enum约束能被正确验证吗？</summary><p>不能。enum检查代码只存在于字符串专用分支(<code>if(typeof data==='string')</code>)内，因此数字或布尔值即使不在enum列表中也不会被标记为错误，会被判定为有效。例如schema为<code>{"type":"integer","enum":[1,2,3]}</code>时输入99依然能通过。</p></details>
+<details class="faq-item"><summary>为什么会出现这种情况？</summary><p>代码中enum检查与字符串长度、模式检查被绑定在同一个代码块里，当传入的是数字或布尔值时该代码块根本不会执行。本应与类型无关的enum验证，结构上被错误地依附在了字符串处理逻辑上。</p></details>
+<details class="faq-item"><summary>数组长度限制(minItems/maxItems)也会被验证吗？</summary><p>不会。minItems、maxItems、uniqueItems这几个关键词在本工具中完全没有实现。即使写在schema里也会被静默忽略，无论数组多短或包含多少重复值都不会触发错误。</p></details>
+<details class="faq-item"><summary>支持oneOf、anyOf、allOf、not这类组合关键词吗？</summary><p>不支持。包含这些关键词的schema，对应部分会被直接忽略，只检查其余受支持的关键词（如type、required、properties等）。</p></details>
+<details class="faq-item"><summary>format（如email、date）关键词也会被验证吗？</summary><p>不会。format关键词没有实现，会被忽略。如果需要验证邮箱格式，请直接在pattern中写正则表达式。</p></details>
+<details class="faq-item"><summary>required、properties、additionalProperties能正确工作吗？</summary><p>可以。required数组中所有字段的存在性检查、properties中每个字段子schema的递归验证、以及additionalProperties为false时检测未定义字段，这些都能正确工作。问题仅限于enum和缺失的数组/组合关键词。</p></details>
+<details class="faq-item"><summary>minimum/maximum、minLength/maxLength、pattern准确吗？</summary><p>是的，数字的minimum/maximum和字符串的minLength/maxLength/pattern检查都针对对应的值类型正确实现。</p></details>
+<details class="faq-item"><summary>本工具基于哪个Schema版本？</summary><p>基本以Draft-07的核心关键词为准，但如前所述，enum仅对字符串值生效、且完全没有数组/组合关键词，因此并非完整的Draft-07实现。如果验证准确性很重要，建议与AJV等专用库交叉核对。</p></details>`
   },
   ja:{h1Accent:'バリデーター',sub:'JSONデータがJSON Schemaルールを満たすか即時検証します',backLink:'← ホーム',langBtn:'🌐 한국어',
     btnValidate:'検証',btnSample:'サンプル',btnClear:'クリア',lblJson:'JSONデータ',lblSchema:'JSON Schema',
     valid:'✓ 有効 — JSONがSchemaを満たしています',invalid:(n)=>`✗ 無効 — ${n}件のエラーが見つかりました`,
     errInvalidJson:'無効なJSONデータです。',errInvalidSchema:'無効なJSON Schemaです。',
-    seoHtml:`<h2>JSON Schemaバリデーター</h2><p>JSONデータをJSON Schemaに対して検証します。型の不一致、必須フィールドの欠如、最小/最大値違反、パターン不一致などのエラーを即座に検出します。</p>
+    seoHtml:`<h2>JSON Schemaバリデーター</h2><p>JSONデータをJSON Schemaのルール(type、required、properties、minimum/maximum、minLength/maxLength、pattern、additionalProperties、items)に対して再帰的に検証します。ただし<code>enum</code>のチェックコードが文字列値を処理する<code>if(typeof data==='string')</code>ブロックの中にしか存在しないため、<strong>数値やブール値のenum違反はまったく検出されず素通り</strong>します。例えばスキーマが<code>{"type":"integer","enum":[1,2,3]}</code>で実際の値が99でも、エラーなく有効と判定されます。また<code>minItems</code>・<code>maxItems</code>・<code>uniqueItems</code>・<code>oneOf</code>・<code>anyOf</code>・<code>allOf</code>・<code>not</code>・<code>format</code>キーワードはそもそも実装されておらず、スキーマに書いても静かに無視されます。</p>
 <h2 class="seo-sub">よくある質問</h2>
-<details class="faq-item"><summary>よくあるJSON Schemaエラーは？</summary><p>型の不一致、必須フィールドの欠如、最小/最大値違反、パターン不一致が最も多いです。</p></details>
-<details class="faq-item"><summary>すべてのrequiredフィールドが検査されますか？</summary><p>はい、required配列のすべてのフィールドの存在が確認されます。</p></details>
-<details class="faq-item"><summary>ネストされたオブジェクトも検証されますか？</summary><p>はい、ネストされたオブジェクトと配列要素も再帰的に検証されます。</p></details>
-<details class="faq-item"><summary>additionalPropertiesはサポートされていますか？</summary><p>はい、additionalProperties: falseの場合、未定義フィールドはエラーとして表示されます。</p></details>
-<details class="faq-item"><summary>AJVと同じ結果ですか？</summary><p>基本検証は同じですが、高度なキーワード（anyOfなど）はサポートが限られる場合があります。</p></details>
-<details class="faq-item"><summary>配列要素も検証されますか？</summary><p>はい、各配列要素がitemsスキーマに対して検証されます。</p></details>
-<details class="faq-item"><summary>エラーパスはどのように表示されますか？</summary><p>ドット記法（例：user.address.city）で各エラーの位置を表示します。</p></details>
-<details class="faq-item"><summary>どのSchemaバージョンを使用しますか？</summary><p>このツールはDraft-07に対して検証します。</p></details>`
+<details class="faq-item"><summary>数値やブール値にenum制約を付けても検証されますか？</summary><p>いいえ。enumをチェックするコードは文字列型専用の分岐(<code>if(typeof data==='string')</code>)の中にしか存在しないため、数値やブール値がenumリストにない値でもエラーとして検出されず、そのまま有効と判定されます。例えば<code>{"type":"integer","enum":[1,2,3]}</code>というスキーマに99を入れても通過します。</p></details>
+<details class="faq-item"><summary>なぜこのようなことが起きるのですか？</summary><p>コード上、enumチェックが文字列の長さ・パターンチェックと同じブロックにまとめられているため、数値やブール値が来た場合はそのブロック自体が実行されないからです。型に関係なく適用されるべきenumチェックが、文字列処理ロジックに構造的に依存してしまっています。</p></details>
+<details class="faq-item"><summary>配列の長さ制限(minItems/maxItems)も検証されますか？</summary><p>されません。minItems、maxItems、uniqueItemsのキーワードはこのツールにまったく実装されていません。スキーマに書いても静かに無視され、配列がどれだけ短くても重複値を含んでいてもエラーになりません。</p></details>
+<details class="faq-item"><summary>oneOf、anyOf、allOf、notのような組み合わせキーワードはサポートされていますか？</summary><p>サポートされていません。これらのキーワードを含むスキーマを入れても該当部分は単に無視され、残りのtype・required・propertiesなどサポートされているキーワードのみチェックされます。</p></details>
+<details class="faq-item"><summary>format(例：email、date)キーワードも検証されますか？</summary><p>されません。formatキーワードは実装されておらず無視されます。メール形式を検証したい場合は、代わりにpatternに正規表現を直接記述してください。</p></details>
+<details class="faq-item"><summary>required、properties、additionalPropertiesは正しく動作しますか？</summary><p>はい。required配列のすべてのフィールドの存在確認、propertiesに定義された各フィールドのサブスキーマ(再帰検証)、additionalProperties: falseの場合の未定義フィールド検出まで、すべて正しく動作します。問題はenumと配列・組み合わせキーワードの未実装に限られます。</p></details>
+<details class="faq-item"><summary>minimum/maximum、minLength/maxLength、patternは正確ですか？</summary><p>はい、数値のminimum/maximumと文字列のminLength/maxLength/patternのチェックは、それぞれの値の型に応じて正しく実装されています。</p></details>
+<details class="faq-item"><summary>このツールはどのSchemaバージョンを基準にしていますか？</summary><p>Draft-07の基本キーワードを基準にしていますが、前述の通りenumが文字列値にしか適用されず、配列・組み合わせキーワードがまったくない点で、完全なDraft-07実装ではありません。正確な検証が重要な場合はAJVのような専用ライブラリと突き合わせて確認してください。</p></details>`
   }
 };
 function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
