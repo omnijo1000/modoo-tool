@@ -163,21 +163,23 @@ pdf-ocr(버그도 수정 — 텍스트 레이어 유무를 첫 페이지 하나�
 ### 완료 (3차 배치 18/N, content-depth-audit 브랜치에 커밋됨 — 커밋 c2d6ca2)
 sentence-counter(버그도 수정 — 문장 정규식이 종결부호로 끝나야만 매칭돼 마지막에 마침표 없는 문장(초안·채팅체에 흔함)이 문장 수·목록에서 통째로 빠지고도 단어 수에는 포함돼 "평균 단어/문장"이 크게 부풀려지던 문제, node로 "Hello world. This is unfinished" → 실제 2문장 5단어인데 1문장 5.0평균으로 나오는 것 재현 확인 후 종결부호 없는 마지막 조각도 문장으로 포함하도록 재작성(CJK 무공백 문장 분리는 회귀 없음 확인) + FAQ가 존재하지 않는 단락 수·줄바꿈 분리 옵션·Flesch-Kincaid 가독성 점수를 제공한다고 거짓 주장하던 것 발견, 단락 수는 실제로 구현(5번째 통계 카드 추가)하고 나머지 거짓 주장은 정직하게 수정), json-path-tester(이 세션 최대급 버그 — 자체 제작 JSONPath 토크나이저가 대괄호 앞이나 ".." 앞에서만 키 토큰을 밀어넣고 평범한 마침표 하나는 그냥 버퍼에 누적만 해서, 도구의 placeholder 예시이자 7개 예시 칩 중 6개인 `$.store.books[*].title`을 포함한 모든 다단계 경로가 빈 결과를 반환하던 문제, 심지어 가장 단순한 `$.store.name`도 실패, node로 재현해 "store.books"가 하나의 잘못된 합성 키로 취급됨을 확인 후 대괄호 밖 평범한 마침표에서도 매번 키를 flush하도록 토크나이저 재작성, 7개 예시 전부 정상 동작 확인), tailwind-color-generator(버그도 수정 — hexToRgb는 3자리 축약 HEX(#RGB)를 이미 지원하는데 입력 검증 정규식이 6자리만 허용해 #f0a 같은 유효한 CSS 축약형을 입력하면 조용히 아무 반응이 없던 문제, 3자리도 허용하고 6자리로 확장 후 네이티브 color picker에도 동기화하도록 수정 + head JSON-LD FAQ가 "입력 색상 기반 50-950 팔레트를 자동 생성"한다고 거짓 주장하던 것(실제로는 기존 고정 팔레트에서 가장 가까운 색만 찾음) 발견해 정정 + "10단계"라던 것도 실제로는 11단계(50~950)라 정정)
 
+### 완료 (3차 배치 19/N, content-depth-audit 브랜치에 커밋됨 — 커밋 9514b69)
+text-reverser(버그도 수정 — "각 단어 뒤집기" 버튼 라벨·FAQ 모두 "단어 내부 문자를 뒤집는다"고 명시하는데 실제 구현은 단어 배치 순서를 바꾸는 것("hello world foo" → "foo world hello")이라 라벨/문서와 정반대로 동작하던 문제, node로 재현 확인 후 단어 순서는 유지하고 각 단어 내부 문자만 뒤집도록(이모지 안전한 스프레드 방식 유지) 재작성 + head FAQ의 낡은(버그와 일치하던) 설명도 수정), ssh-key-generator(버그도 수정 — 생성되는 ssh-keygen 명령어의 -C/-f 값을 이스케이프 없이 큰따옴표 안에 그대로 삽입해, 코멘트에 큰따옴표가 포함되면(예: John "Desktop" Kim) 구문이 깨지고 $나 백틱이 들어가면 터미널에 붙여넣어 실행할 때 셸 확장까지 일어날 수 있던 문제, 백슬래시·큰따옴표·$·백틱을 이스케이프하는 헬퍼 추가), remove-empty-lines(head/body FAQ가 "연속 빈 줄 1개로 축소", "정확한 개수로 제한", "처음/끝만 제거" 3가지 기능을 제공한다고 주장했지만 실제로는 체크박스 1개(공백줄 포함 여부)만 존재하던 문제 발견, 가장 요청 빈도 높고 구현 범위가 명확한 "연속 빈 줄을 1줄로 축소" 옵션은 실제로 구현하고 나머지 2개(임의 개수 제한, 처음/끝만 제거)는 존재하지 않는다고 정직하게 FAQ 수정)
+
 ## 3차 스캔 진행 현황 (2026-07-30 기준)
 
-**완료: 54개 / 70개** (batch 1~18)
-✅ json-schema-validator, ico-converter, image-prompt-generator, markdown-chat-exporter, xml-to-json, pdf-size-analyzer, hash-checker, regex-generator, prompt-template-generator, curl-generator, ngram-analyzer, json-schema-generator, png-to-svg, yaml-to-json, pdf-metadata-remover, curl-parser, text-similarity-checker, webhook-tester, time-zone-meeting-planner, image-color-extractor, open-graph-preview, pdf-word-counter, webhook-generator, avif-to-jpg, api-tester, bcrypt-validator, regex-cheatsheet, keyword-cannibalization-checker, bcrypt-generator, national-pension-calculator, nanoid-generator, keyword-difficulty-estimator, exif-viewer, slug-generator, json-diff, graphql-formatter, hmac-generator, uuid-generator, meeting-cost-calculator, unicode-converter, heic-to-jpg, transparent-background-maker, rsa-key-generator, sitemap-extractor, ulid-generator, image-dpi-checker, serp-snippet-preview, text-encryptor, pdf-ocr, image-dimension-checker, lorem-ipsum-generator, sentence-counter, json-path-tester, tailwind-color-generator
+**완료: 57개 / 70개** (batch 1~19)
+✅ json-schema-validator, ico-converter, image-prompt-generator, markdown-chat-exporter, xml-to-json, pdf-size-analyzer, hash-checker, regex-generator, prompt-template-generator, curl-generator, ngram-analyzer, json-schema-generator, png-to-svg, yaml-to-json, pdf-metadata-remover, curl-parser, text-similarity-checker, webhook-tester, time-zone-meeting-planner, image-color-extractor, open-graph-preview, pdf-word-counter, webhook-generator, avif-to-jpg, api-tester, bcrypt-validator, regex-cheatsheet, keyword-cannibalization-checker, bcrypt-generator, national-pension-calculator, nanoid-generator, keyword-difficulty-estimator, exif-viewer, slug-generator, json-diff, graphql-formatter, hmac-generator, uuid-generator, meeting-cost-calculator, unicode-converter, heic-to-jpg, transparent-background-maker, rsa-key-generator, sitemap-extractor, ulid-generator, image-dpi-checker, serp-snippet-preview, text-encryptor, pdf-ocr, image-dimension-checker, lorem-ipsum-generator, sentence-counter, json-path-tester, tailwind-color-generator, text-reverser, ssh-key-generator, remove-empty-lines
 
 **주의**: `grep -c 'class="faq-item"' 파일명`은 "매칭되는 줄 수"를 세는 것이라, ko/en/zh/ja seoHtml이 한 줄짜리 템플릿 리터럴로 저장된 파일에서는 실제 개수보다 훨씬 적게 나올 수 있음(예: 40개인데 5로 표시됨). 반드시 `grep -o 'class="faq-item"' 파일명 | wc -l`로 실제 occurrence 개수를 셀 것. 또한 이 카운트는 배치 시작 전 반드시 확인 — 과거 콘텐츠(exif-viewer, slug-generator, unicode-converter, serp-snippet-preview, text-encryptor 등)에 원래부터 FAQ 개수가 8개가 아니었던 사례가 반복적으로 있었음.
 
-**주의 2 (2026-07-30 추가)**: 다국어 seoHtml 치환 파이썬 스크립트가 드물게 언어 블록을 뒤바꿔 쓰는 경우가 있었음(tailwind-color-generator에서 ko 블록에 en 텍스트가 들어가고 en 블록은 갱신 자체가 안 된 사례 — 원인 재현 못함, 동일 패턴 스크립트가 다른 파일들에서는 정상 동작). 다행히 static/JS 일치 검증(4번째 검증 단계)에서 곧바로 MATCH:false로 잡혔으므로 이 검증을 절대 생략하지 말 것. 잡힌 뒤에는 고유한 앵커 문자열(예: `ko:{h1Accent:'...'`)로 다시 치환해 수동 복구. 의심되면 `grep -o 'lang:{...seoHtml' 파일명`로 4개 언어 블록의 seoHtml 첫 부분이 실제로 해당 언어인지 육안 확인.
+**주의 2**: 다국어 seoHtml 치환 파이썬 스크립트가 드물게 언어 블록을 뒤바꿔 쓰는 경우가 있었음(tailwind-color-generator에서 ko 블록에 en 텍스트가 들어가고 en 블록은 갱신 자체가 안 된 사례 — 원인 재현 못함). static/JS 일치 검증(4번째 검증 단계)에서 곧바로 MATCH:false로 잡히므로 이 검증을 절대 생략하지 말 것. 배치 19부터는 4개 언어 블록 각각의 seoHtml 시작 부분을 적용 스크립트 안에서 매번 print로 직접 확인하는 방식으로 전환(text-reverser, ssh-key-generator, remove-empty-lines에서 이상 없음 확인됨).
 
-**남은 16개 (worst-first, char count)** — 다음 배치는 여기서부터 3개씩:
+**주의 3 (2026-07-30 추가)**: 이 구간(700~1000자대) 파일들에서 "실제로 없는 기능을 있다고 주장하는 FAQ" 패턴이 반복적으로 발견됨(sentence-counter, tailwind-color-generator, remove-empty-lines 등). 새 파일 작업 시 FAQ 각 항목이 설명하는 기능이 실제 UI/JS 코드에 존재하는지 항상 grep으로 대조할 것 — 존재하면 그대로 두거나 깊이 보강, 존재하지 않으면 (a) 구현 범위가 작고 명확하면 실제로 구현, (b) 범위가 크면 정직하게 "미지원" FAQ로 수정.
+
+**남은 13개 (worst-first, char count)** — 다음 배치는 여기서부터 3개씩:
 ```
-896  text-reverser.html                   ⬜ 다음 배치 시작점
-901  ssh-key-generator.html
-909  remove-empty-lines.html
-911  jpg-to-avif.html
+911  jpg-to-avif.html                    ⬜ 다음 배치 시작점
 911  uuid-converter.html
 917  remove-duplicate-words.html
 918  jpg-to-heic.html
