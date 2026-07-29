@@ -62,9 +62,9 @@ typing-speed-test, uuid-extractor, webp-to-jpg
 681  remove-special-characters.html      ✅ 완료 (batch8)
 681  sql-to-json.html                    ✅ 완료 (batch8)
 687  ascii-table.html                    ✅ 완료 (batch8)
-692  color-blindness-simulator.html      ⬜ 다음
-693  reading-level-checker.html          ⬜
-699  sql-minifier.html                   ⬜
+692  color-blindness-simulator.html      ✅ 완료 (batch9)
+693  reading-level-checker.html          ✅ 완료 (batch9)
+699  sql-minifier.html                   ✅ 완료 (batch9)
 ```
 
 ## 완료 (2차 배치 1/9, content-depth-audit 브랜치에 커밋됨 — 커밋 7a04d01)
@@ -91,8 +91,13 @@ javascript-minifier, text-summarizer, anagram-checker
 ## 완료 (2차 배치 8/9, content-depth-audit 브랜치에 커밋됨 — 커밋 60bdcd9)
 remove-special-characters, sql-to-json, ascii-table
 
-## 다음 배치 (9/9, 마지막)
-color-blindness-simulator.html, reading-level-checker.html, sql-minifier.html
+## 완료 (2차 배치 9/9, 마지막, content-depth-audit 브랜치에 커밋됨 — 커밋 30e3293)
+color-blindness-simulator(버그도 수정 — applyMatrix 3x4→3x3 인덱싱 오류), reading-level-checker(SMOG 계수 오류 + countSyllables 비영어 0음절 버그), sql-minifier(주석 제거가 문자열 보호보다 먼저 실행되어 문자열 내 --/* 로 쿼리 잘림/훼손)
+
+## 2차 스캔 27개 파일 전체 완료 (2026-07-29)
+worst-first 27개 파일 전부 재작성 완료. 이후 다음 우선순위 검토 필요:
+- 700~1000자 파일 97개, 1000~1500자 227개 — 순차 스캔/처리 검토 대상
+- 새 배치 시작 전 사용자에게 계속 진행 여부 확인할 것
 
 ## 남은 참고 사항
 - 700~1000자 파일 97개, 1000~1500자 227개 — 27개 끝나면 이 구간도 순차적으로 스캔/처리 검토 필요
