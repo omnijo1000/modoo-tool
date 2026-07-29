@@ -128,12 +128,12 @@
 
   <div class="seo">
     <h2>디데이(D-day) 계산기란?</h2>
-    <p>목표 날짜를 선택하면 오늘로부터 남은 날수(D-day) 또는 경과 날수(D+day)를 자동으로 계산합니다. 수능·자격증 시험·여행·기념일 등 중요한 날까지 카운트다운하거나, 사귄 날·입대일·창업일부터 며칠이 지났는지 확인할 때 활용하세요. 여러 D-day를 동시에 등록해 한눈에 관리할 수 있으며, 목표일이 과거인 경우 경과 일수도 함께 표시됩니다.</p>
+    <p>목표 날짜를 선택하면 오늘로부터 남은 날수(D-day) 또는 경과 날수(D+day)를 자동으로 계산합니다. 날짜는 입력한 연·월·일을 그대로 로컬 자정 기준으로 비교하므로, 한국 등 UTC보다 시간대가 빠른 지역에서도 당일을 정확히 D-Day(0)로 표시합니다. 수능·자격증 시험·여행·기념일 등 중요한 날까지 카운트다운하거나, 사귄 날·입대일·창업일부터 며칠이 지났는지 확인할 때 활용하세요. 상세 정보의 "개월"과 "년"은 각각 30일/365일 기준의 근사치이며, 정확한 개월수가 아닌 대략적인 감을 잡는 용도입니다. 여러 D-day를 브라우저 로컬스토리지에 저장해 한눈에 관리할 수 있고, 목표일이 과거인 경우 경과 일수(D+N)도 함께 표시됩니다.</p>
     <h2 class="seo-sub">자주 묻는 질문 (FAQ)</h2>
     <details class="faq-item"><summary>Q. D-day와 D+day의 차이는?</summary><p>D-day는 목표일까지 남은 날수, D+day는 특정 날짜로부터 경과한 날수입니다. 기념일·군 입대일·사귄 날 등을 기준으로 '며칠 됐는지' 확인할 때는 D+day를 씁니다.</p></details>
     <details class="faq-item"><summary>Q. 당일은 D-0인가요 D-1인가요?</summary><p>이 계산기는 당일을 D-Day(0)로 계산합니다. 즉, 오늘이 목표일이면 D-0, 내일이 목표일이면 D-1로 표시됩니다.</p></details>
     <details class="faq-item"><summary>Q. 두 날짜 사이의 기간은 어떻게 계산하나요?</summary><p>상단의 "기간 계산" 탭을 선택하면 시작일과 종료일 사이의 일수·주수·개월수를 계산할 수 있습니다.</p></details>
-    <details class="faq-item"><summary>Q. D-day를 여러 개 저장할 수 있나요?</summary><p>네. 계산한 D-day를 저장 버튼으로 목록에 추가하면 여러 개를 한 화면에서 관리할 수 있습니다. 저장 데이터는 브라우저 로컬스토리지에 보관됩니다.</p></details>
+    <details class="faq-item"><summary>Q. D-day를 여러 개 저장할 수 있나요?</summary><p>네. 계산한 D-day를 저장 버튼으로 목록에 추가하면 최신 항목이 맨 위에 표시되며, 최대 10개까지 저장됩니다. 11번째를 저장하면 가장 오래된 항목이 자동으로 삭제됩니다. 저장 데이터는 브라우저 로컬스토리지에만 보관되며 다른 기기와 동기화되지 않습니다.</p></details>
     <details class="faq-item"><summary>Q. 목표일이 이미 지난 경우에도 계산되나요?</summary><p>네. 목표일이 과거이면 오늘 기준 경과 일수를 D+N 형태로 표시합니다.</p></details>
     <details class="faq-item"><summary>Q. 공휴일을 제외한 영업일 기준 D-day 계산도 되나요?</summary><p>이 계산기는 달력 기준(공휴일 포함) 일수를 계산합니다. 영업일 기준은 영업일 계산기를 이용하세요.</p></details>
     <details class="faq-item"><summary>Q. 윤년에도 날짜 계산이 정확한가요?</summary><p>네. 이 계산기는 윤년(366일)을 자동으로 반영합니다. 2월 29일을 포함한 구간도 정확하게 계산됩니다.</p></details>
@@ -146,6 +146,11 @@
 const DAYS = ['일','월','화','수','목','금','토'];
 let currentTab = 'dday';
 let savedDdays = JSON.parse(localStorage.getItem('ddays') || '[]');
+
+function parseLocalDate(dateStr) {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
 
 function switchTab(tab) {
   currentTab = tab;
@@ -163,7 +168,7 @@ function calcDday() {
   if (!target) return;
 
   const today = new Date(); today.setHours(0,0,0,0);
-  const tDate = new Date(target);
+  const tDate = parseLocalDate(target);
   const diff = Math.ceil((tDate - today) / (1000*60*60*24));
 
   showResult(diff, name, target);
@@ -175,8 +180,8 @@ function calcBetween() {
   const end = document.getElementById('endDate').value;
   if (!start || !end) return;
 
-  const sDate = new Date(start);
-  const eDate = new Date(end);
+  const sDate = parseLocalDate(start);
+  const eDate = parseLocalDate(end);
   const diff = Math.ceil((eDate - sDate) / (1000*60*60*24));
 
   showResult(diff, '기간', `${start} ~ ${end}`);
@@ -239,7 +244,7 @@ function renderSaved() {
   if (!savedDdays.length) { el.innerHTML = '<div class="empty-saved">저장된 디데이가 없습니다</div>'; return; }
   const today = new Date(); today.setHours(0,0,0,0);
   el.innerHTML = savedDdays.map((d, i) => {
-    const diff = Math.ceil((new Date(d.date) - today) / (1000*60*60*24));
+    const diff = Math.ceil((parseLocalDate(d.date) - today) / (1000*60*60*24));
     const ddayStr = diff === 0 ? 'D-Day' : diff > 0 ? `D-${diff}` : `D+${Math.abs(diff)}`;
     const color = diff === 0 ? '#facc15' : diff > 0 ? 'var(--good)' : 'var(--danger)';
     return `<div class="saved-item" onclick="loadDday(${i})">
