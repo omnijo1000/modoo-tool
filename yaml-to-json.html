@@ -23,7 +23,7 @@
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"YAML to JSON Converter","url":"https://modoohub.com/yaml-to-json.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Convert YAML to JSON instantly. Perfect for Kubernetes, Docker Compose, and GitHub Actions config files."}</script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"YAML을 JSON으로 왜 변환하나요?","acceptedAnswer":{"@type":"Answer","text":"API는 보통 JSON을 사용하므로 YAML 설정 파일을 API로 전송하거나 JSON 기반 도구에서 처리할 때 변환이 필요합니다."}},{"@type":"Question","name":"YAML 앵커는 변환 후 어떻게 되나요?","acceptedAnswer":{"@type":"Answer","text":"YAML 앵커(&)와 별칭(*)은 변환 시 실제 값으로 해소되어 JSON에 인라인됩니다."}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"---로 구분된 다중 문서 YAML을 넣으면 첫 번째 문서만 변환되나요?","acceptedAnswer":{"@type":"Answer","text":"아니요. 이 도구가 사용하는 js-yaml의 load() 함수는 다중 문서 YAML을 만나면 오류를 던지며 변환 자체에 실패합니다. 첫 번째 문서만 골라서 변환해주지 않고 결과 칸이 비고 오류 메시지만 표시됩니다."}},{"@type":"Question","name":"Kubernetes YAML처럼 여러 리소스가 ---로 이어진 파일은 어떻게 변환하나요?","acceptedAnswer":{"@type":"Answer","text":"통째로 붙여넣으면 다중 문서 오류가 나므로, 구분선을 기준으로 파일을 문서 단위로 나눈 뒤 각 문서를 하나씩 따로 붙여넣어 변환해야 합니다."}},{"@type":"Question","name":"YAML 앵커(&)와 별칭(*)은 변환 시 어떻게 되나요?","acceptedAnswer":{"@type":"Answer","text":"단일 문서 안에서는 앵커와 별칭이 실제 값으로 해소되어 JSON에 인라인됩니다. 다중 문서 YAML은 변환 단계에 도달하지 못합니다."}},{"@type":"Question","name":"YAML을 JSON으로 왜 변환하나요?","acceptedAnswer":{"@type":"Answer","text":"API는 보통 JSON을 사용하므로 YAML 설정 파일을 API로 전송하거나 JSON 기반 도구에서 처리할 때 변환이 필요합니다."}}]}</script>
 <meta property="og:type" content="website">
 <meta property="og:title" content="YAML to JSON 변환기 - 온라인 YAML → JSON 변환 | MODOO HUB">
 <meta property="og:description" content="YAML을 JSON으로 즉시 변환. Kubernetes·Docker Compose·GitHub Actions YAML 설정을 JSON으로. 온라인 YAML to JSON 컨버터.">
@@ -66,66 +66,66 @@
       </div>
     </div>
   </div>
-  <div class="seo" id="seoDiv"><h2>YAML to JSON 변환기</h2><p>Kubernetes, Docker Compose, GitHub Actions 등 YAML 설정 파일을 JSON으로 즉시 변환합니다. API 연동, JSON 기반 도구 연계, 설정 데이터 처리 등에 활용할 수 있습니다. <strong>YAML 앵커·별칭·다중 문서</strong>를 지원합니다.</p>
+  <div class="seo" id="seoDiv"><h2>YAML to JSON 변환기</h2><p>Kubernetes, Docker Compose, GitHub Actions 등 YAML 설정 파일을 JSON으로 즉시 변환합니다. 내부적으로 js-yaml 라이브러리의 <code>jsyaml.load()</code> 함수를 사용하는데, 이 함수는 <strong>"---"로 구분된 다중 문서 YAML을 만나면 첫 번째 문서만 변환하는 게 아니라 "여러 문서가 발견됐다"는 오류를 던지며 아예 변환에 실패</strong>합니다. Kubernetes manifest처럼 여러 리소스를 "---"로 이어붙인 YAML 파일은 이 도구에 그대로 붙여넣으면 오류 메시지만 나오고 결과가 비어 있게 됩니다.</p>
 <h2 class="seo-sub">자주 묻는 질문</h2>
-<details class="faq-item"><summary>YAML 앵커(&)는 변환 시 어떻게 되나요?</summary><p>앵커와 별칭은 변환 시 실제 값으로 해소되어 JSON에 인라인됩니다.</p></details>
-<details class="faq-item"><summary>YAML 주석은?</summary><p>JSON은 주석을 지원하지 않으므로 # 주석은 변환 시 제거됩니다.</p></details>
-<details class="faq-item"><summary>다중 YAML 문서(---)는?</summary><p>첫 번째 문서만 변환됩니다. 다중 문서는 각각 별도로 변환하세요.</p></details>
-<details class="faq-item"><summary>YAML의 true/false/null은?</summary><p>YAML 불리언(true/false, yes/no, on/off)과 null(~)은 JSON에서 동등한 값으로 변환됩니다.</p></details>
-<details class="faq-item"><summary>큰따옴표·작은따옴표 문자열 차이는?</summary><p>YAML에서 큰따옴표는 이스케이프 시퀀스를 처리하고, 작은따옴표는 리터럴로 처리합니다. 변환 후 JSON에서는 모두 일반 문자열이 됩니다.</p></details>
-<details class="faq-item"><summary>Kubernetes YAML도 변환 가능한가요?</summary><p>가능합니다. 단, Kubernetes YAML은 다중 문서(---)를 사용하는 경우가 많아 첫 번째 문서만 변환됩니다.</p></details>
-<details class="faq-item"><summary>역변환(JSON→YAML)도 지원하나요?</summary><p>json-to-yaml 도구를 이용하면 JSON을 YAML로 역변환할 수 있습니다.</p></details>
-<details class="faq-item"><summary>탭 들여쓰기 YAML도 처리되나요?</summary><p>YAML 사양은 들여쓰기에 탭을 허용하지 않습니다. 스페이스만 사용해야 합니다.</p></details></div>
+<details class="faq-item"><summary>"---"로 구분된 다중 문서 YAML을 넣으면 첫 번째 문서만 변환되나요?</summary><p>아니요. 이 도구가 사용하는 js-yaml의 <code>load()</code> 함수는 다중 문서 YAML을 만나면 "expected a single document in the stream, but found more"라는 오류를 던지며 변환 자체에 실패합니다. 첫 번째 문서만 골라서 변환해주지 않고, 결과 칸이 비고 오류 메시지만 표시됩니다.</p></details>
+<details class="faq-item"><summary>Kubernetes YAML처럼 여러 리소스가 "---"로 이어진 파일은 어떻게 변환하나요?</summary><p>이 도구에 통째로 붙여넣으면 다중 문서 오류가 나므로, "---" 구분선을 기준으로 파일을 문서 단위로 나눈 뒤 각 문서를 하나씩 따로 붙여넣어 변환해야 합니다.</p></details>
+<details class="faq-item"><summary>YAML 앵커(&)와 별칭(*)은 변환 시 어떻게 되나요?</summary><p>단일 문서 안에서는 앵커와 별칭이 실제 값으로 해소되어 JSON에 인라인됩니다. 다만 이 처리도 문서가 하나일 때만 적용되며, 다중 문서 YAML 자체는 앞서 설명한 이유로 변환 단계에 도달하지 못합니다.</p></details>
+<details class="faq-item"><summary>YAML 주석은 변환 후 어떻게 되나요?</summary><p>JSON은 주석을 지원하지 않으므로 # 주석은 변환 과정에서 제거되고 결과 JSON에는 나타나지 않습니다.</p></details>
+<details class="faq-item"><summary>YAML의 true/false/null은 어떻게 처리되나요?</summary><p>YAML의 불리언 표현(true/false, yes/no, on/off)과 null(~)은 JSON의 동등한 값(true/false, null)으로 변환됩니다.</p></details>
+<details class="faq-item"><summary>큰따옴표·작은따옴표로 감싼 문자열의 차이는?</summary><p>YAML에서 큰따옴표 문자열은 이스케이프 시퀀스(예: \n)를 처리하고, 작은따옴표 문자열은 내용을 있는 그대로(리터럴로) 취급합니다. 변환 후 JSON에서는 이 구분이 사라지고 모두 동일한 일반 문자열이 됩니다.</p></details>
+<details class="faq-item"><summary>탭으로 들여쓰기한 YAML도 변환되나요?</summary><p>아니요. YAML 사양 자체가 들여쓰기에 탭 문자 사용을 금지하고 있어, 탭이 섞인 YAML을 넣으면 파싱 오류가 발생합니다. 스페이스만 사용해야 합니다.</p></details>
+<details class="faq-item"><summary>역변환(JSON → YAML)도 지원하나요?</summary><p>이 도구는 YAML→JSON 방향만 지원합니다. 반대 방향은 json-to-yaml 도구를 이용하세요.</p></details></div>
 </main>
 <script>
 const _i18n={
   ko:{pageTitle:'YAML to JSON 변환기 - 온라인 YAML → JSON 변환 | MODOO HUB',h1b:'JSON',sub:'YAML 붙여넣기 → JSON 즉시 변환',backLink:'← 모두의 툴',langBtn:'🌐 EN',indentLabel:'들여쓰기:',btnCopy:'복사',btnClear:'초기화',copied:'복사됨 ✓',errParse:'YAML 파싱 오류: ',
-    seoHtml:`<h2>YAML to JSON 변환기</h2><p>Kubernetes, Docker Compose, GitHub Actions 등 YAML 설정 파일을 JSON으로 즉시 변환합니다. API 연동, JSON 기반 도구 연계, 설정 데이터 처리 등에 활용할 수 있습니다. <strong>YAML 앵커·별칭·다중 문서</strong>를 지원합니다.</p>
+    seoHtml:`<h2>YAML to JSON 변환기</h2><p>Kubernetes, Docker Compose, GitHub Actions 등 YAML 설정 파일을 JSON으로 즉시 변환합니다. 내부적으로 js-yaml 라이브러리의 <code>jsyaml.load()</code> 함수를 사용하는데, 이 함수는 <strong>"---"로 구분된 다중 문서 YAML을 만나면 첫 번째 문서만 변환하는 게 아니라 "여러 문서가 발견됐다"는 오류를 던지며 아예 변환에 실패</strong>합니다. Kubernetes manifest처럼 여러 리소스를 "---"로 이어붙인 YAML 파일은 이 도구에 그대로 붙여넣으면 오류 메시지만 나오고 결과가 비어 있게 됩니다.</p>
 <h2 class="seo-sub">자주 묻는 질문</h2>
-<details class="faq-item"><summary>YAML 앵커(&)는 변환 시 어떻게 되나요?</summary><p>앵커와 별칭은 변환 시 실제 값으로 해소되어 JSON에 인라인됩니다.</p></details>
-<details class="faq-item"><summary>YAML 주석은?</summary><p>JSON은 주석을 지원하지 않으므로 # 주석은 변환 시 제거됩니다.</p></details>
-<details class="faq-item"><summary>다중 YAML 문서(---)는?</summary><p>첫 번째 문서만 변환됩니다. 다중 문서는 각각 별도로 변환하세요.</p></details>
-<details class="faq-item"><summary>YAML의 true/false/null은?</summary><p>YAML 불리언(true/false, yes/no, on/off)과 null(~)은 JSON에서 동등한 값으로 변환됩니다.</p></details>
-<details class="faq-item"><summary>큰따옴표·작은따옴표 문자열 차이는?</summary><p>YAML에서 큰따옴표는 이스케이프 시퀀스를 처리하고, 작은따옴표는 리터럴로 처리합니다. 변환 후 JSON에서는 모두 일반 문자열이 됩니다.</p></details>
-<details class="faq-item"><summary>Kubernetes YAML도 변환 가능한가요?</summary><p>가능합니다. 단, Kubernetes YAML은 다중 문서(---)를 사용하는 경우가 많아 첫 번째 문서만 변환됩니다.</p></details>
-<details class="faq-item"><summary>역변환(JSON→YAML)도 지원하나요?</summary><p>json-to-yaml 도구를 이용하면 JSON을 YAML로 역변환할 수 있습니다.</p></details>
-<details class="faq-item"><summary>탭 들여쓰기 YAML도 처리되나요?</summary><p>YAML 사양은 들여쓰기에 탭을 허용하지 않습니다. 스페이스만 사용해야 합니다.</p></details>`
+<details class="faq-item"><summary>"---"로 구분된 다중 문서 YAML을 넣으면 첫 번째 문서만 변환되나요?</summary><p>아니요. 이 도구가 사용하는 js-yaml의 <code>load()</code> 함수는 다중 문서 YAML을 만나면 "expected a single document in the stream, but found more"라는 오류를 던지며 변환 자체에 실패합니다. 첫 번째 문서만 골라서 변환해주지 않고, 결과 칸이 비고 오류 메시지만 표시됩니다.</p></details>
+<details class="faq-item"><summary>Kubernetes YAML처럼 여러 리소스가 "---"로 이어진 파일은 어떻게 변환하나요?</summary><p>이 도구에 통째로 붙여넣으면 다중 문서 오류가 나므로, "---" 구분선을 기준으로 파일을 문서 단위로 나눈 뒤 각 문서를 하나씩 따로 붙여넣어 변환해야 합니다.</p></details>
+<details class="faq-item"><summary>YAML 앵커(&)와 별칭(*)은 변환 시 어떻게 되나요?</summary><p>단일 문서 안에서는 앵커와 별칭이 실제 값으로 해소되어 JSON에 인라인됩니다. 다만 이 처리도 문서가 하나일 때만 적용되며, 다중 문서 YAML 자체는 앞서 설명한 이유로 변환 단계에 도달하지 못합니다.</p></details>
+<details class="faq-item"><summary>YAML 주석은 변환 후 어떻게 되나요?</summary><p>JSON은 주석을 지원하지 않으므로 # 주석은 변환 과정에서 제거되고 결과 JSON에는 나타나지 않습니다.</p></details>
+<details class="faq-item"><summary>YAML의 true/false/null은 어떻게 처리되나요?</summary><p>YAML의 불리언 표현(true/false, yes/no, on/off)과 null(~)은 JSON의 동등한 값(true/false, null)으로 변환됩니다.</p></details>
+<details class="faq-item"><summary>큰따옴표·작은따옴표로 감싼 문자열의 차이는?</summary><p>YAML에서 큰따옴표 문자열은 이스케이프 시퀀스(예: \\n)를 처리하고, 작은따옴표 문자열은 내용을 있는 그대로(리터럴로) 취급합니다. 변환 후 JSON에서는 이 구분이 사라지고 모두 동일한 일반 문자열이 됩니다.</p></details>
+<details class="faq-item"><summary>탭으로 들여쓰기한 YAML도 변환되나요?</summary><p>아니요. YAML 사양 자체가 들여쓰기에 탭 문자 사용을 금지하고 있어, 탭이 섞인 YAML을 넣으면 파싱 오류가 발생합니다. 스페이스만 사용해야 합니다.</p></details>
+<details class="faq-item"><summary>역변환(JSON → YAML)도 지원하나요?</summary><p>이 도구는 YAML→JSON 방향만 지원합니다. 반대 방향은 json-to-yaml 도구를 이용하세요.</p></details>`
   },
   en:{pageTitle:'YAML to JSON Converter - Online YAML → JSON | MODOO HUB',h1b:'JSON',sub:'Paste YAML → instant JSON conversion',backLink:'← All Tools',langBtn:'🌐 中文',indentLabel:'Indent:',btnCopy:'Copy',btnClear:'Clear',copied:'Copied ✓',errParse:'YAML parse error: ',
-    seoHtml:`<h2>YAML to JSON Converter</h2><p>Convert Kubernetes, Docker Compose, GitHub Actions YAML config files to JSON instantly. Useful for API integration, JSON-based tool interop, and config data processing. Supports <strong>YAML anchors, aliases, and multi-document files</strong>.</p>
+    seoHtml:`<h2>YAML to JSON Converter</h2><p>Converts Kubernetes, Docker Compose, and GitHub Actions YAML config files to JSON instantly. Under the hood it uses the js-yaml library's <code>jsyaml.load()</code> function, which <strong>doesn't convert just the first document when it hits multi-document YAML separated by "---" — it throws an error saying multiple documents were found and fails to convert anything at all</strong>. Paste a Kubernetes manifest with several resources joined by "---" directly into this tool, and you'll get only an error message with an empty result.</p>
 <h2 class="seo-sub">FAQ</h2>
-<details class="faq-item"><summary>What happens to YAML anchors?</summary><p>Anchors (&) and aliases (*) are resolved and inlined as actual values in the JSON output.</p></details>
-<details class="faq-item"><summary>What about YAML comments?</summary><p>JSON does not support comments, so # comments are stripped during conversion.</p></details>
-<details class="faq-item"><summary>Multi-document YAML (---)?</summary><p>Only the first document is converted. Convert each document separately for multi-document files.</p></details>
-<details class="faq-item"><summary>YAML true/false/null handling?</summary><p>YAML booleans (true/false, yes/no, on/off) and null (~) are converted to their JSON equivalents.</p></details>
-<details class="faq-item"><summary>Single vs double quotes in YAML?</summary><p>Double quotes process escape sequences; single quotes are literal. After conversion to JSON, both are plain strings.</p></details>
-<details class="faq-item"><summary>Can I convert Kubernetes YAML?</summary><p>Yes, but Kubernetes YAML often uses multi-document files (---), so only the first document is converted.</p></details>
-<details class="faq-item"><summary>Is JSON→YAML also supported?</summary><p>Use the json-to-yaml tool for reverse conversion.</p></details>
-<details class="faq-item"><summary>Tab indentation in YAML?</summary><p>YAML spec does not allow tabs for indentation. Use spaces only.</p></details>`
+<details class="faq-item"><summary>If I paste multi-document YAML separated by "---", does it convert just the first document?</summary><p>No. The js-yaml <code>load()</code> function this tool relies on throws an error — "expected a single document in the stream, but found more" — when it encounters multi-document YAML, and conversion fails entirely. It doesn't pick out the first document for you; the result field stays empty and only the error message is shown.</p></details>
+<details class="faq-item"><summary>How do I convert a file with multiple resources joined by "---", like a Kubernetes manifest?</summary><p>Pasting the whole file in triggers the multi-document error, so you need to split the file at each "---" separator and paste each document in one at a time.</p></details>
+<details class="faq-item"><summary>What happens to YAML anchors (&) and aliases (*)?</summary><p>Within a single document, anchors and aliases are resolved to their actual values and inlined into the JSON. This resolution only applies when there's a single document, though — multi-document YAML never reaches the conversion step at all, for the reason explained above.</p></details>
+<details class="faq-item"><summary>What happens to YAML comments after conversion?</summary><p>JSON doesn't support comments, so # comments are stripped during conversion and never appear in the resulting JSON.</p></details>
+<details class="faq-item"><summary>How are YAML's true/false/null handled?</summary><p>YAML's boolean representations (true/false, yes/no, on/off) and null (~) are converted to their JSON equivalents (true/false, null).</p></details>
+<details class="faq-item"><summary>What's the difference between single- and double-quoted strings?</summary><p>In YAML, double-quoted strings process escape sequences (like \\n), while single-quoted strings treat their contents literally. After conversion, this distinction disappears — both become identical plain JSON strings.</p></details>
+<details class="faq-item"><summary>Does tab-indented YAML convert?</summary><p>No. The YAML spec itself prohibits tab characters for indentation, so YAML containing tabs triggers a parse error. Use spaces only.</p></details>
+<details class="faq-item"><summary>Is the reverse direction (JSON → YAML) supported?</summary><p>This tool only converts YAML to JSON. Use the json-to-yaml tool for the reverse direction.</p></details>`
   },
   zh:{pageTitle:'YAML转JSON工具 - 在线YAML → JSON转换 | MODOO HUB',h1b:'JSON',sub:'粘贴YAML → 即时转换为JSON',backLink:'← 所有工具',langBtn:'🌐 日本語',indentLabel:'缩进:',btnCopy:'复制',btnClear:'清除',copied:'已复制 ✓',errParse:'YAML解析错误: ',
-    seoHtml:`<h2>YAML转JSON工具</h2><p>将Kubernetes、Docker Compose、GitHub Actions等YAML配置文件即时转换为JSON。支持YAML锚点、别名和多文档。</p>
+    seoHtml:`<h2>YAML转JSON工具</h2><p>将Kubernetes、Docker Compose、GitHub Actions等YAML配置文件即时转换为JSON。内部使用js-yaml库的<code>jsyaml.load()</code>函数，但这个函数<strong>遇到用"---"分隔的多文档YAML时，并不会只转换第一个文档，而是直接抛出"发现多个文档"的错误，导致完全转换失败</strong>。像Kubernetes manifest那样把多个资源用"---"拼接在一起的YAML文件，直接粘贴到本工具只会看到错误提示，结果区域是空的。</p>
 <h2 class="seo-sub">常见问题</h2>
-<details class="faq-item"><summary>YAML锚点如何处理？</summary><p>锚点(&)和别名(*)在转换时解析为实际值内联到JSON中。</p></details>
-<details class="faq-item"><summary>YAML注释呢？</summary><p>JSON不支持注释，#注释在转换时会被删除。</p></details>
-<details class="faq-item"><summary>多文档YAML(---)？</summary><p>只转换第一个文档，多文档请分别转换。</p></details>
-<details class="faq-item"><summary>YAML的true/false/null如何处理？</summary><p>YAML布尔值和null(~)转换为对应的JSON值。</p></details>
-<details class="faq-item"><summary>可以转换Kubernetes YAML吗？</summary><p>可以，但多文档YAML只转换第一个文档。</p></details>
-<details class="faq-item"><summary>支持JSON→YAML反向转换吗？</summary><p>请使用json-to-yaml工具。</p></details>
-<details class="faq-item"><summary>YAML可以用制表符缩进吗？</summary><p>不可以，YAML规范只允许空格缩进。</p></details>
-<details class="faq-item"><summary>单引号和双引号字符串的区别？</summary><p>双引号处理转义序列，单引号按字面处理。转换为JSON后都是普通字符串。</p></details>`
+<details class="faq-item"><summary>粘贴用"---"分隔的多文档YAML，会只转换第一个文档吗？</summary><p>不会。本工具依赖的js-yaml的<code>load()</code>函数遇到多文档YAML时会抛出"expected a single document in the stream, but found more"错误，整个转换会失败。它不会帮你挑出第一个文档来转换，结果框会保持空白，只显示错误信息。</p></details>
+<details class="faq-item"><summary>像Kubernetes manifest这种多个资源用"---"拼接的文件该怎么转换？</summary><p>整个粘贴进去会触发多文档错误，因此需要先按"---"分隔符把文件拆分成一个个文档，再逐个单独粘贴转换。</p></details>
+<details class="faq-item"><summary>YAML锚点(&)和别名(*)在转换时如何处理？</summary><p>在单一文档内，锚点和别名会被解析为实际值并内联到JSON中。但这个处理也只在只有一个文档时才生效，多文档YAML本身根本到不了转换这一步，原因如上所述。</p></details>
+<details class="faq-item"><summary>YAML注释转换后会怎样？</summary><p>JSON不支持注释，因此#注释会在转换过程中被删除，不会出现在结果JSON中。</p></details>
+<details class="faq-item"><summary>YAML的true/false/null是如何处理的？</summary><p>YAML的布尔表示法(true/false、yes/no、on/off)和null(~)会转换为对应的JSON值(true/false、null)。</p></details>
+<details class="faq-item"><summary>单引号和双引号字符串有什么区别？</summary><p>在YAML中，双引号字符串会处理转义序列(如\\n)，单引号字符串则按字面内容处理。转换为JSON后这种区别会消失，两者都变成相同的普通字符串。</p></details>
+<details class="faq-item"><summary>用制表符缩进的YAML能转换吗？</summary><p>不能。YAML规范本身禁止用制表符缩进，混有制表符的YAML会触发解析错误。只能使用空格。</p></details>
+<details class="faq-item"><summary>支持反向转换(JSON → YAML)吗？</summary><p>本工具只支持YAML转JSON方向。反方向请使用json-to-yaml工具。</p></details>`
   },
   ja:{pageTitle:'YAMLからJSONへの変換ツール - オンライン YAML → JSON | MODOO HUB',h1b:'JSON',sub:'YAMLを貼り付け → JSONに即時変換',backLink:'← ホーム',langBtn:'🌐 한국어',indentLabel:'インデント:',btnCopy:'コピー',btnClear:'クリア',copied:'コピー完了 ✓',errParse:'YAMLパースエラー: ',
-    seoHtml:`<h2>YAML to JSON変換ツール</h2><p>Kubernetes・Docker Compose・GitHub ActionsなどのYAML設定ファイルをJSONに即時変換します。YAMLアンカー・エイリアス・複数ドキュメントをサポートします。</p>
+    seoHtml:`<h2>YAML to JSON変換ツールとは</h2><p>Kubernetes・Docker Compose・GitHub ActionsなどのYAML設定ファイルをJSONに即時変換します。内部ではjs-yamlライブラリの<code>jsyaml.load()</code>関数を使用していますが、この関数は<strong>「---」で区切られた複数ドキュメントのYAMLに遭遇すると、最初のドキュメントだけを変換するのではなく「複数のドキュメントが見つかった」というエラーを投げて変換自体が失敗</strong>します。Kubernetesマニフェストのように複数のリソースを「---」でつなげたYAMLファイルをこのツールにそのまま貼り付けると、エラーメッセージだけが表示され結果は空のままになります。</p>
 <h2 class="seo-sub">よくある質問</h2>
-<details class="faq-item"><summary>YAMLアンカーはどうなりますか？</summary><p>アンカー(&)とエイリアス(*)は変換時に実際の値に解決され、JSONにインライン化されます。</p></details>
-<details class="faq-item"><summary>YAMLコメントは？</summary><p>JSONはコメントをサポートしないため、#コメントは変換時に削除されます。</p></details>
-<details class="faq-item"><summary>複数ドキュメントYAML（---）は？</summary><p>最初のドキュメントのみ変換されます。複数ドキュメントは個別に変換してください。</p></details>
-<details class="faq-item"><summary>YAMLのtrue/false/nullは？</summary><p>YAMLのブール値とnull(~)はJSON同等値に変換されます。</p></details>
-<details class="faq-item"><summary>KubernetesのYAMLも変換できますか？</summary><p>できますが、複数ドキュメント(---)の場合は最初のドキュメントのみ変換されます。</p></details>
-<details class="faq-item"><summary>JSON→YAMLの逆変換は？</summary><p>json-to-yamlツールをご利用ください。</p></details>
-<details class="faq-item"><summary>タブインデントのYAMLは？</summary><p>YAML仕様ではインデントにタブを使えません。スペースのみ使用してください。</p></details>
-<details class="faq-item"><summary>シングルクォートとダブルクォートの違いは？</summary><p>ダブルクォートはエスケープシーケンスを処理し、シングルクォートはリテラルです。JSON変換後はどちらも通常の文字列になります。</p></details>`
+<details class="faq-item"><summary>「---」で区切られた複数ドキュメントのYAMLを入れると、最初のドキュメントだけ変換されますか？</summary><p>いいえ。このツールが使用しているjs-yamlの<code>load()</code>関数は、複数ドキュメントのYAMLに遭遇すると「expected a single document in the stream, but found more」というエラーを投げ、変換自体が失敗します。最初のドキュメントだけを選んで変換してくれるわけではなく、結果欄は空のままでエラーメッセージだけが表示されます。</p></details>
+<details class="faq-item"><summary>Kubernetesマニフェストのように複数のリソースが「---」でつながったファイルはどう変換すればいいですか？</summary><p>ファイル全体を貼り付けると複数ドキュメントエラーになるため、「---」区切りごとにファイルをドキュメント単位に分割し、1つずつ個別に貼り付けて変換する必要があります。</p></details>
+<details class="faq-item"><summary>YAMLアンカー(&)とエイリアス(*)は変換時にどうなりますか？</summary><p>単一ドキュメント内では、アンカーとエイリアスは実際の値に解決されJSONにインライン化されます。ただしこの処理もドキュメントが1つの場合にのみ適用され、複数ドキュメントのYAML自体は前述の理由で変換ステップにすら到達しません。</p></details>
+<details class="faq-item"><summary>YAMLコメントは変換後どうなりますか？</summary><p>JSONはコメントをサポートしないため、#コメントは変換過程で削除され、結果のJSONには現れません。</p></details>
+<details class="faq-item"><summary>YAMLのtrue/false/nullはどう処理されますか？</summary><p>YAMLのブール表現(true/false、yes/no、on/off)とnull(~)は、JSONの同等の値(true/false、null)に変換されます。</p></details>
+<details class="faq-item"><summary>シングルクォートとダブルクォートで囲んだ文字列の違いは？</summary><p>YAMLでは、ダブルクォート文字列はエスケープシーケンス(\\nなど)を処理し、シングルクォート文字列は内容をそのまま(リテラルとして)扱います。変換後のJSONではこの区別がなくなり、どちらも同じ普通の文字列になります。</p></details>
+<details class="faq-item"><summary>タブでインデントされたYAMLも変換できますか？</summary><p>いいえ。YAML仕様自体がインデントへのタブ文字の使用を禁止しているため、タブが混じったYAMLを入力するとパースエラーになります。スペースのみを使用してください。</p></details>
+<details class="faq-item"><summary>逆方向(JSON → YAML)の変換にも対応していますか？</summary><p>このツールはYAML→JSON方向のみに対応しています。逆方向にはjson-to-yamlツールをご利用ください。</p></details>`
   }
 };
 const LANGS=['ko','en','zh','ja'];
