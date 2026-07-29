@@ -95,9 +95,34 @@ remove-special-characters, sql-to-json, ascii-table
 color-blindness-simulator(버그도 수정 — applyMatrix 3x4→3x3 인덱싱 오류), reading-level-checker(SMOG 계수 오류 + countSyllables 비영어 0음절 버그), sql-minifier(주석 제거가 문자열 보호보다 먼저 실행되어 문자열 내 --/* 로 쿼리 잘림/훼손)
 
 ## 2차 스캔 27개 파일 전체 완료 (2026-07-29)
-worst-first 27개 파일 전부 재작성 완료. 이후 다음 우선순위 검토 필요:
-- 700~1000자 파일 97개, 1000~1500자 227개 — 순차 스캔/처리 검토 대상
-- 새 배치 시작 전 사용자에게 계속 진행 여부 확인할 것
+worst-first 27개 파일 전부 재작성 완료.
+
+## 3차 스캔 (700~1000자, 70개 파일, worst-first) — 진행중
+
+이 구간 파일들은 이미 FAQ 8개 형식(faq-item 40개)은 갖췄지만 내용이 얕은 경우가 많음(2026-06-14 전수 SEO 보강 때 형식만 갖춰짐). 스캔 방법은 위와 동일, 범위만 `700 <= len < 1000`으로 필터.
+
+### 완료 (3차 배치 1/N, content-depth-audit 브랜치에 커밋됨 — 커밋 4af5149)
+json-schema-validator(버그도 수정 — enum 검사가 문자열 타입 분기 안에만 있어 숫자/불리언 enum 위반 미검출 + minItems/oneOf 등 미구현이면서 head JSON-LD는 $ref·Draft-2019-09 지원을 거짓 주장), ico-converter(버그는 아니지만 PNG압축 방식 ICO/중앙크롭 등 실제 구현 세부사항 문서화), image-prompt-generator(버그도 수정 — DALL-E 모드 템플릿 리터럴 공백 중복 + 네거티브 프롬프트 필드가 DALL-E에서는 조용히 무시됨)
+
+### 다음 배치 후보 (top 15, char count)
+```
+702  json-schema-validator.html      ✅ 완료
+704  ico-converter.html              ✅ 완료
+705  image-prompt-generator.html     ✅ 완료
+712  markdown-chat-exporter.html     ⬜ 다음
+715  xml-to-json.html                ⬜
+723  pdf-size-analyzer.html          ⬜
+724  hash-checker.html               ⬜
+729  regex-generator.html            ⬜
+742  prompt-template-generator.html  ⬜
+743  curl-generator.html             ⬜
+749  ngram-analyzer.html             ⬜
+751  json-schema-generator.html      ⬜
+758  png-to-svg.html                 ⬜
+761  yaml-to-json.html               ⬜
+763  pdf-metadata-remover.html       ⬜
+```
+(전체 70개 목록은 스캔 스크립트 재실행으로 확인)
 
 ## 남은 참고 사항
 - 700~1000자 파일 97개, 1000~1500자 227개 — 27개 끝나면 이 구간도 순차적으로 스캔/처리 검토 필요
