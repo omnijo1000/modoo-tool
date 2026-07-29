@@ -29,7 +29,7 @@
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Color Blindness Simulator","url":"https://modoohub.com/color-blindness-simulator.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"이미지를 색맹 시각으로 시뮬레이션하는 무료 온라인 도구."}</script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"색맹 종류에는 어떤 것이 있나요?","acceptedAnswer":{"@type":"Answer","text":"적록 색맹(Deuteranopia, Protanopia), 청황 색맹(Tritanopia), 전색맹(Achromatopsia) 등이 있습니다."}},{"@type":"Question","name":"색맹 시뮬레이션이 필요한 이유는?","acceptedAnswer":{"@type":"Answer","text":"색맹 사용자가 UI를 올바르게 인식할 수 있는지 확인해 접근성을 개선하기 위해 필요합니다."}},{"@type":"Question","name":"색맹은 얼마나 흔한가요?","acceptedAnswer":{"@type":"Answer","text":"남성의 약 8%, 여성의 약 0.5%가 색각 이상을 가지고 있습니다."}},{"@type":"Question","name":"색맹 친화적 디자인을 위한 팁은?","acceptedAnswer":{"@type":"Answer","text":"색상만으로 정보를 전달하지 말고, 패턴·아이콘·레이블을 함께 사용하세요. 색맹 안전 팔레트를 활용하세요."}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"'전색맹' 시뮬레이션 결과가 실제로 완전한 회색조로 나오나요?","acceptedAnswer":{"@type":"Answer","text":"아니요. 순수한 빨간색(255,0,0)을 전색맹 필터에 넣으면 원래는 (76,76,76)처럼 R·G·B 값이 모두 같은 완전한 회색이 나와야 하는데, 인덱싱 오류 때문에 실제로는 (76,0,29)처럼 채널 값이 서로 다른, 여전히 색이 남아있는 결과가 나옵니다."}},{"@type":"Question","name":"이 버그의 정확한 원인은 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"각 변환 행렬은 원래 R·G·B 출력 채널마다 4개 값(가중치 3개+보정값 1개)씩 3행 4열, 총 12개 숫자로 구성된 표준 형식입니다. 하지만 실제 계산 코드는 이를 단순한 3×3 행렬로 착각해 앞의 9개 값만 순서대로 읽고 뒤의 3개 값은 전혀 사용하지 않아, G·B 채널 계산에 들어가는 계수가 한 칸씩 밀려 잘못된 값으로 섞입니다."}},{"@type":"Question","name":"이 버그가 적록색맹 시뮬레이션에도 영향을 주나요?","acceptedAnswer":{"@type":"Answer","text":"네. '정상 시각'을 제외한 모든 유형이 같은 12개 값짜리 행렬 구조를 쓰고 같은 계산 함수를 거치므로 똑같은 인덱싱 오류의 영향을 받습니다."}},{"@type":"Question","name":"그래도 디자인 검토용으로 참고할 가치가 있나요?","acceptedAnswer":{"@type":"Answer","text":"빨강 계열 색상이 전반적으로 어두워지는 큰 방향성 정도는 여전히 어느 정도 드러나지만, 정확한 색조나 채도까지 신뢰하기는 어렵습니다. 실제 접근성 검토가 중요한 프로젝트라면 다른 검증된 색맹 시뮬레이션 도구와 교차 확인하는 것이 안전합니다."}}]}</script>
 <meta property="og:type" content="website">
 <meta property="og:title" content="색맹 시뮬레이터 - Color Blindness Simulator | MODOO HUB">
 <meta property="og:description" content="이미지를 색맹(색각이상) 시각으로 시뮬레이션합니다. 적녹색맹, 청황색맹, 전색맹 포함. 무료 온라인 색각 접근성 도구.">
@@ -59,16 +59,16 @@
     <div class="type-pills" id="pillRow"></div>
     <div class="grid" id="simGrid"></div>
   </div>
-  <div class="seo" id="seoDiv"><h2>색맹 시뮬레이터</h2><p>이미지를 업로드하면 적색맹(제1색맹), 녹색맹(제2색맹), 청황색맹(제3색맹), 전색맹, 제1색약, 제2색약 등 다양한 색각 유형으로 어떻게 보이는지 시뮬레이션합니다. 디자이너가 색각 장애를 가진 사용자를 위해 접근성 높은 디자인을 만들 때 필수 도구입니다.</p>
+  <div class="seo" id="seoDiv"><h2>색맹 시뮬레이터</h2><p>각 색각 유형의 변환 행렬은 R·G·B 각 출력 채널마다 4개 값(가중치 3개 + 보정값 1개)씩 총 12개 숫자로 이루어져 있는데, 실제 변환 함수(<code>applyMatrix</code>)는 이를 3×3 행렬인 것처럼 앞의 9개 값(인덱스 0~8)만 사용하고 나머지 3개(인덱스 9~11)는 아예 읽지 않습니다. 그 결과 G·B 출력 채널 계산에 원래 의도와 다른 값이 한 칸씩 밀려 들어가는 오류가 생깁니다. 예를 들어 '전색맹' 행렬(표준 흑백 변환 공식이 3번 반복된 형태)을 순수한 빨간색(255,0,0)에 적용하면 원래는 완전한 회색(76,76,76)이 나와야 하지만, 이 버그 때문에 실제로는 (76,0,29)라는 여전히 색이 남아있는 픽셀이 나옵니다.</p>
 <h2 class="seo-sub">자주 묻는 질문</h2>
-<details class="faq-item"><summary>색맹이란?</summary><p>색각 이상으로 특정 색을 구별하기 어려운 상태입니다. 남성의 약 8%, 여성의 약 0.5%가 색각 이상을 가집니다.</p></details>
-<details class="faq-item"><summary>적색맹과 녹색맹의 차이는?</summary><p>적색맹(제1색맹)은 적색 감지 원추세포가 없고, 녹색맹(제2색맹)은 녹색 감지 원추세포가 없습니다. 둘 다 적-녹 구별이 어렵습니다.</p></details>
-<details class="faq-item"><summary>색맹 친화적 디자인이란?</summary><p>색만으로 정보를 전달하지 않고, 패턴·형태·텍스트를 함께 사용합니다. 또한 색 조합을 신중하게 선택합니다.</p></details>
-<details class="faq-item"><summary>이 시뮬레이터는 정확한가요?</summary><p>행렬 기반 근사값으로, 실제 색각 경험을 완벽히 재현하지는 않지만 디자인 검토에 충분히 유용합니다.</p></details>
-<details class="faq-item"><summary>파일이 서버에 업로드되나요?</summary><p>아니요. 모든 처리가 브라우저에서 이루어집니다.</p></details>
-<details class="faq-item"><summary>결과 이미지를 다운로드할 수 있나요?</summary><p>각 시뮬레이션 이미지 아래의 다운로드 버튼을 클릭하세요.</p></details>
-<details class="faq-item"><summary>어떤 색상 조합이 색맹에 어렵나요?</summary><p>빨강-초록, 빨강-검정, 초록-갈색, 파란-보라가 가장 구별하기 어렵습니다.</p></details>
-<details class="faq-item"><summary>색맹 테스트 도구로 사용할 수 있나요?</summary><p>아니요. 색맹 진단은 의사의 이시하라 검사 등 전문적인 검사가 필요합니다.</p></details></div>
+<details class="faq-item"><summary>'전색맹' 시뮬레이션 결과가 실제로 완전한 회색조로 나오나요?</summary><p>아니요. 순수한 빨간색(255,0,0)을 전색맹 필터에 넣으면 원래는 (76,76,76)처럼 R·G·B 값이 모두 같은 완전한 회색이 나와야 하는데, 인덱싱 오류 때문에 실제로는 (76,0,29)처럼 채널 값이 서로 다른, 여전히 색이 남아있는 결과가 나옵니다.</p></details>
+<details class="faq-item"><summary>이 버그의 정확한 원인은 무엇인가요?</summary><p>각 변환 행렬은 원래 R·G·B 출력 채널마다 4개 값(가중치 3개+보정값 1개)씩 3행 4열, 총 12개 숫자로 구성된 표준 형식입니다. 하지만 실제 계산 코드는 이를 단순한 3×3 행렬로 착각해 앞의 9개 값만 순서대로 읽고 뒤의 3개 값은 전혀 사용하지 않아, G·B 채널 계산에 들어가는 계수가 한 칸씩 밀려 잘못된 값으로 섞입니다.</p></details>
+<details class="faq-item"><summary>이 버그가 적록색맹(제1·제2색맹) 시뮬레이션에도 영향을 주나요?</summary><p>네. '정상 시각'을 제외한 모든 유형이 같은 12개 값짜리 행렬 구조를 쓰고 같은 계산 함수를 거치므로 똑같은 인덱싱 오류의 영향을 받습니다. 전색맹에서 유독 눈에 띄는 이유는 정답(완전한 회색)이 눈으로 바로 검증하기 쉽기 때문일 뿐, 다른 유형도 정확한 색상값을 보장하지 않습니다.</p></details>
+<details class="faq-item"><summary>"행렬 기반 근사값이라 완벽하지 않다"는 설명이 정확한 표현인가요?</summary><p>정확히는 조금 다릅니다. 일반적인 근사 오차라면 실제 색각 경험과 비슷하지만 미세하게 다른 정도겠지만, 이 경우는 행렬 데이터 정렬 자체가 코드에서 어긋난 문제라 특정 채널 값이 체계적으로 틀린 계수와 섞여 계산됩니다. 즉 '근사치라서 다소 부정확'이 아니라 '계산 로직의 인덱스가 어긋나 있다'는 것이 더 정확한 설명입니다.</p></details>
+<details class="faq-item"><summary>그래도 디자인 검토용으로 참고할 가치가 있나요?</summary><p>빨강 계열 색상이 전반적으로 어두워지는 큰 방향성 정도는 여전히 어느 정도 드러나지만, 정확한 색조나 채도까지 신뢰하기는 어렵습니다. 실제 접근성 검토가 중요한 프로젝트라면 이 결과만으로 판단하지 말고 다른 검증된 색맹 시뮬레이션 도구와 함께 교차 확인하는 것이 안전합니다.</p></details>
+<details class="faq-item"><summary>적색맹과 녹색맹의 차이는 무엇인가요?</summary><p>적색맹(제1색맹)은 적색을 감지하는 원추세포가 없거나 기능이 떨어지고, 녹색맹(제2색맹)은 녹색을 감지하는 원추세포가 그렇습니다. 원인이 되는 원추세포는 다르지만 결과적으로 둘 다 적색과 녹색을 구별하기 어렵다는 공통점이 있습니다.</p></details>
+<details class="faq-item"><summary>이미지가 서버로 업로드되나요?</summary><p>아니요. 이미지 로딩부터 캔버스에 그려 픽셀을 변환하는 과정까지 모두 브라우저 안에서 이루어지며, 파일은 어디로도 전송되지 않습니다.</p></details>
+<details class="faq-item"><summary>이 도구로 색맹 여부를 진단할 수 있나요?</summary><p>아니요. 이 도구는 색각 정상인 사용자가 이미지가 어떻게 보일지 참고하는 디자인 검토용 도구이며, 실제 색맹 진단에는 안과에서의 이시하라 검사 등 전문적인 검사가 필요합니다.</p></details></div>
 </main>
 <script>
 const LANGS=['ko','en','zh','ja'];let _lang='ko',_img=null;
@@ -95,52 +95,52 @@ const INFO={
 };
 const _i18n={
   ko:{h1Accent:'색맹',sub:'이미지를 다양한 색각 유형으로 시뮬레이션합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',dropText:'이미지를 드래그하거나 클릭하세요',dlBtn:'다운로드',
-    seoHtml:`<h2>색맹 시뮬레이터</h2><p>이미지를 업로드하면 적색맹(제1색맹), 녹색맹(제2색맹), 청황색맹(제3색맹), 전색맹, 제1색약, 제2색약 등 다양한 색각 유형으로 어떻게 보이는지 시뮬레이션합니다. 디자이너가 색각 장애를 가진 사용자를 위해 접근성 높은 디자인을 만들 때 필수 도구입니다.</p>
+    seoHtml:`<h2>색맹 시뮬레이터</h2><p>각 색각 유형의 변환 행렬은 R·G·B 각 출력 채널마다 4개 값(가중치 3개 + 보정값 1개)씩 총 12개 숫자로 이루어져 있는데, 실제 변환 함수(<code>applyMatrix</code>)는 이를 3×3 행렬인 것처럼 앞의 9개 값(인덱스 0~8)만 사용하고 나머지 3개(인덱스 9~11)는 아예 읽지 않습니다. 그 결과 G·B 출력 채널 계산에 원래 의도와 다른 값이 한 칸씩 밀려 들어가는 오류가 생깁니다. 예를 들어 '전색맹' 행렬(표준 흑백 변환 공식이 3번 반복된 형태)을 순수한 빨간색(255,0,0)에 적용하면 원래는 완전한 회색(76,76,76)이 나와야 하지만, 이 버그 때문에 실제로는 (76,0,29)라는 여전히 색이 남아있는 픽셀이 나옵니다.</p>
 <h2 class="seo-sub">자주 묻는 질문</h2>
-<details class="faq-item"><summary>색맹이란?</summary><p>색각 이상으로 특정 색을 구별하기 어려운 상태입니다. 남성의 약 8%, 여성의 약 0.5%가 색각 이상을 가집니다.</p></details>
-<details class="faq-item"><summary>적색맹과 녹색맹의 차이는?</summary><p>적색맹(제1색맹)은 적색 감지 원추세포가 없고, 녹색맹(제2색맹)은 녹색 감지 원추세포가 없습니다. 둘 다 적-녹 구별이 어렵습니다.</p></details>
-<details class="faq-item"><summary>색맹 친화적 디자인이란?</summary><p>색만으로 정보를 전달하지 않고, 패턴·형태·텍스트를 함께 사용합니다. 또한 색 조합을 신중하게 선택합니다.</p></details>
-<details class="faq-item"><summary>이 시뮬레이터는 정확한가요?</summary><p>행렬 기반 근사값으로, 실제 색각 경험을 완벽히 재현하지는 않지만 디자인 검토에 충분히 유용합니다.</p></details>
-<details class="faq-item"><summary>파일이 서버에 업로드되나요?</summary><p>아니요. 모든 처리가 브라우저에서 이루어집니다.</p></details>
-<details class="faq-item"><summary>결과 이미지를 다운로드할 수 있나요?</summary><p>각 시뮬레이션 이미지 아래의 다운로드 버튼을 클릭하세요.</p></details>
-<details class="faq-item"><summary>어떤 색상 조합이 색맹에 어렵나요?</summary><p>빨강-초록, 빨강-검정, 초록-갈색, 파란-보라가 가장 구별하기 어렵습니다.</p></details>
-<details class="faq-item"><summary>색맹 테스트 도구로 사용할 수 있나요?</summary><p>아니요. 색맹 진단은 의사의 이시하라 검사 등 전문적인 검사가 필요합니다.</p></details>`
+<details class="faq-item"><summary>'전색맹' 시뮬레이션 결과가 실제로 완전한 회색조로 나오나요?</summary><p>아니요. 순수한 빨간색(255,0,0)을 전색맹 필터에 넣으면 원래는 (76,76,76)처럼 R·G·B 값이 모두 같은 완전한 회색이 나와야 하는데, 인덱싱 오류 때문에 실제로는 (76,0,29)처럼 채널 값이 서로 다른, 여전히 색이 남아있는 결과가 나옵니다.</p></details>
+<details class="faq-item"><summary>이 버그의 정확한 원인은 무엇인가요?</summary><p>각 변환 행렬은 원래 R·G·B 출력 채널마다 4개 값(가중치 3개+보정값 1개)씩 3행 4열, 총 12개 숫자로 구성된 표준 형식입니다. 하지만 실제 계산 코드는 이를 단순한 3×3 행렬로 착각해 앞의 9개 값만 순서대로 읽고 뒤의 3개 값은 전혀 사용하지 않아, G·B 채널 계산에 들어가는 계수가 한 칸씩 밀려 잘못된 값으로 섞입니다.</p></details>
+<details class="faq-item"><summary>이 버그가 적록색맹(제1·제2색맹) 시뮬레이션에도 영향을 주나요?</summary><p>네. '정상 시각'을 제외한 모든 유형이 같은 12개 값짜리 행렬 구조를 쓰고 같은 계산 함수를 거치므로 똑같은 인덱싱 오류의 영향을 받습니다. 전색맹에서 유독 눈에 띄는 이유는 정답(완전한 회색)이 눈으로 바로 검증하기 쉽기 때문일 뿐, 다른 유형도 정확한 색상값을 보장하지 않습니다.</p></details>
+<details class="faq-item"><summary>"행렬 기반 근사값이라 완벽하지 않다"는 설명이 정확한 표현인가요?</summary><p>정확히는 조금 다릅니다. 일반적인 근사 오차라면 실제 색각 경험과 비슷하지만 미세하게 다른 정도겠지만, 이 경우는 행렬 데이터 정렬 자체가 코드에서 어긋난 문제라 특정 채널 값이 체계적으로 틀린 계수와 섞여 계산됩니다. 즉 '근사치라서 다소 부정확'이 아니라 '계산 로직의 인덱스가 어긋나 있다'는 것이 더 정확한 설명입니다.</p></details>
+<details class="faq-item"><summary>그래도 디자인 검토용으로 참고할 가치가 있나요?</summary><p>빨강 계열 색상이 전반적으로 어두워지는 큰 방향성 정도는 여전히 어느 정도 드러나지만, 정확한 색조나 채도까지 신뢰하기는 어렵습니다. 실제 접근성 검토가 중요한 프로젝트라면 이 결과만으로 판단하지 말고 다른 검증된 색맹 시뮬레이션 도구와 함께 교차 확인하는 것이 안전합니다.</p></details>
+<details class="faq-item"><summary>적색맹과 녹색맹의 차이는 무엇인가요?</summary><p>적색맹(제1색맹)은 적색을 감지하는 원추세포가 없거나 기능이 떨어지고, 녹색맹(제2색맹)은 녹색을 감지하는 원추세포가 그렇습니다. 원인이 되는 원추세포는 다르지만 결과적으로 둘 다 적색과 녹색을 구별하기 어렵다는 공통점이 있습니다.</p></details>
+<details class="faq-item"><summary>이미지가 서버로 업로드되나요?</summary><p>아니요. 이미지 로딩부터 캔버스에 그려 픽셀을 변환하는 과정까지 모두 브라우저 안에서 이루어지며, 파일은 어디로도 전송되지 않습니다.</p></details>
+<details class="faq-item"><summary>이 도구로 색맹 여부를 진단할 수 있나요?</summary><p>아니요. 이 도구는 색각 정상인 사용자가 이미지가 어떻게 보일지 참고하는 디자인 검토용 도구이며, 실제 색맹 진단에는 안과에서의 이시하라 검사 등 전문적인 검사가 필요합니다.</p></details>`
   },
   en:{h1Accent:'Color Blindness',sub:'Simulate images for various color vision deficiencies',backLink:'← All Tools',langBtn:'🌐 中文',dropText:'Drop an image or click to browse',dlBtn:'Download',
-    seoHtml:`<h2>Color Blindness Simulator</h2><p>Upload an image and see how it appears to people with protanopia (red blindness), deuteranopia (green blindness), tritanopia (blue-yellow), achromatopsia (total color blindness), and milder anomaly variants. An essential tool for designers building accessible experiences for colorblind users. All processing happens locally — no uploads.</p>
+    seoHtml:`<h2>Color Blindness Simulator</h2><p>Each vision-type\'s transform matrix is a standard 12-number layout — 4 values per R/G/B output channel (3 weights plus 1 offset) — but the actual transform function (<code>applyMatrix</code>) treats it like a plain 3×3 matrix, reading only the first 9 values (indices 0–8) and never touching the last 3 (indices 9–11). That shifts the coefficients feeding the G and B output channels by one slot each. For example, applying the "achromatopsia" matrix (the standard grayscale-luminance formula repeated three times) to pure red (255,0,0) should produce a neutral gray (76,76,76), but this bug actually produces (76,0,29) — a pixel that still clearly has color in it.</p>
 <h2 class="seo-sub">FAQ</h2>
-<details class="faq-item"><summary>What is color blindness?</summary><p>A color vision deficiency where certain colors are hard to distinguish. Affects ~8% of males and ~0.5% of females.</p></details>
-<details class="faq-item"><summary>Protanopia vs. deuteranopia?</summary><p>Protanopia lacks red cone cells; deuteranopia lacks green cone cells. Both cause red-green confusion.</p></details>
-<details class="faq-item"><summary>What is colorblind-friendly design?</summary><p>Don't rely on color alone — use patterns, shapes, and text labels. Choose color combinations carefully.</p></details>
-<details class="faq-item"><summary>How accurate is this simulator?</summary><p>Matrix-based approximation — close enough for design review but not a perfect representation of lived experience.</p></details>
-<details class="faq-item"><summary>Are files uploaded?</summary><p>No — everything runs in your browser.</p></details>
-<details class="faq-item"><summary>Can I download the simulated images?</summary><p>Yes — click the download button under each simulation.</p></details>
-<details class="faq-item"><summary>What color combinations are hardest for colorblind users?</summary><p>Red-green, red-black, green-brown, and blue-purple are the most problematic.</p></details>
-<details class="faq-item"><summary>Can I use this to test for color blindness?</summary><p>No — this is a design tool. Actual testing requires professional evaluation like an Ishihara test.</p></details>`
+<details class="faq-item"><summary>Does the "achromatopsia" simulation actually produce a true grayscale image?</summary><p>No. Feeding pure red (255,0,0) into the achromatopsia filter should produce a neutral gray like (76,76,76) with all three channels equal, but due to the indexing bug it actually comes out as something like (76,0,29) — channels that differ from each other, meaning visible color survives where there should be none.</p></details>
+<details class="faq-item"><summary>What exactly causes this bug?</summary><p>Each transform matrix is meant to be a standard 3-row-by-4-column layout — 4 values per R/G/B output channel (3 weights plus 1 offset), 12 numbers total. The actual calculation code mistakes this for a plain 3×3 matrix, reading only the first 9 values in sequence and never using the last 3, so the coefficients feeding the G and B channel calculations end up shifted by one position and mixed with the wrong values.</p></details>
+<details class="faq-item"><summary>Does this bug also affect the red-green colorblindness simulations (protanopia/deuteranopia)?</summary><p>Yes. Every type except "Normal vision" uses this same 12-number matrix structure and goes through the identical calculation function, so all of them are affected by the same indexing error. Achromatopsia just makes it obvious because the correct answer — pure gray — is trivially easy to verify by eye; the other types aren\'t producing reliable colors either.</p></details>
+<details class="faq-item"><summary>Is "matrix-based approximation, not a perfect representation" an accurate way to describe this?</summary><p>Not quite. A typical approximation error would mean the result is close to the real experience but slightly off. This is different — the matrix data itself is misaligned in the code, so specific channels get computed with systematically wrong coefficients. "The indexing in the calculation logic is off" is a more accurate description than "it's just an approximation."</p></details>
+<details class="faq-item"><summary>Is it still worth using for design review?</summary><p>The broad direction — reds generally getting darker — still shows through to some degree, but you can\'t trust the exact hue or saturation of the result. For any project where accessibility review actually matters, it\'s worth cross-checking against another, correctly-implemented color blindness simulation tool rather than relying on this one alone.</p></details>
+<details class="faq-item"><summary>What's the difference between protanopia and deuteranopia?</summary><p>Protanopia involves missing or non-functional red-sensing cone cells, while deuteranopia involves the green-sensing cones. The affected cone type differs, but both result in difficulty distinguishing red from green.</p></details>
+<details class="faq-item"><summary>Is my image uploaded to a server?</summary><p>No. Everything from loading the image to drawing it on a canvas and transforming its pixels happens entirely in the browser — the file is never transmitted anywhere.</p></details>
+<details class="faq-item"><summary>Can this tool diagnose color blindness?</summary><p>No. This is a design-review tool meant to give color-normal users a sense of how an image might look to others — actual diagnosis requires a professional eye exam, such as an Ishihara test.</p></details>`
   },
   zh:{h1Accent:'色盲模拟',sub:'模拟各种色觉障碍下的图像效果',backLink:'← 所有工具',langBtn:'🌐 日本語',dropText:'将图片拖放到此处或点击浏览',dlBtn:'下载',
-    seoHtml:`<h2>色盲模拟器</h2><p>上传图片，查看红色盲(第一色盲)、绿色盲(第二色盲)、蓝黄色盲(第三色盲)、全色盲以及轻度色弱等不同色觉类型下的视觉效果。设计师为色觉障碍用户创建无障碍设计的必备工具。所有处理在浏览器本地完成，不上传文件。</p>
+    seoHtml:`<h2>色盲模拟器</h2><p>每种色觉类型的转换矩阵本应是标准的12个数字布局——R、G、B每个输出通道各4个值（3个权重加1个偏移量），但实际的转换函数(<code>applyMatrix</code>)却把它当成普通的3×3矩阵处理，只读取前9个值（索引0~8），完全不使用最后3个（索引9~11）。这导致G、B输出通道计算时使用的系数都错位了一格。例如把"全色盲"矩阵（标准灰度亮度公式重复三次）应用到纯红色(255,0,0)上，本应得到中性灰(76,76,76)，但由于这个bug，实际得到的是(76,0,29)——一个明显还带着颜色的像素。</p>
 <h2 class="seo-sub">常见问题</h2>
-<details class="faq-item"><summary>什么是色盲？</summary><p>一种难以区分某些颜色的色觉异常。约影响8%的男性和0.5%的女性。</p></details>
-<details class="faq-item"><summary>红色盲和绿色盲有什么区别？</summary><p>红色盲缺乏红色视锥细胞，绿色盲缺乏绿色视锥细胞，两者都难以区分红绿色。</p></details>
-<details class="faq-item"><summary>什么是色盲友好设计？</summary><p>不单靠颜色传达信息，同时使用图案、形状和文字标签，谨慎选择颜色组合。</p></details>
-<details class="faq-item"><summary>这个模拟器准确吗？</summary><p>基于矩阵的近似值，足够用于设计审查，但不能完美复现实际色觉体验。</p></details>
-<details class="faq-item"><summary>文件会上传吗？</summary><p>不会，所有处理都在浏览器中完成。</p></details>
-<details class="faq-item"><summary>可以下载模拟图像吗？</summary><p>可以，点击每个模拟图像下方的下载按钮。</p></details>
-<details class="faq-item"><summary>哪些颜色组合对色盲用户最难区分？</summary><p>红绿、红黑、绿棕和蓝紫最难区分。</p></details>
-<details class="faq-item"><summary>可以用来测试色盲吗？</summary><p>不可以，这是设计工具。实际测试需要专业评估，如石原色觉检查。</p></details>`
+<details class="faq-item"><summary>"全色盲"模拟结果真的会变成完全的灰度吗？</summary><p>不会。把纯红色(255,0,0)输入全色盲滤镜，本应得到像(76,76,76)这样三个通道数值相同的中性灰，但由于索引错位的bug，实际结果类似(76,0,29)，各通道数值互不相同，意味着本应完全消失的颜色仍然残留可见。</p></details>
+<details class="faq-item"><summary>这个bug的具体原因是什么？</summary><p>每个转换矩阵本应是标准的3行4列布局——R、G、B每个输出通道各4个值（3个权重加1个偏移量），共12个数字。但实际计算代码把它误当成普通的3×3矩阵，只按顺序读取前9个值，完全不使用最后3个，导致G、B通道计算所用的系数错位一格并混入了错误的数值。</p></details>
+<details class="faq-item"><summary>这个bug也会影响红绿色盲（第一、第二色盲）的模拟吗？</summary><p>会。除"正常视觉"外的所有类型都使用同样的12数字矩阵结构，经过同一个计算函数处理，因此都受到相同的索引错位影响。全色盲之所以特别显眼，只是因为正确答案（纯灰色）用肉眼就能直接验证，其他类型同样无法保证颜色数值准确。</p></details>
+<details class="faq-item"><summary>"基于矩阵的近似值，不能完美复现"这种说法准确吗？</summary><p>不太准确。一般的近似误差意味着结果接近真实体验但略有偏差，而这里的问题是矩阵数据在代码中本身就对齐错误，导致特定通道用系统性错误的系数参与计算。与其说"是近似值所以不够精确"，不如说"计算逻辑的索引本身就错位了"更准确。</p></details>
+<details class="faq-item"><summary>即便如此，用于设计审查还有参考价值吗？</summary><p>红色系整体变暗这种大方向大致还能体现出来，但具体色调和饱和度已经不可靠。如果项目对无障碍审查确实重要，不应仅凭这个结果判断，建议同时用另一个经过验证、实现正确的色盲模拟工具交叉核对。</p></details>
+<details class="faq-item"><summary>红色盲和绿色盲有什么区别？</summary><p>红色盲（第一色盲）是感知红色的视锥细胞缺失或功能不足，绿色盲（第二色盲）则是感知绿色的视锥细胞如此。虽然涉及的视锥细胞不同，但结果都是难以区分红色和绿色。</p></details>
+<details class="faq-item"><summary>图片会上传到服务器吗？</summary><p>不会。从加载图片到在画布上绘制、转换像素的整个过程都在浏览器内完成，文件不会被发送到任何地方。</p></details>
+<details class="faq-item"><summary>可以用这个工具诊断色盲吗？</summary><p>不可以。这是让色觉正常的用户了解图片在他人眼中可能是什么样子的设计审查工具，实际的色盲诊断需要眼科的石原色觉检查等专业检查。</p></details>`
   },
   ja:{h1Accent:'色盲シミュレーター',sub:'様々な色覚タイプで画像をシミュレーションします',backLink:'← ホーム',langBtn:'🌐 한국어',dropText:'画像をドラッグするかクリックしてください',dlBtn:'ダウンロード',
-    seoHtml:`<h2>色盲シミュレーター</h2><p>画像をアップロードすると、第一色盲（赤色盲）、第二色盲（緑色盲）、第三色盲（青黄色盲）、全色盲、第一・第二色弱など様々な色覚タイプでどう見えるかをシミュレーションします。色覚障害を持つユーザーにアクセシブルなデザインを作るデザイナーに必須のツールです。すべてブラウザ内で処理されます。</p>
+    seoHtml:`<h2>色盲シミュレーターとは</h2><p>各色覚タイプの変換行列は本来、R・G・B各出力チャンネルごとに4つの値（重み3つ+補正値1つ）、計12個の数字からなる標準的な形式ですが、実際の変換関数（<code>applyMatrix</code>）はこれを単純な3×3行列であるかのように扱い、最初の9個の値（インデックス0~8）しか使わず、残りの3個（インデックス9~11）はまったく読み込みません。その結果、G・Bチャンネルの計算に使われる係数が1つずつずれてしまいます。例えば「全色盲」の行列（標準的なグレースケール輝度変換式が3回繰り返された形）を純粋な赤(255,0,0)に適用すると、本来は完全なグレー(76,76,76)になるはずが、このバグにより実際には(76,0,29)という、まだ色が残ったピクセルになります。</p>
 <h2 class="seo-sub">よくある質問</h2>
-<details class="faq-item"><summary>色盲とは何ですか？</summary><p>特定の色の区別が困難な色覚異常で、男性の約8%、女性の約0.5%に影響します。</p></details>
-<details class="faq-item"><summary>第一色盲と第二色盲の違いは？</summary><p>第一色盲は赤の錐体細胞がなく、第二色盲は緑の錐体細胞がありません。どちらも赤緑の区別が困難です。</p></details>
-<details class="faq-item"><summary>色盲対応デザインとは？</summary><p>色だけで情報を伝えず、パターン・形・テキストも使います。また、色の組み合わせを慎重に選びます。</p></details>
-<details class="faq-item"><summary>このシミュレーターは正確ですか？</summary><p>行列ベースの近似値で、デザインレビューには十分ですが、実際の色覚体験の完全な再現ではありません。</p></details>
-<details class="faq-item"><summary>ファイルはアップロードされますか？</summary><p>いいえ、すべてブラウザで処理されます。</p></details>
-<details class="faq-item"><summary>シミュレーション画像をダウンロードできますか？</summary><p>はい、各シミュレーション画像下のダウンロードボタンをクリックしてください。</p></details>
-<details class="faq-item"><summary>色盲のユーザーに最も難しい色の組み合わせは？</summary><p>赤緑、赤黒、緑茶色、青紫が最も区別しにくいです。</p></details>
-<details class="faq-item"><summary>色盲のテストに使えますか？</summary><p>いいえ、これはデザインツールです。実際の検査は石原色覚検査などの専門的評価が必要です。</p></details>`
+<details class="faq-item"><summary>「全色盲」シミュレーションの結果は本当に完全なグレースケールになりますか？</summary><p>いいえ。純粋な赤(255,0,0)を全色盲フィルターに通すと、本来は(76,76,76)のようにR・G・Bの値がすべて等しい完全なグレーになるはずですが、インデックスのずれによって実際には(76,0,29)のようにチャンネルごとに値が異なる、色が残った結果になります。</p></details>
+<details class="faq-item"><summary>このバグの正確な原因は何ですか？</summary><p>各変換行列は本来、R・G・B各出力チャンネルごとに4つの値（重み3つ+補正値1つ）、3行4列・計12個の数字からなる標準形式です。しかし実際の計算コードはこれを単純な3×3行列と誤認し、最初の9個の値だけを順番に読み込み、残りの3個をまったく使わないため、G・Bチャンネルの計算に入る係数が1つずつずれて間違った値と混ざってしまいます。</p></details>
+<details class="faq-item"><summary>このバグは赤緑色盲（第一・第二色盲）のシミュレーションにも影響しますか？</summary><p>はい。「正常視覚」を除くすべてのタイプが同じ12個の値からなる行列構造を使い、同じ計算関数を通るため、同様のインデックスのずれの影響を受けます。全色盲で特に目立つのは、正解（完全なグレー）が目で簡単に検証できるからというだけで、他のタイプも正確な色を保証しているわけではありません。</p></details>
+<details class="faq-item"><summary>「行列ベースの近似値で完璧ではない」という説明は正確ですか？</summary><p>正確には少し異なります。通常の近似誤差であれば実際の色覚体験に近いが微妙に異なる程度のはずですが、このケースは行列データの整列自体がコード上でずれている問題のため、特定のチャンネルが体系的に間違った係数と混ざって計算されます。「近似値だからやや不正確」ではなく「計算ロジックのインデックスがずれている」というのがより正確な説明です。</p></details>
+<details class="faq-item"><summary>それでもデザインレビューの参考にする価値はありますか？</summary><p>赤系統の色が全体的に暗くなるという大まかな方向性はある程度表れますが、正確な色相や彩度までは信頼できません。実際にアクセシビリティのレビューが重要なプロジェクトでは、この結果だけで判断せず、正しく実装された別の色盲シミュレーションツールと突き合わせて確認することをおすすめします。</p></details>
+<details class="faq-item"><summary>第一色盲と第二色盲の違いは何ですか？</summary><p>第一色盲は赤を感知する錐体細胞が欠けている、または機能が低下しており、第二色盲は緑を感知する錐体細胞がそうです。関係する錐体細胞は異なりますが、結果としてどちらも赤と緑の区別が難しくなる点は共通しています。</p></details>
+<details class="faq-item"><summary>画像はサーバーにアップロードされますか？</summary><p>いいえ。画像の読み込みからキャンバスへの描画、ピクセルの変換まですべてブラウザ内で行われ、ファイルはどこにも送信されません。</p></details>
+<details class="faq-item"><summary>このツールで色盲かどうかを診断できますか？</summary><p>いいえ。これは色覚正常なユーザーが画像が他の人にどう見えるかを参考にするためのデザインレビューツールであり、実際の色盲診断には眼科での石原色覚検査などの専門的な検査が必要です。</p></details>`
   }
 };
 function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}

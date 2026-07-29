@@ -22,7 +22,7 @@
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"SQL Minifier","url":"https://modoohub.com/sql-minifier.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Minify SQL queries by removing unnecessary whitespace, line breaks, and comments. Compress SQL into a single line."}</script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"SQL 최소화가 필요한 이유는?","acceptedAnswer":{"@type":"Answer","text":"애플리케이션 코드에 SQL을 임베딩하거나 GET 파라미터로 전송할 때 불필요한 공백을 제거해 크기를 줄이고 가독성을 높입니다. 성능보다는 코드 통합 목적에 주로 사용됩니다."}},{"@type":"Question","name":"SQL 주석 제거 옵션은?","acceptedAnswer":{"@type":"Answer","text":"-- 한 줄 주석과 /* */ 블록 주석을 선택적으로 제거할 수 있습니다."}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"주석 제거가 문자열 값을 잘라먹을 수 있다는 게 사실인가요?","acceptedAnswer":{"@type":"Answer","text":"네, 실제로 재현됩니다. WHERE note='a--b' AND x=1을 주석 제거 옵션 켠 채로 넣으면 -- 이후가 한 줄 주석으로 처리되어 결과는 WHERE note='a로 끝나버립니다. 뒤에 있던 AND x=1과 닫는 따옴표까지 전부 사라지는, 쿼리를 깨뜨리는 문제입니다."}},{"@type":"Question","name":"왜 이런 일이 생기나요?","acceptedAnswer":{"@type":"Answer","text":"코드 흐름상 -- 및 /* */ 주석 제거가 문자열 리터럴을 플레이스홀더로 치환해 보호하기 전에 먼저 실행됩니다. 그래서 문자열 안에 있는 --나 /*도 실제 주석 시작 기호와 구분되지 않고 그대로 제거 대상이 됩니다."}},{"@type":"Question","name":"공백 압축이나 키워드 대문자화도 같은 문제가 있나요?","acceptedAnswer":{"@type":"Answer","text":"아니요. 공백 압축과 대문자화는 문자열 리터럴을 플레이스홀더로 먼저 치환한 뒤 처리하고 마지막에 원래 문자열로 복원하므로 문자열 값은 그대로 보존됩니다. 문제는 주석 제거 단계에서만 발생합니다."}},{"@type":"Question","name":"이 문제를 피하려면 어떻게 해야 하나요?","acceptedAnswer":{"@type":"Answer","text":"SQL 문자열 값 안에 우연히 --나 /* 같은 조합이 들어가는 경우가 있다면 주석 제거 옵션을 끄고 사용하거나, 최소화 후 결과를 반드시 눈으로 대조 확인하는 것이 안전합니다."}}]}</script>
 <meta property="og:type" content="website">
 <meta property="og:title" content="SQL 최소화 - SQL 쿼리 공백 제거·압축 | MODOO HUB">
 <meta property="og:description" content="SQL 쿼리 불필요한 공백·줄바꿈·주석 제거. 한 줄로 압축. 온라인 SQL Minifier.">
@@ -66,67 +66,67 @@
     <button class="btn" onclick="clearAll()" id="btnClear">초기화</button>
     <span class="stat" id="statEl"></span>
   </div>
-  <div class="seo" id="seoDiv"><h2>SQL 최소화란?</h2><p>SQL 쿼리의 불필요한 공백, 줄바꿈, 주석을 제거해 크기를 줄입니다. 애플리케이션 코드에 SQL을 임베딩하거나 HTTP 요청으로 전송할 때, 또는 코드 가독성을 높이기 위해 활용합니다. <strong>주석 제거, 키워드 대문자화</strong> 옵션을 선택할 수 있습니다.</p>
+  <div class="seo" id="seoDiv"><h2>SQL 최소화란?</h2><p>SQL 쿼리의 불필요한 공백, 줄바꿈, 주석을 제거해 크기를 줄입니다. 문자열 리터럴(<code>'...'</code>) 내부는 임시 플레이스홀더로 치환한 뒤 공백 압축·키워드 대문자화를 적용하고 마지막에 복원하는 방식이라 <strong>공백 압축과 대문자화는 문자열 값을 건드리지 않습니다.</strong> 다만 <strong>주석 제거는 이 문자열 보호 로직보다 먼저 실행</strong>되기 때문에, 문자열 값 안에 <code>--</code>나 <code>/*</code>가 포함되어 있으면 실제 주석으로 오인되어 뒤 내용이 통째로 잘려나가거나 문자열이 훼손될 수 있습니다. 예를 들어 <code>WHERE note='a--b' AND x=1</code>을 넣으면 결과가 <code>WHERE note='a</code>에서 그대로 끊깁니다(따옴표가 닫히지 않은 깨진 SQL).</p>
 <h2 class="seo-sub">자주 묻는 질문</h2>
-<details class="faq-item"><summary>SQL 최소화가 성능에 영향을 주나요?</summary><p>데이터베이스 파서는 공백을 무시하므로 최소화 자체는 쿼리 실행 성능에 거의 영향을 주지 않습니다.</p></details>
-<details class="faq-item"><summary>주석을 제거하는 것이 안전한가요?</summary><p>대부분의 경우 안전합니다. 단, 문자열 리터럴 안에 -- 또는 /* 가 있는 경우 주의가 필요합니다.</p></details>
-<details class="faq-item"><summary>키워드 대문자화란?</summary><p>SELECT, FROM, WHERE 등 SQL 예약어를 대문자로 변환합니다. 가독성 향상과 코딩 컨벤션 통일에 유용합니다.</p></details>
-<details class="faq-item"><summary>어떤 주석 형식을 처리하나요?</summary><p>-- 한 줄 주석과 /* ... */ 블록 주석을 제거합니다.</p></details>
-<details class="faq-item"><summary>문자열 내 공백은 유지되나요?</summary><p>작은따옴표 내의 문자열 값은 수정하지 않습니다. 'hello world'는 그대로 유지됩니다.</p></details>
-<details class="faq-item"><summary>MySQL, PostgreSQL, SQLite 모두 지원하나요?</summary><p>SQL 최소화는 표준 SQL 문법을 기준으로 하며 대부분의 RDBMS에 적용됩니다.</p></details>
-<details class="faq-item"><summary>역방향(포맷팅)도 지원하나요?</summary><p>SQL 포맷팅(들여쓰기, 줄바꿈 추가)은 sql-validator 도구를 참고하세요.</p></details>
-<details class="faq-item"><summary>세미콜론은 유지되나요?</summary><p>세미콜론(;)은 SQL 구문 구분자로 유지됩니다.</p></details></div>
+<details class="faq-item"><summary>주석 제거가 문자열 값을 잘라먹을 수 있다는 게 사실인가요?</summary><p>네, 실제로 재현됩니다. <code>WHERE note='a--b' AND x=1</code>을 주석 제거 옵션 켠 채로 넣으면 <code>--</code> 이후가 한 줄 주석으로 처리되어 결과는 <code>WHERE note='a</code>로 끝나버립니다. 뒤에 있던 <code>AND x=1</code>과 닫는 따옴표까지 전부 사라지는, 단순한 "주의가 필요한" 수준이 아니라 쿼리를 깨뜨리는 문제입니다.</p></details>
+<details class="faq-item"><summary>왜 이런 일이 생기나요?</summary><p>코드 흐름상 <code>-- </code>·<code>/* */</code> 주석 제거가 문자열 리터럴을 플레이스홀더로 치환해 보호하기 전에 먼저 실행됩니다. 그래서 문자열 안에 있는 <code>--</code>나 <code>/*</code>도 실제 주석 시작 기호와 구분되지 않고 그대로 제거 대상이 됩니다.</p></details>
+<details class="faq-item"><summary>블록 주석 기호(/* */)가 문자열 안에 있으면 어떻게 되나요?</summary><p><code>note='a/*b*/c'</code>처럼 문자열 안에 <code>/* */</code>가 있으면 쿼리가 끊기지는 않지만 <code>note='a c'</code>로 값 자체가 바뀝니다. 저장하려던 실제 문자열 값이 조용히 손상되는 것이라 알아채기 어렵습니다.</p></details>
+<details class="faq-item"><summary>공백 압축이나 키워드 대문자화도 같은 문제가 있나요?</summary><p>아니요. 공백 압축과 대문자화는 문자열 리터럴을 <code>__STR0__</code> 같은 플레이스홀더로 먼저 치환한 뒤 처리하고 마지막에 원래 문자열로 복원하므로, 문자열 값 내부의 공백이나 대소문자는 그대로 보존됩니다. 문제는 주석 제거 단계에서만 발생합니다.</p></details>
+<details class="faq-item"><summary>이 문제를 피하려면 어떻게 해야 하나요?</summary><p>SQL 문자열 값 안에 우연히 <code>--</code>나 <code>/*</code> 같은 조합이 들어가는 경우(URL, 코드 스니펫, 자유 텍스트 등)가 있다면 주석 제거 옵션을 끄고 사용하거나, 최소화 후 결과를 반드시 눈으로 대조 확인하는 것이 안전합니다.</p></details>
+<details class="faq-item"><summary>키워드 대문자화는 어떻게 동작하나요?</summary><p>SELECT, FROM, WHERE 등 사전 정의된 예약어 목록을 단어 경계(<code>\b</code>) 기준으로 찾아 대문자로 바꿉니다. 이 방식은 <code>AS_OF_DATE</code>처럼 예약어가 식별자 일부로 포함된 경우는 단어 경계 조건 때문에 건드리지 않아 올바르게 동작합니다.</p></details>
+<details class="faq-item"><summary>세미콜론은 유지되나요?</summary><p>네, 세미콜론(;)은 문장 구분자로서 압축 과정에서 삭제되지 않고 그대로 유지됩니다.</p></details>
+<details class="faq-item"><summary>역방향(포맷팅)도 지원하나요?</summary><p>이 도구는 압축만 지원합니다. 들여쓰기·줄바꿈을 추가하는 포맷팅은 sql-validator 도구를 이용하세요.</p></details></div>
 </main>
 <script>
 const KEYWORDS=['SELECT','FROM','WHERE','JOIN','LEFT','RIGHT','INNER','OUTER','CROSS','ON','GROUP','BY','ORDER','HAVING','LIMIT','OFFSET','INSERT','INTO','VALUES','UPDATE','SET','DELETE','CREATE','TABLE','DROP','ALTER','ADD','COLUMN','INDEX','VIEW','PROCEDURE','FUNCTION','TRIGGER','AS','AND','OR','NOT','IN','IS','NULL','LIKE','BETWEEN','EXISTS','DISTINCT','UNION','ALL','CASE','WHEN','THEN','ELSE','END'];
 const _i18n={
   ko:{pageTitle:'SQL 최소화 - SQL 쿼리 공백 제거·압축 | MODOO HUB',h1b:'최소화',sub:'SQL 쿼리 공백·주석 제거 → 한 줄 압축',backLink:'← 모두의 툴',langBtn:'🌐 EN',labelIn:'SQL 입력',labelOut:'결과',optLabelComments:'주석 제거',optLabelUpper:'키워드 대문자화',btnCopy:'복사',btnClear:'초기화',copied:'복사됨 ✓',statBefore:'입력',statAfter:'출력',statSaved:'절감',
-    seoHtml:`<h2>SQL 최소화란?</h2><p>SQL 쿼리의 불필요한 공백, 줄바꿈, 주석을 제거해 크기를 줄입니다. 애플리케이션 코드에 SQL을 임베딩하거나 HTTP 요청으로 전송할 때, 또는 코드 가독성을 높이기 위해 활용합니다. <strong>주석 제거, 키워드 대문자화</strong> 옵션을 선택할 수 있습니다.</p>
+    seoHtml:`<h2>SQL 최소화란?</h2><p>SQL 쿼리의 불필요한 공백, 줄바꿈, 주석을 제거해 크기를 줄입니다. 문자열 리터럴(<code>'...'</code>) 내부는 임시 플레이스홀더로 치환한 뒤 공백 압축·키워드 대문자화를 적용하고 마지막에 복원하는 방식이라 <strong>공백 압축과 대문자화는 문자열 값을 건드리지 않습니다.</strong> 다만 <strong>주석 제거는 이 문자열 보호 로직보다 먼저 실행</strong>되기 때문에, 문자열 값 안에 <code>--</code>나 <code>/*</code>가 포함되어 있으면 실제 주석으로 오인되어 뒤 내용이 통째로 잘려나가거나 문자열이 훼손될 수 있습니다. 예를 들어 <code>WHERE note='a--b' AND x=1</code>을 넣으면 결과가 <code>WHERE note='a</code>에서 그대로 끊깁니다(따옴표가 닫히지 않은 깨진 SQL).</p>
 <h2 class="seo-sub">자주 묻는 질문</h2>
-<details class="faq-item"><summary>SQL 최소화가 성능에 영향을 주나요?</summary><p>데이터베이스 파서는 공백을 무시하므로 최소화 자체는 쿼리 실행 성능에 거의 영향을 주지 않습니다.</p></details>
-<details class="faq-item"><summary>주석을 제거하는 것이 안전한가요?</summary><p>대부분의 경우 안전합니다. 단, 문자열 리터럴 안에 -- 또는 /* 가 있는 경우 주의가 필요합니다.</p></details>
-<details class="faq-item"><summary>키워드 대문자화란?</summary><p>SELECT, FROM, WHERE 등 SQL 예약어를 대문자로 변환합니다. 가독성 향상과 코딩 컨벤션 통일에 유용합니다.</p></details>
-<details class="faq-item"><summary>어떤 주석 형식을 처리하나요?</summary><p>-- 한 줄 주석과 /* ... */ 블록 주석을 제거합니다.</p></details>
-<details class="faq-item"><summary>문자열 내 공백은 유지되나요?</summary><p>작은따옴표 내의 문자열 값은 수정하지 않습니다. 'hello world'는 그대로 유지됩니다.</p></details>
-<details class="faq-item"><summary>MySQL, PostgreSQL, SQLite 모두 지원하나요?</summary><p>SQL 최소화는 표준 SQL 문법을 기준으로 하며 대부분의 RDBMS에 적용됩니다.</p></details>
-<details class="faq-item"><summary>역방향(포맷팅)도 지원하나요?</summary><p>SQL 포맷팅(들여쓰기, 줄바꿈 추가)은 sql-validator 도구를 참고하세요.</p></details>
-<details class="faq-item"><summary>세미콜론은 유지되나요?</summary><p>세미콜론(;)은 SQL 구문 구분자로 유지됩니다.</p></details>`
+<details class="faq-item"><summary>주석 제거가 문자열 값을 잘라먹을 수 있다는 게 사실인가요?</summary><p>네, 실제로 재현됩니다. <code>WHERE note='a--b' AND x=1</code>을 주석 제거 옵션 켠 채로 넣으면 <code>--</code> 이후가 한 줄 주석으로 처리되어 결과는 <code>WHERE note='a</code>로 끝나버립니다. 뒤에 있던 <code>AND x=1</code>과 닫는 따옴표까지 전부 사라지는, 단순한 "주의가 필요한" 수준이 아니라 쿼리를 깨뜨리는 문제입니다.</p></details>
+<details class="faq-item"><summary>왜 이런 일이 생기나요?</summary><p>코드 흐름상 <code>-- </code>·<code>/* */</code> 주석 제거가 문자열 리터럴을 플레이스홀더로 치환해 보호하기 전에 먼저 실행됩니다. 그래서 문자열 안에 있는 <code>--</code>나 <code>/*</code>도 실제 주석 시작 기호와 구분되지 않고 그대로 제거 대상이 됩니다.</p></details>
+<details class="faq-item"><summary>블록 주석 기호(/* */)가 문자열 안에 있으면 어떻게 되나요?</summary><p><code>note='a/*b*/c'</code>처럼 문자열 안에 <code>/* */</code>가 있으면 쿼리가 끊기지는 않지만 <code>note='a c'</code>로 값 자체가 바뀝니다. 저장하려던 실제 문자열 값이 조용히 손상되는 것이라 알아채기 어렵습니다.</p></details>
+<details class="faq-item"><summary>공백 압축이나 키워드 대문자화도 같은 문제가 있나요?</summary><p>아니요. 공백 압축과 대문자화는 문자열 리터럴을 <code>__STR0__</code> 같은 플레이스홀더로 먼저 치환한 뒤 처리하고 마지막에 원래 문자열로 복원하므로, 문자열 값 내부의 공백이나 대소문자는 그대로 보존됩니다. 문제는 주석 제거 단계에서만 발생합니다.</p></details>
+<details class="faq-item"><summary>이 문제를 피하려면 어떻게 해야 하나요?</summary><p>SQL 문자열 값 안에 우연히 <code>--</code>나 <code>/*</code> 같은 조합이 들어가는 경우(URL, 코드 스니펫, 자유 텍스트 등)가 있다면 주석 제거 옵션을 끄고 사용하거나, 최소화 후 결과를 반드시 눈으로 대조 확인하는 것이 안전합니다.</p></details>
+<details class="faq-item"><summary>키워드 대문자화는 어떻게 동작하나요?</summary><p>SELECT, FROM, WHERE 등 사전 정의된 예약어 목록을 단어 경계(<code>\\b</code>) 기준으로 찾아 대문자로 바꿉니다. 이 방식은 <code>AS_OF_DATE</code>처럼 예약어가 식별자 일부로 포함된 경우는 단어 경계 조건 때문에 건드리지 않아 올바르게 동작합니다.</p></details>
+<details class="faq-item"><summary>세미콜론은 유지되나요?</summary><p>네, 세미콜론(;)은 문장 구분자로서 압축 과정에서 삭제되지 않고 그대로 유지됩니다.</p></details>
+<details class="faq-item"><summary>역방향(포맷팅)도 지원하나요?</summary><p>이 도구는 압축만 지원합니다. 들여쓰기·줄바꿈을 추가하는 포맷팅은 sql-validator 도구를 이용하세요.</p></details>`
   },
   en:{pageTitle:'SQL Minifier - Remove SQL Whitespace & Comments | MODOO HUB',h1b:'Minifier',sub:'Remove SQL whitespace & comments → compress to one line',backLink:'← All Tools',langBtn:'🌐 中文',labelIn:'SQL Input',labelOut:'Result',optLabelComments:'Remove comments',optLabelUpper:'Uppercase keywords',btnCopy:'Copy',btnClear:'Clear',copied:'Copied ✓',statBefore:'Before',statAfter:'After',statSaved:'saved',
-    seoHtml:`<h2>SQL Minifier</h2><p>Remove unnecessary whitespace, line breaks, and comments from SQL queries. Useful for embedding SQL in application code, sending via HTTP, or enforcing a compact style. Options include <strong>comment removal and keyword uppercasing</strong>.</p>
+    seoHtml:`<h2>SQL Minifier</h2><p>Removes unnecessary whitespace, line breaks, and comments from SQL queries. Content inside string literals (<code>'...'</code>) is first swapped out for a placeholder, then whitespace collapsing and keyword uppercasing run, and the strings are restored last — so <strong>whitespace collapsing and uppercasing never touch string values.</strong> However, <strong>comment removal runs before this string-protection step</strong>, so if a string value happens to contain <code>--</code> or <code>/*</code>, it gets mistaken for a real comment and the rest of the input can be cut off or the string corrupted. For example, entering <code>WHERE note='a--b' AND x=1</code> produces a result that simply stops at <code>WHERE note='a</code> (broken SQL with an unclosed quote).</p>
 <h2 class="seo-sub">FAQ</h2>
-<details class="faq-item"><summary>Does minification affect SQL performance?</summary><p>Database parsers ignore whitespace, so minification has virtually no impact on query execution performance.</p></details>
-<details class="faq-item"><summary>Is removing comments safe?</summary><p>Generally safe. Be careful if -- or /* appears inside string literals.</p></details>
-<details class="faq-item"><summary>What is keyword uppercasing?</summary><p>Converts SQL reserved words (SELECT, FROM, WHERE…) to uppercase — improves readability and enforces style conventions.</p></details>
-<details class="faq-item"><summary>Which comment formats are handled?</summary><p>Single-line -- comments and /* ... */ block comments are removed.</p></details>
-<details class="faq-item"><summary>Is whitespace inside strings preserved?</summary><p>Yes. Content inside single quotes is left untouched. \'hello world\' stays as-is.</p></details>
-<details class="faq-item"><summary>MySQL, PostgreSQL, SQLite supported?</summary><p>Minification is based on standard SQL and applies to most RDBMS.</p></details>
-<details class="faq-item"><summary>What about formatting (reverse)?</summary><p>For SQL formatting with indentation and line breaks, see the sql-validator tool.</p></details>
-<details class="faq-item"><summary>Are semicolons preserved?</summary><p>Yes, semicolons are statement delimiters and are preserved.</p></details>`
+<details class="faq-item"><summary>Is it true that comment removal can truncate string values?</summary><p>Yes, this is reproducible. Entering <code>WHERE note='a--b' AND x=1</code> with comment removal enabled treats everything after <code>--</code> as a line comment, so the result ends at <code>WHERE note='a</code>. Everything after that — including <code>AND x=1</code> and the closing quote — is gone. This isn't a minor "be careful" caveat; it actually breaks the query.</p></details>
+<details class="faq-item"><summary>Why does this happen?</summary><p>In the code, <code>--</code> and <code>/* */</code> comment removal runs before string literals are swapped out for protective placeholders. So any <code>--</code> or <code>/*</code> inside a string is indistinguishable from a real comment marker and gets stripped along with it.</p></details>
+<details class="faq-item"><summary>What happens if a block comment marker (/* */) appears inside a string?</summary><p>With <code>note='a/*b*/c'</code>, the query won't be truncated, but the value itself silently changes to <code>note='a c'</code>. The actual string value you meant to store gets corrupted without any obvious sign.</p></details>
+<details class="faq-item"><summary>Does whitespace collapsing or uppercasing have the same problem?</summary><p>No. Whitespace collapsing and uppercasing first swap string literals out for placeholders like <code>__STR0__</code>, process the rest, then restore the original strings — so whitespace and casing inside string values are preserved exactly. The problem only occurs at the comment-removal step.</p></details>
+<details class="faq-item"><summary>How can I avoid this problem?</summary><p>If your SQL string values might coincidentally contain sequences like <code>--</code> or <code>/*</code> (URLs, code snippets, free text, etc.), either turn off comment removal or always visually double-check the minified result before using it.</p></details>
+<details class="faq-item"><summary>How does keyword uppercasing work?</summary><p>It looks up a predefined list of reserved words (SELECT, FROM, WHERE, etc.) using word-boundary (<code>\\b</code>) matching and converts them to uppercase. This correctly leaves identifiers like <code>AS_OF_DATE</code> untouched, since the word-boundary condition prevents matching a keyword embedded inside a longer identifier.</p></details>
+<details class="faq-item"><summary>Are semicolons preserved?</summary><p>Yes, semicolons (;) are statement delimiters and are never removed during minification.</p></details>
+<details class="faq-item"><summary>Does it support reverse formatting?</summary><p>This tool only compresses. For formatting with indentation and line breaks, use the sql-validator tool.</p></details>`
   },
   zh:{pageTitle:'SQL压缩工具 - 删除SQL空格和注释 | MODOO HUB',h1b:'压缩工具',sub:'删除SQL空格·注释 → 压缩为一行',backLink:'← 所有工具',langBtn:'🌐 日本語',labelIn:'SQL输入',labelOut:'结果',optLabelComments:'删除注释',optLabelUpper:'大写关键字',btnCopy:'复制',btnClear:'清除',copied:'已复制 ✓',statBefore:'输入',statAfter:'输出',statSaved:'节省',
-    seoHtml:`<h2>SQL压缩工具</h2><p>删除SQL查询中不必要的空格、换行和注释。适用于在应用代码中嵌入SQL或通过HTTP传输。支持删除注释和大写关键字选项。</p>
+    seoHtml:`<h2>SQL压缩工具</h2><p>删除SQL查询中不必要的空格、换行和注释。字符串字面量(<code>'...'</code>)内部会先被替换为临时占位符，再进行空格压缩和关键字大写化处理，最后再还原，因此<strong>空格压缩和大写化不会影响字符串值</strong>。但<strong>删除注释这一步在字符串保护逻辑之前执行</strong>，所以如果字符串值中恰好包含<code>--</code>或<code>/*</code>，就会被误判为真正的注释，导致后面的内容被整段截断或字符串被破坏。例如输入<code>WHERE note='a--b' AND x=1</code>，结果会直接在<code>WHERE note='a</code>处中断（引号未闭合的错误SQL）。</p>
 <h2 class="seo-sub">常见问题</h2>
-<details class="faq-item"><summary>压缩会影响SQL性能吗？</summary><p>数据库解析器忽略空格，因此压缩对查询执行性能几乎没有影响。</p></details>
-<details class="faq-item"><summary>删除注释安全吗？</summary><p>通常安全。但要注意字符串字面量内包含--或/*的情况。</p></details>
-<details class="faq-item"><summary>关键字大写化是什么？</summary><p>将SELECT、FROM、WHERE等SQL保留字转换为大写，提高可读性。</p></details>
-<details class="faq-item"><summary>处理哪些注释格式？</summary><p>删除--单行注释和/* ... */块注释。</p></details>
-<details class="faq-item"><summary>字符串内的空格保留吗？</summary><p>是的，单引号内的内容不做修改。</p></details>
-<details class="faq-item"><summary>支持MySQL、PostgreSQL、SQLite吗？</summary><p>基于标准SQL语法，适用于大多数RDBMS。</p></details>
-<details class="faq-item"><summary>分号会保留吗？</summary><p>是的，分号作为语句分隔符会保留。</p></details>
-<details class="faq-item"><summary>支持反向格式化吗？</summary><p>SQL格式化（添加缩进和换行）请参考sql-validator工具。</p></details>`
+<details class="faq-item"><summary>删除注释真的会截断字符串值吗？</summary><p>是的，这是可以复现的。开启删除注释选项后输入<code>WHERE note='a--b' AND x=1</code>，<code>--</code>之后的内容会被当作单行注释处理，结果变成以<code>WHERE note='a</code>结尾。后面的<code>AND x=1</code>和闭合引号全部消失，这不是"需要注意"级别的小问题，而是会直接破坏查询。</p></details>
+<details class="faq-item"><summary>为什么会发生这种情况？</summary><p>代码执行顺序上，<code>--</code>和<code>/* */</code>注释的删除先于字符串字面量被替换为保护性占位符这一步。因此字符串内部的<code>--</code>或<code>/*</code>与真正的注释符号无法区分，会一并被删除。</p></details>
+<details class="faq-item"><summary>如果字符串中包含块注释符号(/* */)会怎样？</summary><p>像<code>note='a/*b*/c'</code>这样的情况，查询不会被截断，但值本身会被悄悄改成<code>note='a c'</code>。原本想保存的实际字符串值会被静默破坏，很难被发现。</p></details>
+<details class="faq-item"><summary>空格压缩或关键字大写化也有同样的问题吗？</summary><p>没有。空格压缩和大写化会先把字符串字面量替换为<code>__STR0__</code>之类的占位符再处理，最后再还原为原始字符串，因此字符串值内部的空格和大小写会被完整保留。问题只出现在删除注释这一步。</p></details>
+<details class="faq-item"><summary>如何避免这个问题？</summary><p>如果SQL字符串值中可能偶然包含<code>--</code>或<code>/*</code>这类组合（如URL、代码片段、自由文本等），建议关闭删除注释选项，或者压缩后务必人工核对结果。</p></details>
+<details class="faq-item"><summary>关键字大写化是如何工作的？</summary><p>它会按照单词边界(<code>\\b</code>)匹配预定义的保留字列表（SELECT、FROM、WHERE等）并转换为大写。这种方式能正确跳过像<code>AS_OF_DATE</code>这样保留字作为标识符一部分出现的情况，因为单词边界条件会阻止匹配嵌入在更长标识符中的关键字。</p></details>
+<details class="faq-item"><summary>分号会保留吗？</summary><p>是的，分号(;)作为语句分隔符，在压缩过程中不会被删除。</p></details>
+<details class="faq-item"><summary>支持反向格式化吗？</summary><p>本工具仅支持压缩。需要添加缩进和换行的格式化功能，请使用sql-validator工具。</p></details>`
   },
   ja:{pageTitle:'SQL最小化ツール - SQL空白・コメント削除 | MODOO HUB',h1b:'最小化',sub:'SQL空白・コメント削除 → 1行に圧縮',backLink:'← ホーム',langBtn:'🌐 한국어',labelIn:'SQL入力',labelOut:'結果',optLabelComments:'コメント削除',optLabelUpper:'キーワード大文字化',btnCopy:'コピー',btnClear:'クリア',copied:'コピー完了 ✓',statBefore:'入力前',statAfter:'出力後',statSaved:'削減',
-    seoHtml:`<h2>SQL最小化ツールとは</h2><p>SQLクエリの不要な空白・改行・コメントを削除してサイズを削減します。アプリケーションコードへのSQL埋め込みやHTTP送信時に便利です。コメント削除・キーワード大文字化オプション付き。</p>
+    seoHtml:`<h2>SQL最小化ツールとは</h2><p>SQLクエリの不要な空白・改行・コメントを削除してサイズを削減します。文字列リテラル(<code>'...'</code>)の内部は一時的にプレースホルダーに置き換えてから空白圧縮・キーワード大文字化を行い、最後に元に戻す方式のため、<strong>空白圧縮と大文字化は文字列値に影響しません。</strong>ただし<strong>コメント削除はこの文字列保護処理より先に実行される</strong>ため、文字列値の中に<code>--</code>や<code>/*</code>が含まれていると実際のコメントと誤認され、後続の内容がまるごと切り捨てられたり文字列が破損したりすることがあります。例えば<code>WHERE note='a--b' AND x=1</code>を入力すると、結果は<code>WHERE note='a</code>でそのまま途切れます(引用符が閉じられていない壊れたSQL)。</p>
 <h2 class="seo-sub">よくある質問</h2>
-<details class="faq-item"><summary>最小化はSQL性能に影響しますか？</summary><p>DBパーサーは空白を無視するため、最小化はクエリ実行性能にほぼ影響しません。</p></details>
-<details class="faq-item"><summary>コメント削除は安全ですか？</summary><p>通常は安全です。文字列リテラル内に--や/*がある場合は注意が必要です。</p></details>
-<details class="faq-item"><summary>キーワード大文字化とは？</summary><p>SELECT、FROM、WHEREなどSQLの予約語を大文字に変換します。可読性向上とスタイル統一に役立ちます。</p></details>
-<details class="faq-item"><summary>どのコメント形式を処理しますか？</summary><p>--単行コメントと/* ... */ブロックコメントを削除します。</p></details>
-<details class="faq-item"><summary>文字列内の空白は保持されますか？</summary><p>はい。シングルクォート内の内容は変更しません。</p></details>
-<details class="faq-item"><summary>MySQL・PostgreSQL・SQLiteに対応？</summary><p>標準SQL構文を基準にしており、大部分のRDBMSに適用されます。</p></details>
-<details class="faq-item"><summary>セミコロンは保持されますか？</summary><p>はい。セミコロンは文ごとの区切り記号として保持されます。</p></details>
-<details class="faq-item"><summary>逆方向（フォーマット）も対応？</summary><p>SQLフォーマット（インデント・改行追加）はsql-validatorツールをご参照ください。</p></details>`
+<details class="faq-item"><summary>コメント削除が文字列値を切り捨てるというのは本当ですか？</summary><p>はい、実際に再現します。コメント削除オプションを有効にした状態で<code>WHERE note='a--b' AND x=1</code>を入力すると、<code>--</code>以降が単行コメントとして処理され、結果は<code>WHERE note='a</code>で終わってしまいます。後ろにあった<code>AND x=1</code>と閉じ引用符が消えてしまう、単なる「注意が必要」ではなくクエリを壊す問題です。</p></details>
+<details class="faq-item"><summary>なぜこのようなことが起きるのですか？</summary><p>コードの処理順序上、<code>--</code>・<code>/* */</code>のコメント削除が、文字列リテラルを保護用プレースホルダーに置き換える処理より先に実行されます。そのため文字列内部の<code>--</code>や<code>/*</code>も実際のコメント記号と区別されず、そのまま削除対象になります。</p></details>
+<details class="faq-item"><summary>ブロックコメント記号(/* */)が文字列内にある場合はどうなりますか？</summary><p><code>note='a/*b*/c'</code>のように文字列内に<code>/* */</code>があると、クエリは途切れませんが値自体が<code>note='a c'</code>に静かに変わってしまいます。本来保存したかった文字列値が気づかないうちに破損します。</p></details>
+<details class="faq-item"><summary>空白圧縮やキーワード大文字化にも同じ問題がありますか？</summary><p>いいえ。空白圧縮と大文字化は、文字列リテラルを先に<code>__STR0__</code>のようなプレースホルダーに置き換えてから処理し、最後に元の文字列へ復元するため、文字列値内部の空白や大文字小文字はそのまま保持されます。問題はコメント削除の段階でのみ発生します。</p></details>
+<details class="faq-item"><summary>この問題を避けるにはどうすればよいですか？</summary><p>SQLの文字列値にURLやコードスニペット、自由テキストなど<code>--</code>や<code>/*</code>のような並びが偶然含まれる可能性がある場合は、コメント削除オプションをオフにするか、最小化後の結果を必ず目視で確認するのが安全です。</p></details>
+<details class="faq-item"><summary>キーワード大文字化はどのように動作しますか？</summary><p>SELECT、FROM、WHEREなど事前定義された予約語リストを単語境界(<code>\\b</code>)基準で検索し、大文字に変換します。この方式は<code>AS_OF_DATE</code>のように予約語が識別子の一部として含まれる場合、単語境界の条件により変換対象にならず正しく動作します。</p></details>
+<details class="faq-item"><summary>セミコロンは保持されますか？</summary><p>はい。セミコロン(;)は文の区切り記号として、圧縮処理中に削除されることはありません。</p></details>
+<details class="faq-item"><summary>逆方向（フォーマット）にも対応していますか？</summary><p>このツールは圧縮のみに対応しています。インデントや改行を追加するフォーマットにはsql-validatorツールをご利用ください。</p></details>`
   }
 };
 const LANGS=['ko','en','zh','ja'];
