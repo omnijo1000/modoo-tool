@@ -145,19 +145,19 @@ nanoid-generator(버그도 수정 — 커스텀 알파벳이 256자를 넘으면
 ### 완료 (3차 배치 12/N, content-depth-audit 브랜치에 커밋됨 — 커밋 8681810)
 slug-generator(버그도 수정 — 악센트 문자(café, Zürich 등)를 단순 삭제해 "caf-zrich-nave"처럼 글자가 통째로 사라지던 문제, 유니코드 NFD 정규화로 악센트 결합기호만 제거하도록 수정해 "cafe-zurich-naive"로 정상 변환. 이 파일도 원래부터 FAQ 7개(35=7x5) 상태였던 것 8개로 정리), json-diff(버그도 수정 — FAQ는 "배열은 인덱스 기준으로 비교"라고 주장하는데 실제 코드는 배열을 재귀비교 대상에서 제외해 배열값이 하나라도 다르면 배열 전체를 통째로 하나의 "변경"으로 뭉뚱그려 표시하던 문제, 인덱스 기반 재귀 비교를 실제로 구현(중첩 배열·배열 속 객체 포함) + LCS 정렬이 아니라는 한계도 정직하게 명시), graphql-formatter(버그도 수정 — 문자열 인수 안에 #이 있으면(예: bio: "Loves #coding") 그 뒤 전체가 주석으로 오인되어 잘려나가던 심각한 버그, 문자열 리터럴을 처리 전 임시 자리표시자로 보호했다가 마지막에 복원하는 방식으로 수정, 콤마·중괄호·콜론이 문자열 안에 있어도 안전하게 처리됨)
 
+### 완료 (3차 배치 13/N, content-depth-audit 브랜치에 커밋됨 — 커밋 8560a40)
+hmac-generator(하드코딩된 한국어 문자열 2곳이 언어 무관하게 표시되던 버그 수정 + static/JS seoHtml 불일치(가이드 링크 문단 누락) 수정), uuid-generator(FAQ 12개 전체가 static HTML엔 빈 컨테이너뿐이고 JS renderFaq()로만 채워지던 CLAUDE.md 위반 사례 발견 — FAQ_DATA 기준으로 static 프리렌더 추가, 8개 표준 템플릿으로 축소하지 않고 기존 12개 유지), meeting-cost-calculator(통화 표시 버그 — en/zh/ja 라벨이 각각 $/元/円이라 주장하지만 실제 계산은 항상 만원 단위 원화로 처리 + 4개 언어 FAQ 예시 수치가 기본값으로 실제 계산한 결과와 전혀 다름(예: ko FAQ가 총비용 81,500원이라 했지만 실제론 162,500원, 연간 절감액도 42배 차이) — node로 직접 재현 후 라벨·수치 전부 수정)
+
 ## 3차 스캔 진행 현황 (2026-07-30 기준)
 
-**완료: 36개 / 70개** (batch 1~12)
-✅ json-schema-validator, ico-converter, image-prompt-generator, markdown-chat-exporter, xml-to-json, pdf-size-analyzer, hash-checker, regex-generator, prompt-template-generator, curl-generator, ngram-analyzer, json-schema-generator, png-to-svg, yaml-to-json, pdf-metadata-remover, curl-parser, text-similarity-checker, webhook-tester, time-zone-meeting-planner, image-color-extractor, open-graph-preview, pdf-word-counter, webhook-generator, avif-to-jpg, api-tester, bcrypt-validator, regex-cheatsheet, keyword-cannibalization-checker, bcrypt-generator, national-pension-calculator, nanoid-generator, keyword-difficulty-estimator, exif-viewer, slug-generator, json-diff, graphql-formatter
+**완료: 39개 / 70개** (batch 1~13)
+✅ json-schema-validator, ico-converter, image-prompt-generator, markdown-chat-exporter, xml-to-json, pdf-size-analyzer, hash-checker, regex-generator, prompt-template-generator, curl-generator, ngram-analyzer, json-schema-generator, png-to-svg, yaml-to-json, pdf-metadata-remover, curl-parser, text-similarity-checker, webhook-tester, time-zone-meeting-planner, image-color-extractor, open-graph-preview, pdf-word-counter, webhook-generator, avif-to-jpg, api-tester, bcrypt-validator, regex-cheatsheet, keyword-cannibalization-checker, bcrypt-generator, national-pension-calculator, nanoid-generator, keyword-difficulty-estimator, exif-viewer, slug-generator, json-diff, graphql-formatter, hmac-generator, uuid-generator, meeting-cost-calculator
 
 **주의**: `grep -c 'class="faq-item"' 파일명`은 "매칭되는 줄 수"를 세는 것이라, ko/en/zh/ja seoHtml이 한 줄짜리 템플릿 리터럴로 저장된 파일에서는 실제 개수보다 훨씬 적게 나올 수 있음(예: 40개인데 5로 표시됨). 반드시 `grep -o 'class="faq-item"' 파일명 | wc -l`로 실제 occurrence 개수를 셀 것. 또한 이 카운트는 배치 시작 전 반드시 확인 — 과거 콘텐츠(exif-viewer, slug-generator 등)에 원래부터 FAQ 개수가 8개가 아니었던 사례가 반복적으로 있었음.
 
-**남은 34개 (worst-first, char count)** — 다음 배치는 여기서부터 3개씩:
+**남은 31개 (worst-first, char count)** — 다음 배치는 여기서부터 3개씩:
 ```
-836  hmac-generator.html                  ⬜ 다음 배치 시작점
-836  uuid-generator.html
-837  meeting-cost-calculator.html
-845  unicode-converter.html
+845  unicode-converter.html               ⬜ 다음 배치 시작점
 846  heic-to-jpg.html
 852  transparent-background-maker.html
 852  rsa-key-generator.html
