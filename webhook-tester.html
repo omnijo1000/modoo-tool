@@ -26,7 +26,7 @@
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Webhook Tester","url":"https://modoohub.com/webhook-tester.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Analyze webhook payloads and verify HMAC signatures for GitHub, Stripe, Slack and other webhook providers."}</script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Webhook 서명 검증이란?","acceptedAnswer":{"@type":"Answer","text":"Webhook 발신자가 공유한 시크릿 키로 HMAC-SHA256 서명을 생성해 수신 페이로드의 서명과 비교합니다. 위변조를 감지하는 보안 기능입니다."}},{"@type":"Question","name":"GitHub Webhook 서명 형식은?","acceptedAnswer":{"@type":"Answer","text":"GitHub는 X-Hub-Signature-256 헤더에 sha256=... 형식으로 HMAC-SHA256 서명을 제공합니다."}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"GitHub Webhook 서명 형식은?","acceptedAnswer":{"@type":"Answer","text":"X-Hub-Signature-256 헤더에 sha256=HEX 형식으로 제공됩니다. HMAC 대상은 요청 원시 바디 전체입니다."}},{"@type":"Question","name":"Stripe Webhook 서명은 GitHub와 어떻게 다른가요?","acceptedAnswer":{"@type":"Answer","text":"Stripe-Signature 헤더는 t=타임스탬프,v1=HEX 형태이며, HMAC 대상이 바디 자체가 아니라 타임스탬프.바디 문자열이라는 점이 GitHub와 다릅니다."}},{"@type":"Question","name":"원시 바디를 그대로 입력해야 하는 이유는?","acceptedAnswer":{"@type":"Answer","text":"HMAC은 바이트 단위로 계산되므로 공백이나 줄바꿈, 키 순서가 하나라도 다르면 완전히 다른 해시가 나와 서명이 일치하지 않습니다."}},{"@type":"Question","name":"시크릿 키는 서버로 전송되나요?","acceptedAnswer":{"@type":"Answer","text":"아니요. HMAC 계산은 브라우저 내장 Web Crypto API로만 수행되며 네트워크로 전송되지 않습니다."}}]}</script>
 <meta property="og:type" content="website">
 <meta property="og:title" content="Webhook 테스터 - Webhook 요청 수신·검사 | MODOO HUB">
 <meta property="og:description" content="Webhook 페이로드 구조 분석 및 서명 검증 테스트. GitHub/Stripe/Slack 웹훅 형식 분석.">
@@ -82,66 +82,66 @@
       <div class="tester-result" id="verifyBox"></div>
     </div>
   </div>
-  <div class="seo" id="seoDiv"><h2>Webhook 테스터란?</h2><p>Webhook 페이로드의 구조를 분석하고, HMAC-SHA256 서명을 검증합니다. GitHub, Stripe, Slack 등 주요 플랫폼의 Webhook 형식을 지원합니다. <strong>서명 검증</strong> 탭에서 시크릿 키와 수신 서명, 원시 바디를 입력해 위변조 여부를 확인하세요.</p>
+  <div class="seo" id="seoDiv"><h2>Webhook 테스터란?</h2><p>페이로드 분석 탭은 붙여넣은 JSON을 파싱해 최상위 키 목록과 각 값의 타입(문자열/숫자/배열 길이 등)을 나열하고, action이나 event 같은 흔한 이벤트 식별 필드가 있으면 별도로 강조합니다. 서명 검증 탭은 Web Crypto API의 HMAC-SHA256으로 시크릿 키 + 원시 바디를 해시해 서명을 재계산한 뒤 입력한 수신 서명과 비교합니다. GitHub류(<code>sha256=HEX</code>)와 Stripe류(<code>t=타임스탬프,v1=HEX</code>) 두 형식을 자동 인식하는데, 특히 Stripe는 바디만 해시하는 게 아니라 <strong>"타임스탬프.바디"</strong> 문자열을 해시하도록 서명 스킴이 다르므로, 이 도구도 Stripe-Signature 헤더값을 넣으면 t 값을 읽어 body 앞에 이어붙인 뒤 재계산합니다. 비교는 문자열 길이가 다르면 즉시 false를 반환하고, 길이가 같으면 모든 문자를 XOR로 훑어 하나라도 다르면 diff가 0이 아니게 만드는 방식으로 처리해, 일치하는 접두사 길이에 비례해 응답 시간이 달라지는(===로 바로 비교할 때 발생할 수 있는) 타이밍 공격 여지를 줄입니다.</p>
 <h2 class="seo-sub">자주 묻는 질문</h2>
 <details class="faq-item"><summary>Webhook이란?</summary><p>이벤트 발생 시 지정된 URL로 HTTP POST 요청을 전송하는 알림 메커니즘입니다. GitHub push, Stripe 결제 완료 등 외부 서비스의 이벤트를 실시간으로 수신할 때 사용합니다.</p></details>
-<details class="faq-item"><summary>서명 검증이 필요한 이유는?</summary><p>Webhook은 외부에서 수신하므로 발신자를 신뢰할 수 없습니다. HMAC 서명으로 정당한 발신자임을 검증합니다.</p></details>
-<details class="faq-item"><summary>GitHub Webhook 서명 형식은?</summary><p>X-Hub-Signature-256 헤더에 sha256=HEX 형식으로 제공됩니다.</p></details>
-<details class="faq-item"><summary>Stripe Webhook 서명은?</summary><p>Stripe-Signature 헤더에 t=타임스탬프,v1=HEX 형식입니다.</p></details>
-<details class="faq-item"><summary>서명 검증 로직은?</summary><p>시크릿 키로 원시 바디를 HMAC-SHA256 해시하고 수신 서명과 비교합니다.</p></details>
-<details class="faq-item"><summary>시크릿 키는 서버로 전송되나요?</summary><p>아니요. 모든 처리는 브라우저(Web Crypto API)에서 이루어집니다.</p></details>
-<details class="faq-item"><summary>JSON 페이로드가 아니어도 분석되나요?</summary><p>JSON이 아닌 경우 파싱 오류를 표시하고 원시 텍스트 정보를 제공합니다.</p></details>
-<details class="faq-item"><summary>실시간 Webhook 수신 테스트는 어떻게 하나요?</summary><p>ngrok 같은 터널링 도구로 로컬 서버를 공개 URL로 노출한 뒤 외부 서비스에 등록하세요.</p></details></div>
+<details class="faq-item"><summary>서명 검증이 필요한 이유는?</summary><p>Webhook은 인터넷에 공개된 엔드포인트로 누구나 요청을 보낼 수 있어 발신자를 신뢰할 수 없습니다. 발신 서비스와 사전에 공유한 시크릿 키로 만든 HMAC 서명을 검증해야 진짜 GitHub/Stripe가 보낸 요청인지 확인할 수 있습니다.</p></details>
+<details class="faq-item"><summary>GitHub Webhook 서명 형식은?</summary><p>X-Hub-Signature-256 헤더에 sha256=HEX 형식으로 제공됩니다. HMAC 대상은 요청 원시 바디 전체입니다.</p></details>
+<details class="faq-item"><summary>Stripe Webhook 서명은 GitHub와 어떻게 다른가요?</summary><p>Stripe-Signature 헤더는 t=타임스탬프,v1=HEX,v0=HEX(구버전 호환용) 형태의 콤마 구분 목록입니다. HMAC 대상이 바디 자체가 아니라 "{타임스탬프}.{바디}" 문자열이라는 점이 GitHub와 다른 핵심 차이이며, 이 타임스탬프 결합 방식 덕분에 오래된 요청을 재전송하는 리플레이 공격도 감지할 수 있습니다.</p></details>
+<details class="faq-item"><summary>서명 검증 로직은 구체적으로 어떻게 동작하나요?</summary><p>입력한 시크릿 키를 HMAC-SHA256 키로 가져와 원시 바디(Stripe 형식이면 타임스탬프.바디)를 서명한 뒤 16진수 문자열로 변환하고, 입력된 수신 서명과 길이 우선 비교 후 전체 문자를 XOR 누적하는 방식으로 대조합니다. 단순 문자열 === 비교보다 타이밍 사이드채널에 안전한 방식입니다.</p></details>
+<details class="faq-item"><summary>원시 바디(raw body)를 그대로 입력해야 하는 이유는?</summary><p>HMAC은 바이트 단위로 계산되므로 공백 하나, 줄바꿈 하나, 키 순서 하나만 달라져도 완전히 다른 해시가 나옵니다. 웹훅 수신 서버에서 JSON.parse 후 다시 stringify한 값이나 보기 좋게 들여쓰기한 값을 붙여넣으면, 내용이 같아 보여도 서명이 절대 일치하지 않습니다. 반드시 발신자가 실제로 보낸 원본 바이트 그대로를 붙여넣어야 합니다.</p></details>
+<details class="faq-item"><summary>시크릿 키는 서버로 전송되나요?</summary><p>아니요. HMAC 계산은 브라우저 내장 Web Crypto API(crypto.subtle)로만 수행되며, 시크릿 키·바디·서명 모두 네트워크로 전송되지 않습니다.</p></details>
+<details class="faq-item"><summary>실시간 Webhook 수신 테스트는 어떻게 하나요?</summary><p>이 도구는 이미 받은 페이로드를 사후 분석하는 용도입니다. 실제로 외부 서비스가 로컬 개발 서버로 웹훅을 보내게 하려면 ngrok 같은 터널링 도구로 로컬 서버를 공개 URL로 노출한 뒤, 그 URL을 GitHub/Stripe 등의 Webhook 설정에 등록해야 합니다.</p></details></div>
 </main>
 <script>
 const _i18n={
-  ko:{pageTitle:'Webhook 테스터 - Webhook 요청 수신·검사 | MODOO HUB',h1b:'테스터',sub:'Webhook 페이로드 분석 및 서명 검증',backLink:'← 모두의 툴',langBtn:'🌐 EN',tab1:'페이로드 분석',tab2:'서명 검증',labelPayload:'Webhook 페이로드 (JSON)',labelAnalysis:'분석 결과',labelSecret:'시크릿 키',labelSig:'수신 서명 (X-Hub-Signature-256 등)',labelBody:'요청 바디 (raw)',labelVerifyResult:'검증 결과',btnGH:'GitHub 예시',btnStripe:'Stripe 예시',btnClear:'초기화',sigOk:'✓ 서명 일치 — 페이로드 무결성 확인됨',sigFail:'✗ 서명 불일치 — 페이로드 위변조 또는 잘못된 시크릿',sigComputed:'계산된 서명:',
-    seoHtml:`<h2>Webhook 테스터란?</h2><p>Webhook 페이로드의 구조를 분석하고, HMAC-SHA256 서명을 검증합니다. GitHub, Stripe, Slack 등 주요 플랫폼의 Webhook 형식을 지원합니다. <strong>서명 검증</strong> 탭에서 시크릿 키와 수신 서명, 원시 바디를 입력해 위변조 여부를 확인하세요.</p>
+  ko:{pageTitle:'Webhook 테스터 - Webhook 요청 수신·검사 | MODOO HUB',h1b:'테스터',sub:'Webhook 페이로드 분석 및 서명 검증',backLink:'← 모두의 툴',langBtn:'🌐 EN',tab1:'페이로드 분석',tab2:'서명 검증',labelPayload:'Webhook 페이로드 (JSON)',labelAnalysis:'분석 결과',labelSecret:'시크릿 키',labelSig:'수신 서명 (X-Hub-Signature-256 등)',labelBody:'요청 바디 (raw)',labelVerifyResult:'검증 결과',btnGH:'GitHub 예시',btnStripe:'Stripe 예시',btnClear:'초기화',sigOk:'✓ 서명 일치 — 페이로드 무결성 확인됨',sigFail:'✗ 서명 불일치 — 페이로드 위변조 또는 잘못된 시크릿',sigComputed:'계산된 서명:',sigReceived:'수신된 서명:',
+    seoHtml:`<h2>Webhook 테스터란?</h2><p>페이로드 분석 탭은 붙여넣은 JSON을 파싱해 최상위 키 목록과 각 값의 타입(문자열/숫자/배열 길이 등)을 나열하고, action이나 event 같은 흔한 이벤트 식별 필드가 있으면 별도로 강조합니다. 서명 검증 탭은 Web Crypto API의 HMAC-SHA256으로 시크릿 키 + 원시 바디를 해시해 서명을 재계산한 뒤 입력한 수신 서명과 비교합니다. GitHub류(<code>sha256=HEX</code>)와 Stripe류(<code>t=타임스탬프,v1=HEX</code>) 두 형식을 자동 인식하는데, 특히 Stripe는 바디만 해시하는 게 아니라 <strong>"타임스탬프.바디"</strong> 문자열을 해시하도록 서명 스킴이 다르므로, 이 도구도 Stripe-Signature 헤더값을 넣으면 t 값을 읽어 body 앞에 이어붙인 뒤 재계산합니다. 비교는 문자열 길이가 다르면 즉시 false를 반환하고, 길이가 같으면 모든 문자를 XOR로 훑어 하나라도 다르면 diff가 0이 아니게 만드는 방식으로 처리해, 일치하는 접두사 길이에 비례해 응답 시간이 달라지는(===로 바로 비교할 때 발생할 수 있는) 타이밍 공격 여지를 줄입니다.</p>
 <h2 class="seo-sub">자주 묻는 질문</h2>
 <details class="faq-item"><summary>Webhook이란?</summary><p>이벤트 발생 시 지정된 URL로 HTTP POST 요청을 전송하는 알림 메커니즘입니다. GitHub push, Stripe 결제 완료 등 외부 서비스의 이벤트를 실시간으로 수신할 때 사용합니다.</p></details>
-<details class="faq-item"><summary>서명 검증이 필요한 이유는?</summary><p>Webhook은 외부에서 수신하므로 발신자를 신뢰할 수 없습니다. HMAC 서명으로 정당한 발신자임을 검증합니다.</p></details>
-<details class="faq-item"><summary>GitHub Webhook 서명 형식은?</summary><p>X-Hub-Signature-256 헤더에 sha256=HEX 형식으로 제공됩니다.</p></details>
-<details class="faq-item"><summary>Stripe Webhook 서명은?</summary><p>Stripe-Signature 헤더에 t=타임스탬프,v1=HEX 형식입니다.</p></details>
-<details class="faq-item"><summary>서명 검증 로직은?</summary><p>시크릿 키로 원시 바디를 HMAC-SHA256 해시하고 수신 서명과 비교합니다.</p></details>
-<details class="faq-item"><summary>시크릿 키는 서버로 전송되나요?</summary><p>아니요. 모든 처리는 브라우저(Web Crypto API)에서 이루어집니다.</p></details>
-<details class="faq-item"><summary>JSON 페이로드가 아니어도 분석되나요?</summary><p>JSON이 아닌 경우 파싱 오류를 표시하고 원시 텍스트 정보를 제공합니다.</p></details>
-<details class="faq-item"><summary>실시간 Webhook 수신 테스트는 어떻게 하나요?</summary><p>ngrok 같은 터널링 도구로 로컬 서버를 공개 URL로 노출한 뒤 외부 서비스에 등록하세요.</p></details>`
+<details class="faq-item"><summary>서명 검증이 필요한 이유는?</summary><p>Webhook은 인터넷에 공개된 엔드포인트로 누구나 요청을 보낼 수 있어 발신자를 신뢰할 수 없습니다. 발신 서비스와 사전에 공유한 시크릿 키로 만든 HMAC 서명을 검증해야 진짜 GitHub/Stripe가 보낸 요청인지 확인할 수 있습니다.</p></details>
+<details class="faq-item"><summary>GitHub Webhook 서명 형식은?</summary><p>X-Hub-Signature-256 헤더에 sha256=HEX 형식으로 제공됩니다. HMAC 대상은 요청 원시 바디 전체입니다.</p></details>
+<details class="faq-item"><summary>Stripe Webhook 서명은 GitHub와 어떻게 다른가요?</summary><p>Stripe-Signature 헤더는 t=타임스탬프,v1=HEX,v0=HEX(구버전 호환용) 형태의 콤마 구분 목록입니다. HMAC 대상이 바디 자체가 아니라 "{타임스탬프}.{바디}" 문자열이라는 점이 GitHub와 다른 핵심 차이이며, 이 타임스탬프 결합 방식 덕분에 오래된 요청을 재전송하는 리플레이 공격도 감지할 수 있습니다.</p></details>
+<details class="faq-item"><summary>서명 검증 로직은 구체적으로 어떻게 동작하나요?</summary><p>입력한 시크릿 키를 HMAC-SHA256 키로 가져와 원시 바디(Stripe 형식이면 타임스탬프.바디)를 서명한 뒤 16진수 문자열로 변환하고, 입력된 수신 서명과 길이 우선 비교 후 전체 문자를 XOR 누적하는 방식으로 대조합니다. 단순 문자열 === 비교보다 타이밍 사이드채널에 안전한 방식입니다.</p></details>
+<details class="faq-item"><summary>원시 바디(raw body)를 그대로 입력해야 하는 이유는?</summary><p>HMAC은 바이트 단위로 계산되므로 공백 하나, 줄바꿈 하나, 키 순서 하나만 달라져도 완전히 다른 해시가 나옵니다. 웹훅 수신 서버에서 JSON.parse 후 다시 stringify한 값이나 보기 좋게 들여쓰기한 값을 붙여넣으면, 내용이 같아 보여도 서명이 절대 일치하지 않습니다. 반드시 발신자가 실제로 보낸 원본 바이트 그대로를 붙여넣어야 합니다.</p></details>
+<details class="faq-item"><summary>시크릿 키는 서버로 전송되나요?</summary><p>아니요. HMAC 계산은 브라우저 내장 Web Crypto API(crypto.subtle)로만 수행되며, 시크릿 키·바디·서명 모두 네트워크로 전송되지 않습니다.</p></details>
+<details class="faq-item"><summary>실시간 Webhook 수신 테스트는 어떻게 하나요?</summary><p>이 도구는 이미 받은 페이로드를 사후 분석하는 용도입니다. 실제로 외부 서비스가 로컬 개발 서버로 웹훅을 보내게 하려면 ngrok 같은 터널링 도구로 로컬 서버를 공개 URL로 노출한 뒤, 그 URL을 GitHub/Stripe 등의 Webhook 설정에 등록해야 합니다.</p></details>`
   },
-  en:{pageTitle:'Webhook Tester - Analyze & Verify Webhook Payloads | MODOO HUB',h1b:'Tester',sub:'Analyze webhook payloads and verify signatures',backLink:'← All Tools',langBtn:'🌐 中文',tab1:'Payload Analysis',tab2:'Signature Verify',labelPayload:'Webhook Payload (JSON)',labelAnalysis:'Analysis',labelSecret:'Secret Key',labelSig:'Received Signature (X-Hub-Signature-256 etc.)',labelBody:'Request Body (raw)',labelVerifyResult:'Verify Result',btnGH:'GitHub Example',btnStripe:'Stripe Example',btnClear:'Clear',sigOk:'✓ Signature VALID — payload integrity confirmed',sigFail:'✗ Signature INVALID — payload tampered or wrong secret',sigComputed:'Computed signature:',
-    seoHtml:`<h2>Webhook Tester</h2><p>Analyze webhook payload structure and verify HMAC-SHA256 signatures. Supports GitHub, Stripe, Slack, and other major platform webhook formats. Use the <strong>Signature Verify</strong> tab to check whether a payload has been tampered.</p>
+  en:{pageTitle:'Webhook Tester - Analyze & Verify Webhook Payloads | MODOO HUB',h1b:'Tester',sub:'Analyze webhook payloads and verify signatures',backLink:'← All Tools',langBtn:'🌐 中文',tab1:'Payload Analysis',tab2:'Signature Verify',labelPayload:'Webhook Payload (JSON)',labelAnalysis:'Analysis',labelSecret:'Secret Key',labelSig:'Received Signature (X-Hub-Signature-256 etc.)',labelBody:'Request Body (raw)',labelVerifyResult:'Verify Result',btnGH:'GitHub Example',btnStripe:'Stripe Example',btnClear:'Clear',sigOk:'✓ Signature VALID — payload integrity confirmed',sigFail:'✗ Signature INVALID — payload tampered or wrong secret',sigComputed:'Computed signature:',sigReceived:'Received signature:',
+    seoHtml:`<h2>Webhook Tester</h2><p>The Payload Analysis tab parses pasted JSON and lists top-level keys with each value's type (string/number/array length, etc.), highlighting common event-identifying fields like action or event separately. The Signature Verify tab uses the Web Crypto API's HMAC-SHA256 to re-hash the secret key + raw body and compares it against the signature you enter. It auto-detects two formats — GitHub-style (<code>sha256=HEX</code>) and Stripe-style (<code>t=timestamp,v1=HEX</code>). Stripe's scheme differs in a key way: it doesn't hash the body alone, it hashes the string <strong>"timestamp.body"</strong>, so when you paste a Stripe-Signature header value, the tool reads the t value and prepends it to the body before recomputing. The comparison itself returns false immediately on a length mismatch, and otherwise XORs every character pair so any single mismatch leaves a non-zero diff — reducing the timing-attack surface that a naive === string comparison (where response time can correlate with how many leading characters match) would expose.</p>
 <h2 class="seo-sub">FAQ</h2>
 <details class="faq-item"><summary>What is a webhook?</summary><p>A notification mechanism that sends an HTTP POST request to a specified URL when an event occurs — e.g., GitHub push, Stripe payment, etc.</p></details>
-<details class="faq-item"><summary>Why verify the signature?</summary><p>Since webhooks come from external sources, you can&apos;t implicitly trust the sender. HMAC signature verification confirms authenticity.</p></details>
-<details class="faq-item"><summary>What is the GitHub webhook signature format?</summary><p>Provided in the X-Hub-Signature-256 header as sha256=HEX.</p></details>
-<details class="faq-item"><summary>What about Stripe webhook signatures?</summary><p>Stripe uses the Stripe-Signature header with t=timestamp,v1=HEX format.</p></details>
-<details class="faq-item"><summary>How does signature verification work?</summary><p>The raw body is HMAC-SHA256 hashed with the secret key and compared to the received signature.</p></details>
-<details class="faq-item"><summary>Is my secret key sent to a server?</summary><p>No. All processing uses the browser-native Web Crypto API — nothing leaves your device.</p></details>
-<details class="faq-item"><summary>What if the payload is not JSON?</summary><p>A parse error is shown and raw text info is provided.</p></details>
-<details class="faq-item"><summary>How to test real-time webhook reception?</summary><p>Use a tunneling tool like ngrok to expose your local server to a public URL, then register it with the external service.</p></details>`
+<details class="faq-item"><summary>Why verify the signature?</summary><p>A webhook endpoint is a public URL anyone can send requests to, so the sender can't be trusted implicitly. Verifying an HMAC signature built with a secret pre-shared with the sending service confirms the request really came from GitHub, Stripe, etc.</p></details>
+<details class="faq-item"><summary>What is the GitHub webhook signature format?</summary><p>Provided in the X-Hub-Signature-256 header as sha256=HEX. The HMAC target is the entire raw request body.</p></details>
+<details class="faq-item"><summary>How does Stripe's webhook signature differ from GitHub's?</summary><p>The Stripe-Signature header is a comma-separated list like t=timestamp,v1=HEX,v0=HEX (legacy compatibility). The key difference from GitHub is that the HMAC target isn't the body alone — it's the string "{timestamp}.{body}". That timestamp binding is also what lets Stripe detect replay attacks using stale requests.</p></details>
+<details class="faq-item"><summary>Exactly how does the signature verification logic work?</summary><p>Your secret key is imported as an HMAC-SHA256 key, used to sign the raw body (or timestamp.body for Stripe format), converted to a hex string, then compared against the signature you entered — first by length, then by XOR-accumulating every character. This is safer against timing side-channels than a plain === string comparison.</p></details>
+<details class="faq-item"><summary>Why must I paste the exact raw body?</summary><p>HMAC operates byte-for-byte, so a single extra space, a different newline, or reordered keys produces a completely different hash. If you paste a value your server re-serialized with JSON.parse + stringify, or a pretty-printed version, the signature will never match even though the content looks identical. You must paste the exact original bytes the sender transmitted.</p></details>
+<details class="faq-item"><summary>Is my secret key sent to a server?</summary><p>No. All HMAC computation runs through the browser-native Web Crypto API (crypto.subtle) — the secret, body, and signature never leave your device over the network.</p></details>
+<details class="faq-item"><summary>How do I test real-time webhook reception?</summary><p>This tool analyzes payloads after the fact. To have an external service actually deliver webhooks to your local dev server, use a tunneling tool like ngrok to expose it at a public URL, then register that URL in GitHub/Stripe's webhook settings.</p></details>`
   },
-  zh:{pageTitle:'Webhook测试器 - 分析和验证Webhook | MODOO HUB',h1b:'测试器',sub:'分析Webhook负载并验证签名',backLink:'← 所有工具',langBtn:'🌐 日本語',tab1:'负载分析',tab2:'签名验证',labelPayload:'Webhook负载 (JSON)',labelAnalysis:'分析结果',labelSecret:'密钥',labelSig:'接收到的签名',labelBody:'请求体 (原始)',labelVerifyResult:'验证结果',btnGH:'GitHub示例',btnStripe:'Stripe示例',btnClear:'清除',sigOk:'✓ 签名有效 — 负载完整性已确认',sigFail:'✗ 签名无效 — 负载被篡改或密钥错误',sigComputed:'计算的签名:',
-    seoHtml:`<h2>Webhook测试器</h2><p>分析Webhook负载结构并验证HMAC-SHA256签名。支持GitHub、Stripe、Slack等主要平台的Webhook格式。在签名验证选项卡中输入密钥、接收的签名和原始请求体来检查是否被篡改。</p>
+  zh:{pageTitle:'Webhook测试器 - 分析和验证Webhook | MODOO HUB',h1b:'测试器',sub:'分析Webhook负载并验证签名',backLink:'← 所有工具',langBtn:'🌐 日本語',tab1:'负载分析',tab2:'签名验证',labelPayload:'Webhook负载 (JSON)',labelAnalysis:'分析结果',labelSecret:'密钥',labelSig:'接收到的签名',labelBody:'请求体 (原始)',labelVerifyResult:'验证结果',btnGH:'GitHub示例',btnStripe:'Stripe示例',btnClear:'清除',sigOk:'✓ 签名有效 — 负载完整性已确认',sigFail:'✗ 签名无效 — 负载被篡改或密钥错误',sigComputed:'计算的签名:',sigReceived:'接收到的签名:',
+    seoHtml:`<h2>Webhook测试器</h2><p>负载分析标签会解析粘贴的JSON，列出顶层键及每个值的类型（字符串/数字/数组长度等），并单独高亮action、event这类常见的事件标识字段。签名验证标签使用Web Crypto API的HMAC-SHA256，对密钥+原始请求体重新计算签名，再与你输入的接收签名比较。它会自动识别两种格式——GitHub风格（<code>sha256=HEX</code>）和Stripe风格（<code>t=时间戳,v1=HEX</code>）。Stripe的方案有个关键区别：它不是只对请求体做哈希，而是对<strong>"时间戳.请求体"</strong>这个字符串做哈希，因此当你粘贴Stripe-Signature请求头的值时，工具会读取t值并拼接到请求体前面再重新计算。比较逻辑是：长度不同直接返回false，长度相同则对所有字符做XOR累加，只要有一个字符不同diff就不为0——这比直接用===比较字符串（响应时间可能随匹配的前缀长度而变化）更能降低时序攻击的风险。</p>
 <h2 class="seo-sub">常见问题</h2>
 <details class="faq-item"><summary>什么是Webhook？</summary><p>当事件发生时向指定URL发送HTTP POST请求的通知机制，如GitHub push、Stripe支付等。</p></details>
-<details class="faq-item"><summary>为什么需要验证签名？</summary><p>Webhook来自外部，不能隐式信任发送者。HMAC签名验证确认真实性。</p></details>
-<details class="faq-item"><summary>GitHub Webhook签名格式？</summary><p>在X-Hub-Signature-256请求头中以sha256=HEX格式提供。</p></details>
-<details class="faq-item"><summary>Stripe Webhook签名如何？</summary><p>Stripe使用Stripe-Signature请求头，格式为t=时间戳,v1=HEX。</p></details>
-<details class="faq-item"><summary>签名验证如何工作？</summary><p>用密钥对原始请求体进行HMAC-SHA256哈希，与接收的签名比较。</p></details>
-<details class="faq-item"><summary>密钥会发送到服务器吗？</summary><p>不会，所有处理使用浏览器内置的Web Crypto API完成。</p></details>
-<details class="faq-item"><summary>非JSON负载也能分析吗？</summary><p>显示解析错误并提供原始文本信息。</p></details>
-<details class="faq-item"><summary>如何测试实时Webhook接收？</summary><p>使用ngrok等隧道工具将本地服务器暴露为公共URL，然后在外部服务中注册。</p></details>`
+<details class="faq-item"><summary>为什么需要验证签名？</summary><p>Webhook端点是公开在互联网上的URL，任何人都能发送请求，因此不能隐式信任发送者。必须验证用与发送服务预先共享的密钥生成的HMAC签名，才能确认请求确实来自GitHub、Stripe等真实服务。</p></details>
+<details class="faq-item"><summary>GitHub Webhook签名格式？</summary><p>在X-Hub-Signature-256请求头中以sha256=HEX格式提供，HMAC的对象是整个请求原始请求体。</p></details>
+<details class="faq-item"><summary>Stripe Webhook签名和GitHub有什么不同？</summary><p>Stripe-Signature请求头是逗号分隔的列表，形如t=时间戳,v1=HEX,v0=HEX（旧版兼容用）。与GitHub的核心区别在于，HMAC的对象不是请求体本身，而是"{时间戳}.{请求体}"这个字符串；正因为绑定了时间戳，Stripe还能借此检测重放旧请求的攻击。</p></details>
+<details class="faq-item"><summary>签名验证逻辑具体是怎么运作的？</summary><p>把输入的密钥作为HMAC-SHA256密钥导入，对原始请求体（Stripe格式则为时间戳.请求体）签名并转换成十六进制字符串，再与输入的接收签名先比较长度、再对全部字符做XOR累加来比对。这比单纯用===比较字符串更能防范时序侧信道攻击。</p></details>
+<details class="faq-item"><summary>为什么必须原样粘贴原始请求体（raw body）？</summary><p>HMAC是按字节计算的，哪怕只多一个空格、换一种换行符或键的顺序不同，得到的哈希都会完全不同。如果粘贴的是服务器JSON.parse后再stringify的结果，或是格式化过缩进的版本，即使内容看起来一样，签名也绝对不会匹配。必须原样粘贴发送方实际传输的原始字节。</p></details>
+<details class="faq-item"><summary>密钥会发送到服务器吗？</summary><p>不会。所有HMAC计算都只通过浏览器内置的Web Crypto API（crypto.subtle）完成，密钥、请求体、签名都不会通过网络发送。</p></details>
+<details class="faq-item"><summary>如何测试实时Webhook接收？</summary><p>本工具用于对已收到的负载做事后分析。要让外部服务真正把webhook发送到本地开发服务器，需要用ngrok等隧道工具把本地服务器暴露为公共URL，再把该URL注册到GitHub/Stripe等的Webhook设置中。</p></details>`
   },
-  ja:{pageTitle:'Webhookテスター - Webhookペイロード分析・署名検証 | MODOO HUB',h1b:'テスター',sub:'Webhookペイロード分析と署名検証',backLink:'← ホーム',langBtn:'🌐 한국어',tab1:'ペイロード分析',tab2:'署名検証',labelPayload:'Webhookペイロード (JSON)',labelAnalysis:'分析結果',labelSecret:'シークレットキー',labelSig:'受信した署名',labelBody:'リクエストボディ (raw)',labelVerifyResult:'検証結果',btnGH:'GitHub例',btnStripe:'Stripe例',btnClear:'クリア',sigOk:'✓ 署名一致 — ペイロード整合性確認済み',sigFail:'✗ 署名不一致 — ペイロード改ざんまたはシークレット誤り',sigComputed:'計算済み署名:',
-    seoHtml:`<h2>Webhookテスターとは</h2><p>WebhookペイロードのJSON構造を分析し、HMAC-SHA256署名を検証します。GitHub、Stripe、SlackなどのWebhook形式をサポートします。署名検証タブでシークレットキー、受信した署名、生のリクエストボディを入力して改ざんを確認できます。</p>
+  ja:{pageTitle:'Webhookテスター - Webhookペイロード分析・署名検証 | MODOO HUB',h1b:'テスター',sub:'Webhookペイロード分析と署名検証',backLink:'← ホーム',langBtn:'🌐 한국어',tab1:'ペイロード分析',tab2:'署名検証',labelPayload:'Webhookペイロード (JSON)',labelAnalysis:'分析結果',labelSecret:'シークレットキー',labelSig:'受信した署名',labelBody:'リクエストボディ (raw)',labelVerifyResult:'検証結果',btnGH:'GitHub例',btnStripe:'Stripe例',btnClear:'クリア',sigOk:'✓ 署名一致 — ペイロード整合性確認済み',sigFail:'✗ 署名不一致 — ペイロード改ざんまたはシークレット誤り',sigComputed:'計算済み署名:',sigReceived:'受信した署名:',
+    seoHtml:`<h2>Webhookテスターとは</h2><p>ペイロード分析タブは貼り付けたJSONを解析し、トップレベルのキーと各値の型(文字列/数値/配列の長さなど)を一覧表示し、actionやeventのような一般的なイベント識別フィールドがあれば別途強調表示します。署名検証タブはWeb Crypto APIのHMAC-SHA256でシークレットキー＋生ボディから署名を再計算し、入力した受信署名と比較します。GitHub形式(<code>sha256=HEX</code>)とStripe形式(<code>t=タイムスタンプ,v1=HEX</code>)の2種類を自動判別しますが、Stripeはボディだけをハッシュするのではなく<strong>「タイムスタンプ.ボディ」</strong>という文字列をハッシュする点がGitHubと決定的に異なるため、このツールもStripe-Signatureヘッダーの値を入力するとt値を読み取ってボディの前に連結してから再計算します。比較処理は、文字列長が異なれば即座にfalseを返し、長さが同じ場合は全文字をXORで積算して1文字でも異なればdiffが0以外になる方式を取り、===で直接比較した場合に起こりうる(一致する先頭文字数に応じて応答時間が変わる)タイミング攻撃のリスクを減らしています。</p>
 <h2 class="seo-sub">よくある質問</h2>
 <details class="faq-item"><summary>Webhookとは？</summary><p>イベント発生時に指定URLへHTTP POSTリクエストを送信する通知メカニズムです。GitHub pushやStripe決済完了などの外部イベントをリアルタイムで受信します。</p></details>
-<details class="faq-item"><summary>署名検証が必要な理由は？</summary><p>Webhookは外部から受信するため送信者を暗黙に信頼できません。HMAC署名で正当な送信者を確認します。</p></details>
-<details class="faq-item"><summary>GitHub Webhook署名形式は？</summary><p>X-Hub-Signature-256ヘッダーにsha256=HEX形式で提供されます。</p></details>
-<details class="faq-item"><summary>Stripe署名は？</summary><p>Stripe-Signatureヘッダーにt=タイムスタンプ,v1=HEX形式です。</p></details>
-<details class="faq-item"><summary>署名検証ロジックは？</summary><p>シークレットキーで生ボディをHMAC-SHA256ハッシュして受信署名と比較します。</p></details>
-<details class="faq-item"><summary>シークレットキーはサーバーに送信されますか？</summary><p>いいえ。すべてブラウザのWeb Crypto APIで処理されます。</p></details>
-<details class="faq-item"><summary>JSON以外のペイロードは？</summary><p>パースエラーを表示し、生テキスト情報を提供します。</p></details>
-<details class="faq-item"><summary>リアルタイムWebhook受信テストは？</summary><p>ngrokなどのトンネリングツールでローカルサーバーを公開URLとして外部サービスに登録します。</p></details>`
+<details class="faq-item"><summary>署名検証が必要な理由は？</summary><p>Webhookエンドポイントはインターネットに公開されたURLで誰でもリクエストを送信できるため、送信者を暗黙に信頼できません。送信元サービスと事前共有したシークレットキーで作成したHMAC署名を検証して初めて、本物のGitHub/Stripeからのリクエストだと確認できます。</p></details>
+<details class="faq-item"><summary>GitHub Webhook署名形式は？</summary><p>X-Hub-Signature-256ヘッダーにsha256=HEX形式で提供されます。HMACの対象はリクエストの生ボディ全体です。</p></details>
+<details class="faq-item"><summary>Stripe Webhook署名はGitHubとどう違いますか？</summary><p>Stripe-Signatureヘッダーはt=タイムスタンプ,v1=HEX,v0=HEX(旧バージョン互換用)というカンマ区切りのリストです。GitHubとの決定的な違いは、HMACの対象がボディ単体ではなく「{タイムスタンプ}.{ボディ}」という文字列である点で、このタイムスタンプ結合の仕組みのおかげで古いリクエストを再送するリプレイ攻撃も検知できます。</p></details>
+<details class="faq-item"><summary>署名検証ロジックは具体的にどう動作しますか？</summary><p>入力したシークレットキーをHMAC-SHA256鍵としてインポートし、生ボディ(Stripe形式ならタイムスタンプ.ボディ)を署名して16進数文字列に変換した後、入力された受信署名とまず長さを比較し、次に全文字をXOR累積して照合します。単純な文字列===比較よりタイミングサイドチャネルに対して安全な方式です。</p></details>
+<details class="faq-item"><summary>生ボディ(raw body)をそのまま入力しなければならない理由は？</summary><p>HMACはバイト単位で計算されるため、スペース1つ、改行コード1つ、キーの順序が違うだけで完全に異なるハッシュになります。サーバー側でJSON.parseしてから再度stringifyした値や、見やすく整形した値を貼り付けると、内容が同じに見えても署名は絶対に一致しません。送信者が実際に送った元のバイト列をそのまま貼り付ける必要があります。</p></details>
+<details class="faq-item"><summary>シークレットキーはサーバーに送信されますか？</summary><p>いいえ。HMAC計算はすべてブラウザ内蔵のWeb Crypto API(crypto.subtle)だけで行われ、シークレットキー・ボディ・署名はいずれもネットワークに送信されません。</p></details>
+<details class="faq-item"><summary>リアルタイムWebhook受信テストは？</summary><p>本ツールはすでに受信したペイロードを事後分析するためのものです。外部サービスから実際にローカル開発サーバーへWebhookを送らせたい場合は、ngrokなどのトンネリングツールでローカルサーバーを公開URLとして公開し、そのURLをGitHub/StripeなどのWebhook設定に登録してください。</p></details>`
   }
 };
 const LANGS=['ko','en','zh','ja'];
@@ -187,6 +187,18 @@ function loadStripeExample(){
   document.getElementById('payload').value=JSON.stringify({"id":"evt_test_1234","object":"event","type":"payment_intent.succeeded","data":{"object":{"id":"pi_test_1234","object":"payment_intent","amount":2000,"currency":"usd","status":"succeeded"}},"created":1718000000},null,2);analyzePayload();
 }
 function clearPayload(){document.getElementById('payload').value='';document.getElementById('analysisBox').innerHTML='';}
+function timingSafeEqualStr(a,b){
+  if(a.length!==b.length)return false;
+  let diff=0;
+  for(let i=0;i<a.length;i++)diff|=a.charCodeAt(i)^b.charCodeAt(i);
+  return diff===0;
+}
+async function hmacHex(secret,payload){
+  const enc=new TextEncoder();
+  const key=await crypto.subtle.importKey('raw',enc.encode(secret),{name:'HMAC',hash:'SHA-256'},false,['sign']);
+  const mac=await crypto.subtle.sign('HMAC',key,enc.encode(payload));
+  return Array.from(new Uint8Array(mac)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
 async function verifySignature(){
   const t=_i18n[_lang];
   const secret=document.getElementById('secret').value;
@@ -195,13 +207,18 @@ async function verifySignature(){
   const box=document.getElementById('verifyBox');
   if(!secret||!sig||!body){box.innerHTML='';return;}
   try{
-    const enc=new TextEncoder();
-    const key=await crypto.subtle.importKey('raw',enc.encode(secret),{name:'HMAC',hash:'SHA-256'},false,['sign']);
-    const mac=await crypto.subtle.sign('HMAC',key,enc.encode(body));
-    const hex=Array.from(new Uint8Array(mac)).map(b=>b.toString(16).padStart(2,'0')).join('');
+    const stripeMatch=sig.match(/t=(\d+),v1=([0-9a-f]+)/i);
+    if(stripeMatch){
+      const[,ts,v1]=stripeMatch;
+      const hex=await hmacHex(secret,ts+'.'+body);
+      const match=timingSafeEqualStr(hex.toLowerCase(),v1.toLowerCase());
+      box.innerHTML=match?`<span class="ok">${t.sigOk}</span>\n${t.sigComputed} v1=${hex}`:`<span class="err">${t.sigFail}</span>\n${t.sigComputed} v1=${hex}\n${t.sigReceived} ${sig}`;
+      return;
+    }
+    const hex=await hmacHex(secret,body);
     const computed='sha256='+hex;
-    const match=sig===computed||sig===hex;
-    box.innerHTML=match?`<span class="ok">${t.sigOk}</span>\n${t.sigComputed} ${computed}`:`<span class="err">${t.sigFail}</span>\n${t.sigComputed} ${computed}\n受信: ${sig}`;
+    const match=timingSafeEqualStr(sig,computed)||timingSafeEqualStr(sig.toLowerCase(),hex.toLowerCase());
+    box.innerHTML=match?`<span class="ok">${t.sigOk}</span>\n${t.sigComputed} ${computed}`:`<span class="err">${t.sigFail}</span>\n${t.sigComputed} ${computed}\n${t.sigReceived} ${sig}`;
   }catch(e){box.innerHTML=`<span class="err">Error: ${e.message}</span>`;}
 }
 _lang=detectLang();applyLang();

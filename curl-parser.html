@@ -38,7 +38,7 @@
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"cURL Parser","url":"https://modoohub.com/curl-parser.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Parse and analyze cURL commands. Extract URL, method, headers, and request body from any cURL command."}</script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"cURL 파서는 어떻게 사용하나요?","acceptedAnswer":{"@type":"Answer","text":"cURL 명령어를 입력창에 붙여넣으면 URL, HTTP 메서드, 헤더, 본문으로 자동 분해됩니다."}},{"@type":"Question","name":"여러 줄 cURL 명령도 지원하나요?","acceptedAnswer":{"@type":"Answer","text":"백슬래시(\\)로 이어진 여러 줄 cURL 명령어도 지원합니다."}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"-X 없이 -d만 쓰면 메서드가 어떻게 나오나요?","acceptedAnswer":{"@type":"Answer","text":"POST로 표시됩니다. 실제 curl은 -d/--data가 있으면 -X를 안 써도 자동으로 POST를 보내는데, 이 도구도 -X가 명시적으로 없고 body가 있을 때만 GET 기본값을 POST로 교정합니다."}},{"@type":"Question","name":"Authorization 헤더와 Basic Auth(-u)는 어떻게 처리되나요?","acceptedAnswer":{"@type":"Answer","text":"-u user:password는 Base64 인코딩해 Authorization: Basic 값으로 자동 변환합니다. 비밀번호에 한글·이모지 등이 섞여도 UTF-8 인코딩 경로를 거쳐 깨지지 않고 변환됩니다."}},{"@type":"Question","name":"JSON 본문이 있으면 예쁘게 표시되나요?","acceptedAnswer":{"@type":"Answer","text":"-d/--data-raw 값을 JSON.parse로 시도해 성공하면 2칸 들여쓰기로 재포맷합니다. 파싱에 실패하면 원본 문자열을 그대로 보여줍니다."}},{"@type":"Question","name":"파싱된 내용은 서버로 전송되나요?","acceptedAnswer":{"@type":"Answer","text":"아니요. 토큰화·정규식 매칭·Base64 인코딩 전부 브라우저 JavaScript 안에서만 실행되며 네트워크로 전송되지 않습니다."}}]}</script>
 <meta property="og:type" content="website">
 <meta property="og:title" content="cURL 파서 - cURL 명령어 분석·분해 | MODOO HUB">
 <meta property="og:description" content="cURL 명령어를 붙여넣으면 URL, Method, Headers, Body를 자동 분석. 온라인 cURL Parser.">
@@ -68,66 +68,66 @@
     </div>
   </div>
   <div class="result-grid" id="resultGrid"></div>
-  <div class="seo" id="seoDiv"><h2>cURL 파서란?</h2><p>cURL 명령어를 분해해 URL, HTTP 메서드, 헤더, 요청 본문을 시각적으로 표시합니다. 팀원이 공유한 cURL 명령을 분석하거나 디버깅 시 유용합니다. 백슬래시로 이어진 <strong>멀티라인 cURL</strong> 명령도 지원합니다.</p>
+  <div class="seo" id="seoDiv"><h2>cURL 파서란?</h2><p>cURL 명령어 문자열을 공백·따옴표 단위로 토큰화한 뒤 -X, -H, -d, -u 같은 플래그를 순서대로 스캔해 URL, HTTP 메서드, 헤더, 요청 본문으로 재구성합니다. 작은따옴표(')와 큰따옴표(")로 감싼 구간은 내부 공백을 그대로 보존한 채 하나의 토큰으로 처리하므로, <code>-d '{"name":"Alice Kim"}'</code>처럼 값 안에 공백이 있어도 깨지지 않습니다. 백슬래시(\)로 이어진 <strong>멀티라인 cURL</strong>은 파싱 전에 개행을 공백으로 치환해 한 줄로 합칩니다. 메서드는 -X/--request가 없으면 기본 GET이지만, -d/--data가 있고 -X가 명시되지 않았을 때는 실제 curl 바이너리와 동일하게 자동으로 POST로 판정합니다 — 이 자동판정 로직이 빠지면 "-d만 쓰고 -X는 생략"한 흔한 cURL 명령을 GET으로 잘못 표시하는 오류가 나므로, 도구를 직접 쓸 때도 method 필드가 왜 GET이 아닌 POST로 뜨는지 헷갈리지 않도록 알아두면 좋습니다. -u user:password는 Base64로 인코딩해 Authorization: Basic 헤더로 변환하는데, 비밀번호에 한글 등 non-Latin1 문자가 섞이면 브라우저 표준 btoa()가 바로 예외를 던지므로 UTF-8 바이트로 먼저 변환한 뒤 인코딩하도록 처리되어 있습니다.</p>
 <h2 class="seo-sub">자주 묻는 질문</h2>
-<details class="faq-item"><summary>어떤 cURL 옵션을 파싱하나요?</summary><p>-X/--request, -H/--header, -d/--data, --data-raw, -u/--user, -L/--location, -k/--insecure, -v/--verbose 등을 지원합니다.</p></details>
-<details class="faq-item"><summary>Authorization 헤더를 자동 인식하나요?</summary><p>네. Authorization 헤더가 있으면 헤더 목록에 별도로 표시됩니다.</p></details>
-<details class="faq-item"><summary>JSON 본문이 있으면 예쁘게 표시되나요?</summary><p>본문이 유효한 JSON이면 자동으로 포맷팅해 표시합니다.</p></details>
-<details class="faq-item"><summary>브라우저에서 복사한 cURL도 파싱되나요?</summary><p>브라우저 개발자 도구에서 "cURL로 복사"한 명령어를 그대로 붙여넣기 할 수 있습니다.</p></details>
-<details class="faq-item"><summary>Basic Auth(-u 옵션)도 인식되나요?</summary><p>-u user:password 옵션을 파싱해 Authorization: Basic 형식으로 표시합니다.</p></details>
-<details class="faq-item"><summary>URL 파라미터도 파싱되나요?</summary><p>URL에 포함된 쿼리 파라미터를 파싱해 Key-Value 형태로 표시합니다.</p></details>
-<details class="faq-item"><summary>파싱된 내용은 안전한가요?</summary><p>모든 처리는 브라우저에서 이루어지며 서버로 데이터를 전송하지 않습니다.</p></details>
-<details class="faq-item"><summary>curl-generator.html과 어떻게 다른가요?</summary><p>curl-generator는 UI 입력으로 명령어를 생성하고, curl-parser는 기존 명령어를 분해합니다.</p></details></div>
+<details class="faq-item"><summary>어떤 cURL 옵션을 파싱하나요?</summary><p>-X/--request, -H/--header, -d/--data, --data-raw, -u/--user, -L/--location, -k/--insecure, -v/--verbose를 인식합니다. 이 외의 옵션(예: --compressed, --retry)은 토큰만 건너뛸 뿐 별도 필드로 표시되지 않습니다.</p></details>
+<details class="faq-item"><summary>-X 없이 -d만 쓰면 메서드가 어떻게 나오나요?</summary><p>POST로 표시됩니다. 실제 curl은 -d/--data가 있으면 -X를 안 써도 자동으로 POST를 보내는데, 이 도구도 -X가 명시적으로 없고 body가 있을 때만 GET 기본값을 POST로 교정합니다. -X GET을 명시적으로 쓴 채 -d를 함께 쓰면(흔치 않지만 가능한 조합) 표시도 GET 그대로 유지됩니다.</p></details>
+<details class="faq-item"><summary>Authorization 헤더와 Basic Auth(-u)는 어떻게 처리되나요?</summary><p>-H 'Authorization: ...'로 직접 넣은 헤더는 그대로 표시되고, -u user:password는 "user:password" 문자열을 Base64 인코딩해 Authorization: Basic 값으로 자동 변환합니다. 비밀번호에 한글·이모지 등이 섞여도 UTF-8 인코딩 경로를 거쳐 깨지지 않고 변환됩니다.</p></details>
+<details class="faq-item"><summary>JSON 본문이 있으면 예쁘게 표시되나요?</summary><p>-d/--data-raw 값을 JSON.parse로 시도해 성공하면 2칸 들여쓰기로 재포맷합니다. 파싱에 실패하면(form-urlencoded, 순수 텍스트 등) 원본 문자열을 그대로 보여줍니다.</p></details>
+<details class="faq-item"><summary>브라우저에서 복사한 cURL도 파싱되나요?</summary><p>네. Chrome/Firefox 개발자 도구 Network 탭의 "Copy as cURL"로 복사한 명령어(대개 -H가 여러 줄로 나열된 형태)를 그대로 붙여넣으면 됩니다.</p></details>
+<details class="faq-item"><summary>URL 쿼리 파라미터도 파싱되나요?</summary><p>URL을 new URL()로 다시 파싱해 searchParams가 있으면 Query Params 항목으로 Key-Value 쌍을 따로 표시합니다.</p></details>
+<details class="faq-item"><summary>파싱된 내용은 서버로 전송되나요?</summary><p>아니요. 토큰화·정규식 매칭·Base64 인코딩 전부 브라우저 JavaScript 안에서만 실행되며, 입력한 cURL 명령(토큰 포함 인증 정보)은 네트워크로 전송되지 않습니다.</p></details>
+<details class="faq-item"><summary>curl-generator.html과 어떻게 다른가요?</summary><p>curl-generator는 폼 입력값으로 cURL 명령어를 새로 만들고, curl-parser는 이미 있는 cURL 명령어를 역으로 분해해 구조를 보여줍니다. 서로 반대 방향의 변환입니다.</p></details></div>
 </main>
 <script>
 const _i18n={
   ko:{pageTitle:'cURL 파서 - cURL 명령어 분석·분해 | MODOO HUB',h1b:'파서',sub:'cURL 명령어 → URL·Method·Headers·Body 분해',backLink:'← 모두의 툴',langBtn:'🌐 EN',labelIn:'cURL 명령어 입력',btnExample:'예시',btnClear:'초기화',url:'URL',method:'Method',headers:'Headers',body:'Body',options:'옵션',noHeaders:'없음',noBody:'없음',
-    seoHtml:`<h2>cURL 파서란?</h2><p>cURL 명령어를 분해해 URL, HTTP 메서드, 헤더, 요청 본문을 시각적으로 표시합니다. 팀원이 공유한 cURL 명령을 분석하거나 디버깅 시 유용합니다. 백슬래시로 이어진 <strong>멀티라인 cURL</strong> 명령도 지원합니다.</p>
+    seoHtml:`<h2>cURL 파서란?</h2><p>cURL 명령어 문자열을 공백·따옴표 단위로 토큰화한 뒤 -X, -H, -d, -u 같은 플래그를 순서대로 스캔해 URL, HTTP 메서드, 헤더, 요청 본문으로 재구성합니다. 작은따옴표(')와 큰따옴표(")로 감싼 구간은 내부 공백을 그대로 보존한 채 하나의 토큰으로 처리하므로, <code>-d '{"name":"Alice Kim"}'</code>처럼 값 안에 공백이 있어도 깨지지 않습니다. 백슬래시(\\)로 이어진 <strong>멀티라인 cURL</strong>은 파싱 전에 개행을 공백으로 치환해 한 줄로 합칩니다. 메서드는 -X/--request가 없으면 기본 GET이지만, -d/--data가 있고 -X가 명시되지 않았을 때는 실제 curl 바이너리와 동일하게 자동으로 POST로 판정합니다 — 이 자동판정 로직이 빠지면 "-d만 쓰고 -X는 생략"한 흔한 cURL 명령을 GET으로 잘못 표시하는 오류가 나므로, 도구를 직접 쓸 때도 method 필드가 왜 GET이 아닌 POST로 뜨는지 헷갈리지 않도록 알아두면 좋습니다. -u user:password는 Base64로 인코딩해 Authorization: Basic 헤더로 변환하는데, 비밀번호에 한글 등 non-Latin1 문자가 섞이면 브라우저 표준 btoa()가 바로 예외를 던지므로 UTF-8 바이트로 먼저 변환한 뒤 인코딩하도록 처리되어 있습니다.</p>
 <h2 class="seo-sub">자주 묻는 질문</h2>
-<details class="faq-item"><summary>어떤 cURL 옵션을 파싱하나요?</summary><p>-X/--request, -H/--header, -d/--data, --data-raw, -u/--user, -L/--location, -k/--insecure, -v/--verbose 등을 지원합니다.</p></details>
-<details class="faq-item"><summary>Authorization 헤더를 자동 인식하나요?</summary><p>네. Authorization 헤더가 있으면 헤더 목록에 별도로 표시됩니다.</p></details>
-<details class="faq-item"><summary>JSON 본문이 있으면 예쁘게 표시되나요?</summary><p>본문이 유효한 JSON이면 자동으로 포맷팅해 표시합니다.</p></details>
-<details class="faq-item"><summary>브라우저에서 복사한 cURL도 파싱되나요?</summary><p>브라우저 개발자 도구에서 "cURL로 복사"한 명령어를 그대로 붙여넣기 할 수 있습니다.</p></details>
-<details class="faq-item"><summary>Basic Auth(-u 옵션)도 인식되나요?</summary><p>-u user:password 옵션을 파싱해 Authorization: Basic 형식으로 표시합니다.</p></details>
-<details class="faq-item"><summary>URL 파라미터도 파싱되나요?</summary><p>URL에 포함된 쿼리 파라미터를 파싱해 Key-Value 형태로 표시합니다.</p></details>
-<details class="faq-item"><summary>파싱된 내용은 안전한가요?</summary><p>모든 처리는 브라우저에서 이루어지며 서버로 데이터를 전송하지 않습니다.</p></details>
-<details class="faq-item"><summary>curl-generator.html과 어떻게 다른가요?</summary><p>curl-generator는 UI 입력으로 명령어를 생성하고, curl-parser는 기존 명령어를 분해합니다.</p></details>`
+<details class="faq-item"><summary>어떤 cURL 옵션을 파싱하나요?</summary><p>-X/--request, -H/--header, -d/--data, --data-raw, -u/--user, -L/--location, -k/--insecure, -v/--verbose를 인식합니다. 이 외의 옵션(예: --compressed, --retry)은 토큰만 건너뛸 뿐 별도 필드로 표시되지 않습니다.</p></details>
+<details class="faq-item"><summary>-X 없이 -d만 쓰면 메서드가 어떻게 나오나요?</summary><p>POST로 표시됩니다. 실제 curl은 -d/--data가 있으면 -X를 안 써도 자동으로 POST를 보내는데, 이 도구도 -X가 명시적으로 없고 body가 있을 때만 GET 기본값을 POST로 교정합니다. -X GET을 명시적으로 쓴 채 -d를 함께 쓰면(흔치 않지만 가능한 조합) 표시도 GET 그대로 유지됩니다.</p></details>
+<details class="faq-item"><summary>Authorization 헤더와 Basic Auth(-u)는 어떻게 처리되나요?</summary><p>-H 'Authorization: ...'로 직접 넣은 헤더는 그대로 표시되고, -u user:password는 "user:password" 문자열을 Base64 인코딩해 Authorization: Basic 값으로 자동 변환합니다. 비밀번호에 한글·이모지 등이 섞여도 UTF-8 인코딩 경로를 거쳐 깨지지 않고 변환됩니다.</p></details>
+<details class="faq-item"><summary>JSON 본문이 있으면 예쁘게 표시되나요?</summary><p>-d/--data-raw 값을 JSON.parse로 시도해 성공하면 2칸 들여쓰기로 재포맷합니다. 파싱에 실패하면(form-urlencoded, 순수 텍스트 등) 원본 문자열을 그대로 보여줍니다.</p></details>
+<details class="faq-item"><summary>브라우저에서 복사한 cURL도 파싱되나요?</summary><p>네. Chrome/Firefox 개발자 도구 Network 탭의 "Copy as cURL"로 복사한 명령어(대개 -H가 여러 줄로 나열된 형태)를 그대로 붙여넣으면 됩니다.</p></details>
+<details class="faq-item"><summary>URL 쿼리 파라미터도 파싱되나요?</summary><p>URL을 new URL()로 다시 파싱해 searchParams가 있으면 Query Params 항목으로 Key-Value 쌍을 따로 표시합니다.</p></details>
+<details class="faq-item"><summary>파싱된 내용은 서버로 전송되나요?</summary><p>아니요. 토큰화·정규식 매칭·Base64 인코딩 전부 브라우저 JavaScript 안에서만 실행되며, 입력한 cURL 명령(토큰 포함 인증 정보)은 네트워크로 전송되지 않습니다.</p></details>
+<details class="faq-item"><summary>curl-generator.html과 어떻게 다른가요?</summary><p>curl-generator는 폼 입력값으로 cURL 명령어를 새로 만들고, curl-parser는 이미 있는 cURL 명령어를 역으로 분해해 구조를 보여줍니다. 서로 반대 방향의 변환입니다.</p></details>`
   },
   en:{pageTitle:'cURL Parser - Analyze & Decompose cURL Commands | MODOO HUB',h1b:'Parser',sub:'cURL command → URL · Method · Headers · Body',backLink:'← All Tools',langBtn:'🌐 中文',labelIn:'Paste cURL Command',btnExample:'Example',btnClear:'Clear',url:'URL',method:'Method',headers:'Headers',body:'Body',options:'Options',noHeaders:'None',noBody:'None',
-    seoHtml:`<h2>cURL Parser</h2><p>Decompose cURL commands into URL, HTTP method, headers, and request body. Great for analyzing cURL commands shared by teammates or for debugging. Supports <strong>multi-line cURL</strong> commands joined with backslashes.</p>
+    seoHtml:`<h2>cURL Parser</h2><p>Tokenizes a cURL command string by spaces and quotes, then scans flags like -X, -H, -d, -u in order to reconstruct the URL, HTTP method, headers, and request body. Segments wrapped in single (') or double (") quotes are kept as one token with internal spaces preserved, so <code>-d '{"name":"Alice Kim"}'</code> won't break even with spaces inside the value. <strong>Multi-line cURL</strong> commands joined with backslashes have their newlines collapsed into single spaces before parsing. The method defaults to GET when -X/--request is absent, but if -d/--data is present and -X was never given, it's auto-corrected to POST — matching real curl's behavior of sending POST whenever -d is used without an explicit -X. Without that correction, a very common cURL pattern ("-d only, no -X") would be mislabeled as GET. -u user:password is Base64-encoded into an Authorization: Basic header; since non-Latin1 characters make the browser's standard btoa() throw immediately, the password is first converted to UTF-8 bytes before encoding so it doesn't crash on non-ASCII credentials.</p>
 <h2 class="seo-sub">FAQ</h2>
-<details class="faq-item"><summary>Which cURL options are parsed?</summary><p>Supports -X/--request, -H/--header, -d/--data, --data-raw, -u/--user, -L/--location, -k/--insecure, -v/--verbose, and more.</p></details>
-<details class="faq-item"><summary>Is the Authorization header auto-recognized?</summary><p>Yes. Authorization headers are extracted and highlighted separately.</p></details>
-<details class="faq-item"><summary>Is JSON body pretty-printed?</summary><p>If the body is valid JSON, it is automatically formatted for readability.</p></details>
-<details class="faq-item"><summary>Can I paste cURL copied from browser DevTools?</summary><p>Yes. Paste cURL commands copied via "Copy as cURL" from DevTools directly.</p></details>
-<details class="faq-item"><summary>Is Basic Auth (-u) recognized?</summary><p>The -u user:password option is parsed and displayed as Authorization: Basic.</p></details>
-<details class="faq-item"><summary>Are URL query params parsed?</summary><p>Query parameters in the URL are shown as key-value pairs.</p></details>
-<details class="faq-item"><summary>Is the parsing safe?</summary><p>All processing is browser-side. No data is sent to a server.</p></details>
-<details class="faq-item"><summary>How is this different from curl-generator?</summary><p>curl-generator builds a command from UI input; curl-parser decomposes an existing command.</p></details>`
+<details class="faq-item"><summary>Which cURL options are parsed?</summary><p>Recognizes -X/--request, -H/--header, -d/--data, --data-raw, -u/--user, -L/--location, -k/--insecure, -v/--verbose. Other flags (e.g. --compressed, --retry) are skipped as tokens but not shown as separate fields.</p></details>
+<details class="faq-item"><summary>What method shows up if I only use -d without -X?</summary><p>POST. Real curl automatically sends POST whenever -d/--data is present without an explicit -X, and this tool corrects the GET default to POST under the same condition. If you explicitly pass -X GET alongside -d (an unusual but valid combo), it stays GET.</p></details>
+<details class="faq-item"><summary>How are Authorization headers and Basic Auth (-u) handled?</summary><p>A header set directly via -H 'Authorization: ...' is shown as-is. -u user:password Base64-encodes the "user:password" string into an Authorization: Basic value automatically, and passwords containing non-ASCII characters (Korean, emoji, etc.) are UTF-8 encoded first so the conversion doesn't break.</p></details>
+<details class="faq-item"><summary>Is the JSON body pretty-printed?</summary><p>The -d/--data-raw value is passed through JSON.parse; if it succeeds, it's reformatted with 2-space indentation. If parsing fails (form-urlencoded, plain text, etc.), the raw string is shown as-is.</p></details>
+<details class="faq-item"><summary>Can I paste cURL copied from browser DevTools?</summary><p>Yes. Paste commands copied via "Copy as cURL" from the Chrome/Firefox DevTools Network tab (usually with multiple -H lines) directly into the box.</p></details>
+<details class="faq-item"><summary>Are URL query parameters parsed too?</summary><p>The URL is re-parsed with new URL(), and if searchParams exist, they're shown separately as a Query Params key-value table.</p></details>
+<details class="faq-item"><summary>Is anything sent to a server?</summary><p>No. Tokenizing, regex matching, and Base64 encoding all run entirely in browser JavaScript — the cURL command you paste, including any credentials in it, is never transmitted over the network.</p></details>
+<details class="faq-item"><summary>How is this different from curl-generator?</summary><p>curl-generator builds a new cURL command from form input; curl-parser decomposes an existing command into its structure. They're inverse operations.</p></details>`
   },
   zh:{pageTitle:'cURL解析器 - 在线解析cURL命令 | MODOO HUB',h1b:'解析器',sub:'cURL命令 → URL·方法·请求头·请求体分解',backLink:'← 所有工具',langBtn:'🌐 日本語',labelIn:'粘贴cURL命令',btnExample:'示例',btnClear:'清除',url:'URL',method:'方法',headers:'请求头',body:'请求体',options:'选项',noHeaders:'无',noBody:'无',
-    seoHtml:`<h2>cURL解析器</h2><p>将cURL命令分解为URL、HTTP方法、请求头和请求体。适合分析团队成员共享的cURL命令或调试使用。支持反斜杠连接的多行cURL命令。</p>
+    seoHtml:`<h2>cURL解析器</h2><p>先按空格和引号将cURL命令字符串切分为token，再按顺序扫描-X、-H、-d、-u等标志，重建出URL、HTTP方法、请求头和请求体。用单引号(')或双引号(")包裹的部分会作为一个整体token处理并保留内部空格，因此像<code>-d '{"name":"Alice Kim"}'</code>这样值里带空格的写法也不会解析错乱。用反斜杠(\\)连接的<strong>多行cURL</strong>命令会先把换行替换为空格合并成一行再解析。方法字段在没有-X/--request时默认是GET，但只要存在-d/--data且没有显式给出-X，就会像真实的curl命令行工具一样自动判定为POST——如果没有这一自动判定逻辑，"只写-d不写-X"这种极常见的cURL命令会被错误地显示成GET。-u user:password会被Base64编码成Authorization: Basic请求头，由于密码中若混入韩文等非Latin1字符，浏览器标准的btoa()会直接抛出异常，因此会先把密码转换成UTF-8字节再编码，避免因非ASCII凭据导致崩溃。</p>
 <h2 class="seo-sub">常见问题</h2>
-<details class="faq-item"><summary>解析哪些cURL选项？</summary><p>支持-X/--request、-H/--header、-d/--data、--data-raw、-u/--user等选项。</p></details>
-<details class="faq-item"><summary>Authorization请求头会自动识别吗？</summary><p>是的，Authorization请求头会单独提取显示。</p></details>
-<details class="faq-item"><summary>JSON请求体会格式化显示吗？</summary><p>如果请求体是有效JSON，会自动格式化显示。</p></details>
-<details class="faq-item"><summary>可以粘贴浏览器开发工具复制的cURL吗？</summary><p>可以，直接粘贴通过开发工具"复制为cURL"的命令即可。</p></details>
-<details class="faq-item"><summary>Basic Auth（-u选项）会识别吗？</summary><p>解析-u user:password选项，显示为Authorization: Basic格式。</p></details>
-<details class="faq-item"><summary>URL查询参数会解析吗？</summary><p>URL中的查询参数会以键值对形式显示。</p></details>
-<details class="faq-item"><summary>解析过程安全吗？</summary><p>所有处理在浏览器端完成，不向服务器发送数据。</p></details>
-<details class="faq-item"><summary>与curl-generator有什么区别？</summary><p>curl-generator通过UI输入生成命令，curl-parser分解已有命令。</p></details>`
+<details class="faq-item"><summary>解析哪些cURL选项？</summary><p>识别-X/--request、-H/--header、-d/--data、--data-raw、-u/--user、-L/--location、-k/--insecure、-v/--verbose。其他选项（如--compressed、--retry）只是被跳过的token，不会显示为单独字段。</p></details>
+<details class="faq-item"><summary>只用-d不用-X时方法会显示成什么？</summary><p>显示为POST。真实的curl只要有-d/--data且没有显式-X就会自动发送POST，本工具在同样条件下把GET默认值纠正为POST。如果显式写了-X GET又同时带-d（少见但合法的组合），显示仍保持GET。</p></details>
+<details class="faq-item"><summary>Authorization请求头和Basic Auth（-u）如何处理？</summary><p>用-H 'Authorization: ...'直接设置的请求头会原样显示；-u user:password会把"user:password"字符串Base64编码后自动转换为Authorization: Basic的值，密码中混有韩文、emoji等字符时也会先经过UTF-8编码，不会转换出错。</p></details>
+<details class="faq-item"><summary>JSON请求体会格式化显示吗？</summary><p>会对-d/--data-raw的值尝试JSON.parse，成功则用2格缩进重新格式化；解析失败（form-urlencoded、纯文本等）则原样显示原始字符串。</p></details>
+<details class="faq-item"><summary>可以粘贴浏览器开发工具复制的cURL吗？</summary><p>可以。直接粘贴通过Chrome/Firefox开发者工具Network面板"Copy as cURL"复制的命令（通常带多行-H）即可。</p></details>
+<details class="faq-item"><summary>URL查询参数也会解析吗？</summary><p>会用new URL()重新解析URL，若存在searchParams，会单独显示为Query Params键值对表格。</p></details>
+<details class="faq-item"><summary>解析内容会发送到服务器吗？</summary><p>不会。分词、正则匹配、Base64编码全部在浏览器JavaScript内完成，粘贴的cURL命令（包括其中的认证信息）不会通过网络发送。</p></details>
+<details class="faq-item"><summary>与curl-generator有什么区别？</summary><p>curl-generator通过表单输入生成新的cURL命令，curl-parser则把已有命令反向分解成结构。两者是相反方向的转换。</p></details>`
   },
   ja:{pageTitle:'cURLパーサー - cURLコマンド解析·分解ツール | MODOO HUB',h1b:'パーサー',sub:'cURLコマンド → URL·Method·Headers·Body分解',backLink:'← ホーム',langBtn:'🌐 한국어',labelIn:'cURLコマンドを貼り付け',btnExample:'例を見る',btnClear:'クリア',url:'URL',method:'メソッド',headers:'ヘッダー',body:'ボディ',options:'オプション',noHeaders:'なし',noBody:'なし',
-    seoHtml:`<h2>cURLパーサーとは</h2><p>cURLコマンドをURL、HTTPメソッド、ヘッダー、リクエストボディに分解して表示します。チームメンバーが共有したcURLコマンドの分析やデバッグに便利です。バックスラッシュでつないだ複数行cURLコマンドもサポートします。</p>
+    seoHtml:`<h2>cURLパーサーとは</h2><p>cURLコマンド文字列をスペースと引用符でトークン化し、-X、-H、-d、-uといったフラグを順にスキャンしてURL・HTTPメソッド・ヘッダー・リクエストボディを再構築します。シングルクォート(')やダブルクォート(")で囲まれた区間は内部のスペースを保持したまま1つのトークンとして扱うため、<code>-d '{"name":"Alice Kim"}'</code>のように値の中にスペースがあっても崩れません。バックスラッシュ(\\)でつないだ<strong>複数行cURL</strong>は、解析前に改行をスペースに置き換えて1行にまとめます。メソッドは-X/--requestがなければデフォルトでGETですが、-d/--dataがあり-Xが明示されていない場合は、実際のcurlコマンドと同じく自動的にPOSTと判定します——この自動判定がないと、「-dだけ書いて-Xは省略」という非常によくあるcURLコマンドが誤ってGETと表示されてしまいます。-u user:passwordはBase64エンコードしてAuthorization: Basicヘッダーに変換しますが、パスワードに韓国語などnon-Latin1文字が混じるとブラウザ標準のbtoa()が即座に例外を投げるため、先にUTF-8バイト列へ変換してからエンコードする処理になっています。</p>
 <h2 class="seo-sub">よくある質問</h2>
-<details class="faq-item"><summary>どのcURLオプションを解析しますか？</summary><p>-X/--request、-H/--header、-d/--data、--data-raw、-u/--user、-L、-k、-vなどをサポートします。</p></details>
-<details class="faq-item"><summary>Authorizationヘッダーは自動認識されますか？</summary><p>はい。Authorizationヘッダーは個別に抽出して表示されます。</p></details>
-<details class="faq-item"><summary>JSONボディはpretty-printされますか？</summary><p>有効なJSONの場合、自動でフォーマットして表示します。</p></details>
-<details class="faq-item"><summary>ブラウザDevToolsからコピーしたcURLも貼り付けできますか？</summary><p>はい。DevToolsの「cURLとしてコピー」でコピーしたコマンドをそのまま貼り付けられます。</p></details>
-<details class="faq-item"><summary>Basic Auth（-uオプション）は認識されますか？</summary><p>-u user:passwordオプションを解析してAuthorization: Basic形式で表示します。</p></details>
-<details class="faq-item"><summary>URLのクエリパラメータも解析されますか？</summary><p>URLのクエリパラメータをKey-Value形式で表示します。</p></details>
-<details class="faq-item"><summary>解析は安全ですか？</summary><p>すべての処理はブラウザ内で完結し、サーバーにデータは送信されません。</p></details>
-<details class="faq-item"><summary>curl-generatorとの違いは？</summary><p>curl-generatorはUI入力からコマンドを生成し、curl-parserは既存のコマンドを分解します。</p></details>`
+<details class="faq-item"><summary>どのcURLオプションを解析しますか？</summary><p>-X/--request、-H/--header、-d/--data、--data-raw、-u/--user、-L/--location、-k/--insecure、-v/--verboseを認識します。それ以外のオプション（--compressed、--retryなど）はトークンとして読み飛ばされるだけで、個別フィールドには表示されません。</p></details>
+<details class="faq-item"><summary>-Xなしで-dだけ使うとメソッドはどう表示されますか？</summary><p>POSTと表示されます。実際のcurlは-X無しで-d/--dataがあれば自動でPOSTを送信するため、本ツールも-Xが明示されずbodyがある場合にのみGETデフォルトをPOSTへ補正します。-X GETを明示しつつ-dも併用する（珍しいが可能な組み合わせ）場合は、表示もGETのままです。</p></details>
+<details class="faq-item"><summary>AuthorizationヘッダーとBasic Auth（-u）はどう処理されますか？</summary><p>-H 'Authorization: ...'で直接指定したヘッダーはそのまま表示されます。-u user:passwordは"user:password"文字列をBase64エンコードしてAuthorization: Basicの値へ自動変換し、パスワードに韓国語や絵文字が混じってもUTF-8エンコード経路を通るため崩れずに変換されます。</p></details>
+<details class="faq-item"><summary>JSONボディはpretty-printされますか？</summary><p>-d/--data-rawの値をJSON.parseで試し、成功すればスペース2つのインデントで再フォーマットします。失敗する場合（form-urlencoded、プレーンテキストなど）は元の文字列をそのまま表示します。</p></details>
+<details class="faq-item"><summary>ブラウザDevToolsからコピーしたcURLも貼り付けできますか？</summary><p>はい。Chrome/FirefoxのDevTools Networkタブの「Copy as cURL」でコピーしたコマンド（多くの場合-Hが複数行に並ぶ形式）をそのまま貼り付け可能です。</p></details>
+<details class="faq-item"><summary>URLのクエリパラメータも解析されますか？</summary><p>URLをnew URL()で再解析し、searchParamsがあればQuery Params欄にKey-Valueのペアとして個別表示します。</p></details>
+<details class="faq-item"><summary>解析内容はサーバーに送信されますか？</summary><p>いいえ。トークン化・正規表現マッチング・Base64エンコードはすべてブラウザのJavaScript内だけで完結し、貼り付けたcURLコマンド（含まれる認証情報も）はネットワークに送信されません。</p></details>
+<details class="faq-item"><summary>curl-generatorとの違いは？</summary><p>curl-generatorはフォーム入力から新しいcURLコマンドを生成し、curl-parserは既存のコマンドを逆に構造へ分解します。互いに逆方向の変換です。</p></details>`
   }
 };
 const LANGS=['ko','en','zh','ja'];
@@ -148,21 +148,21 @@ function parseCurl(raw){
   const s=raw.replace(/\\\s*\n/g,' ').replace(/\s+/g,' ').trim();
   const tokens=tokenize(s);
   const result={method:'GET',url:'',headers:{},body:'',opts:[]};
-  let i=0;
+  let i=0,methodSet=false;
   if(tokens[0]&&tokens[0].toLowerCase()==='curl')i++;
   while(i<tokens.length){
     const t=tokens[i];
-    if(t==='-X'||t==='--request'){result.method=(tokens[++i]||'GET').toUpperCase();}
+    if(t==='-X'||t==='--request'){result.method=(tokens[++i]||'GET').toUpperCase();methodSet=true;}
     else if(t==='-H'||t==='--header'){const h=tokens[++i]||'';const ci=h.indexOf(':');if(ci>-1)result.headers[h.slice(0,ci).trim()]=h.slice(ci+1).trim();}
     else if(t==='-d'||t==='--data'||t==='--data-raw'){result.body=tokens[++i]||'';}
-    else if(t==='-u'||t==='--user'){const u=tokens[++i]||'';result.headers['Authorization']='Basic '+btoa(u);}
+    else if(t==='-u'||t==='--user'){const u=tokens[++i]||'';let b64;try{b64=btoa(u);}catch{b64=btoa(unescape(encodeURIComponent(u)));}result.headers['Authorization']='Basic '+b64;}
     else if(t==='-L'||t==='--location')result.opts.push('Follow Redirects');
     else if(t==='-k'||t==='--insecure')result.opts.push('Insecure (skip SSL)');
     else if(t==='-v'||t==='--verbose')result.opts.push('Verbose');
     else if(!t.startsWith('-')&&!result.url&&/^https?:\/\//.test(t.replace(/^'/,'').replace(/'$/,'')))result.url=t.replace(/^'/,'').replace(/'$/,'');
     i++;
   }
-  if(!result.method&&result.body)result.method='POST';
+  if(!methodSet&&result.body)result.method='POST';
   return result;
 }
 function tokenize(s){
