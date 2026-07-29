@@ -148,19 +148,19 @@ slug-generator(버그도 수정 — 악센트 문자(café, Zürich 등)를 단�
 ### 완료 (3차 배치 13/N, content-depth-audit 브랜치에 커밋됨 — 커밋 8560a40)
 hmac-generator(하드코딩된 한국어 문자열 2곳이 언어 무관하게 표시되던 버그 수정 + static/JS seoHtml 불일치(가이드 링크 문단 누락) 수정), uuid-generator(FAQ 12개 전체가 static HTML엔 빈 컨테이너뿐이고 JS renderFaq()로만 채워지던 CLAUDE.md 위반 사례 발견 — FAQ_DATA 기준으로 static 프리렌더 추가, 8개 표준 템플릿으로 축소하지 않고 기존 12개 유지), meeting-cost-calculator(통화 표시 버그 — en/zh/ja 라벨이 각각 $/元/円이라 주장하지만 실제 계산은 항상 만원 단위 원화로 처리 + 4개 언어 FAQ 예시 수치가 기본값으로 실제 계산한 결과와 전혀 다름(예: ko FAQ가 총비용 81,500원이라 했지만 실제론 162,500원, 연간 절감액도 42배 차이) — node로 직접 재현 후 라벨·수치 전부 수정)
 
+### 완료 (3차 배치 14/N, content-depth-audit 브랜치에 커밋됨 — 커밋 085f705)
+unicode-converter(버그는 없음 — UTF-8 바이트 인코딩·서로게이트 쌍 재조합 둘 다 node로 재현해 정상 동작 확인. 다만 이 감사 이전부터 있던 FAQ 45개(9x5) 카운트 버그를 8개로 정리하고 \uXXXX가 BMP까지만 표현 가능한 이유·ES6 \u{} 표기·UTF-8 hex 바이트 가변길이 등 실제 기술 디테일로 심화), heic-to-jpg(버그도 수정 — 결과 행 id를 파일명 기반 CSS.escape(name)으로 생성해 동일 파일명(다른 폴더의 IMG_0001.HEIC 등) 여러 개 변환 시 getElementById가 항상 첫 번째 요소만 반환해 두 번째 파일 행이 "변환 중..."에 멈춰 있던 문제, 카운터 기반 고유 id로 수정 + JPG 선택 시 다운로드 확장자가 MIME 타입을 그대로 split해 ".jpeg"로 붙던 것을 ".jpg"로 수정), transparent-background-maker(버그 2개 수정 — ①"PNG 다운로드"가 화면 표시용으로 360px로 축소된 미리보기 캔버스를 그대로 내보내 원본이 더 큰 이미지는 다운로드 시 조용히 저해상도로 축소되던 문제, 원본 naturalWidth/Height로 새 캔버스를 만들어 같은 연산을 재적용하도록 수정, ②"경계 부드럽게" 슬라이더가 자기 라벨 숫자만 갱신할 뿐 실제 이미지 처리에 전혀 연결되어 있지 않아 조작해도 아무 효과가 없었는데 FAQ는 이 슬라이더로 거친 경계를 고치라고 안내하던 문제, 알파 채널 전용 박스 블러(prefix-sum 기반 O(w·h))를 실제로 구현해 미리보기·다운로드 양쪽에 연결)
+
 ## 3차 스캔 진행 현황 (2026-07-30 기준)
 
-**완료: 39개 / 70개** (batch 1~13)
-✅ json-schema-validator, ico-converter, image-prompt-generator, markdown-chat-exporter, xml-to-json, pdf-size-analyzer, hash-checker, regex-generator, prompt-template-generator, curl-generator, ngram-analyzer, json-schema-generator, png-to-svg, yaml-to-json, pdf-metadata-remover, curl-parser, text-similarity-checker, webhook-tester, time-zone-meeting-planner, image-color-extractor, open-graph-preview, pdf-word-counter, webhook-generator, avif-to-jpg, api-tester, bcrypt-validator, regex-cheatsheet, keyword-cannibalization-checker, bcrypt-generator, national-pension-calculator, nanoid-generator, keyword-difficulty-estimator, exif-viewer, slug-generator, json-diff, graphql-formatter, hmac-generator, uuid-generator, meeting-cost-calculator
+**완료: 42개 / 70개** (batch 1~14)
+✅ json-schema-validator, ico-converter, image-prompt-generator, markdown-chat-exporter, xml-to-json, pdf-size-analyzer, hash-checker, regex-generator, prompt-template-generator, curl-generator, ngram-analyzer, json-schema-generator, png-to-svg, yaml-to-json, pdf-metadata-remover, curl-parser, text-similarity-checker, webhook-tester, time-zone-meeting-planner, image-color-extractor, open-graph-preview, pdf-word-counter, webhook-generator, avif-to-jpg, api-tester, bcrypt-validator, regex-cheatsheet, keyword-cannibalization-checker, bcrypt-generator, national-pension-calculator, nanoid-generator, keyword-difficulty-estimator, exif-viewer, slug-generator, json-diff, graphql-formatter, hmac-generator, uuid-generator, meeting-cost-calculator, unicode-converter, heic-to-jpg, transparent-background-maker
 
-**주의**: `grep -c 'class="faq-item"' 파일명`은 "매칭되는 줄 수"를 세는 것이라, ko/en/zh/ja seoHtml이 한 줄짜리 템플릿 리터럴로 저장된 파일에서는 실제 개수보다 훨씬 적게 나올 수 있음(예: 40개인데 5로 표시됨). 반드시 `grep -o 'class="faq-item"' 파일명 | wc -l`로 실제 occurrence 개수를 셀 것. 또한 이 카운트는 배치 시작 전 반드시 확인 — 과거 콘텐츠(exif-viewer, slug-generator 등)에 원래부터 FAQ 개수가 8개가 아니었던 사례가 반복적으로 있었음.
+**주의**: `grep -c 'class="faq-item"' 파일명`은 "매칭되는 줄 수"를 세는 것이라, ko/en/zh/ja seoHtml이 한 줄짜리 템플릿 리터럴로 저장된 파일에서는 실제 개수보다 훨씬 적게 나올 수 있음(예: 40개인데 5로 표시됨). 반드시 `grep -o 'class="faq-item"' 파일명 | wc -l`로 실제 occurrence 개수를 셀 것. 또한 이 카운트는 배치 시작 전 반드시 확인 — 과거 콘텐츠(exif-viewer, slug-generator, unicode-converter 등)에 원래부터 FAQ 개수가 8개가 아니었던 사례가 반복적으로 있었음.
 
-**남은 31개 (worst-first, char count)** — 다음 배치는 여기서부터 3개씩:
+**남은 28개 (worst-first, char count)** — 다음 배치는 여기서부터 3개씩:
 ```
-845  unicode-converter.html               ⬜ 다음 배치 시작점
-846  heic-to-jpg.html
-852  transparent-background-maker.html
-852  rsa-key-generator.html
+852  rsa-key-generator.html               ⬜ 다음 배치 시작점
 852  sitemap-extractor.html
 853  ulid-generator.html
 854  image-dpi-checker.html
