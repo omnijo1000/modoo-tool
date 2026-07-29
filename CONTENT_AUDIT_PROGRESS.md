@@ -201,12 +201,12 @@ image-to-pdf(버그도 수정 — JPEG 입력도 무조건 canvas에 그려 무�
 ### 완료 (4차 배치 2/N, content-depth-audit 브랜치에 커밋됨 — 커밋 8c49e75, 7ba1d41, c4ee2f7)
 vat-calc(버그도 수정 — "부가세 (10%)" 결과 라벨에 id가 없어 0%(영세율) 선택해도 라벨은 항상 "10%"로 고정 표시되던 문제, id 추가 후 실제 vatRate로 갱신 + FAQ 중복 질문 2쌍(신고 시기, 간이/일반과세자 차이) 정리), svg-cleaner(이 배치 최대 발견 — 기본 켜진 "미사용 네임스페이스 제거" 옵션이 실제로는 사용 중인 xmlns:xlink 같은 선언까지 무조건 삭제하면서(참조는 그대로 남겨 XML 깨짐) 동시에 이미 존재하는 기본 xmlns=""를 조건 없이 하나 더 추가해 거의 모든 SVG에 중복 xmlns 속성을 만들던 문제, 프리픽스 실제 사용 여부를 검사해 정말 안 쓰는 선언만 제거하도록 수정 + 존재하지 않던 DOCTYPE/빈 그룹/XML 주석 제거 기능 실제 구현, FAQ 9→8개 정리), salary-per-hour-calculator(이 배치 최대 발견 — en/zh 필드 라벨은 "$"/"元"(원 단위 그대로) 입력을 암시하는데 실제 코드는 모든 언어에서 무조건 ×10,000(한국 "만원" 관례)을 적용하고 "₩" 접두사도 고정, 영어 사용자가 페이지 자체 FAQ 예시대로 80000(=$80,000/년)을 입력하면 "₩384,615"라는 완전히 틀린 결과가 나옴을 Node로 재현 확인 — 언어별 승수/통화 기호 테이블(ko·ja는 ×10000 만원/万円 관례, en·zh는 raw 단위) 도입 후 4개 언어 전부 자기 FAQ 예시와 정확히 일치하는 출력 재확인 + 한국 전용 최저시급 비교 위젯을 다른 언어에서 숨김 처리, FAQ 10→8개 정리)
 
-## 남은 105개 (worst-first, char count) — 다음 배치는 여기서부터 3개씩
+### 완료 (4차 배치 3/N, content-depth-audit 브랜치에 커밋됨 — 커밋 bd2cf99, 1c70c02, 9d243da)
+korean-age(dday.html과 동일한 UTC 자정 파싱 버그 — "태어난 지" 필드가 `new Date(val)` UTC 파싱과 로컬 자정 today 간 시차로 하루 적게 나오던 문제, parseLocalDate()로 수정 후 재검증 + 중복 FAQ(만나이 통일법 날짜 2번 질문) 1개를 실제로 검증한 윤년 2/29 생일 다음생일 자동 3/1 처리 동작으로 교체), discount-calculator(FAQ가 "3개 이상 중복 할인도 계산되나요?"에 공식만 답하고 실제 UI엔 할인율 입력칸이 2개뿐이던 것을 3번째 할인율 입력칸(선택, 빈 값=0%) 실제 구현해 탭 이름도 "이중"→"다중 할인"로 변경 + 중복 FAQ 2쌍 정리), alphabetizer(FAQ가 주장하는 "빈 줄 제거" 옵션이 실제로 존재하지 않아 실제 체크박스로 구현 + "대소문자 구분(Case-sensitive)" 별도 옵션이 있다는 주장을 실제로는 "대소문자 구분 없음" 단일 체크박스를 해제하는 방식이라고 정정 + 콘텐츠 심화 중 localeCompare가 중국어/일본어도 사전순 정렬한다고 과장할 뻔한 것을 Node로 직접 검증(한국어는 정확히 정렬되지만 로캘 미지정 시 중국어는 병음순 정렬 안 됨)해 기존 FAQ의 정직한 유니코드 순서 설명과 모순되지 않게 수정)
+
+## 남은 102개 (worst-first, char count) — 다음 배치는 여기서부터 3개씩
 ```
-1069  korean-age.html                      ⬜ 다음 배치 시작점
-1077  discount-calculator.html
-1084  alphabetizer.html
-1085  hashtag-generator.html
+1085  hashtag-generator.html               ⬜ 다음 배치 시작점
 1086  json-to-csv.html
 1088  remove-duplicate-lines.html
 1089  margin-calculator.html
