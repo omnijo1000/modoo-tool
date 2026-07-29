@@ -28,7 +28,7 @@ input[type=file]{display:none;}
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"EXIF Viewer","url":"https://modoohub.com/exif-viewer.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"View EXIF metadata from JPEG photos including date, camera model, GPS location, shutter speed, and ISO. Free online EXIF reader."}</script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"EXIF 데이터가 없는 사진도 있나요?","acceptedAnswer":{"@type":"Answer","text":"스크린샷, PNG 파일, SNS에서 다운로드한 사진은 EXIF 데이터가 제거되어 있을 수 있습니다."}},{"@type":"Question","name":"GPS 위치 정보가 포함된 사진을 공유할 때 주의할 점이 있나요?","acceptedAnswer":{"@type":"Answer","text":"EXIF GPS 데이터가 포함된 사진을 공유하면 촬영 장소가 노출될 수 있습니다. 공유 전에 exif-remover 도구로 EXIF를 제거하세요."}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"GPS 좌표는 정확히 어떻게 표시되나요?","acceptedAnswer":{"@type":"Answer","text":"GPSLatitude·GPSLongitude는 도·분·초 3개의 유리수 값으로 저장되어 있어, 이 셋을 모두 읽어 쉼표로 구분해 표시합니다. 세 값을 조합하면 도분초(DMS) 표기법의 실제 좌표가 됩니다."}},{"@type":"Question","name":"노출 관련 수치(ExposureBiasValue 등)가 음수인데 정상적으로 나오나요?","acceptedAnswer":{"@type":"Answer","text":"네. 부호 있는 유리수(SRATIONAL) 타입으로 저장된 필드는 부호를 포함해 정확히 읽어 실제 값(예: -1.5)으로 표시합니다."}},{"@type":"Question","name":"EXIF 데이터가 없는 사진도 있나요?","acceptedAnswer":{"@type":"Answer","text":"스크린샷, PNG 파일, SNS에서 다운로드한 사진은 업로드 과정에서 EXIF 데이터가 제거되어 있을 수 있습니다."}},{"@type":"Question","name":"GPS 위치 정보가 포함된 사진을 공유할 때 주의할 점이 있나요?","acceptedAnswer":{"@type":"Answer","text":"EXIF GPS 데이터가 포함된 사진을 공유하면 촬영 장소가 노출될 수 있습니다. 공유 전에 exif-remover 도구로 EXIF를 제거하세요."}}]}</script>
 <meta property="og:type" content="website">
 <meta property="og:title" content="EXIF 뷰어 - 사진 메타데이터 확인 | MODOO HUB">
 <meta property="og:description" content="JPEG/PNG 사진의 EXIF 메타데이터 확인. 촬영 날짜, 카메라 모델, GPS 위치, 셔터스피드, ISO 등 상세 정보. 무료 온라인 EXIF 리더.">
@@ -61,79 +61,81 @@ input[type=file]{display:none;}
   <div class="card" id="outBox" style="display:none;">
     <img id="thumb" class="preview-thumb" src="" alt="preview">
     <div class="delta-line" id="noticeEl">EXIF 데이터는 브라우저 로컬에서 처리됩니다. 파일이 서버로 전송되지 않습니다.</div>
+    <div class="field-label" id="lblBasic">기본 파일 정보</div>
+    <div id="basicInfo"></div>
     <div class="field-label" id="lblExif">EXIF 데이터</div>
     <div id="exifContent"></div>
   </div>
 
-  <div class="seo" id="seoDiv"><h2>EXIF 뷰어</h2><p>JPEG 사진 파일에 내장된 <strong>EXIF 메타데이터</strong>를 확인합니다. 촬영 날짜·시간, 카메라 제조사·모델, 렌즈 정보, 셔터스피드, 조리개, ISO 감도, GPS 위치 등 다양한 정보를 볼 수 있습니다. 개인정보 보호를 위해 모두 브라우저 로컬에서 처리됩니다.</p>
+  <div class="seo" id="seoDiv"><h2>EXIF 뷰어</h2><p>JPEG 파일의 APP1(Exif) 마커 안 TIFF 구조를 직접 파싱해 <strong>EXIF 메타데이터</strong>를 보여줍니다. GPSLatitude·GPSLongitude 같은 GPS 좌표는 도(度)·분(分)·초(秒) 3개의 유리수(RATIONAL) 값으로 저장되는데, 세 값을 모두 읽어 쉼표로 구분해 표시합니다 — 첫 번째 값(도)만 읽으면 좌표가 실제 위치에서 크게 벗어나 보일 수 있어 세 값 전부를 파싱하는 것이 중요합니다. ExposureBiasValue·ShutterSpeedValue처럼 음수가 될 수 있는 값은 부호 있는 유리수(SRATIONAL) 타입으로 저장되며, 부호를 정확히 읽어 예를 들어 "-3/2 (-1.5)"처럼 실제 값을 표시합니다. EXIF가 없는 사진도 파일명·용량·해상도·메가픽셀 같은 기본 정보는 별도로 표시합니다. 개인정보 보호를 위해 모두 브라우저 로컬에서 처리됩니다.</p>
 <h2 class="seo-sub">자주 묻는 질문</h2>
-<details class="faq-item"><summary>EXIF 데이터가 없으면 어떻게 되나요?</summary><p>EXIF 없음 메시지가 표시됩니다. PNG, 스크린샷, SNS 다운로드 사진은 EXIF가 없을 수 있습니다.</p></details>
+<details class="faq-item"><summary>EXIF 데이터가 없으면 어떻게 되나요?</summary><p>EXIF 없음 메시지가 표시됩니다. PNG, 스크린샷, SNS에서 다운로드한 사진은 업로드 과정에서 EXIF가 제거되는 경우가 많아 EXIF가 없을 수 있습니다.</p></details>
+<details class="faq-item"><summary>GPS 좌표는 정확히 어떻게 표시되나요?</summary><p>GPSLatitude·GPSLongitude는 도·분·초 3개의 유리수 값으로 저장되어 있어, 이 셋을 모두 읽어 쉼표로 구분해 표시합니다(예: "37/1 (37), 33/1 (33), 125/10 (12.5)"). 세 값을 조합하면 도분초(DMS) 표기법의 실제 좌표가 됩니다.</p></details>
 <details class="faq-item"><summary>GPS 데이터가 포함된 사진을 공유하면?</summary><p>촬영 장소가 공개될 수 있습니다. exif-remover 도구로 제거 후 공유하세요.</p></details>
-<details class="faq-item"><summary>어떤 파일을 지원하나요?</summary><p>EXIF는 주로 JPEG/JPG 파일에 포함됩니다. PNG는 EXIF 지원이 제한적입니다.</p></details>
+<details class="faq-item"><summary>노출 관련 수치(ExposureBiasValue 등)가 음수인데 정상적으로 나오나요?</summary><p>네. ExposureBiasValue, ShutterSpeedValue처럼 음수가 될 수 있는 필드는 부호 있는 유리수(SRATIONAL) 타입으로 저장되어 있는데, 부호를 포함해 정확히 읽어 실제 값(예: -1.5)으로 표시합니다.</p></details>
 <details class="faq-item"><summary>파일이 서버로 전송되나요?</summary><p>아니요. FileReader API로 파일을 ArrayBuffer로 읽어 JPEG 내부의 APP1(Exif) 마커를 브라우저에서 직접 파싱하므로, 사진 파일이나 그 안의 GPS 좌표가 외부로 전송되지 않습니다.</p></details>
-<details class="faq-item"><summary>GPS 좌표는 어디서 확인할 수 있나요?</summary><p>GPSLatitude, GPSLongitude 항목에서 확인할 수 있습니다.</p></details>
+<details class="faq-item"><summary>EXIF 외에 파일 크기·해상도 같은 기본 정보도 보이나요?</summary><p>네. EXIF 데이터가 없는 이미지도 파일명, 용량, 가로×세로 해상도, 메가픽셀 같은 기본 이미지 정보는 별도 영역에 항상 표시됩니다.</p></details>
 <details class="faq-item"><summary>EXIF 데이터를 제거하려면?</summary><p>exif-remover 도구를 사용하세요.</p></details>
-<details class="faq-item"><summary>카메라 앱에 따라 EXIF 내용이 다른가요?</summary><p>예, 스마트폰 모델과 카메라 앱에 따라 포함되는 EXIF 항목이 다릅니다.</p></details>
-<details class="faq-item"><summary>스크린샷에 EXIF가 있나요?</summary><p>일반적으로 스크린샷에는 EXIF 데이터가 없습니다.</p></details><details class="faq-item"><summary>EXIF 외에 파일 크기·해상도 같은 기본 정보도 보이나요?</summary><p>네. EXIF 데이터가 없는 이미지도 파일명, 크기, 해상도, 메가픽셀 등 기본 이미지 정보는 표시됩니다.</p></details></div>
+<details class="faq-item"><summary>카메라 앱에 따라 EXIF 내용이 다른가요?</summary><p>예, 스마트폰 모델과 카메라 앱에 따라 포함되는 EXIF 항목이 다릅니다.</p></details></div>
 </main>
 <script>
 const LANGS=['ko','en','zh','ja'];
 let _lang='ko';
 const _i18n={
-  ko:{h1b:'뷰어',sub:'JPEG 사진의 촬영 정보, GPS, 카메라 설정 등 EXIF 메타데이터 확인',backLink:'← 모두의 툴',langBtn:'🌐 EN',pageTitle:'EXIF 뷰어 | MODOO HUB',dzText:'JPEG 이미지를 드래그하거나 클릭하여 업로드',lblExif:'EXIF 데이터',noticeEl:'EXIF 데이터는 브라우저 로컬에서 처리됩니다. 파일이 서버로 전송되지 않습니다.',noExif:'EXIF 데이터가 없거나 이 파일 형식에서는 지원되지 않습니다.',
-    seoHtml:`<h2>EXIF 뷰어</h2><p>JPEG 사진 파일에 내장된 <strong>EXIF 메타데이터</strong>를 확인합니다. 촬영 날짜·시간, 카메라 제조사·모델, 렌즈 정보, 셔터스피드, 조리개, ISO 감도, GPS 위치 등 다양한 정보를 볼 수 있습니다. 개인정보 보호를 위해 모두 브라우저 로컬에서 처리됩니다.</p>
+  ko:{h1b:'뷰어',sub:'JPEG 사진의 촬영 정보, GPS, 카메라 설정 등 EXIF 메타데이터 확인',backLink:'← 모두의 툴',langBtn:'🌐 EN',pageTitle:'EXIF 뷰어 | MODOO HUB',dzText:'JPEG 이미지를 드래그하거나 클릭하여 업로드',lblExif:'EXIF 데이터',lblBasic:'기본 파일 정보',noticeEl:'EXIF 데이터는 브라우저 로컬에서 처리됩니다. 파일이 서버로 전송되지 않습니다.',noExif:'EXIF 데이터가 없거나 이 파일 형식에서는 지원되지 않습니다.',
+    seoHtml:`<h2>EXIF 뷰어</h2><p>JPEG 파일의 APP1(Exif) 마커 안 TIFF 구조를 직접 파싱해 <strong>EXIF 메타데이터</strong>를 보여줍니다. GPSLatitude·GPSLongitude 같은 GPS 좌표는 도(度)·분(分)·초(秒) 3개의 유리수(RATIONAL) 값으로 저장되는데, 세 값을 모두 읽어 쉼표로 구분해 표시합니다 — 첫 번째 값(도)만 읽으면 좌표가 실제 위치에서 크게 벗어나 보일 수 있어 세 값 전부를 파싱하는 것이 중요합니다. ExposureBiasValue·ShutterSpeedValue처럼 음수가 될 수 있는 값은 부호 있는 유리수(SRATIONAL) 타입으로 저장되며, 부호를 정확히 읽어 예를 들어 "-3/2 (-1.5)"처럼 실제 값을 표시합니다. EXIF가 없는 사진도 파일명·용량·해상도·메가픽셀 같은 기본 정보는 별도로 표시합니다. 개인정보 보호를 위해 모두 브라우저 로컬에서 처리됩니다.</p>
 <h2 class="seo-sub">자주 묻는 질문</h2>
-<details class="faq-item"><summary>EXIF 데이터가 없으면 어떻게 되나요?</summary><p>EXIF 없음 메시지가 표시됩니다. PNG, 스크린샷, SNS 다운로드 사진은 EXIF가 없을 수 있습니다.</p></details>
+<details class="faq-item"><summary>EXIF 데이터가 없으면 어떻게 되나요?</summary><p>EXIF 없음 메시지가 표시됩니다. PNG, 스크린샷, SNS에서 다운로드한 사진은 업로드 과정에서 EXIF가 제거되는 경우가 많아 EXIF가 없을 수 있습니다.</p></details>
+<details class="faq-item"><summary>GPS 좌표는 정확히 어떻게 표시되나요?</summary><p>GPSLatitude·GPSLongitude는 도·분·초 3개의 유리수 값으로 저장되어 있어, 이 셋을 모두 읽어 쉼표로 구분해 표시합니다(예: "37/1 (37), 33/1 (33), 125/10 (12.5)"). 세 값을 조합하면 도분초(DMS) 표기법의 실제 좌표가 됩니다.</p></details>
 <details class="faq-item"><summary>GPS 데이터가 포함된 사진을 공유하면?</summary><p>촬영 장소가 공개될 수 있습니다. exif-remover 도구로 제거 후 공유하세요.</p></details>
-<details class="faq-item"><summary>어떤 파일을 지원하나요?</summary><p>EXIF는 주로 JPEG/JPG 파일에 포함됩니다. PNG는 EXIF 지원이 제한적입니다.</p></details>
+<details class="faq-item"><summary>노출 관련 수치(ExposureBiasValue 등)가 음수인데 정상적으로 나오나요?</summary><p>네. ExposureBiasValue, ShutterSpeedValue처럼 음수가 될 수 있는 필드는 부호 있는 유리수(SRATIONAL) 타입으로 저장되어 있는데, 부호를 포함해 정확히 읽어 실제 값(예: -1.5)으로 표시합니다.</p></details>
 <details class="faq-item"><summary>파일이 서버로 전송되나요?</summary><p>아니요. FileReader API로 파일을 ArrayBuffer로 읽어 JPEG 내부의 APP1(Exif) 마커를 브라우저에서 직접 파싱하므로, 사진 파일이나 그 안의 GPS 좌표가 외부로 전송되지 않습니다.</p></details>
-<details class="faq-item"><summary>GPS 좌표는 어디서 확인할 수 있나요?</summary><p>GPSLatitude, GPSLongitude 항목에서 확인할 수 있습니다.</p></details>
+<details class="faq-item"><summary>EXIF 외에 파일 크기·해상도 같은 기본 정보도 보이나요?</summary><p>네. EXIF 데이터가 없는 이미지도 파일명, 용량, 가로×세로 해상도, 메가픽셀 같은 기본 이미지 정보는 별도 영역에 항상 표시됩니다.</p></details>
 <details class="faq-item"><summary>EXIF 데이터를 제거하려면?</summary><p>exif-remover 도구를 사용하세요.</p></details>
-<details class="faq-item"><summary>카메라 앱에 따라 EXIF 내용이 다른가요?</summary><p>예, 스마트폰 모델과 카메라 앱에 따라 포함되는 EXIF 항목이 다릅니다.</p></details>
-<details class="faq-item"><summary>스크린샷에 EXIF가 있나요?</summary><p>일반적으로 스크린샷에는 EXIF 데이터가 없습니다.</p></details><details class="faq-item"><summary>EXIF 외에 파일 크기·해상도 같은 기본 정보도 보이나요?</summary><p>네. EXIF 데이터가 없는 이미지도 파일명, 크기, 해상도, 메가픽셀 등 기본 이미지 정보는 표시됩니다.</p></details>`
+<details class="faq-item"><summary>카메라 앱에 따라 EXIF 내용이 다른가요?</summary><p>예, 스마트폰 모델과 카메라 앱에 따라 포함되는 EXIF 항목이 다릅니다.</p></details>`
   },
-  en:{h1b:'Viewer',sub:'View EXIF metadata from JPEG photos: date, GPS, camera settings',backLink:'← All Tools',langBtn:'🌐 中文',pageTitle:'EXIF Viewer | MODOO HUB',dzText:'Drag & drop JPEG image or click to upload',lblExif:'EXIF Data',noticeEl:'EXIF data is processed locally in your browser. No file is sent to a server.',noExif:'No EXIF data found or not supported for this file type.',
-    seoHtml:`<h2>EXIF Viewer</h2><p>Read <strong>EXIF metadata</strong> embedded in JPEG photos — capture date/time, camera make/model, lens info, shutter speed, aperture, ISO, and GPS coordinates. All processing is local for privacy.</p>
+  en:{h1b:'Viewer',sub:'View EXIF metadata from JPEG photos: date, GPS, camera settings',backLink:'← All Tools',langBtn:'🌐 中文',pageTitle:'EXIF Viewer | MODOO HUB',dzText:'Drag & drop JPEG image or click to upload',lblExif:'EXIF Data',lblBasic:'Basic File Info',noticeEl:'EXIF data is processed locally in your browser. No file is sent to a server.',noExif:'No EXIF data found or not supported for this file type.',
+    seoHtml:`<h2>EXIF Viewer</h2><p>Parses the TIFF structure inside a JPEG's APP1 (Exif) marker directly to display <strong>EXIF metadata</strong>. GPS coordinates like GPSLatitude and GPSLongitude are stored as three RATIONAL values — degrees, minutes, and seconds — and all three are read and shown comma-separated; reading only the first (degrees) would make the coordinate look far off from the real location, so parsing all three matters. Fields that can go negative, like ExposureBiasValue and ShutterSpeedValue, are stored as signed rationals (SRATIONAL) and are read with the sign intact, showing the actual value — e.g. "-3/2 (-1.5)" — instead of dropping it. Photos with no EXIF still show basic info like filename, size, resolution, and megapixels. Everything is processed locally for privacy.</p>
 <h2 class="seo-sub">FAQ</h2>
-<details class="faq-item"><summary>What if there is no EXIF data?</summary><p>A "no EXIF" message is shown. PNG, screenshots, and social media downloads often have no EXIF.</p></details>
+<details class="faq-item"><summary>What if there is no EXIF data?</summary><p>A "no EXIF" message is shown. PNG, screenshots, and photos downloaded from social media often have their EXIF stripped during upload.</p></details>
+<details class="faq-item"><summary>Exactly how are GPS coordinates displayed?</summary><p>GPSLatitude and GPSLongitude are stored as three RATIONAL values (degrees, minutes, seconds), and all three are read and shown comma-separated (e.g. "37/1 (37), 33/1 (33), 125/10 (12.5)"). Combining the three gives the actual coordinate in DMS notation.</p></details>
 <details class="faq-item"><summary>GPS data privacy concern?</summary><p>Sharing photos with GPS EXIF reveals the shooting location. Use exif-remover to strip it first.</p></details>
-<details class="faq-item"><summary>Supported files?</summary><p>EXIF is mainly in JPEG/JPG. PNG has limited EXIF support.</p></details>
+<details class="faq-item"><summary>Do negative exposure values (ExposureBiasValue, etc.) display correctly?</summary><p>Yes. Fields that can be negative, like ExposureBiasValue and ShutterSpeedValue, are stored as signed rationals (SRATIONAL); the sign is read correctly and the real value (e.g. -1.5) is shown.</p></details>
 <details class="faq-item"><summary>Is my file sent to a server?</summary><p>No. The FileReader API reads the file as an ArrayBuffer and parses the JPEG's APP1 (Exif) marker directly in the browser, so neither the photo nor any GPS coordinates inside it are ever transmitted anywhere.</p></details>
-<details class="faq-item"><summary>Where to find GPS coordinates?</summary><p>Look for GPSLatitude and GPSLongitude fields.</p></details>
+<details class="faq-item"><summary>Besides EXIF, can I see basic info like file size and resolution?</summary><p>Yes. Even images without EXIF data always show basic file info in a separate section — filename, size, width × height, and megapixels.</p></details>
 <details class="faq-item"><summary>How to remove EXIF?</summary><p>Use the exif-remover tool.</p></details>
-<details class="faq-item"><summary>Does EXIF vary by camera app?</summary><p>Yes — different phones and apps write different EXIF fields.</p></details>
-<details class="faq-item"><summary>Do screenshots have EXIF?</summary><p>Generally, no.</p></details><details class="faq-item"><summary>Besides EXIF, can I see basic info like file size and resolution?</summary><p>Yes. Even images without EXIF data still show basic file info such as filename, size, resolution, and megapixels.</p></details>`
+<details class="faq-item"><summary>Does EXIF vary by camera app?</summary><p>Yes — different phones and apps write different EXIF fields.</p></details>`
   },
-  zh:{h1b:'查看器',sub:'查看JPEG照片的EXIF元数据：日期、GPS、相机设置',backLink:'← 所有工具',langBtn:'🌐 日本語',pageTitle:'EXIF查看器 | MODOO HUB',dzText:'拖拽JPEG图片或点击上传',lblExif:'EXIF数据',noticeEl:'EXIF数据在浏览器本地处理，文件不会上传服务器。',noExif:'未找到EXIF数据或此文件类型不支持。',
-    seoHtml:`<h2>EXIF查看器</h2><p>读取JPEG照片中嵌入的<strong>EXIF元数据</strong>——拍摄日期/时间、相机品牌/型号、镜头信息、快门速度、光圈、ISO感光度和GPS坐标。所有处理在本地完成，保护隐私。</p>
+  zh:{h1b:'查看器',sub:'查看JPEG照片的EXIF元数据：日期、GPS、相机设置',backLink:'← 所有工具',langBtn:'🌐 日本語',pageTitle:'EXIF查看器 | MODOO HUB',dzText:'拖拽JPEG图片或点击上传',lblExif:'EXIF数据',lblBasic:'基本文件信息',noticeEl:'EXIF数据在浏览器本地处理，文件不会上传服务器。',noExif:'未找到EXIF数据或此文件类型不支持。',
+    seoHtml:`<h2>EXIF查看器</h2><p>直接解析JPEG文件APP1（Exif）标记内的TIFF结构来显示<strong>EXIF元数据</strong>。GPSLatitude、GPSLongitude这类GPS坐标以度、分、秒三个有理数（RATIONAL）值存储，本工具会把三个值全部读出并用逗号分隔显示——如果只读第一个值（度），坐标看起来会和实际位置相差很大，因此完整解析三个值很重要。像ExposureBiasValue、ShutterSpeedValue这类可能为负数的字段以带符号有理数（SRATIONAL）类型存储，会正确读取符号并显示真实数值，例如"-3/2 (-1.5)"。没有EXIF的照片也会单独显示文件名、大小、分辨率、百万像素等基本信息。所有处理均在本地完成，保护隐私。</p>
 <h2 class="seo-sub">常见问题</h2>
-<details class="faq-item"><summary>没有EXIF数据怎么办？</summary><p>会显示"无EXIF数据"提示。PNG、截图和社交媒体下载的图片通常没有EXIF。</p></details>
+<details class="faq-item"><summary>没有EXIF数据怎么办？</summary><p>会显示"无EXIF数据"提示。PNG、截图和从社交媒体下载的照片，在上传过程中经常会被去除EXIF。</p></details>
+<details class="faq-item"><summary>GPS坐标具体是如何显示的？</summary><p>GPSLatitude、GPSLongitude以度、分、秒三个有理数值存储，本工具会全部读取并用逗号分隔显示（例如"37/1 (37), 33/1 (33), 125/10 (12.5)"）。把三个值组合起来就是度分秒（DMS）表示法的实际坐标。</p></details>
 <details class="faq-item"><summary>GPS数据隐私问题？</summary><p>含GPS EXIF的照片分享会暴露拍摄地点，请先用exif-remover工具删除。</p></details>
-<details class="faq-item"><summary>支持哪些文件？</summary><p>EXIF主要存在于JPEG/JPG文件中，PNG的EXIF支持有限。</p></details>
+<details class="faq-item"><summary>曝光相关数值（ExposureBiasValue等）为负数时能正常显示吗？</summary><p>能。ExposureBiasValue、ShutterSpeedValue这类可能为负数的字段以带符号有理数（SRATIONAL）类型存储，本工具会正确读取符号并显示真实数值（如-1.5）。</p></details>
 <details class="faq-item"><summary>文件会上传服务器吗？</summary><p>不会。FileReader API 会把文件读取为 ArrayBuffer，直接在浏览器中解析 JPEG 内部的 APP1（Exif）标记，因此照片本身及其中的 GPS 坐标都不会发送到任何地方。</p></details>
-<details class="faq-item"><summary>GPS坐标在哪里查看？</summary><p>在GPSLatitude和GPSLongitude字段中查看。</p></details>
+<details class="faq-item"><summary>除了EXIF，也能看到文件大小、分辨率等基本信息吗？</summary><p>可以。即使图片没有EXIF数据，也会在单独区域始终显示文件名、大小、宽×高分辨率、百万像素等基本图像信息。</p></details>
 <details class="faq-item"><summary>如何删除EXIF？</summary><p>使用exif-remover工具。</p></details>
-<details class="faq-item"><summary>不同相机应用的EXIF有差异吗？</summary><p>是的，不同手机和应用写入的EXIF字段不同。</p></details>
-<details class="faq-item"><summary>截图有EXIF吗？</summary><p>一般没有。</p></details><details class="faq-item"><summary>除了EXIF，也能看到文件大小、分辨率等基本信息吗？</summary><p>可以。即使图片没有EXIF数据，也会显示文件名、大小、分辨率、百万像素等基本图像信息。</p></details>`
+<details class="faq-item"><summary>不同相机应用的EXIF有差异吗？</summary><p>是的，不同手机和应用写入的EXIF字段不同。</p></details>`
   },
-  ja:{h1b:'ビューアー',sub:'JPEG写真のEXIFメタデータ：撮影日時・GPS・カメラ設定を確認',backLink:'← ホーム',langBtn:'🌐 한국어',pageTitle:'EXIFビューアー | MODOO HUB',dzText:'JPEG画像をドラッグまたはクリックしてアップロード',lblExif:'EXIFデータ',noticeEl:'EXIFデータはブラウザのローカルで処理されます。ファイルはサーバーに送信されません。',noExif:'EXIFデータが見つからないか、このファイル形式では非対応です。',
-    seoHtml:`<h2>EXIFビューアーとは</h2><p>JPEG写真に埋め込まれた<strong>EXIFメタデータ</strong>を読み取ります。撮影日時・カメラメーカー/モデル・レンズ情報・シャッタースピード・絞り・ISO感度・GPS座標などを確認できます。プライバシー保護のため、すべてローカルで処理されます。</p>
+  ja:{h1b:'ビューアー',sub:'JPEG写真のEXIFメタデータ：撮影日時・GPS・カメラ設定を確認',backLink:'← ホーム',langBtn:'🌐 한국어',pageTitle:'EXIFビューアー | MODOO HUB',dzText:'JPEG画像をドラッグまたはクリックしてアップロード',lblExif:'EXIFデータ',lblBasic:'基本ファイル情報',noticeEl:'EXIFデータはブラウザのローカルで処理されます。ファイルはサーバーに送信されません。',noExif:'EXIFデータが見つからないか、このファイル形式では非対応です。',
+    seoHtml:`<h2>EXIFビューアーとは</h2><p>JPEGファイルのAPP1(Exif)マーカー内のTIFF構造を直接解析して<strong>EXIFメタデータ</strong>を表示します。GPSLatitude・GPSLongitudeのようなGPS座標は度・分・秒の3つの有理数(RATIONAL)値として保存されており、この3つすべてを読み取ってカンマ区切りで表示します——最初の値(度)だけを読むと座標が実際の位置から大きくずれて見えてしまうため、3つすべてを解析することが重要です。ExposureBiasValueやShutterSpeedValueのように負の値になり得るフィールドは符号付き有理数(SRATIONAL)型で保存されており、符号を正しく読み取って実際の値(例:-1.5)を表示します。EXIFがない写真でも、ファイル名・サイズ・解像度・メガピクセルといった基本情報は別途表示されます。プライバシー保護のため、すべてローカルで処理されます。</p>
 <h2 class="seo-sub">よくある質問</h2>
-<details class="faq-item"><summary>EXIFデータがない場合は？</summary><p>「EXIFデータなし」と表示されます。PNG・スクリーンショット・SNSダウンロード画像にはEXIFがない場合があります。</p></details>
+<details class="faq-item"><summary>EXIFデータがない場合は？</summary><p>「EXIFデータなし」と表示されます。PNG・スクリーンショット・SNSからダウンロードした写真は、アップロード時にEXIFが削除されることが多いためEXIFがない場合があります。</p></details>
+<details class="faq-item"><summary>GPS座標は具体的にどう表示されますか？</summary><p>GPSLatitude・GPSLongitudeは度・分・秒の3つの有理数値として保存されており、この3つすべてを読み取ってカンマ区切りで表示します(例:「37/1 (37), 33/1 (33), 125/10 (12.5)」)。3つの値を組み合わせると度分秒(DMS)表記の実際の座標になります。</p></details>
 <details class="faq-item"><summary>GPS情報のプライバシーは？</summary><p>GPS EXIFを含む写真を共有すると撮影場所が公開されます。exif-removerで削除してから共有してください。</p></details>
-<details class="faq-item"><summary>対応ファイルは？</summary><p>EXIFは主にJPEG/JPGファイルに含まれます。PNGのEXIFサポートは限定的です。</p></details>
+<details class="faq-item"><summary>露出関連の数値(ExposureBiasValueなど)が負の値でも正しく表示されますか？</summary><p>はい。ExposureBiasValue、ShutterSpeedValueのように負の値になり得るフィールドは符号付き有理数(SRATIONAL)型で保存されており、符号を正しく読み取って実際の値(例:-1.5)を表示します。</p></details>
 <details class="faq-item"><summary>ファイルはサーバーに送信されますか？</summary><p>いいえ。FileReader APIでファイルをArrayBufferとして読み込み、JPEG内部のAPP1（Exif）マーカーをブラウザ内で直接解析するため、写真本体もその中のGPS座標も外部に送信されることはありません。</p></details>
-<details class="faq-item"><summary>GPS座標はどこで確認しますか？</summary><p>GPSLatitude・GPSLongitudeフィールドで確認できます。</p></details>
+<details class="faq-item"><summary>EXIF以外にファイルサイズや解像度などの基本情報も見られますか？</summary><p>はい。EXIFデータがない画像でも、ファイル名・サイズ・幅×高さの解像度・メガピクセルといった基本的な画像情報が別セクションに常に表示されます。</p></details>
 <details class="faq-item"><summary>EXIFを削除するには？</summary><p>exif-removerツールをご利用ください。</p></details>
-<details class="faq-item"><summary>カメラアプリによってEXIFは異なりますか？</summary><p>はい、スマートフォンのモデルやアプリによって含まれるEXIFフィールドが異なります。</p></details>
-<details class="faq-item"><summary>スクリーンショットにEXIFはありますか？</summary><p>一般的にスクリーンショットにはEXIFデータはありません。</p></details><details class="faq-item"><summary>EXIF以外にファイルサイズや解像度などの基本情報も見られますか？</summary><p>はい。EXIFデータがない画像でも、ファイル名・サイズ・解像度・メガピクセルなどの基本的な画像情報は表示されます。</p></details>`
+<details class="faq-item"><summary>カメラアプリによってEXIFは異なりますか？</summary><p>はい、スマートフォンのモデルやアプリによって含まれるEXIFフィールドが異なります。</p></details>`
   }
 };
 function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
 function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
 function applyLang(){
   const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
-  ['h1b','subEl','backLink','langBtn','dzText','lblExif','noticeEl'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id];});
+  ['h1b','subEl','backLink','langBtn','dzText','lblExif','lblBasic','noticeEl'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id];});
   document.getElementById('seoDiv').innerHTML=t.seoHtml;
 }
 const EXIF_TAGS={0x010f:'Make',0x0110:'Model',0x0112:'Orientation',0x011a:'XResolution',0x011b:'YResolution',0x0128:'ResolutionUnit',0x0132:'DateTime',0x013b:'Artist',0x8769:'ExifIFD',0x8825:'GPSIFD',0x9000:'ExifVersion',0x9003:'DateTimeOriginal',0x9004:'DateTimeDigitized',0x9201:'ShutterSpeedValue',0x9202:'ApertureValue',0x9203:'BrightnessValue',0x9204:'ExposureBiasValue',0x9205:'MaxApertureValue',0x9207:'MeteringMode',0x9208:'LightSource',0x9209:'Flash',0x920a:'FocalLength',0x9214:'SubjectArea',0xa001:'ColorSpace',0xa002:'PixelXDimension',0xa003:'PixelYDimension',0xa20e:'FocalPlaneXResolution',0xa20f:'FocalPlaneYResolution',0xa210:'FocalPlaneResolutionUnit',0xa401:'CustomRendered',0xa402:'ExposureMode',0xa403:'WhiteBalance',0xa404:'DigitalZoomRatio',0xa405:'FocalLengthIn35mmFilm',0xa406:'SceneCaptureType',0xa407:'GainControl',0xa408:'Contrast',0xa409:'Saturation',0xa40a:'Sharpness',0xa40c:'SubjectDistanceRange',0xa432:'LensInfo',0xa433:'LensMake',0xa434:'LensModel',0xa435:'LensSerialNumber',0x8827:'ISOSpeedRatings',0x829a:'ExposureTime',0x829d:'FNumber',0xa210:'FocalPlaneResolutionUnit',0x9286:'UserComment',0x9290:'SubSecTime'};
@@ -143,11 +145,21 @@ dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag');}
 dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
 dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag');loadFile(e.dataTransfer.files[0]);});
 document.getElementById('fileIn').addEventListener('change',e=>loadFile(e.target.files[0]));
+function fmtSize(bytes){return bytes<1024*1024?(bytes/1024).toFixed(1)+' KB':(bytes/1024/1024).toFixed(2)+' MB';}
 function loadFile(file){
   if(!file)return;
   const url=URL.createObjectURL(file);
-  document.getElementById('thumb').src=url;
+  const thumb=document.getElementById('thumb');
+  thumb.src=url;
   document.getElementById('outBox').style.display='block';
+  thumb.onload=()=>{
+    const mp=(thumb.naturalWidth*thumb.naturalHeight/1000000).toFixed(1);
+    document.getElementById('basicInfo').innerHTML=`
+      <div class="row"><span class="lk">FileName</span><span class="lv">${file.name}</span></div>
+      <div class="row"><span class="lk">FileSize</span><span class="lv">${fmtSize(file.size)}</span></div>
+      <div class="row"><span class="lk">Dimensions</span><span class="lv">${thumb.naturalWidth} × ${thumb.naturalHeight}</span></div>
+      <div class="row"><span class="lk">Megapixels</span><span class="lv">${mp} MP</span></div>`;
+  };
   const reader=new FileReader();
   reader.onload=e=>{
     try{const exif=parseExif(e.target.result);renderExif(exif);}
@@ -197,7 +209,16 @@ function readVal(view,buf,toff,type,count,voff,le){
   const totalBytes=sz*count;let dataOff;
   if(totalBytes<=4){dataOff=voff;}else{dataOff=toff+(le?view.getUint32(voff,true):view.getUint32(voff,false));}
   if(type===2){const bytes=new Uint8Array(buf,dataOff,Math.min(count,200));return new TextDecoder('utf-8',{fatal:false}).decode(bytes).replace(/\0/g,'').trim();}
-  if(type===5||type===10){const num=le?view.getUint32(dataOff,le):view.getUint32(dataOff,le);const den=le?view.getUint32(dataOff+4,le):view.getUint32(dataOff+4,le);if(den===0)return'0';if(type===5)return num+'/'+den+' ('+Math.round(num/den*100)/100+')';}
+  if(type===5||type===10){
+    const n=Math.min(count,50);const parts=[];
+    for(let i=0;i<n;i++){
+      const off=dataOff+i*8;
+      const num=type===10?(le?view.getInt32(off,true):view.getInt32(off,false)):(le?view.getUint32(off,true):view.getUint32(off,false));
+      const den=type===10?(le?view.getInt32(off+4,true):view.getInt32(off+4,false)):(le?view.getUint32(off+4,true):view.getUint32(off+4,false));
+      parts.push(den===0?'0':(num+'/'+den+' ('+(Math.round(num/den*1000)/1000)+')'));
+    }
+    return parts.join(', ');
+  }
   if(type===3){const v=le?view.getUint16(dataOff,true):view.getUint16(dataOff,false);return v;}
   if(type===4){const v=le?view.getUint32(dataOff,true):view.getUint32(dataOff,false);return v;}
   return '(binary)';
