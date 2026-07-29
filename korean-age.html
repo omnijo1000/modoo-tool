@@ -92,7 +92,7 @@
 
   <div class="seo">
     <h2>만나이 계산기란?</h2>
-    <p>만나이는 태어난 날을 0세로 시작해 생일이 지날 때마다 1살씩 더하는 국제 표준 나이 계산법입니다. 2023년 6월 28일부터 한국도 법적·행정적 나이 기준이 만나이로 통일되었습니다. 한국 세는나이(연 나이)와 최대 2살 차이가 날 수 있으므로, 법적 서류·의료·보험·학교 입학 기준 등 공식 용도에서는 반드시 만나이를 확인하세요.</p>
+    <p>만나이는 태어난 날을 0세로 시작해 생일이 지날 때마다 1살씩 더하는 국제 표준 나이 계산법입니다. 2023년 6월 28일부터 한국도 법적·행정적 나이 기준이 만나이로 통일되었습니다. 생년월일을 입력하면 만나이·한국 나이(세는 나이)·연 나이 세 가지를 동시에 비교하고, 다음 생일까지 남은 날, 태어난 지 며칠째인지, 태어난 요일까지 함께 계산합니다. 2월 29일생은 윤년이 아닌 해에는 다음 생일이 3월 1일로 자동 계산됩니다. 한국 세는나이(연 나이)와 최대 2살 차이가 날 수 있으므로, 법적 서류·의료·보험·학교 입학 기준 등 공식 용도에서는 반드시 만나이를 확인하세요.</p>
     <h2 class="seo-sub">자주 묻는 질문 (FAQ)</h2>
     <details class="faq-item"><summary>만나이 통일법은 언제부터 시행됐나요?</summary><p>2023년 6월 28일부터 시행됐습니다. 이후 모든 법적·행정적 나이 계산은 만나이를 기준으로 합니다.</p></details>
     <details class="faq-item"><summary>생일이 지나지 않았을 때 만나이 계산은?</summary><p>올해 생일이 아직 지나지 않았다면 (현재 연도 − 출생 연도 − 1)세입니다. 생일이 지났으면 (현재 연도 − 출생 연도)세입니다.</p></details>
@@ -100,7 +100,7 @@
     <details class="faq-item"><summary>병원, 학교 등에서도 만나이를 쓰나요?</summary><p>네. 2023년 이후 의료·교육·행정 등 공식 영역에서는 만나이를 사용합니다. 단, 일부 관행적 표현(예: '나이가 몇 살이에요?')에서는 세는 나이가 혼용될 수 있습니다.</p></details>
     <details class="faq-item"><summary>음력 생일도 만나이 계산에 사용할 수 있나요?</summary><p>만나이는 양력 기준입니다. 음력 생일이 있다면 양력 날짜로 변환 후 계산하세요. 이 계산기는 양력 기준으로만 작동합니다.</p></details>
     <details class="faq-item"><summary>주민등록상 생년월일과 실제 생일이 다른 경우는?</summary><p>만나이는 주민등록에 기재된 생년월일을 기준으로 계산됩니다. 실제 출생일과 다를 경우 주민등록 정정 절차가 필요합니다.</p></details>
-    <details class="faq-item"><summary>만 나이는 언제 통일되었나요?</summary><p>2023년 6월 28일부터 법적·공식 나이 계산이 만 나이로 통일되었습니다. 이제 의료·행정·법률 서류에는 만 나이를 기준으로 사용합니다.</p></details>
+    <details class="faq-item"><summary>2월 29일생인데 다음 생일이 어떻게 계산되나요?</summary><p>올해가 윤년이 아니면 2월 29일이 존재하지 않으므로, 이 계산기는 다음 생일을 3월 1일로 자동 계산합니다. 4년마다 돌아오는 윤년에는 원래대로 2월 29일로 계산됩니다.</p></details>
     <details class="faq-item"><summary>연 나이(세는 나이)는 어떻게 계산하나요?</summary><p>연 나이 = 현재 연도 - 출생 연도입니다. 한국에서 일상적으로 사용하던 나이 계산법으로, 태어나는 순간 1살이 되고 매년 1월 1일마다 1살씩 추가됩니다.</p></details>
   </div>
   <footer>2026년 기준 · 만나이 통일법(2023.6.28 시행) 적용</footer>
@@ -112,11 +112,16 @@ const DAYS = ['일요일','월요일','화요일','수요일','목요일','금�
 // 오늘 날짜를 max로 설정
 document.getElementById('birthdate').max = new Date().toISOString().split('T')[0];
 
+function parseLocalDate(dateStr) {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
 function calc() {
   const val = document.getElementById('birthdate').value;
   if (!val) return;
 
-  const birth = new Date(val);
+  const birth = parseLocalDate(val);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
