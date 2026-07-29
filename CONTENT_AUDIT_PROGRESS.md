@@ -169,23 +169,23 @@ text-reverser(버그도 수정 — "각 단어 뒤집기" 버튼 라벨·FAQ 모
 ### 완료 (3차 배치 20/N, content-depth-audit 브랜치에 커밋됨 — 커밋 ea95ebc)
 jpg-to-avif(버그도 수정 — addResult()가 파일명을 이스케이프 없이 innerHTML에 삽입하던 것을 escH()로 수정(image-dimension-checker와 동일 패턴) + head FAQ가 "Canvas API로는 품질을 직접 지정하기 어렵다"고 주장했지만 실제로는 50~100% 품질 슬라이더가 이미 toBlob 3번째 인자로 정상 전달되고 있어 정정), uuid-converter(버그도 수정 — 복사 버튼의 대기 상태 라벨을 `t.copied.replace('됨','')`로 한국어 접미사를 잘라내 만들던 방식이라 en/zh/ja에서는 치환이 안 먹혀 클릭 전인데도 "Copied"/"已复制"/"コピー完了"가 그대로 표시되던 문제, 별도 copyBtn 키 추가로 수정 + 한국어 FAQ에 일본어 조사 "や"가 섞여 있던 오타("ULIDやUUID v7")도 수정), remove-duplicate-words("순서 유지" 체크박스가 완전히 죽은 컨트롤이었던 것 발견 — node로 재현해 체크 여부와 무관하게 두 분기 모두 JS Set으로 중복 제거해 항상 첫 등장 순서로 출력됨을 확인(Set은 항상 삽입 순서 유지), FAQ는 "체크 해제 시 알파벳순 정렬"이라 주장했지만 실제로는 전혀 그렇지 않았음 — localeCompare 기반 알파벳 정렬을 실제로 구현해 체크박스가 실제로 다른 결과를 내도록 수정 + head FAQ의 "빈도순 정렬"·"불용어 제외" 등 존재하지 않는 기능 주장도 정정)
 
+### 완료 (3차 배치 21/N, content-depth-audit 브랜치에 커밋됨 — 커밋 d2909ee)
+jpg-to-heic(버그 2개 수정 — ①투명 PNG를 JPG로 출력할 때 캔버스 기본 투명 픽셀이 검게 나오던 avif-to-jpg와 동일한 문제, JPG 선택 시에만 흰 배경 채우도록 수정, ②addResult() 파일명 미이스케이프 innerHTML 삽입, escH() 추가), json-flattener(FAQ가 "빈 객체·빈 배열은 키를 생성하지 않고 건너뜀"이라 주장했지만 node로 재현해보니 실제로는 빈 컨테이너 자체를 값으로 저장함을 확인 — 오히려 이 동작이 역변환 시 원본을 정확히 복원하는 더 나은 설계라 판단해 코드는 그대로 두고 FAQ를 사실대로 수정 + 배열 속 배열(2차원 배열)은 재귀적으로 더 안 쪼개진다는 기존에 없던 실제 한계도 문서화), text-shuffler(문자 셔플 모드만 다른 두 모드(줄·단어)와 달리 올바른 Fisher-Yates 대신 `sort(()=>Math.random()-0.5)` 안티패턴을 쓰고 있어 FAQ의 "Fisher-Yates 사용" 명시적 주장과 모순되던 문제, node로 30만 회 몬테카를로 시뮬레이션 돌려 sort 방식이 원래 순서("abc")를 균등분포 대비 2배 이상 과다 생성하는 편향을 직접 확인 후, 이미 존재하는 올바른 shuffle() 함수로 통일해 균등분포 확인 + 존재하지 않는 "시드 고정" 기능 주장도 head FAQ에서 제거)
+
 ## 3차 스캔 진행 현황 (2026-07-30 기준)
 
-**완료: 60개 / 70개** (batch 1~20)
-✅ json-schema-validator, ico-converter, image-prompt-generator, markdown-chat-exporter, xml-to-json, pdf-size-analyzer, hash-checker, regex-generator, prompt-template-generator, curl-generator, ngram-analyzer, json-schema-generator, png-to-svg, yaml-to-json, pdf-metadata-remover, curl-parser, text-similarity-checker, webhook-tester, time-zone-meeting-planner, image-color-extractor, open-graph-preview, pdf-word-counter, webhook-generator, avif-to-jpg, api-tester, bcrypt-validator, regex-cheatsheet, keyword-cannibalization-checker, bcrypt-generator, national-pension-calculator, nanoid-generator, keyword-difficulty-estimator, exif-viewer, slug-generator, json-diff, graphql-formatter, hmac-generator, uuid-generator, meeting-cost-calculator, unicode-converter, heic-to-jpg, transparent-background-maker, rsa-key-generator, sitemap-extractor, ulid-generator, image-dpi-checker, serp-snippet-preview, text-encryptor, pdf-ocr, image-dimension-checker, lorem-ipsum-generator, sentence-counter, json-path-tester, tailwind-color-generator, text-reverser, ssh-key-generator, remove-empty-lines, jpg-to-avif, uuid-converter, remove-duplicate-words
+**완료: 63개 / 70개** (batch 1~21)
+✅ json-schema-validator, ico-converter, image-prompt-generator, markdown-chat-exporter, xml-to-json, pdf-size-analyzer, hash-checker, regex-generator, prompt-template-generator, curl-generator, ngram-analyzer, json-schema-generator, png-to-svg, yaml-to-json, pdf-metadata-remover, curl-parser, text-similarity-checker, webhook-tester, time-zone-meeting-planner, image-color-extractor, open-graph-preview, pdf-word-counter, webhook-generator, avif-to-jpg, api-tester, bcrypt-validator, regex-cheatsheet, keyword-cannibalization-checker, bcrypt-generator, national-pension-calculator, nanoid-generator, keyword-difficulty-estimator, exif-viewer, slug-generator, json-diff, graphql-formatter, hmac-generator, uuid-generator, meeting-cost-calculator, unicode-converter, heic-to-jpg, transparent-background-maker, rsa-key-generator, sitemap-extractor, ulid-generator, image-dpi-checker, serp-snippet-preview, text-encryptor, pdf-ocr, image-dimension-checker, lorem-ipsum-generator, sentence-counter, json-path-tester, tailwind-color-generator, text-reverser, ssh-key-generator, remove-empty-lines, jpg-to-avif, uuid-converter, remove-duplicate-words, jpg-to-heic, json-flattener, text-shuffler
 
-**주의**: `grep -c 'class="faq-item"' 파일명`은 "매칭되는 줄 수"를 세는 것이라, ko/en/zh/ja seoHtml이 한 줄짜리 템플릿 리터럴로 저장된 파일에서는 실제 개수보다 훨씬 적게 나올 수 있음(예: 40개인데 5로 표시됨). 반드시 `grep -o 'class="faq-item"' 파일명 | wc -l`로 실제 occurrence 개수를 셀 것. 또한 이 카운트는 배치 시작 전 반드시 확인 — 과거 콘텐츠(exif-viewer, slug-generator, unicode-converter, serp-snippet-preview, text-encryptor 등)에 원래부터 FAQ 개수가 8개가 아니었던 사례가 반복적으로 있었음.
+**주의**: `grep -c 'class="faq-item"' 파일명`은 "매칭되는 줄 수"를 세는 것이라, ko/en/zh/ja seoHtml이 한 줄짜리 템플릿 리터럴로 저장된 파일에서는 실제 개수보다 훨씬 적게 나올 수 있음(예: 40개인데 5로 표시됨). 반드시 `grep -o 'class="faq-item"' 파일명 | wc -l`로 실제 occurrence 개수를 셀 것.
 
-**주의 2**: 다국어 seoHtml 치환 파이썬 스크립트가 드물게 언어 블록을 뒤바꿔 쓰는 경우가 있었음(tailwind-color-generator에서 ko 블록에 en 텍스트가 들어가고 en 블록은 갱신 자체가 안 된 사례 — 원인 재현 못함). static/JS 일치 검증(4번째 검증 단계)에서 곧바로 MATCH:false로 잡히므로 이 검증을 절대 생략하지 말 것. 배치 19부터는 4개 언어 블록 각각의 seoHtml 시작 부분을 적용 스크립트 안에서 매번 print로 직접 확인하는 방식으로 전환 — 배치 19, 20 모두 이상 없음 확인됨.
+**주의 2**: 다국어 seoHtml 치환 파이썬 스크립트가 드물게 언어 블록을 뒤바꿔 쓰는 경우가 있었음(배치 18의 tailwind-color-generator 사례, 원인 재현 못함). 배치 19부터 4개 언어 블록 각각의 seoHtml 시작 부분을 적용 스크립트 안에서 매번 print로 직접 확인하는 방식으로 전환 — 배치 19~21 모두 이상 없음.
 
-**주의 3**: 이 구간(700~1000자대) 파일들에서 "실제로 없는 기능을 있다고 주장하는 FAQ" 패턴이 매우 흔함(sentence-counter, tailwind-color-generator, remove-empty-lines, remove-duplicate-words 등 배치 18~20에서만 4건). 새 파일 작업 시 FAQ 각 항목이 설명하는 기능이 실제 UI/JS 코드에 존재하는지 항상 grep으로 대조할 것 — 존재하면 그대로 두거나 깊이 보강, 존재하지 않으면 (a) 구현 범위가 작고 명확하면 실제로 구현(이번 배치의 알파벳 정렬처럼), (b) 범위가 크면 정직하게 "미지원" FAQ로 수정. 체크박스·옵션이 "존재하되 아무 효과가 없는" 죽은 컨트롤 패턴도 함께 의심할 것(remove-duplicate-words의 순서 유지 체크박스 사례) — node로 두 상태(체크/미체크)의 실제 출력이 다른지 직접 비교해볼 것.
+**주의 3**: "실제로 없는 기능을 있다고 주장하는 FAQ"와 "존재하지만 아무 효과 없는 죽은 컨트롤/분기" 패턴이 이 700~1000자 구간에서 매우 흔함(배치 18~21에서 6건 이상: sentence-counter, tailwind-color-generator, remove-empty-lines, remove-duplicate-words, json-flattener, text-shuffler). 새 파일마다: (1) FAQ 각 항목이 설명하는 기능이 실제 UI/JS에 있는지 grep 대조, (2) 여러 모드/분기가 있으면 node로 각각 실행해 결과가 실제로 다른지(또는 서로 일관된 알고리즘을 쓰는지) 직접 비교. 문제 있으면 범위가 작으면 실제 구현, 크면 정직하게 FAQ 수정.
 
-**남은 10개 (worst-first, char count)** — 다음 배치는 여기서부터 3개씩:
+**남은 7개 (worst-first, char count)** — 다음 배치는 여기서부터 3개씩:
 ```
-918  jpg-to-heic.html                    ⬜ 다음 배치 시작점
-919  json-flattener.html
-933  text-shuffler.html
-934  css-gradient-generator.html
+934  css-gradient-generator.html          ⬜ 다음 배치 시작점
 942  json-to-yaml.html
 944  prompt-optimizer.html
 964  read-time-calculator.html
