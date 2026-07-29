@@ -26,7 +26,7 @@
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"HMAC Generator","url":"https://modoohub.com/hmac-generator.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Generate HMAC-SHA256, HMAC-SHA384, HMAC-SHA512 signatures from a secret key and message. HEX and Base64 output."}</script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"HMAC이란?","acceptedAnswer":{"@type":"Answer","text":"HMAC(Hash-based Message Authentication Code)은 시크릿 키와 메시지를 해시 함수로 결합해 만든 인증 코드입니다. 메시지 위변조 감지와 발신자 인증에 사용합니다."}},{"@type":"Question","name":"HMAC-SHA256과 HMAC-SHA512의 차이는?","acceptedAnswer":{"@type":"Answer","text":"해시 알고리즘의 차이입니다. SHA-256은 64자리 HEX, SHA-512는 128자리 HEX 서명을 생성합니다."}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"HMAC과 단순 해시의 차이는?","acceptedAnswer":{"@type":"Answer","text":"단순히 키+메시지를 붙여 해시하면 길이 확장 공격에 취약합니다. HMAC은 키를 내부·외부 패딩으로 다르게 XOR해 두 번 중첩 해시하는 구조로 이 공격을 방어합니다."}},{"@type":"Question","name":"HMAC-SHA256과 HMAC-SHA512의 차이는?","acceptedAnswer":{"@type":"Answer","text":"해시 알고리즘의 차이입니다. SHA-256은 64자리 HEX, SHA-512는 128자리 HEX 서명을 생성합니다. SHA-512가 더 강력하지만 느립니다."}},{"@type":"Question","name":"HMAC은 암호화인가요?","acceptedAnswer":{"@type":"Answer","text":"아니요. HMAC은 인증 코드(서명)이며 암호화가 아닙니다. 메시지 자체는 보호되지 않습니다."}},{"@type":"Question","name":"시크릿 키가 서버로 전송되나요?","acceptedAnswer":{"@type":"Answer","text":"아니요. Web Crypto API로 브라우저에서만 처리됩니다."}}]}</script>
 <meta property="og:type" content="website">
 <meta property="og:title" content="HMAC 생성기 - HMAC-SHA256/SHA512 서명 생성 | MODOO HUB">
 <meta property="og:description" content="HMAC-SHA256, HMAC-SHA384, HMAC-SHA512 서명 생성. 키·메시지 입력 → HEX/Base64 출력. 온라인 HMAC Generator.">
@@ -58,9 +58,9 @@
     <div id="hmacResults"></div>
   </div>
 
-  <div class="seo" id="seoDiv"><h2>HMAC 생성기란?</h2><p>HMAC(Hash-based Message Authentication Code)은 시크릿 키와 메시지를 해시 함수로 결합한 인증 코드입니다. <strong>Webhook 서명, API 인증, 데이터 무결성 검증</strong>에 사용됩니다. HMAC-SHA256, SHA-384, SHA-512, SHA-1을 지원하며 HEX와 Base64 형식으로 출력합니다.</p>
+  <div class="seo" id="seoDiv"><p style="margin-bottom:10px;"><a href="guides/jwt-authentication-guide.html">📖 JWT 인증 완전 가이드 보기</a></p><h2>HMAC 생성기란?</h2><p>HMAC(Hash-based Message Authentication Code)은 시크릿 키와 메시지를 단순히 이어붙여 해시하는 대신, 키를 내부 패딩(ipad)·외부 패딩(opad)으로 각각 다르게 XOR한 뒤 H(key⊕opad ∥ H(key⊕ipad ∥ message))처럼 <strong>두 번 중첩해서 해시</strong>하는 방식으로 만든 인증 코드입니다. 이 이중 해시 구조 덕분에 SHA-256 같은 해시 함수의 내부 블록 체이닝 구조를 악용하는 길이 확장 공격(length-extension attack)에 안전합니다. <strong>Webhook 서명, API 인증, 데이터 무결성 검증</strong>에 사용됩니다. HMAC-SHA256, SHA-384, SHA-512, SHA-1을 지원하며 HEX와 Base64 형식으로 출력합니다.</p>
 <h2 class="seo-sub">자주 묻는 질문</h2>
-<details class="faq-item"><summary>HMAC과 단순 해시의 차이는?</summary><p>HMAC은 시크릿 키를 포함해 키 없이는 동일한 값을 재현할 수 없습니다. 단순 해시는 키 없이 계산됩니다.</p></details>
+<details class="faq-item"><summary>HMAC과 단순 해시의 차이는?</summary><p>단순히 SHA256(키+메시지)처럼 키를 메시지 앞에 붙여 해시하면 "길이 확장 공격(length-extension attack)"에 취약합니다 — SHA-256 같은 해시는 내부적으로 블록 단위로 상태를 이어가는 구조라, 원본 해시값만 알아도 공격자가 원본 뒤에 임의의 데이터를 추가한 새 메시지의 유효한 해시를 키를 몰라도 계산해낼 수 있습니다. HMAC은 이 문제를 막기 위해 키를 두 번(내부 패딩 ipad, 외부 패딩 opad로 각각 XOR) 서로 다르게 섞어 H(key⊕opad ∥ H(key⊕ipad ∥ message)) 형태로 이중 해시하며, 이 구조 덕분에 키 없이는 length-extension 공격이 통하지 않습니다.</p></details>
 <details class="faq-item"><summary>Webhook에서 HMAC을 어떻게 사용하나요?</summary><p>발신자가 HMAC으로 서명하고 수신자가 동일한 키로 검증합니다. GitHub, Stripe 등이 이 방식을 사용합니다.</p></details>
 <details class="faq-item"><summary>HMAC-SHA256 vs HMAC-SHA512?</summary><p>SHA-512가 더 강력하지만 느립니다. 대부분의 보안 요구사항에서 HMAC-SHA256으로 충분합니다.</p></details>
 <details class="faq-item"><summary>HEX와 Base64 중 어떤 것을 사용해야 하나요?</summary><p>GitHub는 HEX, JWT는 Base64를 사용합니다. API 사양에 따라 선택하세요.</p></details>
@@ -72,10 +72,10 @@
 <script>
 const ALGOS=[['SHA-256','HMAC-SHA256'],['SHA-384','HMAC-SHA384'],['SHA-512','HMAC-SHA512'],['SHA-1','HMAC-SHA1']];
 const _i18n={
-  ko:{pageTitle:'HMAC 생성기 - HMAC-SHA256/SHA512 서명 생성 | MODOO HUB',h1b:'생성기',sub:'시크릿 키 + 메시지 → HMAC 서명 (HEX/Base64)',backLink:'← 모두의 툴',langBtn:'🌐 EN',labelKey:'시크릿 키',labelMsg:'메시지',copyHex:'HEX 복사',copyB64:'Base64 복사',copied:'✓',
-    seoHtml:`<p style="margin-bottom:10px;"><a href="guides/jwt-authentication-guide.html">📖 JWT 인증 완전 가이드 보기</a></p><h2>HMAC 생성기란?</h2><p>HMAC(Hash-based Message Authentication Code)은 시크릿 키와 메시지를 해시 함수로 결합한 인증 코드입니다. <strong>Webhook 서명, API 인증, 데이터 무결성 검증</strong>에 사용됩니다. HMAC-SHA256, SHA-384, SHA-512, SHA-1을 지원하며 HEX와 Base64 형식으로 출력합니다.</p>
+  ko:{pageTitle:'HMAC 생성기 - HMAC-SHA256/SHA512 서명 생성 | MODOO HUB',h1b:'생성기',sub:'시크릿 키 + 메시지 → HMAC 서명 (HEX/Base64)',backLink:'← 모두의 툴',langBtn:'🌐 EN',labelKey:'시크릿 키',labelMsg:'메시지',copyHex:'HEX 복사',copyB64:'Base64 복사',copied:'✓',needBoth:'키와 메시지를 입력하세요.',computing:'계산 중...',
+    seoHtml:`<p style="margin-bottom:10px;"><a href="guides/jwt-authentication-guide.html">📖 JWT 인증 완전 가이드 보기</a></p><h2>HMAC 생성기란?</h2><p>HMAC(Hash-based Message Authentication Code)은 시크릿 키와 메시지를 단순히 이어붙여 해시하는 대신, 키를 내부 패딩(ipad)·외부 패딩(opad)으로 각각 다르게 XOR한 뒤 H(key⊕opad ∥ H(key⊕ipad ∥ message))처럼 <strong>두 번 중첩해서 해시</strong>하는 방식으로 만든 인증 코드입니다. 이 이중 해시 구조 덕분에 SHA-256 같은 해시 함수의 내부 블록 체이닝 구조를 악용하는 길이 확장 공격(length-extension attack)에 안전합니다. <strong>Webhook 서명, API 인증, 데이터 무결성 검증</strong>에 사용됩니다. HMAC-SHA256, SHA-384, SHA-512, SHA-1을 지원하며 HEX와 Base64 형식으로 출력합니다.</p>
 <h2 class="seo-sub">자주 묻는 질문</h2>
-<details class="faq-item"><summary>HMAC과 단순 해시의 차이는?</summary><p>HMAC은 시크릿 키를 포함해 키 없이는 동일한 값을 재현할 수 없습니다. 단순 해시는 키 없이 계산됩니다.</p></details>
+<details class="faq-item"><summary>HMAC과 단순 해시의 차이는?</summary><p>단순히 SHA256(키+메시지)처럼 키를 메시지 앞에 붙여 해시하면 "길이 확장 공격(length-extension attack)"에 취약합니다 — SHA-256 같은 해시는 내부적으로 블록 단위로 상태를 이어가는 구조라, 원본 해시값만 알아도 공격자가 원본 뒤에 임의의 데이터를 추가한 새 메시지의 유효한 해시를 키를 몰라도 계산해낼 수 있습니다. HMAC은 이 문제를 막기 위해 키를 두 번(내부 패딩 ipad, 외부 패딩 opad로 각각 XOR) 서로 다르게 섞어 H(key⊕opad ∥ H(key⊕ipad ∥ message)) 형태로 이중 해시하며, 이 구조 덕분에 키 없이는 length-extension 공격이 통하지 않습니다.</p></details>
 <details class="faq-item"><summary>Webhook에서 HMAC을 어떻게 사용하나요?</summary><p>발신자가 HMAC으로 서명하고 수신자가 동일한 키로 검증합니다. GitHub, Stripe 등이 이 방식을 사용합니다.</p></details>
 <details class="faq-item"><summary>HMAC-SHA256 vs HMAC-SHA512?</summary><p>SHA-512가 더 강력하지만 느립니다. 대부분의 보안 요구사항에서 HMAC-SHA256으로 충분합니다.</p></details>
 <details class="faq-item"><summary>HEX와 Base64 중 어떤 것을 사용해야 하나요?</summary><p>GitHub는 HEX, JWT는 Base64를 사용합니다. API 사양에 따라 선택하세요.</p></details>
@@ -84,10 +84,10 @@ const _i18n={
 <details class="faq-item"><summary>JWT와 HMAC의 관계는?</summary><p>JWT의 HS256, HS384, HS512 알고리즘이 각각 HMAC-SHA256, SHA-384, SHA-512를 사용합니다.</p></details>
 <details class="faq-item"><summary>HMAC-SHA1은 사용해도 되나요?</summary><p>레거시 시스템과의 호환성을 위해 사용할 수 있지만, 새 시스템에는 HMAC-SHA256 이상을 권장합니다.</p></details>`
   },
-  en:{pageTitle:'HMAC Generator - HMAC-SHA256/SHA512 Signature | MODOO HUB',h1b:'Generator',sub:'Secret key + message → HMAC signature (HEX/Base64)',backLink:'← All Tools',langBtn:'🌐 中文',labelKey:'Secret Key',labelMsg:'Message',copyHex:'Copy HEX',copyB64:'Copy Base64',copied:'✓',
-    seoHtml:`<p style="margin-bottom:10px;"><a href="guides/jwt-authentication-guide.html">📖 See the JWT Authentication guide</a></p><h2>HMAC Generator</h2><p>HMAC (Hash-based Message Authentication Code) combines a secret key and message using a hash function. Used for <strong>webhook signatures, API authentication, and data integrity verification</strong>. Supports HMAC-SHA256, SHA-384, SHA-512, SHA-1 with HEX and Base64 output.</p>
+  en:{pageTitle:'HMAC Generator - HMAC-SHA256/SHA512 Signature | MODOO HUB',h1b:'Generator',sub:'Secret key + message → HMAC signature (HEX/Base64)',backLink:'← All Tools',langBtn:'🌐 中文',labelKey:'Secret Key',labelMsg:'Message',copyHex:'Copy HEX',copyB64:'Copy Base64',copied:'✓',needBoth:'Enter both a key and a message.',computing:'Computing...',
+    seoHtml:`<p style="margin-bottom:10px;"><a href="guides/jwt-authentication-guide.html">📖 See the JWT Authentication guide</a></p><h2>HMAC Generator</h2><p>Instead of just hashing the key and message concatenated together, HMAC (Hash-based Message Authentication Code) XORs the key against two different pad values — an inner pad (ipad) and an outer pad (opad) — and hashes <strong>twice, nested</strong>: H(key⊕opad ∥ H(key⊕ipad ∥ message)). That nested construction is what makes it safe against length-extension attacks, which exploit the internal block-chaining structure of hash functions like SHA-256. Used for <strong>webhook signatures, API authentication, and data integrity verification</strong>. Supports HMAC-SHA256, SHA-384, SHA-512, SHA-1 with HEX and Base64 output.</p>
 <h2 class="seo-sub">FAQ</h2>
-<details class="faq-item"><summary>HMAC vs simple hash?</summary><p>HMAC includes a secret key — without the key, the value can&apos;t be reproduced. A plain hash has no key.</p></details>
+<details class="faq-item"><summary>HMAC vs simple hash?</summary><p>Naively hashing SHA256(key + message) is vulnerable to a "length-extension attack" — hash functions like SHA-256 chain internal state block by block, so knowing just the original hash lets an attacker compute a valid hash for a new message with arbitrary data appended, without ever knowing the key. HMAC prevents this by XORing the key with two different pad values (inner ipad, outer opad) and hashing twice nested — H(key⊕opad ∥ H(key⊕ipad ∥ message)) — a construction length-extension attacks can't break without the key.</p></details>
 <details class="faq-item"><summary>How is HMAC used in webhooks?</summary><p>The sender signs with HMAC; the receiver verifies with the same key. GitHub, Stripe, etc. use this pattern.</p></details>
 <details class="faq-item"><summary>HMAC-SHA256 vs HMAC-SHA512?</summary><p>SHA-512 is stronger but slower. HMAC-SHA256 is sufficient for most security requirements.</p></details>
 <details class="faq-item"><summary>HEX or Base64?</summary><p>GitHub uses HEX; JWT uses Base64. Choose based on your API spec.</p></details>
@@ -96,10 +96,10 @@ const _i18n={
 <details class="faq-item"><summary>Relationship between JWT and HMAC?</summary><p>JWT&apos;s HS256, HS384, HS512 algorithms use HMAC-SHA256, SHA-384, and SHA-512 respectively.</p></details>
 <details class="faq-item"><summary>Is HMAC-SHA1 safe?</summary><p>Acceptable for legacy compatibility, but use HMAC-SHA256+ for new systems.</p></details>`
   },
-  zh:{pageTitle:'HMAC生成器 - HMAC-SHA256/SHA512签名生成 | MODOO HUB',h1b:'生成器',sub:'密钥 + 消息 → HMAC签名 (HEX/Base64)',backLink:'← 所有工具',langBtn:'🌐 日本語',labelKey:'密钥',labelMsg:'消息',copyHex:'复制HEX',copyB64:'复制Base64',copied:'✓',
-    seoHtml:`<p style="margin-bottom:10px;"><a href="guides/jwt-authentication-guide.html">📖 查看JWT认证指南</a></p><h2>HMAC生成器</h2><p>HMAC（基于哈希的消息认证码）将密钥和消息通过哈希函数组合。用于Webhook签名、API认证和数据完整性验证。支持HMAC-SHA256、SHA-384、SHA-512、SHA-1，输出HEX和Base64格式。</p>
+  zh:{pageTitle:'HMAC生成器 - HMAC-SHA256/SHA512签名生成 | MODOO HUB',h1b:'生成器',sub:'密钥 + 消息 → HMAC签名 (HEX/Base64)',backLink:'← 所有工具',langBtn:'🌐 日本語',labelKey:'密钥',labelMsg:'消息',copyHex:'复制HEX',copyB64:'复制Base64',copied:'✓',needBoth:'请输入密钥和消息。',computing:'计算中...',
+    seoHtml:`<p style="margin-bottom:10px;"><a href="guides/jwt-authentication-guide.html">📖 查看JWT认证指南</a></p><h2>HMAC生成器</h2><p>HMAC（基于哈希的消息认证码）不是简单地把密钥和消息拼接后哈希，而是把密钥分别与内部填充（ipad）、外部填充（opad）做异或后，按H(key⊕opad ∥ H(key⊕ipad ∥ message))的方式<strong>嵌套哈希两次</strong>。正是这种嵌套结构使其能够抵御利用SHA-256等哈希函数内部分块链式结构的长度扩展攻击（length-extension attack）。用于Webhook签名、API认证和数据完整性验证。支持HMAC-SHA256、SHA-384、SHA-512、SHA-1，输出HEX和Base64格式。</p>
 <h2 class="seo-sub">常见问题</h2>
-<details class="faq-item"><summary>HMAC与简单哈希的区别？</summary><p>HMAC包含密钥，没有密钥无法重现相同值。简单哈希不需要密钥。</p></details>
+<details class="faq-item"><summary>HMAC与简单哈希的区别？</summary><p>如果简单地对SHA256(密钥+消息)做哈希，会容易受到"长度扩展攻击（length-extension attack）"——SHA-256这类哈希函数内部是按块延续状态的结构，因此即使不知道密钥，攻击者只要知道原始哈希值，就能计算出在原消息后追加任意数据的新消息的有效哈希。HMAC通过把密钥分别与内部填充(ipad)、外部填充(opad)做异或后嵌套哈希两次——H(key⊕opad ∥ H(key⊕ipad ∥ message))——来防止这个问题，这种结构在不知道密钥的情况下无法被长度扩展攻击破解。</p></details>
 <details class="faq-item"><summary>Webhook中如何使用HMAC？</summary><p>发送方用HMAC签名，接收方用相同密钥验证。GitHub、Stripe等使用此方式。</p></details>
 <details class="faq-item"><summary>HMAC-SHA256 vs HMAC-SHA512？</summary><p>SHA-512更强但更慢，大多数场景HMAC-SHA256已足够。</p></details>
 <details class="faq-item"><summary>选择HEX还是Base64？</summary><p>GitHub用HEX，JWT用Base64，根据API规范选择。</p></details>
@@ -108,10 +108,10 @@ const _i18n={
 <details class="faq-item"><summary>JWT与HMAC的关系？</summary><p>JWT的HS256、HS384、HS512分别使用HMAC-SHA256、SHA-384、SHA-512。</p></details>
 <details class="faq-item"><summary>HMAC-SHA1安全吗？</summary><p>可用于旧系统兼容，新系统推荐使用HMAC-SHA256及以上。</p></details>`
   },
-  ja:{pageTitle:'HMAC生成ツール - HMAC-SHA256/SHA512署名生成 | MODOO HUB',h1b:'生成ツール',sub:'シークレットキー + メッセージ → HMAC署名 (HEX/Base64)',backLink:'← ホーム',langBtn:'🌐 한국어',labelKey:'シークレットキー',labelMsg:'メッセージ',copyHex:'HEXをコピー',copyB64:'Base64をコピー',copied:'✓',
-    seoHtml:`<p style="margin-bottom:10px;"><a href="guides/jwt-authentication-guide.html">📖 JWT認証完全ガイドを見る</a></p><h2>HMAC生成ツールとは</h2><p>HMAC（ハッシュベースのメッセージ認証コード）はシークレットキーとメッセージをハッシュ関数で組み合わせた認証コードです。Webhook署名、API認証、データ整合性検証に使用されます。HMAC-SHA256、SHA-384、SHA-512、SHA-1をサポートし、HEXとBase64で出力します。</p>
+  ja:{pageTitle:'HMAC生成ツール - HMAC-SHA256/SHA512署名生成 | MODOO HUB',h1b:'生成ツール',sub:'シークレットキー + メッセージ → HMAC署名 (HEX/Base64)',backLink:'← ホーム',langBtn:'🌐 한국어',labelKey:'シークレットキー',labelMsg:'メッセージ',copyHex:'HEXをコピー',copyB64:'Base64をコピー',copied:'✓',needBoth:'キーとメッセージを入力してください。',computing:'計算中...',
+    seoHtml:`<p style="margin-bottom:10px;"><a href="guides/jwt-authentication-guide.html">📖 JWT認証完全ガイドを見る</a></p><h2>HMAC生成ツールとは</h2><p>HMAC(ハッシュベースのメッセージ認証コード)は、キーとメッセージを単純に連結してハッシュするのではなく、キーを内部パディング(ipad)・外部パディング(opad)にそれぞれ異なる方法でXORした上でH(key⊕opad ∥ H(key⊕ipad ∥ message))のように<strong>2回入れ子でハッシュ</strong>する方式で作られる認証コードです。この二重ハッシュ構造のおかげで、SHA-256のようなハッシュ関数の内部ブロックチェーン構造を悪用する長さ拡張攻撃(length-extension attack)に対して安全です。Webhook署名、API認証、データ整合性検証に使用されます。HMAC-SHA256、SHA-384、SHA-512、SHA-1をサポートし、HEXとBase64で出力します。</p>
 <h2 class="seo-sub">よくある質問</h2>
-<details class="faq-item"><summary>HMACと単純なハッシュの違いは？</summary><p>HMACはシークレットキーを含み、キーなしでは同じ値を再現できません。単純なハッシュにはキーがありません。</p></details>
+<details class="faq-item"><summary>HMACと単純なハッシュの違いは？</summary><p>SHA256(キー+メッセージ)のように単純にキーをメッセージの前に付けてハッシュすると、「長さ拡張攻撃(length-extension attack)」に対して脆弱になります——SHA-256のようなハッシュは内部でブロック単位に状態を引き継ぐ構造のため、元のハッシュ値さえ分かれば、キーを知らなくても攻撃者は元のメッセージの後に任意のデータを追加した新しいメッセージの有効なハッシュを計算できてしまいます。HMACはこれを防ぐため、キーを内部パディング(ipad)・外部パディング(opad)にそれぞれ異なる方法でXORし、H(key⊕opad ∥ H(key⊕ipad ∥ message))のように2回入れ子でハッシュする構造を採用しており、この構造のおかげでキーなしでは長さ拡張攻撃が通用しません。</p></details>
 <details class="faq-item"><summary>WebhookでHMACはどう使われますか？</summary><p>送信者がHMACで署名し、受信者が同じキーで検証します。GitHub、Stripeなどがこの方式を採用しています。</p></details>
 <details class="faq-item"><summary>HMAC-SHA256 vs HMAC-SHA512？</summary><p>SHA-512の方が強力ですが遅いです。ほとんどのセキュリティ要件ではHMAC-SHA256で十分です。</p></details>
 <details class="faq-item"><summary>HEXとBase64どちらを使うべき？</summary><p>GitHubはHEX、JWTはBase64を使います。API仕様に合わせて選択してください。</p></details>
@@ -142,8 +142,8 @@ async function computeHMAC(algo,key,msg){
 }
 async function computeAll(){
   const t=_i18n[_lang];const key=document.getElementById('keyIn').value;const msg=document.getElementById('msgIn').value;const results=document.getElementById('hmacResults');
-  if(!key||!msg){results.innerHTML=`<div style="font-size:12px;color:var(--text-dim);padding:8px">키와 메시지를 입력하세요.</div>`;return;}
-  results.innerHTML='<div style="font-size:12px;color:var(--text-dim);padding:8px">계산 중...</div>';
+  if(!key||!msg){results.innerHTML=`<div style="font-size:12px;color:var(--text-dim);padding:8px">${t.needBoth}</div>`;return;}
+  results.innerHTML=`<div style="font-size:12px;color:var(--text-dim);padding:8px">${t.computing}</div>`;
   const rows=await Promise.all(ALGOS.map(async([sha,label])=>{
     try{const {hex,b64}=await computeHMAC(sha,key,msg);return {label,hex,b64,ok:true};}
     catch{return {label,hex:'Error',b64:'Error',ok:false};}
