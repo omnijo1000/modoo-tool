@@ -104,15 +104,18 @@ worst-first 27개 파일 전부 재작성 완료.
 ### 완료 (3차 배치 1/N, content-depth-audit 브랜치에 커밋됨 — 커밋 4af5149)
 json-schema-validator(버그도 수정 — enum 검사가 문자열 타입 분기 안에만 있어 숫자/불리언 enum 위반 미검출 + minItems/oneOf 등 미구현이면서 head JSON-LD는 $ref·Draft-2019-09 지원을 거짓 주장), ico-converter(버그는 아니지만 PNG압축 방식 ICO/중앙크롭 등 실제 구현 세부사항 문서화), image-prompt-generator(버그도 수정 — DALL-E 모드 템플릿 리터럴 공백 중복 + 네거티브 프롬프트 필드가 DALL-E에서는 조용히 무시됨)
 
+### 완료 (3차 배치 2/N, content-depth-audit 브랜치에 커밋됨 — 커밋 1fe8ec9)
+markdown-chat-exporter(버그도 수정 — 파싱이 고정 역할 접두사 없으면 조용히 빈 결과), xml-to-json(버그도 수정 — 혼합 콘텐츠에서 텍스트 순서·공백 유실), pdf-size-analyzer(버그도 수정 — 작성일/수정일 원본 PDF 날짜 포맷 그대로 노출 + "페이지별 크기"가 실제로는 물리적 치수이지 데이터 용량이 아님)
+
 ### 다음 배치 후보 (top 15, char count)
 ```
 702  json-schema-validator.html      ✅ 완료
 704  ico-converter.html              ✅ 완료
 705  image-prompt-generator.html     ✅ 완료
-712  markdown-chat-exporter.html     ⬜ 다음
-715  xml-to-json.html                ⬜
-723  pdf-size-analyzer.html          ⬜
-724  hash-checker.html               ⬜
+712  markdown-chat-exporter.html     ✅ 완료
+715  xml-to-json.html                ✅ 완료
+723  pdf-size-analyzer.html          ✅ 완료
+724  hash-checker.html               ⬜ 다음
 729  regex-generator.html            ⬜
 742  prompt-template-generator.html  ⬜
 743  curl-generator.html             ⬜
