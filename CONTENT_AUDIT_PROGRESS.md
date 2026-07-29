@@ -172,10 +172,13 @@ jpg-to-avif(버그도 수정 — addResult()가 파일명을 이스케이프 없
 ### 완료 (3차 배치 21/N, content-depth-audit 브랜치에 커밋됨 — 커밋 d2909ee)
 jpg-to-heic(버그 2개 수정 — ①투명 PNG를 JPG로 출력할 때 캔버스 기본 투명 픽셀이 검게 나오던 avif-to-jpg와 동일한 문제, JPG 선택 시에만 흰 배경 채우도록 수정, ②addResult() 파일명 미이스케이프 innerHTML 삽입, escH() 추가), json-flattener(FAQ가 "빈 객체·빈 배열은 키를 생성하지 않고 건너뜀"이라 주장했지만 node로 재현해보니 실제로는 빈 컨테이너 자체를 값으로 저장함을 확인 — 오히려 이 동작이 역변환 시 원본을 정확히 복원하는 더 나은 설계라 판단해 코드는 그대로 두고 FAQ를 사실대로 수정 + 배열 속 배열(2차원 배열)은 재귀적으로 더 안 쪼개진다는 기존에 없던 실제 한계도 문서화), text-shuffler(문자 셔플 모드만 다른 두 모드(줄·단어)와 달리 올바른 Fisher-Yates 대신 `sort(()=>Math.random()-0.5)` 안티패턴을 쓰고 있어 FAQ의 "Fisher-Yates 사용" 명시적 주장과 모순되던 문제, node로 30만 회 몬테카를로 시뮬레이션 돌려 sort 방식이 원래 순서("abc")를 균등분포 대비 2배 이상 과다 생성하는 편향을 직접 확인 후, 이미 존재하는 올바른 shuffle() 함수로 통일해 균등분포 확인 + 존재하지 않는 "시드 고정" 기능 주장도 head FAQ에서 제거)
 
+### 완료 (3차 배치 22/N, content-depth-audit 브랜치에 커밋됨 — 커밋 3bc805c, 5862fc1, 636814a)
+css-gradient-generator(버그도 수정 — renderStopBar()가 update()에서 호출될 때마다(색상 스탑 드래그 중이면 mousemove 이벤트마다) window에 새 mousemove/mouseup 리스너를 계속 추가만 하고 기존 것은 절대 제거하지 않던 문제, 드래그 한 번에 리스너가 무한 누적되는 메모리 누수를 단일 전역 리스너 + 공유 _dragIdx 변수 방식으로 수정 + 기존에 없던 touchstart/touchmove/touchend도 추가해 FAQ가 이미 주장하던 "드래그로 위치 조정 가능"이 모바일에서도 실제로 동작하도록 함), json-to-yaml(버그도 수정 — 들여쓰기 select의 onchange가 입력창이 비어있어도 무조건 JSON.parse를 실행해 페이지 로드 직후 들여쓰기만 바꿔도 "파싱 오류: Unexpected end of JSON input"이 뜨던 문제, 빈 입력이면 조용히 결과만 비우도록 수정 + FAQ의 "null은 null 또는 ~로 표현"이 거짓이었음을 js-yaml 4.1.0 직접 설치해 확인(항상 null만 출력) 후 정정), prompt-optimizer(콘텐츠 정합성 버그 — zh/ja FAQ가 ko/en에 있는 "Q&A 프롬프트 팁" 항목이 아예 없고 그 자리에 zh/ja에만 있는 별개의 "작업 유형 선택법" 항목이 들어있어 4개 언어 FAQ 세트가 서로 달랐던 문제, zh/ja에 Q&A 팁을 번역 추가하고 이질적인 항목 제거로 5개 블록 모두 동일한 8개 항목으로 통일. 코드 자체는 버그 없음(순수 클라이언트 템플릿 조합기, textContent만 사용해 DOM 삽입 위험 없음) — "AI를 직접 호출하지 않는 템플릿 생성기"라는, 페이지 어디에도 명시 안 돼 있던 핵심 사실을 인트로에 추가)
+
 ## 3차 스캔 진행 현황 (2026-07-30 기준)
 
-**완료: 63개 / 70개** (batch 1~21)
-✅ json-schema-validator, ico-converter, image-prompt-generator, markdown-chat-exporter, xml-to-json, pdf-size-analyzer, hash-checker, regex-generator, prompt-template-generator, curl-generator, ngram-analyzer, json-schema-generator, png-to-svg, yaml-to-json, pdf-metadata-remover, curl-parser, text-similarity-checker, webhook-tester, time-zone-meeting-planner, image-color-extractor, open-graph-preview, pdf-word-counter, webhook-generator, avif-to-jpg, api-tester, bcrypt-validator, regex-cheatsheet, keyword-cannibalization-checker, bcrypt-generator, national-pension-calculator, nanoid-generator, keyword-difficulty-estimator, exif-viewer, slug-generator, json-diff, graphql-formatter, hmac-generator, uuid-generator, meeting-cost-calculator, unicode-converter, heic-to-jpg, transparent-background-maker, rsa-key-generator, sitemap-extractor, ulid-generator, image-dpi-checker, serp-snippet-preview, text-encryptor, pdf-ocr, image-dimension-checker, lorem-ipsum-generator, sentence-counter, json-path-tester, tailwind-color-generator, text-reverser, ssh-key-generator, remove-empty-lines, jpg-to-avif, uuid-converter, remove-duplicate-words, jpg-to-heic, json-flattener, text-shuffler
+**완료: 66개 / 70개** (batch 1~22)
+✅ json-schema-validator, ico-converter, image-prompt-generator, markdown-chat-exporter, xml-to-json, pdf-size-analyzer, hash-checker, regex-generator, prompt-template-generator, curl-generator, ngram-analyzer, json-schema-generator, png-to-svg, yaml-to-json, pdf-metadata-remover, curl-parser, text-similarity-checker, webhook-tester, time-zone-meeting-planner, image-color-extractor, open-graph-preview, pdf-word-counter, webhook-generator, avif-to-jpg, api-tester, bcrypt-validator, regex-cheatsheet, keyword-cannibalization-checker, bcrypt-generator, national-pension-calculator, nanoid-generator, keyword-difficulty-estimator, exif-viewer, slug-generator, json-diff, graphql-formatter, hmac-generator, uuid-generator, meeting-cost-calculator, unicode-converter, heic-to-jpg, transparent-background-maker, rsa-key-generator, sitemap-extractor, ulid-generator, image-dpi-checker, serp-snippet-preview, text-encryptor, pdf-ocr, image-dimension-checker, lorem-ipsum-generator, sentence-counter, json-path-tester, tailwind-color-generator, text-reverser, ssh-key-generator, remove-empty-lines, jpg-to-avif, uuid-converter, remove-duplicate-words, jpg-to-heic, json-flattener, text-shuffler, css-gradient-generator, json-to-yaml, prompt-optimizer
 
 **주의**: `grep -c 'class="faq-item"' 파일명`은 "매칭되는 줄 수"를 세는 것이라, ko/en/zh/ja seoHtml이 한 줄짜리 템플릿 리터럴로 저장된 파일에서는 실제 개수보다 훨씬 적게 나올 수 있음(예: 40개인데 5로 표시됨). 반드시 `grep -o 'class="faq-item"' 파일명 | wc -l`로 실제 occurrence 개수를 셀 것.
 
@@ -183,12 +186,9 @@ jpg-to-heic(버그 2개 수정 — ①투명 PNG를 JPG로 출력할 때 캔버�
 
 **주의 3**: "실제로 없는 기능을 있다고 주장하는 FAQ"와 "존재하지만 아무 효과 없는 죽은 컨트롤/분기" 패턴이 이 700~1000자 구간에서 매우 흔함(배치 18~21에서 6건 이상: sentence-counter, tailwind-color-generator, remove-empty-lines, remove-duplicate-words, json-flattener, text-shuffler). 새 파일마다: (1) FAQ 각 항목이 설명하는 기능이 실제 UI/JS에 있는지 grep 대조, (2) 여러 모드/분기가 있으면 node로 각각 실행해 결과가 실제로 다른지(또는 서로 일관된 알고리즘을 쓰는지) 직접 비교. 문제 있으면 범위가 작으면 실제 구현, 크면 정직하게 FAQ 수정.
 
-**남은 7개 (worst-first, char count)** — 다음 배치는 여기서부터 3개씩:
+**남은 4개 (worst-first, char count)** — 다음 배치는 여기서부터 3개 + 1개(마지막 배치는 4개):
 ```
-934  css-gradient-generator.html          ⬜ 다음 배치 시작점
-942  json-to-yaml.html
-944  prompt-optimizer.html
-964  read-time-calculator.html
+964  read-time-calculator.html            ⬜ 다음 배치 시작점
 986  csv-to-json.html
 993  line-counter.html
 999  ai-model-comparison.html
