@@ -41,10 +41,10 @@ typing-speed-test, uuid-extractor, webp-to-jpg
 534  text-merger.html                    ✅ 완료 (batch1)
 608  palindrome-checker.html             ✅ 완료 (batch1)
 615  html-minifier.html                  ✅ 완료 (batch1)
-616  youtube-script-generator.html       ⬜ 다음
-617  ai-linkedin-post-generator.html     ⬜
-617  ai-tweet-generator.html             ⬜
-618  svg-viewer.html                     ⬜
+616  youtube-script-generator.html       ✅ 완료 (batch2)
+617  ai-linkedin-post-generator.html     ✅ 완료 (batch2)
+617  ai-tweet-generator.html             ✅ 완료 (batch2)
+618  svg-viewer.html                     ⬜ 다음
 630  ai-email-generator.html             ⬜
 632  sql-validator.html                  ⬜
 632  word-frequency-counter.html         ⬜
@@ -70,8 +70,11 @@ typing-speed-test, uuid-extractor, webp-to-jpg
 ## 완료 (2차 배치 1/9, content-depth-audit 브랜치에 커밋됨 — 커밋 7a04d01)
 text-merger, palindrome-checker, html-minifier
 
-## 다음 배치 (2/9)
-youtube-script-generator.html, ai-linkedin-post-generator.html, ai-tweet-generator.html
+## 완료 (2차 배치 2/9, content-depth-audit 브랜치에 커밋됨 — 커밋 a21d63a)
+youtube-script-generator, ai-linkedin-post-generator, ai-tweet-generator
+
+## 다음 배치 (3/9)
+svg-viewer.html, ai-email-generator.html, sql-validator.html
 
 ## 남은 참고 사항
 - 700~1000자 파일 97개, 1000~1500자 227개 — 27개 끝나면 이 구간도 순차적으로 스캔/처리 검토 필요
