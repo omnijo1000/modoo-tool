@@ -175,25 +175,25 @@ jpg-to-heic(버그 2개 수정 — ①투명 PNG를 JPG로 출력할 때 캔버�
 ### 완료 (3차 배치 22/N, content-depth-audit 브랜치에 커밋됨 — 커밋 3bc805c, 5862fc1, 636814a)
 css-gradient-generator(버그도 수정 — renderStopBar()가 update()에서 호출될 때마다(색상 스탑 드래그 중이면 mousemove 이벤트마다) window에 새 mousemove/mouseup 리스너를 계속 추가만 하고 기존 것은 절대 제거하지 않던 문제, 드래그 한 번에 리스너가 무한 누적되는 메모리 누수를 단일 전역 리스너 + 공유 _dragIdx 변수 방식으로 수정 + 기존에 없던 touchstart/touchmove/touchend도 추가해 FAQ가 이미 주장하던 "드래그로 위치 조정 가능"이 모바일에서도 실제로 동작하도록 함), json-to-yaml(버그도 수정 — 들여쓰기 select의 onchange가 입력창이 비어있어도 무조건 JSON.parse를 실행해 페이지 로드 직후 들여쓰기만 바꿔도 "파싱 오류: Unexpected end of JSON input"이 뜨던 문제, 빈 입력이면 조용히 결과만 비우도록 수정 + FAQ의 "null은 null 또는 ~로 표현"이 거짓이었음을 js-yaml 4.1.0 직접 설치해 확인(항상 null만 출력) 후 정정), prompt-optimizer(콘텐츠 정합성 버그 — zh/ja FAQ가 ko/en에 있는 "Q&A 프롬프트 팁" 항목이 아예 없고 그 자리에 zh/ja에만 있는 별개의 "작업 유형 선택법" 항목이 들어있어 4개 언어 FAQ 세트가 서로 달랐던 문제, zh/ja에 Q&A 팁을 번역 추가하고 이질적인 항목 제거로 5개 블록 모두 동일한 8개 항목으로 통일. 코드 자체는 버그 없음(순수 클라이언트 템플릿 조합기, textContent만 사용해 DOM 삽입 위험 없음) — "AI를 직접 호출하지 않는 템플릿 생성기"라는, 페이지 어디에도 명시 안 돼 있던 핵심 사실을 인트로에 추가)
 
-## 3차 스캔 진행 현황 (2026-07-30 기준)
+### 완료 (3차 배치 23/N, 마지막 배치, content-depth-audit 브랜치에 커밋됨 — 커밋 f57a57c, 9fdd01a, 8b3ac1a, 2972736)
+read-time-calculator(이 세션 최대급 발견 — head FAQ가 "한국어는 분당 약 500자 기준으로 계산"이라고 명시하는데 실제 코드는 언어 구분 없이 공백 기준 단어 수로만 계산해 중국어/일본어처럼 공백이 없는 텍스트는 전체 문단이 "단어 1개"로 잡혀 아무리 길어도 항상 "< 1m"로 표시되던 문제, node로 880자 중국어 텍스트가 항상 1단어로 집계됨을 재현 확인 후 CJK 문자 비율 40% 초과 시 글자 수/CPM 기반 계산으로 자동 전환하도록 구현(기본 200WPM일 때 정확히 분당 500자로 맞춰 FAQ 수치와 일치) + 프리셋 실제값(150/200/300/450)과 다른 head FAQ의 거짓 수치(150/250/350)·존재하지 않는 "이미지당 추가시간" 기능도 정정), csv-to-json(FAQ가 "007" 등 앞자리 0 값 손상 없이 숫자/불리언 자동 타입 변환 + 헤더 없음 옵션 + 0/2/4/탭 들여쓰기를 모두 제공한다고 주장했지만 셋 다 실제 코드엔 없었음 — 우편번호·전화번호 등 앞자리 0은 문자열로 보존하는 안전장치를 포함해 3개 기능 모두 실제 구현, 들여쓰기 select에 없던 0/tab 옵션도 추가), line-counter(FAQ 절반이 존재하지 않는 기능 주장 + 그 중 파일 업로드 기능은 같은 FAQ 리스트 안에서 "없다"/"있다"로 자기모순까지 있었음 — 빈 줄 제외 체크박스, 단어수/문자수 통계, FileReader 기반 파일 업로드(.txt/.md/.csv/.log/.json/.js/.py/.html/.css) 3개 기능을 실제 구현하고 구현 범위를 벗어나는 grep/패턴 필터링 주장만 정직하게 수정, 콘텐츠 작성 중 미이스케이프 아포스트로피로 발생한 JS 문법 오류도 node --check로 발견해 수정), ai-model-comparison(코드 버그 없는 순수 데이터 비교표 — FAQ가 "Google Gemini 시리즈는 무료"라고 뭉뚱그렸지만 실제 MODELS 배열은 Gemini 2.0 Pro만 free:false로 표시하고 있어 FAQ와 테이블 데이터가 모순되던 것을 발견해 정정, FAQ 10개(50=10x5)를 8개로 정리)
 
-**완료: 66개 / 70개** (batch 1~22)
-✅ json-schema-validator, ico-converter, image-prompt-generator, markdown-chat-exporter, xml-to-json, pdf-size-analyzer, hash-checker, regex-generator, prompt-template-generator, curl-generator, ngram-analyzer, json-schema-generator, png-to-svg, yaml-to-json, pdf-metadata-remover, curl-parser, text-similarity-checker, webhook-tester, time-zone-meeting-planner, image-color-extractor, open-graph-preview, pdf-word-counter, webhook-generator, avif-to-jpg, api-tester, bcrypt-validator, regex-cheatsheet, keyword-cannibalization-checker, bcrypt-generator, national-pension-calculator, nanoid-generator, keyword-difficulty-estimator, exif-viewer, slug-generator, json-diff, graphql-formatter, hmac-generator, uuid-generator, meeting-cost-calculator, unicode-converter, heic-to-jpg, transparent-background-maker, rsa-key-generator, sitemap-extractor, ulid-generator, image-dpi-checker, serp-snippet-preview, text-encryptor, pdf-ocr, image-dimension-checker, lorem-ipsum-generator, sentence-counter, json-path-tester, tailwind-color-generator, text-reverser, ssh-key-generator, remove-empty-lines, jpg-to-avif, uuid-converter, remove-duplicate-words, jpg-to-heic, json-flattener, text-shuffler, css-gradient-generator, json-to-yaml, prompt-optimizer
+## 3차 스캔 진행 현황 — 700~1000자 구간 전체 완료 (2026-07-30)
+
+**완료: 70개 / 70개** (batch 1~23, 전체 완료)
+✅ json-schema-validator, ico-converter, image-prompt-generator, markdown-chat-exporter, xml-to-json, pdf-size-analyzer, hash-checker, regex-generator, prompt-template-generator, curl-generator, ngram-analyzer, json-schema-generator, png-to-svg, yaml-to-json, pdf-metadata-remover, curl-parser, text-similarity-checker, webhook-tester, time-zone-meeting-planner, image-color-extractor, open-graph-preview, pdf-word-counter, webhook-generator, avif-to-jpg, api-tester, bcrypt-validator, regex-cheatsheet, keyword-cannibalization-checker, bcrypt-generator, national-pension-calculator, nanoid-generator, keyword-difficulty-estimator, exif-viewer, slug-generator, json-diff, graphql-formatter, hmac-generator, uuid-generator, meeting-cost-calculator, unicode-converter, heic-to-jpg, transparent-background-maker, rsa-key-generator, sitemap-extractor, ulid-generator, image-dpi-checker, serp-snippet-preview, text-encryptor, pdf-ocr, image-dimension-checker, lorem-ipsum-generator, sentence-counter, json-path-tester, tailwind-color-generator, text-reverser, ssh-key-generator, remove-empty-lines, jpg-to-avif, uuid-converter, remove-duplicate-words, jpg-to-heic, json-flattener, text-shuffler, css-gradient-generator, json-to-yaml, prompt-optimizer, read-time-calculator, csv-to-json, line-counter, ai-model-comparison
 
 **주의**: `grep -c 'class="faq-item"' 파일명`은 "매칭되는 줄 수"를 세는 것이라, ko/en/zh/ja seoHtml이 한 줄짜리 템플릿 리터럴로 저장된 파일에서는 실제 개수보다 훨씬 적게 나올 수 있음(예: 40개인데 5로 표시됨). 반드시 `grep -o 'class="faq-item"' 파일명 | wc -l`로 실제 occurrence 개수를 셀 것.
 
-**주의 2**: 다국어 seoHtml 치환 파이썬 스크립트가 드물게 언어 블록을 뒤바꿔 쓰는 경우가 있었음(배치 18의 tailwind-color-generator 사례, 원인 재현 못함). 배치 19부터 4개 언어 블록 각각의 seoHtml 시작 부분을 적용 스크립트 안에서 매번 print로 직접 확인하는 방식으로 전환 — 배치 19~21 모두 이상 없음.
+**주의 2**: 다국어 seoHtml 치환 파이썬 스크립트가 드물게 언어 블록을 뒤바꿔 쓰는 경우가 있었음(배치 18의 tailwind-color-generator 사례, 원인 재현 못함). 배치 19부터 4개 언어 블록 각각의 seoHtml 시작 부분을 적용 스크립트 안에서 매번 print로 직접 확인하는 방식으로 전환 — 이후 전 배치(19~23) 이상 없음.
 
-**주의 3**: "실제로 없는 기능을 있다고 주장하는 FAQ"와 "존재하지만 아무 효과 없는 죽은 컨트롤/분기" 패턴이 이 700~1000자 구간에서 매우 흔함(배치 18~21에서 6건 이상: sentence-counter, tailwind-color-generator, remove-empty-lines, remove-duplicate-words, json-flattener, text-shuffler). 새 파일마다: (1) FAQ 각 항목이 설명하는 기능이 실제 UI/JS에 있는지 grep 대조, (2) 여러 모드/분기가 있으면 node로 각각 실행해 결과가 실제로 다른지(또는 서로 일관된 알고리즘을 쓰는지) 직접 비교. 문제 있으면 범위가 작으면 실제 구현, 크면 정직하게 FAQ 수정.
+**주의 3**: "실제로 없는 기능을 있다고 주장하는 FAQ"와 "존재하지만 아무 효과 없는 죽은 컨트롤/분기" 패턴이 이 700~1000자 구간 전체에서 가장 흔한 결함 유형이었음(10건 이상). 새 파일마다: (1) FAQ 각 항목이 설명하는 기능이 실제 UI/JS에 있는지 grep 대조, (2) 여러 모드/분기가 있으면 node로 각각 실행해 결과가 실제로 다른지 직접 비교, (3) 데이터 참조형 페이지(비교표 등)는 코드 버그 대신 FAQ 주장을 실제 데이터 배열과 대조. 문제 있으면 범위가 작으면 실제 구현, 크면 정직하게 FAQ 수정.
 
-**남은 4개 (worst-first, char count)** — 다음 배치는 여기서부터 3개 + 1개(마지막 배치는 4개):
-```
-964  read-time-calculator.html            ⬜ 다음 배치 시작점
-986  csv-to-json.html
-993  line-counter.html
-999  ai-model-comparison.html
-```
-(1000자 이상은 700~1000 구간이 끝나면 재스캔해서 다음 구간 산정)
+**주의 4 (배치 22~23에서 반복 발생)**: 딥닝 인트로 문단 영문 카피를 작성할 때 아포스트로피("it's", "doesn't", "aren't", "editor's")를 single-quote JS 문자열 안에 그대로 쓰면 `node --check`에서 즉시 SyntaxError남 — json-to-yaml, line-counter 두 파일에서 실제로 발생. 영문 카피 작성 시 처음부터 `\'`로 이스케이프하거나 축약형을 풀어 쓸 것("it is" 등), 그리고 4종 검증의 `node --check` 단계를 절대 생략하지 말 것(이번에도 이 단계가 실제로 잡아냄).
+
+## 다음 단계: 1000~1500자 구간 스캔 필요
+
+700~1000자 구간(70개)이 전부 끝났으므로, 다음 세션은 이 파일 상단의 스캔 스크립트로 `1000 <= len < 1500` 범위를 재스캔해 worst-first 목록을 뽑고 동일한 배치(3개씩) 프로세스로 진행할 것. 이전 스캔 시점(2026-06-14 근방) 기준 227개로 파악됐으나, 그 사이 배치 1~23에서 다수 파일이 이 구간으로 새로 진입했거나(내용이 깊어져서) 반대로 빠져나갔을 수 있으므로 반드시 재스캔부터 시작.
 
 ## 새 컴퓨터에서 이어할 때 체크리스트
 1. `git fetch && git checkout content-depth-audit && git pull`
