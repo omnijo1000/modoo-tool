@@ -113,25 +113,85 @@ hash-checker(버그도 수정 — title/meta가 MD5 지원을 거짓 광고, Web
 ### 완료 (3차 배치 4/N, content-depth-audit 브랜치에 커밋됨 — 커밋 2657d90)
 curl-generator(버그도 수정 — 헤더 값/Bearer/URL의 작은따옴표 미이스케이프로 셸 명령어 깨짐 + DELETE 메서드일 때 본문이 조용히 누락), ngram-analyzer(버그도 수정 — 기본 켜진 "구두점 제거"가 중국어 한자·일본어 가나를 전부 삭제, UI는 중/일 번역까지 있는데 실제 처리 로직은 지원 안 함), json-schema-generator(버그도 수정 — null 필드가 기존 FAQ의 거짓 주장과 달리 type:["string","null"]이 아니라 type:"null"로만 생성되어 실사용 시 검증 실패 + 배열 타입 추론이 첫 요소만 봄)
 
-### 다음 배치 후보 (top 15, char count)
+### 완료 (3차 배치 5/N, content-depth-audit 브랜치에 커밋됨 — 커밋 d712521)
+png-to-svg(버그도 수정 — "비트맵 추적"이라면서 실제로는 픽셀 1개=rect 1개 방식이라 진짜 벡터가 아님 + 알파 채널 미확인으로 투명 배경이 검게 나올 수 있음), yaml-to-json(버그도 수정 — 기존 FAQ가 "다중 문서는 첫 문서만 변환"이라 했지만 실제로는 js-yaml load()가 다중 문서에서 예외를 던져 변환 자체가 실패함, js-yaml 로컬 설치해 직접 재현 검증함), pdf-metadata-remover(버그도 수정 — 작성일/수정일 체크박스를 선택해도 코드가 CreationDate/ModDate에 대한 pdf-lib setter를 아예 호출하지 않아 실제로는 제거되지 않음)
+
+## 3차 스캔 진행 현황 (2026-07-29 기준)
+
+**완료: 15개 / 70개** (batch 1~5)
+✅ json-schema-validator, ico-converter, image-prompt-generator, markdown-chat-exporter, xml-to-json, pdf-size-analyzer, hash-checker, regex-generator, prompt-template-generator, curl-generator, ngram-analyzer, json-schema-generator, png-to-svg, yaml-to-json, pdf-metadata-remover
+
+**남은 55개 (worst-first, char count)** — 다음 배치는 여기서부터 3개씩:
 ```
-702  json-schema-validator.html      ✅ 완료
-704  ico-converter.html              ✅ 완료
-705  image-prompt-generator.html     ✅ 완료
-712  markdown-chat-exporter.html     ✅ 완료
-715  xml-to-json.html                ✅ 완료
-723  pdf-size-analyzer.html          ✅ 완료
-724  hash-checker.html               ✅ 완료
-729  regex-generator.html            ✅ 완료
-742  prompt-template-generator.html  ✅ 완료
-743  curl-generator.html             ✅ 완료
-749  ngram-analyzer.html             ✅ 완료
-751  json-schema-generator.html      ✅ 완료
-758  png-to-svg.html                 ⬜ 다음
-761  yaml-to-json.html               ⬜
-763  pdf-metadata-remover.html       ⬜
+765  curl-parser.html                     ⬜ 다음 배치 시작점
+766  text-similarity-checker.html
+767  webhook-tester.html
+770  time-zone-meeting-planner.html
+770  image-color-extractor.html
+771  open-graph-preview.html
+774  pdf-word-counter.html
+774  webhook-generator.html
+781  avif-to-jpg.html
+789  api-tester.html
+790  bcrypt-validator.html
+803  regex-cheatsheet.html
+807  keyword-cannibalization-checker.html
+815  bcrypt-generator.html
+816  national-pension-calculator.html
+817  nanoid-generator.html
+825  keyword-difficulty-estimator.html
+827  exif-viewer.html
+829  slug-generator.html
+833  json-diff.html
+834  graphql-formatter.html
+836  hmac-generator.html
+836  uuid-generator.html
+837  meeting-cost-calculator.html
+845  unicode-converter.html
+846  heic-to-jpg.html
+852  transparent-background-maker.html
+852  rsa-key-generator.html
+852  sitemap-extractor.html
+853  ulid-generator.html
+854  image-dpi-checker.html
+864  serp-snippet-preview.html
+867  text-encryptor.html
+868  pdf-ocr.html
+872  image-dimension-checker.html
+878  lorem-ipsum-generator.html
+880  sentence-counter.html
+883  json-path-tester.html
+890  tailwind-color-generator.html
+896  text-reverser.html
+901  ssh-key-generator.html
+909  remove-empty-lines.html
+911  jpg-to-avif.html
+911  uuid-converter.html
+917  remove-duplicate-words.html
+918  jpg-to-heic.html
+919  json-flattener.html
+933  text-shuffler.html
+934  css-gradient-generator.html
+942  json-to-yaml.html
+944  prompt-optimizer.html
+964  read-time-calculator.html
+986  csv-to-json.html
+993  line-counter.html
+999  ai-model-comparison.html
 ```
-(전체 70개 목록은 스캔 스크립트 재실행으로 확인)
+(1000자 이상은 700~1000 구간이 끝나면 재스캔해서 다음 구간 산정)
+
+## 새 컴퓨터에서 이어할 때 체크리스트
+1. `git fetch && git checkout content-depth-audit && git pull`
+2. 이 파일의 "남은 55개" 목록에서 위 3개(curl-parser, text-similarity-checker, webhook-tester)부터 시작
+3. 파일마다: 코드 읽고 실제 버그/과장된 주장 찾기(가능하면 node로 직접 재현) → 없으면 진짜 기술적 디테일로 깊이 보강 → ko 정적 seoDiv 재작성 → JS _i18n.ko.seoHtml에 완전히 동일하게 미러링(정규식 특수문자는 백슬래시 2번 이스케이프 등 주의) → en/zh/ja 번역 → head FAQPage JSON-LD를 새 내용 기준 4개 항목으로 교체
+4. 검증 4종 세트 (파일마다 필수):
+   - `python3 -c "...json.loads(...)"` 로 JSON-LD 2개 블록 파싱 확인
+   - `grep -c 'class="faq-item"' 파일명` → 반드시 40 (8개 x ko정적+ko JS+en+zh+ja... 아니 8x5=40, 즉 정적 8 + JS미러 8 + en 8 + zh 8 + ja 8)
+   - `node --check` 로 스크립트 블록 문법 확인
+   - node eval로 static seoDiv와 _i18n.ko.seoHtml 완전 일치(MATCH) 확인
+5. 3개 끝나면 커밋 1개(버그 설명 포함 커밮 메시지) + 이 파일 업데이트 커밋 1개 + push
+6. **주의**: FAQ 항목을 8개로 맞출 것 — 초안 작성 시 실수로 9개 쓰면 총 45개로 어긋남(과거 sql-minifier, curl-generator에서 실제로 발생했던 실수)
 
 ## 남은 참고 사항
 - 700~1000자 파일 97개, 1000~1500자 227개 — 27개 끝나면 이 구간도 순차적으로 스캔/처리 검토 필요
