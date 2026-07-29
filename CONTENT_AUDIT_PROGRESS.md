@@ -56,10 +56,10 @@ typing-speed-test, uuid-extractor, webp-to-jpg
 657  prompt-cleaner.html                 ✅ 완료 (batch6)
 658  pdf-password-remover.html           ✅ 완료 (batch6)
 661  yaml-diff-checker.html              ✅ 완료 (batch6)
-662  javascript-minifier.html            ⬜ 다음
-663  text-summarizer.html                ⬜
-678  anagram-checker.html                ⬜
-681  remove-special-characters.html      ⬜
+662  javascript-minifier.html            ✅ 완료 (batch7)
+663  text-summarizer.html                ✅ 완료 (batch7)
+678  anagram-checker.html                ✅ 완료 (batch7)
+681  remove-special-characters.html      ⬜ 다음
 681  sql-to-json.html                    ⬜
 687  ascii-table.html                    ⬜
 692  color-blindness-simulator.html      ⬜
@@ -85,8 +85,11 @@ sql-query-explainer, ai-product-description-generator, system-prompt-generator
 ## 완료 (2차 배치 6/9, content-depth-audit 브랜치에 커밋됨 — 커밋 4b87c23)
 prompt-cleaner, pdf-password-remover, yaml-diff-checker
 
-## 다음 배치 (7/9)
-javascript-minifier.html, text-summarizer.html, anagram-checker.html
+## 완료 (2차 배치 7/9, content-depth-audit 브랜치에 커밋됨 — 커밋 677cd27)
+javascript-minifier, text-summarizer, anagram-checker
+
+## 다음 배치 (8/9)
+remove-special-characters.html, sql-to-json.html, ascii-table.html
 
 ## 남은 참고 사항
 - 700~1000자 파일 97개, 1000~1500자 227개 — 27개 끝나면 이 구간도 순차적으로 스캔/처리 검토 필요
