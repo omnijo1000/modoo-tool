@@ -166,23 +166,23 @@ sentence-counter(버그도 수정 — 문장 정규식이 종결부호로 끝나
 ### 완료 (3차 배치 19/N, content-depth-audit 브랜치에 커밋됨 — 커밋 9514b69)
 text-reverser(버그도 수정 — "각 단어 뒤집기" 버튼 라벨·FAQ 모두 "단어 내부 문자를 뒤집는다"고 명시하는데 실제 구현은 단어 배치 순서를 바꾸는 것("hello world foo" → "foo world hello")이라 라벨/문서와 정반대로 동작하던 문제, node로 재현 확인 후 단어 순서는 유지하고 각 단어 내부 문자만 뒤집도록(이모지 안전한 스프레드 방식 유지) 재작성 + head FAQ의 낡은(버그와 일치하던) 설명도 수정), ssh-key-generator(버그도 수정 — 생성되는 ssh-keygen 명령어의 -C/-f 값을 이스케이프 없이 큰따옴표 안에 그대로 삽입해, 코멘트에 큰따옴표가 포함되면(예: John "Desktop" Kim) 구문이 깨지고 $나 백틱이 들어가면 터미널에 붙여넣어 실행할 때 셸 확장까지 일어날 수 있던 문제, 백슬래시·큰따옴표·$·백틱을 이스케이프하는 헬퍼 추가), remove-empty-lines(head/body FAQ가 "연속 빈 줄 1개로 축소", "정확한 개수로 제한", "처음/끝만 제거" 3가지 기능을 제공한다고 주장했지만 실제로는 체크박스 1개(공백줄 포함 여부)만 존재하던 문제 발견, 가장 요청 빈도 높고 구현 범위가 명확한 "연속 빈 줄을 1줄로 축소" 옵션은 실제로 구현하고 나머지 2개(임의 개수 제한, 처음/끝만 제거)는 존재하지 않는다고 정직하게 FAQ 수정)
 
+### 완료 (3차 배치 20/N, content-depth-audit 브랜치에 커밋됨 — 커밋 ea95ebc)
+jpg-to-avif(버그도 수정 — addResult()가 파일명을 이스케이프 없이 innerHTML에 삽입하던 것을 escH()로 수정(image-dimension-checker와 동일 패턴) + head FAQ가 "Canvas API로는 품질을 직접 지정하기 어렵다"고 주장했지만 실제로는 50~100% 품질 슬라이더가 이미 toBlob 3번째 인자로 정상 전달되고 있어 정정), uuid-converter(버그도 수정 — 복사 버튼의 대기 상태 라벨을 `t.copied.replace('됨','')`로 한국어 접미사를 잘라내 만들던 방식이라 en/zh/ja에서는 치환이 안 먹혀 클릭 전인데도 "Copied"/"已复制"/"コピー完了"가 그대로 표시되던 문제, 별도 copyBtn 키 추가로 수정 + 한국어 FAQ에 일본어 조사 "や"가 섞여 있던 오타("ULIDやUUID v7")도 수정), remove-duplicate-words("순서 유지" 체크박스가 완전히 죽은 컨트롤이었던 것 발견 — node로 재현해 체크 여부와 무관하게 두 분기 모두 JS Set으로 중복 제거해 항상 첫 등장 순서로 출력됨을 확인(Set은 항상 삽입 순서 유지), FAQ는 "체크 해제 시 알파벳순 정렬"이라 주장했지만 실제로는 전혀 그렇지 않았음 — localeCompare 기반 알파벳 정렬을 실제로 구현해 체크박스가 실제로 다른 결과를 내도록 수정 + head FAQ의 "빈도순 정렬"·"불용어 제외" 등 존재하지 않는 기능 주장도 정정)
+
 ## 3차 스캔 진행 현황 (2026-07-30 기준)
 
-**완료: 57개 / 70개** (batch 1~19)
-✅ json-schema-validator, ico-converter, image-prompt-generator, markdown-chat-exporter, xml-to-json, pdf-size-analyzer, hash-checker, regex-generator, prompt-template-generator, curl-generator, ngram-analyzer, json-schema-generator, png-to-svg, yaml-to-json, pdf-metadata-remover, curl-parser, text-similarity-checker, webhook-tester, time-zone-meeting-planner, image-color-extractor, open-graph-preview, pdf-word-counter, webhook-generator, avif-to-jpg, api-tester, bcrypt-validator, regex-cheatsheet, keyword-cannibalization-checker, bcrypt-generator, national-pension-calculator, nanoid-generator, keyword-difficulty-estimator, exif-viewer, slug-generator, json-diff, graphql-formatter, hmac-generator, uuid-generator, meeting-cost-calculator, unicode-converter, heic-to-jpg, transparent-background-maker, rsa-key-generator, sitemap-extractor, ulid-generator, image-dpi-checker, serp-snippet-preview, text-encryptor, pdf-ocr, image-dimension-checker, lorem-ipsum-generator, sentence-counter, json-path-tester, tailwind-color-generator, text-reverser, ssh-key-generator, remove-empty-lines
+**완료: 60개 / 70개** (batch 1~20)
+✅ json-schema-validator, ico-converter, image-prompt-generator, markdown-chat-exporter, xml-to-json, pdf-size-analyzer, hash-checker, regex-generator, prompt-template-generator, curl-generator, ngram-analyzer, json-schema-generator, png-to-svg, yaml-to-json, pdf-metadata-remover, curl-parser, text-similarity-checker, webhook-tester, time-zone-meeting-planner, image-color-extractor, open-graph-preview, pdf-word-counter, webhook-generator, avif-to-jpg, api-tester, bcrypt-validator, regex-cheatsheet, keyword-cannibalization-checker, bcrypt-generator, national-pension-calculator, nanoid-generator, keyword-difficulty-estimator, exif-viewer, slug-generator, json-diff, graphql-formatter, hmac-generator, uuid-generator, meeting-cost-calculator, unicode-converter, heic-to-jpg, transparent-background-maker, rsa-key-generator, sitemap-extractor, ulid-generator, image-dpi-checker, serp-snippet-preview, text-encryptor, pdf-ocr, image-dimension-checker, lorem-ipsum-generator, sentence-counter, json-path-tester, tailwind-color-generator, text-reverser, ssh-key-generator, remove-empty-lines, jpg-to-avif, uuid-converter, remove-duplicate-words
 
 **주의**: `grep -c 'class="faq-item"' 파일명`은 "매칭되는 줄 수"를 세는 것이라, ko/en/zh/ja seoHtml이 한 줄짜리 템플릿 리터럴로 저장된 파일에서는 실제 개수보다 훨씬 적게 나올 수 있음(예: 40개인데 5로 표시됨). 반드시 `grep -o 'class="faq-item"' 파일명 | wc -l`로 실제 occurrence 개수를 셀 것. 또한 이 카운트는 배치 시작 전 반드시 확인 — 과거 콘텐츠(exif-viewer, slug-generator, unicode-converter, serp-snippet-preview, text-encryptor 등)에 원래부터 FAQ 개수가 8개가 아니었던 사례가 반복적으로 있었음.
 
-**주의 2**: 다국어 seoHtml 치환 파이썬 스크립트가 드물게 언어 블록을 뒤바꿔 쓰는 경우가 있었음(tailwind-color-generator에서 ko 블록에 en 텍스트가 들어가고 en 블록은 갱신 자체가 안 된 사례 — 원인 재현 못함). static/JS 일치 검증(4번째 검증 단계)에서 곧바로 MATCH:false로 잡히므로 이 검증을 절대 생략하지 말 것. 배치 19부터는 4개 언어 블록 각각의 seoHtml 시작 부분을 적용 스크립트 안에서 매번 print로 직접 확인하는 방식으로 전환(text-reverser, ssh-key-generator, remove-empty-lines에서 이상 없음 확인됨).
+**주의 2**: 다국어 seoHtml 치환 파이썬 스크립트가 드물게 언어 블록을 뒤바꿔 쓰는 경우가 있었음(tailwind-color-generator에서 ko 블록에 en 텍스트가 들어가고 en 블록은 갱신 자체가 안 된 사례 — 원인 재현 못함). static/JS 일치 검증(4번째 검증 단계)에서 곧바로 MATCH:false로 잡히므로 이 검증을 절대 생략하지 말 것. 배치 19부터는 4개 언어 블록 각각의 seoHtml 시작 부분을 적용 스크립트 안에서 매번 print로 직접 확인하는 방식으로 전환 — 배치 19, 20 모두 이상 없음 확인됨.
 
-**주의 3 (2026-07-30 추가)**: 이 구간(700~1000자대) 파일들에서 "실제로 없는 기능을 있다고 주장하는 FAQ" 패턴이 반복적으로 발견됨(sentence-counter, tailwind-color-generator, remove-empty-lines 등). 새 파일 작업 시 FAQ 각 항목이 설명하는 기능이 실제 UI/JS 코드에 존재하는지 항상 grep으로 대조할 것 — 존재하면 그대로 두거나 깊이 보강, 존재하지 않으면 (a) 구현 범위가 작고 명확하면 실제로 구현, (b) 범위가 크면 정직하게 "미지원" FAQ로 수정.
+**주의 3**: 이 구간(700~1000자대) 파일들에서 "실제로 없는 기능을 있다고 주장하는 FAQ" 패턴이 매우 흔함(sentence-counter, tailwind-color-generator, remove-empty-lines, remove-duplicate-words 등 배치 18~20에서만 4건). 새 파일 작업 시 FAQ 각 항목이 설명하는 기능이 실제 UI/JS 코드에 존재하는지 항상 grep으로 대조할 것 — 존재하면 그대로 두거나 깊이 보강, 존재하지 않으면 (a) 구현 범위가 작고 명확하면 실제로 구현(이번 배치의 알파벳 정렬처럼), (b) 범위가 크면 정직하게 "미지원" FAQ로 수정. 체크박스·옵션이 "존재하되 아무 효과가 없는" 죽은 컨트롤 패턴도 함께 의심할 것(remove-duplicate-words의 순서 유지 체크박스 사례) — node로 두 상태(체크/미체크)의 실제 출력이 다른지 직접 비교해볼 것.
 
-**남은 13개 (worst-first, char count)** — 다음 배치는 여기서부터 3개씩:
+**남은 10개 (worst-first, char count)** — 다음 배치는 여기서부터 3개씩:
 ```
-911  jpg-to-avif.html                    ⬜ 다음 배치 시작점
-911  uuid-converter.html
-917  remove-duplicate-words.html
-918  jpg-to-heic.html
+918  jpg-to-heic.html                    ⬜ 다음 배치 시작점
 919  json-flattener.html
 933  text-shuffler.html
 934  css-gradient-generator.html
