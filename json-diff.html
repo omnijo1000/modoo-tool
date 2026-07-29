@@ -42,7 +42,7 @@
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"JSON Diff","url":"https://modoohub.com/json-diff.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Compare two JSON objects and highlight added, deleted, and modified keys instantly."}</script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"JSON 비교는 어떻게 동작하나요?","acceptedAnswer":{"@type":"Answer","text":"두 JSON 객체를 재귀적으로 순회하며 키별로 추가/삭제/변경 여부를 판별해 색상으로 표시합니다."}},{"@type":"Question","name":"배열 비교도 지원하나요?","acceptedAnswer":{"@type":"Answer","text":"배열은 인덱스 기준으로 비교합니다. 배열 순서가 다르면 변경으로 표시됩니다."}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"배열 비교는 정확히 어떻게 되나요?","acceptedAnswer":{"@type":"Answer","text":"배열은 인덱스를 객체의 키처럼 취급해 같은 인덱스의 값끼리 비교합니다. 배열 안에 객체나 중첩 배열이 있으면 그 안까지 재귀적으로 들어가 비교합니다."}},{"@type":"Question","name":"배열 중간에 요소가 추가/삭제되면 어떻게 표시되나요?","acceptedAnswer":{"@type":"Answer","text":"인덱스 위치를 그대로 대응시켜 비교하기 때문에, 중간에 삽입하면 그 뒤의 모든 요소가 한 칸씩 밀리면서 실제로는 안 바뀐 값들도 변경으로 표시될 수 있습니다."}},{"@type":"Question","name":"중첩 JSON도 비교 가능한가요?","acceptedAnswer":{"@type":"Answer","text":"재귀적으로 중첩 객체와 배열을 함께 순회하며 비교합니다. 점(.) 표기법으로 중첩 경로를 표시합니다."}},{"@type":"Question","name":"JSON 유효성 검사도 함께 하나요?","acceptedAnswer":{"@type":"Answer","text":"네, 비교 전에 각 JSON의 파싱 가능 여부를 먼저 검사합니다. 파싱 오류가 있으면 해당 오류를 먼저 알려줍니다."}}]}</script>
 <meta property="og:type" content="website">
 <meta property="og:title" content="JSON 비교기 - JSON Diff 도구 | MODOO HUB">
 <meta property="og:description" content="두 JSON을 붙여넣어 차이점 즉시 비교. 추가·삭제·변경된 키 색상으로 표시. 온라인 JSON Diff 도구.">
@@ -81,66 +81,66 @@
     <div class="diff-stats" id="diffStats"></div>
     <div class="diff-lines" id="diffLines"></div>
   </div>
-  <div class="seo" id="seoDiv"><h2>JSON 비교기란?</h2><p>두 JSON 데이터의 차이를 즉시 분석합니다. <strong>추가된 키(녹색)</strong>, <strong>삭제된 키(빨간색)</strong>, <strong>변경된 값(파란색)</strong>을 색상으로 구분해 빠르게 파악할 수 있습니다. API 응답 변경 확인, 설정 파일 비교, 데이터 마이그레이션 검증 등에 유용합니다.</p>
+  <div class="seo" id="seoDiv"><h2>JSON 비교기란?</h2><p>두 JSON을 같은 구조를 따라 함께 순회하며 키(객체) 또는 인덱스(배열) 단위로 <strong>추가된 항목(녹색)</strong>, <strong>삭제된 항목(빨간색)</strong>, <strong>변경된 값(파란색)</strong>을 찾아냅니다. 값이 둘 다 객체이거나 둘 다 배열이면 그 안으로 재귀적으로 들어가 비교하고, 배열은 인덱스 0, 1, 2...를 키처럼 취급해 각 위치의 값을 따로 비교합니다 — 즉 <code>{"tags":["a","b","c"]}</code>에서 가운데 "b"만 "x"로 바뀌면 배열 전체가 아니라 <code>tags.1: b → x</code> 한 줄만 변경으로 표시됩니다. 다만 이 방식은 인덱스 위치를 그대로 대응시키는 방식이라, 배열 중간에 새 요소를 끼워 넣으면(LCS 정렬 없이) 그 뒤의 모든 요소가 밀리면서 "변경"으로 잘못 표시될 수 있습니다. API 응답 변경 확인, 설정 파일 비교, 데이터 마이그레이션 검증 등에 유용합니다.</p>
 <h2 class="seo-sub">자주 묻는 질문</h2>
-<details class="faq-item"><summary>배열 비교는 어떻게 되나요?</summary><p>배열은 인덱스 기준으로 비교합니다. 배열 순서가 다르면 변경으로 표시됩니다. 의미적 동등성(같은 요소, 다른 순서)은 판별하지 않습니다.</p></details>
-<details class="faq-item"><summary>중첩 JSON도 비교 가능한가요?</summary><p>재귀적으로 중첩 객체를 순회하며 비교합니다. 점(.) 표기법으로 중첩 경로를 표시합니다.</p></details>
-<details class="faq-item"><summary>null과 undefined 차이도 표시되나요?</summary><p>null은 JSON에서 유효한 값으로, null → 다른 값으로 변경되면 변경으로 표시됩니다. undefined는 JSON에 존재하지 않아 키 없음으로 처리됩니다.</p></details>
-<details class="faq-item"><summary>타입 변경(string → number)도 감지되나요?</summary><p>값이 다르면 타입 무관하게 변경으로 표시됩니다. 예: "30" → 30도 변경으로 표시됩니다.</p></details>
-<details class="faq-item"><summary>JSON 순서가 다르면 어떻게 되나요?</summary><p>JSON 객체의 키 순서는 의미가 없으므로, 순서가 달라도 값이 같으면 동일로 처리됩니다.</p></details>
+<details class="faq-item"><summary>배열 비교는 정확히 어떻게 되나요?</summary><p>배열은 인덱스를 객체의 키처럼 취급해 같은 인덱스의 값끼리 비교합니다. 배열 안에 객체나 중첩 배열이 있으면 그 안까지 재귀적으로 들어가 비교하므로, <code>items: [{"id":1,"v":"x"}, {"id":2,"v":"y"}]</code>처럼 배열 속 객체의 필드 하나만 바뀌어도 정확히 그 필드만 변경으로 표시됩니다.</p></details>
+<details class="faq-item"><summary>배열 중간에 요소가 추가/삭제되면 어떻게 표시되나요?</summary><p>인덱스 위치를 그대로 대응시켜 비교하기 때문에, 배열 맨 끝에 추가/삭제되는 경우는 정확히 추가·삭제로 표시되지만, 중간에 삽입하면 그 뒤의 모든 요소가 한 칸씩 밀리면서 실제로는 안 바뀐 값들도 "변경"으로 표시될 수 있습니다. 이는 LCS(최장 공통 부분열) 기반 정렬을 하지 않는 인덱스 비교 방식의 알려진 한계입니다.</p></details>
+<details class="faq-item"><summary>중첩 JSON도 비교 가능한가요?</summary><p>재귀적으로 중첩 객체와 배열을 함께 순회하며 비교합니다. 점(.) 표기법으로 중첩 경로를 표시합니다(예: user.address.city).</p></details>
+<details class="faq-item"><summary>null과 undefined 차이도 표시되나요?</summary><p>null은 JSON에서 유효한 값으로, null → 다른 값으로 변경되면 변경으로 표시됩니다. undefined는 JSON에 존재하지 않아 키 없음(추가/삭제)으로 처리됩니다.</p></details>
+<details class="faq-item"><summary>타입 변경(string → number)도 감지되나요?</summary><p>값이 다르면 타입 무관하게 변경으로 표시됩니다. 예: "30" → 30도 변경으로 표시됩니다. 배열과 배열 아닌 값 사이의 타입 변경도 동일하게 감지됩니다.</p></details>
+<details class="faq-item"><summary>JSON 순서가 다르면 어떻게 되나요?</summary><p>객체 키 순서는 의미가 없으므로, 순서가 달라도 값이 같으면 동일로 처리됩니다. 다만 배열은 순서 자체가 값의 일부이므로 순서가 다르면 해당 인덱스가 변경으로 표시됩니다.</p></details>
 <details class="faq-item"><summary>대용량 JSON도 비교 가능한가요?</summary><p>브라우저 내 JS로 처리하므로 수백 KB 규모는 문제 없습니다. 수 MB 이상의 대용량은 성능이 저하될 수 있습니다.</p></details>
-<details class="faq-item"><summary>비교 결과를 복사할 수 있나요?</summary><p>현재 버전은 화면 표시 중심입니다. 브라우저의 텍스트 선택 후 복사 기능을 이용하세요.</p></details>
 <details class="faq-item"><summary>JSON 유효성 검사도 함께 하나요?</summary><p>네, 비교 전에 각 JSON의 파싱 가능 여부를 먼저 검사합니다. 파싱 오류가 있으면 해당 오류를 먼저 알려줍니다.</p></details></div>
 </main>
 <script>
 const _i18n={
   ko:{pageTitle:'JSON 비교기 - JSON Diff 도구 | MODOO HUB',h1b:'비교기',sub:'두 JSON 붙여넣기 → 추가·삭제·변경 키 즉시 비교',backLink:'← 모두의 툴',langBtn:'🌐 EN',labelA:'JSON A (기준)',labelB:'JSON B (비교)',btnDiff:'비교',btnClear:'초기화',added:'추가',deleted:'삭제',modified:'변경',same:'동일',errA:'JSON A 파싱 오류',errB:'JSON B 파싱 오류',
-    seoHtml:`<h2>JSON 비교기란?</h2><p>두 JSON 데이터의 차이를 즉시 분석합니다. <strong>추가된 키(녹색)</strong>, <strong>삭제된 키(빨간색)</strong>, <strong>변경된 값(파란색)</strong>을 색상으로 구분해 빠르게 파악할 수 있습니다. API 응답 변경 확인, 설정 파일 비교, 데이터 마이그레이션 검증 등에 유용합니다.</p>
+    seoHtml:`<h2>JSON 비교기란?</h2><p>두 JSON을 같은 구조를 따라 함께 순회하며 키(객체) 또는 인덱스(배열) 단위로 <strong>추가된 항목(녹색)</strong>, <strong>삭제된 항목(빨간색)</strong>, <strong>변경된 값(파란색)</strong>을 찾아냅니다. 값이 둘 다 객체이거나 둘 다 배열이면 그 안으로 재귀적으로 들어가 비교하고, 배열은 인덱스 0, 1, 2...를 키처럼 취급해 각 위치의 값을 따로 비교합니다 — 즉 <code>{"tags":["a","b","c"]}</code>에서 가운데 "b"만 "x"로 바뀌면 배열 전체가 아니라 <code>tags.1: b → x</code> 한 줄만 변경으로 표시됩니다. 다만 이 방식은 인덱스 위치를 그대로 대응시키는 방식이라, 배열 중간에 새 요소를 끼워 넣으면(LCS 정렬 없이) 그 뒤의 모든 요소가 밀리면서 "변경"으로 잘못 표시될 수 있습니다. API 응답 변경 확인, 설정 파일 비교, 데이터 마이그레이션 검증 등에 유용합니다.</p>
 <h2 class="seo-sub">자주 묻는 질문</h2>
-<details class="faq-item"><summary>배열 비교는 어떻게 되나요?</summary><p>배열은 인덱스 기준으로 비교합니다. 배열 순서가 다르면 변경으로 표시됩니다. 의미적 동등성(같은 요소, 다른 순서)은 판별하지 않습니다.</p></details>
-<details class="faq-item"><summary>중첩 JSON도 비교 가능한가요?</summary><p>재귀적으로 중첩 객체를 순회하며 비교합니다. 점(.) 표기법으로 중첩 경로를 표시합니다.</p></details>
-<details class="faq-item"><summary>null과 undefined 차이도 표시되나요?</summary><p>null은 JSON에서 유효한 값으로, null → 다른 값으로 변경되면 변경으로 표시됩니다. undefined는 JSON에 존재하지 않아 키 없음으로 처리됩니다.</p></details>
-<details class="faq-item"><summary>타입 변경(string → number)도 감지되나요?</summary><p>값이 다르면 타입 무관하게 변경으로 표시됩니다. 예: "30" → 30도 변경으로 표시됩니다.</p></details>
-<details class="faq-item"><summary>JSON 순서가 다르면 어떻게 되나요?</summary><p>JSON 객체의 키 순서는 의미가 없으므로, 순서가 달라도 값이 같으면 동일로 처리됩니다.</p></details>
+<details class="faq-item"><summary>배열 비교는 정확히 어떻게 되나요?</summary><p>배열은 인덱스를 객체의 키처럼 취급해 같은 인덱스의 값끼리 비교합니다. 배열 안에 객체나 중첩 배열이 있으면 그 안까지 재귀적으로 들어가 비교하므로, <code>items: [{"id":1,"v":"x"}, {"id":2,"v":"y"}]</code>처럼 배열 속 객체의 필드 하나만 바뀌어도 정확히 그 필드만 변경으로 표시됩니다.</p></details>
+<details class="faq-item"><summary>배열 중간에 요소가 추가/삭제되면 어떻게 표시되나요?</summary><p>인덱스 위치를 그대로 대응시켜 비교하기 때문에, 배열 맨 끝에 추가/삭제되는 경우는 정확히 추가·삭제로 표시되지만, 중간에 삽입하면 그 뒤의 모든 요소가 한 칸씩 밀리면서 실제로는 안 바뀐 값들도 "변경"으로 표시될 수 있습니다. 이는 LCS(최장 공통 부분열) 기반 정렬을 하지 않는 인덱스 비교 방식의 알려진 한계입니다.</p></details>
+<details class="faq-item"><summary>중첩 JSON도 비교 가능한가요?</summary><p>재귀적으로 중첩 객체와 배열을 함께 순회하며 비교합니다. 점(.) 표기법으로 중첩 경로를 표시합니다(예: user.address.city).</p></details>
+<details class="faq-item"><summary>null과 undefined 차이도 표시되나요?</summary><p>null은 JSON에서 유효한 값으로, null → 다른 값으로 변경되면 변경으로 표시됩니다. undefined는 JSON에 존재하지 않아 키 없음(추가/삭제)으로 처리됩니다.</p></details>
+<details class="faq-item"><summary>타입 변경(string → number)도 감지되나요?</summary><p>값이 다르면 타입 무관하게 변경으로 표시됩니다. 예: "30" → 30도 변경으로 표시됩니다. 배열과 배열 아닌 값 사이의 타입 변경도 동일하게 감지됩니다.</p></details>
+<details class="faq-item"><summary>JSON 순서가 다르면 어떻게 되나요?</summary><p>객체 키 순서는 의미가 없으므로, 순서가 달라도 값이 같으면 동일로 처리됩니다. 다만 배열은 순서 자체가 값의 일부이므로 순서가 다르면 해당 인덱스가 변경으로 표시됩니다.</p></details>
 <details class="faq-item"><summary>대용량 JSON도 비교 가능한가요?</summary><p>브라우저 내 JS로 처리하므로 수백 KB 규모는 문제 없습니다. 수 MB 이상의 대용량은 성능이 저하될 수 있습니다.</p></details>
-<details class="faq-item"><summary>비교 결과를 복사할 수 있나요?</summary><p>현재 버전은 화면 표시 중심입니다. 브라우저의 텍스트 선택 후 복사 기능을 이용하세요.</p></details>
 <details class="faq-item"><summary>JSON 유효성 검사도 함께 하나요?</summary><p>네, 비교 전에 각 JSON의 파싱 가능 여부를 먼저 검사합니다. 파싱 오류가 있으면 해당 오류를 먼저 알려줍니다.</p></details>`
   },
   en:{pageTitle:'JSON Diff - Compare Two JSON Objects | MODOO HUB',h1b:'Diff',sub:'Paste two JSON objects → instantly compare added, deleted, modified keys',backLink:'← All Tools',langBtn:'🌐 中文',labelA:'JSON A (base)',labelB:'JSON B (compare)',btnDiff:'Compare',btnClear:'Clear',added:'added',deleted:'deleted',modified:'modified',same:'same',errA:'JSON A parse error',errB:'JSON B parse error',
-    seoHtml:`<h2>JSON Diff Tool</h2><p>Instantly compare two JSON objects. <strong>Added keys (green)</strong>, <strong>deleted keys (red)</strong>, and <strong>modified values (blue)</strong> are color-coded for quick identification. Useful for API response changes, config file comparison, and data migration validation.</p>
+    seoHtml:`<h2>JSON Diff Tool</h2><p>Walks both JSON values together along the same structure, finding <strong>added entries (green)</strong>, <strong>deleted entries (red)</strong>, and <strong>modified values (blue)</strong> at each key (for objects) or index (for arrays). When both sides are objects or both are arrays, it recurses into them; arrays treat indices 0, 1, 2... as keys and compare each position separately — so in <code>{"tags":["a","b","c"]}</code>, if only the middle "b" changes to "x", you get a single <code>tags.1: b → x</code> line instead of the whole array being flagged as one big change. The catch: since positions are matched by index rather than aligned with an LCS-style algorithm, inserting a new element in the middle of an array shifts everything after it, which can make unrelated later elements look "modified" even though they didn't actually change. Useful for API response changes, config file comparison, and data migration validation.</p>
 <h2 class="seo-sub">FAQ</h2>
-<details class="faq-item"><summary>How are arrays compared?</summary><p>Arrays are compared by index. Different order is treated as modified. Semantic equality (same elements, different order) is not detected.</p></details>
-<details class="faq-item"><summary>Are nested objects supported?</summary><p>Yes, nested objects are recursively traversed and compared. Nested paths are shown with dot notation.</p></details>
-<details class="faq-item"><summary>Is null vs undefined detected?</summary><p>null is a valid JSON value — changing null to another value is shown as modified. undefined does not exist in JSON and is treated as missing.</p></details>
-<details class="faq-item"><summary>Are type changes detected?</summary><p>Any value difference, including type changes (e.g. "30" → 30), is shown as modified.</p></details>
-<details class="faq-item"><summary>Does key order matter?</summary><p>No. JSON object key order is not significant, so reordered keys with the same values are treated as identical.</p></details>
+<details class="faq-item"><summary>Exactly how are arrays compared?</summary><p>Array indices are treated like object keys, and the value at each matching index is compared. If an array element is itself an object or a nested array, comparison recurses into it — so with <code>items: [{"id":1,"v":"x"}, {"id":2,"v":"y"}]</code>, changing just one field inside one array element flags only that field, not the whole item.</p></details>
+<details class="faq-item"><summary>What happens if an element is inserted or removed in the middle of an array?</summary><p>Because comparison matches by index position, an addition or removal at the very end of an array is flagged correctly. But inserting something in the middle shifts every later element by one position, so those later elements — even though their actual content didn't change — can show up as "modified." This is a known limitation of index-based diffing without LCS (longest common subsequence) alignment.</p></details>
+<details class="faq-item"><summary>Are nested objects supported?</summary><p>Yes, nested objects and arrays are recursively traversed together. Nested paths are shown with dot notation (e.g. user.address.city).</p></details>
+<details class="faq-item"><summary>Is null vs undefined detected?</summary><p>null is a valid JSON value — changing null to another value is shown as modified. undefined does not exist in JSON and is treated as an add/delete (missing key).</p></details>
+<details class="faq-item"><summary>Are type changes detected?</summary><p>Any value difference, including type changes (e.g. "30" → 30), is shown as modified — including a value switching between array and non-array.</p></details>
+<details class="faq-item"><summary>Does key order matter?</summary><p>For objects, no — key order isn't significant, so reordered keys with the same values are treated as identical. For arrays, order is part of the value, so a reordered array shows the affected indices as modified.</p></details>
 <details class="faq-item"><summary>Large JSON support?</summary><p>Client-side JS handles hundreds of KB without issue. Very large files (several MB+) may cause performance slowdowns.</p></details>
-<details class="faq-item"><summary>Can I copy the diff result?</summary><p>Use browser text selection and copy for now. A copy button may be added in a future version.</p></details>
 <details class="faq-item"><summary>JSON validation included?</summary><p>Yes, each JSON is parsed before comparison. Parse errors are reported before the diff runs.</p></details>`
   },
   zh:{pageTitle:'JSON差异比较器 - 在线JSON Diff工具 | MODOO HUB',h1b:'差异比较器',sub:'粘贴两个JSON → 即时比较新增·删除·修改的键',backLink:'← 所有工具',langBtn:'🌐 日本語',labelA:'JSON A（基准）',labelB:'JSON B（对比）',btnDiff:'比较',btnClear:'清除',added:'新增',deleted:'删除',modified:'修改',same:'相同',errA:'JSON A解析错误',errB:'JSON B解析错误',
-    seoHtml:`<h2>JSON差异比较器</h2><p>即时比较两个JSON对象的差异。<strong>新增键（绿色）</strong>、<strong>删除键（红色）</strong>、<strong>修改值（蓝色）</strong>用颜色区分，快速识别变化。</p>
+    seoHtml:`<h2>JSON差异比较器</h2><p>沿相同结构同时遍历两个JSON值，按键（对象）或索引（数组）找出<strong>新增项（绿色）</strong>、<strong>删除项（红色）</strong>、<strong>修改值（蓝色）</strong>。当两侧都是对象或都是数组时会递归进入内部比较，数组会把索引0、1、2……当作键，逐个位置单独比较——因此在<code>{"tags":["a","b","c"]}</code>中，如果只有中间的"b"变成"x"，只会显示一行<code>tags.1: b → x</code>，而不是把整个数组标记为一处大改动。但由于是按索引位置对应而非LCS对齐算法，在数组中间插入新元素会导致其后所有元素都错位，可能让本身没变的元素也被错误标记为"修改"。适用于API响应变化检查、配置文件比较、数据迁移验证等场景。</p>
 <h2 class="seo-sub">常见问题</h2>
-<details class="faq-item"><summary>数组如何比较？</summary><p>数组按索引比较。顺序不同视为修改，不检测语义等价性。</p></details>
-<details class="faq-item"><summary>支持嵌套对象吗？</summary><p>支持。递归遍历嵌套对象，用点号表示嵌套路径。</p></details>
-<details class="faq-item"><summary>能检测类型变化吗？</summary><p>能。任何值的差异（包括类型变化）都会显示为修改。</p></details>
-<details class="faq-item"><summary>键的顺序有影响吗？</summary><p>没有。JSON对象键的顺序不重要，顺序不同但值相同视为相同。</p></details>
+<details class="faq-item"><summary>数组具体是如何比较的？</summary><p>数组索引会被当作对象的键，对相同索引位置的值进行比较。如果数组元素本身是对象或嵌套数组，会递归进入内部比较，因此像<code>items: [{"id":1,"v":"x"}, {"id":2,"v":"y"}]</code>这样，即使只改了数组中某个对象里的一个字段，也只会标记出那一个字段，而不是整个元素。</p></details>
+<details class="faq-item"><summary>数组中间插入或删除元素会怎样显示？</summary><p>由于比较是按索引位置对应的，在数组末尾添加或删除元素能被正确标记为新增/删除；但如果在中间插入，其后所有元素都会错位一位，这些本身内容没变的元素也可能被显示为"修改"。这是不使用LCS（最长公共子序列）对齐的按索引比较方式的已知局限。</p></details>
+<details class="faq-item"><summary>支持嵌套对象吗？</summary><p>支持。会递归同时遍历嵌套对象和数组，用点号表示嵌套路径（例如user.address.city）。</p></details>
+<details class="faq-item"><summary>null值如何处理？</summary><p>null是有效的JSON值，从null改为其他值会显示为修改。undefined在JSON中不存在，会被当作缺失的键（新增/删除）处理。</p></details>
+<details class="faq-item"><summary>能检测类型变化吗？</summary><p>能。任何值的差异（包括类型变化，例如"30" → 30）都会显示为修改，数组和非数组之间的类型变化也同样能检测到。</p></details>
+<details class="faq-item"><summary>键的顺序有影响吗？</summary><p>对象没有影响——键的顺序不重要，顺序不同但值相同视为相同。但数组的顺序本身就是值的一部分，顺序不同会导致对应索引被标记为修改。</p></details>
 <details class="faq-item"><summary>支持大型JSON吗？</summary><p>客户端JS处理数百KB没有问题，数MB以上可能性能下降。</p></details>
-<details class="faq-item"><summary>包含JSON格式验证吗？</summary><p>是的，比较前会先验证每个JSON是否可解析，并报告解析错误。</p></details>
-<details class="faq-item"><summary>null值如何处理？</summary><p>null是有效的JSON值，从null改为其他值显示为修改。</p></details>
-<details class="faq-item"><summary>可以复制比较结果吗？</summary><p>可以使用浏览器文本选择后复制。</p></details>`
+<details class="faq-item"><summary>包含JSON格式验证吗？</summary><p>是的，比较前会先验证每个JSON是否可解析，并报告解析错误。</p></details>`
   },
   ja:{pageTitle:'JSON差分比較ツール - JSON Diff | MODOO HUB',h1b:'差分比較',sub:'2つのJSONを貼り付け → 追加・削除・変更されたキーを即時比較',backLink:'← ホーム',langBtn:'🌐 한국어',labelA:'JSON A（基準）',labelB:'JSON B（比較）',btnDiff:'比較',btnClear:'クリア',added:'追加',deleted:'削除',modified:'変更',same:'同一',errA:'JSON Aのパースエラー',errB:'JSON Bのパースエラー',
-    seoHtml:`<h2>JSON差分比較ツールとは</h2><p>2つのJSONオブジェクトの差分を即時分析します。<strong>追加されたキー（緑）</strong>、<strong>削除されたキー（赤）</strong>、<strong>変更された値（青）</strong>を色分けして素早く把握できます。</p>
+    seoHtml:`<h2>JSON差分比較ツールとは</h2><p>2つのJSON値を同じ構造に沿って一緒にたどり、キー(オブジェクト)またはインデックス(配列)ごとに<strong>追加された項目(緑)</strong>、<strong>削除された項目(赤)</strong>、<strong>変更された値(青)</strong>を見つけます。両方がオブジェクト、または両方が配列の場合はその内部まで再帰的に比較し、配列はインデックス0、1、2...をキーのように扱って各位置の値を個別に比較します——そのため<code>{"tags":["a","b","c"]}</code>で中央の「b」だけが「x」に変わった場合、配列全体ではなく<code>tags.1: b → x</code>という1行だけが変更として表示されます。ただしこの方式はインデックス位置をそのまま対応させるため、配列の途中に新しい要素を挿入すると(LCS整列なしで)それ以降の要素がすべてずれ、実際には変わっていない値も「変更」として誤って表示される場合があります。APIレスポンスの変化確認、設定ファイルの比較、データ移行の検証などに役立ちます。</p>
 <h2 class="seo-sub">よくある質問</h2>
-<details class="faq-item"><summary>配列の比較はどうなりますか？</summary><p>配列はインデックス基準で比較します。順序が異なれば変更として表示されます。</p></details>
-<details class="faq-item"><summary>ネストされたオブジェクトも比較できますか？</summary><p>はい。再帰的に比較し、ネストパスはドット表記で表示します。</p></details>
-<details class="faq-item"><summary>型の変更も検出されますか？</summary><p>はい。型変更を含む値の差異はすべて変更として表示されます。</p></details>
-<details class="faq-item"><summary>キーの順序は影響しますか？</summary><p>いいえ。JSONオブジェクトのキー順序は意味がないため、順序が違っても値が同じなら同一として扱います。</p></details>
+<details class="faq-item"><summary>配列の比較は具体的にどう行われますか？</summary><p>配列のインデックスをオブジェクトのキーのように扱い、同じインデックスの値同士を比較します。配列の要素自体がオブジェクトやネストした配列である場合はその内部まで再帰的に比較するため、<code>items: [{"id":1,"v":"x"}, {"id":2,"v":"y"}]</code>のように配列内オブジェクトの1つのフィールドだけが変わった場合も、そのフィールドだけが正確に変更として表示されます。</p></details>
+<details class="faq-item"><summary>配列の途中に要素が追加・削除されるとどう表示されますか？</summary><p>インデックス位置をそのまま対応させて比較するため、配列の末尾での追加・削除は正しく追加・削除として表示されますが、途中に挿入するとそれ以降の要素がすべて1つずつずれ、実際には変わっていない値も「変更」として表示される場合があります。これはLCS(最長共通部分列)による整列を行わないインデックス比較方式の既知の制限です。</p></details>
+<details class="faq-item"><summary>ネストされたオブジェクトも比較できますか？</summary><p>はい。ネストされたオブジェクトと配列を一緒に再帰的にたどって比較します。ネストパスはドット表記で表示します(例: user.address.city)。</p></details>
+<details class="faq-item"><summary>nullはどう扱われますか？</summary><p>nullは有効なJSON値です。nullから別の値への変更は「変更」として表示されます。undefinedはJSONに存在しないため、キーなし(追加/削除)として扱われます。</p></details>
+<details class="faq-item"><summary>型の変更も検出されますか？</summary><p>はい。型変更(例: "30" → 30)を含む値の差異はすべて変更として表示され、配列と非配列の間の型変更も同様に検出されます。</p></details>
+<details class="faq-item"><summary>キーの順序は影響しますか？</summary><p>オブジェクトでは影響しません——キー順序は意味がないため、順序が違っても値が同じなら同一として扱います。ただし配列では順序自体が値の一部なので、順序が異なると該当インデックスが変更として表示されます。</p></details>
 <details class="faq-item"><summary>大きなJSONも比較できますか？</summary><p>クライアントサイドJSで数百KBは問題ありません。数MB以上は性能が低下する場合があります。</p></details>
-<details class="faq-item"><summary>JSON検証も行いますか？</summary><p>はい。比較前に各JSONのパース可否を検査し、エラーを先に報告します。</p></details>
-<details class="faq-item"><summary>nullはどう扱われますか？</summary><p>nullは有効なJSON値です。nullから別の値への変更は「変更」として表示されます。</p></details>
-<details class="faq-item"><summary>比較結果をコピーできますか？</summary><p>ブラウザのテキスト選択でコピーできます。</p></details>`
+<details class="faq-item"><summary>JSON検証も行いますか？</summary><p>はい。比較前に各JSONのパース可否を検査し、エラーを先に報告します。</p></details>`
   }
 };
 const LANGS=['ko','en','zh','ja'];
@@ -159,12 +159,17 @@ function applyLang(){
 function clearAll(){document.getElementById('jsonA').value='';document.getElementById('jsonB').value='';document.getElementById('diffResult').className='card diff-result';}
 function diffObjs(a,b,path){
   const results=[];
-  const keys=new Set([...Object.keys(a),...Object.keys(b)]);
+  const bothArr=Array.isArray(a)&&Array.isArray(b);
+  const keys=bothArr
+    ? Array.from({length:Math.max(a.length,b.length)},(_,i)=>String(i))
+    : [...new Set([...Object.keys(a),...Object.keys(b)])];
   keys.forEach(k=>{
     const fp=path?path+'.'+k:k;
-    if(!(k in a)){results.push({type:'add',path:fp,val:b[k]});}
-    else if(!(k in b)){results.push({type:'del',path:fp,val:a[k]});}
-    else if(typeof a[k]==='object'&&a[k]!==null&&typeof b[k]==='object'&&b[k]!==null&&!Array.isArray(a[k])&&!Array.isArray(b[k])){
+    const hasA=bothArr?Number(k)<a.length:(k in a);
+    const hasB=bothArr?Number(k)<b.length:(k in b);
+    if(!hasA){results.push({type:'add',path:fp,val:b[k]});}
+    else if(!hasB){results.push({type:'del',path:fp,val:a[k]});}
+    else if(typeof a[k]==='object'&&a[k]!==null&&typeof b[k]==='object'&&b[k]!==null&&Array.isArray(a[k])===Array.isArray(b[k])){
       results.push(...diffObjs(a[k],b[k],fp));
     } else {
       const av=JSON.stringify(a[k]);const bv=JSON.stringify(b[k]);
