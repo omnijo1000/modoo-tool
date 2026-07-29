@@ -39,7 +39,7 @@ input[type=file]{display:none;}
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Image Color Extractor","url":"https://modoohub.com/image-color-extractor.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Extract color palettes from images. Copy HEX/RGB codes, set number of colors. Free online image color extractor."}</script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"추출할 색상 수를 설정할 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"예, 2~20개 범위에서 추출할 색상 수를 설정할 수 있습니다."}},{"@type":"Question","name":"HEX 코드를 바로 복사할 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"색상 칩을 클릭하면 HEX 코드가 클립보드에 복사됩니다."}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"색상 추출 알고리즘은 정확히 어떻게 동작하나요?","acceptedAnswer":{"@type":"Answer","text":"이미지를 80×80px로 축소해 초기 중심점을 균등 샘플링으로 잡고, 픽셀을 가장 가까운 중심점에 배정한 뒤 평균색으로 중심점을 갱신하는 과정을 10회 반복하는 K-means 유사 클러스터링을 사용합니다."}},{"@type":"Question","name":"요청한 색상 수보다 실제로 적게 나올 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"네. 이미지의 고유 색상이 요청 수보다 적으면 여러 초기 중심점이 같은 색으로 수렴하므로, 동일 색상은 하나로 합치고 픽셀을 배정받지 못한 중심점은 결과에서 제외해 팔레트 칩 수가 설정값보다 적게 나올 수 있습니다."}},{"@type":"Question","name":"대표 색상(dominant color)과 평균 색상은 다른가요?","acceptedAnswer":{"@type":"Answer","text":"네. 대표 색상은 클러스터링으로 찾은 실제 색상 군집의 중심값이고, 평균 색상은 모든 픽셀 RGB의 단순 평균입니다."}},{"@type":"Question","name":"파일이 서버로 전송되나요?","acceptedAnswer":{"@type":"Answer","text":"아니요. Canvas의 getImageData로 픽셀 배열을 브라우저 내에서 직접 읽어 클러스터링하므로 원본 이미지가 브라우저 밖으로 전송되지 않습니다."}}]}</script>
 <meta property="og:type" content="website">
 <meta property="og:title" content="이미지 색상 추출기 - 팔레트 추출 | MODOO HUB">
 <meta property="og:description" content="이미지에서 주요 색상 팔레트를 추출. HEX/RGB 코드 복사, 색상 수 설정. 무료 온라인 이미지 색상 추출 도구.">
@@ -77,68 +77,68 @@ input[type=file]{display:none;}
     <div class="palette" id="palette"></div>
     <div style="font-size:11px;color:var(--text-dim);" id="copyHint">색상 칩을 클릭하면 HEX 코드가 복사됩니다</div>
   </div>
-  <div class="seo" id="seoDiv"><h2>이미지 색상 추출기</h2><p>이미지에서 <strong>주요 색상 팔레트</strong>를 추출합니다. 색상 수를 2~20개로 설정할 수 있으며, 색상 칩을 클릭하면 HEX 코드가 클립보드에 복사됩니다. 디자인 작업이나 색상 테마 파악에 유용합니다.</p>
+  <div class="seo" id="seoDiv"><h2>이미지 색상 추출기</h2><p>이미지를 80×80px로 축소한 뒤 Canvas getImageData로 픽셀 배열을 읽고, K-means와 유사한 방식으로 반복 군집화(10회 반복)해 주요 색상을 뽑습니다. 초기 중심점은 픽셀 배열을 요청한 색상 수만큼 균등 간격으로 샘플링해 잡고, 매 반복마다 모든 픽셀을 가장 가까운 중심점에 배정한 뒤 각 군집의 평균 RGB로 중심점을 다시 계산합니다. 이미지의 실제 고유 색상 수가 요청한 색상 수보다 적으면(단색 로고, 아이콘, 플랫 일러스트 등) 여러 중심점이 같은 색으로 수렴하거나 픽셀을 하나도 배정받지 못하는 "빈 군집"이 생길 수 있는데, 이런 경우를 그대로 표시하면 같은 색 스와치가 여러 번 겹치거나 비중 0%짜리 유령 색상 칩이 뜨게 되므로 색상별로 픽셀 수를 합산해 중복은 하나로 합치고 픽셀이 전혀 배정되지 않은 군집은 결과에서 제외합니다.</p>
 <h2 class="seo-sub">자주 묻는 질문</h2>
-<details class="faq-item"><summary>어떤 이미지에서 색상을 추출할 수 있나요?</summary><p>PNG, JPG, WebP, GIF 등 브라우저에서 지원하는 이미지 형식 모두 지원합니다.</p></details>
-<details class="faq-item"><summary>HEX 코드를 복사하려면?</summary><p>색상 칩을 클릭하면 HEX 코드가 클립보드에 복사됩니다.</p></details>
-<details class="faq-item"><summary>색상 추출 알고리즘은?</summary><p>이미지를 다운샘플링한 후 K-means 유사 클러스터링으로 주요 색상을 추출합니다.</p></details>
+<details class="faq-item"><summary>색상 추출 알고리즘은 정확히 어떻게 동작하나요?</summary><p>이미지를 80×80px로 축소해 픽셀 수를 줄인 뒤, 요청한 색상 수만큼 초기 중심점을 균등 샘플링으로 잡고, "모든 픽셀을 가장 가까운 중심점에 배정 → 각 군집의 평균색으로 중심점 갱신"을 10회 반복하는 K-means 유사 클러스터링을 사용합니다.</p></details>
+<details class="faq-item"><summary>요청한 색상 수보다 실제로 적게 나올 수 있나요?</summary><p>네. 이미지의 고유 색상이 요청 수보다 적으면(예: 단색 배경 로고에 색상 수 10 설정) 여러 초기 중심점이 같은 색으로 수렴합니다. 이 경우 동일 색상은 하나로 합치고 픽셀을 전혀 배정받지 못한 중심점은 결과에서 제외하므로, 최종 팔레트 칩 수가 설정값보다 적게 나오는 것이 정상입니다.</p></details>
+<details class="faq-item"><summary>대표 색상(dominant color)과 평균 색상은 다른가요?</summary><p>네, 다릅니다. 대표 색상은 클러스터링으로 찾은, 이미지에서 실제로 많이 나타나는 색상 군집의 중심값이고, 평균 색상은 모든 픽셀 RGB를 단순 산술 평균한 값입니다. 예를 들어 빨강과 파랑이 반반인 이미지는 평균 색상이 보라색으로 나오지만, 이 도구가 추출하는 팔레트에는 실제 이미지에 존재하는 빨강과 파랑이 각각 표시됩니다.</p></details>
+<details class="faq-item"><summary>투명 픽셀도 포함되나요?</summary><p>아니요. 알파 채널 값이 128 이하인(50% 미만 불투명도) 픽셀은 군집화 대상에서 제외됩니다. PNG 투명 배경 이미지에서 배경이 팔레트에 섞여 나오는 것을 막기 위한 처리입니다.</p></details>
 <details class="faq-item"><summary>파일이 서버로 전송되나요?</summary><p>아니요. 이미지를 80×80px로 축소한 뒤 Canvas의 getImageData로 픽셀 배열을 직접 읽어 클러스터링하므로, 원본 이미지가 브라우저 밖으로 전송되지 않습니다.</p></details>
-<details class="faq-item"><summary>비율(%)은 무엇을 나타내나요?</summary><p>해당 색상이 이미지에서 차지하는 비율입니다.</p></details>
-<details class="faq-item"><summary>투명 픽셀도 포함되나요?</summary><p>알파값이 낮은 투명 픽셀은 추출에서 제외됩니다.</p></details>
-<details class="faq-item"><summary>디자인 작업에 어떻게 활용하나요?</summary><p>사진에서 브랜드 컬러나 테마 컬러를 파악하는 데 유용합니다.</p></details>
-<details class="faq-item"><summary>RGB 값도 볼 수 있나요?</summary><p>현재 HEX 코드만 제공됩니다. color-converter 도구로 변환할 수 있습니다.</p></details><details class="faq-item"><summary>대표 색상(dominant color)과 평균 색상은 다른가요?</summary><p>네, 다릅니다. 대표 색상은 이미지에서 가장 많이 나타나는 색상 클러스터이고, 평균 색상은 모든 픽셀 값을 단순 평균한 것입니다. 이 도구가 추출하는 팔레트는 클러스터링 기반의 대표 색상들입니다.</p></details></div>
+<details class="faq-item"><summary>비율(%)은 무엇을 나타내나요?</summary><p>해당 색상 군집에 배정된 픽셀 수를 전체(불투명) 픽셀 수로 나눈 값입니다. 80×80으로 축소된 샘플 기준이므로 원본 해상도의 정확한 픽셀 비율과는 약간 다를 수 있습니다.</p></details>
+<details class="faq-item"><summary>RGB 값도 볼 수 있나요?</summary><p>현재는 HEX 코드만 제공됩니다. RGB나 HSL 등 다른 형식이 필요하면 color-converter 도구로 변환할 수 있습니다.</p></details>
+<details class="faq-item"><summary>어떤 이미지 형식을 지원하나요?</summary><p>PNG, JPG, WebP, GIF 등 브라우저의 &lt;img&gt; 태그와 Canvas가 디코딩할 수 있는 모든 이미지 형식을 지원합니다.</p></details></div>
 </main>
 <script>
 const LANGS=['ko','en','zh','ja'];
 let _lang='ko',_origImg=null;
 const _i18n={
   ko:{h1b:'색상 추출',sub:'이미지에서 주요 색상 팔레트를 추출합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',pageTitle:'이미지 색상 추출기 | MODOO HUB',dzText:'이미지를 드래그하거나 클릭하여 업로드',lblCount:'색상 수',btnExtract:'추출',lblPalette:'팔레트',copyHint:'색상 칩을 클릭하면 HEX 코드가 복사됩니다',copied:'복사됨!',
-    seoHtml:`<h2>이미지 색상 추출기</h2><p>이미지에서 <strong>주요 색상 팔레트</strong>를 추출합니다. 색상 수를 2~20개로 설정할 수 있으며, 색상 칩을 클릭하면 HEX 코드가 클립보드에 복사됩니다. 디자인 작업이나 색상 테마 파악에 유용합니다.</p>
+    seoHtml:`<h2>이미지 색상 추출기</h2><p>이미지를 80×80px로 축소한 뒤 Canvas getImageData로 픽셀 배열을 읽고, K-means와 유사한 방식으로 반복 군집화(10회 반복)해 주요 색상을 뽑습니다. 초기 중심점은 픽셀 배열을 요청한 색상 수만큼 균등 간격으로 샘플링해 잡고, 매 반복마다 모든 픽셀을 가장 가까운 중심점에 배정한 뒤 각 군집의 평균 RGB로 중심점을 다시 계산합니다. 이미지의 실제 고유 색상 수가 요청한 색상 수보다 적으면(단색 로고, 아이콘, 플랫 일러스트 등) 여러 중심점이 같은 색으로 수렴하거나 픽셀을 하나도 배정받지 못하는 "빈 군집"이 생길 수 있는데, 이런 경우를 그대로 표시하면 같은 색 스와치가 여러 번 겹치거나 비중 0%짜리 유령 색상 칩이 뜨게 되므로 색상별로 픽셀 수를 합산해 중복은 하나로 합치고 픽셀이 전혀 배정되지 않은 군집은 결과에서 제외합니다.</p>
 <h2 class="seo-sub">자주 묻는 질문</h2>
-<details class="faq-item"><summary>어떤 이미지에서 색상을 추출할 수 있나요?</summary><p>PNG, JPG, WebP, GIF 등 브라우저에서 지원하는 이미지 형식 모두 지원합니다.</p></details>
-<details class="faq-item"><summary>HEX 코드를 복사하려면?</summary><p>색상 칩을 클릭하면 HEX 코드가 클립보드에 복사됩니다.</p></details>
-<details class="faq-item"><summary>색상 추출 알고리즘은?</summary><p>이미지를 다운샘플링한 후 K-means 유사 클러스터링으로 주요 색상을 추출합니다.</p></details>
+<details class="faq-item"><summary>색상 추출 알고리즘은 정확히 어떻게 동작하나요?</summary><p>이미지를 80×80px로 축소해 픽셀 수를 줄인 뒤, 요청한 색상 수만큼 초기 중심점을 균등 샘플링으로 잡고, "모든 픽셀을 가장 가까운 중심점에 배정 → 각 군집의 평균색으로 중심점 갱신"을 10회 반복하는 K-means 유사 클러스터링을 사용합니다.</p></details>
+<details class="faq-item"><summary>요청한 색상 수보다 실제로 적게 나올 수 있나요?</summary><p>네. 이미지의 고유 색상이 요청 수보다 적으면(예: 단색 배경 로고에 색상 수 10 설정) 여러 초기 중심점이 같은 색으로 수렴합니다. 이 경우 동일 색상은 하나로 합치고 픽셀을 전혀 배정받지 못한 중심점은 결과에서 제외하므로, 최종 팔레트 칩 수가 설정값보다 적게 나오는 것이 정상입니다.</p></details>
+<details class="faq-item"><summary>대표 색상(dominant color)과 평균 색상은 다른가요?</summary><p>네, 다릅니다. 대표 색상은 클러스터링으로 찾은, 이미지에서 실제로 많이 나타나는 색상 군집의 중심값이고, 평균 색상은 모든 픽셀 RGB를 단순 산술 평균한 값입니다. 예를 들어 빨강과 파랑이 반반인 이미지는 평균 색상이 보라색으로 나오지만, 이 도구가 추출하는 팔레트에는 실제 이미지에 존재하는 빨강과 파랑이 각각 표시됩니다.</p></details>
+<details class="faq-item"><summary>투명 픽셀도 포함되나요?</summary><p>아니요. 알파 채널 값이 128 이하인(50% 미만 불투명도) 픽셀은 군집화 대상에서 제외됩니다. PNG 투명 배경 이미지에서 배경이 팔레트에 섞여 나오는 것을 막기 위한 처리입니다.</p></details>
 <details class="faq-item"><summary>파일이 서버로 전송되나요?</summary><p>아니요. 이미지를 80×80px로 축소한 뒤 Canvas의 getImageData로 픽셀 배열을 직접 읽어 클러스터링하므로, 원본 이미지가 브라우저 밖으로 전송되지 않습니다.</p></details>
-<details class="faq-item"><summary>비율(%)은 무엇을 나타내나요?</summary><p>해당 색상이 이미지에서 차지하는 비율입니다.</p></details>
-<details class="faq-item"><summary>투명 픽셀도 포함되나요?</summary><p>알파값이 낮은 투명 픽셀은 추출에서 제외됩니다.</p></details>
-<details class="faq-item"><summary>디자인 작업에 어떻게 활용하나요?</summary><p>사진에서 브랜드 컬러나 테마 컬러를 파악하는 데 유용합니다.</p></details>
-<details class="faq-item"><summary>RGB 값도 볼 수 있나요?</summary><p>현재 HEX 코드만 제공됩니다. color-converter 도구로 변환할 수 있습니다.</p></details><details class="faq-item"><summary>대표 색상(dominant color)과 평균 색상은 다른가요?</summary><p>네, 다릅니다. 대표 색상은 이미지에서 가장 많이 나타나는 색상 클러스터이고, 평균 색상은 모든 픽셀 값을 단순 평균한 것입니다. 이 도구가 추출하는 팔레트는 클러스터링 기반의 대표 색상들입니다.</p></details>`
+<details class="faq-item"><summary>비율(%)은 무엇을 나타내나요?</summary><p>해당 색상 군집에 배정된 픽셀 수를 전체(불투명) 픽셀 수로 나눈 값입니다. 80×80으로 축소된 샘플 기준이므로 원본 해상도의 정확한 픽셀 비율과는 약간 다를 수 있습니다.</p></details>
+<details class="faq-item"><summary>RGB 값도 볼 수 있나요?</summary><p>현재는 HEX 코드만 제공됩니다. RGB나 HSL 등 다른 형식이 필요하면 color-converter 도구로 변환할 수 있습니다.</p></details>
+<details class="faq-item"><summary>어떤 이미지 형식을 지원하나요?</summary><p>PNG, JPG, WebP, GIF 등 브라우저의 &lt;img&gt; 태그와 Canvas가 디코딩할 수 있는 모든 이미지 형식을 지원합니다.</p></details>`
   },
   en:{h1b:'Color Extract',sub:'Extract a color palette from any image',backLink:'← All Tools',langBtn:'🌐 中文',pageTitle:'Image Color Extractor | MODOO HUB',dzText:'Drag & drop image or click to upload',lblCount:'Colors',btnExtract:'Extract',lblPalette:'Palette',copyHint:'Click a chip to copy the HEX code',copied:'Copied!',
-    seoHtml:`<h2>Image Color Extractor</h2><p>Extract the <strong>dominant color palette</strong> from any image. Choose 2–20 colors. Click a chip to copy the HEX code to your clipboard. Useful for design work and identifying color themes.</p>
+    seoHtml:`<h2>Image Color Extractor</h2><p>The image is downsampled to 80×80px, read as a pixel array via Canvas's getImageData, then clustered with a K-means-like algorithm run for 10 iterations to find dominant colors. Initial cluster centers are sampled at even intervals across the pixel array — as many as the color count you request — and each iteration assigns every pixel to its nearest center, then recomputes each center as the average RGB of its assigned pixels. When an image has fewer genuinely distinct colors than the requested count (a flat-color logo, icon, or illustration, for example), several centers can converge on the same color, or end up with zero pixels assigned at all. Showing that raw result would produce duplicate swatches of the same color or "ghost" chips at 0%, so pixel counts are summed per unique color and any center left with zero assigned pixels is dropped from the results.</p>
 <h2 class="seo-sub">FAQ</h2>
-<details class="faq-item"><summary>Supported image formats?</summary><p>PNG, JPG, WebP, GIF — any browser-supported image.</p></details>
-<details class="faq-item"><summary>How to copy HEX?</summary><p>Click a color chip — the HEX code is copied to clipboard.</p></details>
-<details class="faq-item"><summary>What algorithm is used?</summary><p>Images are downsampled then dominant colors are found via K-means-like clustering.</p></details>
+<details class="faq-item"><summary>Exactly how does the color extraction algorithm work?</summary><p>The image is downsampled to 80×80px to reduce the pixel count, initial centers are sampled at even intervals across the pixel array (one per requested color), and then "assign every pixel to its nearest center → recompute each center as its cluster's average color" runs for 10 iterations — a K-means-like clustering approach.</p></details>
+<details class="faq-item"><summary>Can I get fewer colors than the count I requested?</summary><p>Yes. If the image has fewer unique colors than requested (e.g. a flat-color logo with the count set to 10), multiple initial centers converge on the same color. Identical colors are merged and centers left with zero assigned pixels are dropped, so it's normal for the final palette to have fewer chips than the number you set.</p></details>
+<details class="faq-item"><summary>Is a dominant color different from an average color?</summary><p>Yes. The dominant color is the center of a cluster found through clustering — colors that genuinely occur often in the image. The average color is a simple arithmetic mean of every pixel's RGB. An image that's half red and half blue, for instance, has an average color of purple, but this tool's palette shows the actual red and blue present in the image.</p></details>
+<details class="faq-item"><summary>Are transparent pixels included?</summary><p>No. Pixels with an alpha channel value of 128 or below (under 50% opacity) are excluded from clustering — this prevents transparent PNG backgrounds from bleeding into the palette.</p></details>
 <details class="faq-item"><summary>Is my file sent to a server?</summary><p>No. The image is downsampled to 80×80px and read directly as a pixel array via Canvas's getImageData for clustering, so the original image never leaves your browser.</p></details>
-<details class="faq-item"><summary>What does the % mean?</summary><p>The percentage of pixels in the image that map to that color cluster.</p></details>
-<details class="faq-item"><summary>Are transparent pixels included?</summary><p>Low-alpha pixels are excluded from extraction.</p></details>
-<details class="faq-item"><summary>Design use cases?</summary><p>Identifying brand colors or color themes from photos.</p></details>
-<details class="faq-item"><summary>Can I get RGB values?</summary><p>Currently HEX only. Use the color-converter tool to convert.</p></details><details class="faq-item"><summary>Is a dominant color different from an average color?</summary><p>Yes. The dominant color is the most frequent color cluster in the image, while the average color is a simple mean of every pixel. The palette this tool extracts is made of clustering-based dominant colors.</p></details>`
+<details class="faq-item"><summary>What does the % mean?</summary><p>The number of pixels assigned to that color cluster divided by the total opaque pixel count. Since this is measured on the 80×80 downsampled sample, it can differ slightly from the exact pixel ratio at the original resolution.</p></details>
+<details class="faq-item"><summary>Can I get RGB values?</summary><p>Currently HEX only. Use the color-converter tool if you need RGB, HSL, or other formats.</p></details>
+<details class="faq-item"><summary>Which image formats are supported?</summary><p>PNG, JPG, WebP, GIF, and any image format your browser's &lt;img&gt; tag and Canvas can decode.</p></details>`
   },
   zh:{h1b:'颜色提取',sub:'从图像中提取主要色彩调色板',backLink:'← 所有工具',langBtn:'🌐 日本語',pageTitle:'图像颜色提取器 | MODOO HUB',dzText:'拖拽图片或点击上传',lblCount:'颜色数量',btnExtract:'提取',lblPalette:'调色板',copyHint:'点击色块复制HEX颜色代码',copied:'已复制！',
-    seoHtml:`<h2>图像颜色提取器</h2><p>从任意图像中提取<strong>主要色彩调色板</strong>。可选择提取2~20种颜色，点击色块即可将HEX颜色代码复制到剪贴板，适合设计工作和色彩主题分析。</p>
+    seoHtml:`<h2>图像颜色提取器</h2><p>图像先被缩小到80×80px，通过Canvas的getImageData读取像素数组，再用类K-means的算法迭代聚类（10次迭代）提取主要颜色。初始聚类中心按等间隔从像素数组中采样，数量等于你设定的颜色数；每次迭代都会把所有像素分配给最近的中心，再用各聚类的平均RGB重新计算中心位置。如果图像实际的独特颜色数少于设定的颜色数（例如纯色Logo、图标、扁平插画），就会出现多个中心收敛到同一颜色，或某个中心完全分不到像素的"空聚类"情况——如果原样显示，会出现重复的同色色块或占比0%的"幽灵"色块，因此会按颜色合并像素计数，把相同颜色归为一个，并把完全没有分到像素的聚类从结果中剔除。</p>
 <h2 class="seo-sub">常见问题</h2>
-<details class="faq-item"><summary>支持哪些图像格式？</summary><p>PNG、JPG、WebP、GIF等浏览器支持的所有图像格式。</p></details>
-<details class="faq-item"><summary>如何复制HEX代码？</summary><p>点击色块即可将HEX代码复制到剪贴板。</p></details>
-<details class="faq-item"><summary>使用什么算法提取颜色？</summary><p>图像降采样后通过类K-means聚类提取主要颜色。</p></details>
+<details class="faq-item"><summary>颜色提取算法具体是怎么运作的？</summary><p>先把图像缩小到80×80px以减少像素数量，按设定的颜色数在像素数组中等间隔采样得到初始聚类中心，然后重复"把所有像素分配给最近的中心→用各聚类的平均色重新计算中心"这一过程10次，这是一种类K-means聚类方法。</p></details>
+<details class="faq-item"><summary>实际提取的颜色数会比设置的少吗？</summary><p>会。如果图像的独特颜色数少于设置值（例如纯色背景的Logo却设置颜色数为10），多个初始中心会收敛到同一颜色。此时相同颜色会被合并，完全没分到像素的中心会被剔除，因此最终调色板的色块数少于设置值是正常现象。</p></details>
+<details class="faq-item"><summary>代表色（主色）和平均色一样吗？</summary><p>不一样。代表色是通过聚类找到的、图像中实际频繁出现的颜色簇中心；平均色则是所有像素RGB的简单算术平均。例如一张一半红色一半蓝色的图像，平均色会算出紫色，但本工具提取的调色板会分别显示图像中真实存在的红色和蓝色。</p></details>
+<details class="faq-item"><summary>透明像素会被包含吗？</summary><p>不会。Alpha通道值在128以下（不透明度低于50%）的像素会被排除在聚类之外，这是为了防止PNG透明背景的颜色混入调色板。</p></details>
 <details class="faq-item"><summary>文件会上传服务器吗？</summary><p>不会。图像会先缩小到 80×80px，再通过 Canvas 的 getImageData 直接读取像素数组进行聚类，原始图像不会离开浏览器。</p></details>
-<details class="faq-item"><summary>百分比代表什么？</summary><p>该颜色在图像中所占像素的比例。</p></details>
-<details class="faq-item"><summary>透明像素会被包含吗？</summary><p>低Alpha值的透明像素会被排除在提取之外。</p></details>
-<details class="faq-item"><summary>设计应用场景？</summary><p>从照片中识别品牌色或主题色。</p></details>
-<details class="faq-item"><summary>可以查看RGB值吗？</summary><p>目前仅提供HEX代码，可使用color-converter工具转换。</p></details><details class="faq-item"><summary>代表色（主色）和平均色一样吗？</summary><p>不一样。代表色是图像中出现频率最高的颜色簇，平均色则是所有像素值的简单平均。本工具提取的调色板是基于聚类的代表色。</p></details>`
+<details class="faq-item"><summary>百分比代表什么？</summary><p>分配到该颜色簇的像素数除以全部不透明像素总数。由于是基于缩小后的80×80样本计算的，可能与原始分辨率下的精确像素比例略有差异。</p></details>
+<details class="faq-item"><summary>可以查看RGB值吗？</summary><p>目前仅提供HEX代码，如需RGB、HSL等格式可使用color-converter工具转换。</p></details>
+<details class="faq-item"><summary>支持哪些图像格式？</summary><p>PNG、JPG、WebP、GIF，以及浏览器&lt;img&gt;标签和Canvas能够解码的所有图像格式。</p></details>`
   },
   ja:{h1b:'カラー抽出',sub:'画像からメインカラーパレットを抽出',backLink:'← ホーム',langBtn:'🌐 한국어',pageTitle:'画像カラー抽出ツール | MODOO HUB',dzText:'画像をドラッグまたはクリックしてアップロード',lblCount:'カラー数',btnExtract:'抽出',lblPalette:'パレット',copyHint:'チップをクリックするとHEXコードがコピーされます',copied:'コピー済み！',
-    seoHtml:`<h2>画像カラー抽出ツール</h2><p>任意の画像から<strong>主要カラーパレット</strong>を抽出します。2〜20色を選択でき、チップをクリックするとHEXコードがクリップボードにコピーされます。デザイン作業やカラーテーマの把握に役立ちます。</p>
+    seoHtml:`<h2>画像カラー抽出ツールとは</h2><p>画像を80×80pxに縮小してCanvasのgetImageDataでピクセル配列を読み取り、K-means類似のアルゴリズムで10回反復してクラスタリングし主要色を抽出します。初期中心点はリクエストされた色数分だけピクセル配列から等間隔でサンプリングし、各反復ですべてのピクセルを最も近い中心点に割り当てた後、各クラスターの平均RGBで中心点を再計算します。画像の実際の固有色数がリクエストした色数より少ない場合(単色ロゴ、アイコン、フラットなイラストなど)、複数の中心点が同じ色に収束したり、ピクセルが1つも割り当てられない「空クラスター」が発生することがあります。これをそのまま表示すると同じ色のスウォッチが重複したり、割合0%の「幽霊」カラーチップが表示されてしまうため、色ごとにピクセル数を合算して重複は1つにまとめ、ピクセルが全く割り当てられなかったクラスターは結果から除外しています。</p>
 <h2 class="seo-sub">よくある質問</h2>
-<details class="faq-item"><summary>対応フォーマットは？</summary><p>PNG・JPG・WebP・GIFなどブラウザがサポートするすべての画像形式。</p></details>
-<details class="faq-item"><summary>HEXコードをコピーするには？</summary><p>カラーチップをクリックするとクリップボードにHEXコードがコピーされます。</p></details>
-<details class="faq-item"><summary>どのアルゴリズムを使用していますか？</summary><p>画像をダウンサンプリングし、K-means類似クラスタリングで主要色を抽出します。</p></details>
-<details class="faq-item"><summary>ファイルはサーバーに送信されますか？</summary><p>いいえ。画像を80×80pxに縮小した上でCanvasのgetImageDataでピクセル配列を直接読み取りクラスタリングするため、元の画像がブラウザの外に送信されることはありません。</p></details>
-<details class="faq-item"><summary>%は何を示していますか？</summary><p>そのカラークラスターに分類されるピクセルの割合です。</p></details>
-<details class="faq-item"><summary>透明ピクセルは含まれますか？</summary><p>Alpha値が低い透明ピクセルは抽出から除外されます。</p></details>
-<details class="faq-item"><summary>デザインでの使用例は？</summary><p>写真からブランドカラーやテーマカラーを特定するのに役立ちます。</p></details>
-<details class="faq-item"><summary>RGB値も確認できますか？</summary><p>現在はHEXのみです。color-converterツールで変換できます。</p></details><details class="faq-item"><summary>代表色(ドミナントカラー)と平均色は違いますか？</summary><p>はい、異なります。代表色は画像内で最も多く出現する色のクラスターで、平均色は全ピクセルの単純平均です。このツールが抽出するパレットはクラスタリングに基づく代表色です。</p></details>`
+<details class="faq-item"><summary>カラー抽出アルゴリズムは具体的にどう動作しますか?</summary><p>画像を80×80pxに縮小してピクセル数を減らし、リクエストされた色数分だけ初期中心点を等間隔サンプリングで設定した後、「すべてのピクセルを最も近い中心点に割り当て→各クラスターの平均色で中心点を更新」を10回繰り返す、K-means類似のクラスタリング手法を使用します。</p></details>
+<details class="faq-item"><summary>リクエストした色数より実際の色数が少なくなることはありますか?</summary><p>はい。画像の固有色数がリクエスト数より少ない場合(例:単色背景のロゴに色数10を設定)、複数の初期中心点が同じ色に収束します。この場合、同一色は1つにまとめられ、ピクセルが全く割り当てられなかった中心点は結果から除外されるため、最終的なパレットのチップ数が設定値より少なくなるのは正常な動作です。</p></details>
+<details class="faq-item"><summary>代表色(ドミナントカラー)と平均色は違いますか?</summary><p>はい、異なります。代表色はクラスタリングで見つけた、画像内で実際に多く出現する色クラスターの中心値で、平均色は全ピクセルのRGBを単純算術平均した値です。例えば赤と青が半々の画像は平均色が紫になりますが、このツールが抽出するパレットには画像に実際に存在する赤と青がそれぞれ表示されます。</p></details>
+<details class="faq-item"><summary>透明ピクセルは含まれますか?</summary><p>いいえ。アルファチャンネル値が128以下(不透明度50%未満)のピクセルはクラスタリング対象から除外されます。PNGの透明背景がパレットに混入するのを防ぐための処理です。</p></details>
+<details class="faq-item"><summary>ファイルはサーバーに送信されますか?</summary><p>いいえ。画像を80×80pxに縮小した上でCanvasのgetImageDataでピクセル配列を直接読み取りクラスタリングするため、元の画像がブラウザの外に送信されることはありません。</p></details>
+<details class="faq-item"><summary>%は何を示していますか?</summary><p>そのカラークラスターに割り当てられたピクセル数を、不透明ピクセルの総数で割った値です。80×80に縮小したサンプルを基準にしているため、元の解像度での正確なピクセル比率とは若干異なる場合があります。</p></details>
+<details class="faq-item"><summary>RGB値も確認できますか?</summary><p>現在はHEXのみです。RGBやHSLなど他の形式が必要な場合はcolor-converterツールで変換できます。</p></details>
+<details class="faq-item"><summary>どの画像形式に対応していますか?</summary><p>PNG、JPG、WebP、GIFなど、ブラウザの&lt;img&gt;タグとCanvasがデコードできるすべての画像形式に対応します。</p></details>`
   }
 };
 function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
@@ -180,8 +180,9 @@ function extract(){
   const totPx=pixels.length;const clusters=Array.from({length:k},()=>0);
   pixels.forEach(p=>{let bi=0,bd=Infinity;centers.forEach((c,i)=>{const d=colorDist(p,c);if(d<bd){bd=d;bi=i;}});clusters[bi]++;});
   const palette=document.getElementById('palette');palette.innerHTML='';
-  centers.map((c,i)=>({c,cnt:clusters[i]})).sort((a,b)=>b.cnt-a.cnt).forEach(({c,cnt})=>{
-    const hex=toHex(c[0],c[1],c[2]);
+  const merged={};
+  centers.forEach((c,i)=>{const cnt=clusters[i];if(!cnt)return;const hex=toHex(c[0],c[1],c[2]);merged[hex]=(merged[hex]||0)+cnt;});
+  Object.entries(merged).sort((a,b)=>b[1]-a[1]).forEach(([hex,cnt])=>{
     const pct=(cnt/totPx*100).toFixed(1);
     const chip=document.createElement('div');chip.className='color-chip';
     chip.innerHTML=`<div class="swatch" style="background:${hex}"></div><div class="info"><span class="hex">${hex}</span><span class="pct">${pct}%</span></div>`;
