@@ -157,19 +157,19 @@ rsa-key-generator(버그도 수정 — usageSelect 드롭다운 옵션이 "서�
 ### 완료 (3차 배치 16/N, content-depth-audit 브랜치에 커밋됨 — 커밋 244bdb4)
 image-dpi-checker(버그도 수정 — XResolution/YResolution을 읽으면서 ResolutionUnit 태그(0x0128)를 전혀 확인하지 않아, cm 단위(3)로 기록된 파일은 실제 300 DPI인데 118 DPI로 잘못 표시되던 문제, 합성 JPEG+EXIF 버퍼로 재현 확인 후 cm→inch(×2.54) 변환 추가), serp-snippet-preview(버그 3개 수정 — ①모바일 미리보기 "3 min read"가 언어 무관 하드코딩 영어였던 것 i18n 처리, ②titleWarn/descWarn 문구가 4개 언어 전부 정의만 되고 실제로는 어디에도 쓰이지 않던 죽은 코드를 실제 경고 문구로 연결, ③샘플 텍스트의 도구 개수가 언어마다(334/335) 다르고 같은 언어 내 제목·설명끼리도 불일치하던 것을 "300+"로 통일. 이 파일도 원래부터 FAQ 45개(9x5) 상태였던 것 8개로 정리), text-encryptor(버그도 수정 — Caesar 암호 이동값 계산이 고정 오프셋(+26/+52) 방식이라 "1-25" 라벨과 달리 실제로는 범위 제한이 전혀 없는 shift 입력창에 25를 크게 벗어난 값(예: -30, 100)을 넣으면 알파벳이 아닌 깨진 문자가 나오고 복호화도 원문으로 안 돌아오던 문제를 node로 n=-60~60 전수 재현 후 확인, ((x%26)+26)%26 방식으로 교체해 임의의 정수 shift에서도 항상 정확히 왕복되도록 수정 + 0을 입력해도 3으로 강제 치환되던 falsy-zero 버그도 Number.isNaN 체크로 수정. 이 파일도 원래부터 FAQ 45개(9x5) 상태였던 것 8개로 정리)
 
+### 완료 (3차 배치 17/N, content-depth-audit 브랜치에 커밋됨 — 커밋 2a59205)
+pdf-ocr(버그도 수정 — 텍스트 레이어 유무를 첫 페이지 하나만 샘플링해 문서 전체에 적용하던 문제, 디지털 표지+스캔 본문처럼 혼합된 문서에서 페이지별로 잘못된 처리 방식이 적용되던 것을 페이지마다 개별 판정하도록 수정 + 상태 메시지 3곳("텍스트 레이어 감지...", "Tesseract.js 로드 중...", "완료!") 하드코딩 한국어를 i18n 처리), image-dimension-checker(버그 3개 수정 — ①파일명을 이스케이프 없이 innerHTML에 삽입해 sitemap-extractor와 동일한 DOM 삽입 취약점 존재, escapeHtml 추가, ②손상된 이미지 로드 실패 시 아무 피드백도 없이 조용히 사라지던 것을 에러 카드로 표시, ③확장자 없는 SVG 파일의 MIME 서브타입을 그대로 써서 "SVG+XML"로 표시되던 것을 "SVG"로 수정), lorem-ipsum-generator(버그도 수정 — 한국어 "단어" 모드의 KO_WORDS가 실제로는 긴 한글 문자열을 `.split('')`로 낱글자 144개로 쪼갠 배열이라 "가 지 하 마 러"처럼 의미 없는 음절 나열이 생성되던 문제를 node로 재현 확인, 실제 한국어 단어 배열로 교체해 "마음 새로운 빠른 넓은" 같은 정상 단어 생성 확인)
+
 ## 3차 스캔 진행 현황 (2026-07-30 기준)
 
-**완료: 48개 / 70개** (batch 1~16)
-✅ json-schema-validator, ico-converter, image-prompt-generator, markdown-chat-exporter, xml-to-json, pdf-size-analyzer, hash-checker, regex-generator, prompt-template-generator, curl-generator, ngram-analyzer, json-schema-generator, png-to-svg, yaml-to-json, pdf-metadata-remover, curl-parser, text-similarity-checker, webhook-tester, time-zone-meeting-planner, image-color-extractor, open-graph-preview, pdf-word-counter, webhook-generator, avif-to-jpg, api-tester, bcrypt-validator, regex-cheatsheet, keyword-cannibalization-checker, bcrypt-generator, national-pension-calculator, nanoid-generator, keyword-difficulty-estimator, exif-viewer, slug-generator, json-diff, graphql-formatter, hmac-generator, uuid-generator, meeting-cost-calculator, unicode-converter, heic-to-jpg, transparent-background-maker, rsa-key-generator, sitemap-extractor, ulid-generator, image-dpi-checker, serp-snippet-preview, text-encryptor
+**완료: 51개 / 70개** (batch 1~17)
+✅ json-schema-validator, ico-converter, image-prompt-generator, markdown-chat-exporter, xml-to-json, pdf-size-analyzer, hash-checker, regex-generator, prompt-template-generator, curl-generator, ngram-analyzer, json-schema-generator, png-to-svg, yaml-to-json, pdf-metadata-remover, curl-parser, text-similarity-checker, webhook-tester, time-zone-meeting-planner, image-color-extractor, open-graph-preview, pdf-word-counter, webhook-generator, avif-to-jpg, api-tester, bcrypt-validator, regex-cheatsheet, keyword-cannibalization-checker, bcrypt-generator, national-pension-calculator, nanoid-generator, keyword-difficulty-estimator, exif-viewer, slug-generator, json-diff, graphql-formatter, hmac-generator, uuid-generator, meeting-cost-calculator, unicode-converter, heic-to-jpg, transparent-background-maker, rsa-key-generator, sitemap-extractor, ulid-generator, image-dpi-checker, serp-snippet-preview, text-encryptor, pdf-ocr, image-dimension-checker, lorem-ipsum-generator
 
 **주의**: `grep -c 'class="faq-item"' 파일명`은 "매칭되는 줄 수"를 세는 것이라, ko/en/zh/ja seoHtml이 한 줄짜리 템플릿 리터럴로 저장된 파일에서는 실제 개수보다 훨씬 적게 나올 수 있음(예: 40개인데 5로 표시됨). 반드시 `grep -o 'class="faq-item"' 파일명 | wc -l`로 실제 occurrence 개수를 셀 것. 또한 이 카운트는 배치 시작 전 반드시 확인 — 과거 콘텐츠(exif-viewer, slug-generator, unicode-converter, serp-snippet-preview, text-encryptor 등)에 원래부터 FAQ 개수가 8개가 아니었던 사례가 반복적으로 있었음.
 
-**남은 22개 (worst-first, char count)** — 다음 배치는 여기서부터 3개씩:
+**남은 19개 (worst-first, char count)** — 다음 배치는 여기서부터 3개씩:
 ```
-868  pdf-ocr.html                          ⬜ 다음 배치 시작점
-872  image-dimension-checker.html
-878  lorem-ipsum-generator.html
-880  sentence-counter.html
+880  sentence-counter.html                ⬜ 다음 배치 시작점
 883  json-path-tester.html
 890  tailwind-color-generator.html
 896  text-reverser.html
