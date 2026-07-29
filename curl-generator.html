@@ -42,7 +42,7 @@ input[type=checkbox]{accent-color:var(--cyan);}
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6334638921720175" crossorigin="anonymous"></script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"cURL Generator","url":"https://modoohub.com/curl-generator.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Generate cURL commands from HTTP request parameters. Set method, headers, body, and authentication."}</script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"cURL 명령어 생성기는 어떻게 사용하나요?","acceptedAnswer":{"@type":"Answer","text":"URL, HTTP 메서드, 헤더, 본문을 입력하면 해당 설정에 맞는 cURL 명령어가 자동으로 생성됩니다."}},{"@type":"Question","name":"인증 헤더도 추가할 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"Bearer Token 옵션으로 Authorization 헤더를 간편하게 추가하거나, 직접 헤더를 추가할 수 있습니다."}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"헤더 값에 아포스트로피(')가 있으면 어떻게 되나요?","acceptedAnswer":{"@type":"Answer","text":"생성기가 헤더 값을 작은따옴표로 감쌀 때 값 안의 아포스트로피를 이스케이프하지 않아, 따옴표가 중간에 끊어져 터미널 실행 시 오류가 나거나 의도와 다르게 실행될 수 있습니다."}},{"@type":"Question","name":"본문(-d)의 작은따옴표는 안전하게 처리되나요?","acceptedAnswer":{"@type":"Answer","text":"네. 본문 텍스트의 작은따옴표는 자동으로 이스케이프되어 셸에서 안전하게 동작합니다. 이 처리는 본문 필드에만 적용되고 헤더나 URL에는 적용되지 않습니다."}},{"@type":"Question","name":"DELETE 요청에 본문을 입력했는데 생성된 명령어에 안 보여요.","acceptedAnswer":{"@type":"Answer","text":"코드가 본문(-d) 옵션을 POST, PUT, PATCH 메서드일 때만 추가하도록 되어 있어, DELETE를 선택한 상태에서는 본문 내용이 생성된 명령어에서 완전히 빠집니다."}},{"@type":"Question","name":"인증 헤더도 추가할 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"Bearer Token 옵션으로 Authorization 헤더를 간편하게 추가하거나, 직접 헤더를 추가할 수 있습니다."}}]}</script>
 <meta property="og:type" content="website">
 <meta property="og:title" content="cURL 명령 생성기 - HTTP 요청 → cURL 변환 | MODOO HUB">
 <meta property="og:description" content="HTTP 요청 설정으로 cURL 명령 자동 생성. Method, Headers, Body 설정. 온라인 cURL Generator.">
@@ -95,66 +95,71 @@ input[type=checkbox]{accent-color:var(--cyan);}
     </div>
   </div>
 
-  <div class="seo" id="seoDiv"><h2>cURL 명령 생성기란?</h2><p>HTTP 요청 파라미터(URL, 메서드, 헤더, 본문)를 입력하면 cURL 명령어를 자동으로 생성합니다. API 테스트, 디버깅, 문서 작성 등에 활용하세요. <strong>Bearer Token, Content-Type, Authorization</strong> 등 주요 헤더를 손쉽게 추가할 수 있습니다.</p>
+  <div class="seo" id="seoDiv"><h2>cURL 명령 생성기란?</h2><p>HTTP 요청 파라미터(URL, 메서드, 헤더, 본문)를 입력하면 cURL 명령어를 자동으로 생성합니다. 다만 두 가지 주의할 점이 있습니다. 첫째, <strong>요청 본문(-d)의 작은따옴표는 셸에 안전하게 이스케이프하지만, 헤더 값·Bearer 토큰·URL의 작은따옴표는 이스케이프하지 않습니다</strong> — 헤더 값에 아포스트로피(')가 들어 있으면 생성된 명령어의 따옴표가 중간에 끊어져 터미널에서 실행 시 오류가 나거나 의도와 다르게 실행될 수 있습니다. 둘째, <strong>본문은 메서드가 POST·PUT·PATCH일 때만 포함</strong>되므로, DELETE를 선택한 채 본문에 JSON을 입력해도(예: 대량 삭제용 ID 목록) 생성된 명령어에는 그 본문이 아예 나타나지 않습니다.</p>
 <h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>헤더 값에 아포스트로피(')가 있으면 어떻게 되나요?</summary><p>생성기가 헤더 값을 작은따옴표로 감쌀 때 값 안의 아포스트로피를 이스케이프하지 않습니다. 예를 들어 헤더 값이 "It's broken"이면 결과는 <code>-H 'X-Note: It's broken'</code>처럼 따옴표가 중간에 닫혀버려, 터미널에 붙여넣었을 때 셸이 명령어를 잘못 해석하거나 오류를 냅니다. 본문(-d)에는 이런 이스케이프 처리가 되어 있지만 헤더·Bearer 토큰·URL 필드에는 적용되지 않습니다.</p></details>
+<details class="faq-item"><summary>본문(-d)의 작은따옴표는 안전하게 처리되나요?</summary><p>네. 본문 텍스트의 작은따옴표는 <code>'\''</code> 형태(따옴표 닫기 → 이스케이프된 따옴표 → 따옴표 다시 열기)로 자동 변환되어 셸에서 안전하게 동작합니다. 이 처리는 본문 필드에만 적용되고 헤더나 URL에는 적용되지 않는다는 점이 다릅니다.</p></details>
+<details class="faq-item"><summary>DELETE 요청에 본문을 입력했는데 생성된 명령어에 안 보여요.</summary><p>코드가 본문(-d) 옵션을 POST, PUT, PATCH 메서드일 때만 추가하도록 되어 있어, DELETE를 선택한 상태에서는 본문 입력란에 내용을 채워도 생성된 명령어에서 완전히 빠집니다. 대량 삭제 API처럼 DELETE에 JSON 본문(예: 삭제할 ID 목록)을 사용하는 경우 이 도구로는 표현할 수 없으니 명령어에 -d 옵션을 수동으로 추가해야 합니다.</p></details>
+<details class="faq-item"><summary>GET 요청에도 본문을 포함할 수 있나요?</summary><p>이 도구에서는 포함되지 않습니다. GET에 본문을 허용하는 API(예: 일부 검색 API)를 테스트해야 한다면, 생성된 명령어에 -d 옵션을 수동으로 추가해야 합니다.</p></details>
 <details class="faq-item"><summary>cURL 명령어란 무엇인가요?</summary><p>cURL은 다양한 프로토콜로 데이터를 전송하는 커맨드라인 도구입니다. API 테스트와 HTTP 요청 자동화에 널리 사용됩니다.</p></details>
-<details class="faq-item"><summary>JSON 본문을 포함할 수 있나요?</summary><p>네. 본문 입력란에 JSON을 붙여넣으면 -d 옵션으로 자동 포함됩니다.</p></details>
-<details class="faq-item"><summary>Bearer Token은 어떻게 추가되나요?</summary><p>Bearer Token 입력란에 토큰을 입력하면 Authorization: Bearer {token} 헤더가 자동 추가됩니다.</p></details>
-<details class="faq-item"><summary>-k (insecure) 옵션은 무엇인가요?</summary><p>SSL/TLS 인증서 검증을 비활성화합니다. 자체 서명된 인증서를 사용하는 개발 환경에서 사용합니다.</p></details>
-<details class="faq-item"><summary>-L 옵션은 무엇인가요?</summary><p>리다이렉트(301, 302 등)를 자동으로 따라갑니다.</p></details>
-<details class="faq-item"><summary>헤더를 여러 개 추가할 수 있나요?</summary><p>+ 추가 버튼을 클릭해 원하는 만큼 헤더를 추가할 수 있습니다.</p></details>
-<details class="faq-item"><summary>생성된 명령어를 바로 실행할 수 있나요?</summary><p>터미널에 복사해 붙여넣기하면 즉시 실행 가능합니다.</p></details>
-<details class="faq-item"><summary>Windows에서도 cURL을 사용할 수 있나요?</summary><p>Windows 10 이상에서는 기본 PowerShell 및 커맨드 프롬프트에서 cURL이 지원됩니다.</p></details></div>
+<details class="faq-item"><summary>Bearer Token은 어떻게 추가되나요?</summary><p>Bearer Token 입력란에 토큰을 입력하면 <code>Authorization: Bearer {token}</code> 헤더가 자동 추가됩니다. JWT는 보통 아포스트로피를 포함하지 않으므로 이스케이프 문제가 실제로 드러나는 경우는 드뭅니다.</p></details>
+<details class="faq-item"><summary>-k (insecure) 옵션은 무엇인가요?</summary><p>SSL/TLS 인증서 검증을 비활성화합니다. 자체 서명된 인증서를 사용하는 개발 환경에서만 제한적으로 사용하고, 운영 환경에는 사용하지 않는 것이 안전합니다.</p></details>
+<details class="faq-item"><summary>-L 옵션은 무엇인가요?</summary><p>리다이렉트(301, 302 등) 응답을 받았을 때 자동으로 그 위치를 따라갑니다.</p></details>
+</div>
 </main>
 <script>
 const _i18n={
   ko:{pageTitle:'cURL 명령 생성기 - HTTP 요청 → cURL 변환 | MODOO HUB',h1b:'생성기',sub:'HTTP 요청 설정 → cURL 명령어 자동 생성',backLink:'← 모두의 툴',langBtn:'🌐 EN',labelHeaders:'헤더',labelBody:'요청 본문',labelOut:'생성된 cURL',btnAddHeader:'+ 추가',btnCopy:'복사',btnClear:'초기화',copied:'복사됨 ✓',
-    seoHtml:`<h2>cURL 명령 생성기란?</h2><p>HTTP 요청 파라미터(URL, 메서드, 헤더, 본문)를 입력하면 cURL 명령어를 자동으로 생성합니다. API 테스트, 디버깅, 문서 작성 등에 활용하세요. <strong>Bearer Token, Content-Type, Authorization</strong> 등 주요 헤더를 손쉽게 추가할 수 있습니다.</p>
+    seoHtml:`<h2>cURL 명령 생성기란?</h2><p>HTTP 요청 파라미터(URL, 메서드, 헤더, 본문)를 입력하면 cURL 명령어를 자동으로 생성합니다. 다만 두 가지 주의할 점이 있습니다. 첫째, <strong>요청 본문(-d)의 작은따옴표는 셸에 안전하게 이스케이프하지만, 헤더 값·Bearer 토큰·URL의 작은따옴표는 이스케이프하지 않습니다</strong> — 헤더 값에 아포스트로피(')가 들어 있으면 생성된 명령어의 따옴표가 중간에 끊어져 터미널에서 실행 시 오류가 나거나 의도와 다르게 실행될 수 있습니다. 둘째, <strong>본문은 메서드가 POST·PUT·PATCH일 때만 포함</strong>되므로, DELETE를 선택한 채 본문에 JSON을 입력해도(예: 대량 삭제용 ID 목록) 생성된 명령어에는 그 본문이 아예 나타나지 않습니다.</p>
 <h2 class="seo-sub">자주 묻는 질문</h2>
+<details class="faq-item"><summary>헤더 값에 아포스트로피(')가 있으면 어떻게 되나요?</summary><p>생성기가 헤더 값을 작은따옴표로 감쌀 때 값 안의 아포스트로피를 이스케이프하지 않습니다. 예를 들어 헤더 값이 "It's broken"이면 결과는 <code>-H 'X-Note: It's broken'</code>처럼 따옴표가 중간에 닫혀버려, 터미널에 붙여넣었을 때 셸이 명령어를 잘못 해석하거나 오류를 냅니다. 본문(-d)에는 이런 이스케이프 처리가 되어 있지만 헤더·Bearer 토큰·URL 필드에는 적용되지 않습니다.</p></details>
+<details class="faq-item"><summary>본문(-d)의 작은따옴표는 안전하게 처리되나요?</summary><p>네. 본문 텍스트의 작은따옴표는 <code>'\\''</code> 형태(따옴표 닫기 → 이스케이프된 따옴표 → 따옴표 다시 열기)로 자동 변환되어 셸에서 안전하게 동작합니다. 이 처리는 본문 필드에만 적용되고 헤더나 URL에는 적용되지 않는다는 점이 다릅니다.</p></details>
+<details class="faq-item"><summary>DELETE 요청에 본문을 입력했는데 생성된 명령어에 안 보여요.</summary><p>코드가 본문(-d) 옵션을 POST, PUT, PATCH 메서드일 때만 추가하도록 되어 있어, DELETE를 선택한 상태에서는 본문 입력란에 내용을 채워도 생성된 명령어에서 완전히 빠집니다. 대량 삭제 API처럼 DELETE에 JSON 본문(예: 삭제할 ID 목록)을 사용하는 경우 이 도구로는 표현할 수 없으니 명령어에 -d 옵션을 수동으로 추가해야 합니다.</p></details>
+<details class="faq-item"><summary>GET 요청에도 본문을 포함할 수 있나요?</summary><p>이 도구에서는 포함되지 않습니다. GET에 본문을 허용하는 API(예: 일부 검색 API)를 테스트해야 한다면, 생성된 명령어에 -d 옵션을 수동으로 추가해야 합니다.</p></details>
 <details class="faq-item"><summary>cURL 명령어란 무엇인가요?</summary><p>cURL은 다양한 프로토콜로 데이터를 전송하는 커맨드라인 도구입니다. API 테스트와 HTTP 요청 자동화에 널리 사용됩니다.</p></details>
-<details class="faq-item"><summary>JSON 본문을 포함할 수 있나요?</summary><p>네. 본문 입력란에 JSON을 붙여넣으면 -d 옵션으로 자동 포함됩니다.</p></details>
-<details class="faq-item"><summary>Bearer Token은 어떻게 추가되나요?</summary><p>Bearer Token 입력란에 토큰을 입력하면 Authorization: Bearer {token} 헤더가 자동 추가됩니다.</p></details>
-<details class="faq-item"><summary>-k (insecure) 옵션은 무엇인가요?</summary><p>SSL/TLS 인증서 검증을 비활성화합니다. 자체 서명된 인증서를 사용하는 개발 환경에서 사용합니다.</p></details>
-<details class="faq-item"><summary>-L 옵션은 무엇인가요?</summary><p>리다이렉트(301, 302 등)를 자동으로 따라갑니다.</p></details>
-<details class="faq-item"><summary>헤더를 여러 개 추가할 수 있나요?</summary><p>+ 추가 버튼을 클릭해 원하는 만큼 헤더를 추가할 수 있습니다.</p></details>
-<details class="faq-item"><summary>생성된 명령어를 바로 실행할 수 있나요?</summary><p>터미널에 복사해 붙여넣기하면 즉시 실행 가능합니다.</p></details>
-<details class="faq-item"><summary>Windows에서도 cURL을 사용할 수 있나요?</summary><p>Windows 10 이상에서는 기본 PowerShell 및 커맨드 프롬프트에서 cURL이 지원됩니다.</p></details>`
+<details class="faq-item"><summary>Bearer Token은 어떻게 추가되나요?</summary><p>Bearer Token 입력란에 토큰을 입력하면 <code>Authorization: Bearer {token}</code> 헤더가 자동 추가됩니다. JWT는 보통 아포스트로피를 포함하지 않으므로 이스케이프 문제가 실제로 드러나는 경우는 드뭅니다.</p></details>
+<details class="faq-item"><summary>-k (insecure) 옵션은 무엇인가요?</summary><p>SSL/TLS 인증서 검증을 비활성화합니다. 자체 서명된 인증서를 사용하는 개발 환경에서만 제한적으로 사용하고, 운영 환경에는 사용하지 않는 것이 안전합니다.</p></details>
+<details class="faq-item"><summary>-L 옵션은 무엇인가요?</summary><p>리다이렉트(301, 302 등) 응답을 받았을 때 자동으로 그 위치를 따라갑니다.</p></details>
+`
   },
   en:{pageTitle:'cURL Generator - Build cURL Commands Online | MODOO HUB',h1b:'Generator',sub:'HTTP request settings → auto-generate cURL command',backLink:'← All Tools',langBtn:'🌐 中文',labelHeaders:'Headers',labelBody:'Request Body (JSON/form-data)',labelOut:'Generated cURL',btnAddHeader:'+ Add',btnCopy:'Copy',btnClear:'Clear',copied:'Copied ✓',
-    seoHtml:`<h2>cURL Generator</h2><p>Generate cURL commands from HTTP request parameters (URL, method, headers, body). Perfect for API testing, debugging, and documentation. Easily add <strong>Bearer Token, Content-Type, Authorization</strong> and other common headers.</p>
+    seoHtml:`<h2>cURL Generator</h2><p>Generates cURL commands from HTTP request parameters (URL, method, headers, body). Two things worth knowing, though. First, <strong>while single quotes in the request body (-d) are safely escaped for the shell, single quotes in header values, the Bearer token, and the URL are not</strong> — if a header value contains an apostrophe, the generated command's quoting breaks midway, which can error out or behave unexpectedly when run in a terminal. Second, <strong>the body is only included when the method is POST, PUT, or PATCH</strong>, so typing JSON into the body field while DELETE is selected (e.g. a list of IDs for bulk deletion) produces a command with no body at all.</p>
 <h2 class="seo-sub">FAQ</h2>
+<details class="faq-item"><summary>What happens if a header value contains an apostrophe?</summary><p>The generator wraps header values in single quotes but doesn't escape apostrophes inside them. For example, a header value of "It's broken" produces <code>-H 'X-Note: It's broken'</code> — the quoting closes early, so pasting this into a terminal causes the shell to misinterpret the command or throw an error. This escaping exists for the body (-d) field but not for headers, the Bearer token, or the URL.</p></details>
+<details class="faq-item"><summary>Are single quotes in the body (-d) handled safely?</summary><p>Yes. Single quotes in the body text are automatically converted to the <code>'\\''</code> pattern (close the quote, an escaped literal quote, reopen the quote), which is safe in the shell. This handling is specific to the body field and isn't applied to headers or the URL.</p></details>
+<details class="faq-item"><summary>I typed a body for a DELETE request but it's missing from the generated command.</summary><p>The code only appends the body (-d) option when the method is POST, PUT, or PATCH, so filling in the body field while DELETE is selected produces a command with the body completely omitted. For APIs that use DELETE with a JSON body (bulk-delete endpoints with a list of IDs, for instance), this tool can't express that — you'll need to add the -d option to the command by hand.</p></details>
+<details class="faq-item"><summary>Can I include a body with a GET request?</summary><p>Not with this tool. If you need to test an API that accepts a body with GET (some search APIs do), you'll need to manually add the -d option to the generated command.</p></details>
 <details class="faq-item"><summary>What is a cURL command?</summary><p>cURL is a command-line tool for transferring data over various protocols. Widely used for API testing and HTTP request automation.</p></details>
-<details class="faq-item"><summary>Can I include a JSON body?</summary><p>Yes. Paste JSON in the body field — it is automatically included with the -d option.</p></details>
-<details class="faq-item"><summary>How is Bearer Token added?</summary><p>Enter the token in the Bearer Token field — an Authorization: Bearer {token} header is automatically appended.</p></details>
-<details class="faq-item"><summary>What is the -k (insecure) option?</summary><p>Disables SSL/TLS certificate verification. Useful for development environments with self-signed certs.</p></details>
-<details class="faq-item"><summary>What does -L do?</summary><p>Automatically follows redirects (301, 302, etc.).</p></details>
-<details class="faq-item"><summary>Can I add multiple headers?</summary><p>Click + Add as many times as needed to add multiple headers.</p></details>
-<details class="faq-item"><summary>Can I run the command immediately?</summary><p>Yes — copy to your terminal and paste to run it right away.</p></details>
-<details class="faq-item"><summary>Does cURL work on Windows?</summary><p>Yes. Windows 10+ includes cURL in PowerShell and the Command Prompt natively.</p></details>`
+<details class="faq-item"><summary>How is the Bearer Token added?</summary><p>Enter the token in the Bearer Token field and an <code>Authorization: Bearer {token}</code> header is automatically appended. JWTs typically don't contain apostrophes, so the escaping issue rarely surfaces there in practice.</p></details>
+<details class="faq-item"><summary>What is the -k (insecure) option?</summary><p>Disables SSL/TLS certificate verification. Use it only in a limited way for development environments with self-signed certificates — avoid it in production.</p></details>
+<details class="faq-item"><summary>What does -L do?</summary><p>Automatically follows the new location whenever the server responds with a redirect (301, 302, etc.).</p></details>
+`
   },
   zh:{pageTitle:'cURL生成器 - 在线构建cURL命令 | MODOO HUB',h1b:'生成器',sub:'HTTP请求设置 → 自动生成cURL命令',backLink:'← 所有工具',langBtn:'🌐 日本語',labelHeaders:'请求头',labelBody:'请求体 (JSON/form-data)',labelOut:'生成的cURL命令',btnAddHeader:'+ 添加',btnCopy:'复制',btnClear:'清除',copied:'已复制 ✓',
-    seoHtml:`<h2>cURL生成器</h2><p>从HTTP请求参数（URL、方法、请求头、请求体）自动生成cURL命令。适用于API测试、调试和文档编写。轻松添加Bearer Token、Content-Type等常用请求头。</p>
+    seoHtml:`<h2>cURL生成器</h2><p>从HTTP请求参数（URL、方法、请求头、请求体）自动生成cURL命令。但有两点需要注意。第一，<strong>请求体(-d)中的单引号会被安全转义以适配shell，但请求头的值、Bearer令牌、URL中的单引号不会被转义</strong>——如果请求头的值中包含撇号(')，生成的命令引号会在中途断开，粘贴到终端执行时可能报错或行为异常。第二，<strong>只有方法为POST、PUT、PATCH时才会包含请求体</strong>，因此在选择DELETE的状态下即使在请求体里输入了JSON（例如批量删除用的ID列表），生成的命令中也完全不会出现这段内容。</p>
 <h2 class="seo-sub">常见问题</h2>
+<details class="faq-item"><summary>请求头的值中包含撇号(')会怎样？</summary><p>生成器用单引号包裹请求头的值时，不会转义值内部的撇号。例如值为"It's broken"时，结果会变成<code>-H 'X-Note: It's broken'</code>这样引号提前闭合，粘贴到终端后shell会误解析命令或报错。请求体(-d)有这种转义处理，但请求头、Bearer令牌、URL字段没有。</p></details>
+<details class="faq-item"><summary>请求体(-d)中的单引号能被安全处理吗？</summary><p>可以。请求体文本中的单引号会自动转换成<code>'\\''</code>这种形式（闭合引号→转义的字面引号→重新打开引号），在shell中可以安全运行。这种处理只针对请求体字段，不适用于请求头或URL。</p></details>
+<details class="faq-item"><summary>给DELETE请求输入了请求体，但生成的命令里看不到？</summary><p>代码只在方法为POST、PUT、PATCH时才添加请求体(-d)选项，因此在选择DELETE的状态下，即使请求体输入框填了内容，生成的命令中也会完全省略。像批量删除API这种DELETE配合JSON请求体（例如待删除的ID列表）的用法，本工具无法表达，需要手动在命令中添加-d选项。</p></details>
+<details class="faq-item"><summary>GET请求也能包含请求体吗？</summary><p>本工具不支持。如果需要测试允许GET携带请求体的API（部分搜索类API如此），需要手动在生成的命令中添加-d选项。</p></details>
 <details class="faq-item"><summary>什么是cURL命令？</summary><p>cURL是通过各种协议传输数据的命令行工具，广泛用于API测试和HTTP请求自动化。</p></details>
-<details class="faq-item"><summary>可以包含JSON请求体吗？</summary><p>是的，在请求体输入框中粘贴JSON，将自动使用-d选项包含。</p></details>
-<details class="faq-item"><summary>Bearer Token如何添加？</summary><p>在Bearer Token输入框中输入令牌，自动添加Authorization: Bearer {token}请求头。</p></details>
-<details class="faq-item"><summary>-k选项是什么？</summary><p>禁用SSL/TLS证书验证，适用于使用自签名证书的开发环境。</p></details>
-<details class="faq-item"><summary>-L选项是什么？</summary><p>自动跟随重定向（301、302等）。</p></details>
-<details class="faq-item"><summary>可以添加多个请求头吗？</summary><p>点击+添加按钮可以添加任意数量的请求头。</p></details>
-<details class="faq-item"><summary>生成的命令可以直接运行吗？</summary><p>是的，复制到终端粘贴即可运行。</p></details>
-<details class="faq-item"><summary>Windows上可以使用cURL吗？</summary><p>可以，Windows 10及以上版本在PowerShell和命令提示符中内置了cURL。</p></details>`
+<details class="faq-item"><summary>Bearer Token如何添加？</summary><p>在Bearer Token输入框中输入令牌，会自动添加<code>Authorization: Bearer {token}</code>请求头。JWT通常不包含撇号，因此这个转义问题在实践中很少真正出现。</p></details>
+<details class="faq-item"><summary>-k选项是什么？</summary><p>禁用SSL/TLS证书验证。仅建议在使用自签名证书的开发环境中有限使用，生产环境不要使用。</p></details>
+<details class="faq-item"><summary>-L选项是什么？</summary><p>当服务器返回重定向响应（301、302等）时，自动跟随到新的位置。</p></details>
+`
   },
   ja:{pageTitle:'cURL生成ツール - オンラインcURLコマンド作成 | MODOO HUB',h1b:'生成ツール',sub:'HTTPリクエスト設定 → cURLコマンド自動生成',backLink:'← ホーム',langBtn:'🌐 한국어',labelHeaders:'ヘッダー',labelBody:'リクエストボディ (JSON/form-data)',labelOut:'生成したcURL',btnAddHeader:'+ 追加',btnCopy:'コピー',btnClear:'クリア',copied:'コピー完了 ✓',
-    seoHtml:`<h2>cURL生成ツールとは</h2><p>HTTPリクエストのパラメータ（URL、メソッド、ヘッダー、ボディ）からcURLコマンドを自動生成します。APIテスト、デバッグ、ドキュメント作成に活用できます。Bearer Token、Content-Type、Authorizationなどの主要ヘッダーを簡単に追加できます。</p>
+    seoHtml:`<h2>cURL生成ツールとは</h2><p>HTTPリクエストのパラメータ（URL、メソッド、ヘッダー、ボディ）からcURLコマンドを自動生成します。ただし2点注意が必要です。まず、<strong>リクエストボディ(-d)内のシングルクォートはシェル向けに安全にエスケープされますが、ヘッダーの値・Bearerトークン・URL内のシングルクォートはエスケープされません</strong> — ヘッダーの値にアポストロフィ(')が含まれていると、生成されたコマンドの引用符が途中で閉じてしまい、ターミナルで実行するとエラーになったり意図と異なる動作をしたりすることがあります。次に、<strong>ボディはメソッドがPOST・PUT・PATCHの場合のみ含まれる</strong>ため、DELETEを選択した状態でボディにJSON(一括削除用のIDリストなど)を入力しても、生成されたコマンドにはそのボディがまったく現れません。</p>
 <h2 class="seo-sub">よくある質問</h2>
+<details class="faq-item"><summary>ヘッダーの値にアポストロフィ(')があるとどうなりますか？</summary><p>生成ツールはヘッダーの値をシングルクォートで囲みますが、値の中のアポストロフィはエスケープしません。例えば値が「It's broken」の場合、結果は<code>-H 'X-Note: It's broken'</code>のように引用符が途中で閉じてしまい、ターミナルに貼り付けるとシェルがコマンドを誤って解釈したりエラーになったりします。この処理はボディ(-d)フィールドには施されていますが、ヘッダー・Bearerトークン・URLフィールドには適用されていません。</p></details>
+<details class="faq-item"><summary>ボディ(-d)内のシングルクォートは安全に処理されますか？</summary><p>はい。ボディテキスト内のシングルクォートは<code>'\\''</code>という形式(引用符を閉じる→エスケープされたリテラル引用符→引用符を再度開く)に自動変換され、シェル上で安全に動作します。この処理はボディフィールドにのみ適用され、ヘッダーやURLには適用されません。</p></details>
+<details class="faq-item"><summary>DELETEリクエストにボディを入力したのに、生成されたコマンドに表示されません。</summary><p>コードはボディ(-d)オプションをPOST、PUT、PATCHメソッドの場合にのみ追加するようになっているため、DELETEを選択した状態ではボディ入力欄に内容を入れても生成されたコマンドから完全に除外されます。一括削除APIのようにDELETEにJSONボディ(削除対象のIDリストなど)を使うケースはこのツールでは表現できないため、コマンドに-dオプションを手動で追加する必要があります。</p></details>
+<details class="faq-item"><summary>GETリクエストにもボディを含められますか？</summary><p>このツールでは含められません。GETでボディを許可するAPI(一部の検索系APIなど)をテストする必要がある場合は、生成されたコマンドに-dオプションを手動で追加してください。</p></details>
 <details class="faq-item"><summary>cURLコマンドとは何ですか？</summary><p>cURLはさまざまなプロトコルでデータ転送を行うコマンドラインツールです。APIテストとHTTPリクエスト自動化に広く使われています。</p></details>
-<details class="faq-item"><summary>JSONボディを含めることができますか？</summary><p>はい。ボディ入力欄にJSONを貼り付けると-dオプションで自動的に含まれます。</p></details>
-<details class="faq-item"><summary>Bearer Tokenはどう追加されますか？</summary><p>Bearer Token入力欄にトークンを入力するとAuthorization: Bearer {token}ヘッダーが自動追加されます。</p></details>
-<details class="faq-item"><summary>-kオプションとは？</summary><p>SSL/TLS証明書の検証を無効化します。自己署名証明書を使う開発環境で使用します。</p></details>
-<details class="faq-item"><summary>-Lオプションとは？</summary><p>リダイレクト（301、302など）を自動追従します。</p></details>
-<details class="faq-item"><summary>複数のヘッダーを追加できますか？</summary><p>+追加ボタンを何度もクリックして任意の数のヘッダーを追加できます。</p></details>
-<details class="faq-item"><summary>生成したコマンドをすぐ実行できますか？</summary><p>ターミナルにコピー&ペーストして即座に実行できます。</p></details>
-<details class="faq-item"><summary>WindowsでもcURLは使えますか？</summary><p>Windows 10以降では、PowerShellとコマンドプロンプトにcURLが内蔵されています。</p></details>`
+<details class="faq-item"><summary>Bearer Tokenはどう追加されますか？</summary><p>Bearer Token入力欄にトークンを入力すると<code>Authorization: Bearer {token}</code>ヘッダーが自動追加されます。JWTは通常アポストロフィを含まないため、このエスケープの問題が実際に表面化することはまれです。</p></details>
+<details class="faq-item"><summary>-kオプションとは？</summary><p>SSL/TLS証明書の検証を無効化します。自己署名証明書を使う開発環境に限定して使用し、本番環境では使わないのが安全です。</p></details>
+<details class="faq-item"><summary>-Lオプションとは？</summary><p>サーバーからリダイレクト(301、302など)が返された際に、自動的にその移動先を追従します。</p></details>
+`
   }
 };
 const LANGS=['ko','en','zh','ja'];
