@@ -198,12 +198,12 @@ read-time-calculator(이 세션 최대급 발견 — head FAQ가 "한국어는 �
 ### 완료 (4차 배치 1/N, content-depth-audit 브랜치에 커밋됨 — 커밋 fa0e1db, 803c621, 02794d8)
 image-to-pdf(버그도 수정 — JPEG 입력도 무조건 canvas에 그려 무손실 PNG로 재인코딩(embedPng)하던 것을, JPEG는 원본 압축 바이트를 그대로 pdf-lib embedJpg()로 직접 삽입하도록 수정해 화질 저하 없이 파일 크기 폭증도 방지(사진 콘텐츠는 PNG가 JPEG보다 압축 효율이 훨씬 낮음) + "품질 옵션 조절 가능"이라던 거짓 FAQ 주장 정정), dday(이 배치 최대 발견 — `new Date("2026-08-15")` 같은 날짜전용 문자열이 UTC 자정으로 파싱되는데 "오늘"은 로컬 자정으로 만들어 비교하던 문제, TZ=Asia/Seoul(한국 대상 사이트의 실제 사용자 시간대)로 재현한 결과 오늘 날짜를 목표일로 선택해도 D-0이 아닌 D-1이 표시됨을 확인 — 이는 페이지 자체 FAQ("당일은 D-Day(0)")와 정면으로 모순되고 diff===0일 때만 뜨는 "🎉 오늘!" 문구가 사실상 한국 사용자에게 절대 안 뜨던 상황, 연/월/일을 로컬 Date로 직접 구성하는 parseLocalDate()로 3곳 모두 수정 후 재검증), graphql-query-builder(FAQ가 예시로 든 "id: $userId → query($userId: ID!)"가 실제로는 모든 변수 타입을 무조건 String으로 하드코딩해 실제 출력이 예시와 전혀 다르던 문제, 인수 이름 패턴 기반 타입 추론(id로 끝나면 ID!, count/limit 등은 Int!, is/has 등은 Boolean!) 구현 후 FAQ의 자체 예시와 정확히 일치하는 출력 재확인)
 
-## 남은 108개 (worst-first, char count) — 다음 배치는 여기서부터 3개씩
+### 완료 (4차 배치 2/N, content-depth-audit 브랜치에 커밋됨 — 커밋 8c49e75, 7ba1d41, c4ee2f7)
+vat-calc(버그도 수정 — "부가세 (10%)" 결과 라벨에 id가 없어 0%(영세율) 선택해도 라벨은 항상 "10%"로 고정 표시되던 문제, id 추가 후 실제 vatRate로 갱신 + FAQ 중복 질문 2쌍(신고 시기, 간이/일반과세자 차이) 정리), svg-cleaner(이 배치 최대 발견 — 기본 켜진 "미사용 네임스페이스 제거" 옵션이 실제로는 사용 중인 xmlns:xlink 같은 선언까지 무조건 삭제하면서(참조는 그대로 남겨 XML 깨짐) 동시에 이미 존재하는 기본 xmlns=""를 조건 없이 하나 더 추가해 거의 모든 SVG에 중복 xmlns 속성을 만들던 문제, 프리픽스 실제 사용 여부를 검사해 정말 안 쓰는 선언만 제거하도록 수정 + 존재하지 않던 DOCTYPE/빈 그룹/XML 주석 제거 기능 실제 구현, FAQ 9→8개 정리), salary-per-hour-calculator(이 배치 최대 발견 — en/zh 필드 라벨은 "$"/"元"(원 단위 그대로) 입력을 암시하는데 실제 코드는 모든 언어에서 무조건 ×10,000(한국 "만원" 관례)을 적용하고 "₩" 접두사도 고정, 영어 사용자가 페이지 자체 FAQ 예시대로 80000(=$80,000/년)을 입력하면 "₩384,615"라는 완전히 틀린 결과가 나옴을 Node로 재현 확인 — 언어별 승수/통화 기호 테이블(ko·ja는 ×10000 만원/万円 관례, en·zh는 raw 단위) 도입 후 4개 언어 전부 자기 FAQ 예시와 정확히 일치하는 출력 재확인 + 한국 전용 최저시급 비교 위젯을 다른 언어에서 숨김 처리, FAQ 10→8개 정리)
+
+## 남은 105개 (worst-first, char count) — 다음 배치는 여기서부터 3개씩
 ```
-1037  vat-calc.html                        ⬜ 다음 배치 시작점
-1063  svg-cleaner.html
-1067  salary-per-hour-calculator.html
-1069  korean-age.html
+1069  korean-age.html                      ⬜ 다음 배치 시작점
 1077  discount-calculator.html
 1084  alphabetizer.html
 1085  hashtag-generator.html
