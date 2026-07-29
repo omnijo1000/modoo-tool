@@ -107,6 +107,9 @@ json-schema-validator(버그도 수정 — enum 검사가 문자열 타입 분�
 ### 완료 (3차 배치 2/N, content-depth-audit 브랜치에 커밋됨 — 커밋 1fe8ec9)
 markdown-chat-exporter(버그도 수정 — 파싱이 고정 역할 접두사 없으면 조용히 빈 결과), xml-to-json(버그도 수정 — 혼합 콘텐츠에서 텍스트 순서·공백 유실), pdf-size-analyzer(버그도 수정 — 작성일/수정일 원본 PDF 날짜 포맷 그대로 노출 + "페이지별 크기"가 실제로는 물리적 치수이지 데이터 용량이 아님)
 
+### 완료 (3차 배치 3/N, content-depth-audit 브랜치에 커밋됨 — 커밋 8091de8)
+hash-checker(버그도 수정 — title/meta가 MD5 지원을 거짓 광고, Web Crypto API는 MD5 미지원이라 실제로 만들 수 없음. title/meta 태그 자체도 수정함), regex-generator(버그도 수정 — "신용카드"/"JWT" 패턴이 Luhn/BIN 검증이나 실제 JWT 구조 검증 없이 자릿수·구분자 형태만 확인해 오탐 다발), prompt-template-generator(버그는 아니지만 Chain-of-Thought 3단계·Few-Shot 예시 3개가 고정 예시일 뿐 실제로는 난이도에 맞게 편집해야 한다는 실전 지식 보강)
+
 ### 다음 배치 후보 (top 15, char count)
 ```
 702  json-schema-validator.html      ✅ 완료
@@ -115,10 +118,10 @@ markdown-chat-exporter(버그도 수정 — 파싱이 고정 역할 접두사 �
 712  markdown-chat-exporter.html     ✅ 완료
 715  xml-to-json.html                ✅ 완료
 723  pdf-size-analyzer.html          ✅ 완료
-724  hash-checker.html               ⬜ 다음
-729  regex-generator.html            ⬜
-742  prompt-template-generator.html  ⬜
-743  curl-generator.html             ⬜
+724  hash-checker.html               ✅ 완료
+729  regex-generator.html            ✅ 완료
+742  prompt-template-generator.html  ✅ 완료
+743  curl-generator.html             ⬜ 다음
 749  ngram-analyzer.html             ⬜
 751  json-schema-generator.html      ⬜
 758  png-to-svg.html                 ⬜
