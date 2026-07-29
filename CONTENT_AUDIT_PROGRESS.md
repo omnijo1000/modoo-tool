@@ -151,19 +151,19 @@ hmac-generator(하드코딩된 한국어 문자열 2곳이 언어 무관하게 �
 ### 완료 (3차 배치 14/N, content-depth-audit 브랜치에 커밋됨 — 커밋 085f705)
 unicode-converter(버그는 없음 — UTF-8 바이트 인코딩·서로게이트 쌍 재조합 둘 다 node로 재현해 정상 동작 확인. 다만 이 감사 이전부터 있던 FAQ 45개(9x5) 카운트 버그를 8개로 정리하고 \uXXXX가 BMP까지만 표현 가능한 이유·ES6 \u{} 표기·UTF-8 hex 바이트 가변길이 등 실제 기술 디테일로 심화), heic-to-jpg(버그도 수정 — 결과 행 id를 파일명 기반 CSS.escape(name)으로 생성해 동일 파일명(다른 폴더의 IMG_0001.HEIC 등) 여러 개 변환 시 getElementById가 항상 첫 번째 요소만 반환해 두 번째 파일 행이 "변환 중..."에 멈춰 있던 문제, 카운터 기반 고유 id로 수정 + JPG 선택 시 다운로드 확장자가 MIME 타입을 그대로 split해 ".jpeg"로 붙던 것을 ".jpg"로 수정), transparent-background-maker(버그 2개 수정 — ①"PNG 다운로드"가 화면 표시용으로 360px로 축소된 미리보기 캔버스를 그대로 내보내 원본이 더 큰 이미지는 다운로드 시 조용히 저해상도로 축소되던 문제, 원본 naturalWidth/Height로 새 캔버스를 만들어 같은 연산을 재적용하도록 수정, ②"경계 부드럽게" 슬라이더가 자기 라벨 숫자만 갱신할 뿐 실제 이미지 처리에 전혀 연결되어 있지 않아 조작해도 아무 효과가 없었는데 FAQ는 이 슬라이더로 거친 경계를 고치라고 안내하던 문제, 알파 채널 전용 박스 블러(prefix-sum 기반 O(w·h))를 실제로 구현해 미리보기·다운로드 양쪽에 연결)
 
+### 완료 (3차 배치 15/N, content-depth-audit 브랜치에 커밋됨 — 커밋 76ef699)
+rsa-key-generator(버그도 수정 — usageSelect 드롭다운 옵션이 "서명 / Signing", "암호화 / Encryption"처럼 한/영 혼용 하드코딩이라 언어를 바꿔도 그대로 표시되던 문제, i18n 키 추가로 수정 + FAQ의 "동일한 OpenSSL 명령어"가 실제로는 버전에 따라 다른 걸 실제 openssl 3.x로 직접 검증(genrsa가 이제 PKCS#8 기본 생성, 1.x/-traditional에서는 PKCS#1)해 정정), sitemap-extractor(버그도 수정 — 파싱한 <loc> 값을 이스케이프 없이 innerHTML에 그대로 삽입해 사이트맵에 javascript: 스킴 URL이나 HTML 특수문자가 섞이면 클릭 시 실행되거나 레이아웃이 깨지는 DOM 삽입 취약점 발견, escapeHtml + http/https만 링크화 + rel=noopener로 수정 + alert/빈 결과 메시지 하드코딩 한국어 2곳도 i18n 처리), ulid-generator(이 세션 최대급 버그 — randPart 생성 로직의 bits 계산이 Math.min(8,...)로 항상 8에 클램프되어 매 flush마다 2글자만 인코딩, 결과적으로 16자여야 할 랜덤부가 4자뿐이라 전체 ULID가 26자가 아닌 14자로 생성되고 자신의 decodeULID()가 자기 출력을 "Invalid ULID"로 거부하던 문제를 node로 재현 확인, 실질 엔트로피도 80비트에서 약 20비트로 저하되어 있었음 — 10바이트를 5바이트씩 두 묶음(각 40비트→8자)으로 인코딩하도록 수정해 26자 ULID·decode 왕복 정상 확인)
+
 ## 3차 스캔 진행 현황 (2026-07-30 기준)
 
-**완료: 42개 / 70개** (batch 1~14)
-✅ json-schema-validator, ico-converter, image-prompt-generator, markdown-chat-exporter, xml-to-json, pdf-size-analyzer, hash-checker, regex-generator, prompt-template-generator, curl-generator, ngram-analyzer, json-schema-generator, png-to-svg, yaml-to-json, pdf-metadata-remover, curl-parser, text-similarity-checker, webhook-tester, time-zone-meeting-planner, image-color-extractor, open-graph-preview, pdf-word-counter, webhook-generator, avif-to-jpg, api-tester, bcrypt-validator, regex-cheatsheet, keyword-cannibalization-checker, bcrypt-generator, national-pension-calculator, nanoid-generator, keyword-difficulty-estimator, exif-viewer, slug-generator, json-diff, graphql-formatter, hmac-generator, uuid-generator, meeting-cost-calculator, unicode-converter, heic-to-jpg, transparent-background-maker
+**완료: 45개 / 70개** (batch 1~15)
+✅ json-schema-validator, ico-converter, image-prompt-generator, markdown-chat-exporter, xml-to-json, pdf-size-analyzer, hash-checker, regex-generator, prompt-template-generator, curl-generator, ngram-analyzer, json-schema-generator, png-to-svg, yaml-to-json, pdf-metadata-remover, curl-parser, text-similarity-checker, webhook-tester, time-zone-meeting-planner, image-color-extractor, open-graph-preview, pdf-word-counter, webhook-generator, avif-to-jpg, api-tester, bcrypt-validator, regex-cheatsheet, keyword-cannibalization-checker, bcrypt-generator, national-pension-calculator, nanoid-generator, keyword-difficulty-estimator, exif-viewer, slug-generator, json-diff, graphql-formatter, hmac-generator, uuid-generator, meeting-cost-calculator, unicode-converter, heic-to-jpg, transparent-background-maker, rsa-key-generator, sitemap-extractor, ulid-generator
 
 **주의**: `grep -c 'class="faq-item"' 파일명`은 "매칭되는 줄 수"를 세는 것이라, ko/en/zh/ja seoHtml이 한 줄짜리 템플릿 리터럴로 저장된 파일에서는 실제 개수보다 훨씬 적게 나올 수 있음(예: 40개인데 5로 표시됨). 반드시 `grep -o 'class="faq-item"' 파일명 | wc -l`로 실제 occurrence 개수를 셀 것. 또한 이 카운트는 배치 시작 전 반드시 확인 — 과거 콘텐츠(exif-viewer, slug-generator, unicode-converter 등)에 원래부터 FAQ 개수가 8개가 아니었던 사례가 반복적으로 있었음.
 
-**남은 28개 (worst-first, char count)** — 다음 배치는 여기서부터 3개씩:
+**남은 25개 (worst-first, char count)** — 다음 배치는 여기서부터 3개씩:
 ```
-852  rsa-key-generator.html               ⬜ 다음 배치 시작점
-852  sitemap-extractor.html
-853  ulid-generator.html
-854  image-dpi-checker.html
+854  image-dpi-checker.html               ⬜ 다음 배치 시작점
 864  serp-snippet-preview.html
 867  text-encryptor.html
 868  pdf-ocr.html
