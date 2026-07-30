@@ -47,14 +47,6 @@ footer { text-align:center; font-size:12px; color:var(--text-dim); margin-top:48
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "When do I need to decode a URL?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "You need to decode URLs when reading server logs with percent-encoded query strings, debugging API responses that contain encoded parameters, parsing redirect URLs in OAuth flows, or making sense of URLs copied from browser address bars that contain encoded characters."
-      }
-    },
-    {
-      "@type": "Question",
       "name": "What do %20 and %2F mean?",
       "acceptedAnswer": {
         "@type": "Answer",
@@ -79,26 +71,10 @@ footer { text-align:center; font-size:12px; color:var(--text-dim); margin-top:48
     },
     {
       "@type": "Question",
-      "name": "How do I handle double-encoded URLs?",
+      "name": "Does \"+\" in a query string become a space?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "A double-encoded URL has sequences like %2520 instead of %20. To fully decode it, apply decoding twice. Run the decoder once to get %20, then run it again to get a space. Some systems double-encode parameters accidentally; this is a common source of bugs."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "How can URL decoding help with web traffic debugging?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Server access logs often store URLs in percent-encoded form. Decoding them makes query parameters, search terms, and path segments human-readable, helping you identify which pages users visited and what they searched for."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "How are Korean characters decoded from a URL?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Korean characters are encoded as their UTF-8 byte sequences in percent format. For example %EC%95%88%EB%85%95 decodes to 안녕 because EC 95 88 is the UTF-8 encoding of 안 and EB 85 95 is the encoding of 녕."
+        "text": "Not by default. decodeURIComponent/decodeURI only decode %XX sequences and leave a literal + untouched. Enable the \"+ to space\" checkbox to treat + as space before decoding, matching form/search-query encoding conventions. A + that was itself percent-encoded as %2B always stays as + regardless of this option."
       }
     }
   ]
@@ -145,6 +121,8 @@ footer { text-align:center; font-size:12px; color:var(--text-dim); margin-top:48
     <div class="sep"></div>
     <button class="btn primary" id="btnDecode" onclick="decode()">Decode →</button>
     <button class="btn" id="btnCopy" onclick="copyOutput()">복사</button>
+    <div class="sep"></div>
+    <label class="opt-label" style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;"><input type="checkbox" id="plusSpace" onchange="decode()"> <span id="labelPlusSpace">+ → 공백 (폼 데이터)</span></label>
   </div>
 
   <div class="editor-wrap">
@@ -167,14 +145,14 @@ footer { text-align:center; font-size:12px; color:var(--text-dim); margin-top:48
   <div class="seo" id="seoEl"><h2>URL 디코딩이란?</h2>
 <p>URL 디코딩은 퍼센트 인코딩된 문자열(%EC%95%88 등)을 사람이 읽을 수 있는 원래 텍스트로 변환하는 과정입니다. 서버 로그 분석, API 응답 디버깅, OAuth 리디렉트 URL 파싱, 브라우저 주소창에서 복사한 URL 해석 등 다양한 상황에서 활용됩니다.</p>
 <h2>decodeURIComponent vs decodeURI 차이</h2>
-<p><strong>decodeURIComponent</strong>는 %2F(/), %3F(?), %26(&) 등 URL 구조 문자를 나타내는 시퀀스까지 모두 디코딩합니다. 쿼리 파라미터 값을 개별 디코딩할 때 사용합니다. <strong>decodeURI</strong>는 URL 구조 문자는 그대로 두고 나머지만 디코딩해 URL의 구조를 유지합니다. <strong>Auto</strong> 모드는 decodeURIComponent를 먼저 시도하고 실패하면 decodeURI로 대체합니다.</p>
+<p><strong>decodeURIComponent</strong>는 %2F(/), %3F(?), %26(&) 등 URL 구조 문자를 나타내는 시퀀스까지 모두 디코딩합니다. 쿼리 파라미터 값을 개별 디코딩할 때 사용합니다. <strong>decodeURI</strong>는 URL 구조 문자는 그대로 두고 나머지만 디코딩해 URL의 구조를 유지합니다. <strong>Auto</strong> 모드는 decodeURIComponent를 먼저 시도하고 실패하면 decodeURI로 대체합니다. 두 함수 모두 %XX 시퀀스만 처리하며 "+" 문자는 그대로 두므로, 폼·검색어 인코딩에서 흔한 "+"=공백 표기가 필요하면 하단의 "+ → 공백" 체크박스를 켜세요.</p>
 <h2>자주 묻는 질문</h2>
 <details class="faq-item"><summary>URL 디코딩이 필요한 상황은?</summary><p>서버 로그의 퍼센트 인코딩된 쿼리 문자열 읽기, 인코딩된 파라미터가 포함된 API 응답 디버깅, OAuth 흐름의 리디렉트 URL 파싱, 브라우저 주소창에서 복사한 인코딩된 URL 해석 등에 필요합니다.</p></details>
 <details class="faq-item"><summary>%20과 %2F는 각각 무엇을 의미하나요?</summary><p>%20은 공백 문자(ASCII 32 = 16진수 20)를 나타내고, %2F는 슬래시(/)를 나타냅니다. 일반적으로 %XX 시퀀스는 해당 문자의 UTF-8 인코딩에서 16진수 값이 XX인 바이트를 나타냅니다.</p></details>
 <details class="faq-item"><summary>decodeURI와 decodeURIComponent의 차이는?</summary><p>decodeURIComponent는 %2F, %3F, %26 등 URL 구조 문자를 포함한 모든 퍼센트 인코딩 시퀀스를 디코딩합니다. decodeURI는 URL 구조 시퀀스를 그대로 두고 나머지만 디코딩하여 URL 구조를 보존합니다.</p></details>
 <details class="faq-item"><summary>잘못된 퍼센트 시퀀스가 있으면 어떻게 되나요?</summary><p>%GG(비 16진수)나 %2(불완전한 시퀀스)처럼 잘못된 퍼센트 시퀀스는 JavaScript에서 URIError를 발생시킵니다. 이 도구는 오류를 감지하고 대체 디코딩 함수로 재시도한 뒤, 그래도 실패하면 오류 메시지를 표시합니다.</p></details>
 <details class="faq-item"><summary>이중 인코딩된 URL은 어떻게 처리하나요?</summary><p>이중 인코딩된 URL은 %2520처럼 %가 %25로 인코딩된 형태입니다. 완전히 디코딩하려면 디코더를 두 번 실행하세요. 첫 번째 실행에서 %2520 → %20, 두 번째 실행에서 %20 → 공백이 됩니다.</p></details>
-<details class="faq-item"><summary>웹 트래픽 디버깅에 URL 디코딩이 어떻게 도움이 되나요?</summary><p>서버 접속 로그는 URL을 퍼센트 인코딩 형태로 저장하는 경우가 많습니다. 디코딩하면 쿼리 파라미터, 검색어, 경로 세그먼트가 사람이 읽기 쉬운 형태가 되어 사용자의 방문 페이지와 검색 내용을 파악하는 데 도움이 됩니다.</p></details>
+<details class="faq-item"><summary>쿼리 문자열의 "+"는 공백으로 바뀌나요?</summary><p>기본적으로는 아닙니다. decodeURIComponent/decodeURI는 %XX 시퀀스만 디코딩하고 "+" 문자는 그대로 둡니다(폼 검색창에서 복사한 "q=hello+world" 같은 값에서 흔히 발생). 검색창·폼 데이터처럼 "+"가 공백을 의미하는 경우 "+ → 공백" 체크박스를 켜면 디코딩 전에 "+"를 공백으로 먼저 치환합니다. %2B로 이미 인코딩된 "+" 문자는 이 옵션과 무관하게 항상 "+"로 유지됩니다.</p></details>
 <details class="faq-item"><summary>URL에서 한글 문자는 어떻게 디코딩되나요?</summary><p>한글 문자는 UTF-8 바이트 시퀀스를 퍼센트 인코딩한 형태로 표현됩니다. 예를 들어 %EC%95%88%EB%85%95는 '안녕'으로 디코딩됩니다. EC 95 88이 '안'의 UTF-8이고 EB 85 95가 '녕'의 UTF-8이기 때문입니다.</p></details>
 <details class="faq-item"><summary>입력한 데이터가 서버로 전송되나요?</summary><p>아닙니다. 모든 디코딩 처리는 브라우저에서만 이루어집니다. 민감한 URL이나 토큰이 포함된 주소도 안전하게 사용할 수 있습니다.</p></details></div>
   <footer id="footerEl">모든 데이터는 브라우저에서만 처리됩니다 · 서버로 전송되지 않습니다</footer>
@@ -199,19 +177,20 @@ const i18n = {
     errInvalid: '유효하지 않은 퍼센트 인코딩 시퀀스가 포함되어 있습니다.',
     labelInput: '인코딩된 입력',
     labelOutput: '디코딩 결과',
+    labelPlusSpace: '+ → 공백 (폼 데이터)',
     footer: '모든 데이터는 브라우저에서만 처리됩니다 · 서버로 전송되지 않습니다',
     sample: 'https%3A%2F%2Fexample.com%2Fsearch%3Fq%3D%EC%95%88%EB%85%95%ED%95%98%EC%84%B8%EC%9A%94%26lang%3Dko',
     seoHtml: `<h2>URL 디코딩이란?</h2>
 <p>URL 디코딩은 퍼센트 인코딩된 문자열(%EC%95%88 등)을 사람이 읽을 수 있는 원래 텍스트로 변환하는 과정입니다. 서버 로그 분석, API 응답 디버깅, OAuth 리디렉트 URL 파싱, 브라우저 주소창에서 복사한 URL 해석 등 다양한 상황에서 활용됩니다.</p>
 <h2>decodeURIComponent vs decodeURI 차이</h2>
-<p><strong>decodeURIComponent</strong>는 %2F(/), %3F(?), %26(&) 등 URL 구조 문자를 나타내는 시퀀스까지 모두 디코딩합니다. 쿼리 파라미터 값을 개별 디코딩할 때 사용합니다. <strong>decodeURI</strong>는 URL 구조 문자는 그대로 두고 나머지만 디코딩해 URL의 구조를 유지합니다. <strong>Auto</strong> 모드는 decodeURIComponent를 먼저 시도하고 실패하면 decodeURI로 대체합니다.</p>
+<p><strong>decodeURIComponent</strong>는 %2F(/), %3F(?), %26(&) 등 URL 구조 문자를 나타내는 시퀀스까지 모두 디코딩합니다. 쿼리 파라미터 값을 개별 디코딩할 때 사용합니다. <strong>decodeURI</strong>는 URL 구조 문자는 그대로 두고 나머지만 디코딩해 URL의 구조를 유지합니다. <strong>Auto</strong> 모드는 decodeURIComponent를 먼저 시도하고 실패하면 decodeURI로 대체합니다. 두 함수 모두 %XX 시퀀스만 처리하며 "+" 문자는 그대로 두므로, 폼·검색어 인코딩에서 흔한 "+"=공백 표기가 필요하면 하단의 "+ → 공백" 체크박스를 켜세요.</p>
 <h2>자주 묻는 질문</h2>
 <details class="faq-item"><summary>URL 디코딩이 필요한 상황은?</summary><p>서버 로그의 퍼센트 인코딩된 쿼리 문자열 읽기, 인코딩된 파라미터가 포함된 API 응답 디버깅, OAuth 흐름의 리디렉트 URL 파싱, 브라우저 주소창에서 복사한 인코딩된 URL 해석 등에 필요합니다.</p></details>
 <details class="faq-item"><summary>%20과 %2F는 각각 무엇을 의미하나요?</summary><p>%20은 공백 문자(ASCII 32 = 16진수 20)를 나타내고, %2F는 슬래시(/)를 나타냅니다. 일반적으로 %XX 시퀀스는 해당 문자의 UTF-8 인코딩에서 16진수 값이 XX인 바이트를 나타냅니다.</p></details>
 <details class="faq-item"><summary>decodeURI와 decodeURIComponent의 차이는?</summary><p>decodeURIComponent는 %2F, %3F, %26 등 URL 구조 문자를 포함한 모든 퍼센트 인코딩 시퀀스를 디코딩합니다. decodeURI는 URL 구조 시퀀스를 그대로 두고 나머지만 디코딩하여 URL 구조를 보존합니다.</p></details>
 <details class="faq-item"><summary>잘못된 퍼센트 시퀀스가 있으면 어떻게 되나요?</summary><p>%GG(비 16진수)나 %2(불완전한 시퀀스)처럼 잘못된 퍼센트 시퀀스는 JavaScript에서 URIError를 발생시킵니다. 이 도구는 오류를 감지하고 대체 디코딩 함수로 재시도한 뒤, 그래도 실패하면 오류 메시지를 표시합니다.</p></details>
 <details class="faq-item"><summary>이중 인코딩된 URL은 어떻게 처리하나요?</summary><p>이중 인코딩된 URL은 %2520처럼 %가 %25로 인코딩된 형태입니다. 완전히 디코딩하려면 디코더를 두 번 실행하세요. 첫 번째 실행에서 %2520 → %20, 두 번째 실행에서 %20 → 공백이 됩니다.</p></details>
-<details class="faq-item"><summary>웹 트래픽 디버깅에 URL 디코딩이 어떻게 도움이 되나요?</summary><p>서버 접속 로그는 URL을 퍼센트 인코딩 형태로 저장하는 경우가 많습니다. 디코딩하면 쿼리 파라미터, 검색어, 경로 세그먼트가 사람이 읽기 쉬운 형태가 되어 사용자의 방문 페이지와 검색 내용을 파악하는 데 도움이 됩니다.</p></details>
+<details class="faq-item"><summary>쿼리 문자열의 "+"는 공백으로 바뀌나요?</summary><p>기본적으로는 아닙니다. decodeURIComponent/decodeURI는 %XX 시퀀스만 디코딩하고 "+" 문자는 그대로 둡니다(폼 검색창에서 복사한 "q=hello+world" 같은 값에서 흔히 발생). 검색창·폼 데이터처럼 "+"가 공백을 의미하는 경우 "+ → 공백" 체크박스를 켜면 디코딩 전에 "+"를 공백으로 먼저 치환합니다. %2B로 이미 인코딩된 "+" 문자는 이 옵션과 무관하게 항상 "+"로 유지됩니다.</p></details>
 <details class="faq-item"><summary>URL에서 한글 문자는 어떻게 디코딩되나요?</summary><p>한글 문자는 UTF-8 바이트 시퀀스를 퍼센트 인코딩한 형태로 표현됩니다. 예를 들어 %EC%95%88%EB%85%95는 '안녕'으로 디코딩됩니다. EC 95 88이 '안'의 UTF-8이고 EB 85 95가 '녕'의 UTF-8이기 때문입니다.</p></details>
 <details class="faq-item"><summary>입력한 데이터가 서버로 전송되나요?</summary><p>아닙니다. 모든 디코딩 처리는 브라우저에서만 이루어집니다. 민감한 URL이나 토큰이 포함된 주소도 안전하게 사용할 수 있습니다.</p></details>`
   },
@@ -233,19 +212,20 @@ const i18n = {
     errInvalid: 'Invalid percent-encoded sequence detected.',
     labelInput: 'Encoded Input',
     labelOutput: 'Decoded Output',
+    labelPlusSpace: '+ → space (form data)',
     footer: 'All data is processed in your browser · Never sent to any server',
     sample: 'https%3A%2F%2Fexample.com%2Fsearch%3Fq%3Dhello%20world%26lang%3Den',
     seoHtml: `<h2>URL Decoding Guide</h2>
 <p>URL decoding converts percent-encoded sequences like %EC%95%88 back into readable text. You need it when reading server logs with encoded query strings, debugging API responses with encoded parameters, parsing OAuth redirect URLs, or interpreting URLs copied from a browser address bar.</p>
 <h2>decodeURIComponent vs decodeURI</h2>
-<p><strong>decodeURIComponent</strong> decodes all percent-encoded sequences including those representing URL structural characters like %2F (/), %3F (?), and %26 (&). Use it for decoding individual query parameter values. <strong>decodeURI</strong> preserves structural sequences and only decodes the rest. <strong>Auto</strong> mode tries decodeURIComponent first and falls back to decodeURI on error.</p>
+<p><strong>decodeURIComponent</strong> decodes all percent-encoded sequences including those representing URL structural characters like %2F (/), %3F (?), and %26 (&). Use it for decoding individual query parameter values. <strong>decodeURI</strong> preserves structural sequences and only decodes the rest. <strong>Auto</strong> mode tries decodeURIComponent first and falls back to decodeURI on error. Neither function touches a literal "+" — both only decode %XX sequences — so if your input uses the form/search-query convention where "+" means space, enable the "+ to space" checkbox below.</p>
 <h2>FAQ</h2>
 <details class="faq-item"><summary>When do I need to decode a URL?</summary><p>You need URL decoding when reading server logs with percent-encoded query strings, debugging API responses containing encoded parameters, parsing OAuth redirect URLs, or making sense of URLs copied from browser address bars that contain encoded characters.</p></details>
 <details class="faq-item"><summary>What do %20 and %2F mean?</summary><p>%20 is a space character (ASCII 32 = hex 20). %2F is a forward slash (/). Each %XX sequence represents the byte whose hexadecimal value is XX in the UTF-8 encoding of the original character.</p></details>
 <details class="faq-item"><summary>What is the difference between decodeURI and decodeURIComponent?</summary><p>decodeURIComponent decodes all percent-encoded sequences including structural ones like %2F, %3F, and %26. decodeURI leaves those structural sequences intact, preserving the URL structure and only decoding non-structural sequences.</p></details>
 <details class="faq-item"><summary>What happens with malformed percent sequences?</summary><p>Malformed sequences like %GG or %2 trigger a URIError in JavaScript. This tool catches the error, tries the alternative decode function as a fallback, and shows an error message if both fail.</p></details>
 <details class="faq-item"><summary>How do I handle double-encoded URLs?</summary><p>A double-encoded URL contains sequences like %2520. Run the decoder twice: the first pass converts %2520 to %20, and the second pass converts %20 to a space. This is a common accidental encoding issue.</p></details>
-<details class="faq-item"><summary>How can URL decoding help with web traffic debugging?</summary><p>Server access logs store URLs in percent-encoded form. Decoding them makes query parameters, search terms, and path segments human-readable, helping you identify which pages users visited and what they searched for.</p></details>
+<details class="faq-item"><summary>Does "+" in a query string become a space?</summary><p>Not by default. decodeURIComponent/decodeURI only decode %XX sequences and leave a literal "+" untouched — a common surprise with values like "q=hello+world" copied from a search box. When "+" represents a space (form/search data), enable the "+ → space" checkbox to replace "+" with a space before decoding. A "+" that was itself percent-encoded as %2B always stays as "+" regardless of this option.</p></details>
 <details class="faq-item"><summary>How are Korean characters decoded from URLs?</summary><p>Korean characters are encoded as their UTF-8 byte sequences in percent format. For example %EC%95%88%EB%85%95 decodes to 안녕 because EC 95 88 is the UTF-8 encoding of 안 and EB 85 95 is the encoding of 녕.</p></details>
 <details class="faq-item"><summary>Is my data sent to a server?</summary><p>No. All decoding happens entirely in your browser. Sensitive URLs, auth tokens, and private query parameters are safe to paste here.</p></details>`
   },
@@ -267,17 +247,18 @@ const i18n = {
     errInvalid: '检测到无效的百分比编码序列。',
     labelInput: '编码输入',
     labelOutput: '解码结果',
+    labelPlusSpace: '+ → 空格（表单数据）',
     footer: '所有处理均在浏览器本地完成，不传输到服务器',
     sample: 'https%3A%2F%2Fexample.com%2Fsearch%3Fq%3D%E4%B8%AD%E6%96%87%26lang%3Dzh',
     seoHtml: `<h2>URL 解码指南</h2>
-<p>URL 解码将百分比编码序列（如 %E4%B8%AD）还原为可读文本。在读取含编码查询字符串的服务器日志、调试含编码参数的 API 响应、解析 OAuth 重定向 URL 或解读浏览器地址栏中的编码 URL 时都需要用到。</p>
+<p>URL 解码将百分比编码序列（如 %E4%B8%AD）还原为可读文本。在读取含编码查询字符串的服务器日志、调试含编码参数的 API 响应、解析 OAuth 重定向 URL 或解读浏览器地址栏中的编码 URL 时都需要用到。decodeURIComponent 和 decodeURI 都只处理 %XX 序列，不会把字面 "+" 当作空格——如果输入采用表单/搜索查询中常见的 "+" 表示空格的写法，请勾选下方的"+ → 空格"选项。</p>
 <h2>常见问题</h2>
 <details class="faq-item"><summary>什么时候需要解码 URL？</summary><p>读取含百分比编码查询字符串的服务器日志、调试含编码参数的 API 响应、解析 OAuth 重定向 URL，或解读从浏览器地址栏复制的编码 URL 时都需要解码。</p></details>
 <details class="faq-item"><summary>%20 和 %2F 分别代表什么？</summary><p>%20 表示空格（ASCII 32 = 十六进制 20），%2F 表示斜杠（/）。每个 %XX 序列代表其 UTF-8 编码中十六进制值为 XX 的字节。</p></details>
 <details class="faq-item"><summary>decodeURI 和 decodeURIComponent 有什么区别？</summary><p>decodeURIComponent 解码所有百分比编码序列，包括代表 URL 结构字符的 %2F、%3F、%26 等。decodeURI 保留这些结构性序列，只解码其余部分，从而保持 URL 结构完整。</p></details>
 <details class="faq-item"><summary>遇到格式错误的百分比序列怎么办？</summary><p>格式错误的序列（如 %GG 或 %2）会在 JavaScript 中触发 URIError。本工具会捕获错误，尝试备用解码函数，两者均失败时显示错误提示。</p></details>
 <details class="faq-item"><summary>如何处理双重编码的 URL？</summary><p>双重编码的 URL 含有 %2520 这样的序列。需要运行两次解码：第一次将 %2520 变为 %20，第二次将 %20 变为空格。这是常见的意外编码问题。</p></details>
-<details class="faq-item"><summary>URL 解码如何帮助调试 Web 流量？</summary><p>服务器访问日志通常以百分比编码形式存储 URL。解码后查询参数、搜索词和路径段变得可读，有助于了解用户访问的页面和搜索内容。</p></details>
+<details class="faq-item"><summary>查询字符串中的"+"会变成空格吗？</summary><p>默认不会。decodeURIComponent/decodeURI只解码%XX序列，"+"会原样保留——从搜索框复制的"q=hello+world"这类值就常遇到这个问题。当"+"代表空格（表单/搜索数据）时，勾选"+ → 空格"选项即可在解码前先把"+"替换为空格。已被编码为%2B的"+"字符不受此选项影响，始终保持为"+"。</p></details>
 <details class="faq-item"><summary>中文字符如何从 URL 中解码？</summary><p>中文字符以 UTF-8 字节序列的百分比编码形式存储。例如 %E4%B8%AD 解码为"中"，因为 E4 B8 AD 是"中"的 UTF-8 编码。</p></details>
 <details class="faq-item"><summary>本工具会向服务器发送数据吗？</summary><p>不会。所有解码均在浏览器本地完成，敏感 URL、令牌和私密查询参数可放心使用。</p></details>`
   },
@@ -299,17 +280,18 @@ const i18n = {
     errInvalid: '無効なパーセントエンコードシーケンスが検出されました。',
     labelInput: 'エンコード済み入力',
     labelOutput: 'デコード結果',
+    labelPlusSpace: '+ → スペース（フォームデータ）',
     footer: 'すべての処理はブラウザ内のみで行われます · サーバーには送信されません',
     sample: 'https%3A%2F%2Fexample.com%2Fsearch%3Fq%3D%E3%81%93%E3%82%93%E3%81%AB%E3%81%A1%E3%81%AF%26lang%3Dja',
     seoHtml: `<h2>URL デコードガイド</h2>
-<p>URL デコードは %EC%95%88 のようなパーセントエンコードされたシーケンスを読みやすいテキストに戻す処理です。サーバーログのエンコードされたクエリ文字列の読み取り、エンコードされたパラメータを含む API レスポンスのデバッグ、OAuth リダイレクト URL の解析など多くの場面で必要です。</p>
+<p>URL デコードは %EC%95%88 のようなパーセントエンコードされたシーケンスを読みやすいテキストに戻す処理です。サーバーログのエンコードされたクエリ文字列の読み取り、エンコードされたパラメータを含む API レスポンスのデバッグ、OAuth リダイレクト URL の解析など多くの場面で必要です。decodeURIComponent と decodeURI はどちらも %XX シーケンスのみを処理し、文字通りの「+」はそのまま残ります。フォームや検索クエリの「+」=スペースという慣習が必要な場合は、下部の「+ → スペース」チェックボックスをオンにしてください。</p>
 <h2>よくある質問</h2>
 <details class="faq-item"><summary>URL デコードが必要な場面は？</summary><p>パーセントエンコードされたクエリ文字列を含むサーバーログの読み取り、エンコードされたパラメータを含む API レスポンスのデバッグ、OAuth リダイレクト URL の解析、ブラウザのアドレスバーからコピーした URL の解釈などに必要です。</p></details>
 <details class="faq-item"><summary>%20 と %2F はそれぞれ何を意味しますか？</summary><p>%20 は空白文字（ASCII 32 = 16進 20）、%2F はスラッシュ（/）を表します。一般に %XX シーケンスは元の文字の UTF-8 エンコードにおける16進値 XX のバイトを表します。</p></details>
 <details class="faq-item"><summary>decodeURI と decodeURIComponent の違いは？</summary><p>decodeURIComponent は %2F、%3F、%26 などの URL 構造文字を含むすべてのパーセントエンコードシーケンスをデコードします。decodeURI は構造的なシーケンスを保持し、それ以外のみデコードして URL 構造を維持します。</p></details>
 <details class="faq-item"><summary>不正なパーセントシーケンスがあるとどうなりますか？</summary><p>%GG や %2 のような不正なシーケンスは JavaScript で URIError を発生させます。このツールはエラーをキャッチし、代替デコード関数で再試行し、両方失敗した場合にエラーメッセージを表示します。</p></details>
 <details class="faq-item"><summary>二重エンコードされた URL はどう処理しますか？</summary><p>二重エンコードされた URL には %2520 のようなシーケンスが含まれます。デコーダーを 2 回実行してください：1 回目で %2520 → %20、2 回目で %20 → 空白になります。</p></details>
-<details class="faq-item"><summary>URL デコードで Web トラフィックのデバッグにどう役立ちますか？</summary><p>サーバーアクセスログは URL をパーセントエンコード形式で保存することが多いです。デコードするとクエリパラメータ、検索ワード、パスセグメントが読みやすくなり、ユーザーの訪問ページや検索内容の把握に役立ちます。</p></details>
+<details class="faq-item"><summary>クエリ文字列の「+」はスペースになりますか？</summary><p>デフォルトではなりません。decodeURIComponent/decodeURIは%XXシーケンスのみをデコードし、「+」はそのまま残ります（検索ボックスからコピーした「q=hello+world」のような値でよく起こります）。「+」がスペースを意味するフォーム・検索データの場合は「+ → スペース」のチェックボックスをオンにすると、デコード前に「+」をスペースに置き換えます。%2Bとしてエンコードされた「+」文字はこのオプションに関係なく常に「+」のままです。</p></details>
 <details class="faq-item"><summary>URL から日本語文字はどうデコードされますか？</summary><p>日本語などの非 ASCII 文字は UTF-8 バイト列のパーセントエンコード形式で保存されます。例えば %E3%81%82 は「あ」にデコードされます（E3 81 82 が「あ」の UTF-8 エンコード）。</p></details>
 <details class="faq-item"><summary>入力したデータはサーバーに送信されますか？</summary><p>いいえ。すべてのデコード処理はブラウザ内のみで完結します。機密 URL や認証トークン、プライベートクエリパラメータも安全に使用できます。</p></details>`
   }
@@ -345,6 +327,7 @@ function applyLang() {
   document.getElementById('btnModeFull').textContent = t.optFullUrl;
   document.getElementById('labelInput').textContent = t.labelInput;
   document.getElementById('labelOutput').textContent = t.labelOutput;
+  document.getElementById('labelPlusSpace').textContent = t.labelPlusSpace;
   document.getElementById('footerEl').textContent = t.footer;
   document.getElementById('seoEl').innerHTML = t.seoHtml;
 }
@@ -384,9 +367,10 @@ function debouncedDecode() {
 }
 
 function decode() {
-  const text = document.getElementById('inputEl').value.trim();
-  if (!text) { document.getElementById('outputEl').value = ''; clearErr(); return; }
+  const raw = document.getElementById('inputEl').value.trim();
+  if (!raw) { document.getElementById('outputEl').value = ''; clearErr(); return; }
   const t = i18n[lang];
+  const text = document.getElementById('plusSpace').checked ? raw.replace(/\+/g, ' ') : raw;
 
   if (mode === 'auto') {
     try {
