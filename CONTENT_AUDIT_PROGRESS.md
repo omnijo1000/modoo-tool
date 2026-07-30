@@ -210,11 +210,11 @@ hashtag-generator(이 배치 최대 발견 — 단어 추출 정규식이 `[a-z�
 ### 완료 (4차 배치 5/N, content-depth-audit 브랜치에 커밋됨 — 커밋 8a8f430, 5f712a0, 96bbafa)
 margin-calculator(손실 시나리오(원가>매출)에서 profPct가 음수로 계산되어 CSS width가 "-50%" 같은 무효값이 되던 엣지케이스 수정(Math.max(0,...) 클램프) + 중복/저가치 FAQ 2개 정리), rent-convert("가이드 가이드 보기" 중복 단어 오타 수정 + 페이지 내에서 법정 전환율 상한을 "기준금리+2%p"(2곳)와 "5.0% 또는 기준금리+3.5%"(FAQ 1곳)로 서로 다르게 주장하던 내부 모순 발견, 나머지와 일치하도록 통일 + rate 입력값 0 입력 시 parseFloat(...)||5 falsy 버그로 5%가 조용히 대입되던 문제를 Number.isNaN 체크로 수정), freelancer-rate-calculator(salary-per-hour-calculator와 동일한 통화 버그 재발견 — en/zh 라벨은 "$"/"元" 원단위를 암시하는데 실제로는 전 언어 ×10,000 고정 + "₩" 접두사 고정, Node로 EN 사용자가 60000(=$60,000/년) 입력 시 "₩600,000,000"이 나옴을 재현 확인, salary-per-hour-calculator와 동일한 언어별 승수/통화기호 테이블 도입으로 수정 + insightBox 결과 요약 문구가 언어 무관 하드코딩 한국어였던 것도 4개 언어 템플릿으로 수정, ko 경로가 페이지 자체 FAQ 예시(72,222원)와 정확히 일치함을 재확인)
 
-## 남은 96개 (worst-first, char count) — 다음 배치는 여기서부터 3개씩
+### 완료 (4차 배치 6/N, content-depth-audit 브랜치에 커밋됨 — 커밋 6afb883)
+break-even-calculator(버그도 수정 — BEP 판매 수량 결과에 언어 무관 한국어 단위 " 개"가 하드코딩되어 en/zh/ja에서도 "625 개"로 표시되던 문제, 언어별 unit 필드 추가로 수정 + FAQ 개수 불일치(ko/static 10개, en/zh/ja 8개)를 ko 전용 추가분(실제 계산 예시, 안전마진율)을 3개 언어에 번역 이식하고 범용 항목 2개를 전 언어에서 제거해 8개로 통일), cagr-calculator(버그도 수정 — 종료값에 음수를 입력하면 Math.pow(음수, 분수)가 NaN이 되어 "NaN%"이 그대로 표시되던 문제, ev<=0 검증 추가로 수정(기존 sv<=0과 동일 패턴) + break-even과 동일한 FAQ 8개 통일 작업(CAGR vs ROI, 3년 매출 예시를 3개 언어에 번역 이식)), find-replace(이 배치 최대 발견 — "줄바꿈 찾기"·"백레퍼런스" FAQ 답변에서 홑따옴표 JS 문자열 안의 \n과 \d가 각각 실제 개행문자로 치환되거나(설명 텍스트가 통째로 사라짐) 인식 안 되는 이스케이프라 백슬래시가 조용히 삭제되는 문제가 ko 하나가 아니라 4개 언어 전부에서 동일하게 발생하고 있었음(정적 프리렌더 블록은 이미 깨진 JS 출력을 그대로 복사해 옮긴 상태), \\n/\\d로 이스케이프 수정 후 static seoDiv를 수정된 ko 콘텐츠와 완전히 동일하게 재구성)
+
+## 남은 93개 (worst-first, char count) — 다음 배치는 여기서부터 3개씩
 ```
-1104  break-even-calculator.html           ⬜ 다음 배치 시작점
-1111  cagr-calculator.html
-1112  find-replace.html
 1114  text-diff-checker.html
 1128  business-days-calculator.html
 1133  sql-formatter.html
