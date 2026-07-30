@@ -219,11 +219,11 @@ text-diff-checker(버그도 수정 — 줄 수 초과 경고가 언어 무관 �
 ### 완료 (4차 배치 8/N, content-depth-audit 브랜치에 커밋됨 — 커밋 0f2c7a4, a7d07e0)
 loan-calculator-en(이 배치 최대 발견 — 이 페이지는 title/meta/x-default hreflang이 전부 자기 자신을 가리키는 영어 우선/기본 버전 페이지(JS _detectLang()도 ko/zh/ja 신호 없으면 en으로 폴백)인데, JS 실행 전 정적 seoDiv가 ko 블록을 그대로 복사해 100% 한국어로 렌더링되고 있던 문제 — 크롤러·JS 미실행 사용자에게는 영어 타이틀·설명과 모순되는 한국어 본문이 노출됨, 정적 블록을 올바르게 수정된 en 콘텐츠로 교체. 별개로 EN FAQ 마지막 두 항목만 나머지 전부가 $USD 예시인 페이지에서 갑자기 "한국 시중은행"·원화(KRW) 예시로 전환되던 것을 발견, 중도상환수수료 항목은 국가/대출기관마다 다르다는 일반적 설명(미국은 수수료 없는 경우도 많음)으로, 금리 비교 예시는 실제 상환공식으로 재계산한 $300,000/USD 수치로 교체), pdf-to-image(이 세션 최대급 발견 — head JSON-LD·정적·4개 언어 FAQ 전부가 "모두 다운로드"를 누르면 ZIP으로 묶어 다운로드한다고 명시하는데 실제 코드에는 ZIP 라이브러리가 전혀 없고 downloadAll()은 setTimeout으로 0.2초 간격 개별 PNG 다운로드 n번을 순차 실행할 뿐임을 grep으로 직접 확인, 5곳 전부 실제 동작(개별 순차 다운로드, 브라우저에 따라 다중 다운로드 허용 팝업 가능성)으로 정정 + 페이지 렌더링/완료 상태 메시지가 언어 무관 하드코딩 영어("Rendering page X/Y...")였던 것 i18n 처리 + en 콘텐츠 수정 중 아포스트로피(page's)가 홑따옴표 JS 문자열을 깨던 것을 node --check로 발견해 수정(이 세션 반복 패턴)), timestamp(falsy-zero 버그 — tsToDate()가 `if(!val)`로 빈 입력을 판정해 타임스탬프 0(1970-01-01 UTC 자정, 유효하고 의미 있는 값)을 입력해도 빈 입력처럼 결과가 숨겨지던 문제를 Number.isNaN 체크로 수정(이 세션 반복 패턴: cps-calculator, stopword-remover, rent-convert 등과 동일) + FAQ가 5개 블록 전부 9개(45개)였던 것 발견 — "2038년 문제란?"과 "유닉스 타임스탬프는 2038년 문제가 있나요?"가 사실상 같은 32비트 오버플로우 설명을 중복 질문하고 있어 후자를 제거해 8개로 정리 + 정적 seoDiv에 JS ko와 달리 JWT 가이드 링크 문단이 누락되어 있던 static/JS 불일치(hmac-generator·avif-to-jpg와 동일 패턴)도 발견해 수정)
 
-## 남은 87개 (worst-first, char count) — 다음 배치는 여기서부터 3개씩
+### 완료 (4차 배치 9/N, content-depth-audit 브랜치에 커밋됨 — 커밋 e642437, b2867ea, ed2a8dd)
+apr-calculator(calcEAR() 결과 그리드 라벨("명목금리","월 환산")이 언어 무관 하드코딩 한국어였던 것 i18n 처리 + FAQ 8개 중 1번과 6번이 사실상 같은 "APR과 명목 금리 차이" 질문의 재구성 중복이었던 것을 발견, 6번을 도구 기본값(대출 1,000만원·수수료 10만원·월 20만원·60개월) 실제 계산 예시(APR≈8.13%, node로 Newton-Raphson 알고리즘 직접 재현 검증)로 교체), text-cleaner(줄바꿈 제거 옵션의 정규식 /\r?\n/g가 \n 없는 옛 Mac 방식 단독 \r 줄바꿈은 매칭하지 못해 방치되던 문제를 재현 확인했는데, FAQ는 정확히 "Mac(\r)" 형식도 지원한다고 명시하고 있어 자기모순 — /\r\n|\r|\n/g로 수정 + 해당 FAQ 5개 블록 전부에서 "Windows(\r\n)" 등 예시 텍스트가 홑따옴표 이스케이프 미흡으로 실제 개행문자로 렌더되어 괄호 안이 빈칸으로 보이던 문제(find-replace.html과 동일 패턴)도 함께 수정 + "여러 형식을 하나로 통일" 이라는 과장 표현을 실제 동작(완전 제거만 가능, 형식 유지 통일 기능 없음)에 맞게 정정), ip-address-lookup(이 세션 최고 심각도급 버그 — `let history = [...]`(IP 조회 히스토리 배열)가 스크립트 전역에서 `window.history` 객체를 가리는 바람에 toggleLang() 내부의 `history.replaceState(...)` 호출이 TypeError를 던져 언어 전환 버튼이 완전히 작동하지 않던 문제, Node로 동일한 셰도잉 재현 후 확인, 배열을 ipHistory로 리네임해 해결 + IPv6 정규식이 "::" 압축이 주소 맨 앞/맨 뒤에만 있을 때만 통과하고 중간 압축(가장 흔한 실사용 표기법)은 거부하던 문제 — 심지어 이 페이지 자신의 FAQ 예시 "2001:db8::1"조차 검증에 실패함을 확인, 압축 위치를 인식하는 올바른 검증 로직으로 교체)
+
+## 남은 84개 (worst-first, char count) — 다음 배치는 여기서부터 3개씩
 ```
-1167  apr-calculator.html
-1171  text-cleaner.html
-1177  ip-address-lookup.html
 1183  split-calculator.html
 1183  pixelate-image.html
 1189  tip-calculator.html
