@@ -241,7 +241,7 @@ worst-first 83개 파일 전부 처리 완료.
 
 ## 5차 스캔 (1500자 이상, worst-first) — 진행중
 
-1500자 이상 148개 파일 중 68개는 이미 완료 처리된 파일이 내용 심화로 글자수만 이 구간에 새로 들어온 경우라 제외. 배치 1~3(unicode-inspector, webp-to-png, realestate-fee, base64-decoder, html-decoder, apache-config-generator, character-counter, profit-calculator, nginx-config-generator, salary) 완료. **남은 70개, chatgpt-token-counter.html부터 시작.**
+1500자 이상 148개 파일 중 68개는 이미 완료 처리된 파일이 내용 심화로 글자수만 이 구간에 새로 들어온 경우라 제외. 배치 1~4(unicode-inspector, webp-to-png, realestate-fee, base64-decoder, html-decoder, apache-config-generator, character-counter, profit-calculator, nginx-config-generator, salary, chatgpt-token-counter, prompt-variable-extractor, four-insurance) 완료. **남은 67개, uuid-validator.html부터 시작.**
 
 ### 완료 (5차 배치 1/N, 1500~1509자 구간)
 unicode-inspector(코드포인트 통계 라벨이 "고유값(중복제거)"이라는 걸 안 밝혀서 "3글자,3바이트,1코드포인트"처럼 집계 오류로 보이던 문제, "고유 코드포인트"로 라벨 명확화, 서로게이트쌍/이모지 UTF-8 처리는 검증해서 정상, FAQ 11/11/11/8/8→8×5 정리), webp-to-png(파일명 미이스케이프 XSS, 투명배경은 PNG출력이라 원래 정상), realestate-fee(SEO본문이 완전히 지어낸 요율표(매매 0.4/0.5/0.9%)를 쓰고 있었는데 실제 코드·화면표·FAQ는 전부 서로 일치하는 진짜 공식 U자형 요율을 쓰고 있어 본문만 따로 놀던 문제, 본문을 실제 요율로 수정), base64-decoder(샘플 버튼의 하드코딩 Base64 문자열이 깨져있어 주석이 주장하는 원문과 다른 내용으로 디코딩되던 버그, 6곳 전부 올바른 문자열로 교체 + static/JS 콘텐츠 불일치(가이드링크 누락) 수정, UTF-8 디코딩 경로 자체는 검증해서 정상)
@@ -252,12 +252,12 @@ html-decoder(엔티티 개수 카운트가 실제로 디코딩되지 않는(존�
 ### 완료 (5차 배치 3/N, 병렬 fork 3개, 1525~1527자 구간)
 profit-calculator(`_ph` 플레이스홀더 키 미정의로 항상 빈 값 표시되던 버그 수정 + static/ko/en 11개 vs zh/ja 8개(내용도 다름) FAQ 불일치를 5블록 전부 동일 8개로 통일), nginx-config-generator(버그 없음, 토글+HSTS/SSL 게이팅 로직 Node 검증 — apache-config-generator와 동일한 Debian/RHEL 경로 표기 격차 발견해 콘텐츠 보강, head FAQ 2→4), salary.html(FAQ 3곳의 예시 수치(5000만/1억/3000만 연봉)가 Node로 재계산한 실제 결과와 7~17% 차이나던 것 수정, head FAQ 5→4)
 
+### 완료 (5차 배치 4/N, 병렬 fork 3개, 1535~1547자 구간)
+chatgpt-token-counter(버그 없음, CJK 정규식+토큰 공식 Node 검증 — 영어 100자→25토큰, 한국어 100자→250토큰으로 자체 FAQ 주장과 일치 확인, head FAQ 8→4 정리), prompt-variable-extractor(이 배치 최대 발견 — `[변수]` 대괄호 추출 패턴이 마크다운 링크 `[text](url)`와 인용 `[1]` 등을 변수로 오인해 Apply 시 실제 콘텐츠가 조용히 삭제되던 데이터 손실 버그, Node로 재현 확인 후 패턴 제거(실제 템플릿 시스템 중 순수 `[]` 변수 문법 쓰는 곳 없음을 자체 FAQ로도 확인) + zh/ja가 static/ko/en(11개)과 다른 8개를 쓰던 FAQ 불일치를 5블록 동일 8개로 통일), four-insurance(사업장 규모 선택 셀렉터가 calc()에 전혀 연결 안 돼 있던 죽은 컨트롤(자체 FAQ는 규모별 고용보험율 차등을 주장) 수정 + FAQ 예시 수치가 실제 계산값과 최대 28% 차이나던 것 수정)
+
 **주의 6**: 이 스캔에서 처음에 exclude 로직 버그가 있었음 — 4차 배치(67~83)의 완료 기록이 "파일명(설명)" 형식으로 `.html` 확장자 없이 적혀 있는데, 스캔 스크립트가 `이름.html` 패턴으로만 완료 여부를 매칭해서 방금 끝낸 파일들(freelancer-tax, color-palette, inflation-calculator, sip-calculator, body-fat-calculator, loan-calculator-en 등)이 전부 "미완료"로 잘못 다시 나타났었음. `이름(` 패턴도 함께 매칭하도록 스캔 스크립트를 고쳐서 재실행 후 확인함. **앞으로 이 파일에 완료 기록을 추가할 때 파일명 뒤에 `.html`을 붙이든 안 붙이든 상관없지만, 재스캔할 땐 반드시 두 패턴(`이름.html`과 `이름(`) 모두로 완료 여부를 매칭할 것.**
 
 ```
-1535  chatgpt-token-counter.html
-1540  prompt-variable-extractor.html
-1547  four-insurance.html
 1548  uuid-validator.html
 1555  canonical-tag-checker.html
 1557  pdf-metadata-viewer.html
