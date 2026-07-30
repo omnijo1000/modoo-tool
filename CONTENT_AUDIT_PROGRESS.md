@@ -241,7 +241,7 @@ worst-first 83개 파일 전부 처리 완료.
 
 ## 5차 스캔 (1500자 이상, worst-first) — 진행중
 
-1500자 이상 148개 파일 중 68개는 이미 완료 처리된 파일이 내용 심화로 글자수만 이 구간에 새로 들어온 경우라 제외. 배치 1~8(unicode-inspector, webp-to-png, realestate-fee, base64-decoder, html-decoder, apache-config-generator, character-counter, profit-calculator, nginx-config-generator, salary, chatgpt-token-counter, prompt-variable-extractor, four-insurance, uuid-validator, canonical-tag-checker, pdf-metadata-viewer, ssl-checker, salary-negotiation, ssl-decoder, open-graph-generator, http-header-checker, url-decoder, cron-parser, minimum-wage, ascii-converter, cors-header-checker) 완료. **남은 54개, base64-encoder.html부터 시작.**
+1500자 이상 148개 파일 중 68개는 이미 완료 처리된 파일이 내용 심화로 글자수만 이 구간에 새로 들어온 경우라 제외. 배치 1~9(unicode-inspector, webp-to-png, realestate-fee, base64-decoder, html-decoder, apache-config-generator, character-counter, profit-calculator, nginx-config-generator, salary, chatgpt-token-counter, prompt-variable-extractor, four-insurance, uuid-validator, canonical-tag-checker, pdf-metadata-viewer, ssl-checker, salary-negotiation, ssl-decoder, open-graph-generator, http-header-checker, url-decoder, cron-parser, minimum-wage, ascii-converter, cors-header-checker, base64-encoder, twitter-card-generator, health-insurance) 완료. **남은 51개, url-encoder.html부터 시작.**
 
 ### 완료 (5차 배치 1/N, 1500~1509자 구간)
 unicode-inspector(코드포인트 통계 라벨이 "고유값(중복제거)"이라는 걸 안 밝혀서 "3글자,3바이트,1코드포인트"처럼 집계 오류로 보이던 문제, "고유 코드포인트"로 라벨 명확화, 서로게이트쌍/이모지 UTF-8 처리는 검증해서 정상, FAQ 11/11/11/8/8→8×5 정리), webp-to-png(파일명 미이스케이프 XSS, 투명배경은 PNG출력이라 원래 정상), realestate-fee(SEO본문이 완전히 지어낸 요율표(매매 0.4/0.5/0.9%)를 쓰고 있었는데 실제 코드·화면표·FAQ는 전부 서로 일치하는 진짜 공식 U자형 요율을 쓰고 있어 본문만 따로 놀던 문제, 본문을 실제 요율로 수정), base64-decoder(샘플 버튼의 하드코딩 Base64 문자열이 깨져있어 주석이 주장하는 원문과 다른 내용으로 디코딩되던 버그, 6곳 전부 올바른 문자열로 교체 + static/JS 콘텐츠 불일치(가이드링크 누락) 수정, UTF-8 디코딩 경로 자체는 검증해서 정상)
@@ -267,12 +267,12 @@ open-graph-generator(버그 없음, 실제 페이로드로 이스케이핑/XSS N
 ### 완료 (5차 배치 8/N, 병렬 fork 3개 + fork 자체판단 보너스 1개, 1611~1644자 구간)
 cron-parser(이 배치 최대 발견 — day-of-month/day-of-week 필드를 AND로 결합해 둘 다 값이 있으면 동시 만족해야만 매칭되던 버그, 자체 FAQ가 명시하는 Vixie cron OR 규칙("15일 또는 매주 월요일")과 정반대로 동작 — Node로 "0 0 15 * 1"이 1년간 2건만 매칭됨을 재현 확인 후 올바른 OR 로직으로 수정, 매주 월요일+15일 전부 정상 매칭 재검증), minimum-wage(2026년 최저시급 10,320원 웹서치로 재확인(정상) + 마침 2026-07-14 최저임금위원회가 이례적으로 이미 2027년 시급(10,700원, +3.7%)을 의결한 것을 발견해 반영, 3번째 연도 버튼 추가 과정에서 `currentWage===10320?'2026':'2025'` 식 이진 삼항연산자가 2027 선택 시 "2025년"으로 라벨 오표시하던 버그도 함께 발견해 수정 + 주휴수당 공식이 실제로는 근무시간 무관하게 "하루치 임금"으로 대수적으로 축약돼 8시간×5일 기본값 외엔 틀리던 버그(18시간/주 알바 67% 과다지급 등) + 월급 환산이 반올림 없는 연속소수 계산이라 페이지 자체가 강조하는 209시간 기준 2,156,880원과 불일치하던 버그 수정), ascii-converter(textToAscii()가 비ASCII 문자(한글·이모지)를 걸러내지 않고 UTF-16 코드유닛 그대로 변환해 자체 FAQ의 "ASCII 전용" 주장과 모순되던 버그, 127 이하 범위 필터 추가로 수정), cors-header-checker(fork가 배치 범위를 벗어나 자체 판단으로 추가 처리 — Access-Control-Allow-Methods를 프리플라이트 불필요한 simple request에도 동일 적용해 정상 요청을 BLOCKED로, 반대로 프리플라이트 필요한데 헤더 자체가 없는 경우를 SUCCESS로 오판정하던 CORS 스펙 위반 버그 + 헤더 값 미이스케이프 XSS 수정)
 
+### 완료 (5차 배치 9/N, 병렬 fork 3개, 1659~1688자 구간)
+base64-encoder(파일명 라벨 하드코딩 한국어 + "Web Crypto API로 SHA 해시도 지원" 등 존재하지 않는 기능 거짓 주장 수정), twitter-card-generator(이 배치 최대 발견 — "app" 카드 타입 선택해도 generateCard()가 카드 타입 무관하게 항상 같은 일반 태그만 출력하고 twitter:app:id:iphone/googleplay 입력 필드 자체가 UI에 없어 자체 FAQ의 "app 카드 필수 태그" 주장과 정면 모순되던 버그, Node 재현 후 두 입력 필드 추가+연결로 실제 구현), health-insurance(fmtW() 헬퍼가 만원 단위로 반올림하면서 6곳에서 "만원" 접미사를 중복 부착해 "-11만원만원" 식으로 깨져 표시되던 버그, 원 단위 정밀 fmtWon()으로 교체 후 자체 FAQ 예시(107,850원/14,171원/122,021원)와 정확히 일치 재검증, 요율(7.19%/3.595%/13.14%/208.4원) 전체 일관성도 확인)
+
 **주의 6**: 이 스캔에서 처음에 exclude 로직 버그가 있었음 — 4차 배치(67~83)의 완료 기록이 "파일명(설명)" 형식으로 `.html` 확장자 없이 적혀 있는데, 스캔 스크립트가 `이름.html` 패턴으로만 완료 여부를 매칭해서 방금 끝낸 파일들(freelancer-tax, color-palette, inflation-calculator, sip-calculator, body-fat-calculator, loan-calculator-en 등)이 전부 "미완료"로 잘못 다시 나타났었음. `이름(` 패턴도 함께 매칭하도록 스캔 스크립트를 고쳐서 재실행 후 확인함. **앞으로 이 파일에 완료 기록을 추가할 때 파일명 뒤에 `.html`을 붙이든 안 붙이든 상관없지만, 재스캔할 땐 반드시 두 패턴(`이름.html`과 `이름(`) 모두로 완료 여부를 매칭할 것.**
 
 ```
-1659  base64-encoder.html
-1671  twitter-card-generator.html
-1688  health-insurance.html
 1688  url-encoder.html
 1692  national-pension.html
 1713  case-converter.html
