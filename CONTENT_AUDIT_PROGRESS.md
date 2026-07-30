@@ -356,7 +356,7 @@ base64-encoder(파일명 라벨 하드코딩 한국어 + "Web Crypto API로 SHA 
 - **severance.html**: 평균임금 분모를 91일 고정 사용, 실제로는 89~92일 사이인 정확한 달력일수 필요 (실제 급여 영향, ~1% 오차)
 - **severance-tax.html**: 환산급여공제 구간표 자체가 통째로 틀림 — 자체 FAQ 예시 기준 실효세율이 10.65% 나오는데(정답은 4.26%) 2배 이상 차이 (실제 세금 영향, 웹서치로 국세청 공식표 대조 후 수정)
 - **bmi-calc.html**: 툴팁의 성별차등 표준체중 공식이 실제 코드엔 반영 안 돼 성별 바꿔도 결과 불변
-- **html-to-markdown.html**: 중첩 목록이 "평탄화"가 아니라 통째로 삭제되던 데이터 유실 버그 + detached div innerHTML XSS(DOM 미부착 상태에서도 img onerror 실행됨)
+- **htmㅍl-to-markdown.html**: 중첩 목록이 "평탄화"가 아니라 통째로 삭제되던 데이터 유실 버그 + detached div innerHTML XSS(DOM 미부착 상태에서도 img onerror 실행됨)
 - **parental-leave.html**: 제목/메타 "2026년 기준" vs 본문 "2024년 기준" 자기모순 — 본문 기준으로만 통일함, 실제 최신연도 수치 재검증 권장
 
 - 1000~1500자 구간 83개 전체 완료. 다음은 1500자 이상 구간 재스캔 필요
