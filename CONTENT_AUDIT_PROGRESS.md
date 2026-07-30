@@ -237,11 +237,102 @@ seo-title-generator(아포스트로피 있는 제목 복사버튼 완전히 깨�
 schema-validator(@context가 문자열 아닌 객체/배열이면 .includes() 호출로 검증기 자체가 크래시하던 버그 — 재귀 헬퍼로 문자열/배열/객체 다 처리), weekly-holiday(이 배치 최대급 — holidayHours를 실제 "주 근무일수" 입력 무시하고 항상 ÷5로 고정계산, 4일근무 시 실제보다 20% 적게, 6일근무 시 20% 많이 지급되던 버그, 데모기본값이 마침 5일이라 안 걸렸던 케이스), bmi-calc(툴팁은 "남성×0.9/여성×0.85" 성별차등 Broca공식이라 명시하는데 실제 코드는 성별무관 단일 BMI공식이라 성별 바꿔도 결과 불변이던 버그+FAQ 7/7/7/6/6→8×5 정리, 성별·활동량 라디오버튼 미번역 갭 발견만), png-to-jpg(파일명 미이스케이프 XSS+static/JS 콘텐츠 불일치, 투명배경 버그는 이 파일은 원래 정상이었음 확인), hreflang-generator(HTTP헤더 출력탭에 HTML용 이스케이프 그대로 써서 쿼리스트링 있는 URL이 &amp;amp;로 이중이스케이프되던 버그), severance(평균임금 분모를 91일 고정 사용, 실제로는 89~92일 사이 변동하는 정확한 달력일수 써야 함 — 2026-09-01 퇴직 예시로 약 97,000원/1% 오차 확인 후 실제 달력일수 계산으로 수정), ai-token-counter(FAQ 자체 예시 "Hello=1토큰"이 실제 코드 돌리면 3토큰 나오는 자기모순, FAQ 9×5=45→8×5=40 정리), prompt-formatter(헤드FAQ가 "프롬프트 저장/재사용 가능"이라 주장하는데 본문FAQ는 정확히 반대로 "저장기능 없음"이라 명시하던 자기모순), whois-lookup(다른 필드는 다 escHtml() 적용했는데 네임서버 목록만 이스케이프 누락), parental-leave(제목/메타는 "2026년 기준"인데 본문은 "2024년 기준"이라던 자기모순(같은 수치)을 본문 기준으로 통일, FAQ의 상한액 고정 250만원 주장이 실제 200→250→300만원 단계상승과 다르던 것도 수정 — ⚠️ 실제 최신연도 수치 재검증 권장), csv-diff-checker(CSV 셀값·헤더가 그대로 innerHTML 삽입되던 XSS, FAQ 11/11/11/8/8→8×5 정리), stock-tax(UI에 없는 "비상장 대주주 25%" 세율을 요약박스가 주장하던 것 정직하게 수정, 나머지 계산은 자체 FAQ예시로 검증 정상), freelancer-tax(SEO본문 예시 수치가 실제 계산과 거의 2배 차이(14만원 주장 vs 실제 환급 25.7만원), 표현 자체도 "세부담...환급"으로 모순), commission-calculator(FAQ 안에서 요율범위 자기모순(0.4~0.9% vs 실제 0.4~0.6%), 계산로직은 검증 정상, FAQ 11/11/11/8/8→8×5 정리), dns-lookup(whois-lookup과 동일 패턴 — name/type 필드 이스케이프 누락 + "ALL 조회 시 8종류"라 광고하면서 실제론 SOA/PTR 빠진 6종류만 조회하던 버그), severance-tax(이 세션 최대급 발견 — 환산급여공제 구간표 자체가 완전히 다른/구버전 표를 쓰고 있어 자체 FAQ 예시(실효세율 4~6%)로 검증 시 실제로는 10.65% 나옴(2배 이상), 웹서치로 국세청 공식표 확인 후 수정하니 4.26%로 FAQ 범위 안에 정확히 들어감, FAQ 산수오류(2,475만원→실제 2,750만원)도 수정), html-to-markdown(마지막 파일 — ①FAQ는 중첩 목록이 "한 단계로 평탄화"된다고 주장하지만 실제 코드는 중첩 목록을 통째로 스킵해 데이터 완전 삭제, 진짜 들여쓰기 유지 중첩리스트 변환 구현, ②붙여넣은 HTML을 detached div에 innerHTML로 삽입 — DOM 미부착 상태에서도 <img onerror>는 즉시 실행되는 XSS 벡터, DOMParser로 교체해 원천 차단, 헤드FAQ 언어혼용도 정리)
 
 ## 4차 스캔(1000~1500자, 83개) 전체 완료 (2026-07-30)
-worst-first 83개 파일 전부 처리 완료. 1500자 이상 구간은 아직 미스캔 — 이어서 진행 시 아래 스캔 방법(맨 위 "스캔 방법" 섹션)으로 `1500 <= len` 범위 재스캔부터 시작할 것(이미 완료된 파일은 스캔 결과에서 나와도 건너뛸 것).
+worst-first 83개 파일 전부 처리 완료.
+
+## 5차 스캔 (1500자 이상, worst-first) — 진행중
+
+1500자 이상 148개 파일 중 68개는 이미 완료 처리된 파일이 내용 심화로 글자수만 이 구간에 새로 들어온 경우라 제외. **남은 80개.**
+
+**주의 6**: 이 스캔에서 처음에 exclude 로직 버그가 있었음 — 4차 배치(67~83)의 완료 기록이 "파일명(설명)" 형식으로 `.html` 확장자 없이 적혀 있는데, 스캔 스크립트가 `이름.html` 패턴으로만 완료 여부를 매칭해서 방금 끝낸 파일들(freelancer-tax, color-palette, inflation-calculator, sip-calculator, body-fat-calculator, loan-calculator-en 등)이 전부 "미완료"로 잘못 다시 나타났었음. `이름(` 패턴도 함께 매칭하도록 스캔 스크립트를 고쳐서 재실행 후 확인함. **앞으로 이 파일에 완료 기록을 추가할 때 파일명 뒤에 `.html`을 붙이든 안 붙이든 상관없지만, 재스캔할 땐 반드시 두 패턴(`이름.html`과 `이름(`) 모두로 완료 여부를 매칭할 것.**
+
+```
+1500  unicode-inspector.html
+1503  webp-to-png.html
+1506  realestate-fee.html
+1509  base64-decoder.html
+1512  html-decoder.html
+1514  apache-config-generator.html
+1524  character-counter.html
+1525  profit-calculator.html
+1527  nginx-config-generator.html
+1527  salary.html
+1535  chatgpt-token-counter.html
+1540  prompt-variable-extractor.html
+1547  four-insurance.html
+1548  uuid-validator.html
+1555  canonical-tag-checker.html
+1557  pdf-metadata-viewer.html
+1565  ssl-checker.html
+1571  salary-negotiation.html
+1588  ssl-decoder.html
+1602  open-graph-generator.html
+1602  http-header-checker.html
+1609  url-decoder.html
+1611  cron-parser.html
+1636  minimum-wage.html
+1641  ascii-converter.html
+1644  cors-header-checker.html
+1659  base64-encoder.html
+1671  twitter-card-generator.html
+1688  health-insurance.html
+1688  url-encoder.html
+1692  national-pension.html
+1713  case-converter.html
+1741  unemployment.html
+1753  time-calculator.html
+1772  color-contrast-checker.html
+1787  ai-cost-calculator.html
+1796  pdf-merge.html
+1806  xml-validator.html
+1806  working-days-calc.html
+1814  inheritance-tax.html
+1823  utm-builder.html
+1831  sitemap-generator.html
+1852  capital-gains-tax.html
+1854  cheongyak-score.html
+1859  meta-tag-generator.html
+1893  date-calc.html
+1897  schema-markup-generator.html
+1932  http-request-builder.html
+1934  currency-converter.html
+1936  regex-tester.html
+1955  acquisition-tax.html
+1964  redirect-checker.html
+1966  markdown-preview.html
+1973  robots-txt-generator.html
+2003  gift-tax.html
+2028  income-tax.html
+2076  image-resizer.html
+2128  mortgage-calculator.html
+2137  emi-calculator.html
+2140  image-compressor.html
+2142  barcode-generator.html
+2156  password-generator.html
+2164  retirement-pension.html
+2200  color-picker.html
+2289  word-counter.html
+2325  roi-calculator.html
+2335  keyword-grouping-tool.html
+2351  dsr-calc.html
+2355  hash-generator.html
+2395  loan-calc.html
+2431  compound-interest.html
+2440  savings-calc.html
+2442  investment-return-calculator.html
+2494  gst-calculator.html
+2498  ltv-calculator.html
+2512  percent-calc.html
+2770  calorie-calculator.html
+2796  vat-calculator-global.html
+3030  unit-converter.html
+3097  timezone-converter.html
+```
+
+특히 주의해서 볼 파일들(라벨/이름부터 이미 알려진 버그 패턴과 겹칠 가능성): working-days-calc.html·minimum-wage.html(CLAUDE.md 연간점검 대상, 하드코딩 법정수치 최신 여부 확인), national-pension.html·health-insurance.html·unemployment.html(national-pension-calculator/health-insurance-calc과 이름 유사한 별개 파일 — 동일한 요율 드리프트 여부 확인 필요), inheritance-tax.html·gift-tax.html·acquisition-tax.html·capital-gains-tax.html·income-tax.html(세금 계산기 — severance-tax급 구간표 오류 가능성 염두), date-calc.html·time-calculator.html(날짜 입력 있으면 UTC자정 파싱 버그 패턴 확인).
 
 ## 새 컴퓨터에서 이어할 때 체크리스트
 1. `git fetch && git checkout content-depth-audit && git pull`
-2. 1000~1500자 구간 전체 완료됨 — 이어서 할 경우 1500자 이상 구간을 재스캔(맨 위 "스캔 방법" 섹션 python 스니펫에서 범위만 `1500 <= len`으로 변경)해서 새 worst-first 목록 산출부터 시작, 4개씩 병렬 fork 배치 권장
+2. 위 "5차 스캔" 남은 80개 목록 맨 위부터 시작, 4개씩 병렬 fork 배치 권장
 3. 파일마다: 코드 읽고 실제 버그/과장된 주장 찾기(가능하면 node로 직접 재현) → 없으면 진짜 기술적 디테일로 깊이 보강 → ko 정적 seoDiv 재작성 → JS _i18n.ko.seoHtml에 완전히 동일하게 미러링(정규식 특수문자는 백슬래시 2번 이스케이프 등 주의) → en/zh/ja 번역 → head FAQPage JSON-LD를 새 내용 기준 4개 항목으로 교체
 4. 검증 4종 세트 (파일마다 필수):
    - `python3 -c "...json.loads(...)"` 로 JSON-LD 2개 블록 파싱 확인
