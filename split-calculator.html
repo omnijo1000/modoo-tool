@@ -161,26 +161,32 @@ function changePpl(d,type){
   if(type==='s'){sPpl=Math.max(1,sPpl+d);document.getElementById('sPplCount').textContent=sPpl;}
   else{iPpl=Math.max(1,iPpl+d);document.getElementById('iPplCount').textContent=iPpl;}
 }
-function fmt(n){return Math.round(n).toLocaleString('ko-KR')+'원';}
+function fmt(n){
+  const t=(typeof _i18n!=='undefined'&&_i18n[_lang])?_i18n[_lang]:_i18n.ko;
+  const locale=t.lang==='zh'?'zh-CN':t.lang==='ja'?'ja-JP':t.lang==='en'?'en-US':'ko-KR';
+  return Math.round(n).toLocaleString(locale)+(t.unitWon||'');
+}
 
 function calcSimple(){
+  const t=_i18n[_lang];
   const total=parseFloat(document.getElementById('sTotal').value)||0;
   const round=document.getElementById('sRound').checked;
   let per=total/sPpl;
   if(round) per=Math.ceil(per/100)*100;
   document.getElementById('sPerPerson').textContent=fmt(per);
-  document.getElementById('sSub').textContent=`총 ${fmt(total)} ÷ ${sPpl}명 = 1인당 ${fmt(per)}`;
+  document.getElementById('sSub').textContent=t.subFormat(fmt(total),sPpl,fmt(per));
   document.getElementById('simpleResult').style.display='block';
 }
 
 function addItem(){
   itemCount++;
+  const t=_i18n[_lang];
   const div=document.createElement('div');
   div.className='item-row';
   div.id='ir'+itemCount;
-  div.innerHTML=`<input class="item-name" type="text" placeholder="메뉴명" value="">
-    <input class="item-price" type="number" placeholder="금액" value="" min="0" oninput="updateItemSum()">
-    <input class="item-qty" type="number" placeholder="수량" value="1" min="1" oninput="updateItemSum()">
+  div.innerHTML=`<input class="item-name" type="text" placeholder="${t.phMenu}" value="">
+    <input class="item-price" type="number" placeholder="${t.phPrice}" value="" min="0" oninput="updateItemSum()">
+    <input class="item-qty" type="number" placeholder="${t.phQty}" value="1" min="1" oninput="updateItemSum()">
     <button class="remove-btn" onclick="this.parentElement.remove();updateItemSum()">×</button>`;
   document.getElementById('itemRows').appendChild(div);
   updateItemSum();
@@ -195,6 +201,7 @@ function updateItemSum(){
   document.getElementById('itemSum').textContent=fmt(s);
 }
 function calcItems(){
+  const t=_i18n[_lang];
   let s=0;
   document.querySelectorAll('#itemRows .item-row').forEach(r=>{
     const price=parseFloat(r.querySelector('.item-price').value)||0;
@@ -203,16 +210,17 @@ function calcItems(){
   });
   const per=Math.ceil(s/iPpl/100)*100;
   document.getElementById('iPerPerson').textContent=fmt(per);
-  document.getElementById('iSub').textContent=`총 ${fmt(s)} ÷ ${iPpl}명 = 1인당 ${fmt(per)}`;
+  document.getElementById('iSub').textContent=t.subFormat(fmt(s),iPpl,fmt(per));
   document.getElementById('itemResult').style.display='block';
 }
 
 function addCustom(){
   customCount++;
+  const t=_i18n[_lang];
   const div=document.createElement('div');
   div.className='item-row';
   div.id='cr'+customCount;
-  div.innerHTML=`<input class="item-name" type="text" placeholder="이름" value="인원${customCount}">
+  div.innerHTML=`<input class="item-name" type="text" placeholder="이름" value="${t.personPrefix}${customCount}">
     <input class="item-price" type="number" placeholder="금액" value="" min="0" oninput="updateCustomSum()">
     <button class="remove-btn" onclick="this.parentElement.remove();updateCustomSum()">×</button>`;
   document.getElementById('customRows').appendChild(div);
@@ -226,9 +234,10 @@ function updateCustomSum(){
   document.getElementById('customSum').textContent=fmt(s);
 }
 function calcCustom(){
+  const t=_i18n[_lang];
   const rows=[];
   document.querySelectorAll('#customRows .item-row').forEach(r=>{
-    const name=r.querySelector('.item-name').value||'인원';
+    const name=r.querySelector('.item-name').value||t.personPrefix;
     const amt=parseFloat(r.querySelector('.item-price').value)||0;
     rows.push({name,amt});
   });
@@ -238,18 +247,15 @@ function calcCustom(){
   const grid=document.getElementById('customShareGrid');
   grid.innerHTML=rows.map(r=>{
     const diff=r.amt-avg;
-    const action=diff>0?`<span style="color:var(--good)">+${fmt(diff)} 받기</span>`:diff<0?`<span style="color:var(--danger)">${fmt(diff)} 내기</span>`:`<span style="color:var(--text-dim)">정산 없음</span>`;
+    const action=diff>0?`<span style="color:var(--good)">+${fmt(diff)} ${t.receiveLabel}</span>`:diff<0?`<span style="color:var(--danger)">${fmt(Math.abs(diff))} ${t.payLabel}</span>`:`<span style="color:var(--text-dim)">${t.evenLabel}</span>`;
     return `<div class="share-row">
-      <div><div class="share-name">${r.name}</div><div style="font-size:11px;color:var(--text-dim);">낸 금액 ${fmt(r.amt)}</div></div>
+      <div><div class="share-name">${r.name}</div><div style="font-size:11px;color:var(--text-dim);">${t.paidLabel} ${fmt(r.amt)}</div></div>
       <div>${action}</div>
     </div>`;
   }).join('');
   document.getElementById('customResult').style.display='block';
 }
 
-// init
-addItem();addItem();addItem();
-addCustom();addCustom();addCustom();
 </script>
 
 <script>
@@ -261,6 +267,9 @@ const _i18n = {
     roundLabel:'100원 단위 올림 (잔돈 처리)', calcBtn:'계산하기', perPersonLabel:'1인당 금액',
     itemsTitle:'품목 입력', addItemBtn:'+ 품목 추가', totalLabel:'합계',
     customTitle:'각자 금액 입력', addPersonBtn:'+ 인원 추가', settleBtn:'정산하기', resultTitle:'정산 결과',
+    subFormat:(total,ppl,per)=>`총 ${total} ÷ ${ppl}명 = 1인당 ${per}`,
+    receiveLabel:'받기', payLabel:'내기', evenLabel:'정산 없음', paidLabel:'낸 금액', personPrefix:'인원',
+    phMenu:'메뉴명', phPrice:'금액', phQty:'수량',
   },
   en: { lang:'en', title:'Split Calculator - Split Bills & Expense Sharing', h1:'Split <span>Calculator</span>', sub:'Split bills equally or by item. Perfect for dining, travel and group expenses.', btn:'🌐 中文',
     tabSimple:'Equal Split', tabItems:'By Item', tabCustom:'Custom Amounts',
@@ -268,6 +277,9 @@ const _i18n = {
     roundLabel:'Round up to nearest unit', calcBtn:'Calculate', perPersonLabel:'Per person',
     itemsTitle:'Add items', addItemBtn:'+ Add item', totalLabel:'Total',
     customTitle:'Enter each amount', addPersonBtn:'+ Add person', settleBtn:'Settle', resultTitle:'Result',
+    subFormat:(total,ppl,per)=>`${total} ÷ ${ppl} people = ${per} per person`,
+    receiveLabel:'to receive', payLabel:'to pay', evenLabel:'Settled', paidLabel:'Paid', personPrefix:'Person ',
+    phMenu:'Item name', phPrice:'Price', phQty:'Qty',
   },
   zh: { lang:'zh', title:'AA制计算器 - 账单分摊·均摊计算', h1:'AA制<span>计算器</span>', sub:'均等分摊或按项目分摊账单。适合聚餐、旅行和团体费用。', btn:'🌐 日本語',
     tabSimple:'均摊', tabItems:'按项目', tabCustom:'自定义金额',
@@ -275,6 +287,9 @@ const _i18n = {
     roundLabel:'进位取整（零钱处理）', calcBtn:'计算', perPersonLabel:'人均金额',
     itemsTitle:'添加项目', addItemBtn:'+ 添加项目', totalLabel:'合计',
     customTitle:'输入各自金额', addPersonBtn:'+ 添加人员', settleBtn:'结算', resultTitle:'结算结果',
+    subFormat:(total,ppl,per)=>`${total} ÷ ${ppl}人 = 人均 ${per}`,
+    receiveLabel:'应收', payLabel:'应付', evenLabel:'已结清', paidLabel:'已付金额', personPrefix:'成员',
+    phMenu:'项目名称', phPrice:'金额', phQty:'数量',
   },
   ja: { lang:'ja', title:'割り勘計算機 - 費用分割・人数別計算', h1:'割り勘<span>計算機</span>', sub:'均等割りから品目別計算まで。飲み会・旅行・集まりの精算を素早く！', btn:'🌐 한국어',
     tabSimple:'均等分割', tabItems:'品目別', tabCustom:'個別金額',
@@ -282,6 +297,9 @@ const _i18n = {
     roundLabel:'切り上げ（端数処理）', calcBtn:'計算する', perPersonLabel:'1人あたりの金額',
     itemsTitle:'品目入力', addItemBtn:'+ 品目を追加', totalLabel:'合計',
     customTitle:'各自の金額を入力', addPersonBtn:'+ 人を追加', settleBtn:'精算する', resultTitle:'精算結果',
+    subFormat:(total,ppl,per)=>`${total} ÷ ${ppl}人 = 1人あたり ${per}`,
+    receiveLabel:'受け取り', payLabel:'支払い', evenLabel:'精算不要', paidLabel:'支払い済み', personPrefix:'参加者',
+    phMenu:'品目名', phPrice:'金額', phQty:'数量',
   }
 };
 Object.assign(_i18n.ko, {
@@ -336,6 +354,9 @@ function cycleLang() {
   _applyLang();
 }
 _applyLang();
+// init
+addItem();addItem();addItem();
+addCustom();addCustom();addCustom();
 </script>
 <script src="theme-instrument.js"></script>
 <script src="related.js"></script>
