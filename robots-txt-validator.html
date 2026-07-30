@@ -387,6 +387,13 @@ function parseRobots(text){
   return{blocks,sitemaps,issues};
 }
 
+function pathToRegex(rulePath){
+  const hasEndAnchor=rulePath.endsWith('$');
+  const body=hasEndAnchor?rulePath.slice(0,-1):rulePath;
+  const escaped=body.replace(/[.+?^${}()|[\]\\]/g,'\\$&').replace(/\*/g,'.*');
+  return new RegExp('^'+escaped+(hasEndAnchor?'$':''));
+}
+
 function testUrl(parsedBlocks,agent,url){
   const specific=parsedBlocks.filter(b=>b.agent.toLowerCase()===agent.toLowerCase());
   const wildcard=parsedBlocks.filter(b=>b.agent==='*');
@@ -394,7 +401,7 @@ function testUrl(parsedBlocks,agent,url){
   for(const block of blocksToCheck){
     for(const rule of [...block.rules].reverse()){
       if(rule.type==='allow'||rule.type==='disallow'){
-        if(rule.path===''||url.startsWith(rule.path)){
+        if(rule.path!==''&&pathToRegex(rule.path).test(url)){
           return{allowed:rule.type==='allow',rule:`${rule.type}: ${rule.path||'(empty)'}`,agent:block.agent};
         }
       }

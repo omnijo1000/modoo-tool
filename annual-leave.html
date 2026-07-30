@@ -149,14 +149,25 @@
 <script>
 function fmt(n) { return Math.round(n).toLocaleString('ko-KR') + '원'; }
 
+function parseLocalDate(str) {
+  const [y, m, d] = str.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
+function yearsAndMonthsElapsed(join, base) {
+  let y = base.getFullYear() - join.getFullYear();
+  let m = base.getMonth() - join.getMonth();
+  if (base.getDate() < join.getDate()) m--;
+  if (m < 0) { y--; m += 12; }
+  return { years: y, months: m };
+}
+
 function calcAnnualLeave(joinDate, baseDate) {
-  const join = new Date(joinDate);
+  const join = parseLocalDate(joinDate);
   const base = new Date(baseDate);
-  const totalDays = Math.floor((base - join) / (1000*60*60*24));
-  const years = Math.floor(totalDays / 365);
+  const { years, months } = yearsAndMonthsElapsed(join, base);
 
   if (years < 1) {
-    const months = Math.floor(totalDays / 30);
     return Math.min(months, 11);
   }
   const extra = Math.floor((years - 1) / 2);
@@ -174,11 +185,10 @@ function calc() {
 
   if (!joinVal) { gridEl.classList.remove('show'); detailEl.style.display = 'none'; infoEl.style.display = 'none'; return; }
 
-  const join = new Date(joinVal);
+  const join = parseLocalDate(joinVal);
   const today = new Date(); today.setHours(0,0,0,0);
   const totalDays = Math.floor((today - join) / (1000*60*60*24));
-  const years = Math.floor(totalDays / 365);
-  const months = Math.floor((totalDays % 365) / 30);
+  const { years, months } = yearsAndMonthsElapsed(join, today);
 
   const totalLeave = calcAnnualLeave(joinVal, today);
   const remain = Math.max(0, totalLeave - used);

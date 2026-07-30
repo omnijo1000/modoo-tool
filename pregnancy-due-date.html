@@ -268,6 +268,8 @@ function setMode(m){_mode=m;[0,1,2].forEach(i=>{document.getElementById('sec'+i)
 function setIvf(d){_ivfDays=d;document.getElementById('ivf3').classList.toggle('on',d===3);document.getElementById('ivf5').classList.toggle('on',d===5);}
 function fmtDate(d){return d.getFullYear()+'.'+(d.getMonth()+1).toString().padStart(2,'0')+'.'+d.getDate().toString().padStart(2,'0');}
 function addDays(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r;}
+function parseLocalDate(str){const[y,m,d]=str.split('-').map(Number);return new Date(y,m-1,d);}
+function toLocalDateStr(d){const y=d.getFullYear();const m=String(d.getMonth()+1).padStart(2,'0');const dd=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${dd}`;}
 function calc(){
   const t=_i18n[_lang];
   let lmp;
@@ -275,16 +277,16 @@ function calc(){
     const v=document.getElementById('lmpDate').value;
     if(!v)return;
     const cycle=parseInt(document.getElementById('cycleLen').value)||28;
-    lmp=new Date(v);
+    lmp=parseLocalDate(v);
     lmp=addDays(lmp,cycle-28);
   } else if(_mode===1){
     const v=document.getElementById('conceptionDate').value;
     if(!v)return;
-    lmp=addDays(new Date(v),-14);
+    lmp=addDays(parseLocalDate(v),-14);
   } else {
     const v=document.getElementById('ivfDate').value;
     if(!v)return;
-    lmp=addDays(new Date(v),-(14+_ivfDays));
+    lmp=addDays(parseLocalDate(v),-(14+_ivfDays));
   }
   const edd=addDays(lmp,280);
   const today=new Date();today.setHours(0,0,0,0);
@@ -312,9 +314,9 @@ function calc(){
 _lang=detectLang();
 applyLang();
 const today=new Date();
-document.getElementById('lmpDate').max=today.toISOString().split('T')[0];
-document.getElementById('conceptionDate').max=today.toISOString().split('T')[0];
-document.getElementById('ivfDate').max=today.toISOString().split('T')[0];
+document.getElementById('lmpDate').max=toLocalDateStr(today);
+document.getElementById('conceptionDate').max=toLocalDateStr(today);
+document.getElementById('ivfDate').max=toLocalDateStr(today);
 </script>
 <script src="theme-instrument.js"></script>
 <script src="related.js"></script>

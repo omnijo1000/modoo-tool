@@ -48,7 +48,7 @@ input[type=color]{position:absolute; opacity:0; width:100%; height:100%; cursor:
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/color-converter.html">
 <link rel="canonical" href="https://modoohub.com/color-converter.html">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"색상 변환기 - HEX RGB HSL 색상 코드 변환","url":"https://modoohub.com/color-converter.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Color converter. Convert between HEX, RGB, HSL, and RGBA color formats instantly. Color picker included. Free online color code converter."}</script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"HEX, RGB, HSL의 차이는 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"HEX는 16진수 코드, RGB는 빨강·녹색·파랑 수치, HSL은 색조·채도·명도로 색상을 표현합니다."}},{"@type":"Question","name":"CSS에서 어떤 색상 형식을 사용하나요?","acceptedAnswer":{"@type":"Answer","text":"모두 사용 가능하지만 HEX와 RGB가 가장 흔합니다. HSL은 직관적인 색상 조정에 유리합니다."}},{"@type":"Question","name":"CMYK는 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"인쇄에서 사용하는 색상 모델(Cyan, Magenta, Yellow, Black)로 RGB와 완전히 같게 변환되지 않습니다."}},{"@type":"Question","name":"투명도(Alpha) 값은 어떻게 표현하나요?","acceptedAnswer":{"@type":"Answer","text":"RGBA(255,0,0,0.5) 또는 HEX 8자리(#FF0000 80)로 표현합니다."}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"HEX, RGB, HSL의 차이는 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"HEX는 16진수 코드, RGB는 빨강·녹색·파랑 수치, HSL은 색조·채도·명도로 색상을 표현합니다."}},{"@type":"Question","name":"CSS에서 어떤 색상 형식을 사용하나요?","acceptedAnswer":{"@type":"Answer","text":"모두 사용 가능하지만 HEX와 RGB가 가장 흔합니다. HSL은 직관적인 색상 조정에 유리합니다."}},{"@type":"Question","name":"CMYK는 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"인쇄에서 사용하는 색상 모델(Cyan, Magenta, Yellow, Black)로 RGB와 완전히 같게 변환되지 않습니다."}},{"@type":"Question","name":"투명도(Alpha) 값은 어떻게 표현하나요?","acceptedAnswer":{"@type":"Answer","text":"RGBA(255,0,0,0.5) 또는 HEX 8자리(#FF000080)로 표현합니다."}}]}</script>
 </head>
 <body>
 <header>
@@ -117,7 +117,7 @@ if (!lang || !i18n[lang]) {
   else if (nav.startsWith('ko')) lang = 'ko';
   else lang = 'en';
 }
-let currentR=236,currentG=72,currentB=153;
+let currentR=236,currentG=72,currentB=153,currentA=1;
 
 const PALETTE=['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#8b5cf6','#ec4899','#14b8a6','#f59e0b','#10b981','#6366f1','#84cc16','#ffffff','#d1d5db','#6b7280','#374151','#1f2937','#000000','#fef3c7','#dbeafe'];
 
@@ -163,9 +163,10 @@ function renderShades(){
 
 function hexToRgb(hex){
   hex=hex.replace('#','');
-  if(hex.length===3)hex=hex.split('').map(c=>c+c).join('');
+  if(hex.length===3||hex.length===4)hex=hex.split('').map(c=>c+c).join('');
   const r=parseInt(hex.slice(0,2),16),g=parseInt(hex.slice(2,4),16),b=parseInt(hex.slice(4,6),16);
-  return{r,g,b};
+  const a=hex.length>=8?parseInt(hex.slice(6,8),16)/255:1;
+  return{r,g,b,a};
 }
 function rgbToHex(r,g,b){return'#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('');}
 function rgbToHsl(r,g,b){
@@ -180,38 +181,43 @@ function rgbToHsl(r,g,b){
   return{h:Math.round(h*360),s:Math.round(s*100),l:Math.round(l*100)};
 }
 
-function updateAll(r,g,b,skip=''){
-  currentR=r;currentG=g;currentB=b;
+function updateAll(r,g,b,a=1,skip=''){
+  if(typeof a!=='number'||isNaN(a))a=1;
+  a=Math.round(Math.max(0,Math.min(1,a))*100)/100;
+  currentR=r;currentG=g;currentB=b;currentA=a;
   const hex=rgbToHex(r,g,b);
+  const hex8=a<1?hex+Math.round(a*255).toString(16).padStart(2,'0'):hex;
   const{h,s,l}=rgbToHsl(r,g,b);
   const preview=document.getElementById('preview');
-  preview.style.background=hex;
+  preview.style.background=`rgba(${r},${g},${b},${a})`;
   if (document.getElementById('previewText')) document.getElementById('previewText').textContent = hex;
   document.getElementById('colorPicker').value=hex;
-  if(skip!=='hex')document.getElementById('hexInput').value=hex;
+  if(skip!=='hex')document.getElementById('hexInput').value=hex8;
   if(skip!=='rgb')document.getElementById('rgbInput').value=`rgb(${r}, ${g}, ${b})`;
   if(skip!=='hsl')document.getElementById('hslInput').value=`hsl(${h}, ${s}%, ${l}%)`;
-  if(skip!=='rgba')document.getElementById('rgbaInput').value=`rgba(${r}, ${g}, ${b}, 1)`;
+  if(skip!=='rgba')document.getElementById('rgbaInput').value=`rgba(${r}, ${g}, ${b}, ${a})`;
   renderShades();
 }
 
 function fromPicker(){const v=document.getElementById('colorPicker').value;setFromHex(v);}
-function setFromHex(hex){const{r,g,b}=hexToRgb(hex);updateAll(r,g,b);}
-function setFromRgbVal(r,g,b){updateAll(r,g,b);}
+function setFromHex(hex){const{r,g,b,a}=hexToRgb(hex);updateAll(r,g,b,a);}
+function setFromRgbVal(r,g,b){updateAll(r,g,b,1);}
 
 function fromHex(){
   let v=document.getElementById('hexInput').value.trim();
   if(!v.startsWith('#'))v='#'+v;
-  if(!/^#[0-9a-fA-F]{3}(?:[0-9a-fA-F]{3})?$/.test(v))return;
-  const{r,g,b}=hexToRgb(v);updateAll(r,g,b,'hex');
+  if(!/^#[0-9a-fA-F]{3,4}$|^#[0-9a-fA-F]{6}$|^#[0-9a-fA-F]{8}$/.test(v))return;
+  const{r,g,b,a}=hexToRgb(v);updateAll(r,g,b,a,'hex');
 }
 function fromRgb(){
   const m=document.getElementById('rgbInput').value.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-  if(!m)return;updateAll(+m[1],+m[2],+m[3],'rgb');
+  if(!m)return;updateAll(+m[1],+m[2],+m[3],1,'rgb');
 }
 function fromRgba(){
-  const m=document.getElementById('rgbaInput').value.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-  if(!m)return;updateAll(+m[1],+m[2],+m[3],'rgba');
+  const m=document.getElementById('rgbaInput').value.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+  if(!m)return;
+  const a=m[4]!==undefined?parseFloat(m[4]):1;
+  updateAll(+m[1],+m[2],+m[3],a,'rgba');
 }
 function fromHsl(){
   const m=document.getElementById('hslInput').value.match(/hsl\((\d+),\s*(\d+)%?,\s*(\d+)%?\)/);
@@ -223,7 +229,7 @@ function fromHsl(){
     const q=l<0.5?l*(1+s):l+s-l*s,p=2*l-q;
     r=hue2rgb(p,q,h+1/3);g=hue2rgb(p,q,h);b=hue2rgb(p,q,h-1/3);
   }
-  updateAll(Math.round(r*255),Math.round(g*255),Math.round(b*255),'hsl');
+  updateAll(Math.round(r*255),Math.round(g*255),Math.round(b*255),1,'hsl');
 }
 
 function copyColor(type){
@@ -239,7 +245,7 @@ function copyColor(type){
 }
 
 applyLang();
-updateAll(236,72,153);
+updateAll(236,72,153,1);
 </script>
 <script src="theme-instrument.js"></script>
 <script src="related.js"></script>

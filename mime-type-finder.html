@@ -387,13 +387,14 @@ function doSearch() {
     }
   } else {
     // mime -> exts
-    const exts = Object.entries(MIME_DB).filter(([k, v]) => v.mime.toLowerCase().includes(q));
-    if (exts.length) {
-      const first = exts[0][1];
+    const matches = Object.entries(MIME_DB).filter(([k, v]) => v.mime.toLowerCase().includes(q));
+    if (matches.length) {
+      const first = matches[0][1];
+      const exts = Object.entries(MIME_DB).filter(([k, v]) => v.mime === first.mime).map(([k]) => '.' + k);
       document.getElementById('resultMime').textContent = first.mime;
       document.getElementById('resultMeta').innerHTML = `<span class="cat-badge cat-${first.category}">${first.category}</span>`;
       document.getElementById('resultDesc').textContent = first.desc;
-      document.getElementById('resultExts').textContent = t.labelExtensions + exts.map(([k]) => '.' + k).join(', ');
+      document.getElementById('resultExts').textContent = t.labelExtensions + exts.join(', ');
       card.classList.add('show'); noRes.classList.remove('show');
     } else {
       card.classList.remove('show'); noRes.classList.add('show'); noRes.textContent = t.noResult;

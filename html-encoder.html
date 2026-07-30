@@ -7,7 +7,7 @@
 <meta name="description" content="Free online HTML encoder and decoder. Encode special characters to HTML entities (&amp;lt;, &amp;gt;, &amp;amp;) or decode them back. All processing in browser.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto Sans KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="alternate" hreflang="ko" href="https://modoohub.com/html-encoder.html">
 <link rel="alternate" hreflang="en" href="https://modoohub.com/html-encoder.html?lang=en">
 <link rel="alternate" hreflang="zh" href="https://modoohub.com/html-encoder.html?lang=zh">
@@ -83,7 +83,7 @@ textarea{min-height:320px;}
 
     <div id="previewWrap" style="margin-top:12px">
       <div class="preview-label" data-i18n="previewLabel">PREVIEW (렌더링 결과)</div>
-      <div class="preview-box" id="previewBox"></div>
+      <iframe class="preview-box" id="previewBox" sandbox="" style="width:100%;height:120px;background:rgba(255,255,255,0.03);border:1px solid var(--glass-border);border-radius:8px;"></iframe>
     </div>
   </div>
 
@@ -147,7 +147,7 @@ function convert(){
   const out=_mode==='encode'?encodeHTML(input):decodeHTML(input);
   document.getElementById('outputBox').textContent=out;
   document.getElementById('outputBox')._text=out;
-  if(_mode==='encode') document.getElementById('previewBox').innerHTML=input;
+  if(_mode==='encode') document.getElementById('previewBox').srcdoc=input;
 }
 
 const SAMPLES={
@@ -156,7 +156,7 @@ const SAMPLES={
 };
 
 function loadSample(){document.getElementById('inputText').value=SAMPLES[_mode];convert();}
-function clearAll(){document.getElementById('inputText').value='';document.getElementById('outputBox').textContent='';document.getElementById('outputBox')._text='';if(_mode==='encode')document.getElementById('previewBox').innerHTML='';}
+function clearAll(){document.getElementById('inputText').value='';document.getElementById('outputBox').textContent='';document.getElementById('outputBox')._text='';if(_mode==='encode')document.getElementById('previewBox').srcdoc='';}
 function swapIO(){const out=document.getElementById('outputBox')._text||document.getElementById('outputBox').textContent;if(!out)return;document.getElementById('inputText').value=out;setMode(_mode==='encode'?'decode':'encode');convert();}
 function copyOutput(){const text=document.getElementById('outputBox')._text||document.getElementById('outputBox').textContent;if(!text)return;navigator.clipboard?.writeText(text).then(showToast).catch(()=>{const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);showToast();});}
 function showToast(){const el=document.getElementById('toast');el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1800);}

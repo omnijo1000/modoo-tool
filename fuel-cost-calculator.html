@@ -90,6 +90,19 @@
 <script>
 let _unit='metric';
 function setUnit(u){
+  if(u!==_unit){
+    const distEl=document.getElementById('fuelDist'),effEl=document.getElementById('fuelEff'),priceEl=document.getElementById('fuelPrice');
+    const dist=parseFloat(distEl.value)||0,eff=parseFloat(effEl.value)||0,price=parseFloat(priceEl.value)||0;
+    if(u==='imperial'){
+      distEl.value=(dist*0.621371).toFixed(1);
+      effEl.value=eff>0?(235.214583/eff).toFixed(1):'';
+      priceEl.value=(price*3.78541).toFixed(2);
+    } else {
+      distEl.value=(dist/0.621371).toFixed(1);
+      effEl.value=eff>0?(235.214583/eff).toFixed(1):'';
+      priceEl.value=(price/3.78541).toFixed(2);
+    }
+  }
   _unit=u;
   document.getElementById('btnMetric').classList.toggle('on',u==='metric');
   document.getElementById('btnImperial').classList.toggle('on',u==='imperial');
@@ -103,8 +116,6 @@ function _updateLabels(){
   document.getElementById('lblPrice').textContent=isM?(t.fuelPriceL||'Fuel Price (per liter)'):(t.fuelPriceG||'Fuel Price (per gallon)');
   document.getElementById('lblFuelNeeded').textContent=isM?(t.fuelNeededL||'Fuel needed (L)'):(t.fuelNeededG||'Fuel needed (gal)');
   document.getElementById('lblPerKm').textContent=isM?(t.fuelPerKm||'Cost per km'):(t.fuelPerMi||'Cost per mile');
-  if(isM){document.getElementById('fuelEff').value=document.getElementById('fuelEff').dataset.metricVal||'8';document.getElementById('fuelPrice').value=document.getElementById('fuelPrice').dataset.metricVal||'1700';}
-  else{document.getElementById('fuelEff').value='28';document.getElementById('fuelPrice').value='3.80';}
 }
 function fmtCost(n){
   const l=typeof _lang!=='undefined'?_lang:'en';
@@ -208,7 +219,7 @@ function _applyLang(){
   document.title=t.title;
   document.getElementById('langBtn').textContent=t.btn;
   const back=document.getElementById('backBtn');
-  if(back)back.textContent=_lang==='ko'?'← 모두의 툴':_lang==='zh'?'← 首页':'← Home';
+  if(back)back.textContent=_lang==='ko'?'← 모두의 툴':_lang==='zh'?'← 首页':_lang==='ja'?'← ホーム':'← Home';
   document.querySelectorAll('[data-i18n]').forEach(el=>{
     const v=t[el.dataset.i18n];
     if(v!==undefined)el.innerHTML=v;

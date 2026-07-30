@@ -64,7 +64,7 @@
 {"@context":"https://schema.org","@type":"WebApplication","name":".htaccess Generator","url":"https://modoohub.com/htaccess-generator.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Generate Apache .htaccess rules visually. Toggle switches for HTTPS redirect, GZIP, caching, bot blocking, security headers and more."}
 </script>
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":".htaccess란 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":".htaccess는 아파치 웹서버의 디렉토리 레벨 설정 파일입니다. 서버 전체 설정을 건드리지 않고 특정 디렉토리의 동작을 제어할 수 있습니다."}},{"@type":"Question","name":"mod_rewrite를 활성화하려면?","acceptedAnswer":{"@type":"Answer","text":"서버에서 sudo a2enmod rewrite 명령어로 활성화하고 Apache를 재시작합니다. .htaccess에서는 RewriteEngine On을 선언해야 합니다."}}]}
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":".htaccess란 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":".htaccess는 아파치 웹서버의 디렉토리 레벨 설정 파일입니다. 서버 전체 설정을 건드리지 않고 특정 디렉토리의 동작을 제어할 수 있습니다."}},{"@type":"Question","name":"mod_rewrite를 활성화하려면?","acceptedAnswer":{"@type":"Answer","text":"서버에서 sudo a2enmod rewrite 명령어로 활성화하고 Apache를 재시작합니다. .htaccess에서는 RewriteEngine On을 선언해야 합니다."}},{"@type":"Question","name":"GZIP 설정이 페이지 속도에 얼마나 영향을 주나요?","acceptedAnswer":{"@type":"Answer","text":"GZIP 압축을 적용하면 HTML, CSS, JS 파일 크기를 50~80%까지 줄일 수 있습니다. 특히 텍스트 기반 파일에 효과적이며 Google PageSpeed에서도 권장하는 설정입니다."}},{"@type":"Question","name":"HSTS 설정 시 주의사항이 있나요?","acceptedAnswer":{"@type":"Answer","text":"HSTS를 설정하면 브라우저가 지정 기간 동안 반드시 HTTPS로만 접속합니다. SSL 인증서가 만료되거나 HTTP로 되돌릴 경우 접속 불가 문제가 생길 수 있으니 주의하세요."}}]}
 </script>
 </head>
 <body>
@@ -465,6 +465,7 @@ function renderRedirectRows() {
 }
 
 function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+function escRegex(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 
 function buildOutput() {
   const lines = [];
@@ -590,7 +591,7 @@ function buildOutput() {
     lines.push('RewriteEngine On');
     redirectRows.forEach(r => {
       if (r.from && r.to) {
-        lines.push('RewriteRule ^' + r.from.replace(/^\//,'') + '$ ' + r.to + ' [R=' + r.code + ',L]');
+        lines.push('RewriteRule ^' + escRegex(r.from.replace(/^\//,'')) + '$ ' + r.to + ' [R=' + r.code + ',L]');
       }
     });
     lines.push('');

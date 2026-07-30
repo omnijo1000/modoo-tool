@@ -222,74 +222,19 @@ loan-calculator-en(이 배치 최대 발견 — 이 페이지는 title/meta/x-de
 ### 완료 (4차 배치 9/N, content-depth-audit 브랜치에 커밋됨 — 커밋 e642437, b2867ea, ed2a8dd)
 apr-calculator(calcEAR() 결과 그리드 라벨("명목금리","월 환산")이 언어 무관 하드코딩 한국어였던 것 i18n 처리 + FAQ 8개 중 1번과 6번이 사실상 같은 "APR과 명목 금리 차이" 질문의 재구성 중복이었던 것을 발견, 6번을 도구 기본값(대출 1,000만원·수수료 10만원·월 20만원·60개월) 실제 계산 예시(APR≈8.13%, node로 Newton-Raphson 알고리즘 직접 재현 검증)로 교체), text-cleaner(줄바꿈 제거 옵션의 정규식 /\r?\n/g가 \n 없는 옛 Mac 방식 단독 \r 줄바꿈은 매칭하지 못해 방치되던 문제를 재현 확인했는데, FAQ는 정확히 "Mac(\r)" 형식도 지원한다고 명시하고 있어 자기모순 — /\r\n|\r|\n/g로 수정 + 해당 FAQ 5개 블록 전부에서 "Windows(\r\n)" 등 예시 텍스트가 홑따옴표 이스케이프 미흡으로 실제 개행문자로 렌더되어 괄호 안이 빈칸으로 보이던 문제(find-replace.html과 동일 패턴)도 함께 수정 + "여러 형식을 하나로 통일" 이라는 과장 표현을 실제 동작(완전 제거만 가능, 형식 유지 통일 기능 없음)에 맞게 정정), ip-address-lookup(이 세션 최고 심각도급 버그 — `let history = [...]`(IP 조회 히스토리 배열)가 스크립트 전역에서 `window.history` 객체를 가리는 바람에 toggleLang() 내부의 `history.replaceState(...)` 호출이 TypeError를 던져 언어 전환 버튼이 완전히 작동하지 않던 문제, Node로 동일한 셰도잉 재현 후 확인, 배열을 ipHistory로 리네임해 해결 + IPv6 정규식이 "::" 압축이 주소 맨 앞/맨 뒤에만 있을 때만 통과하고 중간 압축(가장 흔한 실사용 표기법)은 거부하던 문제 — 심지어 이 페이지 자신의 FAQ 예시 "2001:db8::1"조차 검증에 실패함을 확인, 압축 위치를 인식하는 올바른 검증 로직으로 교체)
 
-## 남은 84개 (worst-first, char count) — 다음 배치는 여기서부터 3개씩
+## 완료 (4차 배치 10~17, 1183~1261자 구간)
+split-calculator(sign 버그+통화/currency 하드코딩+스크립트 로드순서 crash 수정), pixelate-image(WYSIWYG 미리보기/다운로드 해상도 불일치 수정), tip-calculator(ja back-link 분기 누락+하드코딩 라벨 i18n 처리), text-sorter(자연정렬 미구현 실제 구현+Fisher-Yates 편향 셔플 수정), pdf-split(ZIP 거짓 주장 정정+하드코딩 alert i18n), prepayment-fee(요율 0% falsy 버그 수정), salary-raise(버그 없음, 검증만), body-fat-calculator(EN 우선 페이지 static 한국어 콘텐츠 수정), random-string(하드코딩 알림 문구 i18n), water-intake(버그 없음), electricity-cost-calculator(PRESETS_JA 누락+zh 프리셋 영문표기 수정), image-to-webp(버그 없음), age-calculator(UTC자정 파싱+스크립트순서 crash 수정), xml-formatter(minify가 CDATA/주석 훼손하던 버그 수정), emoji-counter(FAQ 45→8 정리), fuel-cost-calculator(단위전환 안 하고 값 초기화되던 버그+ja back-link 누락 수정), color-converter(8자리 hex/alpha 미지원 수정), color-palette(EN 우선인데 static 한국어 수정), wpm-calculator(타이핑속도 판정 로직 완전히 틀렸던 버그 수정), sleep-calculator(버그 없음), fire-calculator(Coast FIRE 65세 가정 미명시 보강), loan-payoff-calculator(하드코딩 alert/mo단위 i18n+extra payment null가드 추가)
+
+## 완료 (4차 배치 18~38, 1264~1332자 구간)
+yaml-formatter(yes/no/on/off가 js-yaml 4.x에선 실제로 boolean 아닌데 boolean으로 하이라이트하던 버그 수정), salary-reverse(FAQ 3곳이 서로 다른 틀린 숫자 주장 — 실제 계산값 4,530만원으로 통일), ai-youtube-title-generator(제목 유형 선택 완전히 무시되던 최대급 버그 수정+FAQ 정리), cron-generator(day-of-month 'L'이 매일 매칭되던 버그 — 진짜 월말만 매칭하도록 수정), inflation-calculator(미래모드가 나눗셈으로 계산돼 FAQ 예시와 정반대 결과 나오던 버그+EN페이지 static 한국어 수정), keyword-density-checker(CJK 텍스트 전체가 0단어로 집계되던 코어기능 붕괴 버그 수정), retirement-calc(은퇴나이>기대수명 검증 누락으로 마이너스 결과 나오던 버그 수정), qr-code-generator(WIFI QR 특수문자 미이스케이프 버그+FAQ 정리), website-speed-estimator(메타디스크립션 유무 표시 안 되던 누락 수정), base64-image(하드코딩 에러메시지 i18n), credit-loan-limit(헤드FAQ 2→4), payslip-calc(국민연금 상한액 구버전 수치 드리프트 수정), sitemap-validator(헤드FAQ 2→4, 네임스페이스 관련 오탐 후보 조사 후 반증), pace-calculator(버그 없음, 검증만), json-viewer(클립보드 거부 메시지 하드코딩 수정), pomodoro-timer(구글폰트 URL 오타 수정), jwt-generator(btoa가 비ASCII payload에서 크래시하던 버그+static/JS 콘텐츠 불일치 수정), pdf-page-counter(파일명 미이스케이프 XSS 취약점 수정), macro-calculator(탄수화물 음수 퍼센트 표시되던 엣지케이스 수정), pregnancy-due-date(UTC자정 파싱 버그 수정)
+
+## 완료 (4차 배치 39~66, 1344~1408자 구간)
+seo-title-generator(아포스트로피 있는 제목 복사버튼 완전히 깨지던 버그 — encodeURIComponent도 아포스트로피 안 이스케이프한다는 것 발견, ai-youtube-title-generator에도 동일 버그 있어 같이 수정), favicon-generator(비정방형 이미지가 찌그러져 저장되던 버그 — 중앙 정방형 크롭 추가), health-insurance-calc(버그 없음, 검증만), mime-type-finder(MIME→확장자 역검색이 부분일치 확장자들을 전부 첫 검색결과 MIME타입인 것처럼 잘못 묶어 표시하던 버그 수정), csr-generator(OpenSSL -subj 커맨드 인젝션 취약점 수정), pdf-compressor(DPI→scale 변환식이 72 아닌 96으로 나눠 모든 DPI설정에서 실제 해상도·출력물리크기가 항상 75%로 축소되던 버그), csp-validator(default-src 있음/없음 자기모순 메시지+frame-ancestors 폴백 스펙오류 수정), api-response-viewer(querySelector('parseerror') 오타로 XML에러 감지 자체가 죽어있던 버그), html-encoder(미리보기 innerHTML XSS 취약점을 sandboxed iframe으로 수정+폰트URL오타), meta-tag-analyzer(http-equiv 방식 charset 선언 감지 못해 SEO점수 부당 감점되던 버그), json-validator(클립보드 거부 메시지 하드코딩 영어 수정), sip-calculator(이율0% NaN버그+EN페이지 static 한국어 수정), htaccess-generator(RewriteRule 정규식 미이스케이프로 오매칭·500에러 가능하던 버그), number-converter(진법 검증이 parseInt 자릿수 잘라먹기로 우회되던 버그), csv-viewer(버그 없음, 헤드FAQ 언어혼용만 수정), property-tax(타이핑 중 계속 뜨는 alert()+재산세율 팩트 오류 수정), text-case-detector(FAQ가 거짓 예시로 자기모순 나던 것 수정), robots-txt-validator(빈 Disallow 반대동작+와일드카드 미지원 버그), annual-leave(이 배치 최대급 발견 — `years=Math.floor(totalDays/365)`로 근속연수를 계산해 윤년 누적 오차 때문에 실제 입사기념일보다 하루 일찍 다음 해로 승급되는 버그, 5개 입사일×15년을 매일 스캔해 161건의 날짜 불일치 확인(전부 12/30~31 발생) — 구체 사례: 2000-01-01 입사자가 2000-12-31에 조회하면 만1년 미달(11개월)이라 법정 11일이어야 하는데 15일로 표시(4일 과다지급), 매년 반복. getFullYear/Month/Date 기준 진짜 달력 비교로 재작성 후 재검증 0건 불일치. 별도로 UTC자정 new Date() 파싱 버그도 동시 수정. 발견만 하고 안 고친 것: hreflang이 en/zh/ja 가리키는데 실제 i18n 시스템 자체가 없어 그 언어들도 전부 한국어 콘텐츠 그대로 나감 — 4개국어 번역 새로 만드는 큰 작업이라 스코프 밖으로 플래그만), yaml-validator(yaml-formatter와 동일한 Norway Problem 거짓 FAQ 주장 수정), user-agent-parser(Safari 버전이 WebKit빌드번호로 오검출되던 버그), csp-generator(meta태그에 무효한 frame-ancestors 그대로 포함시켜 클릭재킹 방어 안 되는데 되는 것처럼 보이던 버그), json-minifier(언어전환 시 성공상태인데 idle텍스트로 덮어써지던 버그), overtime-pay(버그 없음, 근로기준법 공식 전부 검증)
+
+**주의 5**: 병렬 fork subagent로 4개씩 동시 처리하는 방식으로 전환(배치 39 이후) — 결과는 동일한 4종 검증 기준 유지, fork마다 독립 파일이라 충돌 없음.
+
+## 남은 17개 (worst-first, char count) — 다음 배치는 여기서부터
 ```
-1183  split-calculator.html
-1183  pixelate-image.html
-1189  tip-calculator.html
-1193  text-sorter.html
-1195  pdf-split.html
-1197  prepayment-fee.html
-1199  salary-raise.html
-1207  body-fat-calculator.html
-1210  random-string.html
-1212  water-intake.html
-1218  electricity-cost-calculator.html
-1241  image-to-webp.html
-1241  age-calculator.html
-1242  xml-formatter.html
-1245  emoji-counter.html
-1246  fuel-cost-calculator.html
-1247  color-converter.html
-1252  color-palette.html
-1258  wpm-calculator.html
-1258  sleep-calculator.html
-1260  fire-calculator.html
-1261  loan-payoff-calculator.html
-1264  yaml-formatter.html
-1266  salary-reverse.html
-1266  ai-youtube-title-generator.html
-1269  cron-generator.html
-1270  inflation-calculator.html
-1279  keyword-density-checker.html
-1284  retirement-calc.html
-1292  qr-code-generator.html
-1294  website-speed-estimator.html
-1303  base64-image.html
-1303  credit-loan-limit.html
-1305  payslip-calc.html
-1307  sitemap-validator.html
-1310  pace-calculator.html
-1315  json-viewer.html
-1315  pomodoro-timer.html
-1317  jwt-generator.html
-1330  pdf-page-counter.html
-1330  macro-calculator.html
-1332  pregnancy-due-date.html
-1344  seo-title-generator.html
-1349  favicon-generator.html
-1349  health-insurance-calc.html
-1350  mime-type-finder.html
-1350  csr-generator.html
-1352  pdf-compressor.html
-1353  csp-validator.html
-1354  api-response-viewer.html
-1357  html-encoder.html
-1360  meta-tag-analyzer.html
-1360  json-validator.html
-1367  sip-calculator.html
-1381  htaccess-generator.html
-1382  number-converter.html
-1388  csv-viewer.html
-1390  property-tax.html
-1396  text-case-detector.html
-1397  robots-txt-validator.html
-1399  annual-leave.html
-1401  yaml-validator.html
-1403  user-agent-parser.html
-1403  csp-generator.html
-1404  json-minifier.html
-1408  overtime-pay.html
 1410  schema-validator.html
 1412  weekly-holiday.html
 1416  bmi-calc.html
@@ -312,7 +257,7 @@ apr-calculator(calcEAR() 결과 그리드 라벨("명목금리","월 환산")이
 
 ## 새 컴퓨터에서 이어할 때 체크리스트
 1. `git fetch && git checkout content-depth-audit && git pull`
-2. 이 파일의 "남은 49개" 목록 맨 위 3개부터 시작 (다음 배치 시작점 표시 참고)
+2. 이 파일의 "남은 17개" 목록 맨 위부터 시작 (4개씩 병렬 fork 배치 권장, 다음 배치 시작점 표시 참고)
 3. 파일마다: 코드 읽고 실제 버그/과장된 주장 찾기(가능하면 node로 직접 재현) → 없으면 진짜 기술적 디테일로 깊이 보강 → ko 정적 seoDiv 재작성 → JS _i18n.ko.seoHtml에 완전히 동일하게 미러링(정규식 특수문자는 백슬래시 2번 이스케이프 등 주의) → en/zh/ja 번역 → head FAQPage JSON-LD를 새 내용 기준 4개 항목으로 교체
 4. 검증 4종 세트 (파일마다 필수):
    - `python3 -c "...json.loads(...)"` 로 JSON-LD 2개 블록 파싱 확인
@@ -323,7 +268,19 @@ apr-calculator(calcEAR() 결과 그리드 라벨("명목금리","월 환산")이
 6. **주의**: FAQ 항목을 8개로 맞출 것 — 초안 작성 시 실수로 9개 쓰면 총 45개로 어긋남(과거 sql-minifier, curl-generator, curl-parser에서 실제로 발생했던 실수)
 
 ## 남은 참고 사항
-- 700~1000자 파일 97개, 1000~1500자 227개 — 27개 끝나면 이 구간도 순차적으로 스캔/처리 검토 필요
+
+**이번 세션(4차 배치 10~66) 발견된 심각도 높은 버그 — 놓치지 말 것:**
+- **annual-leave.html**: 매년 12/30~31 즈음 근속연수 계산이 하루 일찍 승급 처리되어 4일치 연차 과다지급 (161건 날짜 불일치 확인, 실제 급여/휴가 영향)
+- **csr-generator.html**: 생성된 OpenSSL -subj 커맨드에 사용자 입력(CN/O 등) 미이스케이프 — 커맨드 인젝션 가능
+- **pdf-page-counter.html**: 파일명 미이스케이프 XSS (innerHTML)
+- **html-encoder.html**: 미리보기 innerHTML XSS — sandboxed iframe으로 교체
+- **pdf-compressor.html**: DPI→scale 변환식이 72 아닌 96으로 나눠 모든 DPI 설정에서 실제 해상도·출력 물리크기가 항상 원본의 75%로 축소
+- **csp-generator.html**: meta 태그 출력에 frame-ancestors를 그대로 포함시켜, 브라우저가 실제로는 무시하는데 사용자는 클릭재킹 방어된다고 오인
+- **ai-youtube-title-generator.html**: 제목 유형(후크/방법/숫자 등) 선택이 생성 로직에 전혀 반영 안 되던 핵심기능 버그
+- **keyword-density-checker.html**: 한중일 텍스트 입력 시 전체가 0단어로 집계 — 코어 기능이 한국어 대상 사이트에서 사실상 붕괴 상태였음
+- **robots-txt-validator.html**: 빈 Disallow가 자기네 FAQ와 반대로 "전체 차단"으로 동작 + 와일드카드(`*`/`$`) 완전 미지원
+
+- 1000~1500자 구간 남은 17개 끝나면 1500자 이상 구간 재스캔 필요
 - 중복 FAQ 답변(4개 파일 이상 겹침) 이슈는 대부분 해소됨 (언어 전환 안내 문구 정도만 남음, 문제 아님)
 - 새 컴퓨터에서 이어할 때: `git fetch && git checkout content-depth-audit && git pull` 로 시작
 - 파일 하나 끝날 때마다 체크: static seoDiv와 JS ko seoHtml 문자열 완전 동일한지 node eval로 확인, JSON-LD 유효성 확인, faq-item 개수(5개 언어 블록 x 8 = 40) 확인 — 검증 코드는 이 세션 대화 내 여러 번 사용한 패턴 참고

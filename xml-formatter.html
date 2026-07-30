@@ -182,7 +182,13 @@ function minify(){
   const errBox=document.getElementById('errBox');
   if(!ok){errBox.textContent='⚠ '+msg;errBox.style.display='block';return;}
   errBox.style.display='none';
-  const m=xml.replace(/>\s+</g,'><').replace(/\s{2,}/g,' ').trim();
+  const protectedParts=[];
+  const protectedXml=xml.replace(/<!\[CDATA\[[\s\S]*?\]\]>|<!--[\s\S]*?-->/g,(p)=>{
+    protectedParts.push(p);
+    return ''+(protectedParts.length-1)+'';
+  });
+  let m=protectedXml.replace(/>\s+</g,'><').replace(/\s{2,}/g,' ').trim();
+  m=m.replace(/(\d+)/g,(_,i)=>protectedParts[+i]);
   document.getElementById('xmlOutput').textContent=m;
   document.getElementById('xmlOutput')._plain=m;
 }

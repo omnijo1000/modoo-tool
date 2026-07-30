@@ -60,7 +60,9 @@ footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:32px;}
   "@type":"FAQPage",
   "mainEntity":[
     {"@type":"Question","name":"CSP(Content Security Policy)란?","acceptedAnswer":{"@type":"Answer","text":"CSP는 브라우저가 로드할 수 있는 리소스 출처를 제한하는 HTTP 응답 헤더입니다. XSS, 데이터 인젝션 등의 공격을 방어합니다."}},
-    {"@type":"Question","name":"'unsafe-inline'을 사용해도 되나요?","acceptedAnswer":{"@type":"Answer","text":"'unsafe-inline'은 CSP의 핵심 보호를 우회합니다. 인라인 스크립트/스타일을 nonce 또는 hash 기반으로 교체하는 것이 권장됩니다."}}
+    {"@type":"Question","name":"'unsafe-inline'을 사용해도 되나요?","acceptedAnswer":{"@type":"Answer","text":"'unsafe-inline'은 CSP의 핵심 보호를 우회합니다. 인라인 스크립트/스타일을 nonce 또는 hash 기반으로 교체하는 것이 권장됩니다."}},
+    {"@type":"Question","name":"CSP 메타 태그와 HTTP 헤더의 차이는?","acceptedAnswer":{"@type":"Answer","text":"메타 태그는 서버 설정 없이 HTML에 직접 포함할 수 있지만, frame-ancestors·sandbox·report-uri 등 일부 지시어는 메타 태그에서 지원되지 않습니다."}},
+    {"@type":"Question","name":"nonce 기반 CSP란?","acceptedAnswer":{"@type":"Answer","text":"서버에서 요청마다 랜덤 nonce를 생성해 스크립트에 추가하고 CSP에 'nonce-값'으로 허용하는, 인라인 스크립트를 안전하게 허용하는 권장 방법입니다."}}
   ]
 }
 </script>
@@ -249,17 +251,23 @@ function addKw(id,kw){
   el.value=parts.join(' ');
   generate();
 }
+const META_UNSUPPORTED=['frame-ancestors','report-uri','report-to','sandbox'];
 function generate(){
   const parts=[];
+  const metaParts=[];
   DIRECTIVES.forEach(d=>{
     const el=document.getElementById('dir_'+d.key.replace(/-/g,'_'));
     if(!el)return;
     const v=el.value.trim();
-    if(v)parts.push(d.key+' '+v);
+    if(v){
+      parts.push(d.key+' '+v);
+      if(!META_UNSUPPORTED.includes(d.key))metaParts.push(d.key+' '+v);
+    }
   });
   const policy=parts.join('; ');
+  const metaPolicy=metaParts.join('; ');
   document.getElementById('outHeader').value=policy?'Content-Security-Policy: '+policy:'';
-  document.getElementById('outMeta').value=policy?`<meta http-equiv="Content-Security-Policy" content="${policy}">`:'' ;
+  document.getElementById('outMeta').value=metaPolicy?`<meta http-equiv="Content-Security-Policy" content="${metaPolicy}">`:'' ;
   document.getElementById('outNginx').value=policy?`add_header Content-Security-Policy "${policy}";`:'';
   document.getElementById('outApache').value=policy?`Header always set Content-Security-Policy "${policy}"`:'';
 }
