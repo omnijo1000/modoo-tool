@@ -68,7 +68,9 @@
   "@type":"FAQPage",
   "mainEntity":[
     {"@type":"Question","name":"HTTP 보안 헤더란?","acceptedAnswer":{"@type":"Answer","text":"HSTS, CSP, X-Frame-Options, X-Content-Type-Options 등 웹 서버가 브라우저에 보안 정책을 전달하는 응답 헤더입니다. 누락 시 XSS, 클릭재킹 등 공격에 취약해집니다."}},
-    {"@type":"Question","name":"HTTP 헤더를 어떻게 확인하나요?","acceptedAnswer":{"@type":"Answer","text":"브라우저 개발자 도구 → Network 탭 → 요청 클릭 → Response Headers에서 확인하거나, curl -I URL 명령어로 확인할 수 있습니다."}}
+    {"@type":"Question","name":"HTTP 헤더를 어떻게 확인하나요?","acceptedAnswer":{"@type":"Answer","text":"브라우저 개발자 도구 → Network 탭 → 요청 클릭 → Response Headers에서 확인하거나, curl -I URL 명령어로 확인할 수 있습니다."}},
+    {"@type":"Question","name":"HSTS 헤더가 있는데도 누락으로 표시되는 이유는?","acceptedAnswer":{"@type":"Answer","text":"이 도구는 HSTS를 존재 여부뿐 아니라 max-age 값도 확인합니다. max-age=0은 브라우저에게 HTTPS 강제를 중단하라고 지시하는 값(RFC 6797)이라 헤더가 있어도 누락으로 표시됩니다."}},
+    {"@type":"Question","name":"URL 조회 탭으로 전체 헤더를 볼 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"아니요. 브라우저 CORS 제약으로 공개 프록시를 통해 Content-Type과 HTTP 상태 코드만 확인할 수 있습니다. 전체 헤더는 curl -I URL 명령어나 헤더 붙여넣기 탭을 이용하세요."}}
   ]
 }
 </script>
@@ -120,10 +122,10 @@
     <table class="header-table"><thead><tr><th id="thName">헤더</th><th id="thValue">값</th></tr></thead><tbody id="headerTbody"></tbody></table>
   </div>
 
-  <div class="seo" id="seoDiv"><h2>HTTP 보안 헤더란?</h2><p>HTTP 보안 헤더는 웹 서버가 브라우저에 보안 정책을 전달하는 응답 헤더입니다. <strong>HSTS(HTTP Strict Transport Security)</strong>는 HTTPS 연결을 강제하고, <strong>CSP(Content Security Policy)</strong>는 XSS 공격을 방지하며, <strong>X-Frame-Options</strong>는 클릭재킹을 방어합니다. 보안 헤더 누락은 OWASP Top 10 취약점 중 하나입니다.</p>
+  <div class="seo" id="seoDiv"><h2>HTTP 보안 헤더란?</h2><p>HTTP 보안 헤더는 웹 서버가 브라우저에 보안 정책을 전달하는 응답 헤더입니다. <strong>HSTS(HTTP Strict Transport Security)</strong>는 HTTPS 연결을 강제하고, <strong>CSP(Content Security Policy)</strong>는 XSS 공격을 방지하며, <strong>X-Frame-Options</strong>는 클릭재킹을 방어합니다. "헤더 붙여넣기" 탭에 curl -I 또는 브라우저 개발자도구에서 복사한 응답 헤더를 붙여넣으면 8개 주요 보안 헤더(HSTS·CSP·X-Frame-Options·X-Content-Type-Options·Referrer-Policy·Permissions-Policy·X-XSS-Protection·COOP)의 존재 여부를 즉시 확인합니다. HSTS는 단순 존재 여부가 아니라 max-age 값도 검사해 <code>max-age=0</code>(HSTS 비활성화 지시)이면 "누락"으로 표시합니다. "URL 조회" 탭은 브라우저 CORS 제약으로 전체 헤더를 가져올 수 없어 공개 프록시로 Content-Type과 HTTP 상태 코드만 확인하며, 전체 헤더 확인은 curl -I를 안내합니다. 보안 헤더 누락은 OWASP Top 10 취약점 중 하나입니다.</p>
 <h2 class="seo-sub">자주 묻는 질문</h2>
 <details class="faq-item"><summary>HTTP 헤더를 어떻게 확인하나요?</summary><p>브라우저 개발자 도구(F12) → Network 탭 → 페이지 요청 클릭 → Response Headers 섹션에서 확인할 수 있습니다. 터미널에서는 <code>curl -I https://example.com</code> 명령어로 헤더만 조회할 수 있습니다.</p></details>
-<details class="faq-item"><summary>HSTS는 무엇인가요?</summary><p>HTTP Strict Transport Security(HSTS)는 브라우저가 해당 도메인에 항상 HTTPS로 접속하도록 강제하는 헤더입니다. <code>Strict-Transport-Security: max-age=31536000; includeSubDomains</code> 형식으로 설정합니다. max-age는 초 단위로, 1년은 31536000입니다.</p></details>
+<details class="faq-item"><summary>HSTS는 무엇인가요?</summary><p>HTTP Strict Transport Security(HSTS)는 브라우저가 해당 도메인에 항상 HTTPS로 접속하도록 강제하는 헤더입니다. <code>Strict-Transport-Security: max-age=31536000; includeSubDomains</code> 형식으로 설정합니다. max-age는 초 단위로, 1년은 31536000입니다. 이 도구는 헤더 존재 여부뿐 아니라 max-age 값도 함께 확인합니다 — <code>max-age=0</code>은 브라우저에게 더 이상 HTTPS 전용으로 취급하지 말라고 지시하는(RFC 6797) 값이라 헤더가 있어도 "누락"으로 표시됩니다.</p></details>
 <details class="faq-item"><summary>CSP 헤더는 왜 중요한가요?</summary><p>Content Security Policy(CSP)는 허용된 리소스 출처만 로드하도록 제한해 XSS(Cross-Site Scripting) 공격을 방어합니다. 스크립트, 스타일, 이미지 등 각 리소스 유형별로 허용 도메인을 지정할 수 있습니다.</p></details>
 <details class="faq-item"><summary>X-Frame-Options vs CSP frame-ancestors 차이는?</summary><p>X-Frame-Options는 구형 방식으로 DENY, SAMEORIGIN, ALLOW-FROM 값을 지원합니다. 최신 CSP의 frame-ancestors 지시어가 더 유연하고 강력합니다. 구형 브라우저 호환을 위해 두 가지를 함께 사용하는 것이 권장됩니다.</p></details>
 <details class="faq-item"><summary>X-Content-Type-Options는 무엇인가요?</summary><p><code>X-Content-Type-Options: nosniff</code>를 설정하면 브라우저가 Content-Type을 임의로 추측(MIME sniffing)하지 않도록 합니다. 악성 콘텐츠가 다른 타입으로 위장되는 공격을 방어합니다.</p></details>
@@ -162,10 +164,10 @@ const _i18n={
     present:'존재',missing:'누락',
     fetchNote:'⚠ 브라우저 CORS 정책으로 직접 조회가 제한됩니다. 헤더를 직접 붙여넣기 탭을 이용하거나 curl -I URL 명령어로 확인하세요.',
     loading:'조회 중...',fetchError:'조회 실패. 헤더 붙여넣기 탭을 이용하세요.',
-    seoHtml:`<h2>HTTP 보안 헤더란?</h2><p>HTTP 보안 헤더는 웹 서버가 브라우저에 보안 정책을 전달하는 응답 헤더입니다. <strong>HSTS(HTTP Strict Transport Security)</strong>는 HTTPS 연결을 강제하고, <strong>CSP(Content Security Policy)</strong>는 XSS 공격을 방지하며, <strong>X-Frame-Options</strong>는 클릭재킹을 방어합니다. 보안 헤더 누락은 OWASP Top 10 취약점 중 하나입니다.</p>
+    seoHtml:`<h2>HTTP 보안 헤더란?</h2><p>HTTP 보안 헤더는 웹 서버가 브라우저에 보안 정책을 전달하는 응답 헤더입니다. <strong>HSTS(HTTP Strict Transport Security)</strong>는 HTTPS 연결을 강제하고, <strong>CSP(Content Security Policy)</strong>는 XSS 공격을 방지하며, <strong>X-Frame-Options</strong>는 클릭재킹을 방어합니다. "헤더 붙여넣기" 탭에 curl -I 또는 브라우저 개발자도구에서 복사한 응답 헤더를 붙여넣으면 8개 주요 보안 헤더(HSTS·CSP·X-Frame-Options·X-Content-Type-Options·Referrer-Policy·Permissions-Policy·X-XSS-Protection·COOP)의 존재 여부를 즉시 확인합니다. HSTS는 단순 존재 여부가 아니라 max-age 값도 검사해 <code>max-age=0</code>(HSTS 비활성화 지시)이면 "누락"으로 표시합니다. "URL 조회" 탭은 브라우저 CORS 제약으로 전체 헤더를 가져올 수 없어 공개 프록시로 Content-Type과 HTTP 상태 코드만 확인하며, 전체 헤더 확인은 curl -I를 안내합니다. 보안 헤더 누락은 OWASP Top 10 취약점 중 하나입니다.</p>
 <h2 class="seo-sub">자주 묻는 질문</h2>
 <details class="faq-item"><summary>HTTP 헤더를 어떻게 확인하나요?</summary><p>브라우저 개발자 도구(F12) → Network 탭 → 페이지 요청 클릭 → Response Headers 섹션에서 확인할 수 있습니다. 터미널에서는 <code>curl -I https://example.com</code> 명령어로 헤더만 조회할 수 있습니다.</p></details>
-<details class="faq-item"><summary>HSTS는 무엇인가요?</summary><p>HTTP Strict Transport Security(HSTS)는 브라우저가 해당 도메인에 항상 HTTPS로 접속하도록 강제하는 헤더입니다. <code>Strict-Transport-Security: max-age=31536000; includeSubDomains</code> 형식으로 설정합니다. max-age는 초 단위로, 1년은 31536000입니다.</p></details>
+<details class="faq-item"><summary>HSTS는 무엇인가요?</summary><p>HTTP Strict Transport Security(HSTS)는 브라우저가 해당 도메인에 항상 HTTPS로 접속하도록 강제하는 헤더입니다. <code>Strict-Transport-Security: max-age=31536000; includeSubDomains</code> 형식으로 설정합니다. max-age는 초 단위로, 1년은 31536000입니다. 이 도구는 헤더 존재 여부뿐 아니라 max-age 값도 함께 확인합니다 — <code>max-age=0</code>은 브라우저에게 더 이상 HTTPS 전용으로 취급하지 말라고 지시하는(RFC 6797) 값이라 헤더가 있어도 "누락"으로 표시됩니다.</p></details>
 <details class="faq-item"><summary>CSP 헤더는 왜 중요한가요?</summary><p>Content Security Policy(CSP)는 허용된 리소스 출처만 로드하도록 제한해 XSS(Cross-Site Scripting) 공격을 방어합니다. 스크립트, 스타일, 이미지 등 각 리소스 유형별로 허용 도메인을 지정할 수 있습니다.</p></details>
 <details class="faq-item"><summary>X-Frame-Options vs CSP frame-ancestors 차이는?</summary><p>X-Frame-Options는 구형 방식으로 DENY, SAMEORIGIN, ALLOW-FROM 값을 지원합니다. 최신 CSP의 frame-ancestors 지시어가 더 유연하고 강력합니다. 구형 브라우저 호환을 위해 두 가지를 함께 사용하는 것이 권장됩니다.</p></details>
 <details class="faq-item"><summary>X-Content-Type-Options는 무엇인가요?</summary><p><code>X-Content-Type-Options: nosniff</code>를 설정하면 브라우저가 Content-Type을 임의로 추측(MIME sniffing)하지 않도록 합니다. 악성 콘텐츠가 다른 타입으로 위장되는 공격을 방어합니다.</p></details>
@@ -185,10 +187,10 @@ const _i18n={
     present:'Present',missing:'Missing',
     fetchNote:'⚠ Browser CORS policy limits direct header fetching. Paste headers manually or use curl -I URL in your terminal.',
     loading:'Fetching...',fetchError:'Fetch failed. Use the Paste Headers tab instead.',
-    seoHtml:`<h2>What are HTTP Security Headers?</h2><p>HTTP security headers are response headers that tell browsers how to behave securely. <strong>HSTS</strong> enforces HTTPS connections, <strong>CSP</strong> prevents XSS attacks, and <strong>X-Frame-Options</strong> blocks clickjacking. Missing security headers are listed in OWASP Top 10 vulnerabilities.</p>
+    seoHtml:`<h2>What are HTTP Security Headers?</h2><p>HTTP security headers are response headers that tell browsers how to behave securely. <strong>HSTS</strong> enforces HTTPS connections, <strong>CSP</strong> prevents XSS attacks, and <strong>X-Frame-Options</strong> blocks clickjacking. Paste response headers copied from <code>curl -I</code> or your browser's DevTools into the "Paste Headers" tab to instantly check 8 key security headers (HSTS, CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy, X-XSS-Protection, COOP). HSTS is checked by value, not just presence — <code>max-age=0</code> (which tells browsers to stop enforcing HTTPS) shows as "Missing" even though the header exists. The "Fetch URL" tab can't retrieve full headers due to browser CORS restrictions, so it uses a public proxy to check only Content-Type and HTTP status code, and points you to <code>curl -I</code> for the complete header set. Missing security headers are listed in OWASP Top 10 vulnerabilities.</p>
 <h2 class="seo-sub">Frequently Asked Questions</h2>
 <details class="faq-item"><summary>How do I check HTTP headers?</summary><p>Open browser DevTools (F12) → Network tab → click the page request → Response Headers section. In the terminal, use <code>curl -I https://example.com</code> to fetch headers only.</p></details>
-<details class="faq-item"><summary>What is HSTS?</summary><p>HTTP Strict Transport Security (HSTS) forces browsers to always use HTTPS for a domain. Set it as <code>Strict-Transport-Security: max-age=31536000; includeSubDomains</code>. The max-age is in seconds (31536000 = 1 year).</p></details>
+<details class="faq-item"><summary>What is HSTS?</summary><p>HTTP Strict Transport Security (HSTS) forces browsers to always use HTTPS for a domain. Set it as <code>Strict-Transport-Security: max-age=31536000; includeSubDomains</code>. The max-age is in seconds (31536000 = 1 year). This tool checks the max-age value, not just presence — <code>max-age=0</code> is a real, documented value (RFC 6797) that tells the browser to stop treating the origin as HTTPS-only, so it shows as "Missing" even though the header technically exists.</p></details>
 <details class="faq-item"><summary>Why is the CSP header important?</summary><p>Content Security Policy (CSP) restricts which resources can be loaded, preventing XSS attacks by only allowing scripts, styles, and images from trusted sources.</p></details>
 <details class="faq-item"><summary>X-Frame-Options vs CSP frame-ancestors?</summary><p>X-Frame-Options is the legacy approach supporting DENY, SAMEORIGIN, and ALLOW-FROM. CSP frame-ancestors is more flexible and powerful. Use both for broader browser compatibility.</p></details>
 <details class="faq-item"><summary>What is X-Content-Type-Options?</summary><p>Setting <code>X-Content-Type-Options: nosniff</code> prevents browsers from MIME-sniffing — guessing the content type, which attackers can exploit to disguise malicious content.</p></details>
@@ -208,10 +210,10 @@ const _i18n={
     present:'存在',missing:'缺失',
     fetchNote:'⚠ 浏览器CORS策略限制直接获取头信息。请手动粘贴响应头，或在终端使用 curl -I URL。',
     loading:'获取中...',fetchError:'获取失败，请使用粘贴响应头标签页。',
-    seoHtml:`<h2>什么是HTTP安全响应头？</h2><p>HTTP安全响应头是服务器告知浏览器安全策略的响应头。<strong>HSTS</strong>强制使用HTTPS，<strong>CSP</strong>防止XSS攻击，<strong>X-Frame-Options</strong>防止点击劫持。缺少安全响应头是OWASP Top 10漏洞之一。</p>
+    seoHtml:`<h2>什么是HTTP安全响应头？</h2><p>HTTP安全响应头是服务器告知浏览器安全策略的响应头。<strong>HSTS</strong>强制使用HTTPS，<strong>CSP</strong>防止XSS攻击，<strong>X-Frame-Options</strong>防止点击劫持。在"粘贴响应头"标签页粘贴通过<code>curl -I</code>或浏览器开发者工具复制的响应头，即可立即检查8个关键安全响应头（HSTS、CSP、X-Frame-Options、X-Content-Type-Options、Referrer-Policy、Permissions-Policy、X-XSS-Protection、COOP）。HSTS的检查不仅看是否存在，还会检查值——<code>max-age=0</code>（告诉浏览器停止强制HTTPS）即使响应头存在也会显示为"缺失"。"获取URL"标签页由于浏览器CORS限制无法获取完整响应头，因此使用公共代理仅检查Content-Type和HTTP状态码，完整响应头请使用<code>curl -I</code>。缺少安全响应头是OWASP Top 10漏洞之一。</p>
 <h2 class="seo-sub">常见问题</h2>
 <details class="faq-item"><summary>如何查看HTTP响应头？</summary><p>打开浏览器开发者工具(F12) → Network标签 → 点击页面请求 → 查看Response Headers部分。终端中可使用 <code>curl -I https://example.com</code> 只获取响应头。</p></details>
-<details class="faq-item"><summary>什么是HSTS？</summary><p>HTTP Strict Transport Security(HSTS)强制浏览器始终使用HTTPS访问该域名。设置格式：<code>Strict-Transport-Security: max-age=31536000; includeSubDomains</code>。max-age以秒为单位，1年为31536000。</p></details>
+<details class="faq-item"><summary>什么是HSTS？</summary><p>HTTP Strict Transport Security(HSTS)强制浏览器始终使用HTTPS访问该域名。设置格式：<code>Strict-Transport-Security: max-age=31536000; includeSubDomains</code>。max-age以秒为单位，1年为31536000。本工具不仅检查响应头是否存在，还会检查max-age的值——<code>max-age=0</code>是一个真实存在的值（RFC 6797），会告诉浏览器不再将该域名视为仅HTTPS，因此即使响应头存在也会显示为"缺失"。</p></details>
 <details class="faq-item"><summary>为什么CSP头很重要？</summary><p>Content Security Policy(CSP)限制可加载的资源来源，通过只允许来自受信任来源的脚本、样式和图片来防止XSS攻击。</p></details>
 <details class="faq-item"><summary>X-Frame-Options与CSP frame-ancestors的区别？</summary><p>X-Frame-Options是旧方式，支持DENY、SAMEORIGIN、ALLOW-FROM值。CSP的frame-ancestors指令更灵活强大。为兼容旧浏览器，建议同时使用两者。</p></details>
 <details class="faq-item"><summary>X-Content-Type-Options是什么？</summary><p>设置 <code>X-Content-Type-Options: nosniff</code> 可防止浏览器猜测内容类型(MIME嗅探)，避免攻击者将恶意内容伪装成其他类型。</p></details>
@@ -231,10 +233,10 @@ const _i18n={
     present:'存在',missing:'不足',
     fetchNote:'⚠ ブラウザのCORSポリシーにより直接取得が制限されます。ヘッダー貼り付けタブを利用するか、ターミナルで curl -I URL をご使用ください。',
     loading:'取得中...',fetchError:'取得失敗。ヘッダー貼り付けタブをご利用ください。',
-    seoHtml:`<h2>HTTPセキュリティヘッダーとは</h2><p>HTTPセキュリティヘッダーはWebサーバーがブラウザにセキュリティポリシーを伝えるレスポンスヘッダーです。<strong>HSTS</strong>はHTTPS接続を強制し、<strong>CSP</strong>はXSS攻撃を防ぎ、<strong>X-Frame-Options</strong>はクリックジャッキングを防御します。セキュリティヘッダーの不足はOWASP Top 10脆弱性の一つです。</p>
+    seoHtml:`<h2>HTTPセキュリティヘッダーとは</h2><p>HTTPセキュリティヘッダーはWebサーバーがブラウザにセキュリティポリシーを伝えるレスポンスヘッダーです。<strong>HSTS</strong>はHTTPS接続を強制し、<strong>CSP</strong>はXSS攻撃を防ぎ、<strong>X-Frame-Options</strong>はクリックジャッキングを防御します。「ヘッダー貼り付け」タブに<code>curl -I</code>やブラウザの開発者ツールでコピーしたレスポンスヘッダーを貼り付けると、8つの主要セキュリティヘッダー(HSTS・CSP・X-Frame-Options・X-Content-Type-Options・Referrer-Policy・Permissions-Policy・X-XSS-Protection・COOP)の有無を即座に確認できます。HSTSは存在有無だけでなく値も検証し、<code>max-age=0</code>(HTTPS強制を停止する指示)の場合はヘッダーが存在していても「不足」と表示されます。「URL取得」タブはブラウザのCORS制約により完全なヘッダーを取得できないため、公開プロキシでContent-TypeとHTTPステータスコードのみ確認し、完全なヘッダーには<code>curl -I</code>の利用を案内します。セキュリティヘッダーの不足はOWASP Top 10脆弱性の一つです。</p>
 <h2 class="seo-sub">よくある質問</h2>
 <details class="faq-item"><summary>HTTPヘッダーの確認方法は？</summary><p>ブラウザ開発者ツール(F12) → Networkタブ → ページリクエストをクリック → Response Headersセクションで確認できます。ターミナルでは <code>curl -I https://example.com</code> でヘッダーのみ取得できます。</p></details>
-<details class="faq-item"><summary>HSTSとは何ですか？</summary><p>HTTP Strict Transport Security(HSTS)はブラウザが常にHTTPSでドメインにアクセスするよう強制するヘッダーです。<code>Strict-Transport-Security: max-age=31536000; includeSubDomains</code> 形式で設定します。</p></details>
+<details class="faq-item"><summary>HSTSとは何ですか？</summary><p>HTTP Strict Transport Security(HSTS)はブラウザが常にHTTPSでドメインにアクセスするよう強制するヘッダーです。<code>Strict-Transport-Security: max-age=31536000; includeSubDomains</code> 形式で設定します。本ツールはヘッダーの有無だけでなくmax-age値も確認します — <code>max-age=0</code>はブラウザにHTTPS専用として扱うのをやめるよう指示する実在の値(RFC 6797)であるため、ヘッダーが存在していても「不足」と表示されます。</p></details>
 <details class="faq-item"><summary>CSPヘッダーが重要な理由は？</summary><p>Content Security Policy(CSP)は許可されたリソース元のみロードするよう制限し、XSS攻撃を防ぎます。スクリプト・スタイル・画像など各リソース種別ごとに許可ドメインを指定できます。</p></details>
 <details class="faq-item"><summary>X-Frame-OptionsとCSP frame-ancestorsの違いは？</summary><p>X-Frame-Optionsは旧方式でDENY・SAMEORIGIN・ALLOW-FROMをサポートします。CSPのframe-ancestors指令はより柔軟で強力です。旧ブラウザ互換のため両方の使用を推奨します。</p></details>
 <details class="faq-item"><summary>X-Content-Type-Optionsとは？</summary><p><code>X-Content-Type-Options: nosniff</code>を設定するとブラウザがContent-Typeを任意に推測(MIMEスニッフィング)しなくなります。悪意あるコンテンツが別タイプに偽装される攻撃を防ぎます。</p></details>
@@ -312,13 +314,23 @@ function parseHeaders(text){
   }
   return headers;
 }
+function isHeaderEffective(h,value){
+  // Presence alone isn't enough for HSTS: max-age=0 is a real, documented
+  // value (RFC 6797) that tells the browser to STOP treating the origin as
+  // HTTPS-only -- the opposite of protection, even though the header exists.
+  if(h==='strict-transport-security'){
+    const m=/max-age\s*=\s*(\d+)/i.exec(value||'');
+    return !!m&&parseInt(m[1],10)>0;
+  }
+  return true;
+}
 function renderResults(headers){
   const t=_i18n[_lang];
   // Security grid
   const grid=document.getElementById('secGrid');
   grid.innerHTML='';
   SEC_HEADERS.forEach(h=>{
-    const present=headers.hasOwnProperty(h);
+    const present=headers.hasOwnProperty(h)&&isHeaderEffective(h,headers[h]);
     const div=document.createElement('div');
     div.className='sec-item '+(present?'pass':'fail');
     div.innerHTML=`<div class="sec-dot ${present?'pass':'fail'}"></div><div class="sec-name ${present?'pass':'fail'}">${SEC_LABELS[h]}</div><div class="sec-status">${present?t.present:t.missing}</div>`;
