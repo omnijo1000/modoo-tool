@@ -241,7 +241,7 @@ worst-first 83개 파일 전부 처리 완료.
 
 ## 5차 스캔 (1500자 이상, worst-first) — 진행중
 
-1500자 이상 148개 파일 중 68개는 이미 완료 처리된 파일이 내용 심화로 글자수만 이 구간에 새로 들어온 경우라 제외. 배치 1~5(unicode-inspector, webp-to-png, realestate-fee, base64-decoder, html-decoder, apache-config-generator, character-counter, profit-calculator, nginx-config-generator, salary, chatgpt-token-counter, prompt-variable-extractor, four-insurance, uuid-validator, canonical-tag-checker, pdf-metadata-viewer) 완료. **남은 64개, ssl-checker.html부터 시작.**
+1500자 이상 148개 파일 중 68개는 이미 완료 처리된 파일이 내용 심화로 글자수만 이 구간에 새로 들어온 경우라 제외. 배치 1~6(unicode-inspector, webp-to-png, realestate-fee, base64-decoder, html-decoder, apache-config-generator, character-counter, profit-calculator, nginx-config-generator, salary, chatgpt-token-counter, prompt-variable-extractor, four-insurance, uuid-validator, canonical-tag-checker, pdf-metadata-viewer, ssl-checker, salary-negotiation, ssl-decoder) 완료. **남은 61개, open-graph-generator.html부터 시작.**
 
 ### 완료 (5차 배치 1/N, 1500~1509자 구간)
 unicode-inspector(코드포인트 통계 라벨이 "고유값(중복제거)"이라는 걸 안 밝혀서 "3글자,3바이트,1코드포인트"처럼 집계 오류로 보이던 문제, "고유 코드포인트"로 라벨 명확화, 서로게이트쌍/이모지 UTF-8 처리는 검증해서 정상, FAQ 11/11/11/8/8→8×5 정리), webp-to-png(파일명 미이스케이프 XSS, 투명배경은 PNG출력이라 원래 정상), realestate-fee(SEO본문이 완전히 지어낸 요율표(매매 0.4/0.5/0.9%)를 쓰고 있었는데 실제 코드·화면표·FAQ는 전부 서로 일치하는 진짜 공식 U자형 요율을 쓰고 있어 본문만 따로 놀던 문제, 본문을 실제 요율로 수정), base64-decoder(샘플 버튼의 하드코딩 Base64 문자열이 깨져있어 주석이 주장하는 원문과 다른 내용으로 디코딩되던 버그, 6곳 전부 올바른 문자열로 교체 + static/JS 콘텐츠 불일치(가이드링크 누락) 수정, UTF-8 디코딩 경로 자체는 검증해서 정상)
@@ -258,12 +258,12 @@ chatgpt-token-counter(버그 없음, CJK 정규식+토큰 공식 Node 검증 —
 ### 완료 (5차 배치 5/N, 병렬 fork 3개, 1548~1557자 구간)
 uuid-validator(이 배치 최대 발견 — 버전 정규식이 1-5만 허용해 2024년 RFC 9562로 표준화된 v6/v7/v8을 전부 "invalid"로 거부하던 버그, 자체 FAQ는 DB PK용으로 v7을 추천하면서 정작 v7 UUID를 넣으면 무효 판정하던 자기모순 — [1-8]로 확장 후 v1/v4/v6/v7/v8 통과·v9/nil UUID는 여전히 거부됨을 재검증), canonical-tag-checker(상대경로 canonical URL 입력 시 HTTPS/HTTP 체크 항목이 조용히 아무 피드백 없이 사라지던 문제 수정 + trailing-slash 체크 라벨이 언어 무관 하드코딩 영어였던 것 4개 언어 i18n 처리, head FAQ 3→4), pdf-metadata-viewer(추출한 PDF 메타데이터(Title/Author 등)가 이스케이프 없이 innerHTML에 삽입되던 XSS 취약점 수정 + zh/ja FAQ가 static/ko/en 대비 실질 항목 3개 누락돼있던 콘텐츠 불일치 수정)
 
+### 완료 (5차 배치 6/N, 병렬 fork 3개, 1565~1588자 구간)
+ssl-checker(**live crt.sh 데이터로 검증한 버그** — API가 타임존 없이 항상 UTC로 타임스탬프를 반환하는데 `new Date(...)`가 로컬시간으로 오파싱, KST 기준 만료일이 실제보다 하루 빠르게 표시되던 문제(2026-10-28T06:30:21 UTC → KST에서 10-27로 표시) 3곳(daysUntil/formatDate/isExpired) 전부 `toUtcDate()`로 수정 + 죽은 변수 제거), salary-negotiation(오래된 국민연금 상한액 하드코딩 + 과세표준 예시가 실제 세율 구간과 안 맞던 문제 수정), ssl-decoder(SAMPLE_PEM이 잘못된 base64(695자, %4≠0)라 자체 "샘플" 버튼이 즉시 에러나던 버그를 실제 openssl로 인증서 재생성해 수정 + PUBLIC KEY를 개인키로 오분류해 `openssl rsa` 명령을 잘못 추천하던 버그(실제 openssl 실행으로 재현·검증, `openssl pkey -pubin`이 정답) 수정, head FAQ 2→4)
+
 **주의 6**: 이 스캔에서 처음에 exclude 로직 버그가 있었음 — 4차 배치(67~83)의 완료 기록이 "파일명(설명)" 형식으로 `.html` 확장자 없이 적혀 있는데, 스캔 스크립트가 `이름.html` 패턴으로만 완료 여부를 매칭해서 방금 끝낸 파일들(freelancer-tax, color-palette, inflation-calculator, sip-calculator, body-fat-calculator, loan-calculator-en 등)이 전부 "미완료"로 잘못 다시 나타났었음. `이름(` 패턴도 함께 매칭하도록 스캔 스크립트를 고쳐서 재실행 후 확인함. **앞으로 이 파일에 완료 기록을 추가할 때 파일명 뒤에 `.html`을 붙이든 안 붙이든 상관없지만, 재스캔할 땐 반드시 두 패턴(`이름.html`과 `이름(`) 모두로 완료 여부를 매칭할 것.**
 
 ```
-1565  ssl-checker.html
-1571  salary-negotiation.html
-1588  ssl-decoder.html
 1602  open-graph-generator.html
 1602  http-header-checker.html
 1609  url-decoder.html
