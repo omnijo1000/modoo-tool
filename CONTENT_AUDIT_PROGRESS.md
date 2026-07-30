@@ -216,11 +216,11 @@ break-even-calculator(버그도 수정 — BEP 판매 수량 결과에 언어 �
 ### 완료 (4차 배치 7/N, content-depth-audit 브랜치에 커밋됨 — 커밋 36469ea, 1541df7)
 text-diff-checker(버그도 수정 — 줄 수 초과 경고가 언어 무관 하드코딩 한국어였던 것 i18n 처리 + 4개 언어 전부에서 마지막 FAQ가 "변경된 단어 수/문자 수까지 보여준다"고 거짓 주장(실제로는 추가/삭제/동일 줄 수만 표시)하던 것을 정정), business-days-calculator(이 배치 최대 발견 — new Date("YYYY-MM-DD")가 UTC 자정으로 파싱되고 getDay()는 로컬 타임존 기준으로 읽어, UTC보다 느린 모든 타임존(북중남미 전역)에서 요일이 하루 밀려 잘못 분류되는 문제를 TZ=America/New_York로 재현 확인(2026-01-05 월요일이 일요일/주말로 오분류) — dday.html/korean-age.html과 동일한 UTC 자정 파싱 버그 패턴, parseLocalDate() 헬퍼 도입 + toISOString() 기반 날짜 포맷터를 로컬 날짜 포맷터로 교체(계산 함수와 기본값 초기화 양쪽 모두) + 하드코딩 한국어 alert 2곳 i18n 처리), sql-formatter(이 세션 최대급 버그 — 압축(Minify) 기능이 전체 텍스트에 공백 뭉치 정규식을 그대로 적용해, `-- 주석`처럼 줄바꿈으로만 끝나는 주석이 있으면 압축 후 그 뒤의 FROM/WHERE 등 실제 쿼리 코드까지 전부 주석 안으로 삼켜버려 완전히 다른(깨진) SQL이 되던 문제를 재현 확인 + 문자열 리터럴 내부 공백도 같은 정규식에 훼손됨('John   Smith'→'John Smith') 확인, 이미 존재하는 tokenize()를 재사용해 문자열은 그대로 보존·주석은 제거·공백은 토큰 단위로만 축약하도록 minify() 재작성, FAQ에 주석 제거 동작 명시)
 
-## 남은 90개 (worst-first, char count) — 다음 배치는 여기서부터 3개씩
+### 완료 (4차 배치 8/N, content-depth-audit 브랜치에 커밋됨 — 커밋 0f2c7a4, a7d07e0)
+loan-calculator-en(이 배치 최대 발견 — 이 페이지는 title/meta/x-default hreflang이 전부 자기 자신을 가리키는 영어 우선/기본 버전 페이지(JS _detectLang()도 ko/zh/ja 신호 없으면 en으로 폴백)인데, JS 실행 전 정적 seoDiv가 ko 블록을 그대로 복사해 100% 한국어로 렌더링되고 있던 문제 — 크롤러·JS 미실행 사용자에게는 영어 타이틀·설명과 모순되는 한국어 본문이 노출됨, 정적 블록을 올바르게 수정된 en 콘텐츠로 교체. 별개로 EN FAQ 마지막 두 항목만 나머지 전부가 $USD 예시인 페이지에서 갑자기 "한국 시중은행"·원화(KRW) 예시로 전환되던 것을 발견, 중도상환수수료 항목은 국가/대출기관마다 다르다는 일반적 설명(미국은 수수료 없는 경우도 많음)으로, 금리 비교 예시는 실제 상환공식으로 재계산한 $300,000/USD 수치로 교체), pdf-to-image(이 세션 최대급 발견 — head JSON-LD·정적·4개 언어 FAQ 전부가 "모두 다운로드"를 누르면 ZIP으로 묶어 다운로드한다고 명시하는데 실제 코드에는 ZIP 라이브러리가 전혀 없고 downloadAll()은 setTimeout으로 0.2초 간격 개별 PNG 다운로드 n번을 순차 실행할 뿐임을 grep으로 직접 확인, 5곳 전부 실제 동작(개별 순차 다운로드, 브라우저에 따라 다중 다운로드 허용 팝업 가능성)으로 정정 + 페이지 렌더링/완료 상태 메시지가 언어 무관 하드코딩 영어("Rendering page X/Y...")였던 것 i18n 처리 + en 콘텐츠 수정 중 아포스트로피(page's)가 홑따옴표 JS 문자열을 깨던 것을 node --check로 발견해 수정(이 세션 반복 패턴)), timestamp(falsy-zero 버그 — tsToDate()가 `if(!val)`로 빈 입력을 판정해 타임스탬프 0(1970-01-01 UTC 자정, 유효하고 의미 있는 값)을 입력해도 빈 입력처럼 결과가 숨겨지던 문제를 Number.isNaN 체크로 수정(이 세션 반복 패턴: cps-calculator, stopword-remover, rent-convert 등과 동일) + FAQ가 5개 블록 전부 9개(45개)였던 것 발견 — "2038년 문제란?"과 "유닉스 타임스탬프는 2038년 문제가 있나요?"가 사실상 같은 32비트 오버플로우 설명을 중복 질문하고 있어 후자를 제거해 8개로 정리 + 정적 seoDiv에 JS ko와 달리 JWT 가이드 링크 문단이 누락되어 있던 static/JS 불일치(hmac-generator·avif-to-jpg와 동일 패턴)도 발견해 수정)
+
+## 남은 87개 (worst-first, char count) — 다음 배치는 여기서부터 3개씩
 ```
-1156  loan-calculator-en.html
-1158  pdf-to-image.html
-1158  timestamp.html
 1167  apr-calculator.html
 1171  text-cleaner.html
 1177  ip-address-lookup.html
