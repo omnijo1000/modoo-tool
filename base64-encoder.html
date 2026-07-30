@@ -70,38 +70,6 @@
         "@type": "Answer",
         "text": "No. Base64 is encoding, not encryption. It is easily reversible without any key. Never rely on Base64 to protect sensitive data — use AES, RSA, or other proper encryption algorithms for that purpose."
       }
-    },
-    {
-      "@type": "Question",
-      "name": "How do I encode an image to Base64 for use in HTML?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Use the file drag-and-drop or file picker on this page to select your image. The tool will produce a Base64 string you can embed in HTML as: <img src=\"data:image/png;base64,{encoded-string}\">. Best used for small icons to avoid browser caching issues."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "How does file encoding work in the browser?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "When you drop or select a file, the browser reads it as a data URL (data:type;base64,...) using the FileReader API. The tool extracts the Base64 portion after the comma. The file never leaves your device."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "What are common use cases for Base64 encoding?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Common uses include: embedding images in HTML/CSS as data URIs, JWT token payloads (URL-safe), HTTP Basic Auth credentials, email attachments (MIME), API authentication headers, inline fonts in CSS, and transmitting binary data in JSON or XML."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Is my data sent to a server when I use this tool?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "No. All encoding is performed entirely in your browser using the Web Crypto API and TextEncoder. No data, files, or results are transmitted to any server."
-      }
     }
   ]
 }
@@ -260,6 +228,7 @@ const i18n = {
     statusIdle: '텍스트를 입력하거나 파일을 드래그하세요',
     statusOk: (n) => `✓ 인코딩 완료 · ${n}자`,
     statusFile: (name) => `✓ 파일 인코딩 완료: ${name}`,
+    fileLabel: (name) => `[파일: ${name}]`,
     footer: '모든 데이터는 브라우저에서만 처리됩니다 · 서버로 전송되지 않습니다',
     placeholder: '인코딩할 텍스트를 입력하세요',
     placeholderOut: 'Base64 인코딩 결과가 여기 표시됩니다',
@@ -308,6 +277,7 @@ const i18n = {
     statusIdle: 'Enter text or drag a file here',
     statusOk: (n) => `✓ Encoded · ${n} chars`,
     statusFile: (name) => `✓ File encoded: ${name}`,
+    fileLabel: (name) => `[File: ${name}]`,
     footer: 'All data is processed in your browser · Never sent to any server',
     placeholder: 'Enter text to encode...',
     placeholderOut: 'Base64 encoded output will appear here',
@@ -356,6 +326,7 @@ const i18n = {
     statusIdle: '请输入文本或拖入文件',
     statusOk: (n) => `✓ 编码完成 · ${n}个字符`,
     statusFile: (name) => `✓ 文件编码完成: ${name}`,
+    fileLabel: (name) => `[文件: ${name}]`,
     footer: '所有处理均在浏览器本地完成 · 不会上传到服务器',
     placeholder: '请输入要编码的文本...',
     placeholderOut: 'Base64编码结果将在此显示',
@@ -404,6 +375,7 @@ const i18n = {
     statusIdle: 'テキストを入力するかファイルをドラッグしてください',
     statusOk: (n) => `✓ エンコード完了 · ${n}文字`,
     statusFile: (name) => `✓ ファイルをエンコードしました: ${name}`,
+    fileLabel: (name) => `[ファイル: ${name}]`,
     footer: 'すべての処理はブラウザ内のみで行われます · サーバーには送信されません',
     placeholder: 'エンコードするテキストを入力...',
     placeholderOut: 'Base64エンコード結果がここに表示されます',
@@ -561,7 +533,7 @@ function handleFile(e) {
   reader.onload = ev => {
     const dataUrl = ev.target.result;
     const b64 = dataUrl.split(',')[1];
-    document.getElementById('input').value = '[파일: ' + file.name + ']';
+    document.getElementById('input').value = i18n[lang].fileLabel(file.name);
     document.getElementById('output').value = encMode === 'url-safe'
       ? b64.replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'')
       : b64;
