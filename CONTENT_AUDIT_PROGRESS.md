@@ -191,7 +191,7 @@ read-time-calculator(이 세션 최대급 발견 — head FAQ가 "한국어는 �
 
 **주의 4 (배치 22~23에서 반복 발생)**: 딥닝 인트로 문단 영문 카피를 작성할 때 아포스트로피("it's", "doesn't", "aren't", "editor's")를 single-quote JS 문자열 안에 그대로 쓰면 `node --check`에서 즉시 SyntaxError남 — json-to-yaml, line-counter 두 파일에서 실제로 발생. 영문 카피 작성 시 처음부터 `\'`로 이스케이프하거나 축약형을 풀어 쓸 것("it is" 등), 그리고 4종 검증의 `node --check` 단계를 절대 생략하지 말 것(이번에도 이 단계가 실제로 잡아냄).
 
-## 4차 스캔 (1000~1500자, worst-first) — 진행중
+## 4차 스캔 (1000~1500자, worst-first) — 완료
 
 재스캔 결과(이미 완료한 1~3차 파일 제외): **111개**. 스캔 방법은 위와 동일, 범위만 `1000 <= len < 1500`. 이미 완료한 파일이 이 범위로 새로 들어온 경우(내용을 깊게 만들면서 글자수가 늘어난 자연스러운 결과) 재작업 대상에서 제외했음 — 이미 완료 목록(1~3차, 아래 "완료 파일 전체 목록" 참고)에 있으면 이 구간 스캔에서 나와도 건너뛸 것.
 
@@ -233,31 +233,15 @@ seo-title-generator(아포스트로피 있는 제목 복사버튼 완전히 깨�
 
 **주의 5**: 병렬 fork subagent로 4개씩 동시 처리하는 방식으로 전환(배치 39 이후) — 결과는 동일한 4종 검증 기준 유지, fork마다 독립 파일이라 충돌 없음.
 
-## 남은 17개 (worst-first, char count) — 다음 배치는 여기서부터
-```
-1410  schema-validator.html
-1412  weekly-holiday.html
-1416  bmi-calc.html
-1427  png-to-jpg.html
-1427  hreflang-generator.html
-1429  severance.html
-1432  ai-token-counter.html
-1446  prompt-formatter.html
-1447  whois-lookup.html
-1452  parental-leave.html
-1456  csv-diff-checker.html
-1462  stock-tax.html
-1482  freelancer-tax.html
-1483  commission-calculator.html
-1486  dns-lookup.html
-1488  severance-tax.html
-1490  html-to-markdown.html
-```
-(1500자 이상은 이 구간이 끝나면 재스캔해서 다음 구간 산정)
+## 완료 (4차 배치 67~83, 1410~1490자 구간, 마지막 배치)
+schema-validator(@context가 문자열 아닌 객체/배열이면 .includes() 호출로 검증기 자체가 크래시하던 버그 — 재귀 헬퍼로 문자열/배열/객체 다 처리), weekly-holiday(이 배치 최대급 — holidayHours를 실제 "주 근무일수" 입력 무시하고 항상 ÷5로 고정계산, 4일근무 시 실제보다 20% 적게, 6일근무 시 20% 많이 지급되던 버그, 데모기본값이 마침 5일이라 안 걸렸던 케이스), bmi-calc(툴팁은 "남성×0.9/여성×0.85" 성별차등 Broca공식이라 명시하는데 실제 코드는 성별무관 단일 BMI공식이라 성별 바꿔도 결과 불변이던 버그+FAQ 7/7/7/6/6→8×5 정리, 성별·활동량 라디오버튼 미번역 갭 발견만), png-to-jpg(파일명 미이스케이프 XSS+static/JS 콘텐츠 불일치, 투명배경 버그는 이 파일은 원래 정상이었음 확인), hreflang-generator(HTTP헤더 출력탭에 HTML용 이스케이프 그대로 써서 쿼리스트링 있는 URL이 &amp;amp;로 이중이스케이프되던 버그), severance(평균임금 분모를 91일 고정 사용, 실제로는 89~92일 사이 변동하는 정확한 달력일수 써야 함 — 2026-09-01 퇴직 예시로 약 97,000원/1% 오차 확인 후 실제 달력일수 계산으로 수정), ai-token-counter(FAQ 자체 예시 "Hello=1토큰"이 실제 코드 돌리면 3토큰 나오는 자기모순, FAQ 9×5=45→8×5=40 정리), prompt-formatter(헤드FAQ가 "프롬프트 저장/재사용 가능"이라 주장하는데 본문FAQ는 정확히 반대로 "저장기능 없음"이라 명시하던 자기모순), whois-lookup(다른 필드는 다 escHtml() 적용했는데 네임서버 목록만 이스케이프 누락), parental-leave(제목/메타는 "2026년 기준"인데 본문은 "2024년 기준"이라던 자기모순(같은 수치)을 본문 기준으로 통일, FAQ의 상한액 고정 250만원 주장이 실제 200→250→300만원 단계상승과 다르던 것도 수정 — ⚠️ 실제 최신연도 수치 재검증 권장), csv-diff-checker(CSV 셀값·헤더가 그대로 innerHTML 삽입되던 XSS, FAQ 11/11/11/8/8→8×5 정리), stock-tax(UI에 없는 "비상장 대주주 25%" 세율을 요약박스가 주장하던 것 정직하게 수정, 나머지 계산은 자체 FAQ예시로 검증 정상), freelancer-tax(SEO본문 예시 수치가 실제 계산과 거의 2배 차이(14만원 주장 vs 실제 환급 25.7만원), 표현 자체도 "세부담...환급"으로 모순), commission-calculator(FAQ 안에서 요율범위 자기모순(0.4~0.9% vs 실제 0.4~0.6%), 계산로직은 검증 정상, FAQ 11/11/11/8/8→8×5 정리), dns-lookup(whois-lookup과 동일 패턴 — name/type 필드 이스케이프 누락 + "ALL 조회 시 8종류"라 광고하면서 실제론 SOA/PTR 빠진 6종류만 조회하던 버그), severance-tax(이 세션 최대급 발견 — 환산급여공제 구간표 자체가 완전히 다른/구버전 표를 쓰고 있어 자체 FAQ 예시(실효세율 4~6%)로 검증 시 실제로는 10.65% 나옴(2배 이상), 웹서치로 국세청 공식표 확인 후 수정하니 4.26%로 FAQ 범위 안에 정확히 들어감, FAQ 산수오류(2,475만원→실제 2,750만원)도 수정), html-to-markdown(마지막 파일 — ①FAQ는 중첩 목록이 "한 단계로 평탄화"된다고 주장하지만 실제 코드는 중첩 목록을 통째로 스킵해 데이터 완전 삭제, 진짜 들여쓰기 유지 중첩리스트 변환 구현, ②붙여넣은 HTML을 detached div에 innerHTML로 삽입 — DOM 미부착 상태에서도 <img onerror>는 즉시 실행되는 XSS 벡터, DOMParser로 교체해 원천 차단, 헤드FAQ 언어혼용도 정리)
+
+## 4차 스캔(1000~1500자, 83개) 전체 완료 (2026-07-30)
+worst-first 83개 파일 전부 처리 완료. 1500자 이상 구간은 아직 미스캔 — 이어서 진행 시 아래 스캔 방법(맨 위 "스캔 방법" 섹션)으로 `1500 <= len` 범위 재스캔부터 시작할 것(이미 완료된 파일은 스캔 결과에서 나와도 건너뛸 것).
 
 ## 새 컴퓨터에서 이어할 때 체크리스트
 1. `git fetch && git checkout content-depth-audit && git pull`
-2. 이 파일의 "남은 17개" 목록 맨 위부터 시작 (4개씩 병렬 fork 배치 권장, 다음 배치 시작점 표시 참고)
+2. 1000~1500자 구간 전체 완료됨 — 이어서 할 경우 1500자 이상 구간을 재스캔(맨 위 "스캔 방법" 섹션 python 스니펫에서 범위만 `1500 <= len`으로 변경)해서 새 worst-first 목록 산출부터 시작, 4개씩 병렬 fork 배치 권장
 3. 파일마다: 코드 읽고 실제 버그/과장된 주장 찾기(가능하면 node로 직접 재현) → 없으면 진짜 기술적 디테일로 깊이 보강 → ko 정적 seoDiv 재작성 → JS _i18n.ko.seoHtml에 완전히 동일하게 미러링(정규식 특수문자는 백슬래시 2번 이스케이프 등 주의) → en/zh/ja 번역 → head FAQPage JSON-LD를 새 내용 기준 4개 항목으로 교체
 4. 검증 4종 세트 (파일마다 필수):
    - `python3 -c "...json.loads(...)"` 로 JSON-LD 2개 블록 파싱 확인
@@ -279,8 +263,14 @@ seo-title-generator(아포스트로피 있는 제목 복사버튼 완전히 깨�
 - **ai-youtube-title-generator.html**: 제목 유형(후크/방법/숫자 등) 선택이 생성 로직에 전혀 반영 안 되던 핵심기능 버그
 - **keyword-density-checker.html**: 한중일 텍스트 입력 시 전체가 0단어로 집계 — 코어 기능이 한국어 대상 사이트에서 사실상 붕괴 상태였음
 - **robots-txt-validator.html**: 빈 Disallow가 자기네 FAQ와 반대로 "전체 차단"으로 동작 + 와일드카드(`*`/`$`) 완전 미지원
+- **weekly-holiday.html**: 주휴수당 계산이 실제 근무일수 입력 무시하고 항상 ÷5 고정 — 4일근무 20% 적게, 6일근무 20% 많이 지급 (실제 급여 영향)
+- **severance.html**: 평균임금 분모를 91일 고정 사용, 실제로는 89~92일 사이인 정확한 달력일수 필요 (실제 급여 영향, ~1% 오차)
+- **severance-tax.html**: 환산급여공제 구간표 자체가 통째로 틀림 — 자체 FAQ 예시 기준 실효세율이 10.65% 나오는데(정답은 4.26%) 2배 이상 차이 (실제 세금 영향, 웹서치로 국세청 공식표 대조 후 수정)
+- **bmi-calc.html**: 툴팁의 성별차등 표준체중 공식이 실제 코드엔 반영 안 돼 성별 바꿔도 결과 불변
+- **html-to-markdown.html**: 중첩 목록이 "평탄화"가 아니라 통째로 삭제되던 데이터 유실 버그 + detached div innerHTML XSS(DOM 미부착 상태에서도 img onerror 실행됨)
+- **parental-leave.html**: 제목/메타 "2026년 기준" vs 본문 "2024년 기준" 자기모순 — 본문 기준으로만 통일함, 실제 최신연도 수치 재검증 권장
 
-- 1000~1500자 구간 남은 17개 끝나면 1500자 이상 구간 재스캔 필요
+- 1000~1500자 구간 83개 전체 완료. 다음은 1500자 이상 구간 재스캔 필요
 - 중복 FAQ 답변(4개 파일 이상 겹침) 이슈는 대부분 해소됨 (언어 전환 안내 문구 정도만 남음, 문제 아님)
 - 새 컴퓨터에서 이어할 때: `git fetch && git checkout content-depth-audit && git pull` 로 시작
 - 파일 하나 끝날 때마다 체크: static seoDiv와 JS ko seoHtml 문자열 완전 동일한지 node eval로 확인, JSON-LD 유효성 확인, faq-item 개수(5개 언어 블록 x 8 = 40) 확인 — 검증 코드는 이 세션 대화 내 여러 번 사용한 패턴 참고

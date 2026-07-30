@@ -68,7 +68,9 @@
   "@type":"FAQPage",
   "mainEntity":[
     {"@type":"Question","name":"JSON-LD 검증이 왜 중요한가요?","acceptedAnswer":{"@type":"Answer","text":"잘못된 구조화 데이터는 구글이 리치 스니펫을 표시하지 않게 만듭니다. 검증을 통해 필수 필드 누락이나 JSON 문법 오류를 사전에 발견할 수 있습니다."}},
-    {"@type":"Question","name":"필수 필드와 권장 필드의 차이는?","acceptedAnswer":{"@type":"Answer","text":"필수 필드가 없으면 구글이 해당 스키마 타입의 리치 스니펫을 표시하지 않습니다. 권장 필드는 없어도 오류는 아니지만 더 풍부한 리치 스니펫 표시를 위해 추가를 권장합니다."}}
+    {"@type":"Question","name":"필수 필드와 권장 필드의 차이는?","acceptedAnswer":{"@type":"Answer","text":"필수 필드가 없으면 구글이 해당 스키마 타입의 리치 스니펫을 표시하지 않습니다. 권장 필드는 없어도 오류는 아니지만 더 풍부한 리치 스니펫 표시를 위해 추가를 권장합니다."}},
+    {"@type":"Question","name":"@context는 꼭 필요한가요?","acceptedAnswer":{"@type":"Answer","text":"네, 필수입니다. \"@context\": \"https://schema.org\"가 없으면 구글이 스키마를 올바르게 해석하지 못합니다. 모든 JSON-LD 블록의 최상위에 반드시 포함해야 합니다."}},
+    {"@type":"Question","name":"한 페이지에 여러 스키마를 넣을 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"네. 여러 개의 별도 script type=\"application/ld+json\" 태그를 사용하거나, 하나의 태그 안에 배열로 넣는 방식 모두 가능합니다. 구글은 페이지 내 모든 JSON-LD를 인식합니다."}}
   ]
 }
 </script>
@@ -365,6 +367,13 @@ function doValidate(){
   document.getElementById('resultDiv').innerHTML=html;
 }
 
+function contextHasSchemaOrg(context){
+  if(typeof context==='string')return context.includes('schema.org');
+  if(Array.isArray(context))return context.some(contextHasSchemaOrg);
+  if(context&&typeof context==='object')return Object.values(context).some(contextHasSchemaOrg);
+  return false;
+}
+
 function renderResult(obj,t,idx,total){
   const type=obj['@type']||'Unknown';
   const context=obj['@context']||'';
@@ -373,7 +382,7 @@ function renderResult(obj,t,idx,total){
   const missing=required.filter(f=>!(f in obj)||obj[f]===null||obj[f]==='');
   const warnings=recommended.filter(f=>!(f in obj)||obj[f]===null||obj[f]==='');
   const issues=[];
-  if(!context.includes('schema.org'))issues.push(t.noContext);
+  if(!contextHasSchemaOrg(context))issues.push(t.noContext);
   if(!REQUIRED_FIELDS[type]&&type!=='Unknown')issues.push(t.unknownType);
   const isValid=missing.length===0&&issues.length===0;
 

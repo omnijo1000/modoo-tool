@@ -153,8 +153,10 @@ function calc() {
   if (totalDays < 0) { warnEl.textContent = '퇴사일이 입사일보다 빠릅니다.'; warnEl.style.display = 'block'; return; }
   if (totalDays < 365) { warnEl.textContent = `근속기간이 ${totalDays}일로 1년 미만입니다. 퇴직금 지급 대상이 아닙니다.`; warnEl.style.display = 'block'; return; }
 
-  // 평균임금 계산 (3개월 = 91일 기준)
-  const threeMonthDays = 91;
+  // 평균임금 계산: 퇴직일 이전 3개월의 실제 달력 일수 사용 (89~92일로 변동)
+  const threeMonthsAgo = new Date(endDate);
+  threeMonthsAgo.setUTCMonth(threeMonthsAgo.getUTCMonth() - 3);
+  const threeMonthDays = Math.round((endDate - threeMonthsAgo) / (1000*60*60*24));
   const threeMonthTotal = avgSalary * 3 + (bonus * 3 / 12);
   const dailyWage = threeMonthTotal / threeMonthDays;
   const monthlyAvg = dailyWage * 30;

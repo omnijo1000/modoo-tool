@@ -24,7 +24,7 @@
 {"@context":"https://schema.org","@type":"WebApplication","name":"DNS Lookup","url":"https://modoohub.com/dns-lookup.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free online DNS lookup tool. Query A, AAAA, MX, NS, TXT, CNAME, SOA, PTR records for any domain using Cloudflare DNS over HTTPS."}
 </script>
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"DNS란 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"DNS(Domain Name System)는 도메인 이름을 IP 주소로 변환하는 인터넷 전화번호부입니다. 사람이 읽을 수 있는 도메인(google.com)을 컴퓨터가 이해하는 IP 주소로 매핑합니다."}},{"@type":"Question","name":"A 레코드란 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"A 레코드는 도메인 이름을 IPv4 주소에 매핑하는 DNS 레코드입니다. 가장 기본적인 DNS 레코드 유형으로, 도메인 방문 시 실제 서버 IP를 알려줍니다."}}]}
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"DNS란 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"DNS(Domain Name System)는 도메인 이름을 IP 주소로 변환하는 인터넷 전화번호부입니다. 사람이 읽을 수 있는 도메인(google.com)을 컴퓨터가 이해하는 IP 주소로 매핑합니다."}},{"@type":"Question","name":"A 레코드란 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"A 레코드는 도메인 이름을 IPv4 주소에 매핑하는 DNS 레코드입니다. 가장 기본적인 DNS 레코드 유형으로, 도메인 방문 시 실제 서버 IP를 알려줍니다."}},{"@type":"Question","name":"MX 레코드는 이메일과 어떤 관련이 있나요?","acceptedAnswer":{"@type":"Answer","text":"MX(Mail Exchange) 레코드는 도메인으로 오는 이메일을 어느 메일 서버로 전달할지 지정합니다. 우선순위 숫자가 낮을수록 먼저 시도됩니다."}},{"@type":"Question","name":"TTL은 무슨 의미인가요?","acceptedAnswer":{"@type":"Answer","text":"TTL(Time To Live)은 DNS 레코드가 캐시에 저장되는 시간(초)입니다. TTL이 3600이면 1시간 동안 캐시됩니다."}}]}
 </script>
 <style>
 /* page-specific: theme-instrument.css doesn't cover chips, spinner, results table, type tags */
@@ -142,7 +142,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
 const typeMap = {1:'A',28:'AAAA',5:'CNAME',15:'MX',2:'NS',16:'TXT',6:'SOA',12:'PTR',33:'SRV',255:'ANY'};
 
 async function dnsLookup(domain, type) {
-  const types = type === 'ALL' ? ['A','AAAA','MX','NS','TXT','CNAME'] : [type];
+  const types = type === 'ALL' ? ['A','AAAA','MX','NS','TXT','CNAME','SOA','PTR'] : [type];
   const results = [];
   for (const t of types) {
     try {
@@ -195,10 +195,10 @@ function renderResults(records, domain, type) {
   } else {
     noDiv.classList.add('hidden');
     tbody.innerHTML = records.map(rec => {
-      const tagClass = `tag-${rec.type}`;
+      const tagClass = `tag-${escHtml(rec.type)}`;
       return `<tr>
-        <td>${rec.name}</td>
-        <td><span class="type-tag ${tagClass}">${rec.type}</span></td>
+        <td>${escHtml(rec.name)}</td>
+        <td><span class="type-tag ${tagClass}">${escHtml(rec.type)}</span></td>
         <td class="ttl-cell">${rec.ttl}</td>
         <td>${escHtml(rec.data)}</td>
       </tr>`;
