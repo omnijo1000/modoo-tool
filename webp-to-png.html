@@ -64,7 +64,9 @@
       "@type": "FAQPage",
       "mainEntity": [
         {"@type":"Question","name":"WebP와 PNG의 차이점은?","acceptedAnswer":{"@type":"Answer","text":"WebP는 손실·무손실 압축 모두 지원하는 구글 포맷으로 파일 크기가 작고 PNG는 무손실 압축만 지원해 화질 손실이 없습니다."}},
-        {"@type":"Question","name":"Why convert WebP to PNG?","acceptedAnswer":{"@type":"Answer","text":"PNG offers universal compatibility with all software and maintains full lossless quality, making it ideal for editing workflows."}}
+        {"@type":"Question","name":"Why convert WebP to PNG?","acceptedAnswer":{"@type":"Answer","text":"PNG offers universal compatibility with all software and maintains full lossless quality, making it ideal for editing workflows."}},
+        {"@type":"Question","name":"투명도(알파 채널)가 보존되나요?","acceptedAnswer":{"@type":"Answer","text":"네. 투명도를 포함한 WebP 이미지를 PNG로 변환해도 알파 채널이 완벽히 유지됩니다."}},
+        {"@type":"Question","name":"변환 후 파일 크기가 커지는 이유는?","acceptedAnswer":{"@type":"Answer","text":"PNG는 무손실 압축 방식을 사용하기 때문에 손실 압축 WebP보다 파일 크기가 클 수 있습니다. 이는 정상적인 현상입니다."}}
       ]
     }
   ]
@@ -243,6 +245,7 @@ function applyLang(){
 }
 
 function fmtSize(b){return b>1024*1024?(b/1024/1024).toFixed(2)+' MB':(b/1024).toFixed(1)+' KB';}
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 function ev(e,type){
   e.preventDefault();
@@ -288,7 +291,7 @@ function renderList(){
       changeHtml=`<div class="file-change ${diff>0?'bigger':'smaller'}">${sign}${pct}%</div>`;
     }
     const dlBtn=res&&res.size?`<button class="dl-item-btn" onclick="dlOne(${i})">${t.btnDownload}</button>`:'';
-    item.innerHTML=`<img class="file-thumb" src="${thumbUrl}" onload="URL.revokeObjectURL(this.src)"><div class="file-info"><div class="file-name">${f.name}</div><div class="file-sizes">${sizesHtml}</div>${changeHtml}</div><span class="file-status ${statusClass}">${statusText}</span>${dlBtn}`;
+    item.innerHTML=`<img class="file-thumb" src="${thumbUrl}" onload="URL.revokeObjectURL(this.src)"><div class="file-info"><div class="file-name">${escHtml(f.name)}</div><div class="file-sizes">${sizesHtml}</div>${changeHtml}</div><span class="file-status ${statusClass}">${statusText}</span>${dlBtn}`;
     list.appendChild(item);
   });
 }
