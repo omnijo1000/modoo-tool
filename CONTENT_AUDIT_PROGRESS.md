@@ -395,7 +395,7 @@ parental-leave(2025-01 사후지급금 폐지+상한 250/200/160만원 3단계 �
 
 **4차 배치(10~66)에서 발견된 심각도 높은 버그 14건 — 2026-08-03 전수 재확인 결과 전부 코드에 실제로 반영돼 있음(current 파일 grep으로 직접 대조 완료):**
 annual-leave(달력계산+hreflang 둘 다 해결) · csr-generator(sanitizeSubjField 확인) · pdf-page-counter(escHtml 확인) · html-encoder(sandbox iframe 확인) · pdf-compressor(scale=dpi/72 확인) · csp-generator(FAQ 정직화 확인) · ai-youtube-title-generator · keyword-density-checker(CJK 정규식 확인) · robots-txt-validator(pathToRegex 확인) · weekly-holiday(실근무일수 반영 확인) · severance(달력일수 계산 확인) · severance-tax(공제표 확인) · html-to-markdown(DOMParser 확인) — 이 13개는 재작업 불필요.
-**bmi-calc.html**만 "성별·활동량 라디오버튼 미번역 갭"이 발견 당시 미착수 상태로 남아있었음 → fork 처리중(별도 진행상황은 위 "부가 발견" 섹션 참고).
+**bmi-calc.html**만 "성별·활동량 라디오버튼 미번역 갭"이 발견 당시 미착수 상태로 남아있었는데, 이 세션에 처리 완료(위 "완료 (parental-leave.html, bmi-calc.html)" 참고) — 14건 전부 해소.
 
 - 1000~1500자 구간 83개 전체 완료. 5차 스캔(1500자 이상)·700~1500 재스캔·전수검증까지 전부 완료.
 - 중복 FAQ 답변(4개 파일 이상 겹침) 이슈는 대부분 해소됨 (언어 전환 안내 문구 정도만 남음, 문제 아님)
