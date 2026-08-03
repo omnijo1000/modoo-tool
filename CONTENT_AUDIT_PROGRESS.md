@@ -348,10 +348,10 @@ renderAll()이 사용자 입력 이벤트명을 미이스케이프 innerHTML 삽
 
 sitemap.xml에는 이 38개 파일명의 `?lang=` 항목이 애초에 하나도 없었음(확인 완료) — sitemap 쪽은 손댈 것 없음.
 
-**아직 남은 것 (미착수)**:
-- **parental-leave.html**: 상한액 최신연도(2026) 법정 수치 재검증 — 이번 세션에서 hreflang만 처리, 수치 재검증은 미착수
-- **bmi-calc.html**: 성별/활동량 라디오버튼 미번역 갭 — hreflang 이슈와 무관, 여전히 미착수
-- **working-days-calc.html**: 2027년 공휴일 데이터 아직 없음 — CLAUDE.md 연간점검 대상, 연초 갱신 예정이라 안 급함
+### 완료 (parental-leave.html, bmi-calc.html — 위 미착수 2건 처리)
+parental-leave(2025-01 사후지급금 폐지+상한 250/200/160만원 3단계 지급률 개편 미반영 상태였던 것 발견, nodong.kr+moel.go.kr 2개 독립출처로 교차검증 후 title/meta/JSON-LD/본문/FAQ 전부 갱신 + 6+6 부모육아휴직제 12개월 계산이 6개월 총액의 정확히 2배로 나오던 로직버그(7개월 이후 일반급여 전환 미반영, 분모에 min(months,6) 오사용) node 재현 후 구간별 가중평균으로 수정), bmi-calc(플래그된 "라디오버튼 미번역"은 실제로는 계산기 본체 전체(필드라벨·상태라벨·툴팁·칼로리카드 등)가 헤더/SEO만 빼고 전부 한국어 고정이던 훨씬 넓은 문제였음 — 번역 추가 과정에서 getVal()이 라디오 textContent를 한국어 리터럴('남성' 등)과 직접 비교해 번역만 입히면 계산로직이 깨질 뻔한 숨은 버그 발견, data-value 속성으로 표시값/계산값 분리 후 4개 언어 42키 번역 + applyLang()이 결과 재렌더하도록 확장. BMI/BMR/TDEE 공식 자체는 무변경 확인)
+
+**남은 것**: working-days-calc.html 2027년 공휴일 데이터만 미착수 — CLAUDE.md 연간점검 대상, 연초 갱신 예정이라 안 급함. 그 외 이 감사 세션에서 파악된 모든 미착수 항목 해소.
 
 **주의 6**: 이 스캔에서 처음에 exclude 로직 버그가 있었음 — 4차 배치(67~83)의 완료 기록이 "파일명(설명)" 형식으로 `.html` 확장자 없이 적혀 있는데, 스캔 스크립트가 `이름.html` 패턴으로만 완료 여부를 매칭해서 방금 끝낸 파일들(freelancer-tax, color-palette, inflation-calculator, sip-calculator, body-fat-calculator, loan-calculator-en 등)이 전부 "미완료"로 잘못 다시 나타났었음. `이름(` 패턴도 함께 매칭하도록 스캔 스크립트를 고쳐서 재실행 후 확인함. **앞으로 이 파일에 완료 기록을 추가할 때 파일명 뒤에 `.html`을 붙이든 안 붙이든 상관없지만, 재스캔할 땐 반드시 두 패턴(`이름.html`과 `이름(`) 모두로 완료 여부를 매칭할 것.**
 
