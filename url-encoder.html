@@ -195,7 +195,7 @@ footer { text-align:center; font-size:12px; color:var(--text-dim); margin-top:48
         <span id="labelInput">입력</span>
       </div>
       <textarea id="inputEl" placeholder="인코딩할 텍스트 또는 URL" oninput="debouncedEncode()"></textarea>
-      <div class="char-count" id="charCount">0 chars</div>
+      <div class="char-count" id="charCount">0자</div>
     </div>
     <div class="editor-box">
       <div class="editor-label">
@@ -229,6 +229,7 @@ const i18n = {
     sub: '텍스트·URL을 퍼센트 인코딩으로 변환',
     backLink: '← 모두의 툴',
     langBtn: '🌐 EN',
+    charsLabel: '자',
     btnPaste: '붙여넣기',
     btnClear: '지우기',
     btnSample: '예시',
@@ -264,6 +265,7 @@ const i18n = {
     sub: 'Percent-encode text or full URLs',
     backLink: '← All Tools',
     langBtn: '🌐 中文',
+    charsLabel: ' chars',
     btnPaste: 'Paste',
     btnClear: 'Clear',
     btnSample: 'Sample',
@@ -299,6 +301,7 @@ const i18n = {
     sub: '将文本或 URL 转换为百分比编码',
     backLink: '← 首页',
     langBtn: '🌐 日本語',
+    charsLabel: '字符',
     btnPaste: '粘贴',
     btnClear: '清空',
     btnSample: '示例',
@@ -334,6 +337,7 @@ const i18n = {
     sub: 'テキスト・URL をパーセントエンコードに変換',
     backLink: '← ホーム',
     langBtn: '🌐 한국어',
+    charsLabel: '文字',
     btnPaste: '貼り付け',
     btnClear: 'クリア',
     btnSample: 'サンプル',
@@ -396,6 +400,7 @@ function applyLang() {
   document.getElementById('labelOutput').textContent = t.labelOutput;
   document.getElementById('footerEl').textContent = t.footer;
   document.getElementById('seoEl').innerHTML = t.seoHtml;
+  document.getElementById('charCount').textContent = document.getElementById('inputEl').value.length + t.charsLabel;
   updateModeDesc();
 }
 
@@ -425,7 +430,7 @@ function setMode(m) {
 let _debounce;
 function debouncedEncode() {
   const text = document.getElementById('inputEl').value;
-  document.getElementById('charCount').textContent = text.length + ' chars';
+  document.getElementById('charCount').textContent = text.length + i18n[lang].charsLabel;
   clearTimeout(_debounce);
   _debounce = setTimeout(encode, 300);
 }
@@ -443,21 +448,21 @@ function encode() {
 function loadSample() {
   const t = i18n[lang];
   document.getElementById('inputEl').value = mode === 'component' ? t.sampleComponent : t.sampleFull;
-  document.getElementById('charCount').textContent = document.getElementById('inputEl').value.length + ' chars';
+  document.getElementById('charCount').textContent = document.getElementById('inputEl').value.length + i18n[lang].charsLabel;
   encode();
 }
 
 function clearAll() {
   document.getElementById('inputEl').value = '';
   document.getElementById('outputEl').value = '';
-  document.getElementById('charCount').textContent = '0 chars';
+  document.getElementById('charCount').textContent = '0' + i18n[lang].charsLabel;
 }
 
 async function pasteInput() {
   try {
     const text = await navigator.clipboard.readText();
     document.getElementById('inputEl').value = text;
-    document.getElementById('charCount').textContent = text.length + ' chars';
+    document.getElementById('charCount').textContent = text.length + i18n[lang].charsLabel;
     encode();
   } catch(e) {}
 }
