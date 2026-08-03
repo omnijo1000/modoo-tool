@@ -68,7 +68,8 @@
   "mainEntity":[
     {"@type":"Question","name":"JSON-LD란 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"JSON-LD(JavaScript Object Notation for Linked Data)는 구조화 데이터를 JSON 형식으로 표현하는 방법으로, 구글이 권장하는 스키마 마크업 구현 방식입니다."}},
     {"@type":"Question","name":"리치 스니펫이란 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"리치 스니펫은 구조화 데이터가 적용된 페이지에서 구글 검색 결과에 별점, 가격, FAQ 등 추가 정보가 표시되는 기능입니다. 클릭률 향상에 도움이 됩니다."}},
-    {"@type":"Question","name":"JSON-LD는 어디에 삽입하나요?","acceptedAnswer":{"@type":"Answer","text":"HTML의 head 또는 body 어디에나 삽입 가능하지만, head 내 script type=application/ld+json 태그 안에 넣는 것을 구글이 권장합니다."}}
+    {"@type":"Question","name":"JSON-LD는 어디에 삽입하나요?","acceptedAnswer":{"@type":"Answer","text":"HTML의 head 또는 body 어디에나 삽입 가능하지만, head 내 script type=application/ld+json 태그 안에 넣는 것을 구글이 권장합니다."}},
+    {"@type":"Question","name":"구조화 데이터 필수 필드는?","acceptedAnswer":{"@type":"Answer","text":"각 타입마다 다르지만 공통적으로 @context와 @type이 필수입니다. Article은 headline·author·datePublished, Product은 name, FAQPage는 mainEntity, Event는 name·startDate·location이 필수입니다."}}
   ]
 }
 </script>
@@ -282,10 +283,10 @@ function renderForm(){
   add.style.display='none';
   switch(_type){
     case 'article':
-      f.innerHTML=inp('f_headline','Headline (title)*','Article title',undefined,true)+inp('f_authorName','Author Name*','John Doe',undefined,true)+inp('f_datePublished','Date Published*','','date',true)+inp('f_dateModified','Date Modified','','date')+ta('f_description','Description','Article summary...')+inp('f_image','Image URL','https://...')+inp('f_publisherName','Publisher Name','My Site');
+      f.innerHTML=inp('f_headline','Headline (title)','Article title',undefined,true)+inp('f_authorName','Author Name','John Doe',undefined,true)+inp('f_datePublished','Date Published','','date',true)+inp('f_dateModified','Date Modified','','date')+ta('f_description','Description','Article summary...')+inp('f_image','Image URL','https://...')+inp('f_publisherName','Publisher Name','My Site');
       break;
     case 'product':
-      f.innerHTML=inp('f_name','Name*','Product name',undefined,true)+ta('f_description','Description','Product description...')+inp('f_image','Image URL','https://...')+inp('f_brand','Brand','Nike')+inp('f_sku','SKU','ABC-123')+two(inp('f_price','Price','29.99'),inp('f_priceCurrency','Currency','USD'))+sel('f_availability','Availability',[{v:'InStock',l:'InStock'},{v:'OutOfStock',l:'OutOfStock'},{v:'PreOrder',l:'PreOrder'}])+two(inp('f_ratingValue','Rating Value','4.5'),inp('f_ratingCount','Rating Count','123'));
+      f.innerHTML=inp('f_name','Name','Product name',undefined,true)+ta('f_description','Description','Product description...')+inp('f_image','Image URL','https://...')+inp('f_brand','Brand','Nike')+inp('f_sku','SKU','ABC-123')+two(inp('f_price','Price','29.99'),inp('f_priceCurrency','Currency','USD'))+sel('f_availability','Availability',[{v:'InStock',l:'InStock'},{v:'OutOfStock',l:'OutOfStock'},{v:'PreOrder',l:'PreOrder'}])+two(inp('f_ratingValue','Rating Value','4.5'),inp('f_ratingCount','Rating Count','123'));
       break;
     case 'faq':
       add.style.display='';
@@ -293,7 +294,7 @@ function renderForm(){
       f.innerHTML=renderPairs();
       break;
     case 'localbusiness':
-      f.innerHTML=inp('f_name','Business Name*','My Business',undefined,true)+ta('f_description','Description','About this business...')+inp('f_street','Street Address','123 Main St')+two(inp('f_city','City','Seoul'),inp('f_postal','Postal Code','12345'))+inp('f_country','Country','KR')+inp('f_phone','Phone','+82-2-1234-5678')+inp('f_url','Website URL','https://mybusiness.com')+inp('f_hours','Opening Hours','Mo-Fr 09:00-18:00');
+      f.innerHTML=inp('f_name','Business Name','My Business',undefined,true)+ta('f_description','Description','About this business...')+inp('f_street','Street Address','123 Main St')+two(inp('f_city','City','Seoul'),inp('f_postal','Postal Code','12345'))+inp('f_country','Country','KR')+inp('f_phone','Phone','+82-2-1234-5678')+inp('f_url','Website URL','https://mybusiness.com')+inp('f_hours','Opening Hours','Mo-Fr 09:00-18:00');
       break;
     case 'breadcrumb':
       add.style.display='';
@@ -301,21 +302,21 @@ function renderForm(){
       f.innerHTML=renderPairsBC();
       break;
     case 'event':
-      f.innerHTML=inp('f_name','Event Name*','My Event',undefined,true)+inp('f_startDate','Start Date*','','datetime-local',true)+inp('f_endDate','End Date','','datetime-local')+ta('f_description','Description','Event details...')+inp('f_locationName','Location Name','Conference Center')+inp('f_locationAddress','Location Address','123 Street, City')+inp('f_organizer','Organizer Name','Organizer Inc.')+sel('f_eventStatus','Event Status',[{v:'EventScheduled',l:'Scheduled'},{v:'EventCancelled',l:'Cancelled'},{v:'EventPostponed',l:'Postponed'},{v:'EventMovedOnline',l:'Moved Online'}])+sel('f_attendanceMode','Attendance Mode',[{v:'OfflineEventAttendanceMode',l:'Offline'},{v:'OnlineEventAttendanceMode',l:'Online'},{v:'MixedEventAttendanceMode',l:'Mixed'}]);
+      f.innerHTML=inp('f_name','Event Name','My Event',undefined,true)+inp('f_startDate','Start Date','','datetime-local',true)+inp('f_endDate','End Date','','datetime-local')+ta('f_description','Description','Event details...')+inp('f_locationName','Location Name','Conference Center',undefined,true)+inp('f_locationAddress','Location Address','123 Street, City')+inp('f_organizer','Organizer Name','Organizer Inc.')+sel('f_eventStatus','Event Status',[{v:'EventScheduled',l:'Scheduled'},{v:'EventCancelled',l:'Cancelled'},{v:'EventPostponed',l:'Postponed'},{v:'EventMovedOnline',l:'Moved Online'}])+sel('f_attendanceMode','Attendance Mode',[{v:'OfflineEventAttendanceMode',l:'Offline'},{v:'OnlineEventAttendanceMode',l:'Online'},{v:'MixedEventAttendanceMode',l:'Mixed'}]);
       break;
     case 'person':
-      f.innerHTML=inp('f_name','Name*','Jane Doe',undefined,true)+inp('f_url','Profile URL','https://janedoe.com')+inp('f_jobTitle','Job Title','Software Engineer')+inp('f_worksFor','Works For','ACME Corp')+ta('f_sameAs','Social URLs (one per line)','https://twitter.com/jane\nhttps://github.com/jane');
+      f.innerHTML=inp('f_name','Name','Jane Doe',undefined,true)+inp('f_url','Profile URL','https://janedoe.com')+inp('f_jobTitle','Job Title','Software Engineer')+inp('f_worksFor','Works For','ACME Corp')+ta('f_sameAs','Social URLs (one per line)','https://twitter.com/jane\nhttps://github.com/jane');
       break;
     case 'organization':
-      f.innerHTML=inp('f_name','Name*','ACME Corp',undefined,true)+inp('f_url','Website URL','https://acme.com')+inp('f_logo','Logo URL','https://acme.com/logo.png')+ta('f_description','Description','About this organization...')+ta('f_sameAs','Social URLs (one per line)','https://twitter.com/acme');
+      f.innerHTML=inp('f_name','Name','ACME Corp',undefined,true)+inp('f_url','Website URL','https://acme.com')+inp('f_logo','Logo URL','https://acme.com/logo.png')+ta('f_description','Description','About this organization...')+ta('f_sameAs','Social URLs (one per line)','https://twitter.com/acme');
       break;
     case 'recipe':
       add.style.display='';
       if(_pairs.length===0)_pairs=[{q:'ingredient',a:''},{q:'step',a:''}];
-      f.innerHTML=inp('f_name','Recipe Name*','Chocolate Cake',undefined,true)+inp('f_author','Author','Chef Name')+ta('f_description','Description','Delicious recipe...')+two(inp('f_prepTime','Prep Time (ISO 8601)','PT15M'),inp('f_cookTime','Cook Time','PT30M'))+inp('f_recipeYield','Yield','8 servings')+renderPairsRecipe();
+      f.innerHTML=inp('f_name','Recipe Name','Chocolate Cake',undefined,true)+inp('f_author','Author','Chef Name')+ta('f_description','Description','Delicious recipe...')+two(inp('f_prepTime','Prep Time (ISO 8601)','PT15M'),inp('f_cookTime','Cook Time','PT30M'))+inp('f_recipeYield','Yield','8 servings')+renderPairsRecipe();
       break;
     case 'review':
-      f.innerHTML=inp('f_itemName','Item Reviewed Name*','Product/Book/Movie',undefined,true)+sel('f_itemType','Item Type',[{v:'Product',l:'Product'},{v:'Book',l:'Book'},{v:'Movie',l:'Movie'},{v:'LocalBusiness',l:'LocalBusiness'},{v:'Organization',l:'Organization'}])+inp('f_author','Author Name*','Review Author',undefined,true)+ta('f_reviewBody','Review Body','My review...')+two(inp('f_ratingValue','Rating Value (1-5)','4.5'),inp('f_bestRating','Best Rating','5'));
+      f.innerHTML=inp('f_itemName','Item Reviewed Name','Product/Book/Movie',undefined,true)+sel('f_itemType','Item Type',[{v:'Product',l:'Product'},{v:'Book',l:'Book'},{v:'Movie',l:'Movie'},{v:'LocalBusiness',l:'LocalBusiness'},{v:'Organization',l:'Organization'}])+inp('f_author','Author Name','Review Author',undefined,true)+ta('f_reviewBody','Review Body','My review...')+two(inp('f_ratingValue','Rating Value (1-5)','4.5'),inp('f_bestRating','Best Rating','5'));
       break;
   }
   bindPairEvents();
@@ -467,7 +468,10 @@ function generate(){
   }
   // Remove undefined values
   const clean=JSON.parse(JSON.stringify(obj));
-  const output=`<script type="application/ld+json">\n${JSON.stringify(clean,null,2)}\n<\/script>`;
+  // Escape "<" so a value containing "</script>" can't break out of the script tag
+  // when the user pastes this snippet into their own page (Google's own JSON-LD guidance).
+  const jsonStr=JSON.stringify(clean,null,2).replace(/</g,'\\u003c');
+  const output=`<script type="application/ld+json">\n${jsonStr}\n<\/script>`;
   document.getElementById('outputTa').value=output;
 }
 
