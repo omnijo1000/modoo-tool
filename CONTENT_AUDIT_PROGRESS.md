@@ -288,16 +288,16 @@ inheritance-tax(세율표 5단계(10~50%) node 9케이스 대조 정확 확인, 
 ### 완료 (5차 배치 13/N, 병렬 fork 5개, 1859~1934자 구간)
 meta-tag-generator(다른 자유입력 필드는 전부 escHtml() 적용하는데 viewport 필드만 이스케이프 누락돼 생성된 meta 태그가 깨질 수 있던 문제 수정, 사용자가 결과를 그대로 자기 사이트 head에 붙여넣는 도구라 실영향 있음), date-calc(UTC 자정 파싱 버그 — calcAdd/calcDiff가 "YYYY-MM-DD"를 UTC로 파싱해 UTC보다 느린 타임존(America/New_York 등, en/zh/ja 글로벌 사용자 대상)에서 날짜가 하루 당겨지던 문제, parseLocalDate() 도입으로 수정 + FAQ 8/10 불일치를 10개로 통일), schema-markup-generator(script-tag-breakout XSS — JSON.stringify 결과를 이스케이프 없이 그대로 출력해 사용자 입력에 `</script>`가 있으면 대상 페이지의 스크립트 태그가 조기 종료되던 문제(구글 JSON-LD 문서도 명시 경고하는 취약점), `<`→`<` 이스케이프로 수정 + 모든 필수필드 라벨에 리터럴 `*`와 req=true 뱃지가 중복되어 `**필수`로 보이던 UI버그 12곳 정리 + Event 위치 필드 필수표시 누락 수정), http-request-builder(curl-generator와 동일 계열 버그 — 헤더/URL에 홑따옴표 있으면 curl 명령어와 fetch/axios 코드 둘 다 깨지던 문제를 escSh()/escJs() 헬퍼로 수정 + DELETE 메서드가 body 포함 조건에서 빠져있어 body가 조용히 누락되던 문제(curl-generator 재발견) 수정, FAQ 8/11 불일치 11개로 통일), currency-converter(이 배치 최대급 — "150+/160+통화" 거짓 주장(실제 36개) + 정적 고정환율표인데 "실시간 반영" 오인시키는 표현(zh는 "实时汇率"라고까지 명시) + FAQ 자체 예시 수치가 실제 환율상수(1382)와 안 맞아 계산 결과 자체모순이던 것 + falsy-zero 버그(0 입력해도 1로 계산) + ja 콘텐츠가 통째로 다른 8개짜리 구버전 초안이면서 존재하지 않는 "유럽중앙은행 데이터 출처" 거짓 주장까지 있던 것 전부 수정)
 
-**남은 31개, 다음은 regex-tester.html부터.**
+**남은 31개, regex-tester·acquisition-tax·redirect-checker·markdown-preview·robots-txt-generator 완료 처리.**
+
+### 완료 (5차 배치 14/N, 병렬 fork 5개, 1936~2003자 구간)
+robots-txt-generator(버그 없음, escHtmlAttr 일관 적용·프리셋 파싱 오프셋·FAQ 주장 전부 검증 정상), redirect-checker(analyzeChain()의 hop URL이 innerHTML에 미이스케이프로 삽입되던 XSS 수정, CORS 한계는 이미 정직하게 명시돼있어 콘텐츠 재작성 불필요, head FAQ 2→4), markdown-preview(실행 가능한 XSS 발견 — detached div 아니라 실제 부착된 DOM에 렌더링하면서 `&lt;/&gt;`는 이스케이프했지만 `![alt](url)`/`[text](url)`에서 큰따옴표·URL 스킴은 미검증이라 img src/alt 속성 이탈 + javascript: URI 클릭형 XSS 둘 다 가능했음, escAttr()+safeHref()(http/https/mailto/tel만 허용)로 수정 + FAQ가 주장한 체크박스(`- [ ]`)가 실제로는 리터럴 텍스트로만 나오던 것도 실제 구현), regex-tester(g플래그 토글이 죽어있어 꺼도 항상 전역매칭되던 핵심기능 버그, FAQ1 "g 없으면 첫 매치만"이라는 자체 주장과 정반대로 동작 — matchAll/match 분기로 수정 + 이 파일은 구 구조(faq-item 클래스 없는 개별 p태그 12개)라 static과 i18n.ko가 완전히 다른 내용(static FAQ5는 i-flag인데 i18n.ko FAQ5는 lookahead)이었던 것 발견, i18n.ko 기준으로 static 재생성해 17개 필드 전부 일치 재확인 + head FAQ 8→4 정리), acquisition-tax(이 배치 최대급, 세금 실오차 큼 — ①6~9억 보간공식이 `/3` 나눗셈 누락으로 7.5억 정상세율 2%가 12%로, 9억 경계값은 3%가 15%로 계산되던 버그, ②지방교육세를 전 구간 세율×10% 비례식으로 계산했는데 실제론 8%/12% 중과구간은 취득가액의 0.4%p 고정값이라 2~3배 과다청구, ③농특세도 세율≥3%면 20% 비례식으로 계산했는데 실제론 전용면적 85㎡초과 시에만 부과되는 0.2/0.6/1.0%p 고정값이라 최대 2.7배 과다청구 + 85㎡ 초과 여부 입력 자체가 UI에 없어 잘못된 대리조건을 쓰고 있었음, 웹서치 2개 독립 출처로 5개 시나리오 전부 재검증)
+
+**남은 26개, 다음은 gift-tax.html부터.**
 
 **주의 6**: 이 스캔에서 처음에 exclude 로직 버그가 있었음 — 4차 배치(67~83)의 완료 기록이 "파일명(설명)" 형식으로 `.html` 확장자 없이 적혀 있는데, 스캔 스크립트가 `이름.html` 패턴으로만 완료 여부를 매칭해서 방금 끝낸 파일들(freelancer-tax, color-palette, inflation-calculator, sip-calculator, body-fat-calculator, loan-calculator-en 등)이 전부 "미완료"로 잘못 다시 나타났었음. `이름(` 패턴도 함께 매칭하도록 스캔 스크립트를 고쳐서 재실행 후 확인함. **앞으로 이 파일에 완료 기록을 추가할 때 파일명 뒤에 `.html`을 붙이든 안 붙이든 상관없지만, 재스캔할 땐 반드시 두 패턴(`이름.html`과 `이름(`) 모두로 완료 여부를 매칭할 것.**
 
 ```
-1936  regex-tester.html
-1955  acquisition-tax.html
-1964  redirect-checker.html
-1966  markdown-preview.html
-1973  robots-txt-generator.html
 2003  gift-tax.html
 2028  income-tax.html
 2076  image-resizer.html
