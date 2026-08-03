@@ -393,24 +393,11 @@ sitemap.xml에는 이 38개 파일명의 `?lang=` 항목이 애초에 하나도 
 
 ## 남은 참고 사항
 
-**이번 세션(4차 배치 10~66) 발견된 심각도 높은 버그 — 놓치지 말 것:**
-- **annual-leave.html**: 매년 12/30~31 즈음 근속연수 계산이 하루 일찍 승급 처리되어 4일치 연차 과다지급 (161건 날짜 불일치 확인, 실제 급여/휴가 영향)
-- **csr-generator.html**: 생성된 OpenSSL -subj 커맨드에 사용자 입력(CN/O 등) 미이스케이프 — 커맨드 인젝션 가능
-- **pdf-page-counter.html**: 파일명 미이스케이프 XSS (innerHTML)
-- **html-encoder.html**: 미리보기 innerHTML XSS — sandboxed iframe으로 교체
-- **pdf-compressor.html**: DPI→scale 변환식이 72 아닌 96으로 나눠 모든 DPI 설정에서 실제 해상도·출력 물리크기가 항상 원본의 75%로 축소
-- **csp-generator.html**: meta 태그 출력에 frame-ancestors를 그대로 포함시켜, 브라우저가 실제로는 무시하는데 사용자는 클릭재킹 방어된다고 오인
-- **ai-youtube-title-generator.html**: 제목 유형(후크/방법/숫자 등) 선택이 생성 로직에 전혀 반영 안 되던 핵심기능 버그
-- **keyword-density-checker.html**: 한중일 텍스트 입력 시 전체가 0단어로 집계 — 코어 기능이 한국어 대상 사이트에서 사실상 붕괴 상태였음
-- **robots-txt-validator.html**: 빈 Disallow가 자기네 FAQ와 반대로 "전체 차단"으로 동작 + 와일드카드(`*`/`$`) 완전 미지원
-- **weekly-holiday.html**: 주휴수당 계산이 실제 근무일수 입력 무시하고 항상 ÷5 고정 — 4일근무 20% 적게, 6일근무 20% 많이 지급 (실제 급여 영향)
-- **severance.html**: 평균임금 분모를 91일 고정 사용, 실제로는 89~92일 사이인 정확한 달력일수 필요 (실제 급여 영향, ~1% 오차)
-- **severance-tax.html**: 환산급여공제 구간표 자체가 통째로 틀림 — 자체 FAQ 예시 기준 실효세율이 10.65% 나오는데(정답은 4.26%) 2배 이상 차이 (실제 세금 영향, 웹서치로 국세청 공식표 대조 후 수정)
-- **bmi-calc.html**: 툴팁의 성별차등 표준체중 공식이 실제 코드엔 반영 안 돼 성별 바꿔도 결과 불변
-- **html-to-markdown.html**: 중첩 목록이 "평탄화"가 아니라 통째로 삭제되던 데이터 유실 버그 + detached div innerHTML XSS(DOM 미부착 상태에서도 img onerror 실행됨)
-- **parental-leave.html**: 제목/메타 "2026년 기준" vs 본문 "2024년 기준" 자기모순 — 본문 기준으로만 통일함, 실제 최신연도 수치 재검증 권장
+**4차 배치(10~66)에서 발견된 심각도 높은 버그 14건 — 2026-08-03 전수 재확인 결과 전부 코드에 실제로 반영돼 있음(current 파일 grep으로 직접 대조 완료):**
+annual-leave(달력계산+hreflang 둘 다 해결) · csr-generator(sanitizeSubjField 확인) · pdf-page-counter(escHtml 확인) · html-encoder(sandbox iframe 확인) · pdf-compressor(scale=dpi/72 확인) · csp-generator(FAQ 정직화 확인) · ai-youtube-title-generator · keyword-density-checker(CJK 정규식 확인) · robots-txt-validator(pathToRegex 확인) · weekly-holiday(실근무일수 반영 확인) · severance(달력일수 계산 확인) · severance-tax(공제표 확인) · html-to-markdown(DOMParser 확인) — 이 13개는 재작업 불필요.
+**bmi-calc.html**만 "성별·활동량 라디오버튼 미번역 갭"이 발견 당시 미착수 상태로 남아있었음 → fork 처리중(별도 진행상황은 위 "부가 발견" 섹션 참고).
 
-- 1000~1500자 구간 83개 전체 완료. 다음은 1500자 이상 구간 재스캔 필요
+- 1000~1500자 구간 83개 전체 완료. 5차 스캔(1500자 이상)·700~1500 재스캔·전수검증까지 전부 완료.
 - 중복 FAQ 답변(4개 파일 이상 겹침) 이슈는 대부분 해소됨 (언어 전환 안내 문구 정도만 남음, 문제 아님)
 - 새 컴퓨터에서 이어할 때: `git fetch && git checkout content-depth-audit && git pull` 로 시작
 - 파일 하나 끝날 때마다 체크: static seoDiv와 JS ko seoHtml 문자열 완전 동일한지 node eval로 확인, JSON-LD 유효성 확인, faq-item 개수(5개 언어 블록 x 8 = 40) 확인 — 검증 코드는 이 세션 대화 내 여러 번 사용한 패턴 참고
