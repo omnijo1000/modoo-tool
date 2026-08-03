@@ -315,6 +315,14 @@ password-generator(벌크 비밀번호 innerHTML 미이스케이프 — 심볼 �
 
 **남은 9개, 다음은 savings-calc.html부터 (savings-calc·investment-return-calculator·gst-calculator·ltv-calculator·percent-calc·calorie-calculator·vat-calculator-global·unit-converter·timezone-converter).**
 
+### 완료 (5차 배치 19/N, 병렬 fork 9개, 마지막 배치 — 1500자 이상 구간 전체 완료)
+savings-calc(계산로직 정상, head 메타 4곳+FAQPage가 실제 없는 "복리 선택" 기능 광고(본문 FAQ 자체 모순) + Q1이 실제 월적립 삼각수 공식과 다른 목돈예금 공식 서술 + 저율과세 9.5%(실제 9.9%) 오기 전부 정정), investment-return-calculator(0% 수익률+정기납입 조합에서 rn=0 나눗셈 NaN 크래시(node 재현) + 초기투자금 0원 DCA 시나리오에서 CAGR이 fv/1로 계산돼 실제 연7%인데 "92.95%"로 오표시되던 버그 수정 + FAQ 예시 1만원 오차 정정), gst-calculator(fmtINR 연산자 우선순위 버그로 `100..toLocaleString()`이 리터럴 100에 먼저 적용돼 천단위 콤마·소수점 포맷팅이 실제 계산값엔 통째로 안 먹히던 버그 수정), ltv-calculator(계산로직 정상(자체 FAQ 예시와 node 대조 일치), 규제지역 목록에 웹서치로 확인한 2026-06-30 추가지정(화성 동탄구·용인 기흥구·구리시) 누락 보강+수시변동 디스클레이머 추가, CLAUDE.md 연간점검 대상 파일 재확인 완료), percent-calc(버그 없음, 5개 수식 전부 node 검산 정확, 이미 감사 완료 수준), calorie-calculator(인트로 BMR/TDEE 예시 3세트가 실제 Mifflin-St Jeor 계산값과 5~10% 불일치하던 것 정정 + UI에 없는 "매우 활발 1.9" 옵션 거짓 광고 제거), vat-calculator-global(커스텀세율 select가 `'custom|$|Custom'` 복합값을 리터럴 `'custom'`과 비교해 조건이 영원히 거짓이라 커스텀 세율 입력이 항상 무시되고 20% 강제되던 버그(node 재현, 자체 영세율0% FAQ와 모순) + 금리 0 falsy-zero 버그 수정 + "40+개국" 과장(실제 21개국) "20+"로 정정), unit-converter(PB 변환계수 정밀도 오차(1.126e15→정확한 1024^5) 수정 + zh/ja FAQ가 ko/en/static(15개) 대비 12개뿐이던 누락 3개 항목 번역 보강해 5블록 15개 통일), timezone-converter(이 배치 최대급 — getSrcDate()가 datetime-local 값을 항상 방문자 OS 타임존으로만 파싱해 srcTz select가 시간 계산에 전혀 반영 안 되던 버그(TZ=Asia/Seoul로 재현, 자체 FAQ의 PST→KST 변환 예시 자체가 방문자가 PST에 있지 않으면 깨짐), wall-clock→UTC 역산 방식으로 재작성)
+
+이번 배치에서 부수적으로 발견해 함께 고친 것: url-encoder.html의 글자수 표시가 `' chars'`로 4곳 하드코딩돼 en/zh/ja는 물론 ko에서도 언어무관 영어 접미사가 붙던 버그 — charsLabel i18n 키(자/chars/字符/文字) 추가해 4개 호출부+applyLang() 전부 연결(언어 토글 즉시 반영).
+
+## 5차 스캔(1500자 이상, 148개 중 대상 80개) 전체 완료 (2026-08-03)
+1500자 이상 구간 worst-first 전부 처리 완료. 다음 단계는 새로 700~1500자 구간으로 재유입된 파일이 있는지 재스캔하거나(콘텐츠 심화로 글자수가 늘어 이 구간을 벗어난 파일 다수 예상), 전체 파일 재스캔으로 놓친 게 없는지 확인 필요.
+
 **주의 6**: 이 스캔에서 처음에 exclude 로직 버그가 있었음 — 4차 배치(67~83)의 완료 기록이 "파일명(설명)" 형식으로 `.html` 확장자 없이 적혀 있는데, 스캔 스크립트가 `이름.html` 패턴으로만 완료 여부를 매칭해서 방금 끝낸 파일들(freelancer-tax, color-palette, inflation-calculator, sip-calculator, body-fat-calculator, loan-calculator-en 등)이 전부 "미완료"로 잘못 다시 나타났었음. `이름(` 패턴도 함께 매칭하도록 스캔 스크립트를 고쳐서 재실행 후 확인함. **앞으로 이 파일에 완료 기록을 추가할 때 파일명 뒤에 `.html`을 붙이든 안 붙이든 상관없지만, 재스캔할 땐 반드시 두 패턴(`이름.html`과 `이름(`) 모두로 완료 여부를 매칭할 것.**
 
 ```
