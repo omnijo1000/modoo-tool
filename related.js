@@ -938,6 +938,25 @@
     });
   }
 
+  // ── 개인정보처리방침 링크 보장 (페이지에 없으면 자동 추가) ──────────
+  if (page && !document.querySelector('a[href^="privacy.html"]')) {
+    var PRIV_LABEL = { ko: '개인정보처리방침', en: 'Privacy Policy', zh: '隐私政策', ja: 'プライバシーポリシー' };
+    var privA = document.createElement('a');
+    privA.href = 'privacy.html';
+    privA.textContent = PRIV_LABEL[getLang()] || PRIV_LABEL.en;
+    privA.style.cssText = 'color:inherit;text-decoration:underline;';
+    var existingFooter = document.querySelector('footer');
+    if (existingFooter) {
+      existingFooter.appendChild(document.createTextNode(' · '));
+      existingFooter.appendChild(privA);
+    } else {
+      var newFooter = document.createElement('footer');
+      newFooter.style.cssText = 'text-align:center;font-size:12px;color:var(--text-dim,#444);margin-top:32px;padding:16px 0;';
+      newFooter.appendChild(privA);
+      document.body.appendChild(newFooter);
+    }
+  }
+
   if (!page || !RELATED[page]) return;
 
   var relatedSlugs = RELATED[page]
