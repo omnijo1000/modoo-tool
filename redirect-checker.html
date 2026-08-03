@@ -90,7 +90,9 @@ footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:32px;}
   "@type":"FAQPage",
   "mainEntity":[
     {"@type":"Question","name":"리다이렉트란 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"리다이렉트는 서버가 특정 URL에 접근한 사용자를 다른 URL로 자동 전환하는 HTTP 메커니즘입니다. 3xx 상태 코드(301, 302, 307, 308)로 구현되며 URL 구조 변경, HTTPS 전환, 도메인 이전 등에 사용됩니다."}},
-    {"@type":"Question","name":"301과 302 리다이렉트의 차이는?","acceptedAnswer":{"@type":"Answer","text":"301은 영구 리다이렉트로 SEO 권위도(PageRank)가 거의 100% 새 URL로 전달됩니다. 302는 임시 리다이렉트로 권위도가 완전히 전달되지 않습니다. SEO 관점에서는 원칙적으로 301을 사용합니다."}}
+    {"@type":"Question","name":"301과 302 리다이렉트의 차이는?","acceptedAnswer":{"@type":"Answer","text":"301은 영구 리다이렉트로 SEO 권위도(PageRank)가 거의 100% 새 URL로 전달됩니다. 302는 임시 리다이렉트로 권위도가 완전히 전달되지 않습니다. SEO 관점에서는 원칙적으로 301을 사용합니다."}},
+    {"@type":"Question","name":"리다이렉트 루프란 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"A→B→A처럼 리다이렉트가 순환하는 상황으로, 브라우저와 검색봇이 무한 루프에 빠져 페이지를 렌더링하지 못합니다. 체인에서 동일 URL이 2회 이상 등장하면 루프가 의심됩니다."}},
+    {"@type":"Question","name":"최대 리다이렉트 수는 몇 개가 적당한가요?","acceptedAnswer":{"@type":"Answer","text":"SEO 모범 사례는 최대 2~3단계입니다. 5단계 이상은 Google이 크롤을 중단할 수 있으며, Chrome은 기본적으로 20번의 리다이렉트 후 ERR_TOO_MANY_REDIRECTS 오류를 표시합니다."}}
   ]
 }
 </script>
@@ -156,6 +158,7 @@ footer{text-align:center;font-size:12px;color:var(--text-dim);margin-top:32px;}
 </main>
 <script>
 let hopCount = 0;
+function escH(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
 const _i18n = {
   ko: {
@@ -413,7 +416,7 @@ function analyzeChain(){
   hops.forEach((hop, i) => {
     const statusCls = `status-${hop.status}`;
     const statusBg = `status-${hop.status}-bg`;
-    chainHtml += `<div class="redirect-hop"><span class="${statusCls} status-label ${statusBg}">${hop.status}</span><br>${hop.url}</div>`;
+    chainHtml += `<div class="redirect-hop"><span class="${statusCls} status-label ${statusBg}">${hop.status}</span><br>${escH(hop.url)}</div>`;
     if(i < hops.length - 1) chainHtml += `<span class="redirect-arrow">→</span>`;
   });
   document.getElementById('chainEl').innerHTML = chainHtml;
