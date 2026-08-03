@@ -271,10 +271,26 @@ function setNow(){
   update();
 }
 
+function getOffsetMinutes(date,tz){
+  const tzDate=new Date(date.toLocaleString('en',{timeZone:tz}));
+  const utcDate=new Date(date.toLocaleString('en',{timeZone:'UTC'}));
+  return(tzDate-utcDate)/60000;
+}
+
 function getSrcDate(){
   const val=document.getElementById('srcTime').value;
   if(!val) return new Date();
-  return new Date(val);
+  const srcTz=document.getElementById('srcTz').value;
+  const[datePart,timePart]=val.split('T');
+  const[y,mo,d]=datePart.split('-').map(Number);
+  const[h,mi]=(timePart||'00:00').split(':').map(Number);
+  const guessUtc=Date.UTC(y,mo-1,d,h,mi);
+  // ponytail: one refinement pass covers every real zone; the bare wall-clock
+  // hour skipped/repeated during a DST transition is inherently ambiguous and
+  // left unresolved here, same as every other timezone converter.
+  const offset1=getOffsetMinutes(new Date(guessUtc),srcTz);
+  const offset2=getOffsetMinutes(new Date(guessUtc-offset1*60000),srcTz);
+  return new Date(guessUtc-offset2*60000);
 }
 
 function formatTime(date,tz){
@@ -284,10 +300,7 @@ function formatDate(date,tz){
   return new Intl.DateTimeFormat('en',{timeZone:tz,year:'numeric',month:'short',day:'numeric',weekday:'short'}).format(date);
 }
 function getOffset(date,tz){
-  const utc=date.getTime();
-  const tzDate=new Date(date.toLocaleString('en',{timeZone:tz}));
-  const utcDate=new Date(date.toLocaleString('en',{timeZone:'UTC'}));
-  const diff=(tzDate-utcDate)/60000;
+  const diff=getOffsetMinutes(date,tz);
   const sign=diff>=0?'+':'-';
   const h=Math.floor(Math.abs(diff)/60),m=Math.abs(diff)%60;
   return`UTC${sign}${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
