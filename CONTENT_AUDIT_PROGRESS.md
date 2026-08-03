@@ -270,14 +270,14 @@ cron-parser(이 배치 최대 발견 — day-of-month/day-of-week 필드를 AND�
 ### 완료 (5차 배치 9/N, 병렬 fork 3개, 1659~1688자 구간)
 base64-encoder(파일명 라벨 하드코딩 한국어 + "Web Crypto API로 SHA 해시도 지원" 등 존재하지 않는 기능 거짓 주장 수정), twitter-card-generator(이 배치 최대 발견 — "app" 카드 타입 선택해도 generateCard()가 카드 타입 무관하게 항상 같은 일반 태그만 출력하고 twitter:app:id:iphone/googleplay 입력 필드 자체가 UI에 없어 자체 FAQ의 "app 카드 필수 태그" 주장과 정면 모순되던 버그, Node 재현 후 두 입력 필드 추가+연결로 실제 구현), health-insurance(fmtW() 헬퍼가 만원 단위로 반올림하면서 6곳에서 "만원" 접미사를 중복 부착해 "-11만원만원" 식으로 깨져 표시되던 버그, 원 단위 정밀 fmtWon()으로 교체 후 자체 FAQ 예시(107,850원/14,171원/122,021원)와 정확히 일치 재검증, 요율(7.19%/3.595%/13.14%/208.4원) 전체 일관성도 확인)
 
+### 완료 (5차 배치 10/N, 병렬 fork 5개, 1688~1753자 구간)
+url-encoder(버그 없음 — encodeURIComponent/encodeURI 이중인코딩·UTF-8 바이트 변환 node 검증 정상, zh/ja에 encodeURI 예약문자 설명 문단이 누락돼있던 콘텐츠 격차만 보강), national-pension.html(national-pension-calculator.html과는 별개 ko-only 파일 — salary/age/years 입력 `parseInt(...)||default` falsy-zero 버그로 0 입력 시 기본값(300만원/30세/30년)으로 조용히 대체되던 문제 수정, 요율 9.5%/상한 659만원/하한 41만원은 이미 최신 확인), case-converter(버그 없음 — FAQ가 5블록 전부 10개(50개)로 표준 초과하던 것을 저가치 UI질문 2개 제거해 8×5=40 정리), unemployment.html(unemployment-benefit.html과는 별개 ko-only 파일 — avgSal `parseFloat(...)||3000000` falsy-zero 버그 수정 + FAQ 중복 2개를 실제 기술 디테일(피보험단위기간·7일 대기기간·비과세·조기재취업수당)로 교체, "신청기한" 결과가 오늘=퇴직일 가정 근사치임을 라벨에 명시), time-calculator(이 배치 최대 발견 — 야간근무시간(22~06시) 계산이 시작시각만 보고 자정 넘어가는 구간을 판정해 22:00~06:00 근무(전체 야간, 480분이어야 함)가 120분으로 과소계산되고 00:00~05:00류는 반대로 과다계산되던 버그, 급여 야간수당 영향 있음 — 3구간 overlap 합산 방식으로 재작성 후 5개 케이스 node 재검증, FAQ 11/8 불일치도 8개로 통일)
+
+**남은 46개, url-encoder·national-pension·case-converter·unemployment·time-calculator 완료 처리 — 다음은 color-contrast-checker.html부터.**
+
 **주의 6**: 이 스캔에서 처음에 exclude 로직 버그가 있었음 — 4차 배치(67~83)의 완료 기록이 "파일명(설명)" 형식으로 `.html` 확장자 없이 적혀 있는데, 스캔 스크립트가 `이름.html` 패턴으로만 완료 여부를 매칭해서 방금 끝낸 파일들(freelancer-tax, color-palette, inflation-calculator, sip-calculator, body-fat-calculator, loan-calculator-en 등)이 전부 "미완료"로 잘못 다시 나타났었음. `이름(` 패턴도 함께 매칭하도록 스캔 스크립트를 고쳐서 재실행 후 확인함. **앞으로 이 파일에 완료 기록을 추가할 때 파일명 뒤에 `.html`을 붙이든 안 붙이든 상관없지만, 재스캔할 땐 반드시 두 패턴(`이름.html`과 `이름(`) 모두로 완료 여부를 매칭할 것.**
 
 ```
-1688  url-encoder.html
-1692  national-pension.html
-1713  case-converter.html
-1741  unemployment.html
-1753  time-calculator.html
 1772  color-contrast-checker.html
 1787  ai-cost-calculator.html
 1796  pdf-merge.html
@@ -356,7 +356,7 @@ base64-encoder(파일명 라벨 하드코딩 한국어 + "Web Crypto API로 SHA 
 - **severance.html**: 평균임금 분모를 91일 고정 사용, 실제로는 89~92일 사이인 정확한 달력일수 필요 (실제 급여 영향, ~1% 오차)
 - **severance-tax.html**: 환산급여공제 구간표 자체가 통째로 틀림 — 자체 FAQ 예시 기준 실효세율이 10.65% 나오는데(정답은 4.26%) 2배 이상 차이 (실제 세금 영향, 웹서치로 국세청 공식표 대조 후 수정)
 - **bmi-calc.html**: 툴팁의 성별차등 표준체중 공식이 실제 코드엔 반영 안 돼 성별 바꿔도 결과 불변
-- **htmㅍl-to-markdown.html**: 중첩 목록이 "평탄화"가 아니라 통째로 삭제되던 데이터 유실 버그 + detached div innerHTML XSS(DOM 미부착 상태에서도 img onerror 실행됨)
+- **html-to-markdown.html**: 중첩 목록이 "평탄화"가 아니라 통째로 삭제되던 데이터 유실 버그 + detached div innerHTML XSS(DOM 미부착 상태에서도 img onerror 실행됨)
 - **parental-leave.html**: 제목/메타 "2026년 기준" vs 본문 "2024년 기준" 자기모순 — 본문 기준으로만 통일함, 실제 최신연도 수치 재검증 권장
 
 - 1000~1500자 구간 83개 전체 완료. 다음은 1500자 이상 구간 재스캔 필요
