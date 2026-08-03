@@ -303,12 +303,16 @@ gift-tax(세율표 5단계+관계별 공제액(배우자 6억/직계5천·미성
 ### 완료 (5차 배치 16/N, 1개, 2140자)
 image-compressor(투명PNG→JPG 변환 시 검은배경 버그 — 자체 FAQ "흰색으로 채워짐" 주장과 모순, avif-to-jpg/jpg-to-heic/image-resizer와 동일 패턴, 수정 + static/JS 가이드링크 문단 누락 수정)
 
-**남은 21개, 다음은 barcode-generator.html부터.**
+**남은 21개, barcode-generator 완료 처리.**
+
+### 완료 (5차 배치 17/N, 1개, 2142자)
+barcode-generator(체크섬 생성은 JsBarcode CDN 라이브러리에 전부 위임돼 자체 코드 버그는 없음, FAQ의 EAN-13 체크디짓 설명은 실제 표준과 일치 확인 — 다만 pharmacode 유효범위 힌트가 "3~131"로 잘려있던 것(실제 라이브러리 소스 대조 결과 3~131070) 수정 + FAQ가 지원포맷을 6개만 나열해 실제 select에 있는 MSI/Pharmacode 2개가 누락돼있던 것 8개로 수정)
+
+**남은 20개, 다음은 password-generator.html부터.**
 
 **주의 6**: 이 스캔에서 처음에 exclude 로직 버그가 있었음 — 4차 배치(67~83)의 완료 기록이 "파일명(설명)" 형식으로 `.html` 확장자 없이 적혀 있는데, 스캔 스크립트가 `이름.html` 패턴으로만 완료 여부를 매칭해서 방금 끝낸 파일들(freelancer-tax, color-palette, inflation-calculator, sip-calculator, body-fat-calculator, loan-calculator-en 등)이 전부 "미완료"로 잘못 다시 나타났었음. `이름(` 패턴도 함께 매칭하도록 스캔 스크립트를 고쳐서 재실행 후 확인함. **앞으로 이 파일에 완료 기록을 추가할 때 파일명 뒤에 `.html`을 붙이든 안 붙이든 상관없지만, 재스캔할 땐 반드시 두 패턴(`이름.html`과 `이름(`) 모두로 완료 여부를 매칭할 것.**
 
 ```
-2142  barcode-generator.html
 2156  password-generator.html
 2164  retirement-pension.html
 2200  color-picker.html
