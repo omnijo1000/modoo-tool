@@ -331,6 +331,28 @@ renderAll()이 사용자 입력 이벤트명을 미이스케이프 innerHTML 삽
 
 **다음 단계**: 700~1500자 구간에서 놓친 파일이 사실상 없다는 게 확인됐으므로, 남은 리스크는 이 스캔 범위(seo 블록 있는 파일) 밖에 있는 파일(500자 미만 구간 재유입 가능성, 또는 애초에 seo 블록 매칭 자체가 실패하는 구조적으로 다른 파일)이나 아직 한 번도 어느 배치 목록에도 안 걸린 고아 파일(countdown-timer.html 같은 사례) — 전체 HTML 파일 목록과 완료 기록을 직접 대조하는 전수 검증이 다음 단계로 남음.
 
+## 전수검증 완료 (2026-08-03)
+전체 393개 HTML 파일(naverfc* 제외) 중 index/privacy/about/contact/terms 5개 제외한 **388개 툴 대상 파일**을 완료기록(`이름.html`/`이름(`/`하이픈-포함-단어` 3가지 패턴 전부)과 정면 대조:
+- **321개 실콘텐츠 페이지**: 전부 완료기록과 매칭 확인. countdown-timer.html도 이 세션에 처리 완료돼 포함됨.
+- **67개 리다이렉트 스텁**(`http-equiv="refresh"` + 3000자 미만, 스캔 대상에서 애초에 제외되던 것들): 리다이렉트 타겟 67개 전부 실제 존재하는 파일로 확인(깨진 링크 0건, 예: accessibility-color-checker→color-contrast-checker, md5-generator→hash-generator). 정상.
+- 700자 미만 재검증도 별도 실시: seo-title-generator.html(691자) 1개만 걸렸는데 이미 기완료 파일. `class="seo"` 정규식 매칭 자체가 실패하는 구조적으로 다른 파일도 0건.
+
+**결론: 고아 파일 없음. 콘텐츠 심화 관점에서는 사이트 전체(388개)가 이 감사의 커버리지 안에 들어와 있음.**
+
+## 부가 발견: ko-only 계산기 39개의 거짓 hreflang (2026-08-03, 처리 완료)
+전수검증 과정에서 별개 이슈 발견 — annual-leave.html에 "발견만 하고 스코프 밖으로 플래그" 해뒀던 문제(hreflang은 en/zh/ja 광고하는데 실제 다국어 시스템 자체가 없음)가 사실 이 파일 하나만의 문제가 아니라 **한국 노동법/세금/부동산 전용 ko-only 계산기 39개 전체**에 동일하게 존재하는 구조적 패턴이었음(연차·4대보험·증여세·양도세·LTV/DSR 등 — 실제 성격상 번역해도 한국 거주자 외엔 쓸모가 크지 않은 주제들).
+
+**사용자 확인 후 결정**: 이 39개는 다국어 번역하지 않기로(주제가 한국 법 특정이라 번역 실효성 낮음) — 대신 거짓 hreflang 태그(en/zh/ja)를 제거해 크롤러에게 실제로 없는 번역을 있다고 광고하던 신호만 끊음. `loan-calc.html`은 이번 세션에 실제 `_loanSeo` 4개국어 시스템을 새로 만들어놨던 파일이라 오탐으로 제외(변수명이 `_i18n`이 아니라 `_loanSeo`라 첫 탐지 정규식에서 놓쳤던 것, 2차 검증으로 확인 후 제외).
+
+처리 대상 38개(hreflang en/zh/ja 3줄 제거, ko/x-default만 유지): retirement-pension, national-pension, salary-negotiation, annual-leave, retirement-calc, payslip-calc, severance-tax, stock-tax, property-tax, overtime-pay, salary, dday, credit-loan-limit, severance, rent-convert, salary-raise, gift-tax, ltv-calculator, prepayment-fee, inheritance-tax, acquisition-tax, four-insurance, cheongyak-score, salary-reverse, unemployment, capital-gains-tax, health-insurance-calc, realestate-fee, korean-age, income-tax, dsr-calc, vat-calc, minimum-wage, parental-leave, health-insurance, freelancer-tax, weekly-holiday, working-days-calc.
+
+sitemap.xml에는 이 38개 파일명의 `?lang=` 항목이 애초에 하나도 없었음(확인 완료) — sitemap 쪽은 손댈 것 없음.
+
+**아직 남은 것 (미착수)**:
+- **parental-leave.html**: 상한액 최신연도(2026) 법정 수치 재검증 — 이번 세션에서 hreflang만 처리, 수치 재검증은 미착수
+- **bmi-calc.html**: 성별/활동량 라디오버튼 미번역 갭 — hreflang 이슈와 무관, 여전히 미착수
+- **working-days-calc.html**: 2027년 공휴일 데이터 아직 없음 — CLAUDE.md 연간점검 대상, 연초 갱신 예정이라 안 급함
+
 **주의 6**: 이 스캔에서 처음에 exclude 로직 버그가 있었음 — 4차 배치(67~83)의 완료 기록이 "파일명(설명)" 형식으로 `.html` 확장자 없이 적혀 있는데, 스캔 스크립트가 `이름.html` 패턴으로만 완료 여부를 매칭해서 방금 끝낸 파일들(freelancer-tax, color-palette, inflation-calculator, sip-calculator, body-fat-calculator, loan-calculator-en 등)이 전부 "미완료"로 잘못 다시 나타났었음. `이름(` 패턴도 함께 매칭하도록 스캔 스크립트를 고쳐서 재실행 후 확인함. **앞으로 이 파일에 완료 기록을 추가할 때 파일명 뒤에 `.html`을 붙이든 안 붙이든 상관없지만, 재스캔할 땐 반드시 두 패턴(`이름.html`과 `이름(`) 모두로 완료 여부를 매칭할 것.**
 
 ```
