@@ -298,12 +298,16 @@ robots-txt-generator(버그 없음, escHtmlAttr 일관 적용·프리셋 파싱 
 ### 완료 (5차 배치 15/N, 병렬 fork 5개, 2003~2137자 구간)
 gift-tax(세율표 5단계+관계별 공제액(배우자 6억/직계5천·미성년2천/기타1천) 전부 node로 대조해 정확, 10년 합산과세 로직도 검증 정상 — 버그 없음, severance-tax/capital-gains-tax/acquisition-tax와 달리 이 파일은 깨끗했음), income-tax(누진세율표 자체는 정확 확인, 다만 ①근로소득공제가 총급여 1억 초과 시 실제로는 상한 없이 계속 느는데 코드가 1,475만원 고정 상한 처리해 2억원 기준 200만원 과소공제, ②근로소득세액공제 감소율이 법정 0.0005(1/2000)인데 코드는 0.005(5/1000)로 10배 커서 소득 1억~3억 구간에서 15~172만원씩 과다청구 — 둘 다 수정, 신용카드공제 한도도 소득구간별로 세분화), image-resizer(투명PNG→JPG 변환 시 검은배경 버그, 자체 FAQ "흰색으로 채워짐" 주장과 정면 모순 — avif-to-jpg 등과 동일 패턴, 수정 + static/JS 가이드링크 문단 누락 수정), mortgage-calculator(zh/ja 통화기호가 서로 뒤바뀌어 있던 것(zh는 달러표기 콘텐츠인데 ¥, ja는 엔화 콘텐츠인데 $) 수정 + ja 인트로가 300만달러 대출인데 월상환액은 30만달러 대출 기준 수치를 쓰던 10배 오류 + ja FAQ 자체모순(1.5%라면서 1.0%수치)·절약액 저평가(실제 2배) 수정), emi-calculator(0개월 입력 시 Infinity/NaN 뜨던 크래시 버그 수정 + ko/zh/ja FAQ 예시원금과 결과수치가 안 맞던 것(zh/ja는 10배 단위환산 오류까지) + 1%금리차 FAQ가 4개 언어 전부 실제 계산과 다른 수치였던 것 전부 node 재계산 후 통일)
 
-**5차 스캔(1500자 이상) 잔여 22개, 다음은 image-compressor.html부터.**
+**5차 스캔(1500자 이상) 잔여 22개, image-compressor 완료 처리.**
+
+### 완료 (5차 배치 16/N, 1개, 2140자)
+image-compressor(투명PNG→JPG 변환 시 검은배경 버그 — 자체 FAQ "흰색으로 채워짐" 주장과 모순, avif-to-jpg/jpg-to-heic/image-resizer와 동일 패턴, 수정 + static/JS 가이드링크 문단 누락 수정)
+
+**남은 21개, 다음은 barcode-generator.html부터.**
 
 **주의 6**: 이 스캔에서 처음에 exclude 로직 버그가 있었음 — 4차 배치(67~83)의 완료 기록이 "파일명(설명)" 형식으로 `.html` 확장자 없이 적혀 있는데, 스캔 스크립트가 `이름.html` 패턴으로만 완료 여부를 매칭해서 방금 끝낸 파일들(freelancer-tax, color-palette, inflation-calculator, sip-calculator, body-fat-calculator, loan-calculator-en 등)이 전부 "미완료"로 잘못 다시 나타났었음. `이름(` 패턴도 함께 매칭하도록 스캔 스크립트를 고쳐서 재실행 후 확인함. **앞으로 이 파일에 완료 기록을 추가할 때 파일명 뒤에 `.html`을 붙이든 안 붙이든 상관없지만, 재스캔할 땐 반드시 두 패턴(`이름.html`과 `이름(`) 모두로 완료 여부를 매칭할 것.**
 
 ```
-2140  image-compressor.html
 2142  barcode-generator.html
 2156  password-generator.html
 2164  retirement-pension.html
