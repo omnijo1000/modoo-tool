@@ -293,16 +293,16 @@ meta-tag-generator(다른 자유입력 필드는 전부 escHtml() 적용하는�
 ### 완료 (5차 배치 14/N, 병렬 fork 5개, 1936~2003자 구간)
 robots-txt-generator(버그 없음, escHtmlAttr 일관 적용·프리셋 파싱 오프셋·FAQ 주장 전부 검증 정상), redirect-checker(analyzeChain()의 hop URL이 innerHTML에 미이스케이프로 삽입되던 XSS 수정, CORS 한계는 이미 정직하게 명시돼있어 콘텐츠 재작성 불필요, head FAQ 2→4), markdown-preview(실행 가능한 XSS 발견 — detached div 아니라 실제 부착된 DOM에 렌더링하면서 `&lt;/&gt;`는 이스케이프했지만 `![alt](url)`/`[text](url)`에서 큰따옴표·URL 스킴은 미검증이라 img src/alt 속성 이탈 + javascript: URI 클릭형 XSS 둘 다 가능했음, escAttr()+safeHref()(http/https/mailto/tel만 허용)로 수정 + FAQ가 주장한 체크박스(`- [ ]`)가 실제로는 리터럴 텍스트로만 나오던 것도 실제 구현), regex-tester(g플래그 토글이 죽어있어 꺼도 항상 전역매칭되던 핵심기능 버그, FAQ1 "g 없으면 첫 매치만"이라는 자체 주장과 정반대로 동작 — matchAll/match 분기로 수정 + 이 파일은 구 구조(faq-item 클래스 없는 개별 p태그 12개)라 static과 i18n.ko가 완전히 다른 내용(static FAQ5는 i-flag인데 i18n.ko FAQ5는 lookahead)이었던 것 발견, i18n.ko 기준으로 static 재생성해 17개 필드 전부 일치 재확인 + head FAQ 8→4 정리), acquisition-tax(이 배치 최대급, 세금 실오차 큼 — ①6~9억 보간공식이 `/3` 나눗셈 누락으로 7.5억 정상세율 2%가 12%로, 9억 경계값은 3%가 15%로 계산되던 버그, ②지방교육세를 전 구간 세율×10% 비례식으로 계산했는데 실제론 8%/12% 중과구간은 취득가액의 0.4%p 고정값이라 2~3배 과다청구, ③농특세도 세율≥3%면 20% 비례식으로 계산했는데 실제론 전용면적 85㎡초과 시에만 부과되는 0.2/0.6/1.0%p 고정값이라 최대 2.7배 과다청구 + 85㎡ 초과 여부 입력 자체가 UI에 없어 잘못된 대리조건을 쓰고 있었음, 웹서치 2개 독립 출처로 5개 시나리오 전부 재검증)
 
-**남은 26개, 다음은 gift-tax.html부터.**
+**남은 26개, gift-tax·income-tax·image-resizer·mortgage-calculator·emi-calculator 완료 처리.**
+
+### 완료 (5차 배치 15/N, 병렬 fork 5개, 2003~2137자 구간)
+gift-tax(세율표 5단계+관계별 공제액(배우자 6억/직계5천·미성년2천/기타1천) 전부 node로 대조해 정확, 10년 합산과세 로직도 검증 정상 — 버그 없음, severance-tax/capital-gains-tax/acquisition-tax와 달리 이 파일은 깨끗했음), income-tax(누진세율표 자체는 정확 확인, 다만 ①근로소득공제가 총급여 1억 초과 시 실제로는 상한 없이 계속 느는데 코드가 1,475만원 고정 상한 처리해 2억원 기준 200만원 과소공제, ②근로소득세액공제 감소율이 법정 0.0005(1/2000)인데 코드는 0.005(5/1000)로 10배 커서 소득 1억~3억 구간에서 15~172만원씩 과다청구 — 둘 다 수정, 신용카드공제 한도도 소득구간별로 세분화), image-resizer(투명PNG→JPG 변환 시 검은배경 버그, 자체 FAQ "흰색으로 채워짐" 주장과 정면 모순 — avif-to-jpg 등과 동일 패턴, 수정 + static/JS 가이드링크 문단 누락 수정), mortgage-calculator(zh/ja 통화기호가 서로 뒤바뀌어 있던 것(zh는 달러표기 콘텐츠인데 ¥, ja는 엔화 콘텐츠인데 $) 수정 + ja 인트로가 300만달러 대출인데 월상환액은 30만달러 대출 기준 수치를 쓰던 10배 오류 + ja FAQ 자체모순(1.5%라면서 1.0%수치)·절약액 저평가(실제 2배) 수정), emi-calculator(0개월 입력 시 Infinity/NaN 뜨던 크래시 버그 수정 + ko/zh/ja FAQ 예시원금과 결과수치가 안 맞던 것(zh/ja는 10배 단위환산 오류까지) + 1%금리차 FAQ가 4개 언어 전부 실제 계산과 다른 수치였던 것 전부 node 재계산 후 통일)
+
+**5차 스캔(1500자 이상) 잔여 22개, 다음은 image-compressor.html부터.**
 
 **주의 6**: 이 스캔에서 처음에 exclude 로직 버그가 있었음 — 4차 배치(67~83)의 완료 기록이 "파일명(설명)" 형식으로 `.html` 확장자 없이 적혀 있는데, 스캔 스크립트가 `이름.html` 패턴으로만 완료 여부를 매칭해서 방금 끝낸 파일들(freelancer-tax, color-palette, inflation-calculator, sip-calculator, body-fat-calculator, loan-calculator-en 등)이 전부 "미완료"로 잘못 다시 나타났었음. `이름(` 패턴도 함께 매칭하도록 스캔 스크립트를 고쳐서 재실행 후 확인함. **앞으로 이 파일에 완료 기록을 추가할 때 파일명 뒤에 `.html`을 붙이든 안 붙이든 상관없지만, 재스캔할 땐 반드시 두 패턴(`이름.html`과 `이름(`) 모두로 완료 여부를 매칭할 것.**
 
 ```
-2003  gift-tax.html
-2028  income-tax.html
-2076  image-resizer.html
-2128  mortgage-calculator.html
-2137  emi-calculator.html
 2140  image-compressor.html
 2142  barcode-generator.html
 2156  password-generator.html
