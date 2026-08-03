@@ -230,7 +230,7 @@ function earnDeduction(income) {
   if (income <= 1500) return 350 + (income - 500) * 0.4;
   if (income <= 4500) return 750 + (income - 1500) * 0.15;
   if (income <= 10000) return 1200 + (income - 4500) * 0.05;
-  return 1475; // 상한
+  return 1475 + (income - 10000) * 0.02; // 1억원 초과: 상한 없이 2% 추가
 }
 
 // 산출세액 계산 (만원 단위)
@@ -284,7 +284,8 @@ function calculate() {
   if (useCard && type === 'earn') {
     const cardAmt = parseFloat(document.getElementById('cardAmount').value) || 0;
     const threshold = income * 0.25;
-    if (cardAmt > threshold) cardDeduct = Math.min((cardAmt - threshold) * 0.15, 300);
+    const cardCap = income > 12000 ? 200 : income > 7000 ? 250 : 300;
+    if (cardAmt > threshold) cardDeduct = Math.min((cardAmt - threshold) * 0.15, cardCap);
   }
 
   // 의료비 공제 (총급여 3% 초과분의 15%)
@@ -307,7 +308,7 @@ function calculate() {
     // 총급여 구간별 한도
     if (income <= 3300) taxCredit = Math.min(taxCredit, 74);
     else if (income <= 7000) taxCredit = Math.min(taxCredit, Math.max(74 - (income - 3300) * 0.008, 66));
-    else taxCredit = Math.min(taxCredit, Math.max(66 - (income - 7000) * 0.005, 50));
+    else taxCredit = Math.min(taxCredit, Math.max(66 - (income - 7000) * 0.0005, 50));
   }
 
   const incomeTax = Math.max(0, rawTax - taxCredit);
