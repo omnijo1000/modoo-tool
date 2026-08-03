@@ -278,16 +278,16 @@ url-encoder(버그 없음 — encodeURIComponent/encodeURI 이중인코딩·UTF-
 ### 완료 (5차 배치 11/N, 병렬 fork 5개, 1772~1806자 구간)
 color-contrast-checker(이 배치 최대 발견 — 3자리 축약 HEX(#f0a 등)를 확장하는 padHex() 헬퍼가 이미 있었는데 검증 정규식이 6자리만 허용해 조용히 무시되던 죽은 헬퍼 패턴(tailwind-color-generator와 동일), 3자리 허용+연결로 수정 + swap 버튼 하드코딩 영어 i18n 처리 + en/zh/ja에 없던 FAQ 2개(명암비 공식, WCAG 1.4.11) 번역 추가해 5블록 10개로 통일, head 8→10), ai-cost-calculator(head FAQPage가 "호출당비용×일일호출×30"이라 설명하는데 실제 코드는 monthly=cost*calls(월간 호출수 직접 사용)라 본문 FAQ와 모순되던 것 수정 + FAQ 9→8 정리, 모델 가격표는 공식 가격 대조 결과 전부 정확), pdf-merge(파일명 미이스케이프 XSS 수정 + head FAQ 거짓 주장 2건(부분페이지 병합 가능·압축옵션 존재, 둘 다 실제 코드에 없음) 정정 + FAQ 12→8 정리), xml-validator(버그 없음, parsererror 스펠링 정상·XSS 위험 없음 확인 — head FAQPage 2→4개 확장만), working-days-calc(이 배치 최대급 — HOLIDAYS_2026에 근로자의 날(5/1)이 잘못 공휴일로 포함돼 영업일 계산에서 제외되던 버그, 관공서 공휴일 규정상 근로자의 날은 공휴일 아님(관공서 정상 운영) 확인 후 제거, node로 4/30~5/4 구간 2일→3일 정정 재확인 + 제헌절/설날·추석 대체공휴일 웹서치 팩트체크(둘 다 기존 서술 정확, 애매한 총량 수치만 삭제), 2027년 공휴일 데이터는 아직 없음(연초 갱신 대상, 현재는 안 급함), FAQ 10→8, ko-only 페이지)
 
-**남은 41개, 다음은 inheritance-tax.html부터.**
+**남은 41개, inheritance-tax·utm-builder·sitemap-generator·capital-gains-tax·cheongyak-score 완료 처리.**
+
+### 완료 (5차 배치 12/N, 병렬 fork 5개, 1814~1854자 구간)
+inheritance-tax(세율표 5단계(10~50%) node 9케이스 대조 정확 확인, 버그 없음 — 배우자공제가 법정상속분 미계산 근사치·사전증여 이중과세공제 미반영이라는 실질 한계를 정직하게 FAQ에 명시), utm-builder(FAQ가 "모든 UTM값 자동 소문자화"라 주장하는데 실제론 term/content엔 sanitize() 미적용이던 문제 수정(코드를 문서에 맞춤) + head/본문 QR예시가 같은 "qr_code" 문자열을 서로 다른 파라미터에 넣던 자기모순 통일), sitemap-generator(todayStr()이 UTC 날짜 반환해 KST 자정~오전9시 사이 lastmod가 하루 이르게 나오던 버그, 로컬 날짜 조합으로 수정 — 나머지 escXml/50000URL 스펙 등은 이미 정확), capital-gains-tax(이 배치 최대급 — ①주택 단기보유세율 1~2년 구간이 40%로 되어있었는데 실제로는 60%(40%는 토지 등 기타자산), 페이지 자체 SEO본문은 60%라 써서 코드와 자기모순이었음, ②8단계 누진세율표에서 5억~10억 구간(42%)이 통째로 누락 + 15,000만원 이상 전 구간 누진공제 상수가 20만원씩 어긋나 7억 기준 62만원, 15억 기준 152만원 과다계산되던 버그, 공식 세율표로 재작성 후 경계값 전수 재검증 — 실제 세금 계산 오차라 영향 큼, 보유/거주기간 select도 10~15년 뭉뚱그림→연도별 세분화), cheongyak-score(배점표 3개 정확 확인 — FAQ가 "당첨 포기 시 1년 제한"이라 했는데 실제로는 지역별 7~10년(최대 10배 과소평가) + 청약통장 효력상실·가점제 2년 추가제한 등 웹서치로 정정, 초기 readout 총점(6점/7%)이 실제 기본 select 합계(8점/9.5%)와 안 맞던 것도 수정)
+
+**남은 36개, 다음은 meta-tag-generator.html부터.**
 
 **주의 6**: 이 스캔에서 처음에 exclude 로직 버그가 있었음 — 4차 배치(67~83)의 완료 기록이 "파일명(설명)" 형식으로 `.html` 확장자 없이 적혀 있는데, 스캔 스크립트가 `이름.html` 패턴으로만 완료 여부를 매칭해서 방금 끝낸 파일들(freelancer-tax, color-palette, inflation-calculator, sip-calculator, body-fat-calculator, loan-calculator-en 등)이 전부 "미완료"로 잘못 다시 나타났었음. `이름(` 패턴도 함께 매칭하도록 스캔 스크립트를 고쳐서 재실행 후 확인함. **앞으로 이 파일에 완료 기록을 추가할 때 파일명 뒤에 `.html`을 붙이든 안 붙이든 상관없지만, 재스캔할 땐 반드시 두 패턴(`이름.html`과 `이름(`) 모두로 완료 여부를 매칭할 것.**
 
 ```
-1814  inheritance-tax.html
-1823  utm-builder.html
-1831  sitemap-generator.html
-1852  capital-gains-tax.html
-1854  cheongyak-score.html
 1859  meta-tag-generator.html
 1893  date-calc.html
 1897  schema-markup-generator.html
