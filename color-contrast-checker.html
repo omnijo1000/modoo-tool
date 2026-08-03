@@ -50,7 +50,9 @@
     {"@type":"Question","name":"낮은 대비를 어떻게 개선하나요?","acceptedAnswer":{"@type":"Answer","text":"전경색을 더 어둡게 하거나 배경색을 더 밝게 조정하세요. 텍스트에 그림자를 추가하거나 텍스트 크기를 키우는 것도 대비 기준을 충족하는 데 도움이 됩니다."}},
     {"@type":"Question","name":"장식용 요소도 대비 기준을 충족해야 하나요?","acceptedAnswer":{"@type":"Answer","text":"아니요. WCAG는 순수 장식 목적의 이미지나 텍스트, 비활성 UI 컴포넌트(disabled), 로고 내 텍스트는 대비 기준 적용 대상에서 제외합니다."}},
     {"@type":"Question","name":"색맹(색각 이상)과 색상 대비의 관계는?","acceptedAnswer":{"@type":"Answer","text":"색맹이 있는 사용자는 특정 색 조합을 구별하기 어렵습니다. 높은 명도 대비(휘도 대비)를 유지하면 색맹 사용자에게도 콘텐츠를 잘 전달할 수 있습니다."}},
-    {"@type":"Question","name":"자동화된 접근성 검사 도구는 무엇이 있나요?","acceptedAnswer":{"@type":"Answer","text":"axe, Lighthouse, WAVE, Colour Contrast Analyser 등의 도구를 사용해 페이지 전체의 색상 대비를 자동으로 검사할 수 있습니다. 브라우저 개발자 도구에도 접근성 패널이 있습니다."}}
+    {"@type":"Question","name":"자동화된 접근성 검사 도구는 무엇이 있나요?","acceptedAnswer":{"@type":"Answer","text":"axe, Lighthouse, WAVE, Colour Contrast Analyser 등의 도구를 사용해 페이지 전체의 색상 대비를 자동으로 검사할 수 있습니다. 브라우저 개발자 도구에도 접근성 패널이 있습니다."}},
+    {"@type":"Question","name":"명암비 계산 공식은 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"상대 휘도 L1(밝은 색), L2(어두운 색)을 사용해 (L1 + 0.05) / (L2 + 0.05) 공식으로 계산합니다. 예: 흰색(L=1.0)과 검정(L=0)의 대비는 (1+0.05)/(0+0.05) = 21:1입니다."}},
+    {"@type":"Question","name":"그래픽이나 아이콘에도 명암비 기준이 적용되나요?","acceptedAnswer":{"@type":"Answer","text":"네. WCAG 1.4.11(비텍스트 대비)에 따라 UI 컴포넌트 경계선과 필수 그래픽 요소는 인접 색상과 최소 3:1 대비가 필요합니다. 텍스트 기준(4.5:1)보다는 낮지만 별도로 검사해야 합니다."}}
   ]
 }
 </script>
@@ -163,7 +165,7 @@
       </div>
       <div class="rgb-display" id="fgRgb">rgb(0, 0, 0)</div>
     </div>
-    <button class="swap-btn" onclick="swapColors()" title="Swap">⇄</button>
+    <button class="swap-btn" id="swapBtn" onclick="swapColors()" title="Swap">⇄</button>
     <div class="picker-card">
       <div class="picker-label" data-i18n="labelBg">배경색</div>
       <div class="swatch-wrap" id="bgSwatch">
@@ -257,6 +259,7 @@ const _i18n = {
     labelFg: '전경색 (텍스트)',
     labelBg: '배경색',
     btnSwap: '⇄',
+    swapTitle: '색상 바꾸기',
     labelRatio: '대비율',
     labelWcag: 'WCAG 결과',
     levelHeader: '레벨',
@@ -281,6 +284,7 @@ const _i18n = {
     labelFg: 'Foreground (Text)',
     labelBg: 'Background',
     btnSwap: '⇄',
+    swapTitle: 'Swap colors',
     labelRatio: 'Contrast Ratio',
     labelWcag: 'WCAG Results',
     levelHeader: 'Level',
@@ -294,7 +298,7 @@ const _i18n = {
     ratingAA: 'AA',
     ratingAAA: 'AAA',
     previewText: 'Sample Text 가나다',
-    seoHtml: `<h2>What is Color Contrast?</h2><p>Color contrast measures the difference in luminance between foreground (text) and background colors. <strong>WCAG (Web Content Accessibility Guidelines)</strong> defines contrast thresholds to ensure web content is readable for people with low vision or color blindness. Ratios range from 1:1 (identical colors) to 21:1 (pure black on white). Many regulations — including Section 508 and EN 301 549 — require websites to meet WCAG AA standards.</p><h2 class="seo-sub">Frequently Asked Questions</h2><details class="faq-item"><summary>Q. What is WCAG?</summary><p>A. WCAG (Web Content Accessibility Guidelines) is an international standard published by the W3C. It defines how to make web content accessible to people with disabilities, including those with visual impairments, through criteria for color contrast, text size, keyboard navigation, and more.</p></details><details class="faq-item"><summary>Q. What is the difference between AA and AAA?</summary><p>A. AA is the minimum compliance level: 4.5:1 for normal text and 3:1 for large text. AAA is the enhanced level: 7:1 for normal text and 4.5:1 for large text. Most websites target AA compliance.</p></details><details class="faq-item"><summary>Q. What counts as large text?</summary><p>A. WCAG defines large text as bold text at 14pt (approximately 18.67px) or larger, or regular text at 18pt (24px) or larger. Large text has a lower contrast requirement (3:1 for AA).</p></details><details class="faq-item"><summary>Q. Why is 4.5:1 the AA standard?</summary><p>A. The 4.5:1 ratio was chosen because it represents the minimum contrast level at which people with moderate vision loss (approximately 20/40 visual acuity) can still read standard text.</p></details><details class="faq-item"><summary>Q. How do I fix low contrast?</summary><p>A. Darken your foreground color or lighten the background. Adding a text shadow or increasing font size can also help. Use this tool\'s color pickers to adjust and verify in real time.</p></details><details class="faq-item"><summary>Q. Are decorative elements exempt from contrast requirements?</summary><p>A. Yes. WCAG exempts purely decorative images and text, inactive/disabled UI components, and text within logotypes. The requirements apply only to elements that convey information.</p></details><details class="faq-item"><summary>Q. How does contrast relate to color blindness?</summary><p>A. Maintaining high luminance contrast helps color-blind users perceive content. It is also important not to rely on color alone to convey information — use patterns, icons, or text labels as well.</p></details><details class="faq-item"><summary>Q. What tools check contrast automatically?</summary><p>A. axe, Google Lighthouse (Chrome DevTools), WAVE, and the Colour Contrast Analyser desktop app can scan entire pages automatically. Integrating axe into your CI/CD pipeline lets you enforce accessibility before each deployment.</p></details>`
+    seoHtml: `<h2>What is Color Contrast?</h2><p>Color contrast measures the difference in luminance between foreground (text) and background colors. <strong>WCAG (Web Content Accessibility Guidelines)</strong> defines contrast thresholds to ensure web content is readable for people with low vision or color blindness. Ratios range from 1:1 (identical colors) to 21:1 (pure black on white). Many regulations — including Section 508 and EN 301 549 — require websites to meet WCAG AA standards.</p><h2 class="seo-sub">Frequently Asked Questions</h2><details class="faq-item"><summary>Q. What is WCAG?</summary><p>A. WCAG (Web Content Accessibility Guidelines) is an international standard published by the W3C. It defines how to make web content accessible to people with disabilities, including those with visual impairments, through criteria for color contrast, text size, keyboard navigation, and more.</p></details><details class="faq-item"><summary>Q. What is the difference between AA and AAA?</summary><p>A. AA is the minimum compliance level: 4.5:1 for normal text and 3:1 for large text. AAA is the enhanced level: 7:1 for normal text and 4.5:1 for large text. Most websites target AA compliance.</p></details><details class="faq-item"><summary>Q. What counts as large text?</summary><p>A. WCAG defines large text as bold text at 14pt (approximately 18.67px) or larger, or regular text at 18pt (24px) or larger. Large text has a lower contrast requirement (3:1 for AA).</p></details><details class="faq-item"><summary>Q. Why is 4.5:1 the AA standard?</summary><p>A. The 4.5:1 ratio was chosen because it represents the minimum contrast level at which people with moderate vision loss (approximately 20/40 visual acuity) can still read standard text.</p></details><details class="faq-item"><summary>Q. How do I fix low contrast?</summary><p>A. Darken your foreground color or lighten the background. Adding a text shadow or increasing font size can also help. Use this tool\'s color pickers to adjust and verify in real time.</p></details><details class="faq-item"><summary>Q. Are decorative elements exempt from contrast requirements?</summary><p>A. Yes. WCAG exempts purely decorative images and text, inactive/disabled UI components, and text within logotypes. The requirements apply only to elements that convey information.</p></details><details class="faq-item"><summary>Q. How does contrast relate to color blindness?</summary><p>A. Maintaining high luminance contrast helps color-blind users perceive content. It is also important not to rely on color alone to convey information — use patterns, icons, or text labels as well.</p></details><details class="faq-item"><summary>Q. What tools check contrast automatically?</summary><p>A. axe, Google Lighthouse (Chrome DevTools), WAVE, and the Colour Contrast Analyser desktop app can scan entire pages automatically. Integrating axe into your CI/CD pipeline lets you enforce accessibility before each deployment.</p></details><details class="faq-item"><summary>Q. What is the contrast ratio formula?</summary><p>A. The ratio is calculated as (L1 + 0.05) / (L2 + 0.05), where L1 is the relative luminance of the lighter color and L2 of the darker color. For example, white (L=1.0) against black (L=0) gives (1+0.05)/(0+0.05) = 21:1.</p></details><details class="faq-item"><summary>Q. Do graphics and icons need to meet contrast requirements too?</summary><p>A. Yes. Under WCAG 1.4.11 (Non-text Contrast), UI component boundaries and essential graphical elements must have at least a 3:1 contrast ratio against adjacent colors. This is lower than the text requirement (4.5:1), but it must be checked separately -- this tool only evaluates text contrast.</p></details>`
   },
   zh: {
     pageTitle: '颜色对比度检查器 - WCAG AA/AAA 无障碍标准',
@@ -305,6 +309,7 @@ const _i18n = {
     labelFg: '前景色（文字）',
     labelBg: '背景色',
     btnSwap: '⇄',
+    swapTitle: '交换颜色',
     labelRatio: '对比度',
     labelWcag: 'WCAG 结果',
     levelHeader: '级别',
@@ -318,7 +323,7 @@ const _i18n = {
     ratingAA: 'AA',
     ratingAAA: 'AAA',
     previewText: 'Sample Text 가나다',
-    seoHtml: `<h2>什么是颜色对比度？</h2><p>颜色对比度衡量前景色（文字）与背景色之间的亮度差异。<strong>WCAG（网页内容无障碍指南）</strong>定义了对比度阈值，以确保低视力或色盲用户也能阅读网页内容。对比度从 1:1（相同颜色）到 21:1（纯黑白）不等。许多法规（包括美国 Section 508 和欧洲 EN 301 549）要求网站达到 WCAG AA 标准。</p><h2 class="seo-sub">常见问题</h2><details class="faq-item"><summary>Q. 什么是 WCAG？</summary><p>A. WCAG 是 W3C 发布的网页内容无障碍指南，定义了颜色对比度、文字大小、键盘导航等标准，旨在使包括视觉障碍者在内的所有用户都能访问网页内容。</p></details><details class="faq-item"><summary>Q. AA 和 AAA 有什么区别？</summary><p>A. AA 是最低合规级别：普通文本 4.5:1，大文本 3:1。AAA 是增强级别：普通文本 7:1，大文本 4.5:1。大多数网站以达到 AA 为目标。</p></details><details class="faq-item"><summary>Q. 什么是大文本？</summary><p>A. WCAG 将大文本定义为 14pt（约 18.67px）以上的粗体文字，或 18pt（24px）以上的普通文字。大文本的对比度要求较低（AA 为 3:1）。</p></details><details class="faq-item"><summary>Q. 为什么 4.5:1 是 AA 标准？</summary><p>A. 4.5:1 是中度视力减退（约 20/40 视力）人群仍能阅读标准文本的最低对比水平，因此被采用为 AA 标准。</p></details><details class="faq-item"><summary>Q. 如何改善低对比度？</summary><p>A. 加深前景色或调亮背景色。增加文字阴影或放大字号也有帮助。使用本工具的颜色选择器可实时调整并验证。</p></details><details class="faq-item"><summary>Q. 装饰性元素也需要满足对比度要求吗？</summary><p>A. 不需要。WCAG 豁免纯装饰性图像和文字、禁用的 UI 组件以及标志中的文字。只有传达信息的元素才适用对比度要求。</p></details><details class="faq-item"><summary>Q. 对比度与色盲有什么关系？</summary><p>A. 保持高亮度对比有助于色盲用户感知内容。同时，不应仅依靠颜色传达信息，应结合图案、图标或文字标签。</p></details><details class="faq-item"><summary>Q. 有哪些自动化对比度检查工具？</summary><p>A. axe、Google Lighthouse（Chrome DevTools）、WAVE 和 Colour Contrast Analyser 桌面应用可自动扫描整个页面。将 axe 集成到 CI/CD 流水线可在每次部署前强制检查无障碍性。</p></details>`
+    seoHtml: `<h2>什么是颜色对比度？</h2><p>颜色对比度衡量前景色（文字）与背景色之间的亮度差异。<strong>WCAG（网页内容无障碍指南）</strong>定义了对比度阈值，以确保低视力或色盲用户也能阅读网页内容。对比度从 1:1（相同颜色）到 21:1（纯黑白）不等。许多法规（包括美国 Section 508 和欧洲 EN 301 549）要求网站达到 WCAG AA 标准。</p><h2 class="seo-sub">常见问题</h2><details class="faq-item"><summary>Q. 什么是 WCAG？</summary><p>A. WCAG 是 W3C 发布的网页内容无障碍指南，定义了颜色对比度、文字大小、键盘导航等标准，旨在使包括视觉障碍者在内的所有用户都能访问网页内容。</p></details><details class="faq-item"><summary>Q. AA 和 AAA 有什么区别？</summary><p>A. AA 是最低合规级别：普通文本 4.5:1，大文本 3:1。AAA 是增强级别：普通文本 7:1，大文本 4.5:1。大多数网站以达到 AA 为目标。</p></details><details class="faq-item"><summary>Q. 什么是大文本？</summary><p>A. WCAG 将大文本定义为 14pt（约 18.67px）以上的粗体文字，或 18pt（24px）以上的普通文字。大文本的对比度要求较低（AA 为 3:1）。</p></details><details class="faq-item"><summary>Q. 为什么 4.5:1 是 AA 标准？</summary><p>A. 4.5:1 是中度视力减退（约 20/40 视力）人群仍能阅读标准文本的最低对比水平，因此被采用为 AA 标准。</p></details><details class="faq-item"><summary>Q. 如何改善低对比度？</summary><p>A. 加深前景色或调亮背景色。增加文字阴影或放大字号也有帮助。使用本工具的颜色选择器可实时调整并验证。</p></details><details class="faq-item"><summary>Q. 装饰性元素也需要满足对比度要求吗？</summary><p>A. 不需要。WCAG 豁免纯装饰性图像和文字、禁用的 UI 组件以及标志中的文字。只有传达信息的元素才适用对比度要求。</p></details><details class="faq-item"><summary>Q. 对比度与色盲有什么关系？</summary><p>A. 保持高亮度对比有助于色盲用户感知内容。同时，不应仅依靠颜色传达信息，应结合图案、图标或文字标签。</p></details><details class="faq-item"><summary>Q. 有哪些自动化对比度检查工具？</summary><p>A. axe、Google Lighthouse（Chrome DevTools）、WAVE 和 Colour Contrast Analyser 桌面应用可自动扫描整个页面。将 axe 集成到 CI/CD 流水线可在每次部署前强制检查无障碍性。</p></details><details class="faq-item"><summary>Q. 对比度计算公式是什么？</summary><p>A. 计算公式为 (L1 + 0.05) / (L2 + 0.05)，其中 L1 是较亮颜色的相对亮度，L2 是较暗颜色的相对亮度。例如，白色（L=1.0）与黑色（L=0）的对比度为 (1+0.05)/(0+0.05) = 21:1。</p></details><details class="faq-item"><summary>Q. 图形或图标也需要满足对比度要求吗？</summary><p>A. 是的。根据 WCAG 1.4.11（非文本对比度），UI 组件边界和必要的图形元素与相邻颜色的对比度必须至少达到 3:1。这低于文本要求（4.5:1），但需要单独检查——本工具仅评估文本对比度。</p></details>`
   },
   ja: {
     pageTitle: '色彩コントラストチェッカー - WCAG AA/AAA アクセシビリティ',
@@ -329,6 +334,7 @@ const _i18n = {
     labelFg: '前景色（テキスト）',
     labelBg: '背景色',
     btnSwap: '⇄',
+    swapTitle: '色を入れ替え',
     labelRatio: 'コントラスト比',
     labelWcag: 'WCAG 結果',
     levelHeader: 'レベル',
@@ -342,7 +348,7 @@ const _i18n = {
     ratingAA: 'AA',
     ratingAAA: 'AAA',
     previewText: 'Sample Text 가나다',
-    seoHtml: `<h2>色彩コントラストとは？</h2><p>色彩コントラストは、前景色（テキスト）と背景色の輝度差を数値化したものです。<strong>WCAG（Web コンテンツ アクセシビリティ ガイドライン）</strong>は、低視力者や色覚異常者を含むすべてのユーザーが Web コンテンツを読めるようにするため、コントラスト比の基準を定めています。比率は 1:1（同一色）から 21:1（黒/白）の範囲です。</p><h2 class="seo-sub">よくある質問</h2><details class="faq-item"><summary>Q. WCAG とは何ですか？</summary><p>A. WCAG は W3C が策定した Web コンテンツ アクセシビリティ ガイドラインで、視覚障害者を含むすべてのユーザーが Web を利用できるよう、色彩コントラスト・文字サイズ・キーボード操作などの基準を定めています。</p></details><details class="faq-item"><summary>Q. AA と AAA の違いは何ですか？</summary><p>A. AA は最低準拠レベルで、通常テキスト 4.5:1・大テキスト 3:1 が必要です。AAA は強化レベルで、通常テキスト 7:1・大テキスト 4.5:1 が要求されます。多くの Web サイトは AA 準拠を目標とします。</p></details><details class="faq-item"><summary>Q. 大テキストの基準は何ですか？</summary><p>A. WCAG では、14pt（約 18.67px）以上の太字テキスト、または 18pt（24px）以上の通常テキストを大テキストと定義します。大テキストにはより低いコントラスト基準（AA で 3:1）が適用されます。</p></details><details class="faq-item"><summary>Q. なぜ 4.5:1 が AA 基準なのですか？</summary><p>A. 4.5:1 は、中程度の視力低下（約 20/40 視力）を持つ人が標準テキストを読める最低限のコントラスト水準として設定されました。</p></details><details class="faq-item"><summary>Q. 低コントラストはどう改善しますか？</summary><p>A. 前景色を暗くするか、背景色を明るく調整してください。テキストシャドウの追加やフォントサイズの拡大も有効です。このツールのカラーピッカーでリアルタイムに確認しながら調整できます。</p></details><details class="faq-item"><summary>Q. 装飾的な要素もコントラスト要件を満たす必要がありますか？</summary><p>A. いいえ。WCAG は純粋に装飾目的の画像やテキスト、無効化された UI コンポーネント、ロゴ内のテキストを適用対象外としています。情報を伝える要素にのみ基準が適用されます。</p></details><details class="faq-item"><summary>Q. 色覚異常とコントラストの関係は？</summary><p>A. 高い輝度コントラストを維持することで、色覚異常のあるユーザーにもコンテンツを伝えやすくなります。色だけで情報を伝えず、パターン・アイコン・テキストラベルを併用することも重要です。</p></details><details class="faq-item"><summary>Q. 自動化されたアクセシビリティ検査ツールはありますか？</summary><p>A. axe、Google Lighthouse（Chrome DevTools）、WAVE、Colour Contrast Analyser デスクトップアプリなどでページ全体を自動スキャンできます。axe を CI/CD パイプラインに統合するとデプロイ前に自動検証できます。</p></details>`
+    seoHtml: `<h2>色彩コントラストとは？</h2><p>色彩コントラストは、前景色（テキスト）と背景色の輝度差を数値化したものです。<strong>WCAG（Web コンテンツ アクセシビリティ ガイドライン）</strong>は、低視力者や色覚異常者を含むすべてのユーザーが Web コンテンツを読めるようにするため、コントラスト比の基準を定めています。比率は 1:1（同一色）から 21:1（黒/白）の範囲です。</p><h2 class="seo-sub">よくある質問</h2><details class="faq-item"><summary>Q. WCAG とは何ですか？</summary><p>A. WCAG は W3C が策定した Web コンテンツ アクセシビリティ ガイドラインで、視覚障害者を含むすべてのユーザーが Web を利用できるよう、色彩コントラスト・文字サイズ・キーボード操作などの基準を定めています。</p></details><details class="faq-item"><summary>Q. AA と AAA の違いは何ですか？</summary><p>A. AA は最低準拠レベルで、通常テキスト 4.5:1・大テキスト 3:1 が必要です。AAA は強化レベルで、通常テキスト 7:1・大テキスト 4.5:1 が要求されます。多くの Web サイトは AA 準拠を目標とします。</p></details><details class="faq-item"><summary>Q. 大テキストの基準は何ですか？</summary><p>A. WCAG では、14pt（約 18.67px）以上の太字テキスト、または 18pt（24px）以上の通常テキストを大テキストと定義します。大テキストにはより低いコントラスト基準（AA で 3:1）が適用されます。</p></details><details class="faq-item"><summary>Q. なぜ 4.5:1 が AA 基準なのですか？</summary><p>A. 4.5:1 は、中程度の視力低下（約 20/40 視力）を持つ人が標準テキストを読める最低限のコントラスト水準として設定されました。</p></details><details class="faq-item"><summary>Q. 低コントラストはどう改善しますか？</summary><p>A. 前景色を暗くするか、背景色を明るく調整してください。テキストシャドウの追加やフォントサイズの拡大も有効です。このツールのカラーピッカーでリアルタイムに確認しながら調整できます。</p></details><details class="faq-item"><summary>Q. 装飾的な要素もコントラスト要件を満たす必要がありますか？</summary><p>A. いいえ。WCAG は純粋に装飾目的の画像やテキスト、無効化された UI コンポーネント、ロゴ内のテキストを適用対象外としています。情報を伝える要素にのみ基準が適用されます。</p></details><details class="faq-item"><summary>Q. 色覚異常とコントラストの関係は？</summary><p>A. 高い輝度コントラストを維持することで、色覚異常のあるユーザーにもコンテンツを伝えやすくなります。色だけで情報を伝えず、パターン・アイコン・テキストラベルを併用することも重要です。</p></details><details class="faq-item"><summary>Q. 自動化されたアクセシビリティ検査ツールはありますか？</summary><p>A. axe、Google Lighthouse（Chrome DevTools）、WAVE、Colour Contrast Analyser デスクトップアプリなどでページ全体を自動スキャンできます。axe を CI/CD パイプラインに統合するとデプロイ前に自動検証できます。</p></details><details class="faq-item"><summary>Q. コントラスト比の計算式は何ですか？</summary><p>A. 比率は (L1 + 0.05) / (L2 + 0.05) で計算されます。L1 は明るい色の相対輝度、L2 は暗い色の相対輝度です。例えば白（L=1.0）と黒（L=0）のコントラストは (1+0.05)/(0+0.05) = 21:1 になります。</p></details><details class="faq-item"><summary>Q. 図形やアイコンにもコントラスト基準は適用されますか？</summary><p>A. はい。WCAG 1.4.11（非テキストのコントラスト）により、UI コンポーネントの境界線や必須のグラフィック要素は隣接色と最低 3:1 のコントラストが必要です。テキスト基準（4.5:1）より低いですが、別途チェックが必要です — このツールはテキストのコントラストのみを評価します。</p></details>`
   }
 };
 
@@ -366,6 +372,7 @@ function applyLang(l) {
     const v = t[el.dataset.i18n];
     if (v !== undefined) el.innerHTML = v;
   });
+  document.getElementById('swapBtn').title = t.swapTitle || 'Swap';
   updateResults();
 }
 
@@ -474,8 +481,9 @@ function onBgPicker() {
 }
 function onFgHex() {
   const val = document.getElementById('fgHex').value.trim().replace(/^#/,'');
-  if (/^[0-9a-fA-F]{6}$/.test(val)) {
-    fgColor = '#' + val;
+  if (/^[0-9a-fA-F]{3}$|^[0-9a-fA-F]{6}$/.test(val)) {
+    fgColor = padHex(val);
+    document.getElementById('fgHex').value = fgColor.slice(1).toUpperCase();
     document.getElementById('fgPicker').value = fgColor;
     document.getElementById('fgSwatchBg').style.background = fgColor;
     document.getElementById('fgRgb').textContent = hexToRgbStr(fgColor);
@@ -484,8 +492,9 @@ function onFgHex() {
 }
 function onBgHex() {
   const val = document.getElementById('bgHex').value.trim().replace(/^#/,'');
-  if (/^[0-9a-fA-F]{6}$/.test(val)) {
-    bgColor = '#' + val;
+  if (/^[0-9a-fA-F]{3}$|^[0-9a-fA-F]{6}$/.test(val)) {
+    bgColor = padHex(val);
+    document.getElementById('bgHex').value = bgColor.slice(1).toUpperCase();
     document.getElementById('bgPicker').value = bgColor;
     document.getElementById('bgSwatchBg').style.background = bgColor;
     document.getElementById('bgRgb').textContent = hexToRgbStr(bgColor);
