@@ -283,16 +283,16 @@ color-contrast-checker(이 배치 최대 발견 — 3자리 축약 HEX(#f0a 등)
 ### 완료 (5차 배치 12/N, 병렬 fork 5개, 1814~1854자 구간)
 inheritance-tax(세율표 5단계(10~50%) node 9케이스 대조 정확 확인, 버그 없음 — 배우자공제가 법정상속분 미계산 근사치·사전증여 이중과세공제 미반영이라는 실질 한계를 정직하게 FAQ에 명시), utm-builder(FAQ가 "모든 UTM값 자동 소문자화"라 주장하는데 실제론 term/content엔 sanitize() 미적용이던 문제 수정(코드를 문서에 맞춤) + head/본문 QR예시가 같은 "qr_code" 문자열을 서로 다른 파라미터에 넣던 자기모순 통일), sitemap-generator(todayStr()이 UTC 날짜 반환해 KST 자정~오전9시 사이 lastmod가 하루 이르게 나오던 버그, 로컬 날짜 조합으로 수정 — 나머지 escXml/50000URL 스펙 등은 이미 정확), capital-gains-tax(이 배치 최대급 — ①주택 단기보유세율 1~2년 구간이 40%로 되어있었는데 실제로는 60%(40%는 토지 등 기타자산), 페이지 자체 SEO본문은 60%라 써서 코드와 자기모순이었음, ②8단계 누진세율표에서 5억~10억 구간(42%)이 통째로 누락 + 15,000만원 이상 전 구간 누진공제 상수가 20만원씩 어긋나 7억 기준 62만원, 15억 기준 152만원 과다계산되던 버그, 공식 세율표로 재작성 후 경계값 전수 재검증 — 실제 세금 계산 오차라 영향 큼, 보유/거주기간 select도 10~15년 뭉뚱그림→연도별 세분화), cheongyak-score(배점표 3개 정확 확인 — FAQ가 "당첨 포기 시 1년 제한"이라 했는데 실제로는 지역별 7~10년(최대 10배 과소평가) + 청약통장 효력상실·가점제 2년 추가제한 등 웹서치로 정정, 초기 readout 총점(6점/7%)이 실제 기본 select 합계(8점/9.5%)와 안 맞던 것도 수정)
 
-**남은 36개, 다음은 meta-tag-generator.html부터.**
+**남은 36개, meta-tag-generator·date-calc·schema-markup-generator·http-request-builder·currency-converter 완료 처리.**
+
+### 완료 (5차 배치 13/N, 병렬 fork 5개, 1859~1934자 구간)
+meta-tag-generator(다른 자유입력 필드는 전부 escHtml() 적용하는데 viewport 필드만 이스케이프 누락돼 생성된 meta 태그가 깨질 수 있던 문제 수정, 사용자가 결과를 그대로 자기 사이트 head에 붙여넣는 도구라 실영향 있음), date-calc(UTC 자정 파싱 버그 — calcAdd/calcDiff가 "YYYY-MM-DD"를 UTC로 파싱해 UTC보다 느린 타임존(America/New_York 등, en/zh/ja 글로벌 사용자 대상)에서 날짜가 하루 당겨지던 문제, parseLocalDate() 도입으로 수정 + FAQ 8/10 불일치를 10개로 통일), schema-markup-generator(script-tag-breakout XSS — JSON.stringify 결과를 이스케이프 없이 그대로 출력해 사용자 입력에 `</script>`가 있으면 대상 페이지의 스크립트 태그가 조기 종료되던 문제(구글 JSON-LD 문서도 명시 경고하는 취약점), `<`→`<` 이스케이프로 수정 + 모든 필수필드 라벨에 리터럴 `*`와 req=true 뱃지가 중복되어 `**필수`로 보이던 UI버그 12곳 정리 + Event 위치 필드 필수표시 누락 수정), http-request-builder(curl-generator와 동일 계열 버그 — 헤더/URL에 홑따옴표 있으면 curl 명령어와 fetch/axios 코드 둘 다 깨지던 문제를 escSh()/escJs() 헬퍼로 수정 + DELETE 메서드가 body 포함 조건에서 빠져있어 body가 조용히 누락되던 문제(curl-generator 재발견) 수정, FAQ 8/11 불일치 11개로 통일), currency-converter(이 배치 최대급 — "150+/160+통화" 거짓 주장(실제 36개) + 정적 고정환율표인데 "실시간 반영" 오인시키는 표현(zh는 "实时汇率"라고까지 명시) + FAQ 자체 예시 수치가 실제 환율상수(1382)와 안 맞아 계산 결과 자체모순이던 것 + falsy-zero 버그(0 입력해도 1로 계산) + ja 콘텐츠가 통째로 다른 8개짜리 구버전 초안이면서 존재하지 않는 "유럽중앙은행 데이터 출처" 거짓 주장까지 있던 것 전부 수정)
+
+**남은 31개, 다음은 regex-tester.html부터.**
 
 **주의 6**: 이 스캔에서 처음에 exclude 로직 버그가 있었음 — 4차 배치(67~83)의 완료 기록이 "파일명(설명)" 형식으로 `.html` 확장자 없이 적혀 있는데, 스캔 스크립트가 `이름.html` 패턴으로만 완료 여부를 매칭해서 방금 끝낸 파일들(freelancer-tax, color-palette, inflation-calculator, sip-calculator, body-fat-calculator, loan-calculator-en 등)이 전부 "미완료"로 잘못 다시 나타났었음. `이름(` 패턴도 함께 매칭하도록 스캔 스크립트를 고쳐서 재실행 후 확인함. **앞으로 이 파일에 완료 기록을 추가할 때 파일명 뒤에 `.html`을 붙이든 안 붙이든 상관없지만, 재스캔할 땐 반드시 두 패턴(`이름.html`과 `이름(`) 모두로 완료 여부를 매칭할 것.**
 
 ```
-1859  meta-tag-generator.html
-1893  date-calc.html
-1897  schema-markup-generator.html
-1932  http-request-builder.html
-1934  currency-converter.html
 1936  regex-tester.html
 1955  acquisition-tax.html
 1964  redirect-checker.html
