@@ -273,16 +273,16 @@ base64-encoder(파일명 라벨 하드코딩 한국어 + "Web Crypto API로 SHA 
 ### 완료 (5차 배치 10/N, 병렬 fork 5개, 1688~1753자 구간)
 url-encoder(버그 없음 — encodeURIComponent/encodeURI 이중인코딩·UTF-8 바이트 변환 node 검증 정상, zh/ja에 encodeURI 예약문자 설명 문단이 누락돼있던 콘텐츠 격차만 보강), national-pension.html(national-pension-calculator.html과는 별개 ko-only 파일 — salary/age/years 입력 `parseInt(...)||default` falsy-zero 버그로 0 입력 시 기본값(300만원/30세/30년)으로 조용히 대체되던 문제 수정, 요율 9.5%/상한 659만원/하한 41만원은 이미 최신 확인), case-converter(버그 없음 — FAQ가 5블록 전부 10개(50개)로 표준 초과하던 것을 저가치 UI질문 2개 제거해 8×5=40 정리), unemployment.html(unemployment-benefit.html과는 별개 ko-only 파일 — avgSal `parseFloat(...)||3000000` falsy-zero 버그 수정 + FAQ 중복 2개를 실제 기술 디테일(피보험단위기간·7일 대기기간·비과세·조기재취업수당)로 교체, "신청기한" 결과가 오늘=퇴직일 가정 근사치임을 라벨에 명시), time-calculator(이 배치 최대 발견 — 야간근무시간(22~06시) 계산이 시작시각만 보고 자정 넘어가는 구간을 판정해 22:00~06:00 근무(전체 야간, 480분이어야 함)가 120분으로 과소계산되고 00:00~05:00류는 반대로 과다계산되던 버그, 급여 야간수당 영향 있음 — 3구간 overlap 합산 방식으로 재작성 후 5개 케이스 node 재검증, FAQ 11/8 불일치도 8개로 통일)
 
-**남은 46개, url-encoder·national-pension·case-converter·unemployment·time-calculator 완료 처리 — 다음은 color-contrast-checker.html부터.**
+**남은 46개, url-encoder·national-pension·case-converter·unemployment·time-calculator 완료 처리.**
+
+### 완료 (5차 배치 11/N, 병렬 fork 5개, 1772~1806자 구간)
+color-contrast-checker(이 배치 최대 발견 — 3자리 축약 HEX(#f0a 등)를 확장하는 padHex() 헬퍼가 이미 있었는데 검증 정규식이 6자리만 허용해 조용히 무시되던 죽은 헬퍼 패턴(tailwind-color-generator와 동일), 3자리 허용+연결로 수정 + swap 버튼 하드코딩 영어 i18n 처리 + en/zh/ja에 없던 FAQ 2개(명암비 공식, WCAG 1.4.11) 번역 추가해 5블록 10개로 통일, head 8→10), ai-cost-calculator(head FAQPage가 "호출당비용×일일호출×30"이라 설명하는데 실제 코드는 monthly=cost*calls(월간 호출수 직접 사용)라 본문 FAQ와 모순되던 것 수정 + FAQ 9→8 정리, 모델 가격표는 공식 가격 대조 결과 전부 정확), pdf-merge(파일명 미이스케이프 XSS 수정 + head FAQ 거짓 주장 2건(부분페이지 병합 가능·압축옵션 존재, 둘 다 실제 코드에 없음) 정정 + FAQ 12→8 정리), xml-validator(버그 없음, parsererror 스펠링 정상·XSS 위험 없음 확인 — head FAQPage 2→4개 확장만), working-days-calc(이 배치 최대급 — HOLIDAYS_2026에 근로자의 날(5/1)이 잘못 공휴일로 포함돼 영업일 계산에서 제외되던 버그, 관공서 공휴일 규정상 근로자의 날은 공휴일 아님(관공서 정상 운영) 확인 후 제거, node로 4/30~5/4 구간 2일→3일 정정 재확인 + 제헌절/설날·추석 대체공휴일 웹서치 팩트체크(둘 다 기존 서술 정확, 애매한 총량 수치만 삭제), 2027년 공휴일 데이터는 아직 없음(연초 갱신 대상, 현재는 안 급함), FAQ 10→8, ko-only 페이지)
+
+**남은 41개, 다음은 inheritance-tax.html부터.**
 
 **주의 6**: 이 스캔에서 처음에 exclude 로직 버그가 있었음 — 4차 배치(67~83)의 완료 기록이 "파일명(설명)" 형식으로 `.html` 확장자 없이 적혀 있는데, 스캔 스크립트가 `이름.html` 패턴으로만 완료 여부를 매칭해서 방금 끝낸 파일들(freelancer-tax, color-palette, inflation-calculator, sip-calculator, body-fat-calculator, loan-calculator-en 등)이 전부 "미완료"로 잘못 다시 나타났었음. `이름(` 패턴도 함께 매칭하도록 스캔 스크립트를 고쳐서 재실행 후 확인함. **앞으로 이 파일에 완료 기록을 추가할 때 파일명 뒤에 `.html`을 붙이든 안 붙이든 상관없지만, 재스캔할 땐 반드시 두 패턴(`이름.html`과 `이름(`) 모두로 완료 여부를 매칭할 것.**
 
 ```
-1772  color-contrast-checker.html
-1787  ai-cost-calculator.html
-1796  pdf-merge.html
-1806  xml-validator.html
-1806  working-days-calc.html
 1814  inheritance-tax.html
 1823  utm-builder.html
 1831  sitemap-generator.html
