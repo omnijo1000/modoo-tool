@@ -409,4 +409,9 @@ annual-leave(달력계산+hreflang 둘 다 해결) · csr-generator(sanitizeSubj
 ### 완료 (2026-08-04, 1000자 미만 5개 전체 처리 — 애드센스 재심사 대응 긴급)
 seo-title-generator(691→1878자, 버그 수정 — `lenClass()`/`lenLabel()`이 언어 무관 raw 글자수로만 제목길이 판정해 한글처럼 전각문자 비중 높은 텍스트는 실제 SERP에서 훨씬 일찍 잘리는데도 "최적"으로 오판정하던 문제, `widthUnits()`(전각 2/반각 1) 도입으로 수정), api-response-viewer(726→2317자, 버그 없음 — 이전 parsererror 오타 수정 여전히 유효 확인, 2^53-1 초과 정수 정밀도 손실 등 정직한 한계 FAQ에 추가), commission-calculator(940→1911자, 버그 없음 — 구간별/역산 계산 node 검증 정상), break-even-calculator(956→1833자, 버그 없음 — 단위 i18n 수정 여전히 유효, BEP 공식 node 검증 정상), cagr-calculator(970→1986자, 버그 없음 — ev<=0 가드 여전히 유효, 변동성 드래그 실증예시 등 심화)
 
-**남은 것**: 1000~1500자 구간 170개 파일 — 표본만 확인함(전부가 얕은 건 아닐 수 있음), 전수 재작업 여부 결정 필요.
+**남은 것**: 1000~1500자 구간 170개 파일 — 표본 15개(배치26~28 신규추가 위주) 직접 확인 결과 전부 실제 공식·구체 수치 있는 진짜 콘텐츠였음(margin-calculator, freelancer-rate-calculator, discount-calculator, meeting-cost-calculator, qr-code-generator, image-dimension-checker, svg-cleaner, lorem-ipsum-generator, salary-per-hour-calculator, time-zone-meeting-planner, avif-to-jpg, image-dpi-checker, transparent-background-maker, pdf-metadata-remover, national-pension-calculator 확인함) — 나머지 170개 전수 재작업은 불필요 판단.
+
+### 완료 (2026-08-04, 최종 전수 검수 — 애드센스 재심사 대응)
+pdf-metadata-remover(표본 점검 중 발견 — "작성일/수정일 체크박스 눌러도 실제로 안 지워짐"이라고 FAQ에 정직하게만 문서화해놓고 실제 버그는 안 고쳐진 상태였음, `getInfoDict().delete()`로 실제 삭제되도록 구현 + 검증 중 더 큰 문제 발견: `PDFDocument.load()`가 기본값 `updateMetadata:true`라서 파일을 열기만 해도 수정일이 즉시 "오늘"로 덮어써지는 부작용이 있어 체크 안 한 필드까지 조용히 오염되고 있었음, `{updateMetadata:false}`로 근본 수정 — pdf-lib로 직접 재현·검증 완료), webp-to-jpg(전체 파일 faq-item 개수 전수 스캔으로 발견 — zh/ja가 static/ko/en(11개)과 달리 8개뿐이라 마지막 3개 항목(품질별 용량차이·투명배경 흑백전환 원인·아이폰 호환성) 누락, 번역 추가로 11개 통일)
+
+**최종 전수 검수 결과**: 애드센스 ID 330개 파일 전부 새 ID로 통일 확인(구 ID 잔재 0), ads.txt 라이브 반영 확인, JSON-LD 파싱 오류 0건(schema-markup-generator 1건은 도구 자신의 JS 코드에 있는 리터럴 문자열이 스캔 정규식에 오탐된 것, 실제 오류 아님), faq-item 개수 이상 파일 10건 중 9건은 ko-only/구형 페이지의 정상 카운트(false positive)로 확인, 1건(webp-to-jpg)은 실제 콘텐츠 누락이라 수정함.
