@@ -884,11 +884,15 @@
     'generator-tools':      { ko:'생성기 도구',     en:'Generator Tools',          zh:'生成器',       ja:'ジェネレーターツール', icon:'⚡', count:31 },
   };
 
-  // ── 브레드크럼 JSON-LD 주입 ──────────────────────────────────────
-  function injectBreadcrumbSchema(slug, catSlug) {
-    if (document.querySelector('script[data-rt-bc]')) return;
-    var catI = CAT_INFO[catSlug];
-    var toolI = T[slug];
+  // ── 현재 페이지 감지 ────────────────────────────────────────────
+  var page = location.pathname.split('/').pop().replace(/\.html$/, '') || '';
+  var pageCat = CATEGORY_MAP[page];
+
+  // ── 브레드크럼 JSON-LD (언어 전환 시 갱신 가능하도록 in-place 업데이트) ──
+  function renderBreadcrumbSchema() {
+    if (!pageCat) return;
+    var catI = CAT_INFO[pageCat];
+    var toolI = T[page];
     if (!catI || !toolI) return;
     var lang = getLang();
     var toolName = toolI[lang] || toolI.en;
@@ -898,52 +902,55 @@
       '@type': 'BreadcrumbList',
       itemListElement: [
         { '@type':'ListItem', position:1, name:'MODOO HUB', item:'https://modoohub.com/' },
-        { '@type':'ListItem', position:2, name:catName, item:'https://modoohub.com/category/' + catSlug + '.html' },
-        { '@type':'ListItem', position:3, name:toolName, item:'https://modoohub.com/' + slug + '.html' }
+        { '@type':'ListItem', position:2, name:catName, item:'https://modoohub.com/category/' + pageCat + '.html' },
+        { '@type':'ListItem', position:3, name:toolName, item:'https://modoohub.com/' + page + '.html' }
       ]
     };
-    var s = document.createElement('script');
-    s.type = 'application/ld+json';
-    s.setAttribute('data-rt-bc', '1');
+    var s = document.querySelector('script[data-rt-bc]');
+    if (!s) {
+      s = document.createElement('script');
+      s.type = 'application/ld+json';
+      s.setAttribute('data-rt-bc', '1');
+      document.head.appendChild(s);
+    }
     s.textContent = JSON.stringify(schema);
-    document.head.appendChild(s);
   }
 
-  // ── 현재 페이지 감지 & 렌더링 ────────────────────────────────────
-  var page = location.pathname.split('/').pop().replace(/\.html$/, '') || '';
-
-  // 브레드크럼 스키마 + 헤더 카테고리 링크 주입 (related 없어도 항상 실행)
-  var pageCat = CATEGORY_MAP[page];
-  if (page && pageCat) {
-    injectBreadcrumbSchema(page, pageCat);
-    // 헤더에 카테고리 chip 삽입 (내부 링크 강화)
-    if (!document.getElementById('rt-hdr-style')) {
-      var hs = document.createElement('style');
-      hs.id = 'rt-hdr-style';
-      hs.textContent = '.rt-hdr-cat{font-size:11px;color:var(--text-dim,#444);font-family:"DM Mono",monospace;text-decoration:none;padding:3px 8px;border:1px solid var(--glass-border,var(--border,#252525));border-radius:4px;transition:color .15s,border-color .15s;white-space:nowrap;}.rt-hdr-cat:hover{color:var(--cyan,var(--accent,#fbbf24));border-color:var(--cyan,var(--accent,#fbbf24));}';
-      document.head.appendChild(hs);
-    }
-    document.addEventListener('DOMContentLoaded', function () {
-      var hdr = document.querySelector('header');
-      if (!hdr || hdr.querySelector('.rt-hdr-cat')) return;
-      var cI = CAT_INFO[pageCat];
-      if (!cI) return;
-      var lg = getLang();
-      var nm = cI[lg] || cI.en;
-      var a = document.createElement('a');
+  // ── 헤더 카테고리 chip (내부 링크 강화) ──────────────────────────
+  if (pageCat && !document.getElementById('rt-hdr-style')) {
+    var hs = document.createElement('style');
+    hs.id = 'rt-hdr-style';
+    hs.textContent = '.rt-hdr-cat{font-size:11px;color:var(--text-dim,#444);font-family:"DM Mono",monospace;text-decoration:none;padding:3px 8px;border:1px solid var(--glass-border,var(--border,#252525));border-radius:4px;transition:color .15s,border-color .15s;white-space:nowrap;}.rt-hdr-cat:hover{color:var(--cyan,var(--accent,#fbbf24));border-color:var(--cyan,var(--accent,#fbbf24));}';
+    document.head.appendChild(hs);
+  }
+  function renderHeaderChip() {
+    if (!pageCat) return;
+    var hdr = document.querySelector('header');
+    var cI = CAT_INFO[pageCat];
+    if (!hdr || !cI) return;
+    var lg = getLang();
+    var nm = cI[lg] || cI.en;
+    var a = hdr.querySelector('.rt-hdr-cat');
+    if (!a) {
+      a = document.createElement('a');
       a.href = 'category/' + pageCat + '.html';
       a.className = 'rt-hdr-cat';
-      a.textContent = cI.icon + ' ' + nm;
       hdr.appendChild(a);
-    });
+    }
+    a.textContent = cI.icon + ' ' + nm;
   }
 
   // ── 개인정보처리방침 링크 보장 (페이지에 없으면 자동 추가) ──────────
-  if (page && !document.querySelector('a[href^="privacy.html"]')) {
+  function renderPrivacyLink() {
     var PRIV_LABEL = { ko: '개인정보처리방침', en: 'Privacy Policy', zh: '隐私政策', ja: 'プライバシーポリシー' };
-    var privA = document.createElement('a');
+    var label = PRIV_LABEL[getLang()] || PRIV_LABEL.en;
+    var privA = document.querySelector('a.rt-privacy-link');
+    if (privA) { privA.textContent = label; return; }
+    if (document.querySelector('a[href^="privacy.html"]')) return; // 페이지 자체 링크가 이미 있으면 건너뜀
+    privA = document.createElement('a');
     privA.href = 'privacy.html';
-    privA.textContent = PRIV_LABEL[getLang()] || PRIV_LABEL.en;
+    privA.className = 'rt-privacy-link';
+    privA.textContent = label;
     privA.style.cssText = 'color:inherit;text-decoration:underline;';
     var existingFooter = document.querySelector('footer');
     if (existingFooter) {
@@ -957,19 +964,8 @@
     }
   }
 
-  if (!page || !RELATED[page]) return;
-
-  var relatedSlugs = RELATED[page]
-    .filter(function (s) { return T[s]; })
-    .slice(0, MAX_RELATED);
-  if (!relatedSlugs.length) return;
-
-  var lang = getLang();
-  var LABELS = { ko: '관련 도구', en: 'Related Tools', zh: '相关工具', ja: '関連ツール' };
-  var CAT_LABELS = { ko: '카테고리 전체 보기', en: 'Browse all', zh: '查看全部', ja: 'カテゴリをすべて見る' };
-
-  // CSS 주입 (한 번만)
-  if (!document.getElementById('rt-style')) {
+  // ── 관련 도구 섹션 (언어 전환 시 innerHTML 교체) ──────────────────
+  if (page && RELATED[page] && !document.getElementById('rt-style')) {
     var style = document.createElement('style');
     style.id = 'rt-style';
     style.textContent = [
@@ -984,36 +980,61 @@
     ].join('');
     document.head.appendChild(style);
   }
+  function renderRelatedSection() {
+    if (!page || !RELATED[page]) return;
+    var relatedSlugs = RELATED[page]
+      .filter(function (s) { return T[s]; })
+      .slice(0, MAX_RELATED);
+    if (!relatedSlugs.length) return;
 
-  // 카테고리 허브 링크 생성
-  var catLinkHtml = '';
-  if (pageCat && CAT_INFO[pageCat]) {
-    var cI = CAT_INFO[pageCat];
-    var cName = cI[lang] || cI.en;
-    catLinkHtml = '<a href="category/' + pageCat + '.html" class="rt-cat-link">' +
-      cI.icon + ' ' + CAT_LABELS[lang] + ' ' + cName + ' (' + cI.count + ') →</a>';
+    var lang = getLang();
+    var LABELS = { ko: '관련 도구', en: 'Related Tools', zh: '相关工具', ja: '関連ツール' };
+    var CAT_LABELS = { ko: '카테고리 전체 보기', en: 'Browse all', zh: '查看全部', ja: 'カテゴリをすべて見る' };
+
+    var catLinkHtml = '';
+    if (pageCat && CAT_INFO[pageCat]) {
+      var cI = CAT_INFO[pageCat];
+      var cName = cI[lang] || cI.en;
+      catLinkHtml = '<a href="category/' + pageCat + '.html" class="rt-cat-link">' +
+        cI.icon + ' ' + CAT_LABELS[lang] + ' ' + cName + ' (' + cI.count + ') →</a>';
+    }
+
+    var html = '<div class="rt-heading">' + LABELS[lang] + '</div>' +
+      '<div class="rt-grid">' +
+      relatedSlugs.map(function (s) {
+        var info = T[s];
+        var name = info[lang] || info.en;
+        return '<a href="' + s + '.html" class="rt-card"><span class="rt-icon">' + info.icon + '</span><span>' + name + '</span></a>';
+      }).join('') +
+      '</div>' + catLinkHtml;
+
+    var section = document.querySelector('.rt-section');
+    if (section) { section.innerHTML = html; return; }
+
+    section = document.createElement('div');
+    section.className = 'rt-section';
+    section.innerHTML = html;
+    var seoEl = document.querySelector('.seo');
+    var mainEl = document.querySelector('main');
+    if (seoEl) {
+      seoEl.parentNode.insertBefore(section, seoEl);
+    } else if (mainEl) {
+      mainEl.appendChild(section);
+    }
   }
 
-  // 섹션 생성
-  var section = document.createElement('div');
-  section.className = 'rt-section';
-  section.innerHTML =
-    '<div class="rt-heading">' + LABELS[lang] + '</div>' +
-    '<div class="rt-grid">' +
-    relatedSlugs.map(function (s) {
-      var info = T[s];
-      var name = info[lang] || info.en;
-      return '<a href="' + s + '.html" class="rt-card"><span class="rt-icon">' + info.icon + '</span><span>' + name + '</span></a>';
-    }).join('') +
-    '</div>' +
-    catLinkHtml;
-
-  // .seo 바로 앞에 삽입 (없으면 main 끝에)
-  var seoEl = document.querySelector('.seo');
-  var mainEl = document.querySelector('main');
-  if (seoEl) {
-    seoEl.parentNode.insertBefore(section, seoEl);
-  } else if (mainEl) {
-    mainEl.appendChild(section);
+  function renderAll() {
+    renderBreadcrumbSchema();
+    renderHeaderChip();
+    renderPrivacyLink();
+    renderRelatedSection();
   }
+
+  renderBreadcrumbSchema();
+  document.addEventListener('DOMContentLoaded', renderAll);
+
+  // 페이지 자체 언어 토글은 새로고침 없이 document.documentElement.lang만 바꾸므로,
+  // 그 변화를 감지해서 이 스크립트가 주입한 요소(칩·관련 도구·브레드크럼)도 같이 갱신한다.
+  new MutationObserver(renderAll)
+    .observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
 })();
