@@ -415,3 +415,13 @@ seo-title-generator(691→1878자, 버그 수정 — `lenClass()`/`lenLabel()`�
 pdf-metadata-remover(표본 점검 중 발견 — "작성일/수정일 체크박스 눌러도 실제로 안 지워짐"이라고 FAQ에 정직하게만 문서화해놓고 실제 버그는 안 고쳐진 상태였음, `getInfoDict().delete()`로 실제 삭제되도록 구현 + 검증 중 더 큰 문제 발견: `PDFDocument.load()`가 기본값 `updateMetadata:true`라서 파일을 열기만 해도 수정일이 즉시 "오늘"로 덮어써지는 부작용이 있어 체크 안 한 필드까지 조용히 오염되고 있었음, `{updateMetadata:false}`로 근본 수정 — pdf-lib로 직접 재현·검증 완료), webp-to-jpg(전체 파일 faq-item 개수 전수 스캔으로 발견 — zh/ja가 static/ko/en(11개)과 달리 8개뿐이라 마지막 3개 항목(품질별 용량차이·투명배경 흑백전환 원인·아이폰 호환성) 누락, 번역 추가로 11개 통일)
 
 **최종 전수 검수 결과**: 애드센스 ID 330개 파일 전부 새 ID로 통일 확인(구 ID 잔재 0), ads.txt 라이브 반영 확인, JSON-LD 파싱 오류 0건(schema-markup-generator 1건은 도구 자신의 JS 코드에 있는 리터럴 문자열이 스캔 정규식에 오탐된 것, 실제 오류 아님), faq-item 개수 이상 파일 10건 중 9건은 ko-only/구형 페이지의 정상 카운트(false positive)로 확인, 1건(webp-to-jpg)은 실제 콘텐츠 누락이라 수정함.
+
+## ⚠️ sitemap.xml 미등록 68개 파일 발견·수정 (2026-08-06)
+
+실제 파일 목록(`ls *.html`)과 sitemap.xml `<loc>` 목록을 `comm -23`으로 직접 대조한 결과, 실존하는 툴 페이지 68개가 sitemap.xml에 전혀 없었음(340개 → 408개로 증가). 대부분 `lastmod` 기준 2026-07-14(재심사 감사로 다수 파일이 동시에 손댄 날짜) — 즉 그 감사 때 만들어졌거나 이미 있었지만, CLAUDE.md의 "배치 완료 = 전부 등록됨 아니었음" 패턴이 sitemap에서도 재발한 것. bmi-calculator·compound-annual-growth-rate-calculator·url-slug-generator·xml-beautifier(배치29에서 "sitemap 등록 완료"라고 기록됐던 것들)도 실제로는 빠져 있었음 — **문서의 "완료" 기록을 그대로 믿지 말고 항상 실제 파일 대조로 검증**([[feedback_annual_data_check]]과 같은 원칙).
+
+제외 처리(정상): `naverfc*.html`(사이트 인증 파일), `privacy-policy.html`(privacy.html로 가는 meta-refresh 리다이렉트 스텁, 실콘텐츠 없음).
+
+`<!-- ===== 누락분 일괄 등록 (2026-08-06 발견) ===== -->` 섹션으로 68개 전부 추가 완료(`changefreq:monthly`, `priority:0.8`, `lastmod`은 각 파일 `git log -1 --format=%cs`로 개별 조회해 적용). XML 유효성(`xml.etree.ElementTree.parse`) 통과 확인.
+
+**다음 신규 배치 만들 때**: sitemap 등록 여부를 "기록"이 아니라 `comm -23 <(ls *.html) <(sitemap.xml 파싱)` 로 직접 재확인할 것.
