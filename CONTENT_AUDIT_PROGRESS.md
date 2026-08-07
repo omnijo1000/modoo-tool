@@ -425,3 +425,11 @@ pdf-metadata-remover(표본 점검 중 발견 — "작성일/수정일 체크박
 `<!-- ===== 누락분 일괄 등록 (2026-08-06 발견) ===== -->` 섹션으로 68개 전부 추가 완료(`changefreq:monthly`, `priority:0.8`, `lastmod`은 각 파일 `git log -1 --format=%cs`로 개별 조회해 적용). XML 유효성(`xml.etree.ElementTree.parse`) 통과 확인.
 
 **다음 신규 배치 만들 때**: sitemap 등록 여부를 "기록"이 아니라 `comm -23 <(ls *.html) <(sitemap.xml 파싱)` 로 직접 재확인할 것.
+
+## ⚠️ related.js 언어 토글 시 주입 요소 미갱신 버그 수정 (2026-08-06)
+
+related.js가 헤더 카테고리 칩·관련 도구 섹션·"카테고리 전체보기" 링크·BreadcrumbList JSON-LD를 `DOMContentLoaded` 시점 언어로 딱 한 번만 렌더링하고, 사이트 자체 언어 토글 버튼(새로고침 없이 `history.replaceState`+`document.documentElement.lang`만 변경)을 눌러도 갱신 안 되던 버그. 390개 전 파일이 related.js 하나를 공유하므로 이 파일 하나만 고쳐서 해결.
+
+수정: `document.documentElement`의 `lang` 속성 변화를 감지하는 `MutationObserver` 추가, 4개 렌더 함수(`renderBreadcrumbSchema`/`renderHeaderChip`/`renderPrivacyLink`/`renderRelatedSection`)로 리팩터링해서 재호출 가능하게 함. 로컬 서버 + 실사이트(pdf-compressor.html) 양쪽에서 ko→en→zh→ja 토글 시 정상 갱신 확인 완료. 커밋 `eb9cfe3`.
+
+**TODO (다음 세션)**: 같은 "DOMContentLoaded 시점 언어로 한 번만 렌더, 토글 시 미갱신" 패턴이 `theme-instrument.js`, `category-i18n.js` 등 다른 공용 JS 파일에도 있는지 아직 확인 안 함. 다음에 이 부류 버그 다시 물어보면 이 두 파일부터 같은 방식으로 점검할 것.

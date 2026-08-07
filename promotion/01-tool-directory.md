@@ -7,7 +7,11 @@ AlternativeTo 등록 폼에 들어가서, 아래 필드를 순서대로 복붙�
 ## pdf-compressor
 
 상태:
-- [x] **SaaSHub** — 2026-08-04 제출 완료, 승인 대기 중.
+- [x] **SaaSHub** — 2026-08-04 제출, 2026-08-07 승인 + verified 완료. 로고(M 마크)·확장 설명·Pricing(Free)·Platform(Web) 전부 반영. Verify 직후 $99/월 Featured Listing 업셀("1개월 무료" 미끼) 떴는데 결제 필요한 구독이라 스킵함 — 다음에도 이거 누르지 말 것.
+- [x] **Slant.co** — 2026-08-06 확인, 사이트 검색 기능 자체가 고장남("browser" 검색해도 0건). 방치된 사이트로 판단, 스킵.
+- [x] **SaaSWorthy** — 2026-08-06 확인, G2/Capterra류 기업 리드젠 모델. 무료 티어도 "Talk to Us" 영업 문의 방식, Vendor Portal은 메인 계정과 별도로 이메일+OTP 재가입 필요. 스킵.
+- [x] **Tool Finder (toolfinder.com)** — 2026-08-06 확인, 유료($39~). 스킵.
+- [x] **Turbo0.com** — 2026-08-06 폼까지 다 채웠으나 취소함. 무료 티어가 "Listed on Turbo0" 배지를 pdf-compressor.html에 직접 삽입해야 승인되는 구조(반대급부 백링크) — 317개 페이지 중 1개만 낯선 배지 붙는 게 부자연스럽고, 상호 백링크 요구는 구글이 링크 스킴으로 보는 패턴이라 SEO상 득보다 실 우려. **다음에 이 사이트 다시 시도하지 말 것.**
   - [x] Description 채움 (Manage → Details 탭, `/manage/pdf-compressor-by-modoohub/edit`. Pending approval 상태여도 제출자 계정이면 즉시 편집 가능, verify 안 눌러도 됨)
   - [x] 로고 업로드 — `promotion/assets/modoohub-logo-icon.png` (아래 "공용 브랜드 로고" 참고, Images 탭에서 업로드 완료)
   - [ ] Pricing 설정 — Pricing 탭에서 Free 설정
