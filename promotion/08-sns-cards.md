@@ -8,11 +8,11 @@ GPT/Gemini 제안서 검토 후 확정된 방식: **자동 발행 없음.** 매�
 
 | 주제 | 타입 | 원본 툴 | 카피 | 이미지 | Instagram | Threads | X |
 |---|---|---|---|---|---|---|---|
-| 종합소득세 환급 | A | income-tax.html | ✅ v2 확정 | ✅ slide1~5 | [ ] | [ ] | [ ] |
-| 연봉 실수령액 | B | salary.html | ✅ 확정 | [ ] 미생성 | [ ] | [ ] | [ ] |
-| 연차수당 | C | annual-leave.html | ✅ 확정 | [ ] 미생성 | [ ] | [ ] | [ ] |
-| 대출 상환방식 비교 | D | loan-calc.html | ✅ 확정 | [ ] 미생성 | [ ] | [ ] | [ ] |
-| BMI | E | bmi-calc.html | ✅ 확정 | [ ] 미생성 | [ ] | [ ] | [ ] |
+| 종합소득세 환급 | A | income-tax.html | ✅ v2 확정 | ✅ income-tax-01/slide1~5 | [ ] | [ ] | [ ] |
+| 연봉 실수령액 | B | salary.html | ✅ 확정 | ✅ salary-01/slide1~5 | [ ] | [ ] | [ ] |
+| 연차수당 | C | annual-leave.html | ✅ 확정 | ✅ annual-leave-01/slide1~5 | [ ] | [ ] | [ ] |
+| 대출 상환방식 비교 | D | loan-calc.html | ✅ 확정 | ✅ loan-calc-01/slide1~5 | [ ] | [ ] | [ ] |
+| BMI | E | bmi-calc.html | ✅ 확정 | ✅ bmi-calc-01/slide1~5 | [ ] | [ ] | [ ] |
 
 게시하면 해당 칸 `[x]`로 바꾸고 날짜/링크는 아래 각 포스트 섹션에 기록.
 
@@ -36,7 +36,7 @@ GPT/Gemini 제안서 검토 후 확정된 방식: **자동 발행 없음.** 매�
 | D. 좌우 비교/VS형 | 두 옵션 비교 | 네이비(파랑↔골드 분할) | loan-calc.html (원리금균등 vs 원금균등) |
 | E. 클린 라이트형 | 건강/날짜 등 피드 환기용 | 라이트 + 골드 포인트 | bmi-calc.html (BMI) |
 
-- 만드는 법: 해당 타입 HTML 열어서 5슬라이드 텍스트/숫자 교체 → 로컬 서버 띄우고 크롬 헤드리스 스크린샷(`--window-size=1080,1350`)으로 캡처 → 필요 시 Python/PIL로 후처리
+- **만드는 법(확정, 2026-08-07 검증됨)**: 해당 타입 HTML 열어서 5슬라이드 텍스트/숫자 교체 → 슬라이드마다 임시 HTML 사본 만들어서 (1) `<head>`에 `#exportNav{display:none}` + `#exportCard{position:absolute;top:0;left:0;transform:scale(2.5);transform-origin:top left}` 오버라이드 주입(432×540 프리뷰 카드를 1080×1350 풀캔버스로 확대, 네비 버튼 숨김), (2) `</body>` 직전에 `<script>current=N;render();</script>` 주입해서 실제 JS 상태(인디케이터·도트 포함)를 슬라이드 N으로 강제 전환 → 크롬 헤드리스로 `--window-size=1080,1350 --screenshot=slideN.png`(N=1~5) 캡처 → 임시 파일 삭제. typeA~E.html 전부 카드 div에 `id="exportCard"`, 네비 div에 `id="exportNav"`가 이미 붙어있어서 이 방식 바로 재사용 가능. (CSS만으로 슬라이드 강제 표시하면 `render()`가 안 돌아서 01/05 인디케이터가 항상 첫 슬라이드 값으로 고정되는 버그 있었음 — 반드시 JS로 `current` 값 실제로 바꿀 것.)
 - **숫자·팩트는 반드시 실제 계산기 코드/공식으로 검산하거나(node로 재현) 실제 법 조항으로 검증할 것** — 이 세션에서 typeC(연차수당 소멸시효 1년→3년 오류), typeD(원리금균등/원금균등 총이자 차액 산수 안 맞던 것) 둘 다 실제 오류로 잡혔음. loan-calc.html처럼 이미 자체 FAQ에 검증된 수치가 있으면 그거 재사용.
 
 ## 카피라이팅 원칙 (2026-08-07 확정, 매번 참고)
