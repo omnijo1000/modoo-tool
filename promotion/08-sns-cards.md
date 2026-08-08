@@ -1,6 +1,6 @@
 # SNS 카드뉴스 (AI 마케팅 비서 워크플로우)
 
-GPT/Gemini 제안서 검토 후 확정된 방식: **자동 발행 없음.** 매번 여기서 기획→카드 이미지→플랫폼별 원고까지 만들고, 실제 게시는 직접 함. 이미지는 `promotion/cards/{툴slug}-{순번}/slide1~5.png`에 저장 (1080×1350, 인스타 캐러셀용) — 예: `income-tax-01`. 순번은 같은 툴로 카드를 다시 만들 때(리라이트·다른 훅·다른 타입 등) 구분용, 새로 만들 때마다 -02, -03으로 증가.
+GPT/Gemini 제안서 검토 후 확정된 방식: **자동 발행 없음.** 매번 여기서 기획→카드 이미지→플랫폼별 원고까지 만들고, 실제 게시는 직접 함. 이미지는 `promotion/cards/{kr|global}/{툴slug}-{순번}/slide1~5.png`에 저장 (1080×1350, 인스타 캐러셀용) — 예: `kr/income-tax-01`. 순번은 같은 툴로 카드를 다시 만들 때(리라이트·다른 훅·다른 타입 등) 구분용, 새로 만들 때마다 -02, -03으로 증가.
 
 **플랫폼별 게시 방식**:
 - **Instagram**: 카드 이미지(캐러셀) 첨부. 캡션 내 링크 클릭 불가(2026 기준, Meta Verified 일부 극소수 예외)라 "프로필 링크에서 확인" 식 우회 문구 필수. **프로필 링크는 특정 툴 페이지가 아니라 modoohub.com 홈으로 고정** — 주제마다 매번 링크 바꾸면 예전 포스트 보는 사람이 엉뚱한 툴로 감. 캡션엔 "프로필 링크 접속 후 [툴이름] 검색"으로 표현(직접 연결되는 것처럼 쓰지 말 것). 링크트리 같은 외부 링크모음 서비스 안 씀 — 모두허브 자체 홈페이지에 검색/카테고리 이미 있어서 그거로 충분.
@@ -9,13 +9,20 @@ GPT/Gemini 제안서 검토 후 확정된 방식: **자동 발행 없음.** 매�
 
 ## 발행 현황 (새 카드 만들 때마다 여기 한 줄 추가)
 
-| 주제 | 타입 | 원본 툴 | 카피 | 이미지 | Instagram | Threads | X |
-|---|---|---|---|---|---|---|---|
-| 종합소득세 환급 | A | income-tax.html | ✅ v2 확정 | ✅ income-tax-01/slide1~5 | [ ] | [ ] | [ ] |
-| 연봉 실수령액 | B | salary.html | ✅ 확정 | ✅ salary-01/slide1~5 | [ ] | [ ] | [ ] |
-| 연차수당 | C | annual-leave.html | ✅ 확정 | ✅ annual-leave-01/slide1~5 | [ ] | [ ] | [ ] |
-| 대출 상환방식 비교 | D | loan-calc.html | ✅ 확정 | ✅ loan-calc-01/slide1~5 | [ ] | [ ] | [ ] |
-| BMI | E | bmi-calc.html | ✅ 확정 | ✅ bmi-calc-01/slide1~5 | [ ] | [ ] | [ ] |
+| 시장 | 주제 | 타입 | 원본 툴 | 카피 | 이미지 | Instagram | Threads | X |
+|---|---|---|---|---|---|---|---|---|
+| KR | 종합소득세 환급 | A | income-tax.html | ✅ v2 확정 | ✅ kr/income-tax-01/slide1~5 | [ ] | [ ] | [ ] |
+| KR | 연봉 실수령액 | B | salary.html | ✅ 확정 | ✅ kr/salary-01/slide1~5 | [ ] | [ ] | [ ] |
+| KR | 연차수당 | C | annual-leave.html | ✅ 확정 | ✅ kr/annual-leave-01/slide1~5 | [ ] | [ ] | [ ] |
+| KR | 대출 상환방식 비교 | D | loan-calc.html | ✅ 확정 | ✅ kr/loan-calc-01/slide1~5 | [ ] | [ ] | [ ] |
+| KR | BMI | E | bmi-calc.html | ✅ 확정 | ✅ kr/bmi-calc-01/slide1~5 | [ ] | [ ] | [ ] |
+| Global | Compound interest growth | A | compound-interest.html | ✅ 확정 | ✅ global/compound-interest-01/slide1~5 | [ ] | [ ] | [ ] |
+| Global | Loan payment breakdown | B | loan-calculator-en.html | ✅ 확정 | ✅ global/loan-calculator-en-01/slide1~5 | [ ] | [ ] | [ ] |
+| Global | Password strength (NIST 2025) | C | password-generator.html | ✅ 확정 | ✅ global/password-generator-01/slide1~5 | [ ] | [ ] | [ ] |
+| Global | Lump sum vs DCA | D | investment-return-calculator.html | ✅ 확정 | ✅ global/investment-return-calculator-01/slide1~5 | [ ] | [ ] | [ ] |
+| Global | BMI | E | bmi-calc.html | ✅ 확정 | ✅ global/bmi-calc-01/slide1~5 | [ ] | [ ] | [ ] |
+
+KR용 계정과 Global(영어)용 계정은 분리 운영 — KR 세트는 한국어 계정, Global 세트는 영어 계정에 게시.
 
 게시하면 해당 칸 `[x]`로 바꾸고 날짜/링크는 아래 각 포스트 섹션에 기록.
 
@@ -31,13 +38,15 @@ GPT/Gemini 제안서 검토 후 확정된 방식: **자동 발행 없음.** 매�
 - **인터랙션**: 하단 이전/다음 버튼 + `01/05` 인디케이터 + 도트(활성 20px pill/비활성 6px), 순수 JS로 슬라이드 전환(React 아님 — 이 사이트는 정적 HTML이라 프로덕션은 항상 plain HTML+JS로 변환해서 씀)
 
 ### 타입별 매핑 (용도별 고정, 새 주제 나오면 이 표에서 타입 선택)
-| Type | 용도 | 배경/포인트 | 지금까지 배정된 주제 |
-|---|---|---|---|
-| A. 다크 글래스 수치 강조형 | 큰 돈 수치가 핵심(환급금·세금 등) | 네이비 + 골드 | income-tax.html (종합소득세) |
-| B. 영수증/명세서 UI형 | 상세 내역(실수령액·공제 등) | 네이비 + 골드 | salary.html (연봉 실수령액) |
-| C. 딥 레드 경고형 | 실수·소멸·마감 임박 | 레드 틴트 + 골드 | annual-leave.html (연차) |
-| D. 좌우 비교/VS형 | 두 옵션 비교 | 네이비(파랑↔골드 분할) | loan-calc.html (원리금균등 vs 원금균등) |
-| E. 클린 라이트형 | 건강/날짜 등 피드 환기용 | 라이트 + 골드 포인트 | bmi-calc.html (BMI) |
+| Type | 용도 | 배경/포인트 | KR 주제 | Global 주제 |
+|---|---|---|---|---|
+| A. 다크 글래스 수치 강조형 | 큰 돈 수치가 핵심(환급금·세금 등) | 네이비 + 골드 | income-tax.html (종합소득세) | compound-interest.html |
+| B. 영수증/명세서 UI형 | 상세 내역(실수령액·공제 등) | 네이비 + 골드 | salary.html (연봉 실수령액) | loan-calculator-en.html |
+| C. 딥 레드 경고형 | 실수·소멸·마감 임박 | 레드 틴트 + 골드 | annual-leave.html (연차) | password-generator.html |
+| D. 좌우 비교/VS형 | 두 옵션 비교 | 네이비(파랑↔골드 분할) | loan-calc.html (원리금균등 vs 원금균등) | investment-return-calculator.html (Lump Sum vs DCA) |
+| E. 클린 라이트형 | 건강/날짜 등 피드 환기용 | 라이트 + 골드 포인트 | bmi-calc.html (BMI) | bmi-calc.html (BMI, 영문 콘텐츠) |
+
+Global 세트 템플릿 파일: `promotion/template/global-compound-interest.html` ~ `global-bmi.html` (typeA~E.html을 복사해 영문 콘텐츠로 교체한 것 — 구조는 100% 동일).
 
 - **만드는 법(확정, 2026-08-07 검증됨)**: 해당 타입 HTML 열어서 5슬라이드 텍스트/숫자 교체 → 슬라이드마다 임시 HTML 사본 만들어서 (1) `<head>`에 `#exportNav{display:none}` + `#exportCard{position:absolute;top:0;left:0;transform:scale(2.5);transform-origin:top left}` 오버라이드 주입(432×540 프리뷰 카드를 1080×1350 풀캔버스로 확대, 네비 버튼 숨김), (2) `</body>` 직전에 `<script>current=N;render();</script>` 주입해서 실제 JS 상태(인디케이터·도트 포함)를 슬라이드 N으로 강제 전환 → 크롬 헤드리스로 `--window-size=1080,1350 --screenshot=slideN.png`(N=1~5) 캡처 → 임시 파일 삭제. typeA~E.html 전부 카드 div에 `id="exportCard"`, 네비 div에 `id="exportNav"`가 이미 붙어있어서 이 방식 바로 재사용 가능. (CSS만으로 슬라이드 강제 표시하면 `render()`가 안 돌아서 01/05 인디케이터가 항상 첫 슬라이드 값으로 고정되는 버그 있었음 — 반드시 JS로 `current` 값 실제로 바꿀 것.)
 - **숫자·팩트는 반드시 실제 계산기 코드/공식으로 검산하거나(node로 재현) 실제 법 조항으로 검증할 것** — 이 세션에서 typeC(연차수당 소멸시효 1년→3년 오류), typeD(원리금균등/원금균등 총이자 차액 산수 안 맞던 것) 둘 다 실제 오류로 잡혔음. loan-calc.html처럼 이미 자체 FAQ에 검증된 수치가 있으면 그거 재사용.
@@ -70,7 +79,7 @@ GPT/Gemini 제안서 검토 후 확정된 방식: **자동 발행 없음.** 매�
 
 **소스**: `income-tax.html` 실제 입력 필드 기반(총소득/소득유형/부양가족수/국민연금·건강보험·신용카드·의료비 공제).
 
-**이미지**: `promotion/cards/income-tax-01/slide1~5.png`
+**이미지**: `promotion/cards/kr/income-tax-01/slide1~5.png`
 
 **플로우**: 훅(3.3% 뗀 적 있나요) → 셀프체크리스트 → 메커니즘 3단계 → 계산기 입력값 치트시트 → CTA
 
@@ -191,3 +200,206 @@ modoohub.com/income-tax.html
 ```
 
 **상태**: [ ] 카피만 확정, 이미지 재생성 안 함 — 승인되면 slide1~5.png 다시 뽑을 것
+
+---
+
+## 완료: Global 세트 5종 (2026-08-08)
+
+영어 계정(글로벌 유입)용 첫 배치. 전부 실제 계산기 공식으로 node 검산한 수치만 사용, 허위 통계 없음(출처 필요한 사실은 실제 표준/기관 인용 — NIST SP 800-63B Rev 4는 웹서치로 2025-07 확정 확인).
+
+### A. Compound Interest — `global-compound-interest.html`
+**이미지**: `promotion/cards/global/compound-interest-01/slide1~5.png`
+**검증**: $500/월·8%·월복리 가정, annuity-due 공식(compound-interest.html과 동일 공식)으로 25세/30세/35세/40세 시작 시 65세 시점 값 전부 node 재계산 — 25세 시작 $1,757,141, 35세 시작 $750,148, 10년 늦으면 $1,006,993(백만불 이상) 손실. Rule of 72(72÷8=9년마다 2배)도 확인.
+
+**Instagram**
+```
+Waiting 10 years to start investing can cost you over $1,000,000.
+
+At 8% average return, $500/month invested from 25 to 65 grows to $1.76M. Start at 35 instead, and it's just $750K — a $1M+ gap from a single decade of waiting.
+
+Compound interest rewards time more than it rewards timing.
+
+📌 Save this for the next time you think "I'll start next year."
+👉 Visit the link in bio and search 'Compound Interest Calculator' to run your own numbers.
+
+#modoohub #compoundinterest #investing #personalfinance #fire #ruleof72 #financetips
+```
+
+**Threads**
+```
+Waiting 10 years to start investing can cost you over $1,000,000.
+
+$500/month at 8% return: start at 25 → $1.76M by 65. Start at 35 → $750K. Same monthly amount, one decade later, and you lose over a million.
+
+Rule of 72: at 8%, your money doubles every ~9 years. Skip a decade, skip a doubling.
+
+modoohub.com/compound-interest.html
+```
+
+**X**
+```
+Waiting 10 years to invest costs you $1M+.
+
+$500/mo at 8%:
+→ Start at 25: $1.76M by 65
+→ Start at 35: $750K by 65
+
+Same contribution. One decade later. $1M gap.
+
+Run your own numbers:
+modoohub.com/compound-interest.html
+```
+
+### B. Loan Payment Breakdown — `global-loan-calculator.html`
+**이미지**: `promotion/cards/global/loan-calculator-en-01/slide1~5.png`
+**검증**: $250,000·6.5%·30년 월납입금 $1,580.17(loan-calculator-en.html 자체 FAQ 예시와 정확히 일치), 총이자 $318,861 node 재계산. $300,000·30년 기준 4%/5%/6% 총이자(각 $215,609/$279,767/$347,515)도 재계산 — 0.5%당 페이지 자체 FAQ 주장("$32,000+ 절감")과 일치 확인.
+
+**Instagram**
+```
+A $250,000 mortgage doesn't cost $250,000. At 6.5% over 30 years, you'll pay $318,861 in interest alone — more than the loan itself.
+
+Every 0.5% rate change shifts your lifetime interest by $30,000+. And paying just $100/month extra can cut 4-5 years off a 30-year loan.
+
+📌 Save this before you sign anything.
+👉 Visit the link in bio and search 'Loan Calculator' to see your real numbers.
+
+#modoohub #mortgage #loancalculator #personalfinance #homebuying #financetips
+```
+
+**Threads**
+```
+A $250,000 mortgage at 6.5% for 30 years actually costs $568,861 — $318,861 of that is interest alone, more than the loan amount.
+
+Every 0.5% rate change moves lifetime interest by $30K+. Even $100/month extra can cut 4-5 years off the loan.
+
+modoohub.com/loan-calculator-en.html
+```
+
+**X**
+```
+$250,000 mortgage @ 6.5% / 30yr:
+
+Monthly: $1,580
+Interest alone: $318,861 (more than the loan)
+
+Rate matters. 4% vs 6% = $130K+ difference in total interest.
+
+Calculate yours:
+modoohub.com/loan-calculator-en.html
+```
+
+### C. Password Strength (NIST 2025) — `global-password-generator.html`
+**이미지**: `promotion/cards/global/password-generator-01/slide1~5.png`
+**검증**: NIST SP 800-63B Rev 4(2025-07 확정) 웹서치로 확인 — 길이 우선, 특수문자·강제변경 요건 폐지, 64자 이상 지원 요구. 엔트로피 표(8자 소문자 38비트/8자 혼합 52비트/12자 혼합 78비트/16자 혼합 103비트)는 password-generator.html이 실제로 쓰는 88자 문자셋 기준으로 node 재계산 — 16자 103비트는 이 세션에 이미 검증된 수치 재사용.
+
+**Instagram**
+```
+NIST just reversed decades of password advice. Their 2025 guidelines: length beats complexity. Special characters and forced password changes are no longer required — they just create predictable patterns.
+
+The real math: an 8-character lowercase password has 38 bits of entropy. A 16-character mixed password has 103 bits. Every +1 bit doubles the guesses needed to crack it.
+
+📌 Save this before your next password reset.
+👉 Visit the link in bio and search 'Password Generator' to make a strong one in 1 second.
+
+#modoohub #cybersecurity #passwordsecurity #nist #infosec #techtips
+```
+
+**Threads**
+```
+NIST rewrote the password rules in 2025: length beats complexity. Special characters and forced periodic changes are no longer required — turns out they just made passwords more predictable, not safer.
+
+The math: 8 chars lowercase = 38 bits of entropy. 16 chars mixed = 103 bits. Every bit doubles the guessing work.
+
+modoohub.com/password-generator.html
+```
+
+**X**
+```
+NIST 2025 update: length > complexity.
+
+Entropy by password:
+8 chars, lowercase: 38 bits
+8 chars, mixed: 52 bits
+16 chars, mixed: 103 bits
+
+Generate a strong one in 1 sec:
+modoohub.com/password-generator.html
+```
+
+### D. Lump Sum vs. DCA — `global-investment-comparison.html`
+**이미지**: `promotion/cards/global/investment-return-calculator-01/slide1~5.png`
+**검증**: investment-return-calculator.html과 동일한 annuity 공식으로 $60,000·8%·10년 기준 lump sum $133,178 vs DCA($500/월×10년, 원금 동일) $92,083, 차액 $41,096 node 재계산. 상수 수익률 가정이라는 전제를 슬라이드에 명시(실제 시장 변동성 언급 없이 과장 안 함).
+
+**Instagram**
+```
+Same $60,000. Two ways to invest it. A $41,096 difference.
+
+Assuming the same 8% average return over 10 years, investing $60,000 all at once grows to $133,178 — investing the same total gradually ($500/month) only reaches $92,083. More time in the market usually wins.
+
+But if you're nervous about bad timing, dollar-cost averaging still reduces regret risk, even if the average outcome is lower.
+
+📌 Save this before your next investment decision.
+👉 Visit the link in bio and search 'Investment Return Calculator' to compare your own numbers.
+
+#modoohub #investing #dollarcostaveraging #personalfinance #financetips #wealthbuilding
+```
+
+**Threads**
+```
+Same $60,000, two strategies, $41,096 difference.
+
+Lump sum (invest it all today) at 8% over 10 years: $133,178.
+DCA ($500/month for 10 years, same total) at 8%: $92,083.
+
+Time in the market usually beats timing the market — but DCA still wins on reducing regret risk if you're worried about bad timing.
+
+modoohub.com/investment-return-calculator.html
+```
+
+**X**
+```
+$60,000. Same 8% return. 10 years.
+
+Lump sum: $133,178
+DCA ($500/mo): $92,083
+
+$41,096 gap — from timing alone.
+
+Compare your numbers:
+modoohub.com/investment-return-calculator.html
+```
+
+### E. BMI — `global-bmi.html`
+**이미지**: `promotion/cards/global/bmi-calc-01/slide1~5.png`
+**검증**: 170cm/65kg 예시 → 22.5(65/1.7²=22.49 반올림). bmi-calc.html 자체 FAQ가 WHO 글로벌 기준(18.5/25/30)과 계산기가 실제로 쓰는 Asia-Pacific 기준(18.5/23/25)을 이미 정직하게 구분해서 설명하고 있어, 카드에도 동일하게 "이 계산기는 Asia-Pacific 기준을 씀"이라고 명시(서양 사용자가 자기 기준과 다르게 나와도 당황하지 않게).
+
+**Instagram**
+```
+What's your BMI? Enter height and weight for an instant result — takes 3 seconds.
+
+Heads up: this calculator uses the Asia-Pacific standard (normal range 18.5–23), which is stricter than the global WHO range (18.5–25). If you're used to Western BMI charts, your result may look different than expected — and that's by design, not a bug.
+
+👉 Visit the link in bio and search 'BMI Calculator' to check yours.
+
+#modoohub #bmi #healthcheck #fitness #wellness #healthtips
+```
+
+**Threads**
+```
+Quick BMI check — 3 seconds, just height and weight.
+
+Note: this uses the Asia-Pacific BMI standard (normal = 18.5–23), stricter than the global WHO range (18.5–25). Research shows Asian populations face higher metabolic risk at lower BMI, hence the tighter cutoff.
+
+modoohub.com/bmi-calc.html
+```
+
+**X**
+```
+Quick BMI check in 3 seconds.
+
+Uses the Asia-Pacific standard (18.5–23 normal) — stricter than global WHO (18.5–25).
+
+modoohub.com/bmi-calc.html
+```
+
+**상태**: [ ] 5종 전부 카피·이미지 확정, 아직 게시 안 함 — 영어 계정 세팅 후 게시할 것
