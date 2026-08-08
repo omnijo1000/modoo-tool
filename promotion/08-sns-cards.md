@@ -413,13 +413,13 @@ modoohub.com/bmi-calc.html
 
 ### A. Compound Interest — `global-compound-interest.html`
 **이미지**: `promotion/cards/global/compound-interest-01/slide1~5.png`
-**검증**: $500/월·8%·월복리 가정, annuity-due 공식(compound-interest.html과 동일 공식)으로 25세/30세/35세/40세 시작 시 65세 시점 값 전부 node 재계산 — 25세 시작 $1,757,141, 35세 시작 $750,148, 10년 늦으면 $1,006,993(백만불 이상) 손실. Rule of 72(72÷8=9년마다 2배)도 확인.
+**검증**: \$500/월·8%·월복리 가정, annuity-due 공식(compound-interest.html과 동일 공식)으로 25세/30세/35세/40세 시작 시 65세 시점 값 전부 node 재계산 — 25세 시작 \$1,757,141, 35세 시작 \$750,148, 10년 늦으면 \$1,006,993(백만불 이상) 손실. Rule of 72(72÷8=9년마다 2배)도 확인.
 
 **Alt Text**:
-1. Text card: Waiting 10 years to invest costs you over $1,000,000. $500 a month at 8% return, starting at 25 versus starting at 35.
-2. Checklist: three signs you keep delaying investing — no account open yet, thinking $500 a month is too small, waiting for the right time.
+1. Text card: Waiting 10 years to invest costs you over \$1,000,000. \$500 a month at 8% return, starting at 25 versus starting at 35.
+2. Checklist: three signs you keep delaying investing — no account open yet, thinking \$500 a month is too small, waiting for the right time.
 3. Text card: Compound interest pays interest on your interest. At 8% annual return your money roughly doubles every 9 years.
-4. Table: $500 a month at 8% return by starting age — age 25 reaches $1.76 million by 65, age 30 reaches $1.15 million, age 35 reaches $750,000, age 40 reaches $479,000.
+4. Table: \$500 a month at 8% return by starting age — age 25 reaches \$1.76 million by 65, age 30 reaches \$1.15 million, age 35 reaches \$750,000, age 40 reaches \$479,000.
 5. Call to action: Run your own numbers in 10 seconds. Free, no signup. Button reads Calculate Your Growth.
 
 **Instagram**
@@ -463,13 +463,13 @@ modoohub.com/compound-interest.html
 
 ### B. Loan Payment Breakdown — `global-loan-calculator.html`
 **이미지**: `promotion/cards/global/loan-calculator-en-01/slide1~5.png`
-**검증**: $250,000·6.5%·30년 월납입금 $1,580.17(loan-calculator-en.html 자체 FAQ 예시와 정확히 일치), 총이자 $318,861 node 재계산. $300,000·30년 기준 4%/5%/6% 총이자(각 $215,609/$279,767/$347,515)도 재계산 — 0.5%당 페이지 자체 FAQ 주장("$32,000+ 절감")과 일치 확인.
+**검증**: \$250,000·6.5%·30년 월납입금 \$1,580.17(loan-calculator-en.html 자체 FAQ 예시와 정확히 일치), 총이자 \$318,861 node 재계산. \$300,000·30년 기준 4%/5%/6% 총이자(각 \$215,609/\$279,767/\$347,515)도 재계산 — 0.5%당 페이지 자체 FAQ 주장("\$32,000+ 절감")과 일치 확인.
 
 **Alt Text**:
-1. Text card: Your mortgage costs more. $318,861 — that's the interest alone on a $250,000 mortgage at 6.5% over 30 years.
-2. Payment breakdown: $250,000 mortgage at 6.5%, 30 years — monthly payment $1,580, month 1 interest $1,354, month 1 principal $226, total interest over 30 years $318,861.
-3. Table: total interest by rate on a $300,000 30-year loan — 4.0% is $215,609, 5.0% is $279,767, 6.0% is $347,515.
-4. Checklist: before you sign, check 3 things — compare APR not just the rate, ask about prepayment penalties, even $100 a month extra helps.
+1. Text card: Your mortgage costs more. \$318,861 — that's the interest alone on a \$250,000 mortgage at 6.5% over 30 years.
+2. Payment breakdown: \$250,000 mortgage at 6.5%, 30 years — monthly payment \$1,580, month 1 interest \$1,354, month 1 principal \$226, total interest over 30 years \$318,861.
+3. Table: total interest by rate on a \$300,000 30-year loan — 4.0% is \$215,609, 5.0% is \$279,767, 6.0% is \$347,515.
+4. Checklist: before you sign, check 3 things — compare APR not just the rate, ask about prepayment penalties, even \$100 a month extra helps.
 5. Call to action: See your real payment in 10 seconds. Free, no signup. Button reads Calculate My Payment.
 
 **Instagram**
@@ -553,12 +553,12 @@ modoohub.com/password-generator.html
 
 ### D. Lump Sum vs. DCA — `global-investment-comparison.html`
 **이미지**: `promotion/cards/global/investment-return-calculator-01/slide1~5.png`
-**검증**: investment-return-calculator.html과 동일한 annuity 공식으로 $60,000·8%·10년 기준 lump sum $133,178 vs DCA($500/월×10년, 원금 동일) $92,083, 차액 $41,096 node 재계산. 상수 수익률 가정이라는 전제를 슬라이드에 명시(실제 시장 변동성 언급 없이 과장 안 함).
+**검증**: investment-return-calculator.html과 동일한 annuity 공식으로 \$60,000·8%·10년 기준 lump sum \$133,178 vs DCA(\$500/월×10년, 원금 동일) \$92,083, 차액 \$41,096 node 재계산. 상수 수익률 가정이라는 전제를 슬라이드에 명시(실제 시장 변동성 언급 없이 과장 안 함).
 
 **Alt Text**:
-1. Comparison card: Lump Sum vs DCA. Same $60,000, $41,096 difference — same 8% return, same 10 years, timing changes everything.
-2. Side-by-side: A. Lump Sum — all at once, more time in the market. B. DCA — $500 a month, smooths volatility, less regret risk.
-3. Text card: $60,000 at 8% over 10 years — investing it all at once beats spreading it out. Lump sum result $133,178, DCA result $92,083.
+1. Comparison card: Lump Sum vs DCA. Same \$60,000, \$41,096 difference — same 8% return, same 10 years, timing changes everything.
+2. Side-by-side: A. Lump Sum — all at once, more time in the market. B. DCA — \$500 a month, smooths volatility, less regret risk.
+3. Text card: \$60,000 at 8% over 10 years — investing it all at once beats spreading it out. Lump sum result \$133,178, DCA result \$92,083.
 4. Checklist: got a windfall, lump sum usually wins if markets trend up. Nervous about bad timing, DCA reduces regret risk even if average outcome is lower.
 5. Call to action: Compare your own numbers in 10 seconds. Free, no signup. Button reads Run the Comparison.
 
