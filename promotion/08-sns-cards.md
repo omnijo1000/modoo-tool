@@ -112,7 +112,7 @@ modoohub.com/capital-gains-tax.html
 2. 체크리스트: 나도 해당된다, 자가진단 체크리스트 — 1년 안에 팔 계획, 조정대상지역 다주택자, 1세대1주택 비과세 요건 모름.
 3. 경고 카드: 다주택자는 세금이 더블로. 조정대상지역 2주택 +20%p, 3주택 이상 +30%p 중과세율이 2026년 5월 10일부터 재적용.
 4. 표: 과세표준 구간별 양도세율 — 1,400만원 이하 6%, ~8,800만원 24%, 5억~10억원 42%, 10억원 초과 45%.
-5. 행동 유도 카드: 내 양도소득세, 1초 만에 계산하기. 가입 불필요, 30초 소요.
+5. 행동 유도 카드: 내 양도소득세, 1초 만에 계산하기. 가입 불필요, 30초 소요. 버튼: 내 양도세 1초 확인하기.
 
 **상태**: [ ] 게시 대기.
 
@@ -149,7 +149,7 @@ modoohub.com/four-insurance.html
 2. 명세서 카드: 월급 300만원 4대보험 명세서 — 국민연금 142,500원, 건강보험 107,850원, 장기요양보험 14,171원, 고용보험 27,000원, 합계 291,522원.
 3. 표: 2026년 보험료율 변화 — 국민연금 4.75%, 건강보험 3.595%, 장기요양보험 건보료의 13.14%, 고용보험 0.9%.
 4. 체크리스트: 사업주는 더 많이 부담합니다 — 산재보험(업종별 평균 1.47%), 고용안정·직업능력개발사업분(0.25~0.65%p), 월 300만원 기준 사업주 추가 부담 34만~36만원.
-5. 행동 유도 카드: 내 4대보험료, 1초 만에 계산하기. 가입 불필요, 30초 소요.
+5. 행동 유도 카드: 내 4대보험료, 1초 만에 계산하기. 가입 불필요, 30초 소요. 버튼: 내 4대보험료 1초 확인하기.
 
 **상태**: [ ] 게시 대기.
 
@@ -186,7 +186,7 @@ modoohub.com/parental-leave.html
 2. 경고 카드: 이런 경우엔 급여가 끊깁니다. 휴직 중 주 15시간 이상 취업 확인되면 해당 기간 급여 전액 반환.
 3. 체크리스트: 받기 전에 꼭 확인할 3가지 — 고용보험 가입 180일 미만, 자녀 나이 초과, 6+6 특례 신청 시기 놓침.
 4. 표: 구간별 지급률(2025년 개편) — 1~3개월 100%·250만원, 4~6개월 100%·200만원, 7~12개월 80%·160만원, 하한액 70만원.
-5. 행동 유도 카드: 내 육아휴직급여, 1초 만에 계산하기. 가입 불필요, 30초 소요.
+5. 행동 유도 카드: 내 육아휴직급여, 1초 만에 계산하기. 가입 불필요, 30초 소요. 버튼: 내 육아휴직급여 1초 확인하기.
 
 **상태**: [ ] 게시 대기.
 
@@ -223,7 +223,7 @@ modoohub.com/national-pension-calculator.html
 2. 좌우 비교: A. 직장가입자 — 4.75% 본인 부담, 회사가 나머지 분담. B. 지역가입자 — 9.5% 전액 본인, 사업주가 없어 혼자 다 부담.
 3. 텍스트 카드: 월 소득 300만원 기준 142,500원 — 가입 유형만 바꿔도 월 부담액이 이만큼 차이납니다. 직장가입자 142,500원, 지역가입자 285,000원.
 4. 체크리스트: 2026년 기준 소득 상·하한 — 기준소득월액 상한 659만원, 하한 41만원.
-5. 행동 유도 카드: 내 국민연금 보험료, 1초 만에 비교하기. 가입 불필요, 30초 소요.
+5. 행동 유도 카드: 내 국민연금 보험료, 1초 만에 비교하기. 가입 불필요, 30초 소요. 버튼: 내 국민연금 1초 비교하기.
 
 **상태**: [ ] 게시 대기.
 
@@ -259,7 +259,7 @@ modoohub.com/calorie-calculator.html
 2. 결과 시뮬레이션: 기초대사량(BMR) 1,649kcal, TDEE(총 소비량) 2,556kcal. 30세 남성·175cm·70kg·보통 활동 기준 예시.
 3. 표: 활동 수준별 계수표 — 좌식 생활 1.2, 가벼운 활동 1.375, 보통 활동 1.55, 활발한 활동 1.725.
 4. 가이드: 목표별 섭취 칼로리 가이드 — 체중 감량 TDEE-500kcal, 체중 유지 TDEE 그대로, 체중 증량 TDEE+500kcal.
-5. 행동 유도 카드: 내 하루 필요 칼로리, 3초 만에 계산하기. 가입 불필요, 3초 소요.
+5. 행동 유도 카드: 내 하루 필요 칼로리, 3초 만에 계산하기. 가입 불필요, 3초 소요. 버튼: 내 칼로리 3초 확인하기.
 
 **상태**: [ ] 게시 대기.
 
@@ -308,7 +308,7 @@ Calculate your real purchasing power free: modoohub.com/inflation-calculator.htm
 2. Checklist: Habits that quietly drain your savings — cash in a 0% checking account, assuming saving protects value on its own, ignoring real inflation-adjusted return.
 3. Warning card: Inflation isn't always a slow 2–3%. US inflation hit 9% in 2022, Argentina 211% in 2023, Turkey 80% in 2022.
 4. Table: Average CPI by country — Japan 2.0%, EU 2.3%, UK 2.8%, US 3.0%, India 5.5%.
-5. CTA card: See your real purchasing power in 10 seconds. Calculate Inflation Impact.
+5. CTA card: See your real purchasing power in 10 seconds. Button: See My Real Value Now.
 
 **상태**: [ ] 게시 대기.
 
@@ -353,7 +353,7 @@ Add or remove VAT for 20+ countries free: modoohub.com/vat-calculator-global.htm
 2. Statement card: €500 goods, 19% German VAT — net price €500.00, VAT (19%) +€95.00, gross price €595.00.
 3. Table: Standard VAT/GST rate by region — Canada (federal GST) 5%, Australia (GST) 10%, UK (standard) 20%, Hungary (EU max) 27%.
 4. Checklist: Mistakes that cost cross-border sellers — quoting VAT-inclusive as VAT-exclusive, not reclaiming input VAT, missing tourist refund minimums.
-5. CTA card: Add or remove VAT in 10 seconds. Calculate VAT.
+5. CTA card: Add or remove VAT in 10 seconds. Button: Get My VAT Instantly.
 
 **상태**: [ ] 게시 대기.
 
@@ -396,7 +396,7 @@ See your own numbers free: modoohub.com/loan-payoff-calculator.html
 2. Warning card: Minimum payments maximize your interest. $300,000 loan at 6.5% over 30 years = $382,633 in interest.
 3. Text card: $300,000 · 6.5% · 30-year loan. $103,449 saved. Payoff time saved 6.9 years, new payoff term 23.1 years.
 4. Checklist: Why extra payments work so well — extra payments hit principal directly, lower balance means lower interest every month after, monthly beats an annual lump sum.
-5. CTA card: See your own savings in 10 seconds. Calculate My Payoff.
+5. CTA card: See your own savings in 10 seconds. Button: See My Savings Now.
 
 **상태**: [ ] 게시 대기.
 
@@ -439,7 +439,7 @@ Convert any time zone free, DST handled automatically: modoohub.com/timezone-con
 2. VS comparison: A. Seoul (KST) — UTC+9 fixed, no daylight saving. B. New York (EDT) — UTC-4, shifts to EST in winter.
 3. Text card: Seoul 9:00 AM meeting = 8:00 PM (previous day) in New York.
 4. Checklist: Tips for scheduling global meetings — agree on a time in UTC first, double-check DST transition weeks, watch for non-standard offsets (India UTC+5:30, Nepal UTC+5:45).
-5. CTA card: Convert any time zone in seconds. Convert Time Zones.
+5. CTA card: Convert any time zone in seconds. Button: Convert My Time Now.
 
 **상태**: [ ] 게시 대기.
 
@@ -482,6 +482,6 @@ Find your ideal bedtime free: modoohub.com/sleep-calculator.html
 2. Result simulation: Waking up at 7:00 AM — here's when to sleep. 9:45 PM (6 cycles, 9h15m), 11:15 PM (5 cycles, 7h45m), 12:45 AM (4 cycles, 6h15m).
 3. Table: Recommended sleep by age group — school age (6–12) 9–12 hrs, teens 8–10 hrs, adults (18–64) 7–9 hrs.
 4. Guide: Small habits, better sleep — blue light suppresses melatonin and delays sleep onset, power naps 10–20 min is the sweet spot, weekend catch-up only partially repays sleep debt.
-5. CTA card: Find your ideal bedtime in 3 seconds. Calculate My Sleep.
+5. CTA card: Find your ideal bedtime in 3 seconds. Button: Find My Bedtime Now.
 
 **상태**: [ ] 게시 대기.
