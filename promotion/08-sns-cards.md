@@ -315,6 +315,8 @@ Calculate your real purchasing power free: modoohub.com/inflation-calculator.htm
 ### 07. VAT Calculator — `global-vat-calculator.html` (Type B)
 **소스**: `vat-calculator-global.html`. Hungary 27%(EU 최고)/Luxembourg 17%(EU 최저), UK 20%, Australia GST 10%, Canada federal GST 5%, EU 최저 표준세율 15%, €500·19% 독일 VAT 예시(€595.00) 전부 사이트 FAQ/seoHtml 원문.
 
+**⚠️ 제미나이 크로스체크로 발견한 사이트 원본 오류(2026-08-11)**: `vat-calculator-global.html` 자체 FAQ(ko/en/zh/ja 4개 언어 전부)에 관광객 면세 환급 최소구매액 예시로 "UK £30/store/day"가 들어있는데, 영국은 브렉시트 이후 2021-01-01부로 관광객 대상 VAT Retail Export Scheme(면세 쇼핑 제도)을 폐지했고 2026년 현재도 재도입 안 됨(웹서치로 확인, 출처: [vatcalc.dev](https://vatcalc.dev/uk-tourist-vat-refund/), [visitlondon.com](https://www.visitlondon.com/traveller-information/essential-information/money/tax-free)) — **`vat-calculator-global.html` 원본 페이지 FAQ 자체를 별도로 수정 필요**(이번 세션 범위 밖, SNS 카드만 수정함). 카드뉴스 쪽은 UK 예시를 Italy €70.01/store/day(2024년 인하 후 2026년까지 유지 확인)로 교체 완료.
+
 **이미지**: `promotion/cards/global/vat-calculator-global-01/slide1~5.png`
 
 **Instagram**
@@ -399,13 +401,13 @@ See your own numbers free: modoohub.com/loan-payoff-calculator.html
 **상태**: [ ] 게시 대기.
 
 ### 09. Timezone Converter — `global-timezone-converter.html` (Type D)
-**소스**: `timezone-converter.html`. Seoul(KST, UTC+9 연중 고정) vs New York(EDT, UTC-4, 서머타임 시 EST UTC-5) 13시간 차이, India UTC+5:30·Nepal UTC+5:45 비표준 오프셋 전부 사이트 FAQ 원문. 9:00 AM Seoul → 8:00 PM 전날 New York 변환은 UTC+9 대비 UTC-4가 13시간 차이라는 사이트 명시값으로 직접 계산.
+**소스**: `timezone-converter.html`. Seoul(KST, UTC+9 연중 고정) vs New York(EDT, UTC-4, 서머타임 시 EST UTC-5) 시차, India UTC+5:30·Nepal UTC+5:45 비표준 오프셋 전부 사이트 FAQ 원문. 9:00 AM Seoul → 8:00 PM 전날 New York 변환은 UTC+9 대비 UTC-4(서머타임 기준)가 13시간 차이라는 사이트 명시값으로 직접 계산. **제미나이 크로스체크로 발견·수정(2026-08-11)**: NY가 서머타임 미적용 시(EST, UTC-5)엔 14시간 차이로 벌어지므로, 슬라이드1 헤드라인/캡션의 "13 hours apart" 고정 표기를 "13–14 hours apart"로 정정.
 
 **이미지**: `promotion/cards/global/timezone-converter-01/slide1~5.png`
 
 **Instagram**
 ```
-One call, two clocks 13 hours apart — Seoul vs New York.
+One call, two clocks 13–14 hours apart — Seoul vs New York.
 
 Seoul (KST) stays fixed at UTC+9 all year, no daylight saving. New York (EDT) shifts to UTC-4 in summer, EST (UTC-5) in winter. A 9:00 AM Seoul meeting is 8:00 PM the previous day in New York.
 
@@ -418,7 +420,7 @@ Tips: agree on a time in UTC first, double-check DST transition weeks, and watch
 
 **Threads**
 ```
-One call, two clocks 13 hours apart. Seoul (KST, UTC+9 fixed) vs New York (EDT, UTC-4, shifts with DST).
+One call, two clocks 13–14 hours apart. Seoul (KST, UTC+9 fixed) vs New York (EDT, UTC-4, shifts with DST).
 
 9:00 AM Seoul = 8:00 PM the previous day in New York. Tip: agree in UTC first, then convert to local time. Watch DST transition weeks and non-standard offsets (India UTC+5:30).
 
@@ -427,13 +429,13 @@ modoohub.com/timezone-converter.html
 
 **X (텍스트 전용, 이미지 미첨부)**
 ```
-Seoul and New York run 13 hours apart. A 9:00 AM Seoul meeting is 8:00 PM the previous day in NY. Someone's always working off-hours.
+Seoul and New York run 13–14 hours apart. A 9:00 AM Seoul meeting is 8:00 PM the previous day in NY. Someone's always working off-hours.
 
 Convert any time zone free, DST handled automatically: modoohub.com/timezone-converter.html
 ```
 
 **대체 텍스트(Alt Text)**:
-1. Text card: Seoul vs New York. One call, two clocks 13 hours apart.
+1. Text card: Seoul vs New York. One call, two clocks 13–14 hours apart.
 2. VS comparison: A. Seoul (KST) — UTC+9 fixed, no daylight saving. B. New York (EDT) — UTC-4, shifts to EST in winter.
 3. Text card: Seoul 9:00 AM meeting = 8:00 PM (previous day) in New York.
 4. Checklist: Tips for scheduling global meetings — agree on a time in UTC first, double-check DST transition weeks, watch for non-standard offsets (India UTC+5:30, Nepal UTC+5:45).
