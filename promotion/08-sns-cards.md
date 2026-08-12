@@ -48,7 +48,38 @@ KR용 계정과 Global(영어)용 계정은 분리 운영 — KR 세트는 한�
 
 Global 세트 템플릿 파일: `promotion/template/global-compound-interest.html` ~ `global-bmi.html` (typeA~E.html을 복사해 영문 콘텐츠로 교체한 것 — 구조는 100% 동일).
 
-- **만드는 법(확정, 2026-08-07 검증됨)**: 해당 타입 HTML 열어서 5슬라이드 텍스트/숫자 교체 → 슬라이드마다 임시 HTML 사본 만들어서 (1) `<head>`에 `#exportNav{display:none}` + `#exportCard{position:absolute;top:0;left:0;transform:scale(2.5);transform-origin:top left}` 오버라이드 주입(432×540 프리뷰 카드를 1080×1350 풀캔버스로 확대, 네비 버튼 숨김), (2) `</body>` 직전에 `<script>current=N;render();</script>` 주입해서 실제 JS 상태(인디케이터·도트 포함)를 슬라이드 N으로 강제 전환 → 크롬 헤드리스로 `--window-size=1080,1350 --screenshot=slideN.png`(N=1~5) 캡처 → 임시 파일 삭제. typeA~E.html 전부 카드 div에 `id="exportCard"`, 네비 div에 `id="exportNav"`가 이미 붙어있어서 이 방식 바로 재사용 가능. (CSS만으로 슬라이드 강제 표시하면 `render()`가 안 돌아서 01/05 인디케이터가 항상 첫 슬라이드 값으로 고정되는 버그 있었음 — 반드시 JS로 `current` 값 실제로 바꿀 것.)
+- **만드는 법(2026-08-12 재검증 확정 — 이전(2026-08-07) 버전은 카드가 우측/하단으로 밀려서 잘리는 실제 버그가 있었음, 절대 아래 옛 방식 쓰지 말 것)**:
+  1. 해당 타입 HTML 열어서 5슬라이드 텍스트/숫자 교체.
+  2. 슬라이드마다 임시 HTML 사본을 만들어 아래 두 가지를 주입:
+     - `</head>` 직전에 다음 CSS(그대로 복붙, 절대 손대지 말 것 — 아래 "왜" 참고):
+       ```html
+       <style>
+       #exportNav{display:none !important;}
+       body{margin:0 !important; overflow:hidden !important; zoom:2.5 !important;}
+       body>div{padding:0 !important; margin:0 !important; width:432px !important; height:540px !important; min-height:0 !important; display:block !important;}
+       body>div>div{display:block !important; width:432px !important; height:540px !important;}
+       #exportCard{position:static !important; margin:0 !important;}
+       </style>
+       ```
+     - `</body>` 직전에 `<script>current=N;render();</script>` 주입 (N=0~4, 0-indexed) — 실제 JS 상태(인디케이터·도트 포함)를 슬라이드로 강제 전환. CSS만으로 슬라이드 강제 표시하면 `render()`가 안 돌아서 01/05 인디케이터가 항상 첫 슬라이드로 고정되는 버그 있음.
+  3. 크롬 헤드리스로 캡처: **`--window-size=1080,1350 --force-device-scale-factor=1 --screenshot=slideN.png`(N=1~5, 1-indexed 파일명)** — **`--force-device-scale-factor=2.5`나 그 외 값을 쓰면 안 됨(아래 "왜" 참고)**.
+  4. 임시 파일 삭제.
+  5. **반드시 아래 "필수 검증" 통과 후에만 완료 처리.**
+
+  **왜 이 방식이어야 하는지(2026-08-12 삽질 기록)**: 원래 방식은 `window-size=432,540 + force-device-scale-factor=2.5`로 432×540 프리뷰를 2.5배 키워 1080×1350을 뽑는 거였는데, 이 환경(headless Chrome)에서 `align-items:center; justify-content:center` flexbox 중앙정렬이 안정적으로 안 맞아서 카드가 오른쪽/아래로 밀려 렌더링됨(원본 미수정 typeA.html로 테스트해도 재현되는 파이프라인 자체 버그, 콘텐츠 문제 아니었음). 게다가 DSF=2.5 자체가 폰트 줄바꿈 계산까지 미묘하게 틀어져서 원래 2줄로 wrap돼야 할 문단이 1줄로 나가다 카드 밖으로 잘리는 사고도 있었음(global-loan-payoff-calculator.html slide1 실사고 사례). `zoom:2.5`+`DSF=1`+`window-size=1080,1350`(카드를 처음부터 최종 해상도로 직접 렌더링, 배율 트릭 없음) 조합으로 두 문제 다 해결됨 — **이 조합에서 벗어나지 말 것.**
+
+  **필수 검증 (스킵 금지, 매번)**: 슬라이드 만들 때마다 아래 파이썬 스니펫으로 카드가 캔버스 (0,0)에 정확히 붙어있는지 자동 확인 — 한 장이라도 `left`/`top`이 0(또는 1~2px 오차)이 아니면 카드가 밀린 것.
+  ```python
+  from PIL import Image
+  im = Image.open("slideN.png").convert("RGB")
+  w,h = im.size
+  bg = im.getpixel((2,2))
+  def diff(p1,p2): return sum(abs(a-b) for a,b in zip(p1,p2))
+  left = next((x for x in range(w) if diff(im.getpixel((x,h//2)),bg)>15), None)
+  top = next((y for y in range(h) if diff(im.getpixel((w//2,y)),bg)>15), None)
+  print(im.size, left, top)  # (1080,1350) 0 0 이어야 정상
+  ```
+  자동 검증 통과해도 **육안으로 최소 1~2장은 실제로 열어서 텍스트가 카드 안에서 정상 줄바꿈됐는지, 잘린 단어 없는지 직접 확인할 것** — 자동 스캔은 프레임 위치만 잡아내고 텍스트 오버플로우는 못 잡음(라이트 테마 Type E는 배경색이 카드색과 거의 같아서 자동 스캔 자체가 부정확하니 특히 육안 확인 필수).
 - **숫자·팩트는 반드시 실제 계산기 코드/공식으로 검산하거나(node로 재현) 실제 법 조항으로 검증할 것** — 이 세션에서 typeC(연차수당 소멸시효 1년→3년 오류), typeD(원리금균등/원금균등 총이자 차액 산수 안 맞던 것) 둘 다 실제 오류로 잡혔음. loan-calc.html처럼 이미 자체 FAQ에 검증된 수치가 있으면 그거 재사용.
 
 ## 카피라이팅 원칙 (2026-08-07 확정, 매번 참고)
