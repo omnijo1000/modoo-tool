@@ -301,7 +301,7 @@ modoohub.com/calorie-calculator.html
 `global-inflation-calculator.html`/`global-vat-calculator.html`/`global-loan-payoff-calculator.html`/`global-timezone-converter.html`/`global-sleep-calculator.html`. 숫자는 각 계산기 HTML의 실제 FAQ 원문/기본값 또는 node 재계산(대출 상환 시뮬레이션) 기준. X는 Global 정책상 텍스트 전용(이미지 미첨부) — 별도 원고 작성.
 
 ### 06. Inflation Calculator — `global-inflation-calculator.html` (Type A)
-**소스**: `inflation-calculator.html`. $1,000 at 3% over 10 years = $1,343.92(미래가치 공식) → 역산해 현재가치 $744 표기. US 9%(2022, highest since 1981), Argentina 211%(2023), Turkey 80%(2022), 국가별 평균 CPI(Japan 2.0%/EU 2.3%/UK 2.8%/US 3.0%/India 5.5%) 전부 사이트 FAQ·`setCountry()` 프리셋 원문.
+**소스**: `inflation-calculator.html`. \$1,000 at 3% over 10 years = \$1,343.92(미래가치 공식) → 역산해 현재가치 \$744 표기. US 9%(2022, highest since 1981), Argentina 211%(2023), Turkey 80%(2022), 국가별 평균 CPI(Japan 2.0%/EU 2.3%/UK 2.8%/US 3.0%/India 5.5%) 전부 사이트 FAQ·`setCountry()` 프리셋 원문.
 
 **이미지**: `promotion/cards/global/inflation-calculator-01/slide1~5.png`
 
@@ -335,7 +335,7 @@ Calculate your real purchasing power free: modoohub.com/inflation-calculator.htm
 ```
 
 **대체 텍스트(Alt Text)**:
-1. Text card: 3% inflation, every year. $1,000 → $744. Your cash is losing value while it just sits there.
+1. Text card: 3% inflation, every year. \$1,000 → \$744. Your cash is losing value while it just sits there.
 2. Checklist: Habits that quietly drain your savings — cash in a 0% checking account, assuming saving protects value on its own, ignoring real inflation-adjusted return.
 3. Warning card: Inflation isn't always a slow 2–3%. US inflation hit 9% in 2022, Argentina 211% in 2023, Turkey 80% in 2022.
 4. Table: Average CPI by country — Japan 2.0%, EU 2.3%, UK 2.8%, US 3.0%, India 5.5%.
@@ -389,7 +389,7 @@ Add or remove VAT for 20+ countries free: modoohub.com/vat-calculator-global.htm
 **상태**: [ ] 게시 대기.
 
 ### 08. Loan Payoff Calculator — `global-loan-payoff-calculator.html` (Type C)
-**소스**: `loan-payoff-calculator.html`의 실제 상환 계산 로직(월 이자=잔액×연이율/12, 원금=납입금-이자)을 node로 재현해 직접 검산. $300,000·6.5%·30년 표준 상환금 $1,896.20/월 기준 — 기본 납입 시 총이자 $382,633, 여기에 $200/월 추가 납입 시 총이자 $279,185(→ $103,449 절감), 상환기간 360개월→277개월(6.9년 단축).
+**소스**: `loan-payoff-calculator.html`의 실제 상환 계산 로직(월 이자=잔액×연이율/12, 원금=납입금-이자)을 node로 재현해 직접 검산. \$300,000·6.5%·30년 표준 상환금 \$1,896.20/월 기준 — 기본 납입 시 총이자 \$382,633, 여기에 \$200/월 추가 납입 시 총이자 \$279,185(→ \$103,449 절감), 상환기간 360개월→277개월(6.9년 단축).
 
 **이미지**: `promotion/cards/global/loan-payoff-calculator-01/slide1~5.png`
 
@@ -423,9 +423,9 @@ See your own numbers free: modoohub.com/loan-payoff-calculator.html
 ```
 
 **대체 텍스트(Alt Text)**:
-1. Warning card: $200/month extra. Your bank never tells you this $200/month trick saves six figures.
-2. Warning card: Minimum payments maximize your interest. $300,000 loan at 6.5% over 30 years = $382,633 in interest.
-3. Text card: $300,000 · 6.5% · 30-year loan. $103,449 saved. Payoff time saved 6.9 years, new payoff term 23.1 years.
+1. Warning card: \$200/month extra. Your bank never tells you this \$200/month trick saves six figures.
+2. Warning card: Minimum payments maximize your interest. \$300,000 loan at 6.5% over 30 years = \$382,633 in interest.
+3. Text card: \$300,000 · 6.5% · 30-year loan. \$103,449 saved. Payoff time saved 6.9 years, new payoff term 23.1 years.
 4. Checklist: Why extra payments work so well — extra payments hit principal directly, lower balance means lower interest every month after, monthly beats an annual lump sum.
 5. CTA card: See your own savings in 10 seconds. Button: See My Savings Now.
 
