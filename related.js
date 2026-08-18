@@ -920,7 +920,7 @@
   if (pageCat && !document.getElementById('rt-hdr-style')) {
     var hs = document.createElement('style');
     hs.id = 'rt-hdr-style';
-    hs.textContent = '.rt-hdr-cat{font-size:11px;color:var(--text-dim,#444);font-family:"DM Mono",monospace;text-decoration:none;padding:3px 8px;border:1px solid var(--glass-border,var(--border,#252525));border-radius:4px;transition:color .15s,border-color .15s;white-space:nowrap;}.rt-hdr-cat:hover{color:var(--cyan,var(--accent,#fbbf24));border-color:var(--cyan,var(--accent,#fbbf24));}';
+    hs.textContent = '.rt-hdr-cat{margin-left:auto;font-size:11px;color:var(--text-dim,#444);font-family:"DM Mono",monospace;text-decoration:none;padding:3px 8px;border:1px solid var(--glass-border,var(--border,#252525));border-radius:4px;transition:color .15s,border-color .15s;white-space:nowrap;}.rt-hdr-cat:hover{color:var(--cyan,var(--accent,#fbbf24));border-color:var(--cyan,var(--accent,#fbbf24));}';
     document.head.appendChild(hs);
   }
   function renderHeaderChip() {
