@@ -420,7 +420,24 @@ bmi-calculator, compound-annual-growth-rate-calculator, health-insurance-calc, h
 
 - 싱글쿼트 문자열 내 아포스트로피: `don\'t`, `&apos; (\')`
 - backtick 템플릿 리터럴 내 백틱: `` \`code\` ``
+- backtick 템플릿 리터럴 안에 `${...}` 형태의 예시 문구를 **글자 그대로** 넣고 싶을 때는 반드시 `\${...}`로 이스케이프할 것. 그냥 `${주제}` `${topic}` 처럼 쓰면 JS가 실제 변수 참조로 해석해 `ReferenceError`를 던짐 — 2026-08-18 전수 스캔에서 ai-thumbnail-title-generator.html이 4개 언어(ko/en/zh/ja) seoHtml 전부에서 이 실수로 로드 즉시 깨져 있었음.
+- `<script>` 태그 안(코드는 물론 **주석 안에서도**) 리터럴 문자열 `</script>`를 쓰면 안 됨 — HTML 파서는 JS 문법을 모르고 그 지점에서 진짜 `<script>` 태그가 끝난 걸로 처리해 그 뒤 코드 전체가 스크립트 밖 마크업이 되어버림. 반드시 `<\/script>`처럼 슬래시를 이스케이프. 2026-08-18에 schema-markup-generator.html이 주석 하나 때문에 이렇게 깨져 있었음(`SyntaxError: Unexpected end of input`).
 - JSON-LD `<script type="application/ld+json">` 블록은 JS 문법 검사 제외
+
+## 신규 툴 배포/기존 툴 수정 전 QA 체크리스트 (2026-08-18 애드센스 반려 대응 후 신설)
+
+애드센스가 "가치가 별로 없는 콘텐츠"로 반려한 원인이 실제로는 **사이트 URL의 17%가 빈 리다이렉트 스텁으로 sitemap에 등록돼 크롤링됨** + **JS 런타임 에러로 로드 즉시 깨지는 페이지 다수**였던 것으로 판명(전수 재검사로 확인). 새 툴 만들거나 기존 파일 슬러그를 바꿀 때마다 아래 항목 빠뜨리지 말 것.
+
+1. **슬러그를 바꾸거나 예전 파일을 리다이렉트 스텁으로 남길 때** (`<meta http-equiv="refresh">`):
+   - `sitemap.xml`에 스텁 URL을 절대 등록하지 말 것 (canonical이 다른 곳을 가리키는 URL을 sitemap에 넣는 건 SEO 안티패턴이자 애드센스가 실제로 문제 삼은 원인).
+   - 스텁 파일 `<head>`에 `<meta name="robots" content="noindex,follow">` 반드시 추가.
+   - `llms.txt`에 그 슬러그로 걸린 링크가 있으면 실제 canonical 페이지 URL로 바꿀 것.
+2. **SEO 본문(`<div class="seo">`/`<section class="seo">`) 작성 후 실제 글자 수를 확인**할 것 — "500~800자"는 눈대중이 아니라 태그 제거 후 실측 기준. (jwt-decoder.html이 147자로 방치돼 있었음.)
+3. **파일 저장 전 브라우저에서 실제로 열어서 콘솔 에러(`read_console_messages` 또는 개발자도구 Console) 확인**할 것. 최소한 로드 시점 에러는 0이어야 함. 특히:
+   - 같은 페이지에 `<script>` 블록이 여러 개면, 뒤 블록에서 `const`/`let`으로 선언한 걸 앞 블록에서 즉시 실행 코드가 먼저 참조하고 있지 않은지 확인 (TDZ/ReferenceError). 초기화 호출(`init()`, `addXxx()`, `renderXxx()` 등)은 그 함수가 참조하는 모든 `const`/`let` 선언보다 반드시 뒤에 와야 함.
+   - `document.getElementById('X').textContent=...`처럼 null 체크 없이 바로 프로퍼티 접근하는 코드는, 그 id를 가진 요소가 실제로 HTML에 있는지 확인. 없으면 그 시점에서 예외가 터져 **그 함수의 남은 코드 전체가 실행되지 않고 스킵됨** (예: open-graph-generator.html은 없는 `formLabel` id 때문에 그 아래 20개 라벨이 전부 초기 로드 시 언어 적용 안 되고 있었음).
+4. **헤더 카테고리 칩(`rt-hdr-cat`)은 related.js가 모든 페이지에 자동 주입**하므로 개별 파일에서 손댈 필요 없음 — 다만 이 요소는 항상 헤더 우측 끝에 오도록 `margin-left:auto`가 related.js 자체 CSS에 박혀 있음(2026-08-18 수정). 헤더 구조를 새로 만들 때 `header{display:flex}`를 벗어나는 레이아웃을 쓰면 이 정렬이 깨질 수 있으니 기존 헤더 구조(`<header><div class="dot"></div><span class="header-label">...</span><a class="back-link">...</a>[<div class="lang-toggle">...]</header>`)를 그대로 따를 것.
+5. 배치 작업 끝나면 실제로 `git push`까지 됐는지, 그리고 GitHub Pages(커스텀 도메인, main 브랜치 서빙)에 반영됐는지 `curl`로 라이브 원본을 직접 떠서 확인할 것 — 로컬 커밋만 하고 push 안 한 채로 "완료"라고 보고한 적 있었음(2026-08-18). AI 요약 도구(WebFetch 등)로 XML/큰 파일 개수를 세면 잘못 셀 수 있으니, 개수 확인은 `curl | grep -c` 같은 직접적인 방법을 쓸 것.
 
 ## 기존 툴 PDF 라이브러리 CDN
 
