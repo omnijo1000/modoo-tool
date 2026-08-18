@@ -438,6 +438,9 @@ bmi-calculator, compound-annual-growth-rate-calculator, health-insurance-calc, h
    - `document.getElementById('X').textContent=...`처럼 null 체크 없이 바로 프로퍼티 접근하는 코드는, 그 id를 가진 요소가 실제로 HTML에 있는지 확인. 없으면 그 시점에서 예외가 터져 **그 함수의 남은 코드 전체가 실행되지 않고 스킵됨** (예: open-graph-generator.html은 없는 `formLabel` id 때문에 그 아래 20개 라벨이 전부 초기 로드 시 언어 적용 안 되고 있었음).
 4. **헤더 카테고리 칩(`rt-hdr-cat`)은 related.js가 모든 페이지에 자동 주입**하므로 개별 파일에서 손댈 필요 없음 — 다만 이 요소는 항상 헤더 우측 끝에 오도록 `margin-left:auto`가 related.js 자체 CSS에 박혀 있음(2026-08-18 수정). 헤더 구조를 새로 만들 때 `header{display:flex}`를 벗어나는 레이아웃을 쓰면 이 정렬이 깨질 수 있으니 기존 헤더 구조(`<header><div class="dot"></div><span class="header-label">...</span><a class="back-link">...</a>[<div class="lang-toggle">...]</header>`)를 그대로 따를 것.
 5. 배치 작업 끝나면 실제로 `git push`까지 됐는지, 그리고 GitHub Pages(커스텀 도메인, main 브랜치 서빙)에 반영됐는지 `curl`로 라이브 원본을 직접 떠서 확인할 것 — 로컬 커밋만 하고 push 안 한 채로 "완료"라고 보고한 적 있었음(2026-08-18). AI 요약 도구(WebFetch 등)로 XML/큰 파일 개수를 세면 잘못 셀 수 있으니, 개수 확인은 `curl | grep -c` 같은 직접적인 방법을 쓸 것.
+6. **`about.html`/`privacy.html`/`terms.html`을 수정할 때마다 두 가지를 같이 갱신할 것** (2026-08-18, 애드센스 E-E-A-T 대응으로 신설 — fable5 크로스체크로 "about 페이지 자체가 없다"는 제3자 분석은 틀렸고, "운영자 신원 정보가 없다"는 지적만 유효했던 것으로 확인):
+   - 각 파일 4개 언어(ko/en/zh/ja, `privacy.html`은 ja 없이 ko/en/zh) 블록의 `<p class="updated">최종 업데이트: ...` 날짜를 실제 수정일로 갱신. 한 언어만 고치고 나머지 언어 날짜를 안 맞추면 언어별로 최종수정일이 어긋나므로 4곳(또는 3곳) 전부 확인.
+   - `about.html`엔 "운영 정보" 섹션, `privacy.html`/`terms.html`엔 마지막 조항으로 "운영자 정보" 섹션이 있음 — 개인 운영(법인·사업자등록 없음)이라는 문구를 실제와 다르게 바꾸지 말 것(실제 사업자등록을 하게 되면 그때 사업자정보로 교체).
 
 ## 기존 툴 PDF 라이브러리 CDN
 
