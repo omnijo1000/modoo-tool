@@ -1,21 +1,49 @@
 # guides/ 확장 진행 체크리스트 (5개 → 15개+)
 
-**배경**: 애드센스 반려 대응 분석(2026-08-18, fable5 크로스체크)에서 "장문 아티클 부족"이 실재하는 갭으로 확인됨 — `guides/` 현재 5개(before-you-quit-checklist, image-format-comparison-2026, jwt-authentication-guide, rental-contract-checklist, salary-take-home-2026), 목표 15~20개. **금융/노무 10개는 실제 계산기 소스 파일에서 수치 검증 완료(2026-08-18)** — "검증된 수치"만 그대로 쓰면 재검증 없이 바로 본문 작성 가능. **비금융 카테고리(개발자·텍스트·이미지·생성기·보안·AI·건강·날짜시간) 18개는 전체 사이트 크로스카테고리 서베이로 추가 발굴**(2026-08-18) — 총 28개 후보, 목표 15~20개 대비 여유 있게 확보. 병렬 작업 시 서로 다른 주제라 파일 충돌 없음.
+**배경**: 애드센스 반려 대응 분석(2026-08-18, fable5 크로스체크)에서 "장문 아티클 부족"이 실재하는 갭으로 확인됨 — `guides/` 현재 5개(before-you-quit-checklist, image-format-comparison-2026, jwt-authentication-guide, rental-contract-checklist, salary-take-home-2026), 목표 15~20개.
+
+**2026-08-19 갱신**: 이전 버전은 비금융 18개가 "샘플링"(카테고리당 2~3개)으로만 뽑힌 상태였음. 사용자가 "전체 파일 다 확인해서 쓰라"고 명시 지시 → `related.js` CATEGORY_MAP 기준 전체 319개 파일 중 이미 다룬 것 제외한 **나머지 전부**를 14개 병렬 에이전트로 전수 확인 완료(파일 단위 ACCEPT/REJECT 판정, 스킵 없음). 그 결과 **후보가 총 258개**로 늘어남(목표 15~20 대비 압도적으로 여유) — 아래는 전수 조사 원본 결과이며, 실제 작성은 이 중 우선순위 골라 진행하면 됨. 재조사 불필요.
+
+---
+
+## 전체 요약
+
+| 카테고리 | 전체 파일 | 이미 클레임(중복 제외) | ACCEPT | REJECT(너무 얕음) |
+|---|---|---|---|---|
+| finance-calculators | 61 | 10 (아래 1~10번) | 47 | 4 |
+| developer-tools | 57 | 2 (cron-parser, sql-query-explainer) | 52 | 3 |
+| text-tools | 43 | 2 (text-similarity-checker, keyword-density-checker) | 32 | 9 |
+| image-tools | 31 | 2 (image-compressor, color-contrast-checker) | 24 | 7 |
+| generator-tools | 29 | 2 (barcode-generator, favicon-generator) | 21 | 8 |
+| security-tools | 22 | 2 (ssl-decoder, password-generator) | 17 | 5 |
+| pdf-tools | 17 | 1 (pdf-compressor) | 13 | 4 |
+| ai-tools | 10 | 2 (ai-cost-calculator, chatgpt-token-counter) | 10 | 0 |
+| data-tools | 15 | 1 (json-schema-validator) | 8 | 7 |
+| health-calculators | 8 | 2 (body-fat-calculator, sleep-calculator) | 8 | 0 |
+| date-time-tools | 11 | 2 (korean-age, meeting-cost-calculator) | 8 | 3 |
+| **합계** | **304** | **28** | **240** | **50** |
+
+(finance/health는 "이미 클레임" 파일이 애초에 목록에서 빠져있었으므로 위 표의 ACCEPT는 전수조사 대상 파일 기준 accept 수. 최종 후보 풀 = 기존 확정 10개(수치 검증 완료) + 위 240개 = **250개**, 목표 15~20개 대비 압도적으로 여유 있음.)
 
 **작성 규칙** (기존 5개 가이드와 동일하게):
 - `guides/` 디렉토리, `salary-take-home-2026.html`을 템플릿으로 복사해서 구조 재사용(헤더/스타일/footer 동일)
 - 본문 1,500~2,000자 이상(실측 기준, 태그 제거 후), 최소 3개 FAQ, 관련 계산기 링크(`tool-links`) 포함
 - JSON-LD Article 스키마에 `datePublished`+`dateModified` 둘 다
-- `<p class="meta">가이드 · 2026-08-18 최종 확인</p>` 형식으로 검증일 명시
-- 완료 후 `index.html`이나 관련 계산기 페이지에서 가이드로 링크 연결할지 확인 (salary-take-home-2026 패턴처럼 minimum-wage.html에서 이미 링크 중인 케이스 있음 — 신규 가이드도 관련 계산기 페이지에 역링크 추가 권장)
+- `<p class="meta">가이드 · 2026-08-19 최종 확인</p>` 형식으로 검증일 명시
+- 완료 후 관련 계산기 페이지에서 가이드로 역링크 연결할지 확인
 
-**작업 중 발견해서 이미 고친 것**: `guides/salary-take-home-2026.html`이 국민연금 인상 전 구요율(4.5%/3.545%/12.95%)을 쓰고 있어서 실제 계산기(four-insurance.html 4.75%/3.595%/13.14%)랑 안 맞았음 — 요율표·예시계산·실수령액·datePublished 전부 재계산해서 수정 완료(2026-08-18).
+**작업 중 발견해서 이미 고친 것**: `guides/salary-take-home-2026.html`이 국민연금 인상 전 구요율을 쓰고 있어서 실제 계산기(four-insurance.html)랑 안 맞았음 — 요율표·예시계산·실수령액·datePublished 전부 재계산해서 수정 완료(2026-08-18).
+
+**다음 세션에서 이어할 때**:
+1. 아래 후보 250개 중 카테고리 균형 맞춰(금융에 쏠리지 않게) 15~20개 우선순위 골라서 작성 진행.
+2. `salary-take-home-2026.html` HTML 구조 그대로 복사해 새 파일 만들 것.
+3. 하나 완성할 때마다 아래 목록 옆에 `[x] 작성 완료`로 표시.
+4. 병렬 작업 시: 전부 서로 다른 소스 파일·다른 guides/ 파일명이라 충돌 없음.
+5. "Key fact"로 적힌 수치는 담당 에이전트가 실제 소스 HTML을 읽고 뽑은 것이지만, **1~10번(금융/노무 핵심)만큼 재검증된 건 아님** — 작성 시 본문에 넣기 전 소스 파일 재대조 권장.
 
 ---
 
-## 진행 상황 (총 28개 후보 중 0/28 작성 완료, 목표 15~20개)
-
-### 금융/노무 10개 (수치 검증 완료 — 아래 섹션 참고)
+## 금융/노무 핵심 10개 (수치 이중검증 완료 — 바로 작성 가능)
 
 | # | 주제 | 파일명(예정) | 상태 |
 |---|---|---|---|
@@ -30,227 +58,365 @@
 | 9 | 프리랜서 세금 완전정리 | `guides/freelancer-tax-guide-2026.html` | [ ] 미작성 |
 | 10 | 건강보험료 직장 vs 지역가입자 | `guides/health-insurance-employee-vs-regional.html` | [ ] 미작성 |
 
-### 비금융 18개 (크로스카테고리 서베이, 상세는 11번 섹션 참고)
-
-| # | 주제 | 카테고리 | 소스 파일 | 상태 |
-|---|---|---|---|---|
-| 11 | 크론 표현식 완전정리 | developer-tools | `cron-parser.html` | [ ] 미작성 |
-| 12 | SQL 쿼리 분석기가 진짜 파서가 아닌 이유 | developer-tools | `sql-query-explainer.html` | [ ] 미작성 |
-| 13 | JSON Schema 검증기의 숨은 한계 | data-tools | `json-schema-validator.html` | [ ] 미작성 |
-| 14 | 텍스트 유사도, 편집거리(Levenshtein) 알고리즘 해부 | text-tools | `text-similarity-checker.html` | [ ] 미작성 |
-| 15 | 키워드 밀도, 구글이 부정한 SEO 신화 | text-tools | `keyword-density-checker.html` | [ ] 미작성 |
-| 16 | PNG vs JPG vs WebP 압축 실전 가이드 | image-tools | `image-compressor.html` | [ ] 미작성 |
-| 17 | WCAG 명도대비 AA/AAA 실전 기준 | image-tools | `color-contrast-checker.html` | [ ] 미작성 |
-| 18 | PDF 압축이 안 먹히는 이유 | pdf-tools | `pdf-compressor.html` | [ ] 미작성 |
-| 19 | 바코드 vs QR코드, 언제 뭘 써야 하나 | generator-tools | `barcode-generator.html` | [ ] 미작성 |
-| 20 | 파비콘 사이즈 완전정리 | generator-tools | `favicon-generator.html` | [ ] 미작성 |
-| 21 | 인증서 포맷 PEM vs DER vs P12 차이 | security-tools | `ssl-decoder.html` | [ ] 미작성 |
-| 22 | 비밀번호 생성기, NIST 2025 신 가이드라인 반영 | security-tools | `password-generator.html` | [ ] 미작성 |
-| 23 | LLM API 요금, 입력·출력 토큰이 왜 다른가 | ai-tools | `ai-cost-calculator.html` | [ ] 미작성 |
-| 24 | GPT 토큰 계산 원리(BPE) | ai-tools | `chatgpt-token-counter.html` | [ ] 미작성 |
-| 25 | 체지방률 측정법 비교(Navy vs Deurenberg vs DEXA) | health-calculators | `body-fat-calculator.html` | [ ] 미작성 |
-| 26 | 수면 주기 90분의 과학 | health-calculators | `sleep-calculator.html` | [ ] 미작성 |
-| 27 | 한국 나이 vs 만 나이, 왜 아직 혼용되나 | date-time-tools | `korean-age.html` | [ ] 미작성 |
-| 28 | 회의 비용 계산기의 숨은 전제 | date-time-tools | `meeting-cost-calculator.html` | [ ] 미작성 |
+(각 항목 상세 검증 수치는 파일 하단 "부록: 금융 10개 상세" 참고)
 
 ---
 
-## 1. 양도소득세 완전정리 — `capital-gains-tax.html` 연계
+## 금융 추가 (finance-calculators, 47개 ACCEPT)
 
-**검증된 수치** (source: `capital-gains-tax.html`, 이전 SNS 카드뉴스 작업에서 이미 검증):
-- 세율표: 1,400만원 이하 6%, ~8,800만원 24%, 5억~10억원 42%, 10억원 초과 45% (2년 이상 보유, 8단계 누진세율 중 발췌)
-- 1년 미만 보유 시 단기양도세율 70%, 2년 이상이면 최대 45%까지 낮아짐
-- 조정대상지역 다주택자 중과세: 2주택 +20%p, 3주택 이상 +30%p — **2026년 5월 10일부터 재적용**
-- 1세대1주택 비과세 요건: 2년 보유+거주, 양도가 12억원 이하
-- 검증 예시: 과세표준 7억원 → 세액 2억 5,806만원 (7억×42%−3,594만원)
+- [ ] **compound-interest** — "72의 법칙, 실제로 얼마나 정확한가" — 연8% 복리: 72÷8=9년 근사 vs 실제 9.006년.
+- [ ] **savings-calc** — "ISA로 적금 이자세금 얼마나 아끼나" — 순이익 200만원(서민형400만)까지 비과세, 초과분 9.9% 분리과세.
+- [ ] **inflation-calculator** — "월세·연금 실질가치, 인플레이션이 몇 년 만에 갉아먹나" — 월$1,000 연금, 연2% 인플레 시 구매력 약67%로 하락.
+- [ ] **currency-converter** — "환율의 숨은 비용, 스프레드는 얼마나 되나" — USD/KRW 스프레드 20~40원+카드수수료 1.25~2%.
+- [ ] **sip-calculator** — "Step-Up SIP, 매년 늘리면 복리효과가 얼마나 커지나" — 월$100+매년10%증액, 10년뒤 월$240.
+- [ ] **emi-calculator** — "인도 EMI 대출한도, FOIR 40%가 정하는 것" — 월소득5만루피·FOIR40%→최대EMI 2만루피.
+- [ ] **loan-calculator-en** — "중도상환수수료, 미국과 한국은 왜 이렇게 다른가" — 미국 대부분 무료 vs 한국 잔여원금 0.5~1.5%.
+- [ ] **gst-calculator** — "인도 GST 매입세액공제(ITC), 실제 절세 구조" — 원자재 ₹18,000 납부→ITC로 실제납부 ₹18,000뿐.
+- [ ] **vat-calculator-global** — "전세계 VAT 최고·최저 세율, 영국의 4단계 구조" — 헝가리27% vs 룩셈부르크17%, 영국 20/5/0/면세 4단계.
+- [ ] **mortgage-calculator** — "PMI vs 한국 LTV, 계약금 20%가 갖는 의미" — 미국 LTV80%이하 PMI면제 vs 한국 LTV50~60%규제.
+- [ ] **roi-calculator** — "ROI와 CAGR, 같은 투자인데 숫자가 다른 이유" — 단순누적 vs 연평균복리환산 비교.
+- [ ] **apr-calculator** — "APR과 EAR, 카드 이자가 표시금리보다 비싸 보이는 이유" — 명목12%월복리→EAR≈12.68%.
+- [ ] **loan-payoff-calculator** — "월 상환액이 이자보다 적으면 벌어지는 일" — 음의 상각(negative amortization) 함정.
+- [ ] **investment-return-calculator** — "복리 주기(연/분기/월), 실제로 얼마나 차이 나나" — 1000만·10%·10년: 연2,594만 vs 월2,707만.
+- [ ] **fire-calculator** — "4% 룰(Trinity Study), 한국에서도 안전한가" — 1998년 미국 30년 가정, 비미국은 3~3.5% 권장.
+- [ ] **cagr-calculator** — "CAGR이 감추는 변동성의 함정" — -30%/+80% 등락도 CAGR은 매년 동일성장처럼 평활화.
+- [ ] **margin-calculator** — "마진율과 마크업, 같은 거래인데 다른 숫자가 나오는 이유" — 원가700·판매1000: 마진30% vs 마크업42.86%.
+- [ ] **profit-calculator** — "총이익·영업이익·순이익, 세 단계로 나눠 보는 이유" — COGS/OPEX 분리 3단계 이익구조.
+- [ ] **break-even-calculator** — "손익분기점만으론 부족한 이유, 안전마진율" — 안전마진율=(예상매출−BEP)÷예상매출.
+- [ ] **commission-calculator** — "구간별 누진 수수료, 소득세처럼 계산되는 원리" — 100만까지3%+나머지5%, 200만매출시 수수료8만(10만 아님).
+- [ ] **discount-calculator** — "중복 할인 30%+10%는 40% 할인이 아니다" — 50%+50%=75%할인(25%남음, 100%아님).
+- [ ] **salary-per-hour-calculator** — "주4일제, 같은 연봉인데 시급은 왜 25% 오르나" — 연봉5000만: 주5일24,038원 vs 주4일30,048원.
+- [ ] **freelancer-rate-calculator** — "프리랜서 시급, 비청구 시간을 빼먹으면 생기는 일" — 신규 비청구율40~50%, 목표시급 72,222원 예시.
+- [ ] **acquisition-tax** — "임시적 2주택 특례, 3년 안에 못 팔면 생기는 일" — 3년 초과시 중과세율 소급추징+경정청구 5년시효.
+- [ ] **annual-leave** — "연차 사용촉진제도, 회사가 이 절차 안 지키면 수당 줘야 한다" — 6개월전 고지+10일전 통보 둘 다 이행해야 면제.
+- [ ] **cheongyak-score** — "청약 가점 84점 만점, 이렇게 배분된다 + 당첨 포기의 함정" — 무주택32+부양가족35+통장17. 포기시 재당첨제한 최대10년.
+- [ ] **credit-loan-limit** — "신용대출 한도, DSR만으로 안 끝나는 이유: 마이너스통장의 함정" — 마이너스통장은 실인출액 아닌 설정한도 전체로 DSR 반영.
+- [ ] **electricity-cost-calculator** — "한국 전기요금 누진제 3단계, 여름·겨울엔 왜 완화되나" — 200/201~400/400초과 3단계.
+- [ ] **four-insurance** — "사업주가 근로자보다 4대보험을 더 많이 낸다? 숨은 부담 구조" — 산재보험 평균1.47%는 전액 사업주 부담.
+- [ ] **fuel-cost-calculator** — "L/100km와 MPG, 왜 헷갈리는가 + 경유가 항상 economical하진 않다" — MPG=235.21÷(L/100km).
+- [ ] **income-tax** — "종합소득세 누진세, 왜 세율표보다 적게 내는가" — 8단계 누진세율+누진공제 개념.
+- [ ] **loan-calc** — "원리금균등 vs 원금균등, 총이자 3,500만원 차이의 비밀" — 3억·4%·30년: 총이자 차이 약3,510만원.
+- [ ] **overtime-pay** — "연장+야간 겹치면 200% — 그런데 5인 미만은 의무가 없다" — 5인미만 사업장 야간수당 의무 없음.
+- [ ] **payslip-calc** — "급여명세서 미교부, 과태료 500만원 — 2021년 이후 전 사업장 의무" — 2021.11부터 전사업장 의무.
+- [ ] **percent-calc** — "퍼센트 포인트(%p)와 퍼센트(%)는 다르다 + 중복할인은 더하지 않는다" — 40%→45%는 5%p(12.5% 아님).
+- [ ] **prepayment-fee** — "중도상환수수료, 왜 3년 지나면 사라지나" — 대부분 실행일로부터 3년 경과시 면제.
+- [ ] **property-tax** — "종부세, 재산세를 또 걷는 이중과세가 아닌 이유" — 종부세의 20% 농특세 추가부과.
+- [ ] **realestate-fee** — "부동산 중개수수료 상한요율, 사실은 협상 가능하다" — 월세 환산=(보증금+월세×100).
+- [ ] **rent-convert** — "전월세 전환율 법정 상한, 기준금리+2%p를 넘기면 불법" — 상한=한국은행 기준금리+2%p.
+- [ ] **retirement-calc** — "파이어(FIRE) 4%룰, 1998년 논문이 여전히 기준인 이유" — 목표자산=연지출×25배.
+- [ ] **retirement-pension** — "퇴직연금 DB형 vs DC형, 임금인상률이 갈림길" — 임금인상률>예상투자수익률이면 DB유리.
+- [ ] **salary-raise** — "명목 인상률 5%인데 실질은 1.94%? 물가 반영 실질 인상률" — 실질=((1+명목)÷(1+물가)−1)×100.
+- [ ] **salary-reverse** — "실수령액 역산, 왜 단순히 0.85로 나누면 안 되나" — 비선형 역산, 월300만 실수령→세전 약4,530만.
+- [ ] **severance-tax** — "퇴직소득세가 유독 적은 이유: 근속연수공제와 연분연승법" — 15년근속시 공제액 2,750만원.
+- [ ] **stock-tax** — "국내주식 손실과 해외주식 이익, 왜 서로 상계가 안 되나" — 해외주식 손익통산 불가, 기본공제 250만.
+- [ ] **tip-calculator** — "서비스 차지와 팁은 다르다 + 나라별 팁 비율이 이렇게 다른 이유" — 미국18~20% vs 유럽10~15% vs 한중일 없음.
+- [ ] **vat-calc** — "간이과세자는 왜 부가세를 10%가 아니라 1.5~4%만 내나" — 연매출1억400만이하 업종별 부가가치율 적용.
 
-**초안 방향**: 보유기간별 세율 변화(단기 70%→장기 45%) 훅으로 시작 → 다주택 중과세 경고 → 세율표 전체 → 1세대1주택 비과세 요건 → 계산기 링크.
-
----
-
-## 2. 육아휴직급여 2025 개편 총정리 — `parental-leave.html` 연계
-
-**검증된 수치** (source: `parental-leave.html`):
-- 구간별 지급률(2025년 개편): 1~3개월 통상임금 100%(상한 250만원), 4~6개월 100%(상한 200만원), 7~12개월 80%(상한 160만원), 전 기간 하한 70만원
-- 사후지급금 제도 **2025년 1월 폐지** — 매달 전액 지급
-- 6+6 부모육아휴직제: 부모 각자 첫 6개월 통상임금 100%, 월별 상한 250만→250만→300만→350만→400만→450만원, 자녀 생후 18개월 이내 신청 필수
-- **경고 포인트**: 휴직 중 주 15시간 이상 취업(아르바이트 포함) 시 해당 기간 급여 전액 반환. 주 15시간 미만은 신고 후 허용
-- 신청 자격: 고용보험 피보험단위기간 180일 이상, 만 8세 또는 초등학교 2학년 이하 자녀
-
-**초안 방향**: 2025년 개편 전/후 비교(구제도 80%/사후지급금 있었음 vs 신제도) → 구간별 지급률표 → 6+6제도 설명 → 주15시간 경고 → 계산기 링크.
-
----
-
-## 3. 국민연금 직장 vs 지역가입자 — `national-pension-calculator.html` 연계
-
-**검증된 수치** (source: `national-pension-calculator.html`):
-- 보험료율 9.5%: 직장가입자는 근로자·사업주 각 4.75%, 지역가입자는 9.5% 전액 본인 부담
-- 2026년 기준소득월액 상한 659만원, 하한 41만원 (상한 초과·하한 미만 소득도 상한/하한 기준으로만 계산)
-- 검증 예시: 월소득 300만원 기준 — 직장가입자 월 142,500원, 지역가입자 월 285,000원 (2배 차이)
-- 국민연금 요율 자체가 9%→9.5%로 인상(최종 목표 13%까지 단계적 인상 예정)
-- 노령연금 수령 연령: 현재 만 63세(1961~1964년생 기준), 점차 65세로 상향
-- 최소 가입기간 10년(120개월), 조기수령 시 1개월당 0.5% 감액(최대 5년 조기)
-- 연기연금: 최대 5년 연기 시 연 7.2% 증가
-
-**초안 방향**: "같은 소득인데 왜 2배?" 훅(직장 vs 지역 구조 차이 설명) → 상하한 기준 → 예상수령액 계산 방법 → 임의가입/추납제도(추가 조사 필요 시 계산기 파일 내용 참고) → 계산기 링크.
-
----
-
-## 4. 퇴직금 계산법 + IRP 절세 — `severance.html` 연계
-
-**검증된 수치** (source: `severance.html`):
-- 공식: 퇴직금 = (퇴직 전 3개월 임금총액 ÷ 3개월 총일수) × 30 × (총 계속근로기간 ÷ 365)
-- 1년 미만 근속이면 퇴직금 대상 아님(취업규칙 별도 규정 있으면 예외)
-- 검증 예시: 월급 300만원, 3개월 92일 가정 → 1일 평균임금 97,826원 → 30일분 2,934,783원 → 3년 근속 시 퇴직금 약 880만원(8,804,348원). 1년 293만원 / 5년 1,467만원 / 10년 2,935만원
-- 상여금·연차수당도 퇴직 전 12개월분의 3/12씩 평균임금에 산입
-- 계약직·파견직도 동일 사업장 1년 이상 계속근무(반복 갱신 포함, 실질 계속근로 인정 시)면 대상
-- **절세**: IRP 계좌로 받으면 퇴직소득세 이연, 55세 이후 연금 수령 시 퇴직소득세의 30%(10년 초과 40%) 감면. 근속연수공제·환산급여공제로 실효세율은 표면 세율보다 낮음
-
-**초안 방향**: 퇴직금 공식 분해 설명 → 근속연수별 예상 퇴직금표 → 상여금/연차수당 산입 놓치는 실수 → IRP 절세 전략 → 계산기 링크.
-
----
-
-## 5. 최저임금·주휴수당 완전정리 — `minimum-wage.html` 연계
-
-**검증된 수치** (source: `minimum-wage.html`, 이번 세션 SNS 카드에서 검증):
-- 2026년 최저시급 10,320원 (2025년 10,030원 대비 +290원, +2.9%)
-- 2027년 확정 10,700원 (2026-07-14 최저임금위원회 표결 확정, 재적 27명 중 경영계안 15표·노동계안 11표·무효 1표) — 2026년 대비 +380원(+3.7%)
-- 주 40시간 기준 월급(209시간) = 10,320원×209시간 = 2,156,880원 (주휴수당 포함). 2027년 기준은 2,236,300원(월 79,420원 증가)
-- 209시간 산출: 주 40시간×4.345주 + 주휴 8시간×4.345주
-- 주휴수당: 주 15시간 이상 근무해야 발생. 주 40시간 미만은 (주 근무시간÷40)×8시간분 비례계산, 40시간 이상은 8시간분(하루치) 상한. 예: 하루6시간·주3일(18시간) 근무자 주휴수당은 3.6시간분
-- 미지급 시 처벌: 3년 이하 징역 또는 2,000만원 이하 벌금, 고용노동부 1350 신고 가능
-
-**초안 방향**: 최저임금=시급만 아니라 주휴수당 포함 월급이라는 오해 정정 → 209시간 산출 근거 → 비례계산 실제 사례 → 2027년 확정치 → 미지급 대응법 → 계산기 링크.
+REJECT(4개, 이유 있음): salary(기존 가이드와 중복), salary-negotiation(수치 근거 얕음), split-calculator(순수 UI), weekly-holiday(minimum-wage 가이드와 중복).
 
 ---
 
-## 6. 실업급여 신청 A to Z — `unemployment.html` 연계
+## developer-tools (52개 ACCEPT)
 
-**검증된 수치** (source: `unemployment.html`):
-- 지급액: 이직 전 평균임금의 60%, 2026-01-01 이후 퇴사자 기준 상한 68,100원/일, 하한 66,048원/일(최저시급 10,320원×80%×8시간). 2025-12-31 이전 퇴사자는 구기준(상한 66,000원/하한 64,192원)
-- 최대 총액: 68,100원×270일 = 약 1,838만원(18,387,000원)
-- 소정급여일수 120~270일: 피보험기간 1년 미만은 일괄 120일, 10년 이상은 50세 미만 240일·50세 이상/장애인 270일
-- 수급 조건: ① 이직일 이전 18개월 중 피보험단위기간(유급일 기준) 180일 이상 ② 근로 의사·능력 있는데 미취업 ③ 적극적 재취업활동
-- **경고 포인트**: 퇴직 다음날부터 12개월 이내 신청 — 소정급여일수 남아있어도 12개월 지나면 나머지 소멸(소정급여일수와 별개의 못박힌 기한)
-- 대기기간 7일(미지급) 후 1~4주 간격 실업인정일마다 지급
-- 조기재취업수당: 소정급여일수 1/2 이상 남기고 재취업해 12개월 이상 근무 시 남은 일수의 1/2 지급
+- [ ] **cron-generator** — "Spring/Quartz Cron vs 표준 crontab, 필드 하나가 다른 이유" — Spring은 초 필드 추가돼 6필드.
+- [ ] **uuid-validator** — "UUID v4를 DB 기본키로 쓰면 느려지는 이유" — B-트리 페이지 분할 유발, v7/ULID가 대안.
+- [ ] **regex-tester** — "정규식 그리디 vs 레이지 매칭과 ReDoS" — 중첩 정량자 `(a+)+`가 catastrophic backtracking 유발.
+- [ ] **markdown-preview** — "마크다운 렌더러의 XSS 방어 메커니즘과 CommonMark 표준화 배경" — javascript: 스킴 차단, CommonMark 2014년 등장.
+- [ ] **html-to-markdown** — "HTML→Markdown 변환에서 구조적으로 사라지는 것들" — colspan/rowspan 대응 문법 없어 병합셀 풀림.
+- [ ] **yaml-validator** — "YAML의 노르웨이 문제(Norway Problem)" — YAML1.1에서 `no`가 boolean false로 해석되던 버그.
+- [ ] **json-to-xml** — "JSON→XML 변환의 근본적 한계" — XML엔 배열 개념 없어 같은 태그 반복, null은 self-closing 태그.
+- [ ] **html-minifier** — "정규식 기반 HTML 압축기가 실패하는 지점" — `<pre>`/`<textarea>` 내부 의미있는 공백까지 뭉개짐.
+- [ ] **css-minifier** — "CSS 압축기의 색상 코드 축약 규칙" — `#ffffff`→`#fff`는 각 자리쌍 같을 때만.
+- [ ] **javascript-minifier** — "JS 압축기의 문자열 손상 위험, 경고는 엉뚱한 곳에 뜬다" — 문자열 경계 무시하는 정규식 위험.
+- [ ] **javascript-beautifier** — "중괄호만 세는 JS 포매터가 for문을 깨뜨리는 이유" — 들여쓰기 깊이를 `{}` 개수로만 계산.
+- [ ] **css-beautifier** — "문자 단위 CSS 포매터의 중첩 깊이 추적 방식" — SCSS 전처리기 문법은 깨짐.
+- [ ] **keyword-difficulty-estimator** — "키워드 난이도 점수, 실제 검색 데이터 없이 어떻게 계산되나" — 규칙기반 점수, 5~95 클램프.
+- [ ] **sitemap-extractor** — "사이트맵 priority·changefreq, 구글이 이미 무시한다고 밝힌 태그" — 2014년부터 priority 안 씀.
+- [ ] **serp-snippet-preview** — "구글 제목 스니펫은 글자수가 아니라 픽셀로 잘린다" — 약600px(Arial기준), 60자는 근사치일뿐.
+- [ ] **open-graph-preview** — "소셜 공유 미리보기가 안 바뀌는 이유: 플랫폼 캐시" — Facebook Sharing Debugger로 Scrape Again 필요.
+- [ ] **keyword-cannibalization-checker** — "키워드 카니발라이제이션, 문자열은 같아도 검색 의도는 다를 수 있다" — 301/canonical/차별화가 해법.
+- [ ] **json-schema-generator** — "JSON Schema 자동생성기가 놓치는 null과 배열 타입 함정" — null은 nullable 표현 안 됨, 배열은 첫요소만 봄.
+- [ ] **yaml-diff-checker** — "YAML Diff 비교기는 사실 YAML을 이해하지 못한다" — 정규식으로 한줄만 인식, 인라인 주석만 바꿔도 diff 오탐.
+- [ ] **csv-diff-checker** — "CSV diff가 전체 행을 다 다르다고 표시하는 인코딩 함정 3가지" — EUC-KR/CP949, BOM 유무, 구분자 차이.
+- [ ] **uuid-extractor** — "UUID를 텍스트에서 정확히 골라내는 정규식 조건" — 13번째자리 버전, 19번째자리 변형비트 검사.
+- [ ] **api-response-viewer** — "API 뷰어가 큰 정수를 반올림하는 이유" — JSON.parse가 2^53-1 넘는 정수 정밀도 손실(JS표준동작).
+- [ ] **xml-validator** — "XML 파서는 왜 HTML보다 깐깐한가(well-formed vs valid)" — strict모드 즉시 파싱중단.
+- [ ] **robots-txt-validator** — "robots.txt에서 Disallow: ''와 Disallow: /는 정반대 의미" — 빈값=전체허용, /=전체차단.
+- [ ] **meta-tag-analyzer** — "robots 메타태그 4가지 조합, noindex인데 follow하는 이유" — noindex,follow는 인덱싱만 제외.
+- [ ] **schema-validator** — "JSON-LD 필수 vs 권장 필드, 없어도 되는데 왜 넣으라 하나" — 필수필드 누락시 리치스니펫 자체 미표시.
+- [ ] **canonical-tag-checker** — "canonical 태그 2개면 구글은 둘 다 무시한다" — CMS 플러그인 충돌·테마 중복출력이 원인.
+- [ ] **api-tester** — "CORS 에러 vs 네트워크 오류, 브라우저는 왜 구분해주지 않을까" — fetch()가 둘다 같은 TypeError.
+- [ ] **curl-generator** — "cURL 명령어 생성기가 조용히 깨지는 순간 — 셸 이스케이핑의 비대칭" — 헤더값 아포스트로피는 이스케이프 안 됨.
+- [ ] **curl-parser** — "curl -d만 쓰고 -X 안 써도 POST로 잡히는 이유" — -X없이 -d있으면 자동 POST 판정.
+- [ ] **dns-lookup** — "DNS 전파는 왜 최대 48시간이나 걸리나 — TTL의 원리" — TTL3600초=1시간 캐시.
+- [ ] **graphql-formatter** — "GraphQL 포맷터가 문자열 속 #을 주석으로 착각하지 않는 법" — 문자열 placeholder 치환 후 복원.
+- [ ] **graphql-query-builder** — "GraphQL 쿼리 빌더의 타입 자동추론, 이름만 보고 어떻게 아나" — id로 끝나면 ID!, count/limit은 Int!.
+- [ ] **http-request-builder** — "CORS 프리플라이트(OPTIONS)는 언제 발생하나 — 3가지 조건" — 비단순 메서드/Content-Type/커스텀헤더.
+- [ ] **json-to-yaml** — "JSON→YAML 변환기가 문자열에 멋대로 따옴표를 씌우는 이유" — true/false/null처럼 보이면 자동인용.
+- [ ] **keyword-grouping-tool** — "검색 의도 분류와 키워드 클러스터링은 다른 개념이다" — 4대 검색의도 키워드 사전매칭.
+- [ ] **mime-type-finder** — "MIME 스니핑이 뭐길래 보안 헤더가 필요한가" — X-Content-Type-Options:nosniff로 방지.
+- [ ] **number-converter** — "2의 보수, 컴퓨터가 음수를 표현하는 방법" — 0xFFFFFFFF=-1.
+- [ ] **redirect-checker** — "301 vs 302 vs 307 vs 308, 리다이렉트 코드 헷갈리지 않는 법" — 307/308은 HTTP메서드 보존.
+- [ ] **regex-cheatsheet** — "정규식 매칭 개수는 뜨는데 하이라이트가 안 보이는 이유" — 길이0 매칭은 카운트되지만 폭0이라 안 보임.
+- [ ] **regex-generator** — "정규식 생성기의 '신용카드' 패턴은 사실 아무 13자리 숫자에나 매칭된다" — Luhn체크섬 검증 없음.
+- [ ] **sitemap-validator** — "changefreq·priority, 구글은 사실 무시한다" — 사이트맵 1개당 최대5만URL·50MB.
+- [ ] **slug-generator** — "URL 슬러그 생성기가 café를 caf-zrich로 안 만드는 이유" — NFD 정규화로 결합기호만 제거.
+- [ ] **sql-minifier** — "SQL 압축기가 문자열 속 --를 만나면 쿼리를 통째로 잘라먹는다" — 주석제거가 문자열보호보다 먼저 실행되는 버그.
+- [ ] **sql-validator** — "SQL 유효성 검사기는 사실 파서가 아니다 — 괄호·따옴표·키워드 3가지만 본다" — 순서 뒤죽박죽이어도 통과.
+- [ ] **tailwind-color-generator** — "가장 비슷한 Tailwind 색상을 찾는 법 — RGB 대신 CIE Lab을 쓰는 이유" — 인간 색지각 비례 거리계산.
+- [ ] **unit-converter** — "GB와 GiB는 왜 다른가 — 하드디스크 용량이 실제보다 작아 보이는 이유" — 500GB→실제 약465GiB표시.
+- [ ] **user-agent-parser** — "크롬도 왜 AppleWebKit/537.36을 달고 다니나 — UA 문자열의 역사적 유물" — 호환성 위해 고정값 유지.
+- [ ] **webhook-generator** — "GitHub·Stripe·Slack, 웹훅 서명이 플랫폼마다 다르게 계산되는 이유" — 해시대상 문자열이 각각 다름.
+- [ ] **webhook-tester** — "웹훅 서명 검증, === 대신 XOR로 비교하는 이유 — 타이밍 공격 방어" — 상수시간 비교 로직.
+- [ ] **whois-lookup** — "WHOIS는 죽었다? RDAP가 대체하는 이유" — HTTPS+JSON 구조화 응답.
+- [ ] **yaml-to-json** — "YAML→JSON 변환기가 쿠버네티스 매니페스트에서 실패하는 이유" — 다중문서 YAML(`---`)에서 에러.
 
-**초안 방향**: 12개월 신청기한 경고 훅 → 수급조건 3가지 → 지급액 계산법(상하한) → 소정급여일수표 → 조기재취업수당 → 계산기 링크.
-
----
-
-## 7. 주택담보대출 한도 완전정리(LTV·DSR) — `ltv-calculator.html` + `dsr-calc.html` 연계
-
-**검증된 수치** (source: `ltv-calculator.html`, `dsr-calc.html`):
-- LTV 지역별 기준: 투기과열지구·투기지역 9억 이하 40%·9억 초과 20%, 조정대상지역 9억 이하 50%·9억 초과 30%, 비규제지역 70%. 생애최초/서민실수요자는 규제지역에서도 최대 70% 우대
-- 검증 예시: 5억원 주택 — 투기과열지구 한도 2억원 vs 비규제지역 한도 3.5억원(차이 1.5억원)
-- DSR 규제: 은행권(1금융권) 40%, 비은행권(2금융권) 50%. 대출 총액 1억원 초과 시 전 금융권 적용(2022년부터)
-- 검증 예시: 연소득 6,000만원 → 1금융권 기준 연간 원리금 상환 한도 최대 2,400만원(월 200만원)
-- DSR 산정 포함: 주담대·신용대출·마이너스통장(한도 전체 기준)·카드론·자동차할부·학자금대출. 신용대출은 만기 무관 10년 분할 간주
-- DSR 제외/완화: 전세자금대출(원칙적 제외, 이자만 포함되는 경우 있음), 1억원 이하 소액대출, 서민금융(햇살론 등), 정책 주담대(보금자리론 등)
-- **2026년 스트레스 DSR 3단계** 시행 — 신용대출·자동차할부·학자금대출까지 전 가계부채에 스트레스(가산)금리 반영, 실제 은행 한도는 계산기 표시값보다 낮을 수 있음
-- LTV와 DSR 모두 충족해야 실행 가능(더 낮은 한도가 실질 한도)
-
-**초안 방향**: "지역 하나로 대출한도 1.5억 차이" VS 훅 → LTV 지역별표 → DSR 40%/50% 설명 → LTV+DSR 동시충족 필요 → 2026 스트레스DSR 경고 → 계산기 2개 링크.
-
----
-
-## 8. 상속세 vs 증여세 비교 — `inheritance-tax.html` + `gift-tax.html` 연계
-
-**검증된 수치**:
-
-상속세 (source: `inheritance-tax.html`):
-- 세율(공통 누진구조): 1억 이하 10%, 5억 이하 20%, 10억 이하 30%, 30억 이하 40%, 30억 초과 50%
-- 일괄공제 5억원(기초공제 2억+인적공제 3억 중 큰 것), 배우자공제 최소 5억~최대 30억(법정상속지분 또는 실제상속액 중 작은 값), 금융재산공제 순금융재산의 20%(최대 2억, 2천만원 초과 시), 장례비용 최대 1,500만원
-- 신고기한: 상속 개시(사망)를 안 날로부터 6개월 이내(해외거주자 9개월), 신고세액공제 3%
-
-증여세 (source: `gift-tax.html`):
-- 세율: 상속세와 동일한 5단계 누진(10~50%), 누진공제액 상이(예: 10억~30억 40%·누진공제1.6억, 30억초과 50%·누진공제4.6억)
-- 10년간 합산 증여공제 한도: 배우자 6억원, 직계존속(부모·조부모) 5,000만원(수증자 미성년자는 2,000만원), 직계비속(자녀) 5,000만원, 기타친족(형제자매 등) 1,000만원, 타인(비친족) 0원(공제 없음)
-- 세대생략증여(조부모→손자녀 등) 할증: 일반 증여세의 30% 추가(수증자 미성년자면 40%)
-- 신고기한: 증여받은 날이 속한 달의 말일부터 3개월 이내, 자진신고 세액공제 3%, 무신고가산세 20%
-- **상속·증여 연계**: 사망 전 10년 이내(배우자 증여는 5년 이내) 상속인에게 한 증여는 상속세 계산 시 합산
-
-**초안 방향**: "생전에 주면 증여세, 사망 후면 상속세, 세율은 같은데 왜 다르게 느껴질까" 구조 설명 → 공제한도 비교표(상속 5억 일괄 vs 증여 관계별 5천만~6억) → 세대생략 할증 경고 → 10년 합산규정 → 장기분산증여 전략 → 계산기 2개 링크.
-
----
-
-## 9. 프리랜서 세금 완전정리 — `freelancer-tax.html` 연계
-
-**검증된 수치** (source: `freelancer-tax.html`):
-- 원천징수 3.3% = 소득세 3% + 지방소득세 0.3%
-- 4대보험: 프리랜서는 원칙적으로 지역가입자로 국민연금·건강보험 본인 전액 부담. 고용보험은 특수형태근로자(배달기사·보험설계사 등)만 의무가입. 산재보험은 임의가입
-- 사업자등록: 연 2,400만원 초과 수입 예상 시 유리. 면세사업자(강사·작가 등)는 등록 의무 없음
-- 절세 수단: 노란우산공제(소득공제 최대 500만원 이상), IRP·연금저축(최대 900만원 세액공제 한도), 주택청약저축, 신용카드 공제. 장부기장 시 단순경비율보다 실경비 인정으로 세금 감소 가능
-- 환급: 5월 종합소득세 신고 시 실제 납부세액이 기납부(3.3%)보다 적으면 차액 환급, 신청 후 약 30일 내 입금
-- 계약서 유무와 무관하게 사업소득 처리 시 3.3% 원천징수 원칙(원천징수 의무는 지급자에게 있음)
-
-**초안 방향**: 3.3% 뗀 돈 어디로 가는지(소득세+지방세) → 5월에 돌려받는 구조(기납부세액 vs 실제세액) → 지역가입자 4대보험 부담 실체 → 노란우산공제 등 절세 수단 → 계산기 링크.
+REJECT(3개): ip-address-lookup(일반 네트워킹 상식 나열뿐), website-speed-estimator(범용 웹퍼포먼스 상식뿐), (json-schema-validator는 이미 클레임되어 제외).
 
 ---
 
-## 10. 건강보험료 직장 vs 지역가입자 — `health-insurance.html` 연계
+## text-tools (32개 ACCEPT)
 
-**검증된 수치** (source: `health-insurance.html`, 이번 세션 4대보험 카드에서 교차검증됨):
-- 직장가입자: 보험료율 7.19%(근로자·사업주 각 3.595%), 장기요양보험료는 건강보험료의 13.14%
-- 지역가입자: (소득 부과점수 + 재산 부과점수) × 점수당 금액(2026년 208.4원)으로 산정 — 소득뿐 아니라 재산·자동차도 반영되는 구조가 직장가입자와 근본적으로 다름
-- 상한·하한: 직장가입자는 월 보수 상한 있음, 지역가입자는 최저 보험료 설정
-- 피부양자 요건(소득·재산 기준) 충족 시 별도 보험료 없이 가입자 혜택 이용 가능
+- [ ] **character-counter** — "글자수 세기, UTF-8 vs EUC-KR 바이트가 다른 이유와 SMS 요금 폭탄" — SMS 한글45자(90바이트) 초과시 LMS 전환.
+- [ ] **word-counter** — "고유 단어 비율(TTR)로 내 글의 어휘 다양성 진단하기" — TTR=고유단어÷총단어.
+- [ ] **sentence-counter** — "문장은 어디서 끝나는가, 규칙 기반 문장 분리기의 한계" — 종결부호 없는 마지막 조각도 별도 카운트.
+- [ ] **read-time-calculator** — "읽기 시간 계산기, 한국어는 왜 '단어 수'가 아니라 '글자 수'로 계산하나" — CJK 40%초과시 계산방식 전환.
+- [ ] **text-reverser** — "텍스트를 뒤집으면 왜 이모지가 깨지는가, 서로게이트 쌍의 함정" — UTF-16 서로게이트쌍 2개 구성.
+- [ ] **text-shuffler** — "Array.sort(Math.random)이 왜 편향된 셔플인가, Fisher-Yates가 필요한 이유" — 비교횟수 불균등으로 편향.
+- [ ] **text-sorter** — "자연 정렬(Natural Sort), item2가 item10보다 왜 먼저 와야 하나" — 문자열속 숫자를 값으로 비교.
+- [ ] **alphabetizer** — "가나다순 정렬, localeCompare와 유니코드 순서는 왜 다른가" — 중국어·일본어는 유니코드 순서로만 정렬.
+- [ ] **text-diff-checker** — "diff 도구는 어떻게 변경사항을 찾아내는가, LCS 알고리즘 해부" — 줄단위 LCS만 지원, git Myers 알고리즘과 차이.
+- [ ] **case-converter** — "터키어의 I 문제, 표준 대소문자 변환이 깨지는 언어가 있다" — 터키어 점없는I/점있는i 구분.
+- [ ] **typing-speed-test** — "타자 속도 WPM, 왜 항상 '5글자=1단어'로 계산하나" — 영문 평균단어길이 5자 기준 국제표준.
+- [ ] **cps-calculator** — "인간 클릭 속도의 한계, 버터플라이·드래그 클릭이 필요한 이유" — 한손가락 한계 ~10CPS, 기법동원시 14~16CPS.
+- [ ] **wpm-calculator** — "한글 타자속도(타/분)와 영문 WPM, 왜 1:1 환산이 안 되는가" — 초성·중성·종성 조합 타건 기준.
+- [ ] **reading-level-checker** — "가독성 점수의 함정, 이 도구의 SMOG 지수가 표준 공식과 다르게 나오는 이유" — 계수간소화로 실제 2배 오차.
+- [ ] **remove-special-characters** — "정규식 문자 클래스의 함정, 왜 이모지가 절반만 지워지는가" — u플래그 부재로 서로게이트쌍 절반삭제.
+- [ ] **text-summarizer** — "이 텍스트 요약기, 사실 한국어에서는 작동하지 않는다" — `\w`가 한글 비인식, 문장점수 전부 0되는 버그.
+- [ ] **anagram-checker** — "애너그램 판별, 정렬 대신 문자 빈도표를 쓰는 이유" — 각 글자 등장횟수 배열 누적비교.
+- [ ] **ascii-converter** — "ASCII가 사실 UTF-8의 부분집합인 이유" — 0~127범위 바이트단위 완전동일.
+- [ ] **ascii-table** — "제어문자 DEL(127)은 왜 하필 127번일까 — 천공 테이프가 남긴 흔적" — 천공테이프 무효화 관습 유래.
+- [ ] **emoji-counter** — "이모지 하나가 글자수 2~11개로 세지는 이유 — SNS 글자수 제한의 함정" — 가족이모지 11코드유닛 이상.
+- [ ] **emoji-remover** — "숫자도 기술적으로는 이모지다? — Intl.Segmenter와 이모지 오탐 문제" — 0~9,#,*가 Emoji속성 보유.
+- [ ] **hashtag-generator** — "해시태그 몇 개가 적당한가 — 인기·중간·틈새 3:4:3 전략" — 플랫폼별 적정개수 차이.
+- [ ] **keyword-extractor** — "왜 '텍스트를'과 '텍스트가'가 다른 단어로 집계될까 — 조사 없는 언어를 위해 설계된 도구의 한계" — 형태소분석 없이 조사포함 집계.
+- [ ] **ngram-analyzer** — "다국어 UI인데 정작 중국어·일본어는 분석 못 하는 N-그램 분석기 — 정규식 언어 편향" — 한자·가나 정규식으로 삭제.
+- [ ] **palindrome-checker** — "사람 눈엔 회문인데 알고리즘은 아니라는 경우 — 코드포인트 vs 그래프임 함정" — 국기·ZWJ이모지 오판 가능.
+- [ ] **stopword-remover** — "TF-IDF 돌리기 전에 불용어부터 지우는 이유" — 통계왜곡시키는 고빈도단어 개념.
+- [ ] **text-case-detector** — "camelCase vs kebab-case, 왜 언어마다 다른 표기법을 쓰나" — kebab은 JS 변수명 문법상 불가.
+- [ ] **text-encryptor** — "카이사르 암호부터 AES-256-GCM까지, 이 도구 하나로 보는 암호화 발전사" — PBKDF2 10만회 반복+매번 새salt.
+- [ ] **text-statistics** — "Flesch 가독성 지수, 왜 한국어에는 안 통하나" — 1948년 영어전용 공식, 한글엔 점수 미표시.
+- [ ] **unicode-converter** — "이모지 하나, 프로그래밍 언어마다 다른 세 가지 이스케이프 표기" — JS/JSON/Python 표기 비교.
+- [ ] **unicode-inspector** — "apple.com이 진짜 apple.com이 아닐 수도 있다 — 호모글리프 피싱의 원리" — IDN 호모그래프 도메인 피싱.
+- [ ] **word-frequency-counter** — "빈도 막대그래프의 %가 어떤 값을 기준으로 하는지" — 분모가 전체토큰(발생횟수) 기준.
 
-**초안 방향**: "똑같이 아파도 보험료 계산법이 다르다" 훅 → 직장가입자 요율 구조 → 지역가입자 점수제 설명(재산·자동차 포함되는 이유) → 피부양자 등록 조건 → 계산기 링크.
-
----
-
-## 11~28. 비금융 18개 — 크로스카테고리 서베이 상세 (2026-08-18, fork 조사)
-
-각 항목은 소스 파일의 실제 FAQ/기능 깊이를 확인해서 "이 도구 사용법" 재탕이 아니라 원리·비교·한계를 설명하는 각도로 뽑음. 숫자·법조항까지 깊게 검산한 금융 10개와 달리, 이쪽은 "소스 파일에 이 앵글을 뒷받침할 실제 콘텐츠가 있다"만 확인된 상태 — 실제로 쓸 때 세부 수치·공식은 다시 한 번 소스 파일 대조할 것.
-
-**developer-tools**
-- **크론 표현식 완전정리** — `*/5`(step) vs `1-5`(range) vs `1,3,5`(list) 등 cron 문법 5개 필드 구조와 자주 틀리는 부분. Source: `cron-parser.html`
-- **SQL 쿼리 분석기가 진짜 파서가 아닌 이유** — 정규식 기반이라 괄호 깊이(서브쿼리)를 못 읽고 조인 조건을 그대로 반복 표시하는 등 실제 한계를 정직하게 다루는 "이 도구가 못 하는 것" 앵글. Source: `sql-query-explainer.html`
-
-**data-tools**
-- **JSON Schema 검증기의 숨은 한계** — enum 검사가 문자열 타입에만 적용되고 숫자/불리언은 통과, minItems/maxItems/uniqueItems 미구현 등 구체적 버그 사례로 "스키마 검증 도구를 맹신하면 안 되는 이유". Source: `json-schema-validator.html`
-
-**text-tools**
-- **텍스트 유사도, 편집거리(Levenshtein) 알고리즘 해부** — DP 기반 편집거리 계산과 500자 초과 시 근사치로 전환되는 한계까지. Source: `text-similarity-checker.html`
-- **키워드 밀도, 구글이 부정한 SEO 신화** — 구글 공식 입장(밀도는 순위 요소 아님) 인용해 오래된 SEO 통념 반박. Source: `keyword-density-checker.html`
-
-**image-tools**
-- **PNG vs JPG vs WebP 손실/무손실 압축 실전 가이드** — 포맷별 압축 방식 차이와 언제 뭘 써야 하는지. Source: `image-compressor.html`
-- **WCAG 명도대비 AA/AAA 실전 기준** — 일반 텍스트 4.5:1/7:1, 큰 텍스트 3:1/4.5:1 수치 기반. Source: `color-contrast-checker.html`
-
-**pdf-tools / generator-tools**
-- **PDF 압축이 안 먹히는 이유** — JPEG로 재렌더링하는 방식이라 이미지 많은 PDF는 확 줄지만 텍스트 PDF는 오히려 커질 수 있다는 메커니즘 설명(정직한 한계형). Source: `pdf-compressor.html`
-- **바코드 vs QR코드, 언제 뭘 써야 하나** — EAN-13(유통 표준, 숫자 전용) vs QR(URL·텍스트 자유) 포맷 차이. Source: `barcode-generator.html`
-- **파비콘 사이즈 완전정리** — 16×16/32×32/180×180/192×192/512×512 각각의 용도(브라우저탭·Apple Touch·PWA). Source: `favicon-generator.html`
-- *(pdf-tools 나머지 — 병합·분할·워터마크 등은 기능 설명 수준이라 장문 아티클감 약함, 무리해서 추가 안 함)*
-
-**security-tools**
-- **인증서 포맷 PEM vs DER vs P12 차이** — Base64 텍스트 vs 바이너리 vs 개인키 포함 여부, openssl 변환법. Source: `ssl-decoder.html`
-- **비밀번호 생성기, NIST 2025 신 가이드라인 반영** — SP 800-63B Rev.4 기준 길이 우선·특수문자 강제 폐지 근거(배치1 SNS 카드뉴스에서 이미 검증된 출처 재사용 가능). Source: `password-generator.html`
-
-**ai-tools**
-- **LLM API 요금, 입력·출력 토큰이 왜 다른가** — 출력 토큰이 입력 대비 2~5배 비싸고, 프롬프트 캐싱 시 50~90% 할인되는 구조. Source: `ai-cost-calculator.html`
-- **GPT 토큰 계산 원리(BPE)** — 영어 1단어≈1~2토큰, 한국어 1글자≈2~3토큰인 이유와 CJK 처리 방식. Source: `chatgpt-token-counter.html`
-
-**health-calculators**
-- **체지방률 측정법 비교(Navy method vs Deurenberg vs DEXA)** — 이 계산기가 쓰는 방식과 임상 측정법의 정확도 차이. Source: `body-fat-calculator.html`
-- **수면 주기 90분의 과학** — 배치2 SNS 카드에서 이미 검증한 90분 주기·평균 15분 입면시간 데이터 재사용 가능. Source: `sleep-calculator.html`
-
-**date-time-tools**
-- **한국 나이 vs 만 나이, 왜 아직 혼용되나** — 2023년 만 나이 통일법 이후에도 일상에서 한국식 나이가 쓰이는 이유와 계산 차이. Source: `korean-age.html`
-- **회의 비용 계산기의 숨은 전제** — 연봉÷근무일÷8시간×간접비 공식과, 언어를 바꿔도 항상 원화·만원 단위로 고정되는 이유(다국어 UI의 통화 통일 설계). Source: `meeting-cost-calculator.html`
-
-**후보에서 제외한 것**: `qr-code-generator`, `uuid-generator`, `hash-generator`, `macro-calculator`, `pace-calculator` 등은 FAQ가 "무료인가요/상업적으로 써도 되나요" 수준으로 얕아서 장문 아티클을 뒷받침 못함 — 억지로 채우지 않음.
+REJECT(9개): line-counter, find-replace, remove-empty-lines, remove-duplicate-lines, text-cleaner, line-merger, random-word-generator, remove-duplicate-words, text-merger (전부 순수 UI/기능 나열, 원리·비교 앵글 부재).
 
 ---
 
-## 다음 세션에서 이어할 때
+## image-tools (24개 ACCEPT)
 
-1. 위 "검증된 수치" 블록은 전부 실제 파일에서 grep으로 확인 완료 상태 — **재검증 불필요**, 바로 본문 작성 가능.
-2. `salary-take-home-2026.html`을 열어서 HTML 구조(헤더/CSS/footer/JSON-LD 패턴) 그대로 복사해 새 파일 만들 것.
-3. 하나 완성할 때마다 이 표의 상태 칸을 `[x] 작성 완료 (파일 있음)`로 갱신.
-4. 28개 후보 중 목표는 15~20개 — 전부 다 쓸 필요 없음, 카테고리 균형 맞춰(금융/노무에 쏠리지 않게) 우선순위 골라서 진행. 다 끝나면 about.html 등에서 언급한 "일부 계산기 페이지 하단에 최종 확인 시점 표기" 문구와 맞춰 각 신규 가이드도 `<p class="meta">` 검증일 넣을 것.
-5. 병렬 작업 시: 28개 항목이 전부 서로 다른 소스 파일·다른 guides/ 파일명이라 충돌 없음 — 여러 세션/에이전트가 동시에 진행 가능.
-5. 관련 계산기 페이지(예: `capital-gains-tax.html`)에 신규 가이드로 가는 역링크 추가하면 내부链크 구조도 보강됨(선택사항, 필수는 아님).
+- [ ] **image-resizer** — "이미지를 키우면 왜 화질이 안 좋아지나: 업스케일의 함정" — A4 300DPI 인쇄=2480×3508px.
+- [ ] **png-to-jpg** — "프로그레시브 JPEG vs 기본 JPEG, 로딩 방식이 다르다" — Canvas 기본출력은 항상 baseline방식.
+- [ ] **base64-image** — "Base64 이미지, 왜 원본보다 33% 커지나" — 1MB→약1.33MB.
+- [ ] **svg-viewer** — "SVG 미리보기 안에서 스크립트가 실행되지 않는 이유" — Blob+img src로 script실행 원천차단.
+- [ ] **svg-to-png** — "SVG 애니메이션을 PNG로 구우면 왜 항상 정지 프레임인가" — 애니메이션 시작전 상태만 캡처.
+- [ ] **png-to-svg** — "PNG를 SVG로 바꿔준다는 도구, 사실은 벡터 트레이싱이 아니다" — 픽셀마다 1×1 rect 방식.
+- [ ] **image-rotator** — "정각이 아닌 각도로 회전하면 캔버스가 왜 커지는가" — cos·sin 바운딩박스 동적계산.
+- [ ] **image-watermark** — "이미지 워터마크는 한글이 안 깨지는데 PDF 워터마크는 왜 깨지나" — 웹폰트 vs PDF내장폰트 차이.
+- [ ] **exif-viewer** — "GPS 좌표가 숫자 하나가 아니라 세 개인 이유" — 도·분·초 3개 유리수(RATIONAL) 저장.
+- [ ] **exif-remover** — "사진 속 GPS 좌표, 왜 SNS 올리기 전에 지워야 하나" — Canvas 재인코딩으로 메타데이터 원천 제거.
+- [ ] **ico-converter** — "ICO 파일 속 아이콘, 사실은 전부 PNG로 저장된다" — Vista이후 PNG바이트 그대로 담는 방식.
+- [ ] **webp-to-jpg** — "카카오톡에 웹피(WebP) 이미지가 안 열리는 이유" — 구형iOS/안드로이드 WebP 미리보기 실패.
+- [ ] **image-color-extractor** — "이미지 대표색, 평균값이 아니라 클러스터링을 쓰는 이유" — 빨강+파랑 평균=보라 오류 방지.
+- [ ] **pixelate-image** — "픽셀화로 가린 사진, 낮은 강도면 복원될 수 있다" — 저강도 픽셀화 원본추정 가능 연구.
+- [ ] **color-palette** — "보색·삼색·분할보색, 각도로 배우는 색상 조화 이론" — 보색180°, 삼색120°씩.
+- [ ] **color-converter** — "같은 HEX 코드인데 화면마다 색이 다르게 보이는 이유" — sRGB vs Display P3 색공간 차이.
+- [ ] **color-blindness-simulator** — "색맹 시뮬레이터의 숨은 버그, 왜 완전한 회색이 안 나올까" — 3×4행렬을 3×3으로 착각한 실제 코드버그.
+- [ ] **avif-to-jpg** — "투명 배경 이미지를 JPG로 바꾸면 왜 까맣게 나오는가" — Canvas 기본픽셀(투명검정)+알파소실.
+- [ ] **heic-to-jpg** — "iPhone 사진이 브라우저에서 안 열리는 이유" — HEVC특허코덱, libheif WASM 이식.
+- [ ] **image-dimension-checker** — "16:9는 어떻게 계산되나: 종횡비의 유클리드 호제법" — GCD알고리즘으로 정수비 약분.
+- [ ] **image-dpi-checker** — "인쇄용 300DPI 사진이 118로 잘못 표시되는 이유" — 카메라 cm단위 저장시 변환버그.
+- [ ] **jpg-to-heic** — "JPG to HEIC라는 이름인데 실제로는 HEIC를 만들 수 없다" — 코덱 라이선스로 브라우저 인코딩 불가, WebP로 대체.
+- [ ] **transparent-background-maker** — "배경 제거 도구의 색상 키 알고리즘, 허용범위는 실제로 어떻게 계산되나" — RGB거리×2.2, 알파 선형감소.
+- [ ] **svg-cleaner** — "SVG 파일 용량의 숨은 범인, 에디터 네임스페이스" — Inkscape/AI/Figma 메타데이터 10~40% 감소.
+
+REJECT(7개): webp-to-png, image-to-webp, image-cropper, blur-image, color-picker, css-gradient-generator, jpg-to-avif (기존 image-format-comparison-2026 가이드와 중복 또는 순수 UI 조작).
+
+---
+
+## generator-tools (21개 ACCEPT)
+
+- [ ] **seo-title-generator** — "SEO 제목, 왜 한글은 영어보다 훨씬 빨리 잘리나" — 구글 픽셀폭 기준(약580px), 한글28~30자 vs 영문50~60자.
+- [ ] **meta-description-generator** — "메타 설명, 써도 구글이 무시하는 이유" — 순위요소 아니나 CTR 간접기여, 구글이 본문서 발췌대체.
+- [ ] **ai-youtube-title-generator** — "유튜브 제목 vs 썸네일, 같은 말 두 번 하면 손해인 이유" — 70자초과 잘림, 이탈률↑시 알고리즘 노출↓.
+- [ ] **ai-thumbnail-title-generator** — "유튜브 썸네일 문구, 왜 10자를 넘기면 안 되나" — 한줄10자·2줄20자 권장.
+- [ ] **utm-builder** — "UTM, 내부 링크에 붙이면 왜 절대 안 되나" — 내부링크에 붙이면 GA가 새 세션으로 오집계.
+- [ ] **robots-txt-generator** — "robots.txt, Allow와 Disallow 충돌하면 누가 이기나" — 더 긴(구체적)경로 우선.
+- [ ] **meta-tag-generator** — "구글은 2009년부터 keywords 메타태그를 안 본다" — 2009년(구글)/2011년(빙) 공식 폐기 발표.
+- [ ] **sitemap-generator** — "사이트맵 5만 개 URL 제한, 왜 하필 그 숫자인가" — 단일 사이트맵 최대5만URL·50MB.
+- [ ] **open-graph-generator** — "OG 태그 고쳤는데 카톡/페북 미리보기가 안 바뀌는 이유" — 플랫폼 캐싱, 2010년 f8공개 프로토콜.
+- [ ] **twitter-card-generator** — "twitter:card 안 넣어도 트위터 카드가 뜨는 이유" — OG태그 자동 폴백.
+- [ ] **schema-markup-generator** — "JSON-LD가 구조화 데이터 표준이 된 이유" — 리치스니펫 CTR 평균20~30%↑.
+- [ ] **hreflang-generator** — "hreflang, 절반이 틀리게 쓰는 SEO 태그" — 양방향참조 비대칭이면 구글이 조용히 무시.
+- [ ] **htaccess-generator** — "HSTS 설정했다가 사이트가 접속 불가가 되는 이유" — 인증서 문제시 HTTPS 강제로 접속불가.
+- [ ] **nginx-config-generator** — "Nginx가 대량 동시접속에 강한 진짜 이유" — 이벤트기반 비동기 vs Apache 스레드/프로세스.
+- [ ] **apache-config-generator** — ".htaccess vs VirtualHost, 왜 성능 차이가 나나" — .htaccess는 요청마다 재로딩.
+- [ ] **uuid-generator** — "UUID를 DB 기본키로 쓰면 안 되는 이유" — B-트리 인덱스 단편화, crypto.randomUUID() 필수 보안경고.
+- [ ] **uuid-converter** — "UUID 네 번째 그룹 첫 글자, 아무도 안 보는 그 한 글자의 의미" — variant 비트 판별규칙.
+- [ ] **ulid-generator** — "ULID 알파벳에 I, L, O, U가 없는 이유" — Crockford Base32, 서기10889년까지 표현.
+- [ ] **nanoid-generator** — "랜덤 문자열 생성기가 몰래 편향되는 이유(그리고 고치는 법)" — 거부샘플링(rejection sampling) 메커니즘.
+- [ ] **qr-code-generator** — "QR코드 오류 수정 레벨, H(30%)를 쓰면 정말 로고를 박아도 되나" — L7/M15/Q25/H30% 4단계.
+- [ ] **lorem-ipsum-generator** — "Lorem Ipsum, 키케로가 쓴 그 문장이 왜 의미 없는 글자로 보이나" — 기원전45년 키케로 원문 훼손 역사.
+
+REJECT(8개): youtube-script-generator, ai-email-generator, ai-resume-generator, ai-cover-letter-generator, ai-product-description-generator, ai-blog-title-generator, ai-tweet-generator, ai-linkedin-post-generator (전부 FAQ가 자기 도구 내부 버그/한계 고백뿐, 외부지식 없음).
+
+---
+
+## security-tools (17개 ACCEPT)
+
+- [ ] **url-encoder** — "encodeURIComponent vs encodeURI, 이중 인코딩(%2520) 버그는 왜 생기나" — 폼(+) vs REST API(%20) 인코딩 차이.
+- [ ] **url-decoder** — "URL 디코딩에서 '+'가 공백이 안 되는 이유, 이중 디코딩 처리법" — decodeURI는 %XX만 처리, +는 안건드림.
+- [ ] **html-decoder** — "브라우저 네이티브 파서로 HTML 엔티티를 안전하게 디코딩하는 원리" — textarea.innerHTML RAWTEXT모델.
+- [ ] **hash-generator** — "MD5·SHA-1은 왜 아직 쓰이지만 보안엔 못 쓰나 — 해시 vs HMAC vs CRC32" — 실제 해시충돌 사례.
+- [ ] **random-string** — "Math.random()과 crypto.getRandomValues(), 비밀번호 생성기 엔트로피 계산법" — 128비트 엔트로피=최소22자.
+- [ ] **http-header-checker** — "HSTS max-age=0의 함정 — 보안 헤더가 있어도 없는 셈인 경우" — RFC6797상 max-age=0은 HSTS비활성.
+- [ ] **ssl-checker** — "SSL 체커는 실제로 서버에 접속하지 않는다 — Certificate Transparency 로그의 원리와 한계" — crt.sh CT로그 대체조회.
+- [ ] **csr-generator** — "CSR 키 크기 2048 vs 4096, EC vs RSA — 뭘 골라야 인증서가 빨라지나" — EC P-256=RSA2048과 동등보안.
+- [ ] **csp-generator** — "'unsafe-inline' 한 줄이 CSP 방어를 무력화하는 이유와 nonce 대안" — meta태그는 frame-ancestors 미지원.
+- [ ] **csp-validator** — "CSP를 사이트 안 깨뜨리고 도입하는 법 — Report-Only에서 강제 모드까지 3단계" — data:URI가 img-src/script-src서 위험도 다름.
+- [ ] **cors-header-checker** — "Preflight가 도는 요청 vs 안 도는 요청 — CORS 에러의 진짜 원인" — simple request는 preflight없이 즉시전송.
+- [ ] **hash-checker** — "왜 브라우저 표준 해시 API는 MD5를 지원하지 않는가" — crypto.subtle.digest는 MD5 넘기면 즉시 예외.
+- [ ] **bcrypt-generator** — "bcrypt 72바이트 제한, 한글 비밀번호는 24자에서 잘린다" — 72바이트 이후 다른 한글비번 2개 동일해시 실증.
+- [ ] **bcrypt-validator** — "bcrypt는 salt를 따로 안 저장하는데 어떻게 검증하나 — compare()의 실제 동작" — 해시 앞29자를 salt로 재사용.
+- [ ] **hmac-generator** — "HMAC이 길이 확장 공격을 막는 이중 해시 구조(ipad/opad)" — 단순연결해시는 length-extension 취약.
+- [ ] **rsa-key-generator** — "RSA 공개지수 65537의 의미와 PKCS#8 vs PKCS#1 포맷 함정" — 2048비트+OAEP 평문190바이트 제한.
+- [ ] **ssh-key-generator** — "Ed25519가 RSA를 대체하는 이유 — SSH 키 알고리즘 비교와 셸 이스케이프 함정" — 고정256비트로 RSA2048 이상 보안.
+
+REJECT(5개): base64-encoder, base64-decoder, html-encoder(순수 인코딩 스펙뿐), jwt-decoder, jwt-generator(기존 jwt-authentication-guide와 중복).
+
+---
+
+## pdf-tools (13개 ACCEPT)
+
+- [ ] **pdf-page-counter** — "PDF 페이지 수, 왜 Word 문서랑 다르게 나올까" — 고정레이아웃 vs 리플로우 구조차이.
+- [ ] **image-to-pdf** — "이미지를 PDF로 바꾸면 왜 용량이 커질 수 있을까" — PNG/GIF는 캔버스거쳐 무손실PNG로 재인코딩.
+- [ ] **pdf-password-remover** — "PDF 비밀번호 제거가 실패하는 이유, 오류 메시지가 알려주지 않는 것" — 틀린비번·미지원암호화 동일오류.
+- [ ] **pdf-password-adder** — "PDF 비밀번호가 두 종류인 이유 — 사용자 비밀번호 vs 소유자 비밀번호" — 열람제어 vs 권한제어 분리.
+- [ ] **pdf-rotate** — "PDF를 돌려도 화질이 그대로인 이유 — /Rotate 메타데이터의 원리" — 재렌더링 없이 값만 변경.
+- [ ] **pdf-extract-images** — "PDF 이미지 추출, 사실은 페이지 전체를 사진 찍는 방식" — 캔버스 렌더링, 1pt=1/72인치.
+- [ ] **pdf-metadata-viewer** — "이력서에 몰래 딸려가는 정보 — PDF 메타데이터 유출 실제 사례" — Info Dict+XMP 이중저장구조.
+- [ ] **pdf-watermark** — "PDF 워터마크에 한글이 깨지는 이유 — 내장 폰트의 한계" — PDF표준14개 기본폰트 라틴전용.
+- [ ] **pdf-to-text** — "PDF에서 복사한 표가 다 깨지는 이유" — 연속문자열 아닌 좌표+폰트정보로 흩어져 저장.
+- [ ] **pdf-ocr** — "PDF OCR가 페이지마다 다르게 동작하는 원리" — 텍스트항목수 기준 페이지별 독립판별.
+- [ ] **pdf-metadata-remover** — "PDF 메타데이터 제거, '완전 삭제'와 '빈 값'은 다르다" — 6필드 빈값 vs 2필드 키자체 삭제 비대칭.
+- [ ] **pdf-size-analyzer** — "PDF 크기 분석기의 '페이지별 크기', 사실은 용량이 아니다" — 리소스 공유구조상 페이지별 바이트계산 불가.
+- [ ] **pdf-word-counter** — "PDF 단어 수 세기, 중국어·일본어는 왜 부정확할까" — 공백기준분할이 CJK서 텍스트조각개수로 집계.
+
+REJECT(4개): pdf-merge, pdf-split, pdf-to-image, pdf-reorder-pages (순수 기능 사용법, 독자 앵글 없음).
+
+---
+
+## ai-tools (10개 ACCEPT)
+
+- [ ] **ai-token-counter** — "한국어는 왜 영어보다 토큰을 더 많이 먹는가" — "안녕하세요"≈5토큰 vs "Hello"≈3토큰.
+- [ ] **prompt-formatter** — "ChatML vs XML vs JSONL, 모델마다 프롬프트 포맷이 다른 이유" — OpenAI ChatML vs Claude XML태그.
+- [ ] **image-prompt-generator** — "이미지 프롬프트 생성기, DALL-E 모드에만 있는 숨은 버그" — 공백중복+네거티브프롬프트 무시되는 실제버그.
+- [ ] **prompt-optimizer** — "프롬프트 하나로 안 되는 이유: 작업 유형별 8가지 구조(RCTF)" — 요약/번역별 요구사항 항목 차이.
+- [ ] **system-prompt-generator** — "시스템 프롬프트에 숨어있는 고정 문구, 캐릭터 롤플레이와 충돌하는 이유" — 4가지 일반원칙 무조건 덧붙는 구조.
+- [ ] **prompt-cleaner** — "프롬프트 정제기가 보여주는 토큰 수는 가짜다" — 문자수×0.25 근사식, 한글서 과소표시.
+- [ ] **prompt-template-generator** — "Chain-of-Thought 템플릿 '3단계'는 왜 고정값일 뿐인가" — CoT 하드코딩 3단계 vs 최신 reasoning모델.
+- [ ] **prompt-variable-extractor** — "{{변수}}는 되는데 [변수]는 왜 안 되나" — 마크다운 링크/각주와 구분불가해 미지원.
+- [ ] **ai-model-comparison** — "GPT vs Claude vs Gemini, 무료 티어는 뭐가 다른가" — Gemini 계열내 무료티어 비대칭.
+- [ ] **markdown-chat-exporter** — "AI 채팅 내보내기가 조용히 실패하는 순간" — 역할접두사 없으면 무오류로 결과빔.
+
+REJECT: 없음(10개 전부 ACCEPT).
+
+---
+
+## data-tools (8개 ACCEPT)
+
+- [ ] **json-validator** — "JSON 숫자가 깨지는 이유: IEEE 754와 2^53의 함정" — 2^53(9007199254740992) 초과 정수 정밀도 손실.
+- [ ] **yaml-formatter** — "YAML의 노르웨이 문제: yes/no가 왜 갑자기 true/false가 되는가" — YAML1.1 vs 1.2 불리언 파싱 차이.
+- [ ] **csv-to-json** — "CSV를 JSON으로 바꿀 때 숫자로 둔갑하는 값: 앞자리 0이 사라지는 문제" — "007"/"010-"는 문자열 유지.
+- [ ] **json-diff** — "JSON 배열 비교의 함정: 인덱스 기반 diff가 중간 삽입에서 틀리는 이유" — LCS정렬 없이 인덱스만 대응.
+- [ ] **json-flattener** — "중첩 JSON 평탄화(flatten)와 되돌리기(unflatten), 정보가 사라지는 지점" — 2차원배열서 구조정보 소실.
+- [ ] **xml-to-json** — "XML을 JSON으로 바꾸면 사라지는 것: 혼합 콘텐츠의 순서와 공백" — 텍스트노드 개별trim으로 공백손실.
+- [ ] **json-path-tester** — "JSONPath 완전정리: 문법과 이 도구가 지원하지 않는 것" — 슬라이싱([0:2]) 미지원.
+- [ ] **sql-to-json** — "SQL INSERT를 JSON으로 바꾸는 파서의 숨은 버그: 이스케이프된 따옴표가 사라지는 이유" — 'O''Brien'→"OBrien" 손상버그.
+
+REJECT(7개): json-formatter, json-viewer, json-minifier, xml-formatter, sql-formatter, json-to-csv(json-flattener와 중복), csv-viewer.
+
+---
+
+## health-calculators (8개 ACCEPT — 전부)
+
+- [ ] **bmi-calc** — "BMI 25 vs 23, 왜 한국 기준이 세계 기준보다 낮은가" — WHO25이상 vs 한국비만학회23이상.
+- [ ] **calorie-calculator** — "칼로리 계산기 숫자가 실제 체중 변화와 다른 진짜 이유" — 10년마다 BMR 2~3%자연감소.
+- [ ] **macro-calculator** — "매크로 비율, 목표 바뀌어도 사실 안 바뀌는 것" — 단백질=체중×2g 고정, 실코드 확인된 실제 로직.
+- [ ] **water-intake** — "갈증 느끼면 이미 늦었다? 물도 과하면 위험한 이유" — 저나트륨혈증(hyponatremia) 위험 병기.
+- [ ] **pace-calculator** — "마라톤 페이스, 평지 기준으로만 계산하면 틀리는 이유" — 경사1%당 km당 약6초 느려짐(GAP).
+- [ ] **pregnancy-due-date** — "출산 예정일에 정확히 태어나는 아기는 5%뿐인 이유" — 네겔레법칙은 LMP기준, 배란시차 오차.
+- [ ] **health-insurance-calc** — "건강보험료 4월에 왜 더 걷거나 돌려주나" — 전년추정 vs 확정보수 4월정산.
+- [ ] **national-pension** — "국민연금 몇 살에 받아야 손해 안 볼까" — 조기수령 1년당6%감액 vs 연기수령 1년당7.2%증액.
+
+REJECT: 없음.
+
+---
+
+## date-time-tools (8개 ACCEPT)
+
+- [ ] **date-calc** — "소멸시효 계산의 함정, 채권 종류마다 왜 다른가" — 일반채권10년/상사5년/불법행위3년.
+- [ ] **time-calculator** — "야간수당 50%는 왜 밤 10시부터인가 — 근로기준법 제56조 완전정리" — 야간(22~06시) 별도50%가산.
+- [ ] **business-days-calculator** — "계약서 '영업일 5일 이내', 달력으로는 며칠인가" — 공휴일 끼면 달력 10일이상 벌어짐.
+- [ ] **pomodoro-timer** — "뽀모도로 25분, 실제 근거가 있는 숫자인가" — 프란체스코 치릴로 개인 경험칙, 과학적 최적값 아님.
+- [ ] **timestamp** — "유닉스 타임스탬프와 2038년 문제" — 32비트 signed integer 오버플로.
+- [ ] **timezone-converter** — "30분·45분 단위 시간대가 존재하는 이유 — IST(UTC+5:30) 결정의 역사" — 인도UTC+5:30, 네팔UTC+5:45.
+- [ ] **working-days-calc** — "근로자의 날은 왜 법적으로 '공휴일'이 아닌가" — 근로기준법상 별도 유급휴일, 대체공휴일 미적용.
+- [ ] **time-zone-meeting-planner** — "글로벌 회의 시간 추천, UTC 자정을 넘는 구간은 어떻게 합치나" — 자정걸치는 구간 병합알고리즘.
+
+REJECT(3개): age-calculator(korean-age와 중복), countdown-timer(순수 UI), dday(순수 UI).
+
+---
+
+## 부록: 금융 10개 상세 (수치 검증 완료, 2026-08-18)
+
+### 1. 양도소득세 완전정리 — `capital-gains-tax.html` 연계
+
+세율표: 1,400만원 이하 6%, ~8,800만원 24%, 5억~10억원 42%, 10억원 초과 45%. 1년 미만 보유 단기양도세율 70%. 조정대상지역 다주택자 중과세 2주택+20%p·3주택+30%p(2026년 5월 10일부터 재적용). 1세대1주택 비과세 2년 보유+거주, 양도가 12억원 이하. 검증 예시: 과세표준 7억원 → 세액 2억 5,806만원(7억×42%−3,594만원).
+
+### 2. 육아휴직급여 2025 개편 총정리 — `parental-leave.html` 연계
+
+구간별 지급률(2025년 개편): 1~3개월 100%(상한250만), 4~6개월 100%(상한200만), 7~12개월 80%(상한160만), 하한 70만원. 사후지급금 2025년 1월 폐지. 6+6제도 월별상한 250→250→300→350→400→450만원, 생후18개월내 신청. 경고: 주15시간 이상 취업시 급여 전액 반환.
+
+### 3. 국민연금 직장 vs 지역가입자 — `national-pension-calculator.html` 연계
+
+보험료율 9.5%(직장 각4.75%, 지역 전액). 2026년 기준소득월액 상한659만/하한41만원. 예시 월300만원: 직장142,500원 vs 지역285,000원. 조기수령 1개월당0.5%감액(최대5년), 연기연금 최대5년+연7.2%.
+
+### 4. 퇴직금 계산법 + IRP 절세 — `severance.html` 연계
+
+공식=(3개월임금÷3개월일수)×30×(근속일수÷365). 예시 월300만원·92일→일평균97,826원→30일분2,934,783원→3년880만원. IRP 이연시 55세이후 연금수령시 30~40% 감면.
+
+### 5. 최저임금·주휴수당 완전정리 — `minimum-wage.html` 연계
+
+2026년 10,320원(+2.9%). 2027년 확정10,700원(+3.7%, 2026-07-14표결). 209시간=2,156,880원. 주휴수당 주15시간이상 발생, 40시간미만 비례계산.
+
+### 6. 실업급여 신청 A to Z — `unemployment.html` 연계
+
+60%of평균임금, 2026-01-01이후 상한68,100원/일. 최대68,100×270일=18,387,000원. 경고: 12개월 신청기한 소멸.
+
+### 7. 주택담보대출 한도 완전정리(LTV·DSR) — `ltv-calculator.html`+`dsr-calc.html` 연계
+
+LTV 투기과열9억이하40%·초과20%, 조정50%·30%, 비규제70%. DSR 1금융권40%·2금융권50%. 2026 스트레스DSR 3단계 시행.
+
+### 8. 상속세 vs 증여세 비교 — `inheritance-tax.html`+`gift-tax.html` 연계
+
+세율공통 1억↓10%~30억초과50%. 상속 일괄공제5억, 배우자공제5~30억. 증여 10년합산 배우자6억/직계존속5000만/직계비속5000만. 세대생략할증30%.
+
+### 9. 프리랜서 세금 완전정리 — `freelancer-tax.html` 연계
+
+3.3%=소득세3%+지방세0.3%. 프리랜서 지역가입자 국민연금·건보 전액부담. 절세: 노란우산공제(최대500만+), IRP·연금저축(최대900만).
+
+### 10. 건강보험료 직장 vs 지역가입자 — `health-insurance.html` 연계
+
+직장 7.19%(각3.595%), 장기요양 건보료의13.14%. 지역가입자 (소득점수+재산점수)×208.4원(2026).
