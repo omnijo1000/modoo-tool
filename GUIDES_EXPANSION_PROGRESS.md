@@ -71,7 +71,7 @@
 - [ ] **sip-calculator** — "Step-Up SIP, 매년 늘리면 복리효과가 얼마나 커지나" — 월$100+매년10%증액, 10년뒤 월$240.
 - [ ] **emi-calculator** — "인도 EMI 대출한도, FOIR 40%가 정하는 것" — 월소득5만루피·FOIR40%→최대EMI 2만루피.
 - [ ] **loan-calculator-en** — "중도상환수수료, 미국과 한국은 왜 이렇게 다른가" — 미국 대부분 무료 vs 한국 잔여원금 0.5~1.5%.
-- [ ] **gst-calculator** — "인도 GST 매입세액공제(ITC), 실제 절세 구조" — 원자재 ₹18,000 납부→ITC로 실제납부 ₹18,000뿐.
+- [x] **gst-calculator** (guides/gst-calculator-itc-explained.html, 2026-08-19) — "인도 GST 매입세액공제(ITC), 실제로 얼마나 절세되나" — 원자재매입 ₹18,000 ITC→실제납부 ₹9,000.
 - [ ] **vat-calculator-global** — "전세계 VAT 최고·최저 세율, 영국의 4단계 구조" — 헝가리27% vs 룩셈부르크17%, 영국 20/5/0/면세 4단계.
 - [ ] **mortgage-calculator** — "PMI vs 한국 LTV, 계약금 20%가 갖는 의미" — 미국 LTV80%이하 PMI면제 vs 한국 LTV50~60%규제.
 - [ ] **roi-calculator** — "ROI와 CAGR, 같은 투자인데 숫자가 다른 이유" — 단순누적 vs 연평균복리환산 비교.
@@ -121,7 +121,7 @@ REJECT(4개, 이유 있음): salary(기존 가이드와 중복), salary-negotiat
 - [x] **cron-generator** (guides/cron-spring-quartz-vs-crontab.html, 2026-08-19) — "Spring/Quartz Cron vs 표준 crontab, 필드 하나가 다른 이유" — Spring은 초 필드 추가돼 6필드.
 - [x] **uuid-validator** (guides/uuid-primary-key-performance.html, 2026-08-19) — "UUID v4를 DB 기본키로 쓰면 느려지는 이유" — B-트리 페이지 분할 유발, v7/ULID가 대안.
 - [x] **regex-tester** (guides/regex-catastrophic-backtracking-redos.html, 2026-08-19) — "정규식 그리디 vs 레이지 매칭과 ReDoS" — 중첩 정량자 `(a+)+`가 catastrophic backtracking 유발.
-- [ ] **markdown-preview** — "마크다운 렌더러의 XSS 방어 메커니즘과 CommonMark 표준화 배경" — javascript: 스킴 차단, CommonMark 2014년 등장.
+- [x] **markdown-preview** (guides/markdown-xss-commonmark-history.html, 2026-08-19) — "마크다운 렌더러의 XSS 방어 원리와 CommonMark 표준화 배경" — javascript: 스킴 차단, CommonMark 2014년 등장.
 - [ ] **html-to-markdown** — "HTML→Markdown 변환에서 구조적으로 사라지는 것들" — colspan/rowspan 대응 문법 없어 병합셀 풀림.
 - [x] **yaml-validator** (guides/yaml-norway-problem-boolean-parsing.html, 2026-08-19) — "YAML의 노르웨이 문제(Norway Problem)" — YAML1.1에서 `no`가 boolean false로 해석되던 버그.
 - [ ] **json-to-xml** — "JSON→XML 변환의 근본적 한계" — XML엔 배열 개념 없어 같은 태그 반복, null은 self-closing 태그.
@@ -178,7 +178,7 @@ REJECT(3개): ip-address-lookup(일반 네트워킹 상식 나열뿐), website-s
 ## text-tools (32개 ACCEPT)
 
 - [x] **character-counter** (guides/sms-byte-limit-euckr-encoding.html, 2026-08-19) — "글자수 세기, UTF-8 vs EUC-KR 바이트가 다른 이유와 SMS 요금 폭탄" — SMS 한글45자(90바이트) 초과시 LMS 전환.
-- [ ] **word-counter** — "고유 단어 비율(TTR)로 내 글의 어휘 다양성 진단하기" — TTR=고유단어÷총단어.
+- [x] **word-counter** (guides/word-counter-lexical-diversity-ttr.html, 2026-08-19) — "고유 단어 비율(TTR)로 내 글의 어휘 다양성 진단하기" — TTR=고유단어÷총단어, 길이 편향과 MTLD/MSTTR/Guiraud 보정.
 - [ ] **sentence-counter** — "문장은 어디서 끝나는가, 규칙 기반 문장 분리기의 한계" — 종결부호 없는 마지막 조각도 별도 카운트.
 - [ ] **read-time-calculator** — "읽기 시간 계산기, 한국어는 왜 '단어 수'가 아니라 '글자 수'로 계산하나" — CJK 40%초과시 계산방식 전환.
 - [ ] **text-reverser** — "텍스트를 뒤집으면 왜 이모지가 깨지는가, 서로게이트 쌍의 함정" — UTF-16 서로게이트쌍 2개 구성.
@@ -217,7 +217,7 @@ REJECT(9개): line-counter, find-replace, remove-empty-lines, remove-duplicate-l
 ## image-tools (24개 ACCEPT)
 
 - [x] **image-resizer** (guides/image-upscale-quality-loss.html, 2026-08-19) — "이미지를 키우면 왜 화질이 안 좋아지나: 업스케일의 함정" — A4 300DPI 인쇄=2480×3508px.
-- [ ] **png-to-jpg** — "프로그레시브 JPEG vs 기본 JPEG, 로딩 방식이 다르다" — Canvas 기본출력은 항상 baseline방식.
+- [x] **png-to-jpg** (guides/progressive-vs-baseline-jpeg.html, 2026-08-19) — "프로그레시브 JPEG vs 기본 JPEG, 브라우저 변환기가 안 만들어주는 이유" — Canvas 기본출력은 항상 baseline방식, 스캔 구조 차이.
 - [ ] **base64-image** — "Base64 이미지, 왜 원본보다 33% 커지나" — 1MB→약1.33MB.
 - [ ] **svg-viewer** — "SVG 미리보기 안에서 스크립트가 실행되지 않는 이유" — Blob+img src로 script실행 원천차단.
 - [x] **svg-to-png** (guides/svg-animation-to-png-static-frame.html, 2026-08-19) — "SVG 애니메이션을 PNG로 구우면 왜 항상 정지 프레임인가" — 애니메이션 시작전 상태만 캡처.
@@ -299,7 +299,7 @@ REJECT(5개): base64-encoder, base64-decoder, html-encoder(순수 인코딩 스�
 
 ## pdf-tools (13개 ACCEPT)
 
-- [ ] **pdf-page-counter** — "PDF 페이지 수, 왜 Word 문서랑 다르게 나올까" — 고정레이아웃 vs 리플로우 구조차이.
+- [x] **pdf-page-counter** (guides/pdf-page-count-fixed-layout-vs-reflow.html, 2026-08-19) — "PDF 페이지 수, 왜 Word 문서랑 다르게 나올까" — pdf-lib getPageCount()가 읽는 Pages트리 Count값(고정) vs Word 리플로우 재계산.
 - [ ] **image-to-pdf** — "이미지를 PDF로 바꾸면 왜 용량이 커질 수 있을까" — PNG/GIF는 캔버스거쳐 무손실PNG로 재인코딩.
 - [ ] **pdf-password-remover** — "PDF 비밀번호 제거가 실패하는 이유, 오류 메시지가 알려주지 않는 것" — 틀린비번·미지원암호화 동일오류.
 - [ ] **pdf-password-adder** — "PDF 비밀번호가 두 종류인 이유 — 사용자 비밀번호 vs 소유자 비밀번호" — 열람제어 vs 권한제어 분리.

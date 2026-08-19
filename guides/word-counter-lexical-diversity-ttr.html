@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>고유 단어 비율(TTR)로 어휘 다양성 진단하기 — 길이 편향 함정까지 | MODOO HUB</title>
+<meta name="description" content="TTR(Type-Token Ratio)로 글의 어휘 다양성을 진단하는 법과, 텍스트가 길어질수록 수치가 왜곡되는 함정, MTLD·Guiraud 등 보정 지표를 실제 계산 예시로 정리합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/word-counter-lexical-diversity-ttr.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"고유 단어 비율(TTR)로 어휘 다양성 진단하기 — 길이 편향 함정까지","description":"TTR(Type-Token Ratio)로 글의 어휘 다양성을 진단하는 법과, 텍스트가 길어질수록 수치가 왜곡되는 함정, MTLD·Guiraud 등 보정 지표를 실제 계산 예시로 정리합니다.","datePublished":"2026-08-19","dateModified":"2026-08-19","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>고유 단어 비율(TTR)로 어휘 다양성 진단하기 — 길이 편향 함정까지</h1>
+  <p class="meta">가이드 · 2026-08-19 최종 확인</p>
+
+  <p>글쓰기 실력을 진단할 때 "같은 단어를 얼마나 반복하지 않고 다양하게 썼는가"는 중요한 척도입니다. 이를 수치화한 것이 TTR(Type-Token Ratio, 어형-어휘소 비율)입니다. 계산 자체는 단순하지만, 이 숫자 하나만 믿고 비교하면 텍스트 길이 때문에 완전히 잘못된 결론에 이를 수 있습니다. 이 가이드는 TTR의 정의부터, 왜 길이가 늘어나면 값이 기계적으로 낮아지는지, 그리고 언어학·자연어처리 분야에서 이 문제를 어떻게 보정하는지까지 실제 숫자로 계산해 정리합니다.</p>
+
+  <h2>1. TTR이란 무엇인가</h2>
+  <p>TTR은 <strong>고유 단어 수(type) ÷ 총 단어 수(token)</strong>로 정의됩니다. 예를 들어 텍스트에 단어가 총 100개 등장했고 그중 중복을 제거한 서로 다른 단어가 70개라면 TTR은 0.70입니다. 값이 1에 가까울수록 같은 단어를 거의 반복하지 않았다는 뜻이고, 0에 가까울수록 소수의 단어를 계속 반복했다는 뜻입니다. <a href="../word-counter.html">단어 수 세기 도구</a>는 총 단어 수와 고유 단어 수를 모두 화면에 보여주므로, 두 값을 나누기만 하면 누구나 직접 TTR을 구할 수 있습니다.</p>
+
+  <h2>2. 왜 텍스트가 길어지면 TTR이 저절로 낮아지는가</h2>
+  <p>TTR의 가장 큰 함정은 <strong>텍스트 길이에 근본적으로 민감하다</strong>는 점입니다. 짧은 글은 아직 같은 단어를 반복할 기회가 적어 TTR이 높게 나오고, 글이 길어질수록 이미 썼던 단어(조사, 접속사, 자주 쓰는 명사 등)를 다시 쓸 확률이 기하급수적으로 늘어나 TTR은 필연적으로 떨어집니다. 이는 글쓴이의 어휘력과 무관하게, 순전히 텍스트 길이라는 변수만으로 발생하는 수학적 현상입니다.</p>
+  <div class="box">
+    <strong>숫자로 보는 편향</strong>: 10개 단어로 된 문장(고유 단어 8개)의 TTR은 8÷10=0.80입니다. 이 문장을 그대로 한 번 더 반복해 20개 단어(고유 단어는 여전히 8개)로 늘리면 TTR은 8÷20=0.40으로 <strong>절반</strong>이 됩니다. 글쓴이가 새로운 단어를 하나도 안 썼는데도, 단순히 텍스트를 이어붙였다는 이유만으로 수치가 반토막 나는 것입니다.
+  </div>
+  <p>그래서 "이 글은 TTR이 0.35, 저 글은 0.55이니 저 글이 어휘가 더 풍부하다"는 식의 비교는, 두 글의 길이가 같을 때만 의미가 있습니다. 짧은 SNS 게시물과 5,000단어 블로그 글의 TTR을 그대로 비교하는 것은 처음부터 잘못된 비교입니다.</p>
+
+  <h2>3. 길이 편향을 보정하는 지표들</h2>
+  <p>언어학과 코퍼스 연구에서는 이 문제를 해결하기 위해 여러 보정 지표를 사용합니다.</p>
+  <table>
+    <tr><th>지표</th><th>계산 방식</th><th>특징</th></tr>
+    <tr><td>Guiraud's Index</td><td>고유 단어 수 ÷ √(총 단어 수)</td><td>제곱근으로 나눠 길이 영향을 완화. 계산이 간단해 실무에서 자주 쓰임</td></tr>
+    <tr><td>MSTTR (윈도우 TTR)</td><td>텍스트를 일정 단어 수(예: 100단어) 구간으로 나눠 각 구간 TTR을 구한 뒤 평균</td><td>모든 구간을 같은 길이로 맞춰 비교하므로 길이 편향이 사실상 사라짐</td></tr>
+    <tr><td>MTLD</td><td>누적 TTR이 임계값(보통 0.72) 아래로 떨어질 때마다 구간을 끊어 "요인(factor)" 수를 세는 방식, 정방향·역방향 평균</td><td>McCarthy & Jarvis(2010)가 제안, 코퍼스 언어학에서 표준적으로 쓰이는 지표</td></tr>
+  </table>
+  <p>위 표의 예시(10단어·고유 8개)에 Guiraud's Index를 적용하면 8÷√10≈2.53입니다. 같은 문장을 두 번 반복한 20단어 버전은 8÷√20≈1.79로, 여전히 줄어들긴 하지만 raw TTR처럼 절반으로 폭락하지는 않습니다. 제곱근이 길이 증가분을 완만하게 눌러주기 때문입니다. MSTTR은 아예 구간 길이를 고정하므로, 100단어 단위로 잘라 평균 내면 텍스트가 1,000단어든 10,000단어든 같은 기준으로 비교할 수 있습니다.</p>
+
+  <h2>4. 실전에서 어떻게 활용할까</h2>
+  <p><a href="../word-counter.html">단어 수 세기 도구</a>에 텍스트를 붙여넣으면 총 단어 수와 고유 단어 수가 바로 표시됩니다. 이 값으로 직접 TTR을 계산해 활용하는 방법은 다음과 같습니다.</p>
+  <ul>
+    <li><strong>같은 글 안에서 구간 비교</strong>: 글 전체를 몇 개 문단으로 나눠 각 문단을 도구에 따로 붙여넣고 TTR을 비교하면, 어느 부분에서 단어 반복이 심한지 파악할 수 있습니다(MSTTR의 수동 버전).</li>
+    <li><strong>비슷한 길이의 글끼리만 비교</strong>: 지난 글과 이번 글의 TTR을 비교하고 싶다면, 반드시 두 글의 총 단어 수를 비슷하게 맞추거나 Guiraud's Index로 환산해서 비교하세요.</li>
+    <li><strong>키워드 반복과는 별개 문제</strong>: SEO 목적의 키워드 반복은 의도적인 것이므로, TTR이 낮다고 무조건 나쁜 글은 아닙니다. <a href="../keyword-density-checker.html">키워드 밀도 체커</a>로 특정 키워드의 반복이 과도한지 별도로 확인하는 것이 더 정확합니다.</li>
+  </ul>
+  <p>일반적인 자연스러운 산문(에세이, 블로그 포스트)의 경우 500단어 내외 글에서 TTR 0.5~0.7 정도면 무난한 범위로 보고, 0.3 이하로 떨어지면 특정 단어(주로 주제어나 조사성 반복어)가 과도하게 반복되고 있는지 점검할 필요가 있습니다. 다만 이 범위는 절대 기준이 아니라 참고치이며, 글의 장르와 길이에 따라 크게 달라진다는 점을 항상 함께 고려해야 합니다.</p>
+
+  <h2>자주 묻는 질문</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. TTR이 높으면 무조건 좋은 글인가요?</summary><p style="margin-top:8px;">아닙니다. TTR은 어휘 반복 정도를 보여줄 뿐 글의 논리·가독성·정확성과는 무관합니다. 오히려 지나치게 높은 TTR은 같은 개념을 매번 다른 단어로 바꿔 표현해 오히려 읽기 어려운 글일 수도 있습니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 서로 다른 길이의 글도 비교할 방법이 있나요?</summary><p style="margin-top:8px;">Guiraud's Index(고유 단어÷√총 단어)나 MSTTR(구간별 평균 TTR)을 사용하면 길이가 달라도 비교적 공정하게 비교할 수 있습니다. 학술 연구에서는 더 정교한 MTLD를 표준으로 씁니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 한국어 텍스트도 TTR 계산이 정확한가요?</summary><p style="margin-top:8px;">한국어는 띄어쓰기 기준 어절 단위로 "단어"를 셉니다. 조사가 단어에 붙어 있어 형태소 분석 기반 언어(예: "학교는", "학교를"이 서로 다른 토큰으로 잡힘)보다 고유 단어 수가 더 많게 집계되는 경향이 있어, 영어 텍스트와 TTR을 직접 비교하는 것은 권장하지 않습니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../word-counter.html">→ 단어 수 세기 도구</a>
+    <a href="../text-statistics.html">→ 텍스트 통계 분석기</a>
+    <a href="../keyword-density-checker.html">→ 키워드 밀도 체커</a>
+    <a href="../keyword-extractor.html">→ 키워드 추출기</a>
+    <a href="../word-frequency-counter.html">→ 단어 빈도 분석기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적입니다.</footer>
+</main>
+</body>
+</html>

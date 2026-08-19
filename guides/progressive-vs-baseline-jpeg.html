@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>프로그레시브 JPEG vs 기본 JPEG, 브라우저 변환기가 안 만들어주는 이유 | MODOO HUB</title>
+<meta name="description" content="Canvas API로 만든 JPEG은 왜 항상 기본(Baseline) 방식인지, 프로그레시브 JPEG은 내부적으로 어떻게 다른 구조인지, 실제로 어떻게 만드는지 정리합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/progressive-vs-baseline-jpeg.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"프로그레시브 JPEG vs 기본 JPEG, 브라우저 변환기가 안 만들어주는 이유","description":"Canvas API로 만든 JPEG은 왜 항상 기본(Baseline) 방식인지, 프로그레시브 JPEG은 내부적으로 어떻게 다른 구조인지, 실제로 어떻게 만드는지 정리합니다.","datePublished":"2026-08-19","dateModified":"2026-08-19","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+code{background:var(--surface2);padding:1px 5px;border-radius:4px;font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>프로그레시브 JPEG vs 기본 JPEG, 브라우저 변환기가 안 만들어주는 이유</h1>
+  <p class="meta">가이드 · 2026-08-19 최종 확인</p>
+
+  <p>PNG를 JPG로 변환할 때 대부분의 사람들은 "화질"과 "용량"만 신경 쓰지만, JPEG 내부에는 눈에 잘 안 보이는 또 하나의 선택지가 있습니다. 바로 <strong>기본(Baseline)</strong> 방식과 <strong>프로그레시브(Progressive)</strong> 방식입니다. 같은 화질, 같은 파일 크기라도 이미지가 화면에 나타나는 방식이 완전히 다릅니다. 이 가이드는 두 방식이 내부적으로 어떻게 다른지, 그리고 브라우저의 Canvas API로 만든 JPEG이 왜 항상 기본 방식으로만 나오는지 정리합니다.</p>
+
+  <h2>1. 두 방식의 화면 표시 차이</h2>
+  <p><strong>기본(Baseline) JPEG</strong>은 이미지를 위에서 아래로, 8×8 픽셀 블록 단위로 순서대로 완성해가며 로드합니다. 느린 네트워크에서는 이미지 위쪽 절반만 선명하게 보이고 아래쪽은 아예 안 보이는 상태로 한참 머무릅니다. <strong>프로그레시브(Progressive) JPEG</strong>은 반대로 이미지 전체의 흐릿한 저해상도 버전을 먼저 통째로 보여준 뒤, 데이터가 더 도착할 때마다 전체 영역이 동시에 점점 선명해지는 방식입니다. 사용자 체감상 "빨리 뭔가 보이기 시작한다"는 인상을 주기 때문에, 웹 성능 최적화에서는 프로그레시브 방식이 흔히 권장됩니다.</p>
+
+  <h2>2. 내부 구조: 스캔(Scan)이 하나냐 여러 개냐</h2>
+  <p>JPEG은 이미지를 8×8 블록으로 나눈 뒤 DCT(이산 코사인 변환)를 적용해 각 블록을 저주파(전체적인 밝기·색조 정보) 계수와 고주파(세부 디테일 정보) 계수로 분해합니다. 두 방식의 차이는 이 계수들을 파일에 <strong>몇 번의 스캔(scan)으로 나눠 기록하느냐</strong>에 있습니다.</p>
+  <ul>
+    <li><strong>기본 방식</strong>: 각 블록의 모든 계수(저주파+고주파)를 한 번에, 블록 순서대로(왼쪽 위→오른쪽 아래) 기록합니다. 스캔이 1번뿐입니다.</li>
+    <li><strong>프로그레시브 방식</strong>: 먼저 모든 블록의 저주파 계수만 훑어 기록(1차 스캔)하고, 그다음 스캔에서 고주파 계수를 조금씩 추가해나가는 식으로 보통 3~10회 이상 여러 번의 스캔으로 나눠 기록합니다. 1차 스캔만 도착해도 이미지 전체의 대략적인 형태를 이미 그릴 수 있는 이유가 여기 있습니다.</li>
+  </ul>
+  <p>즉 프로그레시브 JPEG은 "같은 정보를 다른 순서로 재배열해서" 체감 로딩 속도를 개선하는 것이지, 별도의 압축 알고리즘을 쓰는 것이 아닙니다. 인코딩 방식이 더 복잡해 압축 자체의 효율은 오히려 기본 방식보다 미세하게(보통 몇 % 수준) 더 좋은 경우가 많다는 점도 부가적인 특징입니다.</p>
+
+  <h2>3. 왜 Canvas API는 항상 기본 방식만 만드는가</h2>
+  <p>브라우저에서 <code>canvas.toBlob(..., 'image/jpeg', quality)</code>로 JPEG을 생성하면, 어떤 브라우저를 쓰든 결과물은 항상 기본(Baseline) 방식입니다. Web 표준인 HTML Canvas 2D Context 스펙 자체가 JPEG 인코딩 옵션으로 품질(quality)만 정의하고 있고, 스캔 방식(프로그레시브 여부)을 지정하는 옵션은 아예 존재하지 않기 때문입니다. 이는 특정 브라우저의 한계가 아니라 표준 자체의 설계 범위 밖의 기능입니다. 그래서 이 사이트의 <a href="../png-to-jpg.html">PNG → JPG 변환기</a>를 포함해, Canvas API로 동작하는 모든 브라우저 기반 이미지 변환 도구는 프로그레시브 옵션을 제공할 수 없습니다.</p>
+  <div class="box">
+    <strong>프로그레시브 JPEG이 꼭 필요하다면</strong>: 브라우저 도구가 아니라 서버·데스크톱용 인코더가 필요합니다. 대표적으로 <code>jpegtran -progressive</code>(libjpeg 계열 CLI 도구), MozJPEG(<code>cjpeg -progressive</code>), ImageMagick(<code>convert -interlace Plane</code>) 등이 프로그레시브 옵션을 명시적으로 지원합니다.
+  </div>
+
+  <h2>4. 실무에서는 어떤 걸 골라야 하나</h2>
+  <p>웹사이트 성능(Core Web Vitals의 LCP 등)을 고려한다면 큰 사진 이미지는 프로그레시브가 유리한 경우가 많습니다. 반면 아주 작은 썸네일이나 아이콘처럼 어차피 순식간에 로드되는 이미지는 두 방식의 체감 차이가 거의 없고, 오히려 프로그레시브 인코딩의 복잡한 구조 때문에 파일이 미세하게 커질 수도 있습니다. 이 사이트의 변환기처럼 개인이 빠르게 포맷만 바꾸는 용도라면 기본 방식으로 충분하며, 대규모 웹 서비스에 올릴 이미지라면 별도의 이미지 최적화 파이프라인(MozJPEG 등)에서 프로그레시브로 재인코딩하는 것을 권장합니다.</p>
+
+  <h2>자주 묻는 질문</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 프로그레시브 JPEG이 화질도 더 좋은가요?</summary><p style="margin-top:8px;">같은 품질(quality) 설정에서는 화질 자체는 동일합니다. 다만 인코딩 구조가 더 정교해 같은 화질 기준으로 파일 크기가 기본 방식보다 미세하게(보통 몇 % 수준) 작아지는 경우가 많습니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 이 사이트 변환기로 프로그레시브 JPEG을 만들 수 없나요?</summary><p style="margin-top:8px;">불가능합니다. 브라우저 표준 Canvas API 자체가 프로그레시브 인코딩 옵션을 제공하지 않기 때문에, 브라우저에서 동작하는 어떤 변환 도구도 이 기능은 만들 수 없습니다. jpegtran이나 MozJPEG 같은 별도 프로그램이 필요합니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 이미지 뷰어에 따라 지원 여부가 다른가요?</summary><p style="margin-top:8px;">모든 주요 브라우저와 대부분의 이미지 뷰어는 프로그레시브 JPEG을 정상적으로 표시합니다. 다만 아주 오래된 이미지 처리 라이브러리나 일부 특수 임베디드 환경에서는 지원이 제한될 수 있어, 범용성이 최우선이라면 기본 방식이 더 안전합니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../png-to-jpg.html">→ PNG → JPG 변환기</a>
+    <a href="../jpg-to-webp.html">→ JPG → WebP 변환기</a>
+    <a href="../image-resizer.html">→ 이미지 리사이저</a>
+    <a href="image-format-comparison-2026.html">→ 이미지 포맷 선택 가이드</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적입니다.</footer>
+</main>
+</body>
+</html>
