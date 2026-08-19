@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>프롬프트 정제기가 보여주는 토큰 수는 가짜다 — 0.25 근사식의 함정 | MODOO HUB</title>
+<meta name="description" content="프롬프트 정제기의 '~토큰' 수치는 문자 수 × 0.25 근사식일 뿐 실제 토크나이저 값이 아닙니다. 한국어에서 왜 실제보다 훨씬 적게 표시되는지 설명합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/prompt-cleaner-token-count-approximation.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/prompt-cleaner-token-count-approximation.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/prompt-cleaner-token-count-approximation.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"프롬프트 정제기가 보여주는 토큰 수는 가짜다 — 0.25 근사식의 함정","description":"프롬프트 정제기의 '~토큰' 수치는 문자 수 × 0.25 근사식일 뿐 실제 토크나이저 값이 아닙니다. 한국어에서 왜 실제보다 훨씬 적게 표시되는지 설명합니다.","datePublished":"2026-08-19","dateModified":"2026-08-19","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--purple);}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;}
+details summary{cursor:pointer;font-weight:600;color:var(--text-muted);}
+details p{margin-top:8px;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>프롬프트 정제기가 보여주는 토큰 수는 가짜다 — 0.25 근사식의 함정</h1>
+  <p class="meta">가이드 · 2026-08-19 최종 확인</p>
+
+  <p>프롬프트 정제 도구에서 정제 전후로 "~토큰: 1,234 → 987"처럼 숫자가 줄어드는 걸 보면 실제로 API 비용이나 컨텍스트 사용량이 그만큼 줄었다고 믿기 쉽습니다. 하지만 이 숫자는 실제 토크나이저를 돌린 값이 아니라, 문자 수에 고정 비율을 곱한 근사치입니다. 이 가이드는 그 근사식이 정확히 무엇이고, 왜 한국어에서 특히 신뢰할 수 없는지 설명합니다.</p>
+
+  <h2>1. 실제 소스 코드에 박혀 있는 근사식</h2>
+  <p>modoohub.com의 프롬프트 정제기(prompt-cleaner.html)를 직접 열어보면, 토큰 수를 계산하는 함수는 이렇게 되어 있습니다.</p>
+  <div class="box">
+    <code>function estTokens(s){return Math.ceil(s.length*0.25);}</code><br><br>
+    입력 문자열의 <strong>길이(length) × 0.25</strong>를 올림한 값을 그대로 "~토큰"으로 표시합니다. 실제 토크나이저 라이브러리는 전혀 호출하지 않습니다.
+  </div>
+  <p>즉 문자 4개당 토큰 1개라는 단순 선형 비율입니다. 이 도구의 자체 FAQ에도 "실제 토크나이저를 실행하지 않고 문자 수 × 0.25라는 근사식만 사용합니다"라고 명시돼 있어, 숨겨진 버그가 아니라 의도된 단순화입니다.</p>
+
+  <h2>2. "4글자당 1토큰"은 어디서 온 숫자인가</h2>
+  <p>OpenAI의 tiktoken이나 Claude의 토크나이저는 BPE(Byte-Pair Encoding) 계열 알고리즘으로, 자주 등장하는 바이트/문자 조합을 하나의 토큰으로 병합하도록 대량의 텍스트로 학습된 어휘 사전을 사용합니다. 영어 산문을 이 방식으로 토큰화하면 평균적으로 문자 4개당 토큰 1개 정도가 나온다는 것이 널리 알려진 경험적 수치입니다. 이 도구의 0.25 계수는 바로 이 영어 기준 경험치를 그대로 가져다 쓴 것입니다.</p>
+
+  <h2>3. 왜 한국어에서 유독 크게 어긋나는가</h2>
+  <p>BPE 어휘 사전은 학습 데이터의 언어 분포를 그대로 반영합니다. 대부분의 범용 토크나이저는 학습 코퍼스에서 영어 비중이 압도적으로 높기 때문에, 영어의 흔한 단어·접두사·접미사 조합은 통째로 하나의 토큰으로 묶여 있는 경우가 많습니다. 반면 한글은 어휘 사전에서 상대적으로 덜 최적화돼 있어, 음절 하나하나 혹은 음절을 이루는 바이트 시퀀스가 여러 토큰으로 쪼개지는 경우가 흔합니다. 그 결과 같은 글자 수라도 한국어 텍스트의 실제 토큰 수는 "문자 수 × 0.25" 공식이 예측하는 값보다 훨씬 많이 나오는 경우가 많습니다 — 이 근사식은 한국어에서 실제 토큰 소비량을 체계적으로 과소평가하는 방향으로 어긋납니다.</p>
+
+  <h2>4. 실무에서 벌어지는 일</h2>
+  <p>이 도구로 프롬프트를 정제한 뒤 화면의 "절약된 토큰 수"만 보고 "이제 컨텍스트 창에 여유가 생겼다" 또는 "API 비용이 이만큼 줄었다"고 판단하면, 특히 한국어 프롬프트에서는 실제 값과 차이가 날 수 있습니다. 절약률(%) 역시 같은 근사식으로 정제 전후 값을 계산한 것이므로 똑같은 오차를 그대로 물려받습니다. 정제 기능 자체(공백 정리·빈 줄 처리·탭 변환 등)는 실제로 문자 수를 줄여주므로 유효하지만, 화면에 뜨는 토큰 숫자를 실제 청구/컨텍스트 계산의 근거로 쓰는 것은 위험합니다.</p>
+
+  <h2>5. 정확한 토큰 수가 필요하다면</h2>
+  <ul>
+    <li><strong>OpenAI 계열 모델</strong>: tiktoken 라이브러리(또는 이를 감싼 온라인 도구)로 실제 인코딩을 돌려 토큰 수를 확인하세요.</li>
+    <li><strong>Claude 계열 모델</strong>: Anthropic API/SDK가 제공하는 토큰 카운트 기능을 사용하세요.</li>
+    <li><strong>비교가 목적이라면</strong>: 정제 전 텍스트와 정제 후 텍스트를 각각 위 방법으로 실제 토큰화해서 직접 차이를 확인하는 것이 유일하게 신뢰할 수 있는 방법입니다.</li>
+  </ul>
+  <p>이 사이트의 <a href="../ai-token-counter.html">AI 토큰 카운터</a>도 참고할 수 있지만, 어떤 도구든 브라우저에서 문자 수 기반 근사식을 쓰는지 실제 토크나이저를 호출하는지 먼저 확인하는 습관이 중요합니다.</p>
+
+  <h2>자주 묻는 질문</h2>
+  <details><summary>Q. 프롬프트 정제기의 토큰 수치를 아예 믿으면 안 되나요?</summary><p>A. 완전히 무의미한 건 아닙니다. 정제 전후 상대적인 "글자 수가 줄었다"는 방향성 자체는 유효합니다. 다만 절대값(정확히 몇 토큰인지)이나 한국어 비율은 신뢰하지 말고, 정확한 값이 필요할 때는 실제 토크나이저를 따로 돌려야 합니다.</p></details>
+  <details><summary>Q. 왜 도구가 처음부터 실제 토크나이저를 쓰지 않나요?</summary><p>A. tiktoken 같은 라이브러리를 브라우저에 그대로 심으면 용량이 커지고, 모델마다 토크나이저가 달라(OpenAI/Claude/Gemini 등) 어떤 모델 기준으로 셀지 선택이 필요해집니다. 가벼운 도구는 이런 복잡도 대신 근사식을 택하는 경우가 많습니다.</p></details>
+  <details><summary>Q. 영어 프롬프트라면 이 근사식을 믿어도 되나요?</summary><p>A. 영어는 애초에 이 0.25 계수가 유래한 기준 언어라 상대적으로 오차가 작습니다. 다만 코드 블록, 특수문자, 반복 패턴이 많은 텍스트는 영어라도 실제 토큰화 결과가 단순 비율에서 벗어날 수 있습니다.</p></details>
+  <details><summary>Q. 절약률(%) 수치는 정제 효과를 판단하는 데 아예 쓸모없나요?</summary><p>A. 절약률도 같은 0.25 근사식으로 계산되므로 절대 정확도는 낮지만, "이 옵션을 켜니 절약률이 더 올라갔다"처럼 옵션 간 상대 비교 용도로는 참고할 수 있습니다. 실제 API 비용 절감폭을 확인하려면 정제 전후 텍스트를 실제 토크나이저에 넣어야 합니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../prompt-cleaner.html">→ 프롬프트 정제기</a>
+    <a href="../ai-token-counter.html">→ AI 토큰 카운터</a>
+    <a href="../token-estimator.html">→ 토큰 추정기</a>
+    <a href="../prompt-token-estimator.html">→ 프롬프트 토큰 추정기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적입니다.</footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDF 이미지 추출, 사실은 페이지 전체를 사진 찍는 방식 | MODOO HUB</title>
+<meta name="description" content="PDF 이미지 추출 도구가 실제로는 페이지 전체를 캔버스에 렌더링하는 방식이지 내장 이미지 객체를 뽑아내는 게 아닌 이유를 1pt=1/72인치 좌표계와 함께 설명합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/pdf-extract-images-page-rasterize-not-embedded.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/pdf-extract-images-page-rasterize-not-embedded.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/pdf-extract-images-page-rasterize-not-embedded.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"PDF 이미지 추출, 사실은 페이지 전체를 사진 찍는 방식","description":"PDF 이미지 추출 도구가 실제로는 페이지 전체를 캔버스에 렌더링하는 방식이지 내장 이미지 객체를 뽑아내는 게 아닌 이유를 1pt=1/72인치 좌표계와 함께 설명합니다.","datePublished":"2026-08-19","dateModified":"2026-08-19","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--purple);}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;}
+details summary{cursor:pointer;font-weight:600;color:var(--text-muted);}
+details p{margin-top:8px;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>PDF 이미지 추출, 사실은 페이지 전체를 사진 찍는 방식</h1>
+  <p class="meta">가이드 · 2026-08-19 최종 확인</p>
+
+  <p>"PDF 이미지 추출"이라는 이름을 보고 PDF 안에 삽입된 사진이나 로고 파일을 원본 그대로 뽑아주는 도구라고 기대하기 쉽습니다. 하지만 실제로 브라우저에서 동작하는 대부분의 PDF 이미지 추출 도구는 그런 방식이 아닙니다. 페이지 전체를 사진 찍듯 통째로 렌더링해서 이미지 파일로 내보내는 것이지, PDF 내부에 박혀 있는 개별 이미지 객체를 골라내는 게 아닙니다. 이 둘의 차이를 모르면 "이 사진만 딱 뽑고 싶은데 왜 페이지 전체가 나오지?"라는 혼란을 겪게 됩니다.</p>
+
+  <h2>1. 두 가지 완전히 다른 접근</h2>
+  <p>PDF에서 "이미지를 얻는다"는 표현 뒤에는 사실 전혀 다른 두 가지 기술이 숨어 있습니다.</p>
+  <ul>
+    <li><strong>내장 이미지 객체 추출</strong>: PDF 파일 내부의 객체 그래프를 순회하며 Image XObject를 찾아, 그 이미지가 어떤 필터(DCTDecode/JPEG, FlateDecode, JBIG2, CCITT Fax 등)로 압축돼 있는지 판별하고 압축을 풀어 원본에 가까운 이미지 데이터를 뽑아내는 방식입니다. 구현이 복잡하지만, 원본 이미지의 해상도와 화질을 거의 그대로 보존합니다.</li>
+    <li><strong>페이지 렌더링 후 내보내기</strong>: 텍스트·벡터 그래픽·이미지가 뒤섞인 페이지 전체를 화면에 그리듯 캔버스(Canvas)에 렌더링한 뒤, 그 캔버스를 통째로 하나의 이미지 파일로 저장하는 방식입니다. 구현이 훨씬 단순하지만, 결과물은 "그 페이지를 찍은 스크린샷"이지 개별 이미지 객체가 아닙니다.</li>
+  </ul>
+
+  <h2>2. 이 도구가 실제로 하는 일</h2>
+  <p>실제 소스 코드를 확인하면 이 도구는 PDF.js의 <code>page.getViewport({scale})</code>로 뷰포트를 계산하고, <code>page.render({canvasContext, viewport})</code>로 페이지 전체를 캔버스에 그린 뒤 <code>canvas.toDataURL('image/png')</code>로 PNG를 뽑아냅니다. 즉 명백히 두 번째 방식(페이지 렌더링)입니다. 도구 자체의 FAQ에도 "PDF 내 이미지만 추출할 수 있나요? 아니요. 페이지 전체를 하나의 PNG로 렌더링하는 방식"이라고 정확히 명시돼 있습니다. PDF 안에 사진 한 장만 작게 삽입돼 있어도, 결과물은 그 사진만 잘라낸 파일이 아니라 텍스트와 레이아웃까지 포함된 페이지 전체 이미지입니다.</p>
+
+  <h2>3. 화질은 "원본 해상도"가 아니라 "렌더링 배율"이 결정한다</h2>
+  <p>페이지 렌더링 방식에서는 결과물의 실질적인 화질이 PDF 안에 삽입됐던 원본 사진의 해상도와 무관하게, 렌더링할 때 지정한 배율(scale)에 의해 결정됩니다. 원본 사진이 아무리 고해상도였어도 낮은 배율로 렌더링하면 뭉개지고, 반대로 원본이 저해상도였어도 배율을 올리면 페이지 안의 다른 요소(텍스트·벡터선)는 선명해지지만 원본 사진 자체의 디테일이 늘어나지는 않습니다. 결과물의 화질 상한은 결국 "렌더링 배율"이지 "원본 임베드 이미지의 진짜 해상도"가 아닙니다.</p>
+
+  <h2>4. 1pt = 1/72인치, 배율과 DPI의 관계</h2>
+  <p>PDF 내부 좌표계는 페이지 크기를 포인트(pt) 단위로 정의하며, PDF 표준에서 <strong>1pt = 1/72인치</strong>로 고정돼 있습니다. 그래서 페이지를 픽셀 기반 캔버스로 렌더링하려면 반드시 pt→px 변환 배율이 필요합니다. 배율 1×는 그대로 72 DPI, 2×는 144 DPI, 3×는 216 DPI에 해당합니다. 이 도구가 "해상도(DPI)" 대신 "배율(scale)"이라는 용어를 쓰는 이유도 여기 있습니다 — 내부적으로는 항상 72pt 기준 배수로 계산되기 때문입니다.</p>
+  <div class="box">
+    <strong>예시</strong>: A4 페이지(210×297mm ≈ 595×842pt)를 3× 배율로 렌더링하면 캔버스 크기는 약 1,785×2,526px가 됩니다. 배율이 오르면 가로·세로 픽셀 수가 배율만큼 늘어나므로, 파일 용량은 대략 배율의 제곱에 비례해 커집니다.
+  </div>
+
+  <h2>5. 진짜 내장 이미지가 필요하다면</h2>
+  <p>PDF 안에 삽입된 사진·로고 파일을 원본 그대로, 페이지 배경 없이 딱 그 이미지 객체만 뽑아야 한다면 이 방식의 도구로는 불가능합니다. PDF의 객체 스트림을 직접 파싱해 Image XObject를 찾고 압축 필터를 해제하는 전용 도구(예: 데스크톱 PDF 편집기의 "이미지 추출" 기능, 또는 pikepdf/PyMuPDF 같은 라이브러리를 쓰는 스크립트)가 필요합니다. 이 도구는 반대로 "페이지를 통째로 스크린샷처럼 저장하고 싶을 때"(프레젠테이션에 붙여넣기, 블로그·SNS 캡처 게시, PDF를 못 여는 환경의 미리보기용)에 적합합니다.</p>
+
+  <h2>자주 묻는 질문</h2>
+  <details><summary>Q. 이 도구로 PDF 속 사진만 따로 뽑을 수 있나요?</summary><p>A. 아니요. 이 도구는 페이지 전체(텍스트+벡터+이미지)를 하나의 PNG로 렌더링하므로, 페이지 안의 개별 이미지 객체만 골라낼 수는 없습니다. 결과물은 항상 페이지 전체의 스크린샷 형태입니다.</p></details>
+  <details><summary>Q. 배율을 3×로 올리면 원본 사진 화질도 좋아지나요?</summary><p>A. 페이지 자체의 렌더링 해상도는 올라가지만, 원본으로 삽입됐던 사진이 저해상도였다면 그 사진 부분의 실제 디테일이 늘어나지는 않습니다. 배율은 렌더링 캔버스의 픽셀 밀도를 결정할 뿐, 원본 이미지 데이터를 초고화질로 복원해주지는 않습니다.</p></details>
+  <details><summary>Q. 왜 하필 1pt = 1/72인치인가요?</summary><p>A. PDF의 전신인 PostScript 언어가 인쇄 업계에서 전통적으로 쓰이던 활판인쇄 포인트(1/72인치에 가까운 단위)를 표준화해 채택했고, PDF도 이 관례를 그대로 물려받았습니다. 그래서 PDF 좌표계의 기본 단위가 지금도 1pt = 1/72인치로 고정돼 있습니다.</p></details>
+  <details><summary>Q. 파일이 서버로 전송되나요?</summary><p>A. 아니요. PDF.js가 브라우저 안의 Canvas API로 직접 렌더링을 수행하므로 PDF 파일이 외부 서버로 전송되지 않습니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../pdf-extract-images.html">→ PDF 이미지 추출</a>
+    <a href="../pdf-to-image.html">→ PDF를 이미지로 변환</a>
+    <a href="../pdf-thumbnail-generator.html">→ PDF 썸네일 생성기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적입니다.</footer>
+</main>
+</body>
+</html>

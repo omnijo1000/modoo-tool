@@ -67,7 +67,7 @@
 - [ ] **compound-interest** — "72의 법칙, 실제로 얼마나 정확한가" — 연8% 복리: 72÷8=9년 근사 vs 실제 9.006년.
 - [x] **savings-calc** (guides/isa-savings-interest-tax-exemption.html, 2026-08-19) — "ISA로 적금 이자세금 얼마나 아끼나" — 순이익 200만원(서민형400만)까지 비과세, 초과분 9.9% 분리과세.
 - [x] **inflation-calculator** (guides/inflation-purchasing-power-decay.html, 2026-08-19) — "월세·연금 실질가치, 인플레이션이 몇 년 만에 갉아먹나" — 월$1,000 연금, 연2% 인플레 시 구매력 약67%로 하락.
-- [ ] **currency-converter** — "환율의 숨은 비용, 스프레드는 얼마나 되나" — USD/KRW 스프레드 20~40원+카드수수료 1.25~2%.
+- [x] **currency-converter** (guides/currency-exchange-hidden-spread-cost.html, 2026-08-19) — "환율의 숨은 비용, 스프레드는 얼마나 되나" — USD/KRW 스프레드 20~40원+카드수수료 1.25~2%.
 - [ ] **sip-calculator** — "Step-Up SIP, 매년 늘리면 복리효과가 얼마나 커지나" — 월$100+매년10%증액, 10년뒤 월$240.
 - [ ] **emi-calculator** — "인도 EMI 대출한도, FOIR 40%가 정하는 것" — 월소득5만루피·FOIR40%→최대EMI 2만루피.
 - [ ] **loan-calculator-en** — "중도상환수수료, 미국과 한국은 왜 이렇게 다른가" — 미국 대부분 무료 vs 한국 잔여원금 0.5~1.5%.
@@ -148,7 +148,7 @@ REJECT(4개, 이유 있음): salary(기존 가이드와 중복), salary-negotiat
 - [ ] **api-tester** — "CORS 에러 vs 네트워크 오류, 브라우저는 왜 구분해주지 않을까" — fetch()가 둘다 같은 TypeError.
 - [ ] **curl-generator** — "cURL 명령어 생성기가 조용히 깨지는 순간 — 셸 이스케이핑의 비대칭" — 헤더값 아포스트로피는 이스케이프 안 됨.
 - [ ] **curl-parser** — "curl -d만 쓰고 -X 안 써도 POST로 잡히는 이유" — -X없이 -d있으면 자동 POST 판정.
-- [ ] **dns-lookup** — "DNS 전파는 왜 최대 48시간이나 걸리나 — TTL의 원리" — TTL3600초=1시간 캐시.
+- [x] **dns-lookup** (guides/dns-propagation-ttl-explained.html, 2026-08-19) — "DNS 전파는 왜 최대 48시간이나 걸리나 — TTL의 원리" — TTL3600초=1시간 캐시.
 - [ ] **graphql-formatter** — "GraphQL 포맷터가 문자열 속 #을 주석으로 착각하지 않는 법" — 문자열 placeholder 치환 후 복원.
 - [ ] **graphql-query-builder** — "GraphQL 쿼리 빌더의 타입 자동추론, 이름만 보고 어떻게 아나" — id로 끝나면 ID!, count/limit은 Int!.
 - [ ] **http-request-builder** — "CORS 프리플라이트(OPTIONS)는 언제 발생하나 — 3가지 조건" — 비단순 메서드/Content-Type/커스텀헤더.
@@ -199,7 +199,7 @@ REJECT(3개): ip-address-lookup(일반 네트워킹 상식 나열뿐), website-s
 - [ ] **emoji-counter** — "이모지 하나가 글자수 2~11개로 세지는 이유 — SNS 글자수 제한의 함정" — 가족이모지 11코드유닛 이상.
 - [ ] **emoji-remover** — "숫자도 기술적으로는 이모지다? — Intl.Segmenter와 이모지 오탐 문제" — 0~9,#,*가 Emoji속성 보유.
 - [ ] **hashtag-generator** — "해시태그 몇 개가 적당한가 — 인기·중간·틈새 3:4:3 전략" — 플랫폼별 적정개수 차이.
-- [ ] **keyword-extractor** — "왜 '텍스트를'과 '텍스트가'가 다른 단어로 집계될까 — 조사 없는 언어를 위해 설계된 도구의 한계" — 형태소분석 없이 조사포함 집계.
+- [x] **keyword-extractor** (guides/keyword-extractor-korean-particle-limitation.html, 2026-08-19) — "왜 '텍스트를'과 '텍스트가'가 다른 단어로 집계될까 — 조사 없는 언어를 위해 설계된 도구의 한계" — 형태소분석 없이 조사포함 집계.
 - [ ] **ngram-analyzer** — "다국어 UI인데 정작 중국어·일본어는 분석 못 하는 N-그램 분석기 — 정규식 언어 편향" — 한자·가나 정규식으로 삭제.
 - [ ] **palindrome-checker** — "사람 눈엔 회문인데 알고리즘은 아니라는 경우 — 코드포인트 vs 그래프임 함정" — 국기·ZWJ이모지 오판 가능.
 - [ ] **stopword-remover** — "TF-IDF 돌리기 전에 불용어부터 지우는 이유" — 통계왜곡시키는 고빈도단어 개념.
@@ -224,7 +224,7 @@ REJECT(9개): line-counter, find-replace, remove-empty-lines, remove-duplicate-l
 - [x] **png-to-svg** (guides/png-to-svg-not-real-vector-tracing.html, 2026-08-19) — "PNG를 SVG로 바꿔준다는 도구, 사실은 벡터 트레이싱이 아니다" — 픽셀마다 1×1 rect 방식.
 - [ ] **image-rotator** — "정각이 아닌 각도로 회전하면 캔버스가 왜 커지는가" — cos·sin 바운딩박스 동적계산.
 - [ ] **image-watermark** — "이미지 워터마크는 한글이 안 깨지는데 PDF 워터마크는 왜 깨지나" — 웹폰트 vs PDF내장폰트 차이.
-- [ ] **exif-viewer** — "GPS 좌표가 숫자 하나가 아니라 세 개인 이유" — 도·분·초 3개 유리수(RATIONAL) 저장.
+- [x] **exif-viewer** (guides/exif-gps-dms-rational-format.html, 2026-08-19) — "GPS 좌표가 숫자 하나가 아니라 세 개인 이유" — 도·분·초 3개 유리수(RATIONAL) 저장.
 - [ ] **exif-remover** — "사진 속 GPS 좌표, 왜 SNS 올리기 전에 지워야 하나" — Canvas 재인코딩으로 메타데이터 원천 제거.
 - [ ] **ico-converter** — "ICO 파일 속 아이콘, 사실은 전부 PNG로 저장된다" — Vista이후 PNG바이트 그대로 담는 방식.
 - [ ] **webp-to-jpg** — "카카오톡에 웹피(WebP) 이미지가 안 열리는 이유" — 구형iOS/안드로이드 WebP 미리보기 실패.
@@ -252,7 +252,7 @@ REJECT(7개): webp-to-png, image-to-webp, image-cropper, blur-image, color-picke
 - [x] **ai-youtube-title-generator** (guides/youtube-title-thumbnail-redundancy.html, 2026-08-19) — "유튜브 제목 vs 썸네일, 같은 말 두 번 하면 손해인 이유" — 70자초과 잘림, 이탈률↑시 알고리즘 노출↓.
 - [ ] **ai-thumbnail-title-generator** — "유튜브 썸네일 문구, 왜 10자를 넘기면 안 되나" — 한줄10자·2줄20자 권장.
 - [x] **utm-builder** (guides/utm-internal-link-tracking-mistake.html, 2026-08-19) — "UTM, 내부 링크에 붙이면 왜 절대 안 되나" — 내부링크에 붙이면 GA가 새 세션으로 오집계.
-- [ ] **robots-txt-generator** — "robots.txt, Allow와 Disallow 충돌하면 누가 이기나" — 더 긴(구체적)경로 우선.
+- [x] **robots-txt-generator** (guides/robots-txt-allow-disallow-conflict-rule.html, 2026-08-19) — "robots.txt, Allow와 Disallow 충돌하면 누가 이기나" — 더 긴(구체적)경로 우선.
 - [ ] **meta-tag-generator** — "구글은 2009년부터 keywords 메타태그를 안 본다" — 2009년(구글)/2011년(빙) 공식 폐기 발표.
 - [ ] **sitemap-generator** — "사이트맵 5만 개 URL 제한, 왜 하필 그 숫자인가" — 단일 사이트맵 최대5만URL·50MB.
 - [ ] **open-graph-generator** — "OG 태그 고쳤는데 카톡/페북 미리보기가 안 바뀌는 이유" — 플랫폼 캐싱, 2010년 f8공개 프로토콜.
@@ -304,7 +304,7 @@ REJECT(5개): base64-encoder, base64-decoder, html-encoder(순수 인코딩 스�
 - [x] **pdf-password-remover** (guides/pdf-password-remover-generic-error.html, 2026-08-19) — "PDF 비밀번호 제거가 실패하는 이유, 오류 메시지가 알려주지 않는 것" — 틀린비번·미지원암호화 동일오류.
 - [x] **pdf-password-adder** (guides/pdf-user-vs-owner-password.html, 2026-08-19) — "PDF 비밀번호가 두 종류인 이유 — 사용자 비밀번호 vs 소유자 비밀번호" — 열람제어 vs 권한제어 분리.
 - [x] **pdf-rotate** (guides/pdf-rotate-metadata-no-quality-loss.html, 2026-08-19) — "PDF를 돌려도 화질이 그대로인 이유 — /Rotate 메타데이터의 원리" — 재렌더링 없이 값만 변경.
-- [ ] **pdf-extract-images** — "PDF 이미지 추출, 사실은 페이지 전체를 사진 찍는 방식" — 캔버스 렌더링, 1pt=1/72인치.
+- [x] **pdf-extract-images** (guides/pdf-extract-images-page-rasterize-not-embedded.html, 2026-08-19) — "PDF 이미지 추출, 사실은 페이지 전체를 사진 찍는 방식" — 캔버스 렌더링, 1pt=1/72인치.
 - [x] **pdf-metadata-viewer** (guides/pdf-metadata-privacy-leak.html, 2026-08-19) — "이력서에 몰래 딸려가는 정보 — PDF 메타데이터 유출 실제 사례" — Info Dict+XMP 이중저장구조.
 - [ ] **pdf-watermark** — "PDF 워터마크에 한글이 깨지는 이유 — 내장 폰트의 한계" — PDF표준14개 기본폰트 라틴전용.
 - [ ] **pdf-to-text** — "PDF에서 복사한 표가 다 깨지는 이유" — 연속문자열 아닌 좌표+폰트정보로 흩어져 저장.
@@ -324,7 +324,7 @@ REJECT(4개): pdf-merge, pdf-split, pdf-to-image, pdf-reorder-pages (순수 기�
 - [x] **image-prompt-generator** (guides/image-prompt-generator-dalle-negative-prompt-bug.html, 2026-08-19) — "이미지 프롬프트 생성기, DALL-E 모드에만 있는 숨은 버그" — 공백중복+네거티브프롬프트 무시되는 실제버그.
 - [ ] **prompt-optimizer** — "프롬프트 하나로 안 되는 이유: 작업 유형별 8가지 구조(RCTF)" — 요약/번역별 요구사항 항목 차이.
 - [x] **system-prompt-generator** (guides/system-prompt-fixed-clauses-roleplay-conflict.html, 2026-08-19) — "시스템 프롬프트에 숨어있는 고정 문구, 캐릭터 롤플레이와 충돌하는 이유" — 4가지 일반원칙 무조건 덧붙는 구조.
-- [ ] **prompt-cleaner** — "프롬프트 정제기가 보여주는 토큰 수는 가짜다" — 문자수×0.25 근사식, 한글서 과소표시.
+- [x] **prompt-cleaner** (guides/prompt-cleaner-token-count-approximation.html, 2026-08-19) — "프롬프트 정제기가 보여주는 토큰 수는 가짜다" — 문자수×0.25 근사식, 한글서 과소표시.
 - [ ] **prompt-template-generator** — "Chain-of-Thought 템플릿 '3단계'는 왜 고정값일 뿐인가" — CoT 하드코딩 3단계 vs 최신 reasoning모델.
 - [ ] **prompt-variable-extractor** — "{{변수}}는 되는데 [변수]는 왜 안 되나" — 마크다운 링크/각주와 구분불가해 미지원.
 - [ ] **ai-model-comparison** — "GPT vs Claude vs Gemini, 무료 티어는 뭐가 다른가" — Gemini 계열내 무료티어 비대칭.
@@ -343,7 +343,7 @@ REJECT: 없음(10개 전부 ACCEPT).
 - [x] **json-flattener** (guides/json-flatten-unflatten-array-loss.html, 2026-08-19) — "중첩 JSON 평탄화(flatten)와 되돌리기(unflatten), 정보가 사라지는 지점" — 2차원배열서 구조정보 소실.
 - [x] **xml-to-json** (guides/xml-to-json-mixed-content-whitespace-loss.html, 2026-08-19) — "XML을 JSON으로 바꾸면 사라지는 것: 혼합 콘텐츠의 순서와 공백" — 텍스트노드 개별trim으로 공백손실.
 - [x] **json-path-tester** (guides/jsonpath-syntax-and-slicing-support.html, 2026-08-19) — "JSONPath 완전정리: 문법과 이 도구가 지원하지 않는 것" — 슬라이싱([0:2]) 미지원.
-- [ ] **sql-to-json** — "SQL INSERT를 JSON으로 바꾸는 파서의 숨은 버그: 이스케이프된 따옴표가 사라지는 이유" — 'O''Brien'→"OBrien" 손상버그.
+- [x] **sql-to-json** (guides/sql-insert-to-json-escaped-quote-bug.html, 2026-08-19) — "SQL INSERT를 JSON으로 바꾸는 파서의 숨은 버그: 이스케이프된 따옴표가 사라지는 이유" — 'O''Brien'→"OBrien" 손상버그.
 
 REJECT(7개): json-formatter, json-viewer, json-minifier, xml-formatter, sql-formatter, json-to-csv(json-flattener와 중복), csv-viewer.
 
@@ -356,7 +356,7 @@ REJECT(7개): json-formatter, json-viewer, json-minifier, xml-formatter, sql-for
 - [x] **macro-calculator** (guides/macro-calculator-fixed-protein-ratio.html, 2026-08-19) — "매크로 비율, 목표 바뀌어도 사실 안 바뀌는 것" — 단백질=체중×2g 고정, 실코드 확인된 실제 로직.
 - [x] **water-intake** (guides/water-intake-hyponatremia-risk.html, 2026-08-19) — "갈증 느끼면 이미 늦었다? 물도 과하면 위험한 이유" — 저나트륨혈증(hyponatremia) 위험 병기.
 - [x] **pace-calculator** (guides/marathon-pace-grade-adjusted-elevation.html, 2026-08-19) — "마라톤 페이스, 평지 기준으로만 계산하면 틀리는 이유" — 경사1%당 km당 약6초 느려짐(GAP).
-- [ ] **pregnancy-due-date** — "출산 예정일에 정확히 태어나는 아기는 5%뿐인 이유" — 네겔레법칙은 LMP기준, 배란시차 오차.
+- [x] **pregnancy-due-date** (guides/pregnancy-due-date-naegele-accuracy.html, 2026-08-19) — "출산 예정일에 정확히 태어나는 아기는 5%뿐인 이유" — 네겔레법칙은 LMP기준, 배란시차 오차.
 - [ ] **health-insurance-calc** — "건강보험료 4월에 왜 더 걷거나 돌려주나" — 전년추정 vs 확정보수 4월정산.
 - [ ] **national-pension** — "국민연금 몇 살에 받아야 손해 안 볼까" — 조기수령 1년당6%감액 vs 연기수령 1년당7.2%증액.
 
@@ -369,7 +369,7 @@ REJECT: 없음.
 - [x] **date-calc** (guides/statute-of-limitations-debt-types-korea.html, 2026-08-19) — "소멸시효 계산의 함정, 채권 종류마다 왜 다른가" — 일반채권10년/상사5년/불법행위3년.
 - [x] **time-calculator** (guides/night-shift-overtime-pay-law.html, 2026-08-19) — "야간수당 50%는 왜 밤 10시부터인가 — 근로기준법 제56조 완전정리" — 야간(22~06시) 별도50%가산.
 - [x] **business-days-calculator** (guides/business-days-vs-calendar-days-contract.html, 2026-08-19) — "계약서 '영업일 5일 이내', 달력으로는 며칠인가" — 공휴일 끼면 달력 10일이상 벌어짐.
-- [ ] **pomodoro-timer** — "뽀모도로 25분, 실제 근거가 있는 숫자인가" — 프란체스코 치릴로 개인 경험칙, 과학적 최적값 아님.
+- [x] **pomodoro-timer** (guides/pomodoro-25-minute-origin-science.html, 2026-08-19) — "뽀모도로 25분, 실제 근거가 있는 숫자인가" — 프란체스코 치릴로 개인 경험칙, 과학적 최적값 아님.
 - [x] **timestamp** (guides/unix-timestamp-2038-problem.html, 2026-08-19) — "유닉스 타임스탬프와 2038년 문제" — 32비트 signed integer 오버플로.
 - [ ] **timezone-converter** — "30분·45분 단위 시간대가 존재하는 이유 — IST(UTC+5:30) 결정의 역사" — 인도UTC+5:30, 네팔UTC+5:45.
 - [ ] **working-days-calc** — "근로자의 날은 왜 법적으로 '공휴일'이 아닌가" — 근로기준법상 별도 유급휴일, 대체공휴일 미적용.

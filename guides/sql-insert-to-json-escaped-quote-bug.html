@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SQL INSERT→JSON 변환, 이스케이프된 따옴표가 사라지는 이유 | MODOO HUB</title>
+<meta name="description" content="SQL INSERT를 JSON으로 바꾸는 파서가 'O''Brien' 같은 이스케이프된 작은따옴표를 왜 통째로 지워버리는지, 실제 코드로 원인을 해부합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/sql-insert-to-json-escaped-quote-bug.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/sql-insert-to-json-escaped-quote-bug.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/sql-insert-to-json-escaped-quote-bug.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"SQL INSERT→JSON 변환, 이스케이프된 따옴표가 사라지는 이유","description":"SQL INSERT를 JSON으로 바꾸는 파서가 'O''Brien' 같은 이스케이프된 작은따옴표를 왜 통째로 지워버리는지, 실제 코드로 원인을 해부합니다.","datePublished":"2026-08-19","dateModified":"2026-08-19","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--purple);}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;}
+details summary{cursor:pointer;font-weight:600;color:var(--text-muted);}
+details p{margin-top:8px;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>SQL INSERT→JSON 변환, 이스케이프된 따옴표가 사라지는 이유</h1>
+  <p class="meta">가이드 · 2026-08-19 최종 확인</p>
+
+  <p>SQL INSERT 문을 JSON으로 바꿔주는 도구에 <code>'O''Brien'</code>처럼 작은따옴표가 겹친 값을 넣으면 결과가 <code>"OBrien"</code>으로 나옵니다. 아포스트로피 하나가 통째로 사라진 겁니다. 이건 우연한 오류가 아니라, 값을 나누는 파서의 설계 자체에서 나오는 예정된 결과입니다. 이 가이드는 실제 소스 코드를 근거로 왜 이런 일이 생기는지, 그리고 그 여파가 어디까지 번지는지 설명합니다.</p>
+
+  <h2>1. SQL에서 따옴표를 두 번 겹쳐 쓰는 이유</h2>
+  <p>SQL 표준에서 작은따옴표로 감싼 문자열 리터럴 안에 진짜 아포스트로피 문자를 넣고 싶으면, 그 문자를 두 번 연속으로 적습니다. 즉 <code>'O''Brien'</code>은 유효한 SQL이고, 실제로는 <code>O'Brien</code>이라는 7글자짜리 하나의 문자열을 의미합니다. 이건 JS나 Python처럼 백슬래시(<code>\'</code>)로 이스케이프하는 방식과는 다른, SQL 고유의 규칙입니다.</p>
+
+  <h2>2. 실제 코드: <code>splitCSVLine</code> 함수 해부</h2>
+  <p>이 도구가 값을 쪼개는 핵심 함수는 다음과 같이 동작합니다(실제 소스 인용):</p>
+  <div class="box">
+    <code>for(const c of line){if(c===','&&!inQ){res.push(cur);cur='';}else if(c==="'"||c==='"'){inQ=!inQ;}else cur+=c;}</code>
+  </div>
+  <p>한 글자씩 훑으면서, 따옴표 문자(<code>'</code> 또는 <code>"</code>)를 만나면 "지금 따옴표 안에 있는가"를 나타내는 <code>inQ</code> 플래그를 뒤집기만 하고, 그 따옴표 문자 자체는 결과 문자열(<code>cur</code>)에 <strong>절대 추가하지 않습니다</strong>. 즉 어떤 값에서든 따옴표는 결과에 한 번도 남지 않고 사라집니다.</p>
+
+  <h2>3. <code>'O''Brien'</code>을 한 글자씩 따라가 보면</h2>
+  <p>입력 <code>'O''Brien'</code>을 이 함수가 처리하는 과정을 순서대로 보면:</p>
+  <table>
+    <tr><th>글자</th><th>동작</th><th>inQ</th><th>cur</th></tr>
+    <tr><td><code>'</code></td><td>플래그 반전</td><td>true</td><td>""</td></tr>
+    <tr><td><code>O</code></td><td>cur에 추가</td><td>true</td><td>"O"</td></tr>
+    <tr><td><code>'</code></td><td>플래그 반전</td><td>false</td><td>"O"</td></tr>
+    <tr><td><code>'</code></td><td>플래그 반전</td><td>true</td><td>"O"</td></tr>
+    <tr><td><code>B r i e n</code></td><td>cur에 추가</td><td>true</td><td>"OBrien"</td></tr>
+    <tr><td><code>'</code></td><td>플래그 반전</td><td>false</td><td>"OBrien"</td></tr>
+  </table>
+  <p>따옴표 4개가 전부 결과에서 빠지면서, 원래 아포스트로피를 나타내야 했던 문자까지 함께 증발해 <strong>"OBrien"</strong>이라는, 실제로는 존재하지 않는 6글자 문자열이 나옵니다. 에러 없이 조용히 잘못된 값이 만들어지는 게 이 버그가 특히 위험한 이유입니다.</p>
+
+  <h2>4. 죽어있는 "따옴표 감싸짐" 검사 코드</h2>
+  <p>이 파서 뒤에는 값이 따옴표로 감싸져 있었는지 확인하는 정규식이 하나 더 있습니다:</p>
+  <div class="box">
+    <code>if(/^'.*'$/.test(val))val=val.slice(1,-1).replace(/''/g,"'");</code>
+  </div>
+  <p>이 코드는 <code>''</code>를 <code>'</code>로 되돌려주는, 정확히 이 버그를 고칠 수 있는 로직입니다. 하지만 이 검사가 실행되는 시점엔 이미 <code>splitCSVLine</code>이 모든 따옴표를 지워버린 뒤라서, <code>val</code>에는 애초에 따옴표가 남아있을 수 없습니다. 그 결과 <code>/^'.*'$/</code> 조건은 절대 참이 될 수 없는 <strong>죽은 코드(dead code)</strong>가 됩니다 — 고칠 수 있는 로직이 이미 있는데도, 실행 순서 때문에 무용지물이 된 경우입니다.</p>
+
+  <h2>5. 이런 종류의 버그가 흔한 이유</h2>
+  <p>정규식이나 단순 반복문 하나로 SQL 문자열 리터럴을 완벽하게 파싱하는 건 생각보다 어렵습니다. 진짜로 정확하게 처리하려면 "지금 따옴표 안에 있다 + 방금 본 글자가 이스케이프의 첫 번째 따옴표일 수도 있다"는 상태를 명시적으로 추적해야 하는데, 이건 단일 정규식 매칭으로는 표현하기 까다로운 상태 기계(state machine)입니다. 가벼운 "SQL을 X로 변환" 계열 도구에서 이런 이스케이프 처리 버그가 반복적으로 나타나는 건 이 때문입니다.</p>
+
+  <h2>6. 실무 대응</h2>
+  <ul>
+    <li>이름·주소 등 아포스트로피가 들어갈 수 있는 필드(O'Brien, D'Angelo 등)가 있는 데이터는 변환 후 반드시 눈으로 재확인하세요.</li>
+    <li>이 도구로 변환 결과를 그대로 프로덕션 데이터 마이그레이션에 쓰지 말고, 검증용 스테이징 단계에서만 활용하는 것을 권장합니다.</li>
+    <li>정확한 변환이 꼭 필요하다면 실제 SQL 파서 라이브러리(예: node-sql-parser)를 쓰는 스크립트로 대체하는 게 안전합니다.</li>
+  </ul>
+
+  <h2>자주 묻는 질문</h2>
+  <details><summary>Q. 이 버그는 왜 에러 없이 조용히 일어나나요?</summary><p>A. 파서가 예외를 던지는 게 아니라 그냥 다른(더 짧은) 문자열을 만들어내기 때문입니다. "OBrien"은 문법적으로 완전히 정상적인 JSON 문자열 값이라, 도구 입장에서는 아무 문제 없이 성공한 변환처럼 보입니다.</p></details>
+  <details><summary>Q. 큰따옴표(")로 감싼 값도 똑같이 문제가 되나요?</summary><p>A. 네, <code>inQ</code> 플래그가 작은따옴표와 큰따옴표를 구분하지 않고 공유하기 때문에 같은 방식으로 따옴표 문자가 사라집니다. 게다가 한 값 안에 두 종류 따옴표가 섞이면 플래그가 엉뚱한 시점에 꺼져 쉼표가 필드 구분자로 오인될 수도 있습니다.</p></details>
+  <details><summary>Q. 숫자와 문자열은 실제로 뭘로 구분되나요?</summary><p>A. 원래는 따옴표 유무로 구분하려 했지만 그 로직이 죽어있으므로, 실제로는 값이 숫자 형식 정규식(<code>-?\d+(\.\d+)?</code>)에 맞는지만으로 갈립니다. NULL도 아니고 숫자 패턴도 아니면 원래 따옴표가 있었든 없었든 그냥 문자열로 남습니다.</p></details>
+  <details><summary>Q. NULL 처리는 정상인가요?</summary><p>A. 네, 따옴표 없이 쓰인 <code>NULL</code>(대소문자 무관)은 정규식으로 별도 검사해 JSON의 <code>null</code>로 정확히 변환됩니다. 이 부분은 따옴표 스캐너의 영향을 받지 않습니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../sql-to-json.html">→ SQL to JSON 변환기</a>
+    <a href="../sql-validator.html">→ SQL 유효성 검사기</a>
+    <a href="../sql-minifier.html">→ SQL 압축기</a>
+    <a href="../json-validator.html">→ JSON 유효성 검사기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적입니다.</footer>
+</main>
+</body>
+</html>
