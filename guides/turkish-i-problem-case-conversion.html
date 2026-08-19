@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>터키어의 I 문제 완전정리 — 표준 대소문자 변환이 깨지는 언어 | MODOO HUB</title>
+<meta name="description" content="영문 대소문자 변환이 사실 언어마다 다른 규칙을 갖는다는 것, 터키어의 점 있는 İ·점 없는 I 구분이 왜 유명한 프로그래밍 버그 사례인지, toLowerCase()와 toLocaleLowerCase('tr')의 실제 결과 차이를 예시로 정리합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/turkish-i-problem-case-conversion.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"터키어의 I 문제 완전정리 — 표준 대소문자 변환이 깨지는 언어","description":"영문 대소문자 변환이 사실 언어마다 다른 규칙을 갖는다는 것, 터키어의 점 있는 İ·점 없는 I 구분이 왜 유명한 프로그래밍 버그 사례인지, toLowerCase()와 toLocaleLowerCase('tr')의 실제 결과 차이를 예시로 정리합니다.","datePublished":"2026-08-19","dateModified":"2026-08-19","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"터키어 I 문제란 정확히 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"터키어(및 아제르바이잔어)는 알파벳 I를 점 있는 것과 점 없는 것 두 종류로 구분합니다. 대문자 I(점 없음)의 소문자는 ı(점 없는 소문자)이고, 대문자 İ(점 있음)의 소문자는 우리가 흔히 아는 i입니다. 영어권 규칙에서는 I와 i가 한 쌍뿐이라 이 구분이 존재하지 않기 때문에, 로케일을 지정하지 않은 대소문자 변환 함수를 터키어 텍스트에 적용하면 잘못된 글자가 나옵니다."}},
+{"@type":"Question","name":"JavaScript의 toLowerCase()는 왜 이 문제를 그대로 갖고 있나요?","acceptedAnswer":{"@type":"Answer","text":"String.prototype.toLowerCase()와 toUpperCase()는 로케일과 무관하게 유니코드의 기본(default) 대소문자 매핑 규칙 하나만 적용하도록 명세돼 있습니다. 이 기본 규칙은 사실상 영어 등 대다수 언어에 맞춰져 있어서, 터키어처럼 예외 규칙이 있는 언어의 텍스트를 넣으면 규칙을 무시하고 획일적으로 변환해 버립니다."}},
+{"@type":"Question","name":"이 문제를 올바르게 처리하려면 어떤 메서드를 써야 하나요?","acceptedAnswer":{"@type":"Answer","text":"ECMAScript 표준에는 로케일을 인자로 받는 toLocaleLowerCase(locales)와 toLocaleUpperCase(locales)가 별도로 존재합니다. 'tr'이나 'tr-TR' 같은 BCP 47 로케일 태그를 넘기면 대부분의 최신 브라우저와 Node.js 런타임이 터키어 특수 규칙을 적용해 점 있는/점 없는 I를 올바르게 변환합니다."}},
+{"@type":"Question","name":"이 사이트의 케이스 변환기도 이 문제를 겪나요?","acceptedAnswer":{"@type":"Answer","text":"네. 케이스 변환기(case-converter.html)의 UPPERCASE·lowercase를 비롯한 모든 변환 로직은 로케일을 지정하지 않은 표준 toUpperCase()/toLowerCase()로 구현돼 있어, 터키어 텍스트를 넣으면 이 글에서 설명한 것과 동일한 결과 차이가 그대로 나타납니다. 도구 자체의 FAQ에도 이 한계를 안내하고 있습니다."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>터키어의 I 문제 완전정리 — 표준 대소문자 변환이 깨지는 언어</h1>
+  <p class="meta">가이드 · 2026-08-19 최종 확인</p>
+
+  <p>영문 대소문자를 바꾸는 일은 언뜻 세상에서 가장 단순한 문자열 처리처럼 보입니다. A는 a로, Z는 z로, 그 반대도 마찬가지로 — 26개 글자가 정확히 하나씩 짝을 이루니 예외가 있을 리 없다고 생각하기 쉽습니다. 하지만 이 "당연함"은 사실 영어라는 특정 언어의 알파벳 구조에서 나온 착시입니다. 세계에는 라틴 알파벳을 쓰면서도 대소문자 짝짓기 규칙이 영어와 다른 언어가 존재하고, 그 대표 사례가 바로 터키어의 I입니다. 이 문제는 실무 개발자 사이에서 "터키어 테스트(Turkish I problem)"라는 이름으로 불릴 만큼 유명한 버그 유발 지점이며, 로케일을 신경 쓰지 않고 문자열을 대소문자 변환하는 코드가 있다면 언젠가 한 번은 걸려 넘어지게 되는 함정으로 꼽힙니다.</p>
+
+  <h2>1. 왜 "대문자 I ↔ 소문자 i"가 보편 규칙이 아닌가</h2>
+  <p>영어 알파벳에서 I는 점 없는 대문자 하나, i는 점 있는 소문자 하나뿐이라 이 둘을 짝짓는 데 아무 모호함이 없습니다. 그런데 터키어와 아제르바이잔어는 애초에 알파벳 자체가 다르게 설계돼 있습니다. 이 언어들은 점이 있는 글자와 점이 없는 글자를 서로 완전히 별개의 음가로 취급하기 때문에, I 계열 글자가 두 쌍으로 나뉩니다. 점 없는 대문자 I의 짝은 점 없는 소문자 ı이고, 점 있는 대문자 İ의 짝은 우리에게 익숙한 점 있는 소문자 i입니다. 즉 터키어 화자 입장에서 "I를 소문자로 바꾸면 무조건 i가 된다"는 규칙 자체가 성립하지 않습니다. 이런 언어별 차이는 대소문자뿐 아니라 정렬 순서, 발음 구분에도 영향을 주지만, 프로그래밍에서 가장 자주 사고를 일으키는 지점은 단연 대소문자 변환입니다.</p>
+
+  <h2>2. 프로그래밍 함정으로 유명해진 이유</h2>
+  <p>이 문제가 널리 알려진 이유는 실제로 반복해서 실제 서비스 장애를 냈기 때문입니다. 가장 흔한 패턴은 사용자 입력값을 대소문자 무시 비교를 위해 습관적으로 소문자로 바꿔서 저장하거나 비교하는 코드입니다. 예를 들어 아이디나 파일 확장자를 비교하기 전에 "ID".toLowerCase() 같은 처리를 넣는 경우, 대부분의 언어 환경에서는 문제가 없지만 시스템 로케일이 터키어로 설정된 서버나 기기에서는 대문자 I가 기대와 다른 문자로 변환되어 비교가 실패하는 사례가 실제로 보고돼 왔습니다. 문제는 이 버그가 영어 로케일 환경의 개발자 컴퓨터에서는 절대 재현되지 않는다는 데 있습니다. 로케일에 의존하는 함수를 아무 생각 없이 썼다가, 특정 국가에 배포된 뒤에야 발견되는 지연 폭탄 같은 버그이기 때문에 프로그래밍 교육 자료나 코드 리뷰 체크리스트에 단골로 등장하는 사례가 됐습니다.</p>
+
+  <h2>3. JavaScript 표준은 이 문제를 어떻게 다루는가</h2>
+  <p>ECMAScript 표준에는 대소문자를 바꾸는 메서드가 두 계열로 나뉘어 존재합니다. 하나는 String.prototype.toUpperCase()/toLowerCase()로, 이 메서드들은 명세상 로케일을 전혀 고려하지 않고 유니코드의 기본(locale-independent default) 대소문자 매핑 표 하나만 그대로 적용합니다. 이 기본 매핑은 사실상 영어를 비롯한 대다수 언어의 관행을 따르도록 만들어져 있어서 터키어의 예외 규칙을 반영하지 않습니다. 다른 하나는 String.prototype.toLocaleLowerCase([locales])/toLocaleUpperCase([locales])로, 표준에 명시적으로 로케일 인자를 받도록 정의된 별도 메서드입니다. 여기에 'tr'이나 'tr-TR' 같은 BCP 47 로케일 태그를 넘기면 대부분의 최신 브라우저·Node.js 런타임이 내부적으로 터키어 전용 대소문자 규칙을 적용합니다. 즉 JavaScript는 처음부터 "기본 변환"과 "로케일 인식 변환"을 서로 다른 메서드로 분리해 둔 셈이며, 로케일에 민감한 텍스트를 다룰 때는 후자를 명시적으로 골라 써야 합니다.</p>
+
+  <div class="box">
+    <strong>실제 결과 비교</strong>: "İstanbul"(점 있는 대문자 İ로 시작)을 로케일 없이 <code>"İstanbul".toLowerCase()</code>로 변환하면 겉보기엔 "istanbul"처럼 보이지만 실제로는 i 뒤에 점을 나타내는 결합 문자가 따로 붙은 "i̇stanbul"(총 9글자)가 나옵니다. 반대로 <code>"İstanbul".toLocaleLowerCase('tr')</code>은 결합 문자 없이 깔끔한 "istanbul"(8글자)을 돌려줍니다. 또한 대문자 <code>"I".toLowerCase()</code>는 영어식 규칙대로 "i"가 되지만, <code>"I".toLocaleLowerCase('tr')</code>은 터키어 규칙에 따라 점 없는 "ı"가 됩니다. 눈으로 보면 두 결과가 비슷해 보여도 실제 문자 코드와 글자 수가 다르기 때문에, 두 방식으로 만든 문자열은 서로 동등하지 않은 별개의 데이터로 취급됩니다.
+  </div>
+
+  <h2>4. 이 사이트 케이스 변환기는 실제로 어떻게 처리하는가</h2>
+  <p>modoohub.com의 케이스 변환기(case-converter.html)를 코드 레벨에서 직접 확인한 결과, UPPERCASE·lowercase는 물론 Title Case·camelCase·snake_case 등 모든 변환 로직이 <code>s.toUpperCase()</code>/<code>s.toLowerCase()</code> 형태로, 로케일 인자를 전혀 지정하지 않은 표준 메서드로 구현돼 있습니다. 이는 이 도구가 나쁘게 만들어졌다기보다는, 절대다수의 사용자가 기대하는 "영어식 보편 규칙"을 기본값으로 삼은 합리적인 선택에 가깝습니다. 다만 그 결과로 터키어 텍스트를 입력하면 이 글에서 설명한 것과 동일한 차이, 즉 점 있는/점 없는 I가 로케일을 지정했을 때와 다르게 변환되는 현상이 그대로 나타납니다. 이 한계는 도구 자체의 FAQ에도 별도 항목으로 안내돼 있어, 터키어처럼 로케일 특수 규칙이 중요한 텍스트를 다루는 경우 이 도구의 결과를 그대로 신뢰하기보다는 별도 처리가 필요하다는 점을 참고하는 것이 좋습니다.</p>
+
+  <h2>5. 정리 — 대소문자 변환 코드를 짤 때 기억할 것</h2>
+  <ul>
+    <li><strong>"모든 언어에 통하는 대소문자 규칙"은 없습니다</strong>: 영어 기준의 직관을 다른 언어 텍스트에 그대로 적용하면 안 됩니다.</li>
+    <li><strong>비교·정규화 목적이라면 로케일을 명시</strong>: 사용자 로케일에 따라 결과가 달라질 수 있는 상황이라면 toLocaleLowerCase(locale)처럼 로케일을 고정해 결과를 예측 가능하게 만드는 편이 안전합니다.</li>
+    <li><strong>범용 텍스트 도구는 트레이드오프임을 인지</strong>: 이 사이트의 케이스 변환기처럼 로케일 없이 동작하는 도구는 절대다수 언어에는 문제가 없지만, 터키어 같은 예외 언어에서는 결과가 다르게 나올 수 있다는 점을 감안해 사용해야 합니다.</li>
+  </ul>
+
+  <h2>자주 묻는 질문</h2>
+  <details class="faq-item"><summary>Q. 터키어 I 문제란 정확히 무엇인가요?</summary><p>A. 터키어(및 아제르바이잔어)는 알파벳 I를 점 있는 것과 점 없는 것 두 종류로 구분합니다. 대문자 I(점 없음)의 소문자는 ı(점 없는 소문자)이고, 대문자 İ(점 있음)의 소문자는 우리가 흔히 아는 i입니다. 영어권 규칙에서는 I와 i가 한 쌍뿐이라 이 구분이 존재하지 않기 때문에, 로케일을 지정하지 않은 대소문자 변환 함수를 터키어 텍스트에 적용하면 잘못된 글자가 나옵니다.</p></details>
+  <details class="faq-item"><summary>Q. JavaScript의 toLowerCase()는 왜 이 문제를 그대로 갖고 있나요?</summary><p>A. String.prototype.toLowerCase()와 toUpperCase()는 로케일과 무관하게 유니코드의 기본(default) 대소문자 매핑 규칙 하나만 적용하도록 명세돼 있습니다. 이 기본 규칙은 사실상 영어 등 대다수 언어에 맞춰져 있어서, 터키어처럼 예외 규칙이 있는 언어의 텍스트를 넣으면 규칙을 무시하고 획일적으로 변환해 버립니다.</p></details>
+  <details class="faq-item"><summary>Q. 이 문제를 올바르게 처리하려면 어떤 메서드를 써야 하나요?</summary><p>A. ECMAScript 표준에는 로케일을 인자로 받는 toLocaleLowerCase(locales)와 toLocaleUpperCase(locales)가 별도로 존재합니다. 'tr'이나 'tr-TR' 같은 BCP 47 로케일 태그를 넘기면 대부분의 최신 브라우저와 Node.js 런타임이 터키어 특수 규칙을 적용해 점 있는/점 없는 I를 올바르게 변환합니다.</p></details>
+  <details class="faq-item"><summary>Q. 이 사이트의 케이스 변환기도 이 문제를 겪나요?</summary><p>A. 네. 케이스 변환기(case-converter.html)의 UPPERCASE·lowercase를 비롯한 모든 변환 로직은 로케일을 지정하지 않은 표준 toUpperCase()/toLowerCase()로 구현돼 있어, 터키어 텍스트를 넣으면 이 글에서 설명한 것과 동일한 결과 차이가 그대로 나타납니다. 도구 자체의 FAQ에도 이 한계를 안내하고 있습니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../case-converter.html">→ 케이스 변환기</a>
+    <a href="../unicode-converter.html">→ 유니코드 변환기</a>
+    <a href="../text-case-detector.html">→ 텍스트 케이스 감지기</a>
+    <a href="../ascii-converter.html">→ ASCII 변환기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적이며 실제 구현 시에는 사용 중인 런타임의 최신 문서를 함께 확인하시기 바랍니다.</footer>
+</main>
+</body>
+</html>

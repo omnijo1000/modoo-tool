@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SVG 애니메이션을 PNG로 구우면 왜 항상 정지 프레임인가 | MODOO HUB</title>
+<meta name="description" content="움직이는 SVG를 PNG로 변환하면 왜 애니메이션이 사라지고 한 장의 정지 이미지만 남는지, Canvas 렌더링의 스냅샷 원리와 GIF·APNG·WebM 등 대안까지 정리합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/svg-animation-to-png-static-frame.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"SVG 애니메이션을 PNG로 구우면 왜 항상 정지 프레임인가","description":"움직이는 SVG를 PNG로 변환하면 왜 애니메이션이 사라지고 한 장의 정지 이미지만 남는지, Canvas 렌더링의 스냅샷 원리와 GIF·APNG·WebM 등 대안까지 정리합니다.","datePublished":"2026-08-19","dateModified":"2026-08-19","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"애니메이션 SVG를 PNG로 변환하면 왜 움직이지 않나요?","acceptedAnswer":{"@type":"Answer","text":"PNG는 픽셀 하나하나의 색상 값만 저장하는 정지 이미지 포맷이라 시간이라는 개념 자체가 없습니다. 변환 과정에서 Canvas가 그 순간의 렌더링 결과만 픽셀로 캡처하기 때문에, 원본 SVG에 애니메이션이 있어도 결과물에는 한 프레임만 남습니다."}},
+{"@type":"Question","name":"왜 하필 애니메이션 시작 전 상태가 찍히나요?","acceptedAnswer":{"@type":"Answer","text":"브라우저가 SVG를 Image 객체로 불러와 처음 디코딩을 마치는 시점에 Canvas의 drawImage()가 실행되는데, 이 시점은 보통 애니메이션 타이머가 아직 진행되기 전인 0초 지점입니다. Canvas API는 애니메이션의 진행 시간을 알지 못한 채 그 순간의 렌더링 상태만 그대로 그리므로 초기 상태가 캡처됩니다."}},
+{"@type":"Question","name":"움직이는 SVG를 움직이는 이미지 파일로 남기려면 어떻게 하나요?","acceptedAnswer":{"@type":"Answer","text":"PNG 대신 여러 프레임을 순서대로 저장할 수 있는 포맷을 써야 합니다. 애니메이션을 일정 간격으로 여러 번 캡처해 GIF나 APNG로 묶거나, 화면 녹화로 WebM·MP4 영상 파일을 만들면 애니메이션이 그대로 재생됩니다."}},
+{"@type":"Question","name":"SVG 안의 애니메이션은 어떤 방식으로 구현되나요?","acceptedAnswer":{"@type":"Answer","text":"SVG는 XML 기반 벡터 포맷이라 도형을 좌표와 수식으로 기술하며, 여기에 SMIL 방식의 <animate>·<animateTransform> 태그나 CSS 애니메이션/트랜지션을 얹어 좌표·색상·투명도 등을 시간에 따라 바꿀 수 있습니다. 이 시간 기반 변화가 PNG 같은 정지 포맷으로는 표현되지 않는 정보입니다."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>SVG 애니메이션을 PNG로 구우면 왜 항상 정지 프레임인가</h1>
+  <p class="meta">가이드 · 2026-08-19 최종 확인</p>
+
+  <p>움직이는 로고나 아이콘 SVG를 PNG로 변환했더니 애니메이션이 통째로 사라지고 첫 장면 한 컷만 남는 경험을 해본 적이 있을 겁니다. 이건 변환 도구가 버그가 있어서가 아니라, SVG를 PNG로 굽는 과정 자체의 구조적 한계입니다. 이 가이드에서는 SVG가 왜 애니메이션을 가질 수 있는 포맷인지, 브라우저가 SVG를 PNG로 바꿀 때 내부적으로 어떤 일이 일어나는지, 그리고 애니메이션이 있는 SVG를 그대로 움직이는 이미지로 남기고 싶을 때 쓸 수 있는 대안을 순서대로 풀어봅니다.</p>
+
+  <h2>1. SVG는 왜 애니메이션이 가능한 포맷인가</h2>
+  <p>SVG(Scalable Vector Graphics)는 픽셀 값을 나열하는 JPG·PNG 같은 래스터 포맷과 달리, 도형을 좌표와 수식으로 기술하는 XML 기반 벡터 포맷입니다. 원·사각형·경로(path) 같은 요소가 "이 좌표에서 이 반지름으로 원을 그려라" 같은 텍스트 명령으로 저장되기 때문에, 그 명령에 시간 축을 더하는 것도 자연스럽게 가능합니다. SVG는 SMIL 방식의 `<animate>`·`<animateTransform>` 태그로 속성값을 시간에 따라 바꾸거나, 일반 CSS의 `@keyframes`·`transition`을 그대로 적용해 색상·위치·크기·투명도를 움직일 수 있습니다. 즉 SVG 파일 하나에 "정적인 그림"과 "그 그림이 시간에 따라 어떻게 바뀌는지에 대한 규칙"이 함께 들어있는 셈입니다. 반면 PNG는 가로세로 픽셀 격자에 색상 값을 채워 넣은 한 장의 스냅샷일 뿐이라 애초에 시간이라는 축을 담을 자리가 없습니다.</p>
+
+  <h2>2. Canvas 렌더링이 "그 순간"만 캡처하는 이유</h2>
+  <p>브라우저에서 SVG를 PNG로 변환할 때 가장 흔히 쓰는 방식은 SVG 파일을 `<img>` 태그나 Image 객체로 불러온 뒤, `<canvas>`의 `drawImage()` 메서드로 그 이미지를 캔버스 위에 그려 픽셀 데이터를 추출하는 것입니다. 이 과정에서 Image 객체는 SVG 문서를 파싱하고 첫 렌더링을 마친 시점에 "로드 완료" 이벤트를 발생시키는데, `drawImage()`는 바로 이 시점의 렌더링 결과를 캔버스에 그립니다. 문제는 이 로드 완료 시점이 애니메이션 타이머가 아직 시작되지 않았거나 막 시작된 0초 지점이라는 것입니다. Canvas API는 SVG 안에 어떤 애니메이션이 얼마나 진행 중인지 전혀 알지 못하며, 오직 "지금 이 순간 화면에 렌더링된 상태"만 픽셀로 옮겨 그릴 뿐입니다. 그 결과 원본 SVG에 회전·이동·색상 변화 같은 시간 기반 애니메이션이 아무리 정교하게 들어있어도, PNG에는 애니메이션이 시작되기 전의 초기 상태 한 프레임만 고정되어 남습니다. 이는 특정 변환 도구만의 한계가 아니라, "정지 이미지 포맷은 원래 애니메이션을 표현할 수 없다"는 PNG 자체의 근본적 제약과 "Canvas는 그 순간의 스냅샷만 찍을 뿐 애니메이션 타이밍을 알지 못한다"는 렌더링 API의 특성이 겹쳐서 생기는 결과입니다.</p>
+
+  <div class="box">
+    <strong>정리하면</strong>: SVG(시간 축 있음) → Image 객체로 로드(로드 완료 시점의 렌더링 상태 확정) → Canvas에 drawImage()로 그 상태만 픽셀로 굽기 → PNG(시간 축 없음, 정지 프레임 1장). 애니메이션 정보는 "로드 완료" 단계를 넘어서지 못하고 버려집니다.
+  </div>
+
+  <h2>3. 움직이는 이미지로 남기고 싶다면 — GIF·APNG·WebM</h2>
+  <p>애니메이션이 있는 SVG를 PNG 한 장이 아니라 실제로 움직이는 이미지 파일로 남기려면, 애초에 여러 장의 프레임을 순서대로 저장할 수 있는 포맷을 선택해야 합니다. 가장 널리 쓰이는 방법은 SVG 애니메이션을 일정한 시간 간격으로 여러 번 캡처해 <strong>GIF</strong>로 묶는 것입니다. GIF는 여러 프레임과 각 프레임의 재생 시간을 함께 저장하는 포맷이라 어디서나 호환되지만, 색상 수(256색)에 제약이 있어 그라데이션이 많은 SVG는 색이 뭉개질 수 있습니다. 더 높은 화질이 필요하면 <strong>APNG(Animated PNG)</strong>가 대안이 될 수 있는데, PNG와 같은 트루컬러·투명도를 유지하면서도 여러 프레임을 저장할 수 있습니다. 애니메이션이 길거나 부드러운 움직임이 중요하다면 화면 녹화 방식으로 <strong>WebM이나 MP4</strong> 영상 파일을 만드는 방법도 있습니다. 이 경우 SVG가 실제로 애니메이션되는 모습을 화면에 띄운 채 녹화하기 때문에 원본과 동일한 움직임이 그대로 보존됩니다. 반대로 지금처럼 정지 이미지 하나만 필요하다면(예: 아이콘·썸네일용) PNG 변환이 오히려 정확히 의도한 결과이며, 이때는 애니메이션이 없는 정적 SVG를 변환하거나 원하는 프레임 시점을 직접 지정해 캡처하는 방식이 더 적합합니다.</p>
+
+  <h2>4. 정리 — 변환 전에 확인할 것</h2>
+  <ul>
+    <li><strong>목적이 정지 이미지인지 움직이는 이미지인지 먼저 확인</strong>: 앱 아이콘·썸네일처럼 정지 이미지가 필요하면 PNG 변환이 맞는 선택입니다.</li>
+    <li><strong>움직이는 결과물이 필요하면 포맷부터 바꾸기</strong>: PNG를 아무리 다시 변환해도 애니메이션은 살아나지 않으므로 GIF/APNG/영상 포맷으로 접근해야 합니다.</li>
+    <li><strong>원본 SVG의 애니메이션 방식 확인</strong>: SMIL 태그인지 CSS 애니메이션인지에 따라 캡처 도구가 프레임을 추출하는 방식이 달라질 수 있습니다.</li>
+  </ul>
+
+  <h2>자주 묻는 질문</h2>
+  <details class="faq-item"><summary>Q. 애니메이션 SVG를 PNG로 변환하면 왜 움직이지 않나요?</summary><p>A. PNG는 픽셀 하나하나의 색상 값만 저장하는 정지 이미지 포맷이라 시간이라는 개념 자체가 없습니다. 변환 과정에서 Canvas가 그 순간의 렌더링 결과만 픽셀로 캡처하기 때문에, 원본 SVG에 애니메이션이 있어도 결과물에는 한 프레임만 남습니다.</p></details>
+  <details class="faq-item"><summary>Q. 왜 하필 애니메이션 시작 전 상태가 찍히나요?</summary><p>A. 브라우저가 SVG를 Image 객체로 불러와 처음 디코딩을 마치는 시점에 Canvas의 drawImage()가 실행되는데, 이 시점은 보통 애니메이션 타이머가 아직 진행되기 전인 0초 지점입니다. Canvas API는 애니메이션의 진행 시간을 알지 못한 채 그 순간의 렌더링 상태만 그대로 그리므로 초기 상태가 캡처됩니다.</p></details>
+  <details class="faq-item"><summary>Q. 움직이는 SVG를 움직이는 이미지 파일로 남기려면 어떻게 하나요?</summary><p>A. PNG 대신 여러 프레임을 순서대로 저장할 수 있는 포맷을 써야 합니다. 애니메이션을 일정 간격으로 여러 번 캡처해 GIF나 APNG로 묶거나, 화면 녹화로 WebM·MP4 영상 파일을 만들면 애니메이션이 그대로 재생됩니다.</p></details>
+  <details class="faq-item"><summary>Q. SVG 안의 애니메이션은 어떤 방식으로 구현되나요?</summary><p>A. SVG는 XML 기반 벡터 포맷이라 도형을 좌표와 수식으로 기술하며, 여기에 SMIL 방식의 &lt;animate&gt;·&lt;animateTransform&gt; 태그나 CSS 애니메이션/트랜지션을 얹어 좌표·색상·투명도 등을 시간에 따라 바꿀 수 있습니다. 이 시간 기반 변화가 PNG 같은 정지 포맷으로는 표현되지 않는 정보입니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../svg-to-png.html">→ SVG to PNG 변환기</a>
+    <a href="../svg-viewer.html">→ SVG 뷰어</a>
+    <a href="../png-to-svg.html">→ PNG to SVG 변환기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적입니다.</footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HMAC이 길이 확장 공격을 막는 원리 — ipad/opad 이중 해시 구조 완전정리 | MODOO HUB</title>
+<meta name="description" content="SHA-256에 키+메시지를 그냥 이어붙이면 왜 위험한지, HMAC의 ipad/opad 이중 해시 구조가 왜 이 길이 확장 공격을 막는지, 웹훅 서명에 HMAC이 표준으로 쓰이는 이유를 계산 구조부터 설명합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/hmac-length-extension-attack.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"HMAC이 길이 확장 공격을 막는 원리 — ipad/opad 이중 해시 구조 완전정리","description":"SHA-256에 키+메시지를 그냥 이어붙이면 왜 위험한지, HMAC의 ipad/opad 이중 해시 구조가 왜 이 길이 확장 공격을 막는지, 웹훅 서명에 HMAC이 표준으로 쓰이는 이유를 계산 구조부터 설명합니다.","datePublished":"2026-08-19","dateModified":"2026-08-19","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"길이 확장 공격이 정확히 뭔가요?","acceptedAnswer":{"@type":"Answer","text":"공격자가 원본 메시지의 내용을 몰라도, 그 메시지의 해시값과 길이만 알면 원본 뒤에 자기가 원하는 데이터를 덧붙인 새 메시지의 유효한 해시를 계산해낼 수 있는 공격입니다. SHA-256, SHA-1, MD5처럼 Merkle-Damgård 구조를 쓰는 해시 함수 전반이 이 문제를 갖고 있습니다."}},
+{"@type":"Question","name":"왜 키+메시지를 그냥 이어붙이면 안 되나요?","acceptedAnswer":{"@type":"Answer","text":"SHA256(key + message) 형태로 만들면, 이 값이 사실은 해시 함수가 message 처리를 마친 시점의 내부 상태 그 자체이기 때문입니다. 공격자는 이 내부 상태에서 이어서 계산을 재개해 원본 뒤에 데이터를 추가한 새 메시지의 해시를 키 없이도 만들어낼 수 있습니다."}},
+{"@type":"Question","name":"ipad와 opad는 왜 이 문제를 막아주나요?","acceptedAnswer":{"@type":"Answer","text":"HMAC은 키를 message 앞이 아니라 이중 해시 구조 안쪽 깊숙이 두 번 다른 패딩과 섞어 넣습니다. 바깥쪽 해시 H(key⊕opad ∥ 내부결과)의 최종 출력만 봐서는 공격자가 그 내부 상태를 재구성할 방법이 없어서, 이어붙이기 공격이 원천적으로 통하지 않습니다."}},
+{"@type":"Question","name":"HMAC은 왜 웹훅 서명 검증의 표준으로 쓰이나요?","acceptedAnswer":{"@type":"Answer","text":"웹훅은 공개 URL로 전송되는 데이터라 위변조 여부를 반드시 검증해야 하는데, HMAC은 공유 비밀키만 있으면 발신자와 수신자가 동일한 서명값을 독립적으로 계산해 대조할 수 있고, 길이 확장 공격에도 안전해서 GitHub·Stripe 등 대부분의 API 제공자가 표준으로 채택하고 있습니다."}},
+{"@type":"Question","name":"SHA-256 대신 SHA-3를 쓰면 이 문제가 아예 없나요?","acceptedAnswer":{"@type":"Answer","text":"네, SHA-3(Keccak)는 Merkle-Damgård가 아닌 스펀지 구조를 써서 애초에 길이 확장 공격 자체가 성립하지 않습니다. 다만 현재 API 생태계는 SHA-256 기반 HMAC이 압도적으로 표준화돼 있어서, 이미 안전한 HMAC 구조를 그대로 쓰는 것이 실무적으로 더 일반적입니다."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>HMAC이 길이 확장 공격을 막는 원리 — ipad/opad 이중 해시 구조 완전정리</h1>
+  <p class="meta">가이드 · 2026-08-19 최종 확인</p>
+
+  <p>API 서명이나 웹훅 검증 코드를 짜다 보면 "그냥 SHA-256(비밀키 + 메시지)로 해시하면 안 되나?"라는 생각이 자연스럽게 든다. 키를 아는 사람만 같은 해시값을 만들 수 있으니 직관적으로는 안전해 보인다. 그런데 이 방식은 <strong>길이 확장 공격(length-extension attack)</strong>이라는, SHA-256 같은 해시 함수의 내부 동작 방식 자체에서 나오는 구조적 결함에 그대로 노출된다. HMAC(RFC 2104)이 왜 굳이 키를 두 번 섞어 이중으로 해시하는 번거로운 구조를 쓰는지는, 이 공격이 정확히 어떻게 성립하는지를 이해해야 납득이 간다.</p>
+
+  <h2>1. 왜 "키+메시지 이어붙이기"가 위험한가</h2>
+  <p>SHA-256 같은 해시 함수는 내부적으로 <strong>Merkle-Damgård 구조</strong>를 쓴다. 메시지를 정해진 크기(SHA-256은 64바이트)의 블록으로 잘라, 첫 블록을 초기 상태값과 압축 함수에 넣어 다음 상태를 만들고, 그 상태를 다시 다음 블록과 함께 압축 함수에 넣는 과정을 마지막 블록까지 반복한다. 그리고 최종적으로 나오는 해시값은 사실 "메시지의 모든 블록을 처리하고 난 뒤의 내부 상태" 그 자체다. 별도의 마무리 연산 없이 마지막 내부 상태가 곧 출력값이라는 점이 핵심이다.</p>
+  <p>이 사실이 왜 위험한지가 여기서 나온다. 공격자가 SHA256(key + message)라는 해시값과 message의 길이(패딩 규칙까지 포함해서 정확한 바이트 수)를 알고 있다면, 그 해시값을 "이어서 계산을 재개할 수 있는 내부 상태"로 그대로 재활용할 수 있다. 즉 원본 메시지 key+message의 내용을 전혀 몰라도, 그 뒤에 자기가 원하는 임의의 데이터를 이어붙인 새로운 메시지 key+message+padding+extra에 대한 유효한 해시값을 처음부터 다시 계산하지 않고도 만들어낼 수 있다. 서버 입장에서는 원본 서명자가 만든 정상적인 값과 구분이 안 되기 때문에, 이 값을 그대로 통과시켜 버리면 공격자가 파라미터를 몰래 추가한 요청을 위조 서명으로 승인해버리는 결과가 생긴다. 키를 몰라도 서명을 위조할 수 있다는 점이 이 공격의 실질적 위험이다.</p>
+
+  <h2>2. ipad/opad 이중 해시가 이 문제를 어떻게 막는가</h2>
+  <p>HMAC의 정의는 다음과 같다: <strong>HMAC(K, m) = H((K⊕opad) ∥ H((K⊕ipad) ∥ m))</strong>. 여기서 ipad는 0x36을 블록 크기만큼 반복한 패딩값, opad는 0x5c를 반복한 패딩값이다. 키 K를 이 둘과 각각 XOR한 뒤, 안쪽 해시를 먼저 계산하고, 그 결과를 다시 바깥쪽 해시에 넣어 한 번 더 해시한다. 겉보기엔 단순히 "두 번 해시했다"처럼 보이지만, 이 구조가 길이 확장 공격을 막는 핵심 이유는 최종 출력값이 더 이상 "메시지를 처리한 마지막 내부 상태"가 아니라는 데 있다.</p>
+  <p>단순 이어붙이기 방식에서는 공격자가 손에 쥔 해시값이 곧 내부 상태였다. 하지만 HMAC에서 공격자가 아는 값은 바깥쪽 해시 H((K⊕opad) ∥ 내부결과)의 최종 출력뿐이고, 이 바깥쪽 해시를 계산하려면 애초에 K⊕opad라는, 키를 모르면 절대 알 수 없는 값으로 시작해야 한다. 공격자가 이 최종 출력값에서 "이어서 계산을 재개"하려고 해도, 그 지점에서 다시 시작하려면 K⊕opad라는 비밀값을 알아야 하는데 그건 애초에 얻을 수 없는 정보다. 결국 키가 메시지 처리 경로의 시작과 끝 양쪽에 이중으로 관여하는 구조 자체가, 최종 해시값을 "이어붙일 수 있는 상태"가 아니라 "그 자체로 완결된 결과값"으로 만들어버리는 것이다. ipad와 opad를 굳이 다른 값으로 쓰는 이유도, 안쪽 해시와 바깥쪽 해시에 들어가는 키 XOR 결과가 서로 달라야 두 해시 계산이 완전히 독립적인 함수처럼 동작해 공격자가 둘 사이의 관계를 이용할 여지를 없애기 때문이다.</p>
+
+  <div class="box">
+    <strong>정리하면</strong>: 단순 해시 SHA256(key+message)는 결과값이 "메시지 처리 후 내부 상태"와 같아서 이어서 계산을 재개할 수 있다. HMAC은 안쪽 해시 결과를 다시 바깥쪽 해시에 넣어 키가 두 번 관여하게 만들어, 최종 출력값만으로는 그 안쪽 계산 상태를 절대 복원할 수 없게 한다. 이 비대칭성이 길이 확장 공격을 원천 차단한다.
+  </div>
+
+  <h2>3. HMAC이 API 서명·웹훅 검증의 표준인 이유</h2>
+  <p>GitHub, Stripe 같은 서비스가 웹훅 페이로드를 보낼 때 항상 HMAC 서명을 헤더에 함께 실어 보내는 이유는 이 구조적 안전성 때문이다. 웹훅은 공개된 URL로 전송되는 HTTP 요청이라 누구나 그 형식을 흉내 낸 가짜 요청을 보낼 수 있다. 수신 서버는 요청 본문과 함께 온 서명값을, 자신도 알고 있는 공유 비밀키로 똑같이 계산해본 뒤 두 값이 일치하는지만 비교하면 되므로 구현이 단순하고 빠르다. 만약 이 서명 계산에 단순 이어붙이기 해시를 썼다면, 공격자가 원본 페이로드 뒤에 악성 필드를 추가한 변조 요청에도 유효한 서명을 만들어낼 수 있어 검증 자체가 무의미해진다. HMAC을 쓰면 키를 모르는 한 이런 위조가 수학적으로 불가능하므로, "공유 비밀키 + HMAC"이라는 조합이 별도의 공개키 인프라 없이도 발신자 인증과 무결성 검증을 동시에 달성하는 가장 가벼운 방법으로 자리잡았다.</p>
+
+  <h2 class="seo-sub">자주 묻는 질문</h2>
+  <details class="faq-item"><summary>Q. 길이 확장 공격이 정확히 뭔가요?</summary><p>A. 공격자가 원본 메시지의 내용을 몰라도, 그 메시지의 해시값과 길이만 알면 원본 뒤에 자기가 원하는 데이터를 덧붙인 새 메시지의 유효한 해시를 계산해낼 수 있는 공격입니다. SHA-256, SHA-1, MD5처럼 Merkle-Damgård 구조를 쓰는 해시 함수 전반이 이 문제를 갖고 있습니다.</p></details>
+  <details class="faq-item"><summary>Q. 왜 키+메시지를 그냥 이어붙이면 안 되나요?</summary><p>A. SHA256(key + message) 형태로 만들면, 이 값이 사실은 해시 함수가 message 처리를 마친 시점의 내부 상태 그 자체이기 때문입니다. 공격자는 이 내부 상태에서 이어서 계산을 재개해 원본 뒤에 데이터를 추가한 새 메시지의 해시를 키 없이도 만들어낼 수 있습니다.</p></details>
+  <details class="faq-item"><summary>Q. ipad와 opad는 왜 이 문제를 막아주나요?</summary><p>A. HMAC은 키를 message 앞이 아니라 이중 해시 구조 안쪽 깊숙이 두 번 다른 패딩과 섞어 넣습니다. 바깥쪽 해시 H(key⊕opad ∥ 내부결과)의 최종 출력만 봐서는 공격자가 그 내부 상태를 재구성할 방법이 없어서, 이어붙이기 공격이 원천적으로 통하지 않습니다.</p></details>
+  <details class="faq-item"><summary>Q. HMAC은 왜 웹훅 서명 검증의 표준으로 쓰이나요?</summary><p>A. 웹훅은 공개 URL로 전송되는 데이터라 위변조 여부를 반드시 검증해야 하는데, HMAC은 공유 비밀키만 있으면 발신자와 수신자가 동일한 서명값을 독립적으로 계산해 대조할 수 있고, 길이 확장 공격에도 안전해서 GitHub·Stripe 등 대부분의 API 제공자가 표준으로 채택하고 있습니다.</p></details>
+  <details class="faq-item"><summary>Q. SHA-256 대신 SHA-3를 쓰면 이 문제가 아예 없나요?</summary><p>A. 네, SHA-3(Keccak)는 Merkle-Damgård가 아닌 스펀지 구조를 써서 애초에 길이 확장 공격 자체가 성립하지 않습니다. 다만 현재 API 생태계는 SHA-256 기반 HMAC이 압도적으로 표준화돼 있어서, 이미 안전한 HMAC 구조를 그대로 쓰는 것이 실무적으로 더 일반적입니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../hmac-generator.html">→ HMAC 생성기</a>
+    <a href="../hash-generator.html">→ 해시 생성기</a>
+    <a href="../webhook-tester.html">→ 웹훅 테스터</a>
+    <a href="jwt-authentication-guide.html">→ JWT 인증 완전 가이드</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적이며 실제 보안 구현 시에는 사용 언어·라이브러리의 최신 문서를 함께 확인하시기 바랍니다.</footer>
+</main>
+</body>
+</html>

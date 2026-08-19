@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JSON 숫자가 깨지는 이유: IEEE 754와 2^53의 함정 | MODOO HUB</title>
+<meta name="description" content="큰 정수를 JSON으로 주고받을 때 마지막 몇 자리가 왜 바뀌는지, IEEE 754 배정밀도 부동소수점과 2^53이라는 경계가 왜 생기는지, 실무에서 큰 ID값을 안전하게 다루는 방법을 계산 예시로 정리합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/json-large-integer-precision-loss.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"JSON 숫자가 깨지는 이유: IEEE 754와 2^53의 함정","description":"큰 정수를 JSON으로 주고받을 때 마지막 몇 자리가 왜 바뀌는지, IEEE 754 배정밀도 부동소수점과 2^53이라는 경계가 왜 생기는지, 실무에서 큰 ID값을 안전하게 다루는 방법을 계산 예시로 정리합니다.","datePublished":"2026-08-19","dateModified":"2026-08-19","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"JSON 숫자는 왜 큰 정수에서 값이 바뀌나요?","acceptedAnswer":{"@type":"Answer","text":"JSON 표준(RFC 8259)은 숫자 타입의 정밀도를 규정하지 않습니다. JavaScript를 비롯한 대부분의 JSON 구현체는 모든 숫자를 IEEE 754 배정밀도 부동소수점(double)으로 저장하는데, 이 형식은 정수를 최대 2^53까지만 오차 없이 표현할 수 있습니다. 이보다 큰 정수를 JSON.parse()로 읽으면 가장 가까운 표현 가능한 값으로 반올림되어 원래 값과 달라집니다."}},
+{"@type":"Question","name":"2^53이라는 숫자는 어디서 나온 건가요?","acceptedAnswer":{"@type":"Answer","text":"IEEE 754 double은 64비트 중 부호 1비트, 지수 11비트를 뺀 나머지 52비트를 가수부(fraction)로 씁니다. 정규화된 수는 항상 암묵적인 선행 1비트가 붙기 때문에 실제로는 53비트 분의 정밀도를 갖게 되고, 0부터 2^53까지의 모든 정수를 오차 없이 표현할 수 있습니다. 2^53을 넘어서면 표현 가능한 값 사이의 간격이 1보다 커져 연속된 정수를 구분할 수 없게 됩니다."}},
+{"@type":"Question","name":"큰 정수를 JSON으로 안전하게 주고받으려면 어떻게 하나요?","acceptedAnswer":{"@type":"Answer","text":"가장 흔한 방법은 숫자를 JSON 숫자 타입이 아니라 문자열로 감싸서 전달하는 것입니다. 예를 들어 {\"id\":9007199254740993} 대신 {\"id\":\"9007199254740993\"}처럼 큰따옴표로 감싸면 파서가 이를 문자열로 취급하므로 정밀도 손실 없이 그대로 보존됩니다. 서버·DB의 64비트 ID나 스노우플레이크 ID를 API 응답에 넣을 때 흔히 쓰는 관례입니다."}},
+{"@type":"Question","name":"JSON.parse 대신 BigInt를 쓰면 해결되나요?","acceptedAnswer":{"@type":"Answer","text":"BigInt 자체는 2^53을 넘는 정수도 정확히 표현할 수 있지만, 표준 JSON.parse()는 숫자 리터럴을 항상 double로 변환하므로 파싱 시점에 이미 정밀도가 손실된 뒤입니다. BigInt로 다루려면 원본 JSON에서 해당 값을 문자열로 받은 뒤 직접 BigInt()로 변환하거나, json-bigint 같은 커스텀 파서 라이브러리를 써야 합니다. JSON.stringify()도 BigInt 값을 그대로 직렬화하지 못해 TypeError를 던집니다."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>JSON 숫자가 깨지는 이유: IEEE 754와 2^53의 함정</h1>
+  <p class="meta">가이드 · 2026-08-19 최종 확인</p>
+
+  <p>API 응답에서 받은 큰 정수 ID가 원본과 마지막 몇 자리가 다르게 찍히는 걸 본 적이 있다면, 그건 이 도구나 서버의 버그가 아닐 가능성이 큽니다. JavaScript(그리고 이를 기반으로 하는 대부분의 JSON 파서)는 모든 숫자를 하나의 형식, 즉 IEEE 754 배정밀도 부동소수점(double)으로 저장합니다. 이 형식은 정수를 <strong>최대 2^53(9,007,199,254,740,992, 약 900조)까지만</strong> 오차 없이 정확하게 표현할 수 있습니다. 이 가이드에서는 그 경계가 왜 하필 2^53인지, 그리고 이 한계를 실무에서 어떻게 우회하는지를 계산 구조부터 풀어서 설명합니다.</p>
+
+  <h2>1. 부동소수점이 정수를 무한정 정확히 표현하지 못하는 이유</h2>
+  <p>IEEE 754 double은 64비트를 세 부분으로 나눠 씁니다: 부호 1비트, 지수(exponent) 11비트, 그리고 가수부(fraction, mantissa) 52비트입니다. 숫자는 "부호 × 1.가수부 × 2^지수" 형태로 저장되는데, 여기서 "1."이 항상 암묵적으로 붙는 이유는 정규화된 이진수는 항상 선행 비트가 1이기 때문입니다. 문제는 JavaScript에는 정수 전용 타입이 따로 없다는 점입니다. 1, 3.14, 9007199254740993이 전부 같은 64비트 double 형식 안에 욱여넣어지고, 가수부가 담을 수 있는 유효숫자 자릿수는 이 형식 하나로 고정돼 있습니다. 소수든 정수든 표현할 수 있는 정밀도는 딱 52비트(암묵 비트를 더해 53비트) 만큼뿐이라는 뜻입니다.</p>
+
+  <h2>2. 2^53이 왜 하필 그 경계인가</h2>
+  <p>52비트의 명시적 가수부에 암묵적 선행 1비트를 더하면 총 53비트 분의 정밀도가 나옵니다. 0부터 2^53까지의 모든 정수는 이 53비트 안에 있는 그대로 표현할 수 있어 오차가 없습니다. 그런데 2^53을 넘어서는 순간 지수가 한 단계 올라가면서 표현 가능한 값 사이의 간격이 1에서 2로 벌어집니다. 즉 2^53은 정확히 표현되지만 그다음 정수인 2^53+1은 표현할 수 있는 격자 위에 존재하지 않아서, 가장 가까운 짝수인 2^53으로 반올림돼 버립니다. 이 경계값이 바로 JavaScript의 <code>Number.MAX_SAFE_INTEGER</code>(=2^53−1=9,007,199,254,740,991)이며, 이 값과 그 이웃(±1)까지는 안전하게 구분되지만 그 너머부터는 서로 다른 정수가 같은 값으로 뭉개질 수 있습니다.</p>
+
+  <div class="box">
+    <strong>계산 예시</strong>: 2^53은 정확히 9,007,199,254,740,992입니다. 그보다 1 큰 9,007,199,254,740,993을 JavaScript로 다뤄보면 <code>9007199254740993 === 9007199254740992</code>는 <code>true</code>를 반환합니다. 두 값이 코드상 다른 정수임에도 double로 저장되는 순간 같은 비트 패턴으로 뭉개지기 때문입니다. 실제로 <code>JSON.parse('{"id":9007199254740993}')</code>를 실행하면 결과 객체의 id 값은 9007199254740992로, 즉 원본과 다른 숫자로 바뀌어 있습니다.
+  </div>
+
+  <h2>3. 실무에서 큰 정수를 JSON으로 다룰 때 우회하는 법</h2>
+  <p>이 문제는 특정 라이브러리나 도구의 버그가 아니라 JSON 표준 자체의 근본적인 한계입니다. RFC 8259는 숫자 타입의 정밀도를 규정하지 않고 각 구현체에 맡기며, 대부분의 언어가 편의상 double을 택했기 때문에 생기는 현상입니다. 실무에서는 데이터베이스의 64비트 자동증가 ID, 스노우플레이크(Snowflake) ID, 일부 결제·금융 API의 큰 정수 필드가 흔히 이 경계를 넘습니다. 가장 널리 쓰이는 우회법은 문제가 될 수 있는 값을 JSON 숫자 타입이 아니라 <strong>문자열로 감싸서</strong> 전달하는 것입니다. <code>{"id":9007199254740993}</code> 대신 <code>{"id":"9007199254740993"}</code>처럼 큰따옴표로 감싸면 파서가 이를 문자열로 취급해 원본 자릿수가 그대로 보존됩니다. JavaScript의 BigInt 타입은 이 범위를 넘는 정수도 정확히 표현할 수 있지만, 표준 <code>JSON.parse()</code>는 숫자 리터럴을 파싱하는 시점에 이미 double로 변환해버리므로 원본 문자열을 직접 BigInt로 다시 변환하거나 json-bigint 같은 별도 파서를 써야 합니다.</p>
+
+  <h2>4. 정리 — 큰 정수를 다룰 때 확인해야 할 순서</h2>
+  <ul>
+    <li><strong>값의 크기부터 확인</strong>: 다루는 정수가 9,007,199,254,740,991(2^53−1)을 넘는지 먼저 따져봅니다. DB의 bigint 기본키, 스노우플레이크 ID가 대표적입니다.</li>
+    <li><strong>API 설계 시 문자열화</strong>: 직접 API를 설계한다면 큰 정수 필드는 처음부터 JSON 문자열로 내보내는 것이 정밀도 손실을 원천 차단합니다.</li>
+    <li><strong>외부 API를 소비할 때</strong>: 문자열이 아닌 숫자로 큰 ID가 내려온다면 이미 서버 쪽에서 정밀도가 손실됐을 수 있으므로, 가능하다면 원문 그대로 문자열 필드를 함께 요청합니다.</li>
+  </ul>
+
+  <h2>자주 묻는 질문</h2>
+  <details class="faq-item"><summary>Q. JSON 숫자는 왜 큰 정수에서 값이 바뀌나요?</summary><p>A. JSON 표준(RFC 8259)은 숫자 타입의 정밀도를 규정하지 않습니다. JavaScript를 비롯한 대부분의 JSON 구현체는 모든 숫자를 IEEE 754 배정밀도 부동소수점(double)으로 저장하는데, 이 형식은 정수를 최대 2^53까지만 오차 없이 표현할 수 있습니다. 이보다 큰 정수를 JSON.parse()로 읽으면 가장 가까운 표현 가능한 값으로 반올림되어 원래 값과 달라집니다.</p></details>
+  <details class="faq-item"><summary>Q. 2^53이라는 숫자는 어디서 나온 건가요?</summary><p>A. IEEE 754 double은 64비트 중 부호 1비트, 지수 11비트를 뺀 나머지 52비트를 가수부(fraction)로 씁니다. 정규화된 수는 항상 암묵적인 선행 1비트가 붙기 때문에 실제로는 53비트 분의 정밀도를 갖게 되고, 0부터 2^53까지의 모든 정수를 오차 없이 표현할 수 있습니다. 2^53을 넘어서면 표현 가능한 값 사이의 간격이 1보다 커져 연속된 정수를 구분할 수 없게 됩니다.</p></details>
+  <details class="faq-item"><summary>Q. 큰 정수를 JSON으로 안전하게 주고받으려면 어떻게 하나요?</summary><p>A. 가장 흔한 방법은 숫자를 JSON 숫자 타입이 아니라 문자열로 감싸서 전달하는 것입니다. 예를 들어 {"id":9007199254740993} 대신 {"id":"9007199254740993"}처럼 큰따옴표로 감싸면 파서가 이를 문자열로 취급하므로 정밀도 손실 없이 그대로 보존됩니다. 서버·DB의 64비트 ID나 스노우플레이크 ID를 API 응답에 넣을 때 흔히 쓰는 관례입니다.</p></details>
+  <details class="faq-item"><summary>Q. JSON.parse 대신 BigInt를 쓰면 해결되나요?</summary><p>A. BigInt 자체는 2^53을 넘는 정수도 정확히 표현할 수 있지만, 표준 JSON.parse()는 숫자 리터럴을 항상 double로 변환하므로 파싱 시점에 이미 정밀도가 손실된 뒤입니다. BigInt로 다루려면 원본 JSON에서 해당 값을 문자열로 받은 뒤 직접 BigInt()로 변환하거나, json-bigint 같은 커스텀 파서 라이브러리를 써야 합니다. JSON.stringify()도 BigInt 값을 그대로 직렬화하지 못해 TypeError를 던집니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../json-validator.html">→ JSON 검증기</a>
+    <a href="../json-formatter.html">→ JSON 포맷터</a>
+    <a href="../api-response-viewer.html">→ API 응답 뷰어</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적입니다.</footer>
+</main>
+</body>
+</html>
