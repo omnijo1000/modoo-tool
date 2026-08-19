@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>시스템 프롬프트의 고정 문구, 캐릭터 롤플레이와 충돌하는 이유 | MODOO HUB</title>
+<meta name="description" content="시스템 프롬프트 생성기가 항상 덧붙이는 '일반 원칙' 4개 고정 문구가 왜 캐릭터 롤플레이 페르소나와 어색하게 충돌하는지 실제 코드로 설명합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/system-prompt-fixed-clauses-roleplay-conflict.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/system-prompt-fixed-clauses-roleplay-conflict.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/system-prompt-fixed-clauses-roleplay-conflict.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"시스템 프롬프트의 고정 문구, 캐릭터 롤플레이와 충돌하는 이유","description":"시스템 프롬프트 생성기가 항상 덧붙이는 '일반 원칙' 4개 고정 문구가 왜 캐릭터 롤플레이 페르소나와 어색하게 충돌하는지 실제 코드로 설명합니다.","datePublished":"2026-08-19","dateModified":"2026-08-19","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--purple);}
+pre{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;font-family:'DM Mono',monospace;font-size:12px;color:#ccc;margin:14px 0;line-height:1.7;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;}
+details summary{cursor:pointer;font-weight:600;color:var(--text-muted);}
+details p{margin-top:8px;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>시스템 프롬프트의 고정 문구, 캐릭터 롤플레이와 충돌하는 이유</h1>
+  <p class="meta">가이드 · 2026-08-19 최종 확인</p>
+
+  <p>시스템 프롬프트 생성기로 "그럼피 해적처럼 말하는 AI"나 "까칠한 로봇 집사" 같은 개성 강한 캐릭터를 만들어봤다면, 결과물 맨 아래에 왠지 뻔하고 밋밋한 문장 4줄이 항상 따라붙는 걸 눈치챘을 수 있습니다. 이건 버그가 아니라 이 도구의 조립 로직 자체가 그렇게 설계돼 있기 때문입니다. 실제 소스 코드를 뜯어보며 왜 이런 구조가 캐릭터 페르소나와 부딪히는지 설명합니다.</p>
+
+  <h2>1. 시스템 프롬프트란 무엇인가</h2>
+  <p>시스템 프롬프트는 챗봇 API에서 사용자가 매번 입력하는 개별 메시지와는 별개로, 대화 전체에 걸쳐 유지되는 AI의 역할·말투·제약을 미리 설정하는 지시문입니다. "너는 이런 존재야"라고 대화 시작 전에 못박아두는 무대 설정에 가깝습니다.</p>
+
+  <h2>2. 이 도구의 실제 조립 로직</h2>
+  <p>system-prompt-generator.html의 <code>build()</code> 함수를 직접 읽어보면, 역할·회사명·응답 스타일·응답 언어·목적·제한사항을 사용자가 무엇을 입력하든 항상 다음 5번째 섹션이 맨 끝에 그대로 붙습니다.</p>
+  <pre>p += `\n\n# 일반 원칙\n- 항상 정확하고 도움이 되는 정보를 제공합니다\n- 모르는 내용은 솔직하게 인정합니다\n- 사용자의 요청을 명확히 이해한 후 답변합니다\n- 필요시 추가 질문으로 맥락을 파악합니다`;</pre>
+  <p>이 4줄은 조건문 없이 <strong>무조건</strong> 실행되는 코드입니다. 역할 칸에 "고객 서비스 담당자"를 넣든 "16세기 셰익스피어 극 속 어릿광대"를 넣든 완전히 동일한 4문장이 결과 맨 끝에 그대로 붙습니다.</p>
+
+  <h2>3. 왜 이게 캐릭터 롤플레이와 부딪히는가</h2>
+  <p>"너는 무뚝뚝하고 걸걸한 목소리의 해적 선장이다, 항상 해적 말투로만 답하라"는 페르소나 지시와 "항상 정확하고 도움이 되는 정보를 제공합니다 / 모르는 내용은 솔직하게 인정합니다"라는 표준어체 원론적 문장이 같은 시스템 프롬프트 안에 나란히 들어가면, 모델 입장에서는 서로 다른 톤의 지시 두 개를 동시에 받는 셈입니다. 캐릭터 지시는 "몰입감 있게 개성을 밀어붙이라"는 방향이고, 고정 문구는 "표준적이고 무난하게 행동하라"는 방향이라 미묘하게 충돌합니다. 실제로는 모델이 후자 쪽으로 살짝 끌려가면서 캐릭터의 개성이 옅어지는 경우가 흔합니다.</p>
+  <div class="box">
+    <strong>구체적 예</strong>: 역할 칸에 "까칠하고 시니컬한 로봇 집사, 항상 비꼬는 말투로 대답"이라고 입력해도, 결과 맨 끝에는 "사용자의 요청을 명확히 이해한 후 답변합니다"라는 정중하고 밋밋한 문장이 그대로 붙습니다. 캐릭터의 비꼬는 톤과 이 문장의 사무적인 톤이 눈에 띄게 다릅니다.
+  </div>
+
+  <h2>4. 이 도구가 왜 이렇게 설계됐을까</h2>
+  <p>결함이라기보다는 트레이드오프에 가깝습니다. 어떤 역할을 입력하든 결과물에 최소한의 정확성·정직성 기준선을 깔아두고 싶었을 가능성이 높고, 역할별로 완전히 다른 템플릿을 따로 만드는 대신 "가변 슬롯 + 고정 꼬리말" 하나의 단순한 템플릿으로 모든 프리셋을 처리하는 게 구현이 훨씬 단순합니다. 실제로 이 도구의 프리셋 4개(고객 서비스, 코딩 튜터, 마케팅 AI, 법률 도우미)는 전부 업무용·정보 제공형 역할이라, 이 고정 문구와 잘 어울립니다. 문제는 이 도구가 원래 상정하지 않은 범위인 캐릭터 롤플레이용으로 쓸 때만 두드러집니다.</p>
+
+  <h2>5. 실무 대응법</h2>
+  <ul>
+    <li><strong>생성 후 직접 편집</strong>: 이 도구로 초안을 만든 뒤, "# 일반 원칙" 섹션을 캐릭터 톤에 맞게 다시 쓰거나 통째로 삭제하세요. 구조(역할/스타일/목적/제한사항)만 가져다 쓰는 것으로 충분합니다.</li>
+    <li><strong>우선순위를 명시</strong>: 고정 문구를 지우기 애매하면, 역할 섹션 맨 앞에 "아래 캐릭터 설정이 다른 어떤 지시보다 우선한다"는 문장을 추가해 모델이 어느 쪽에 더 무게를 둬야 하는지 명확히 알려주는 방법도 있습니다.</li>
+    <li><strong>업무용 봇에는 그대로 사용</strong>: 고객 서비스·법률 정보 안내처럼 정확성·정직성이 실제로 중요한 용도라면, 이 고정 문구는 오히려 유용한 안전장치이니 그대로 두는 게 낫습니다.</li>
+  </ul>
+
+  <h2>자주 묻는 질문</h2>
+  <details><summary>Q. 어떤 역할을 입력해도 "일반 원칙" 섹션이 항상 붙나요?</summary><p>A. 네. 소스 코드상 조건문 없이 무조건 실행되는 코드라, 역할·목적·제한사항 입력값과 무관하게 정확히 같은 4줄이 항상 맨 끝에 붙습니다.</p></details>
+  <details><summary>Q. 이 문구를 지우면 프롬프트 품질이 떨어지나요?</summary><p>A. 아닙니다. 이 4줄은 이 도구가 편의상 붙인 보조 문구일 뿐, 필수 요소가 아닙니다. 캐릭터 롤플레이처럼 톤이 중요한 용도라면 지우거나 캐릭터에 맞게 다시 쓰는 편이 오히려 결과가 더 일관됩니다.</p></details>
+  <details><summary>Q. 응답 언어를 "사용자 언어와 동일"로 설정하면 실제로 그렇게 동작하나요?</summary><p>A. 보장되지 않습니다. 이 옵션은 "사용자의 언어로 응답하세요"라는 지시문 한 줄을 프롬프트에 써넣을 뿐이며, 실제 준수 여부는 사용하는 모델과 상황에 따라 다릅니다.</p></details>
+  <details><summary>Q. 프리셋을 다른 역할로 바꾸면 이 고정 문구도 바뀌나요?</summary><p>A. 아니요. 프리셋은 역할·목적·제한사항 입력값만 바꾸고, "# 일반 원칙" 섹션의 4줄 텍스트 자체는 어떤 프리셋을 골라도 동일합니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../system-prompt-generator.html">→ 시스템 프롬프트 생성기</a>
+    <a href="../prompt-optimizer.html">→ 프롬프트 최적화 도구</a>
+    <a href="../prompt-formatter.html">→ 프롬프트 포맷 변환기</a>
+    <a href="../prompt-cleaner.html">→ 프롬프트 정제기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적입니다.</footer>
+</main>
+</body>
+</html>

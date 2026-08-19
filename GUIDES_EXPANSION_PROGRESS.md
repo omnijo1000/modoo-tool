@@ -66,7 +66,7 @@
 
 - [ ] **compound-interest** — "72의 법칙, 실제로 얼마나 정확한가" — 연8% 복리: 72÷8=9년 근사 vs 실제 9.006년.
 - [x] **savings-calc** (guides/isa-savings-interest-tax-exemption.html, 2026-08-19) — "ISA로 적금 이자세금 얼마나 아끼나" — 순이익 200만원(서민형400만)까지 비과세, 초과분 9.9% 분리과세.
-- [ ] **inflation-calculator** — "월세·연금 실질가치, 인플레이션이 몇 년 만에 갉아먹나" — 월$1,000 연금, 연2% 인플레 시 구매력 약67%로 하락.
+- [x] **inflation-calculator** (guides/inflation-purchasing-power-decay.html, 2026-08-19) — "월세·연금 실질가치, 인플레이션이 몇 년 만에 갉아먹나" — 월$1,000 연금, 연2% 인플레 시 구매력 약67%로 하락.
 - [ ] **currency-converter** — "환율의 숨은 비용, 스프레드는 얼마나 되나" — USD/KRW 스프레드 20~40원+카드수수료 1.25~2%.
 - [ ] **sip-calculator** — "Step-Up SIP, 매년 늘리면 복리효과가 얼마나 커지나" — 월$100+매년10%증액, 10년뒤 월$240.
 - [ ] **emi-calculator** — "인도 EMI 대출한도, FOIR 40%가 정하는 것" — 월소득5만루피·FOIR40%→최대EMI 2만루피.
@@ -131,7 +131,7 @@ REJECT(4개, 이유 있음): salary(기존 가이드와 중복), salary-negotiat
 - [ ] **javascript-beautifier** — "중괄호만 세는 JS 포매터가 for문을 깨뜨리는 이유" — 들여쓰기 깊이를 `{}` 개수로만 계산.
 - [ ] **css-beautifier** — "문자 단위 CSS 포매터의 중첩 깊이 추적 방식" — SCSS 전처리기 문법은 깨짐.
 - [ ] **keyword-difficulty-estimator** — "키워드 난이도 점수, 실제 검색 데이터 없이 어떻게 계산되나" — 규칙기반 점수, 5~95 클램프.
-- [ ] **sitemap-extractor** — "사이트맵 priority·changefreq, 구글이 이미 무시한다고 밝힌 태그" — 2014년부터 priority 안 씀.
+- [x] **sitemap-extractor** (guides/sitemap-priority-changefreq-ignored.html, 2026-08-19) — "사이트맵 priority·changefreq, 구글이 이미 무시한다고 밝힌 태그" — 2014년부터 priority 안 씀.
 - [ ] **serp-snippet-preview** — "구글 제목 스니펫은 글자수가 아니라 픽셀로 잘린다" — 약600px(Arial기준), 60자는 근사치일뿐.
 - [ ] **open-graph-preview** — "소셜 공유 미리보기가 안 바뀌는 이유: 플랫폼 캐시" — Facebook Sharing Debugger로 Scrape Again 필요.
 - [ ] **keyword-cannibalization-checker** — "키워드 카니발라이제이션, 문자열은 같아도 검색 의도는 다를 수 있다" — 301/canonical/차별화가 해법.
@@ -184,7 +184,7 @@ REJECT(3개): ip-address-lookup(일반 네트워킹 상식 나열뿐), website-s
 - [x] **text-reverser** (guides/text-reverser-emoji-surrogate-pair-break.html, 2026-08-19) — "텍스트를 뒤집으면 왜 이모지가 깨지는가, 서로게이트 쌍의 함정" — UTF-16 서로게이트쌍 2개 구성.
 - [ ] **text-shuffler** — "Array.sort(Math.random)이 왜 편향된 셔플인가, Fisher-Yates가 필요한 이유" — 비교횟수 불균등으로 편향.
 - [ ] **text-sorter** — "자연 정렬(Natural Sort), item2가 item10보다 왜 먼저 와야 하나" — 문자열속 숫자를 값으로 비교.
-- [ ] **alphabetizer** — "가나다순 정렬, localeCompare와 유니코드 순서는 왜 다른가" — 중국어·일본어는 유니코드 순서로만 정렬.
+- [x] **alphabetizer** (guides/alphabetizer-localecompare-vs-unicode-sort.html, 2026-08-19) — "가나다순 정렬, localeCompare와 유니코드 순서는 왜 다른가" — 중국어·일본어는 유니코드 순서로만 정렬.
 - [ ] **text-diff-checker** — "diff 도구는 어떻게 변경사항을 찾아내는가, LCS 알고리즘 해부" — 줄단위 LCS만 지원, git Myers 알고리즘과 차이.
 - [x] **case-converter** (guides/turkish-i-problem-case-conversion.html, 2026-08-19) — "터키어의 I 문제, 표준 대소문자 변환이 깨지는 언어가 있다" — 터키어 점없는I/점있는i 구분.
 - [ ] **typing-speed-test** — "타자 속도 WPM, 왜 항상 '5글자=1단어'로 계산하나" — 영문 평균단어길이 5자 기준 국제표준.
@@ -249,7 +249,7 @@ REJECT(7개): webp-to-png, image-to-webp, image-cropper, blur-image, color-picke
 
 - [x] **seo-title-generator** (guides/google-title-pixel-width-truncation.html, 2026-08-19) — "SEO 제목, 왜 한글은 영어보다 훨씬 빨리 잘리나" — 구글 픽셀폭 기준(약580px), 한글28~30자 vs 영문50~60자.
 - [x] **meta-description-generator** (guides/meta-description-google-rewrite.html, 2026-08-19) — "메타 설명, 써도 구글이 무시하는 이유" — 순위요소 아니나 CTR 간접기여, 구글이 본문서 발췌대체.
-- [ ] **ai-youtube-title-generator** — "유튜브 제목 vs 썸네일, 같은 말 두 번 하면 손해인 이유" — 70자초과 잘림, 이탈률↑시 알고리즘 노출↓.
+- [x] **ai-youtube-title-generator** (guides/youtube-title-thumbnail-redundancy.html, 2026-08-19) — "유튜브 제목 vs 썸네일, 같은 말 두 번 하면 손해인 이유" — 70자초과 잘림, 이탈률↑시 알고리즘 노출↓.
 - [ ] **ai-thumbnail-title-generator** — "유튜브 썸네일 문구, 왜 10자를 넘기면 안 되나" — 한줄10자·2줄20자 권장.
 - [x] **utm-builder** (guides/utm-internal-link-tracking-mistake.html, 2026-08-19) — "UTM, 내부 링크에 붙이면 왜 절대 안 되나" — 내부링크에 붙이면 GA가 새 세션으로 오집계.
 - [ ] **robots-txt-generator** — "robots.txt, Allow와 Disallow 충돌하면 누가 이기나" — 더 긴(구체적)경로 우선.
@@ -279,7 +279,7 @@ REJECT(8개): youtube-script-generator, ai-email-generator, ai-resume-generator,
 - [x] **url-decoder** (guides/url-decoding-plus-sign-double-decode.html, 2026-08-19) — "URL 디코딩에서 '+'가 공백이 안 되는 이유, 이중 디코딩 처리법" — decodeURI는 %XX만 처리, +는 안건드림.
 - [x] **html-decoder** (guides/html-decoder-native-parser-safety.html, 2026-08-19) — "브라우저 네이티브 파서로 HTML 엔티티를 안전하게 디코딩하는 원리" — textarea.innerHTML RAWTEXT모델.
 - [x] **hash-generator** (guides/md5-sha1-hash-vs-hmac-vs-crc32.html, 2026-08-19) — "MD5·SHA-1은 왜 아직 쓰이지만 보안엔 못 쓰나 — 해시 vs HMAC vs CRC32" — 실제 해시충돌 사례.
-- [ ] **random-string** — "Math.random()과 crypto.getRandomValues(), 비밀번호 생성기 엔트로피 계산법" — 128비트 엔트로피=최소22자.
+- [x] **random-string** (guides/random-string-crypto-entropy-calculation.html, 2026-08-19) — "Math.random()과 crypto.getRandomValues(), 비밀번호 생성기 엔트로피 계산법" — 128비트 엔트로피=최소22자.
 - [ ] **http-header-checker** — "HSTS max-age=0의 함정 — 보안 헤더가 있어도 없는 셈인 경우" — RFC6797상 max-age=0은 HSTS비활성.
 - [ ] **ssl-checker** — "SSL 체커는 실제로 서버에 접속하지 않는다 — Certificate Transparency 로그의 원리와 한계" — crt.sh CT로그 대체조회.
 - [ ] **csr-generator** — "CSR 키 크기 2048 vs 4096, EC vs RSA — 뭘 골라야 인증서가 빨라지나" — EC P-256=RSA2048과 동등보안.
@@ -302,7 +302,7 @@ REJECT(5개): base64-encoder, base64-decoder, html-encoder(순수 인코딩 스�
 - [x] **pdf-page-counter** (guides/pdf-page-count-fixed-layout-vs-reflow.html, 2026-08-19) — "PDF 페이지 수, 왜 Word 문서랑 다르게 나올까" — pdf-lib getPageCount()가 읽는 Pages트리 Count값(고정) vs Word 리플로우 재계산.
 - [x] **image-to-pdf** (guides/image-to-pdf-recompression-size-increase.html, 2026-08-19) — "이미지를 PDF로 바꾸면 왜 용량이 커질 수 있을까" — PNG/GIF는 캔버스거쳐 무손실PNG로 재인코딩.
 - [x] **pdf-password-remover** (guides/pdf-password-remover-generic-error.html, 2026-08-19) — "PDF 비밀번호 제거가 실패하는 이유, 오류 메시지가 알려주지 않는 것" — 틀린비번·미지원암호화 동일오류.
-- [ ] **pdf-password-adder** — "PDF 비밀번호가 두 종류인 이유 — 사용자 비밀번호 vs 소유자 비밀번호" — 열람제어 vs 권한제어 분리.
+- [x] **pdf-password-adder** (guides/pdf-user-vs-owner-password.html, 2026-08-19) — "PDF 비밀번호가 두 종류인 이유 — 사용자 비밀번호 vs 소유자 비밀번호" — 열람제어 vs 권한제어 분리.
 - [x] **pdf-rotate** (guides/pdf-rotate-metadata-no-quality-loss.html, 2026-08-19) — "PDF를 돌려도 화질이 그대로인 이유 — /Rotate 메타데이터의 원리" — 재렌더링 없이 값만 변경.
 - [ ] **pdf-extract-images** — "PDF 이미지 추출, 사실은 페이지 전체를 사진 찍는 방식" — 캔버스 렌더링, 1pt=1/72인치.
 - [x] **pdf-metadata-viewer** (guides/pdf-metadata-privacy-leak.html, 2026-08-19) — "이력서에 몰래 딸려가는 정보 — PDF 메타데이터 유출 실제 사례" — Info Dict+XMP 이중저장구조.
@@ -323,7 +323,7 @@ REJECT(4개): pdf-merge, pdf-split, pdf-to-image, pdf-reorder-pages (순수 기�
 - [x] **prompt-formatter** (guides/prompt-formats-chatml-xml-jsonl.html, 2026-08-19) — "ChatML vs XML vs JSONL, 모델마다 프롬프트 포맷이 다른 이유" — OpenAI ChatML vs Claude XML태그.
 - [x] **image-prompt-generator** (guides/image-prompt-generator-dalle-negative-prompt-bug.html, 2026-08-19) — "이미지 프롬프트 생성기, DALL-E 모드에만 있는 숨은 버그" — 공백중복+네거티브프롬프트 무시되는 실제버그.
 - [ ] **prompt-optimizer** — "프롬프트 하나로 안 되는 이유: 작업 유형별 8가지 구조(RCTF)" — 요약/번역별 요구사항 항목 차이.
-- [ ] **system-prompt-generator** — "시스템 프롬프트에 숨어있는 고정 문구, 캐릭터 롤플레이와 충돌하는 이유" — 4가지 일반원칙 무조건 덧붙는 구조.
+- [x] **system-prompt-generator** (guides/system-prompt-fixed-clauses-roleplay-conflict.html, 2026-08-19) — "시스템 프롬프트에 숨어있는 고정 문구, 캐릭터 롤플레이와 충돌하는 이유" — 4가지 일반원칙 무조건 덧붙는 구조.
 - [ ] **prompt-cleaner** — "프롬프트 정제기가 보여주는 토큰 수는 가짜다" — 문자수×0.25 근사식, 한글서 과소표시.
 - [ ] **prompt-template-generator** — "Chain-of-Thought 템플릿 '3단계'는 왜 고정값일 뿐인가" — CoT 하드코딩 3단계 vs 최신 reasoning모델.
 - [ ] **prompt-variable-extractor** — "{{변수}}는 되는데 [변수]는 왜 안 되나" — 마크다운 링크/각주와 구분불가해 미지원.
@@ -342,7 +342,7 @@ REJECT: 없음(10개 전부 ACCEPT).
 - [x] **json-diff** (guides/json-array-diff-index-vs-lcs.html, 2026-08-19) — "JSON 배열 비교의 함정: 인덱스 기반 diff가 중간 삽입에서 틀리는 이유" — LCS정렬 없이 인덱스만 대응.
 - [x] **json-flattener** (guides/json-flatten-unflatten-array-loss.html, 2026-08-19) — "중첩 JSON 평탄화(flatten)와 되돌리기(unflatten), 정보가 사라지는 지점" — 2차원배열서 구조정보 소실.
 - [x] **xml-to-json** (guides/xml-to-json-mixed-content-whitespace-loss.html, 2026-08-19) — "XML을 JSON으로 바꾸면 사라지는 것: 혼합 콘텐츠의 순서와 공백" — 텍스트노드 개별trim으로 공백손실.
-- [ ] **json-path-tester** — "JSONPath 완전정리: 문법과 이 도구가 지원하지 않는 것" — 슬라이싱([0:2]) 미지원.
+- [x] **json-path-tester** (guides/jsonpath-syntax-and-slicing-support.html, 2026-08-19) — "JSONPath 완전정리: 문법과 이 도구가 지원하지 않는 것" — 슬라이싱([0:2]) 미지원.
 - [ ] **sql-to-json** — "SQL INSERT를 JSON으로 바꾸는 파서의 숨은 버그: 이스케이프된 따옴표가 사라지는 이유" — 'O''Brien'→"OBrien" 손상버그.
 
 REJECT(7개): json-formatter, json-viewer, json-minifier, xml-formatter, sql-formatter, json-to-csv(json-flattener와 중복), csv-viewer.
@@ -355,7 +355,7 @@ REJECT(7개): json-formatter, json-viewer, json-minifier, xml-formatter, sql-for
 - [x] **calorie-calculator** (guides/calorie-calculator-bmr-adaptation-reality.html, 2026-08-19) — "칼로리 계산기 숫자가 실제 체중 변화와 다른 진짜 이유" — 10년마다 BMR 2~3%자연감소.
 - [x] **macro-calculator** (guides/macro-calculator-fixed-protein-ratio.html, 2026-08-19) — "매크로 비율, 목표 바뀌어도 사실 안 바뀌는 것" — 단백질=체중×2g 고정, 실코드 확인된 실제 로직.
 - [x] **water-intake** (guides/water-intake-hyponatremia-risk.html, 2026-08-19) — "갈증 느끼면 이미 늦었다? 물도 과하면 위험한 이유" — 저나트륨혈증(hyponatremia) 위험 병기.
-- [ ] **pace-calculator** — "마라톤 페이스, 평지 기준으로만 계산하면 틀리는 이유" — 경사1%당 km당 약6초 느려짐(GAP).
+- [x] **pace-calculator** (guides/marathon-pace-grade-adjusted-elevation.html, 2026-08-19) — "마라톤 페이스, 평지 기준으로만 계산하면 틀리는 이유" — 경사1%당 km당 약6초 느려짐(GAP).
 - [ ] **pregnancy-due-date** — "출산 예정일에 정확히 태어나는 아기는 5%뿐인 이유" — 네겔레법칙은 LMP기준, 배란시차 오차.
 - [ ] **health-insurance-calc** — "건강보험료 4월에 왜 더 걷거나 돌려주나" — 전년추정 vs 확정보수 4월정산.
 - [ ] **national-pension** — "국민연금 몇 살에 받아야 손해 안 볼까" — 조기수령 1년당6%감액 vs 연기수령 1년당7.2%증액.
@@ -368,7 +368,7 @@ REJECT: 없음.
 
 - [x] **date-calc** (guides/statute-of-limitations-debt-types-korea.html, 2026-08-19) — "소멸시효 계산의 함정, 채권 종류마다 왜 다른가" — 일반채권10년/상사5년/불법행위3년.
 - [x] **time-calculator** (guides/night-shift-overtime-pay-law.html, 2026-08-19) — "야간수당 50%는 왜 밤 10시부터인가 — 근로기준법 제56조 완전정리" — 야간(22~06시) 별도50%가산.
-- [ ] **business-days-calculator** — "계약서 '영업일 5일 이내', 달력으로는 며칠인가" — 공휴일 끼면 달력 10일이상 벌어짐.
+- [x] **business-days-calculator** (guides/business-days-vs-calendar-days-contract.html, 2026-08-19) — "계약서 '영업일 5일 이내', 달력으로는 며칠인가" — 공휴일 끼면 달력 10일이상 벌어짐.
 - [ ] **pomodoro-timer** — "뽀모도로 25분, 실제 근거가 있는 숫자인가" — 프란체스코 치릴로 개인 경험칙, 과학적 최적값 아님.
 - [x] **timestamp** (guides/unix-timestamp-2038-problem.html, 2026-08-19) — "유닉스 타임스탬프와 2038년 문제" — 32비트 signed integer 오버플로.
 - [ ] **timezone-converter** — "30분·45분 단위 시간대가 존재하는 이유 — IST(UTC+5:30) 결정의 역사" — 인도UTC+5:30, 네팔UTC+5:45.

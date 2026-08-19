@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>가나다순 정렬, localeCompare와 유니코드 순서는 왜 다른가 | MODOO HUB</title>
+<meta name="description" content="JS 정렬이 왜 언어마다 다르게 동작하는지, Array.sort()의 코드유닛 비교와 localeCompare의 로케일 인식 정렬 차이, 중국어·일본어 정렬의 근본적 한계를 설명합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/alphabetizer-localecompare-vs-unicode-sort.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/alphabetizer-localecompare-vs-unicode-sort.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/alphabetizer-localecompare-vs-unicode-sort.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"가나다순 정렬, localeCompare와 유니코드 순서는 왜 다른가","description":"JS 정렬이 왜 언어마다 다르게 동작하는지, Array.sort()의 코드유닛 비교와 localeCompare의 로케일 인식 정렬 차이, 중국어·일본어 정렬의 근본적 한계를 설명합니다.","datePublished":"2026-08-19","dateModified":"2026-08-19","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--purple);}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;}
+details summary{cursor:pointer;font-weight:600;color:var(--text-muted);}
+details p{margin-top:8px;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>가나다순 정렬, localeCompare와 유니코드 순서는 왜 다른가</h1>
+  <p class="meta">가이드 · 2026-08-19 최종 확인</p>
+
+  <p>텍스트 목록을 "알파벳순으로 정렬"한다고 할 때, 프로그래머가 아무 생각 없이 <code>Array.sort()</code>를 그냥 호출하면 언어에 따라 결과가 확 달라질 수 있습니다. 이 가이드는 JS 정렬 API 두 가지 — 기본 정렬과 <code>localeCompare</code> — 가 내부적으로 완전히 다른 기준으로 비교를 수행한다는 사실과, 그 차이가 한국어·중국어·일본어에서 각각 어떤 결과로 나타나는지 설명합니다.</p>
+
+  <h2>1. JS 기본 정렬은 "언어"를 모른다</h2>
+  <p>인자 없이 <code>[a, b].sort()</code>를 호출하면 자바스크립트는 각 요소를 문자열로 바꾼 뒤, <strong>UTF-16 코드 유닛 값</strong>을 하나씩 숫자로 비교합니다. 이건 순수하게 이진수 비교이지, "어떤 언어의 사전에서 어느 게 먼저 나오는가"라는 개념이 전혀 들어있지 않습니다. 영어 알파벳처럼 대소문자와 순서가 유니코드 배치와 거의 일치하는 경우엔 이 방식도 그럭저럭 맞아떨어지지만("Apple"이 "banana"보다 앞에 오는 이유도 사실은 대문자 A의 코드값(65)이 소문자 b(98)보다 작아서일 뿐입니다), 언어별 사전 순서가 유니코드 배치와 어긋나는 경우엔 결과가 틀어집니다.</p>
+
+  <h2>2. localeCompare: 유니코드 CLDR 규칙을 따르는 정렬</h2>
+  <p><code>String.prototype.localeCompare()</code>(또는 더 세밀하게 제어할 수 있는 <code>Intl.Collator</code>)는 다릅니다. 이 메서드는 자바스크립트 엔진에 내장된 유니코드 CLDR(Common Locale Data Repository) 콜레이션(collation) 규칙을 사용해, 실제로 그 언어 사용자가 기대하는 사전식 순서로 비교합니다. 한국어의 경우 이게 특히 중요합니다 — 한글 음절은 초성·중성·종성이 조합된 구조라, 단순 유니코드 코드포인트 순서가 "가나다" 직관과 항상 정확히 일치하지는 않는 경우가 있어, <code>localeCompare</code>처럼 로케일 콜레이션 규칙을 따르는 비교가 사전적으로 안정적인 결과를 보장합니다.</p>
+  <div class="box">
+    <strong>실제 소스 확인</strong>: modoohub.com의 <a href="../alphabetizer.html">알파벳 순 정렬 도구</a>는 <code>lines.sort((a,b)=&gt;a.localeCompare(b))</code> 형태로, 기본 코드유닛 정렬이 아니라 처음부터 <code>localeCompare</code>를 사용하고 있습니다. 즉 이 도구로 한글 목록을 정렬하면 로케일 콜레이션 규칙이 적용된 가나다순 결과를 얻습니다.
+  </div>
+
+  <h2>3. 중국어·일본어는 왜 "알파벳순"이 애매한가</h2>
+  <p>여기서부터가 이 가이드의 핵심입니다. 영어(A-Z)나 한글(가-힣)은 하나의 표준적인 사전순 배열이 명확히 정의돼 있습니다. 하지만 중국어 한자와 일본어 한자(가나 제외)는 애초에 "하나의 자연스러운 알파벳순"이 존재하지 않습니다. 한자를 정렬하는 방법은 최소 세 가지 관습이 공존합니다: <strong>발음 기준</strong>(중국어라면 병음/Pinyin 순), <strong>획수 기준</strong>(글자를 이루는 선의 개수), <strong>부수 기준</strong>(사전에서 분류에 쓰는 부수) — 그리고 어느 것도 절대적인 "표준"으로 합의되어 있지 않습니다. 그 결과 <code>Intl.Collator</code>가 zh/ja 로케일을 받아도, 한자(표의문자)에 대해서는 적용할 단일 표준 콜레이션이 없어 사실상 <strong>유니코드 코드포인트 순서로 대체</strong>됩니다. 이건 버그가 아니라, 언어학적으로 정답이 하나로 정해지지 않은 문제에 대한 불가피한 결과입니다.</p>
+
+  <h2>4. 실제 도구가 어떻게 동작하는지</h2>
+  <p>이 사이트의 알파벳 순 정렬 도구는 이 한계를 스스로 인정하고 있습니다. 도구 페이지의 실제 FAQ에는 "일본어(히라가나/가타카나)와 중국어(한자)는 언어별 사전 순이 아닌 유니코드 순서로 정렬됩니다"라고 명시돼 있고, 정확한 언어별 정렬이 필요하면 별도의 콜레이션 라이브러리를 쓰라고 안내합니다. 즉 이 도구는 한국어·영어 등에서는 <code>localeCompare</code>의 이점을 제대로 활용하지만, 한자 콘텐츠에 대해서는 애초에 자바스크립트 표준 API 자체가 갖는 한계를 그대로 물려받습니다.</p>
+
+  <h2>5. 실무에서 기억할 점</h2>
+  <ul>
+    <li><strong>영어/한국어 목록 정렬</strong>: <code>localeCompare</code>(또는 <code>Intl.Collator</code>)를 쓰면 대부분의 경우 기대한 사전식 순서가 나옵니다.</li>
+    <li><strong>중국어/일본어 한자 목록 정렬</strong>: "알파벳순"이라는 개념 자체가 모호하다는 걸 인지하고, 특정 정렬 기준(병음순 등)이 꼭 필요하다면 그 언어 전용 라이브러리(예: pinyin 변환 후 정렬)를 별도로 써야 합니다.</li>
+    <li><strong>숫자가 섞인 텍스트</strong>: 알파벳순 정렬은 숫자도 문자로 취급하므로 "10"이 "2"보다 앞에 오는 사전식 순서가 됩니다 — 값 기준 정렬이 필요하면 숫자 전용 정렬 기능을 따로 써야 합니다.</li>
+  </ul>
+
+  <h2>자주 묻는 질문</h2>
+  <details><summary>Q. 기본 Array.sort()와 localeCompare, 결과가 항상 다른가요?</summary><p>A. 아닙니다. 순수 영어 소문자만 있는 목록처럼 유니코드 코드값 순서와 사전 순서가 우연히 일치하는 경우엔 결과가 같습니다. 차이가 드러나는 건 대소문자가 섞이거나, 한글처럼 코드포인트 순서와 언어 관습이 미묘하게 다른 경우입니다.</p></details>
+  <details><summary>Q. 이 사이트의 정렬 도구는 어떤 방식을 쓰나요?</summary><p>A. 처음부터 <code>localeCompare</code>를 사용합니다. 즉 기본 코드유닛 정렬이 아니라 로케일 콜레이션 규칙을 따르는 정렬이며, 한국어 가나다순도 정확히 반영합니다.</p></details>
+  <details><summary>Q. 중국어·일본어 한자를 발음 순으로 정렬하려면 어떻게 하나요?</summary><p>A. 표준 <code>Intl.Collator</code>만으로는 안 됩니다. 한자를 병음(중국어) 또는 요미가나(일본어) 같은 발음 표기로 먼저 변환한 뒤, 그 변환된 문자열을 기준으로 정렬해야 합니다. 이런 변환은 별도의 사전 데이터나 전용 라이브러리가 필요합니다.</p></details>
+  <details><summary>Q. Intl.Collator와 localeCompare는 같은 건가요?</summary><p>A. 같은 콜레이션 엔진을 사용합니다. 다만 <code>localeCompare</code>는 문자열 두 개를 그때그때 비교하는 간단한 메서드이고, <code>Intl.Collator</code>는 정렬 옵션(대소문자 구분, 발음 기호 무시 등)을 미리 설정해 재사용할 수 있어 대량 정렬 시 성능과 세밀한 제어 면에서 더 유리합니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../alphabetizer.html">→ 알파벳 순 정렬 도구</a>
+    <a href="../unicode-inspector.html">→ 유니코드 검사기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적입니다.</footer>
+</main>
+</body>
+</html>
