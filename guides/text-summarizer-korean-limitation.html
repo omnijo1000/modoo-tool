@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>텍스트 요약기, 한국어에서는 왜 제대로 작동하지 않는가 — tokenize() 정규식 버그 분석 | MODOO HUB</title>
+<meta name="description" content="모두의 툴 텍스트 요약기의 실제 소스코드를 열어 한국어 입력이 왜 요약되지 않는지 확인합니다. tokenize() 함수의 \\w 정규식이 한글을 단어로 인식하지 못해 모든 문장 점수가 0이 되는 구조를 코드 기준으로 설명합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/text-summarizer-korean-limitation.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"텍스트 요약기, 한국어에서는 왜 제대로 작동하지 않는가 — tokenize() 정규식 버그 분석","description":"모두의 툴 텍스트 요약기의 실제 소스코드를 열어 한국어 입력이 왜 요약되지 않는지, tokenize() 함수의 \\w 정규식이 한글을 단어로 인식하지 못해 모든 문장 점수가 0이 되는 구조를 코드 기준으로 설명합니다.","datePublished":"2026-08-19","dateModified":"2026-08-19","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"왜 한국어 문장은 요약기에서 모두 같은 점수를 받나요?","acceptedAnswer":{"@type":"Answer","text":"단어 빈도를 세는 tokenize() 함수가 정규식 [^\\w\\s]로 단어가 아닌 문자를 공백으로 바꾸는데, JavaScript의 \\w는 영문자·숫자·밑줄만 의미하고 한글(가-힣)은 포함하지 않습니다. 그 결과 한국어 문장을 넣으면 인식되는 단어 토큰이 하나도 남지 않아 모든 문장의 점수가 정확히 0이 됩니다."}},
+{"@type":"Question","name":"위치 기반 모드로 바꾸면 한국어에서도 나아지나요?","acceptedAnswer":{"@type":"Answer","text":"아니요. 위치 기반 모드는 문장의 기본 빈도 점수에 첫 문장·마지막 문장 가중치를 곱하는 구조인데, 한국어 문장의 기본 점수가 이미 0이므로 어떤 배율을 곱해도 여전히 0입니다."}},
+{"@type":"Question","name":"그럼 한국어 텍스트에는 이 도구를 아예 쓸 수 없나요?","acceptedAnswer":{"@type":"Answer","text":"요약 결과 자체는 나오지만 점수가 전부 0으로 동점 처리되기 때문에 어떤 문장이 선택되는지는 사실상 정렬 안정성에 따른 우연에 가깝습니다. 즉 결과가 나온다고 해서 실제로 핵심 문장을 골라낸 것은 아니므로, 한국어 요약이 필요하다면 이 도구보다 문장을 직접 읽고 고르거나 언어 모델 기반 요약 서비스를 쓰는 편이 낫습니다."}},
+{"@type":"Question","name":"영어 텍스트에서는 정상적으로 작동하나요?","acceptedAnswer":{"@type":"Answer","text":"네. tokenize()의 \\w 정규식은 영문자·숫자를 정상적으로 단어로 인식하므로, 영어 텍스트에서는 단어 빈도가 실제로 집계되고 그 빈도를 기반으로 문장 점수가 매겨져 핵심 문장이 골라집니다."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+.box code{display:block;margin-top:8px;white-space:pre-wrap;word-break:break-all;}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>텍스트 요약기, 한국어에서는 왜 제대로 작동하지 않는가</h1>
+  <p class="meta">가이드 · 2026-08-19 최종 확인</p>
+
+  <p>"텍스트를 붙여넣으면 핵심 문장만 뽑아준다"는 요약 도구를 한국어 글에 써보면 결과가 이상하다고 느낀 사람이 많습니다. 문장이 골라지긴 골라지는데 왜 하필 그 문장인지 알 수 없고, 핵심 키워드 칸은 텅 비어 있기도 합니다. 이 글은 모두의 툴 <a href="../text-summarizer.html">텍스트 요약기</a>의 실제 자바스크립트 소스코드를 직접 열어, 한국어 입력에서 무슨 일이 벌어지는지를 추측이 아니라 코드 그대로 확인한 결과입니다.</p>
+
+  <h2>1. 추출 요약 알고리즘은 애초에 "단어 경계"를 전제로 만들어졌다</h2>
+  <p>이 도구가 쓰는 방식은 생성형 AI 요약이 아니라 <strong>단어 빈도 기반 추출 요약</strong>입니다. 전체 글에서 각 단어가 몇 번 나오는지 센 뒤, 자주 등장하는 단어를 많이 포함한 문장일수록 점수를 높게 매기고, 점수가 높은 문장 몇 개를 원문 그대로 골라내는 방식입니다. 이 방식이 성립하려면 "단어가 어디서 시작해 어디서 끝나는지"를 정확히 잘라낼 수 있어야 합니다. 영어는 단어 사이에 공백이 있고 굴절이 단순해서 이 경계를 정규식 하나로도 비교적 쉽게 잡아낼 수 있습니다.</p>
+
+  <h2>2. 한국어는 왜 같은 방식으로 단어를 자르기 어려운가</h2>
+  <p>한국어는 교착어라서 하나의 명사 뒤에 조사가, 하나의 동사·형용사 어간 뒤에 어미가 계속 붙습니다. "회사"라는 같은 단어도 문장에 따라 "회사는", "회사가", "회사를", "회사에서" 처럼 형태가 계속 바뀌고, 이걸 하나의 단어로 묶어 세려면 조사·어미를 떼어내는 형태소 분석이 필요합니다. 영어처럼 공백과 문장부호만 기준으로 잘라서는 "회사는"과 "회사가"가 서로 다른 단어로 취급되어 빈도가 흩어지거나, 아예 정규식 설계 자체가 한글을 고려하지 않으면 다음 절에서 보듯 단어 자체가 통째로 사라지는 문제까지 생깁니다.</p>
+
+  <h2>3. 실제 코드를 열어보니 — <code>tokenize()</code>의 정규식</h2>
+  <p>text-summarizer.html의 <code>tokenize()</code> 함수는 다음과 같이 정의돼 있습니다.</p>
+  <div class="box">
+    <strong>실제 소스 (script 태그 내부, tokenize 함수)</strong>
+    <code>function tokenize(text){return text.toLowerCase().replace(/[^\w\s]/g,' ').split(/\s+/).filter(w=>w.length>1&&!STOP.has(w));}</code>
+  </div>
+  <p>핵심은 <code>replace(/[^\w\s]/g,' ')</code> 부분입니다. 이 정규식은 "단어 문자(<code>\w</code>)도 아니고 공백(<code>\s</code>)도 아닌 문자"를 전부 공백으로 바꿉니다. 그런데 JavaScript 정규식의 <code>\w</code>는 <code>[A-Za-z0-9_]</code>, 즉 영문자·숫자·밑줄만을 의미하며 한글 음절(가-힣)은 포함하지 않습니다. 그 말은 "한국어" 같은 글자를 넣으면 각 글자가 전부 <code>\w</code>도 <code>\s</code>도 아닌 문자로 판정되어 공백으로 치환된다는 뜻입니다. 뒤이은 <code>split(/\s+/)</code>는 그 공백들을 기준으로 문자열을 나누므로, 순수 한국어 문장은 이 단계에서 인식 가능한 단어 토큰을 단 하나도 남기지 못하고 사실상 빈 배열이 됩니다.</p>
+
+  <h2>4. 그 결과 실제 요약 결과는 어떻게 나오는가</h2>
+  <p><code>summarize()</code> 함수를 계속 따라가 보면, 각 문장의 점수는 <code>words.reduce((acc,w)=&gt;acc+(freqMap[w]||0),0)/Math.max(words.length,1)</code>로 계산됩니다. 한국어 문장은 <code>words</code>(tokenize 결과)가 빈 배열이므로 분자는 0, 분모는 <code>Math.max(0,1)=1</code>이 되어 점수는 정확히 <strong>0</strong>이 됩니다. 위치 기반 모드를 선택해도 이 0점에 첫 문장·마지막 문장 가중치를 곱할 뿐이라 0에 무엇을 곱해도 0으로 남습니다. 결과적으로 모든 문장이 동점 0점이 되고, 실제로 어떤 문장이 요약으로 뽑히는지는 자바스크립트 <code>Array.sort</code>의 동점 처리(정렬 안정성)에 좌우될 뿐, 그 글에서 실제로 중요한 문장을 골라낸 결과가 아닙니다. 핵심 키워드 태그 칸이 한국어 입력에서 비어 보이는 이유도 같은 원인입니다 — 빈도 집계(<code>freqMap</code>) 자체에 한글 단어가 하나도 들어가지 않으므로 상위 키워드로 보여줄 항목이 없는 것입니다.</p>
+
+  <h2>5. 그래서 한국어 텍스트에는 어떻게 대응해야 하는가</h2>
+  <p>이 도구가 "고장"난 것은 아닙니다. 영어 텍스트를 넣으면 <code>\w</code>가 영문자·숫자를 정상적으로 잡아내므로 빈도 계산과 문장 선택이 설계된 그대로 작동합니다. 다만 한국어 입력에서는 요약 결과가 나오더라도 그것이 실제 핵심 문장이라는 보장이 없다는 점을 알고 써야 합니다. 한국어 문서를 요약해야 한다면, 문단별로 직접 핵심 문장을 표시해두거나, 형태소 분석과 언어 이해를 전제로 하는 별도의 한국어 요약 서비스를 쓰는 편이 실제 결과 품질 면에서 더 안전합니다.</p>
+
+  <h2>자주 묻는 질문</h2>
+  <details class="faq-item"><summary>Q. 왜 한국어 문장은 요약기에서 모두 같은 점수를 받나요?</summary><p>A. 단어 빈도를 세는 tokenize() 함수가 정규식 [^\w\s]로 단어가 아닌 문자를 공백으로 바꾸는데, JavaScript의 \w는 영문자·숫자·밑줄만 의미하고 한글(가-힣)은 포함하지 않습니다. 그 결과 한국어 문장을 넣으면 인식되는 단어 토큰이 하나도 남지 않아 모든 문장의 점수가 정확히 0이 됩니다.</p></details>
+  <details class="faq-item"><summary>Q. 위치 기반 모드로 바꾸면 한국어에서도 나아지나요?</summary><p>A. 아니요. 위치 기반 모드는 문장의 기본 빈도 점수에 첫 문장·마지막 문장 가중치를 곱하는 구조인데, 한국어 문장의 기본 점수가 이미 0이므로 어떤 배율을 곱해도 여전히 0입니다.</p></details>
+  <details class="faq-item"><summary>Q. 그럼 한국어 텍스트에는 이 도구를 아예 쓸 수 없나요?</summary><p>A. 요약 결과 자체는 나오지만 점수가 전부 0으로 동점 처리되기 때문에 어떤 문장이 선택되는지는 사실상 정렬 안정성에 따른 우연에 가깝습니다. 즉 결과가 나온다고 해서 실제로 핵심 문장을 골라낸 것은 아니므로, 한국어 요약이 필요하다면 이 도구보다 문장을 직접 읽고 고르거나 언어 모델 기반 요약 서비스를 쓰는 편이 낫습니다.</p></details>
+  <details class="faq-item"><summary>Q. 영어 텍스트에서는 정상적으로 작동하나요?</summary><p>A. 네. tokenize()의 \w 정규식은 영문자·숫자를 정상적으로 단어로 인식하므로, 영어 텍스트에서는 단어 빈도가 실제로 집계되고 그 빈도를 기반으로 문장 점수가 매겨져 핵심 문장이 골라집니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../text-summarizer.html">→ 텍스트 요약기</a>
+    <a href="../keyword-extractor.html">→ 키워드 추출기</a>
+    <a href="../word-frequency-counter.html">→ 단어 빈도 계산기</a>
+    <a href="../text-statistics.html">→ 텍스트 통계 분석기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 실제 소스코드 확인을 기반으로 작성됐으며, 도구는 지속적으로 개선될 수 있습니다.</footer>
+</main>
+</body>
+</html>

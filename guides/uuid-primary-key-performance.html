@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UUID를 DB 기본키로 쓰면 느려지는 이유 — B-트리 페이지 분할과 v7·ULID 대안 | MODOO HUB</title>
+<meta name="description" content="UUID v4를 관계형DB 기본키(클러스터드 인덱스)로 쓰면 왜 삽입 성능이 나빠지는지, B-트리 페이지 분할·캐시 지역성 저하 원리와 UUID v7·ULID가 이를 어떻게 해결하는지 정리합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/uuid-primary-key-performance.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"UUID를 DB 기본키로 쓰면 느려지는 이유 — B-트리 페이지 분할과 v7·ULID 대안","description":"UUID v4를 관계형DB 기본키(클러스터드 인덱스)로 쓰면 왜 삽입 성능이 나빠지는지, B-트리 페이지 분할·캐시 지역성 저하 원리와 UUID v7·ULID가 이를 어떻게 해결하는지 정리합니다.","datePublished":"2026-08-19","dateModified":"2026-08-19","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"UUID v4를 기본키로 쓰면 왜 느려지나요?","acceptedAnswer":{"@type":"Answer","text":"UUID v4는 122비트가 완전히 랜덤이라 새로 삽입되는 값이 인덱스의 정렬 순서상 임의의 위치에 끼어듭니다. InnoDB 같은 엔진은 기본키를 클러스터드 인덱스로 쓰기 때문에 이 랜덤 삽입이 이미 가득 찬 B-트리 리프 페이지 중간을 계속 쪼개는 페이지 분할을 유발하고, 그 결과 삽입할 페이지가 버퍼풀에 없을 확률도 높아져 디스크 I/O가 늘어납니다."}},
+{"@type":"Question","name":"UUID v7은 이 문제를 어떻게 해결하나요?","acceptedAnswer":{"@type":"Answer","text":"UUID v7은 128비트 중 앞쪽 48비트에 밀리초 단위 유닉스 타임스탬프를 넣고 나머지에 랜덤 값을 채우는 구조라, 값 자체가 생성 시각 순으로 대체로 정렬됩니다. 그래서 새 행이 대부분 인덱스의 오른쪽 끝(가장 최근 페이지)에 순차적으로 붙게 되어 auto-increment 정수 기본키와 비슷하게 페이지 분할이 크게 줄어듭니다."}},
+{"@type":"Question","name":"ULID는 UUID와 뭐가 다른가요?","acceptedAnswer":{"@type":"Answer","text":"ULID도 128비트 식별자지만 상위 48비트 타임스탬프 + 하위 80비트 랜덤 구조를 가지고, 이를 Base32로 인코딩한 26자 문자열로 표현합니다. UUID v7과 마찬가지로 시간순 정렬이 가능해 인덱스 삽입 지역성 문제를 해결하며, 문자열 정렬 순서가 곧 생성 시각 순서와 일치한다는 점이 특징입니다. 다만 UUID처럼 IETF 표준 포맷은 아니고 별도의 공개 스펙으로 관리됩니다."}},
+{"@type":"Question","name":"그런데도 여전히 UUID를 기본키로 쓰는 이유는 뭔가요?","acceptedAnswer":{"@type":"Answer","text":"여러 서버·서비스·샤드가 중앙 조율 없이 동시에 각자 고유한 ID를 만들어야 하는 분산 환경에서는, 하나의 시퀀스 카운터에 의존하는 auto-increment보다 UUID처럼 충돌 확률이 사실상 0에 가까운 값이 필요합니다. 또한 DB에 실제로 저장하기 전에 애플리케이션 쪽에서 미리 ID를 생성해 둘 수 있고, 순차 정수 ID처럼 값 자체가 가입자 수·주문량 같은 비즈니스 정보를 노출하지 않는다는 장점도 있습니다."}},
+{"@type":"Question","name":"이미 UUID v4로 만든 테이블은 어떻게 개선하나요?","acceptedAnswer":{"@type":"Answer","text":"컬럼 타입을 유지한 채로는 완화가 제한적이라, 신규 삽입분부터 UUID v7이나 ULID 채번 방식으로 전환하는 것이 근본적인 해법입니다. 당장 스키마를 바꾸기 어렵다면 기본키와 별도로 auto-increment 정수 컬럼을 클러스터드 인덱스로 두고 UUID는 유니크 제약이 걸린 일반 컬럼(세컨더리 인덱스)으로 내려서 삽입 부하를 줄이는 절충안도 씁니다."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>UUID를 DB 기본키로 쓰면 느려지는 이유 — B-트리 페이지 분할과 v7·ULID 대안</h1>
+  <p class="meta">가이드 · 2026-08-19 최종 확인</p>
+
+  <p>"기본키는 UUID로 쓰면 안전하다"는 말은 맞지만, 여기서 흔히 놓치는 게 있습니다. 어떤 UUID를 쓰느냐에 따라 결과가 완전히 달라진다는 점입니다. 특히 가장 널리 쓰이는 <strong>UUID v4(완전 랜덤)</strong>를 MySQL InnoDB나 PostgreSQL 같은 관계형DB의 기본키로 그대로 쓰면, 테이블이 커질수록 삽입 성능이 눈에 띄게 나빠지는 경우가 많습니다. 이 가이드에서는 그 원인을 인덱스 내부 구조 수준에서 풀어보고, 최근 표준화된 UUID v7과 ULID가 왜 대안으로 떠올랐는지, 그럼에도 여전히 랜덤 UUID를 써야 하는 상황은 무엇인지 정리합니다.</p>
+
+  <h2>1. 클러스터드 인덱스와 "정렬된 채로 쌓인다"는 전제</h2>
+  <p>InnoDB는 기본키를 <strong>클러스터드 인덱스</strong>로 사용합니다. 즉 실제 행 데이터 자체가 기본키 값 순서대로 B-트리 리프 페이지에 물리적으로 저장됩니다. auto-increment 정수를 기본키로 쓰면 새 행은 항상 지금까지 저장된 값보다 큰 값이므로, 매번 인덱스의 가장 오른쪽 끝(최신 페이지) 하나에만 이어 붙습니다. 이 페이지는 방금 썼기 때문에 버퍼풀(메모리 캐시)에 이미 올라와 있을 확률이 높고, 디스크 접근 없이 빠르게 삽입이 끝납니다. 순차 키의 삽입 성능이 좋은 이유는 바로 이 "항상 같은 끝자리만 건드린다"는 성질 때문입니다.</p>
+
+  <h2>2. 랜덤 UUID가 깨뜨리는 지역성 — 페이지 분할과 캐시 미스</h2>
+  <p>UUID v4는 122비트가 통계적으로 완전 랜덤입니다. 새로 삽입되는 값이 기존에 저장된 값들의 정렬 순서 어디에 떨어질지 전혀 예측할 수 없다는 뜻입니다. 결과적으로 삽입이 인덱스 전체 키 공간에 걸쳐 균등하게 흩뿌려지고, 매번 이미 꽉 찬 리프 페이지 중간을 비집고 들어가야 합니다. 페이지가 가득 차 있으면 InnoDB는 그 페이지를 반으로 쪼개 새 페이지를 만드는 <strong>페이지 분할(page split)</strong>을 수행하는데, 이 과정에서 페이지가 평균적으로 절반만 채워진 상태가 되어(인덱스 단편화) 같은 데이터를 저장하는 데 더 많은 페이지·디스크 공간이 필요해집니다. 더 치명적인 건, 테이블이 버퍼풀 크기를 넘어서면 랜덤한 위치의 페이지가 캐시에 없을 확률이 높아져 삽입 한 번마다 디스크에서 페이지를 읽어와야 하는 경우가 늘어난다는 점입니다. 순차 키는 "핫 페이지 하나"만 계속 재사용하지만, 랜덤 키는 테이블 전체에 걸쳐 콜드 페이지를 계속 건드리므로 I/O 부담이 구조적으로 큽니다. 여기에 더해, 세컨더리 인덱스는 내부적으로 기본키 값을 함께 저장하므로 기본키가 클수록(UUID는 16바이트로 정수 기본키의 4배) 세컨더리 인덱스 크기도 함께 불어나는 부수 효과도 있습니다.</p>
+
+  <div class="box">
+    <strong>정리</strong>: 랜덤 UUID 기본키의 성능 저하는 "UUID라서"가 아니라 "값이 정렬 순서상 예측 불가능하게 흩어지기 때문"입니다. 문제의 본질은 클러스터드 인덱스에 <em>비순차적인</em> 값을 계속 끼워 넣는 데 있습니다.
+  </div>
+
+  <h2>3. UUID v7·ULID — "정렬되는 고유값"이라는 절충안</h2>
+  <p>2024년 IETF가 <strong>RFC 9562</strong>로 표준을 제정하며 정식 규격이 된 <strong>UUID v7</strong>은 128비트 중 앞쪽 48비트에 밀리초 단위 유닉스 타임스탬프를 넣고, 나머지 비트에 랜덤 값(및 버전·변형 비트)을 채우는 구조입니다. 값의 상위 비트가 시간순으로 증가하므로 새로 생성되는 UUID는 대체로 이전 값보다 정렬 순서상 더 큰 값이 됩니다. 이는 auto-increment와 거의 같은 삽입 지역성을 만들어내, 새 행이 대부분 인덱스 오른쪽 끝에 순차적으로 붙고 페이지 분할이 크게 줄어듭니다. <strong>ULID</strong>도 같은 발상으로, 상위 48비트 타임스탬프와 하위 80비트 랜덤값을 결합해 Base32로 인코딩한 26자 문자열입니다(단, UUID처럼 IETF 표준은 아니고 별도 공개 스펙입니다). 둘 다 "여전히 랜덤값으로 고유성을 보장하면서도, 생성 시각 순서라는 규칙성을 얹어 인덱스 지역성을 되찾는다"는 같은 원리로 문제를 해결합니다.</p>
+
+  <h2>4. 그런데도 왜 여전히 UUID(v4)를 쓰는가</h2>
+  <p>그렇다고 순차 정수 기본키가 항상 정답인 건 아닙니다. 여러 서버·마이크로서비스·DB 샤드가 중앙의 시퀀스 카운터 없이 동시에 각자 ID를 발급해야 하는 분산 환경에서는, 하나의 auto-increment 컬럼에 의존하면 병목과 충돌이 생깁니다. UUID(v4든 v7이든)는 별도 조율 없이도 사실상 충돌 없는 고유값을 어디서든 만들 수 있다는 근본적인 장점이 있습니다. 또한 DB에 INSERT하기 전, 애플리케이션 코드 단계에서 미리 ID를 확정할 수 있어 참조 무결성이 필요한 복잡한 트랜잭션이나 이벤트 소싱 구조에서 유용하고, 순차 정수 ID처럼 값 자체만으로 "가입자 수", "주문량이 하루 몇 건인지" 같은 비즈니스 정보가 외부에 노출되지 않는다는 보안·프라이버시 이점도 있습니다(다만 UUID v7은 타임스탬프를 노출하므로 생성 순서 추정까지는 막지 못합니다). 결국 선택은 "무작위성으로 인한 인덱스 성능 손실"과 "중앙 조율 없는 분산 채번·정보 비노출"이라는 서로 다른 가치 사이의 트레이드오프이며, 최근 흐름은 그 중간 지점인 UUID v7·ULID로 수렴하고 있습니다.</p>
+
+  <h2>자주 묻는 질문</h2>
+  <details class="faq-item"><summary>Q. UUID v4를 기본키로 쓰면 왜 느려지나요?</summary><p>A. UUID v4는 122비트가 완전히 랜덤이라 새로 삽입되는 값이 인덱스의 정렬 순서상 임의의 위치에 끼어듭니다. InnoDB 같은 엔진은 기본키를 클러스터드 인덱스로 쓰기 때문에 이 랜덤 삽입이 이미 가득 찬 B-트리 리프 페이지 중간을 계속 쪼개는 페이지 분할을 유발하고, 그 결과 삽입할 페이지가 버퍼풀에 없을 확률도 높아져 디스크 I/O가 늘어납니다.</p></details>
+  <details class="faq-item"><summary>Q. UUID v7은 이 문제를 어떻게 해결하나요?</summary><p>A. UUID v7은 128비트 중 앞쪽 48비트에 밀리초 단위 유닉스 타임스탬프를 넣고 나머지에 랜덤 값을 채우는 구조라, 값 자체가 생성 시각 순으로 대체로 정렬됩니다. 그래서 새 행이 대부분 인덱스의 오른쪽 끝(가장 최근 페이지)에 순차적으로 붙게 되어 auto-increment 정수 기본키와 비슷하게 페이지 분할이 크게 줄어듭니다.</p></details>
+  <details class="faq-item"><summary>Q. ULID는 UUID와 뭐가 다른가요?</summary><p>A. ULID도 128비트 식별자지만 상위 48비트 타임스탬프 + 하위 80비트 랜덤 구조를 가지고, 이를 Base32로 인코딩한 26자 문자열로 표현합니다. UUID v7과 마찬가지로 시간순 정렬이 가능해 인덱스 삽입 지역성 문제를 해결하며, 문자열 정렬 순서가 곧 생성 시각 순서와 일치한다는 점이 특징입니다. 다만 UUID처럼 IETF 표준 포맷은 아니고 별도의 공개 스펙으로 관리됩니다.</p></details>
+  <details class="faq-item"><summary>Q. 그런데도 여전히 UUID를 기본키로 쓰는 이유는 뭔가요?</summary><p>A. 여러 서버·서비스·샤드가 중앙 조율 없이 동시에 각자 고유한 ID를 만들어야 하는 분산 환경에서는, 하나의 시퀀스 카운터에 의존하는 auto-increment보다 UUID처럼 충돌 확률이 사실상 0에 가까운 값이 필요합니다. 또한 DB에 실제로 저장하기 전에 애플리케이션 쪽에서 미리 ID를 생성해 둘 수 있고, 순차 정수 ID처럼 값 자체가 가입자 수·주문량 같은 비즈니스 정보를 노출하지 않는다는 장점도 있습니다.</p></details>
+  <details class="faq-item"><summary>Q. 이미 UUID v4로 만든 테이블은 어떻게 개선하나요?</summary><p>A. 컬럼 타입을 유지한 채로는 완화가 제한적이라, 신규 삽입분부터 UUID v7이나 ULID 채번 방식으로 전환하는 것이 근본적인 해법입니다. 당장 스키마를 바꾸기 어렵다면 기본키와 별도로 auto-increment 정수 컬럼을 클러스터드 인덱스로 두고 UUID는 유니크 제약이 걸린 일반 컬럼(세컨더리 인덱스)으로 내려서 삽입 부하를 줄이는 절충안도 씁니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../uuid-validator.html">→ UUID 검증기</a>
+    <a href="../uuid-generator.html">→ UUID 생성기</a>
+    <a href="../ulid-generator.html">→ ULID 생성기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적이며 실제 프로덕션 적용 전 각 DB 엔진 벤치마크로 검증을 권장합니다.</footer>
+</main>
+</body>
+</html>

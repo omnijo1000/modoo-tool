@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>bcrypt 72바이트 제한 — 한글 비밀번호는 왜 24자에서 잘리나 | MODOO HUB</title>
+<meta name="description" content="bcrypt이 왜 72바이트까지만 해싱에 사용하는지, 한글 비밀번호가 왜 유독 짧게 잘리는지를 UTF-8 인코딩 구조와 실제 계산 예시로 설명하고, 실무에서 이 한계를 우회하는 방법을 정리합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/bcrypt-72-byte-korean-limit.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"bcrypt 72바이트 제한 — 한글 비밀번호는 왜 24자에서 잘리나","description":"bcrypt이 왜 72바이트까지만 해싱에 사용하는지, 한글 비밀번호가 왜 유독 짧게 잘리는지를 UTF-8 인코딩 구조와 실제 계산 예시로 설명합니다.","datePublished":"2026-08-19","dateModified":"2026-08-19","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"bcrypt은 왜 72바이트까지만 해싱에 사용하나요?","acceptedAnswer":{"@type":"Answer","text":"bcrypt의 내부 알고리즘인 Blowfish 기반 키 스케줄이 입력 키를 최대 72바이트까지만 받아들이도록 원본 설계 자체에 고정되어 있습니다. 이는 특정 라이브러리의 버그가 아니라 bcrypt 알고리즘 명세 자체의 한계이며, 72바이트를 넘는 부분은 조용히 잘려서 아예 해시 계산에 반영되지 않습니다."}},
+{"@type":"Question","name":"한글 비밀번호는 왜 영어보다 훨씬 짧게 잘리나요?","acceptedAnswer":{"@type":"Answer","text":"영어 알파벳과 숫자는 UTF-8에서 1글자당 1바이트를 차지해 72자를 거의 그대로 다 씁니다. 반면 한글은 UTF-8에서 1글자당 3바이트를 차지하므로, 72바이트를 3바이트로 나눈 24자를 넘는 순간부터 그 뒤 글자는 전부 무시됩니다."}},
+{"@type":"Question","name":"25번째 글자부터 다른 한글 비밀번호는 정말 같은 해시가 나오나요?","acceptedAnswer":{"@type":"Answer","text":"네. 앞 24자(72바이트)가 완전히 동일하고 25번째 글자부터만 다른 두 한글 비밀번호는 bcrypt 계산에 들어가는 바이트 자체가 똑같기 때문에 결과 해시도 동일하게 나옵니다. 이는 modoohub.com의 bcrypt-generator.html에서 bcryptjs 라이브러리로 직접 재현해 확인한 사실입니다."}},
+{"@type":"Question","name":"이 72바이트 제한을 실무에서는 어떻게 우회하나요?","acceptedAnswer":{"@type":"Answer","text":"가장 널리 쓰이는 방법은 원본 비밀번호를 bcrypt에 바로 넣지 않고, 먼저 SHA-256으로 해싱해 항상 32바이트 고정 길이의 값으로 만든 뒤 그 결과를 bcrypt에 입력하는 것입니다. 이렇게 하면 원본 비밀번호가 아무리 길어도 bcrypt에 들어가는 바이트 수가 32바이트로 고정되어 72바이트 한계 안에 항상 들어갑니다."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>bcrypt 72바이트 제한 — 한글 비밀번호는 왜 24자에서 잘리나</h1>
+  <p class="meta">가이드 · 2026-08-19 최종 확인</p>
+
+  <p>bcrypt으로 비밀번호를 해싱할 때 "최대 72자까지 지원"이라는 설명을 흔히 보게 되는데, 이는 정확히는 <strong>72바이트</strong> 제한이며 "72자"와는 전혀 다른 이야기입니다. 영어권에서는 이 둘의 차이가 거의 드러나지 않지만, 한글 비밀번호를 쓰는 순간 이 차이가 실제 보안 문제로 이어집니다. 이 가이드에서는 bcrypt이 왜 하필 72바이트로 제한되는지, 한글이 왜 유독 이 문제에 취약한지, 그리고 실무에서 이를 어떻게 우회하는지를 계산 구조부터 설명합니다.</p>
+
+  <h2>1. bcrypt은 왜 72바이트로 제한되는가</h2>
+  <p>bcrypt은 1999년 니엘스 프로보스와 데이비드 마지에르가 설계한 비밀번호 해싱 알고리즘으로, 내부적으로 <strong>Blowfish 암호의 키 스케줄</strong>을 반복 변형해 계산 비용을 늘리는 방식으로 동작합니다. Blowfish의 키 스케줄 함수는 원래부터 입력 키의 최대 길이를 448비트, 즉 56바이트로 설계했고, bcrypt은 이를 확장하면서 salt 처리 방식과 맞물려 실질적으로 <strong>입력 비밀번호를 UTF-8 바이트로 변환했을 때 최대 72바이트까지만</strong> 실제 해싱 연산에 사용하도록 고정됐습니다. 이는 특정 라이브러리의 버그나 구현 실수가 아니라 알고리즘 명세 자체의 근본적인 제한이며, 72바이트를 넘는 부분은 오류를 내거나 잘렸다고 알려주지도 않은 채 <strong>조용히 무시</strong>됩니다. 즉 73번째 바이트부터는 아무리 값을 바꿔도 해시 결과에 전혀 영향을 주지 않습니다.</p>
+
+  <h2>2. 한글이 유독 취약한 이유 — UTF-8 인코딩 구조</h2>
+  <p>72바이트라는 제한 자체는 모든 비밀번호에 동일하게 적용되지만, 실제로 몇 "글자"까지 반영되는지는 인코딩 방식에 따라 크게 달라집니다. UTF-8 인코딩에서 영어 알파벳과 숫자, 일부 기호는 1글자당 1바이트를 차지하므로 72바이트 제한은 사실상 72글자 제한과 거의 같습니다. 반면 한글 완성형 문자(가~힣)는 UTF-8에서 <strong>1글자당 3바이트</strong>를 차지합니다. 따라서 72바이트를 3바이트로 나누면 <strong>72 ÷ 3 = 24글자</strong>가 실제로 해시에 반영되는 한계이고, 25번째 글자부터는 아무리 길게 입력해도 통째로 무시됩니다.</p>
+
+  <div class="box">
+    <strong>바이트 비교표</strong>
+    <table>
+      <tr><th>문자 종류</th><th>UTF-8 바이트/글자</th><th>72바이트로 표현 가능한 글자 수</th></tr>
+      <tr><td>영문·숫자 (ASCII)</td><td>1바이트</td><td>72자</td></tr>
+      <tr><td>한글 완성형</td><td>3바이트</td><td>24자</td></tr>
+    </table>
+    <p style="margin-top:10px;margin-bottom:0">예를 들어 "가나다라마바사아자차카타파하규모두의툴생성XXXX"(24자 + 뒤 4자)와 앞 24자는 같고 마지막 4글자만 "YYYY"로 바꾼 비밀번호는, 앞 72바이트가 완전히 동일하므로 <strong>bcrypt 해시 결과가 서로 같게</strong> 나옵니다. 25자 이상인 한글 비밀번호를 쓰는 사용자는 본인이 인지하지 못한 채 실질 비밀번호 강도가 24자 수준으로 고정되는 셈입니다.</p>
+  </div>
+
+  <h2>3. modoohub.com bcrypt-generator.html의 처리 방식</h2>
+  <p>본 사이트의 <a href="../bcrypt-generator.html">bcrypt 생성기</a>는 이 문제를 입력을 강제로 자르는 대신 <strong>실시간 경고</strong>로 처리합니다. 비밀번호 입력창에 값을 입력할 때마다 <code>TextEncoder</code>로 UTF-8 바이트 길이를 계산해, 72바이트를 넘으면 즉시 "⚠️ 현재 N바이트 — bcrypt는 72바이트를 넘는 부분을 무시합니다"라는 경고 문구를 노출합니다. 실제 해싱 자체는 bcryptjs 라이브러리(브라우저 내 실행, cdn.jsdelivr.net 배포)에 그대로 위임하며 별도로 입력을 사전에 자르거나 치환하지 않습니다 — 즉 "경고만 보여주고 자르지는 않는" 방식입니다. 이는 사용자가 문제를 인지한 뒤 스스로 비밀번호를 조정하거나, 뒤에 설명할 사전 해싱 방식을 적용하도록 유도하는 설계입니다.</p>
+
+  <h2>4. 실무에서 72바이트 제한을 우회하는 방법</h2>
+  <p>서버 측 인증 시스템을 직접 구현하는 경우, 가장 널리 쓰이는 우회 방법은 원본 비밀번호를 bcrypt에 바로 넣지 않고 <strong>먼저 SHA-256으로 해싱</strong>한 뒤 그 결과값(항상 32바이트 고정 길이)을 bcrypt의 입력으로 사용하는 것입니다. SHA-256은 입력 길이와 무관하게 항상 256비트(32바이트) 출력을 내놓기 때문에, 원본 비밀번호가 한글로 몇백 자든 영문으로 몇천 자든 bcrypt에 들어가는 바이트 수는 항상 32바이트로 고정되어 72바이트 한계 안에 여유 있게 들어갑니다. 다만 이 방식을 쓸 때는 SHA-256 출력을 base64나 hex 문자열로 변환해 넣는지, raw 바이트로 그대로 넣는지를 프로젝트 전체에서 일관되게 유지해야 하며, 기존에 이미 원본 비밀번호를 직접 bcrypt에 넣어 저장된 해시가 있다면 이 방식으로 바꿀 때 전체 재해싱(사용자 재로그인 시 마이그레이션)이 필요합니다. Argon2 등 72바이트 제한이 없는 최신 알고리즘으로 아예 교체하는 것도 근본적인 대안입니다.</p>
+
+  <h2>5. 정리 — 확인해야 할 순서</h2>
+  <ul>
+    <li><strong>비밀번호 바이트 수 확인</strong>: 한글 24자, 영문 72자를 넘기지 않는지 먼저 점검합니다.</li>
+    <li><strong>기존 시스템 점검</strong>: 서버에서 원본 비밀번호를 그대로 bcrypt에 넣고 있다면 72바이트 초과 시 뒷부분이 무시되고 있는지 확인합니다.</li>
+    <li><strong>사전 해싱 도입 검토</strong>: 긴 비밀번호나 다국어 사용자가 많다면 SHA-256 선(先)해싱 또는 Argon2 전환을 검토합니다.</li>
+  </ul>
+
+  <h2>자주 묻는 질문</h2>
+  <details class="faq-item"><summary>Q. bcrypt은 왜 72바이트까지만 해싱에 사용하나요?</summary><p>A. bcrypt의 내부 알고리즘인 Blowfish 기반 키 스케줄이 입력 키를 최대 72바이트까지만 받아들이도록 원본 설계 자체에 고정되어 있습니다. 이는 특정 라이브러리의 버그가 아니라 bcrypt 알고리즘 명세 자체의 한계이며, 72바이트를 넘는 부분은 조용히 잘려서 아예 해시 계산에 반영되지 않습니다.</p></details>
+  <details class="faq-item"><summary>Q. 한글 비밀번호는 왜 영어보다 훨씬 짧게 잘리나요?</summary><p>A. 영어 알파벳과 숫자는 UTF-8에서 1글자당 1바이트를 차지해 72자를 거의 그대로 다 씁니다. 반면 한글은 UTF-8에서 1글자당 3바이트를 차지하므로, 72바이트를 3바이트로 나눈 24자를 넘는 순간부터 그 뒤 글자는 전부 무시됩니다.</p></details>
+  <details class="faq-item"><summary>Q. 25번째 글자부터 다른 한글 비밀번호는 정말 같은 해시가 나오나요?</summary><p>A. 네. 앞 24자(72바이트)가 완전히 동일하고 25번째 글자부터만 다른 두 한글 비밀번호는 bcrypt 계산에 들어가는 바이트 자체가 똑같기 때문에 결과 해시도 동일하게 나옵니다. 이는 modoohub.com의 bcrypt-generator.html에서 bcryptjs 라이브러리로 직접 재현해 확인한 사실입니다.</p></details>
+  <details class="faq-item"><summary>Q. 이 72바이트 제한을 실무에서는 어떻게 우회하나요?</summary><p>A. 가장 널리 쓰이는 방법은 원본 비밀번호를 bcrypt에 바로 넣지 않고, 먼저 SHA-256으로 해싱해 항상 32바이트 고정 길이의 값으로 만든 뒤 그 결과를 bcrypt에 입력하는 것입니다. 이렇게 하면 원본 비밀번호가 아무리 길어도 bcrypt에 들어가는 바이트 수가 32바이트로 고정되어 72바이트 한계 안에 항상 들어갑니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../bcrypt-generator.html">→ Bcrypt 생성기</a>
+    <a href="../bcrypt-validator.html">→ Bcrypt 검증기</a>
+    <a href="../hash-generator.html">→ 해시 생성기</a>
+    <a href="../hmac-generator.html">→ HMAC 생성기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적이며, 실제 인증 시스템 설계 시에는 최신 보안 권고를 함께 확인하시기 바랍니다.</footer>
+</main>
+</body>
+</html>

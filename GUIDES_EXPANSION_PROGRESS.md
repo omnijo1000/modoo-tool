@@ -47,16 +47,16 @@
 
 | # | 주제 | 파일명(예정) | 상태 |
 |---|---|---|---|
-| 1 | 양도소득세 완전정리 | `guides/capital-gains-tax-guide-2026.html` | [ ] 미작성 |
-| 2 | 육아휴직급여 2025 개편 총정리 | `guides/parental-leave-2025-reform.html` | [ ] 미작성 |
-| 3 | 국민연금 직장 vs 지역가입자 | `guides/national-pension-employee-vs-regional.html` | [ ] 미작성 |
-| 4 | 퇴직금 계산법 + IRP 절세 | `guides/severance-pay-irp-tax-saving.html` | [ ] 미작성 |
-| 5 | 최저임금·주휴수당 완전정리 | `guides/minimum-wage-2026-2027.html` | [ ] 미작성 |
-| 6 | 실업급여 신청 A to Z | `guides/unemployment-benefit-checklist.html` | [ ] 미작성 |
-| 7 | 주택담보대출 한도 완전정리(LTV·DSR) | `guides/mortgage-limit-ltv-dsr-guide.html` | [ ] 미작성 |
-| 8 | 상속세 vs 증여세 비교 | `guides/inheritance-vs-gift-tax.html` | [ ] 미작성 |
-| 9 | 프리랜서 세금 완전정리 | `guides/freelancer-tax-guide-2026.html` | [ ] 미작성 |
-| 10 | 건강보험료 직장 vs 지역가입자 | `guides/health-insurance-employee-vs-regional.html` | [ ] 미작성 |
+| 1 | 양도소득세 완전정리 | `guides/capital-gains-tax-guide-2026.html` | [x] 작성 완료 (2026-08-19) |
+| 2 | 육아휴직급여 2025 개편 총정리 | `guides/parental-leave-2025-reform.html` | [x] 작성 완료 (2026-08-19) |
+| 3 | 국민연금 직장 vs 지역가입자 | `guides/national-pension-employee-vs-regional.html` | [x] 작성 완료 (2026-08-19) |
+| 4 | 퇴직금 계산법 + IRP 절세 | `guides/severance-pay-irp-tax-saving.html` | [x] 작성 완료 (2026-08-19) |
+| 5 | 최저임금·주휴수당 완전정리 | `guides/minimum-wage-2026-2027.html` | [x] 작성 완료 (2026-08-19) |
+| 6 | 실업급여 신청 A to Z | `guides/unemployment-benefit-checklist.html` | [x] 작성 완료 (2026-08-19) |
+| 7 | 주택담보대출 한도 완전정리(LTV·DSR) | `guides/mortgage-limit-ltv-dsr-guide.html` | [x] 작성 완료 (2026-08-19) |
+| 8 | 상속세 vs 증여세 비교 | `guides/inheritance-vs-gift-tax.html` | [x] 작성 완료 (2026-08-19) |
+| 9 | 프리랜서 세금 완전정리 | `guides/freelancer-tax-guide-2026.html` | [x] 작성 완료 (2026-08-19) |
+| 10 | 건강보험료 직장 vs 지역가입자 | `guides/health-insurance-employee-vs-regional.html` | [x] 작성 완료 (2026-08-19) |
 
 (각 항목 상세 검증 수치는 파일 하단 "부록: 금융 10개 상세" 참고)
 
@@ -119,7 +119,7 @@ REJECT(4개, 이유 있음): salary(기존 가이드와 중복), salary-negotiat
 ## developer-tools (52개 ACCEPT)
 
 - [ ] **cron-generator** — "Spring/Quartz Cron vs 표준 crontab, 필드 하나가 다른 이유" — Spring은 초 필드 추가돼 6필드.
-- [ ] **uuid-validator** — "UUID v4를 DB 기본키로 쓰면 느려지는 이유" — B-트리 페이지 분할 유발, v7/ULID가 대안.
+- [x] **uuid-validator** (guides/uuid-primary-key-performance.html, 2026-08-19) — "UUID v4를 DB 기본키로 쓰면 느려지는 이유" — B-트리 페이지 분할 유발, v7/ULID가 대안.
 - [ ] **regex-tester** — "정규식 그리디 vs 레이지 매칭과 ReDoS" — 중첩 정량자 `(a+)+`가 catastrophic backtracking 유발.
 - [ ] **markdown-preview** — "마크다운 렌더러의 XSS 방어 메커니즘과 CommonMark 표준화 배경" — javascript: 스킴 차단, CommonMark 2014년 등장.
 - [ ] **html-to-markdown** — "HTML→Markdown 변환에서 구조적으로 사라지는 것들" — colspan/rowspan 대응 문법 없어 병합셀 풀림.
@@ -192,7 +192,7 @@ REJECT(3개): ip-address-lookup(일반 네트워킹 상식 나열뿐), website-s
 - [ ] **wpm-calculator** — "한글 타자속도(타/분)와 영문 WPM, 왜 1:1 환산이 안 되는가" — 초성·중성·종성 조합 타건 기준.
 - [ ] **reading-level-checker** — "가독성 점수의 함정, 이 도구의 SMOG 지수가 표준 공식과 다르게 나오는 이유" — 계수간소화로 실제 2배 오차.
 - [ ] **remove-special-characters** — "정규식 문자 클래스의 함정, 왜 이모지가 절반만 지워지는가" — u플래그 부재로 서로게이트쌍 절반삭제.
-- [ ] **text-summarizer** — "이 텍스트 요약기, 사실 한국어에서는 작동하지 않는다" — `\w`가 한글 비인식, 문장점수 전부 0되는 버그.
+- [x] **text-summarizer** (guides/text-summarizer-korean-limitation.html, 2026-08-19) — "이 텍스트 요약기, 사실 한국어에서는 작동하지 않는다" — `\w`가 한글 비인식, 문장점수 전부 0되는 버그.
 - [ ] **anagram-checker** — "애너그램 판별, 정렬 대신 문자 빈도표를 쓰는 이유" — 각 글자 등장횟수 배열 누적비교.
 - [ ] **ascii-converter** — "ASCII가 사실 UTF-8의 부분집합인 이유" — 0~127범위 바이트단위 완전동일.
 - [ ] **ascii-table** — "제어문자 DEL(127)은 왜 하필 127번일까 — 천공 테이프가 남긴 흔적" — 천공테이프 무효화 관습 유래.
@@ -287,7 +287,7 @@ REJECT(8개): youtube-script-generator, ai-email-generator, ai-resume-generator,
 - [ ] **csp-validator** — "CSP를 사이트 안 깨뜨리고 도입하는 법 — Report-Only에서 강제 모드까지 3단계" — data:URI가 img-src/script-src서 위험도 다름.
 - [ ] **cors-header-checker** — "Preflight가 도는 요청 vs 안 도는 요청 — CORS 에러의 진짜 원인" — simple request는 preflight없이 즉시전송.
 - [ ] **hash-checker** — "왜 브라우저 표준 해시 API는 MD5를 지원하지 않는가" — crypto.subtle.digest는 MD5 넘기면 즉시 예외.
-- [ ] **bcrypt-generator** — "bcrypt 72바이트 제한, 한글 비밀번호는 24자에서 잘린다" — 72바이트 이후 다른 한글비번 2개 동일해시 실증.
+- [x] **bcrypt-generator** (guides/bcrypt-72-byte-korean-limit.html, 2026-08-19) — "bcrypt 72바이트 제한, 한글 비밀번호는 24자에서 잘린다" — 72바이트 이후 다른 한글비번 2개 동일해시 실증.
 - [ ] **bcrypt-validator** — "bcrypt는 salt를 따로 안 저장하는데 어떻게 검증하나 — compare()의 실제 동작" — 해시 앞29자를 salt로 재사용.
 - [ ] **hmac-generator** — "HMAC이 길이 확장 공격을 막는 이중 해시 구조(ipad/opad)" — 단순연결해시는 length-extension 취약.
 - [ ] **rsa-key-generator** — "RSA 공개지수 65537의 의미와 PKCS#8 vs PKCS#1 포맷 함정" — 2048비트+OAEP 평문190바이트 제한.
@@ -351,7 +351,7 @@ REJECT(7개): json-formatter, json-viewer, json-minifier, xml-formatter, sql-for
 
 ## health-calculators (8개 ACCEPT — 전부)
 
-- [ ] **bmi-calc** — "BMI 25 vs 23, 왜 한국 기준이 세계 기준보다 낮은가" — WHO25이상 vs 한국비만학회23이상.
+- [x] **bmi-calc** (guides/bmi-korean-vs-who-standard.html, 2026-08-19) — "BMI 25 vs 23, 왜 한국 기준이 세계 기준보다 낮은가" — WHO25이상 vs 한국비만학회23이상.
 - [ ] **calorie-calculator** — "칼로리 계산기 숫자가 실제 체중 변화와 다른 진짜 이유" — 10년마다 BMR 2~3%자연감소.
 - [ ] **macro-calculator** — "매크로 비율, 목표 바뀌어도 사실 안 바뀌는 것" — 단백질=체중×2g 고정, 실코드 확인된 실제 로직.
 - [ ] **water-intake** — "갈증 느끼면 이미 늦었다? 물도 과하면 위험한 이유" — 저나트륨혈증(hyponatremia) 위험 병기.
@@ -367,7 +367,7 @@ REJECT: 없음.
 ## date-time-tools (8개 ACCEPT)
 
 - [ ] **date-calc** — "소멸시효 계산의 함정, 채권 종류마다 왜 다른가" — 일반채권10년/상사5년/불법행위3년.
-- [ ] **time-calculator** — "야간수당 50%는 왜 밤 10시부터인가 — 근로기준법 제56조 완전정리" — 야간(22~06시) 별도50%가산.
+- [x] **time-calculator** (guides/night-shift-overtime-pay-law.html, 2026-08-19) — "야간수당 50%는 왜 밤 10시부터인가 — 근로기준법 제56조 완전정리" — 야간(22~06시) 별도50%가산.
 - [ ] **business-days-calculator** — "계약서 '영업일 5일 이내', 달력으로는 며칠인가" — 공휴일 끼면 달력 10일이상 벌어짐.
 - [ ] **pomodoro-timer** — "뽀모도로 25분, 실제 근거가 있는 숫자인가" — 프란체스코 치릴로 개인 경험칙, 과학적 최적값 아님.
 - [ ] **timestamp** — "유닉스 타임스탬프와 2038년 문제" — 32비트 signed integer 오버플로.
