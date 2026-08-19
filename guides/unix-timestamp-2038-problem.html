@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>유닉스 타임스탬프와 2038년 문제 완전정리 — 32비트 오버플로우는 왜 그날 터지는가 | MODOO HUB</title>
+<meta name="description" content="유닉스 타임스탬프가 왜 1970년 1월 1일부터 세는지, 부호 있는 32비트 정수 상한이 왜 2038년 1월 19일에 걸리는지, 이 문제가 임베디드·오래된 DB에서 여전히 남아있는 이유와 JavaScript Date가 이 문제에서 자유로운 이유를 계산 과정과 함께 정리합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/unix-timestamp-2038-problem.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"유닉스 타임스탬프와 2038년 문제 완전정리 — 32비트 오버플로우는 왜 그날 터지는가","description":"유닉스 타임스탬프가 왜 1970년 1월 1일부터 세는지, 부호 있는 32비트 정수 상한이 왜 2038년 1월 19일에 걸리는지, 이 문제가 임베디드·오래된 DB에서 여전히 남아있는 이유와 JavaScript Date가 이 문제에서 자유로운 이유를 계산 과정과 함께 정리합니다.","datePublished":"2026-08-19","dateModified":"2026-08-19","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"2038년 문제란 정확히 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"유닉스 타임스탬프를 부호 있는 32비트 정수(signed 32-bit integer)로 저장하는 시스템에서 2038년 1월 19일 03:14:07 UTC를 넘는 순간 값이 오버플로우되어 음수로 뒤집히는 현상입니다. 이 시각을 지나면 시스템이 시간을 1901년 12월로 잘못 계산하는 오류가 발생합니다."}},
+{"@type":"Question","name":"왜 하필 2,147,483,647초에서 문제가 생기나요?","acceptedAnswer":{"@type":"Answer","text":"부호 있는 32비트 정수는 1비트를 부호(양수/음수) 표시에 쓰고 나머지 31비트로 크기를 표현하므로 최댓값이 2의 31제곱 빼기 1, 즉 2,147,483,647입니다. 1970년 1월 1일 0시부터 이 초만큼 지난 시각이 정확히 2038년 1월 19일 03:14:07 UTC이고, 그다음 초에 값이 1 늘어나면서 최상위 부호 비트가 뒤집혀 음수로 해석됩니다."}},
+{"@type":"Question","name":"64비트 시스템을 쓰면 이 문제가 완전히 사라지나요?","acceptedAnswer":{"@type":"Answer","text":"64비트 time_t를 쓰는 최신 리눅스·macOS·윈도우 등 주요 운영체제는 표현 가능한 범위가 수천억 년 단위로 늘어나 사실상 이 문제에서 자유롭습니다. 다만 오래된 32비트 임베디드 기기, 레거시 펌웨어, 32비트 정수 컬럼으로 시각을 저장한 옛날 데이터베이스 스키마는 여전히 영향을 받을 수 있습니다."}},
+{"@type":"Question","name":"이 사이트의 타임스탬프 변환기도 2038년 문제가 있나요?","acceptedAnswer":{"@type":"Answer","text":"아닙니다. JavaScript의 Date 객체는 1970년 1월 1일 기준 밀리초를 배정밀도 부동소수점(64비트 double)으로 저장하므로 표현 가능한 범위가 약 ±275,760년에 달합니다. 32비트 정수 오버플로우 자체가 발생할 수 없는 구조라 이 도구는 2038년과 무관하게 정상 동작합니다."}},
+{"@type":"Question","name":"2,147,483,647초를 실제 날짜로 환산하면 어떻게 되나요?","acceptedAnswer":{"@type":"Answer","text":"1970-01-01 00:00:00 UTC를 기준으로 2,147,483,647초를 더하면 2038-01-19 03:14:07 UTC가 됩니다. 이 값에서 1초만 더 지나 2,147,483,648이 되면 32비트 부호 있는 정수로는 이를 표현할 수 없어 -2,147,483,648로 뒤집히고, 이는 1901년 12월 13일 20:45:52 UTC로 잘못 해석됩니다."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>유닉스 타임스탬프와 2038년 문제 완전정리 — 32비트 오버플로우는 왜 그날 터지는가</h1>
+  <p class="meta">가이드 · 2026-08-19 최종 확인</p>
+
+  <p>서버 로그나 데이터베이스, API 응답에서 흔히 보는 유닉스 타임스탬프는 그냥 "지금 이 순간을 숫자 하나로 나타낸 것"처럼 보이지만, 그 숫자를 어떤 정수 타입에 담느냐에 따라 미래의 특정 시각에 시스템이 시간을 잘못 계산하는 심각한 버그로 이어질 수 있습니다. 이른바 "2038년 문제(Y2K38)"가 그것입니다. 이 가이드에서는 유닉스 타임스탬프의 정의부터, 왜 하필 2038년 1월 19일이라는 날짜가 한계선이 되는지를 이진수 계산 과정으로 짚고, 이 문제가 왜 아직도 실무에서 완전히 사라지지 않았는지, 그리고 이 사이트의 타임스탬프 변환기는 왜 이 문제와 무관한지를 설명합니다.</p>
+
+  <h2>1. 유닉스 타임스탬프란 무엇인가</h2>
+  <p>유닉스 타임스탬프(Unix Timestamp, 유닉스 에포크)는 1970년 1월 1일 00:00:00 UTC를 기준점(0)으로 잡고, 그 이후 흐른 시간을 초(또는 밀리초) 단위의 정수 하나로 표현하는 방식입니다. 날짜와 시간을 "년-월-일 시:분:초"라는 복잡한 문자열 대신 단일 정수로 다루면 시각끼리의 비교나 뺄셈, 정렬이 단순한 산술 연산 하나로 끝나기 때문에 운영체제 커널부터 데이터베이스, 웹 API까지 폭넓게 이 방식을 채택했습니다. 문제는 "이 정수를 몇 비트짜리 상자에 담을 것인가"입니다. 초기 유닉스 계열 시스템과 C 언어의 <strong>time_t</strong> 타입은 관행적으로 이 값을 <strong>부호 있는 32비트 정수(signed 32-bit integer)</strong>로 저장했고, 이 선택이 훗날 한계선을 만들어냅니다.</p>
+
+  <h2>2. 왜 하필 2038년인가 — 2의 31제곱 계산</h2>
+  <p>32비트 정수는 총 32개의 이진 자리(비트)를 가지지만, 부호 있는(signed) 정수는 그중 가장 높은 자리 1비트를 "양수냐 음수냐"를 나타내는 부호 비트로 소비합니다. 남은 31비트만으로 크기를 표현하므로 표현 가능한 최댓값은 2를 31제곱한 값에서 1을 뺀 <strong>2,147,483,647</strong>이 됩니다(2^31 = 2,147,483,648이고, 0부터 세므로 최댓값은 여기서 1을 뺀 값). 이 숫자를 "1970년 1월 1일 0시부터 몇 초가 지난 시각인가"로 환산하면 정확히 <strong>2038년 1월 19일 03:14:07 UTC</strong>가 나옵니다. 이 시각에서 정확히 1초가 더 지나 값이 2,147,483,648이 되어야 하는 순간, 32비트 부호 있는 정수는 이 값을 담을 자리가 없어 최상위 부호 비트가 뒤집히면서 값 전체가 가장 작은 음수인 -2,147,483,648로 튕겨 나갑니다. 시스템은 이 음수를 다시 "1970년 1월 1일부터 그만큼 이전"으로 해석하기 때문에, 실제로는 2038년인데 시계가 <strong>1901년 12월</strong>로 튀는 오류가 벌어집니다.</p>
+
+  <div class="box">
+    <strong>계산 예시</strong>: 2,147,483,647초를 1970-01-01 00:00:00 UTC에 더하면 2038-01-19 03:14:07 UTC가 됩니다(2,147,483,647초 ÷ 86,400초/일 ≈ 24,855.13일 ≈ 약 68년 하고도 18일 3시간 14분 7초). 여기서 1초가 더 지나 2,147,483,648이 되는 순간, 부호 있는 32비트 정수 범위(-2,147,483,648 ~ 2,147,483,647)를 벗어나 오버플로우가 발생하고 값은 -2,147,483,648로 뒤집힙니다. 이는 다시 1970년 기준 약 68년 전인 1901년 12월 13일 20:45:52 UTC로 잘못 계산됩니다.
+  </div>
+
+  <h2>3. 64비트 시대에도 왜 여전히 이슈가 되는가</h2>
+  <p>최신 리눅스 커널, macOS, 윈도우 등 주요 운영체제는 이미 <strong>64비트 time_t</strong>로 전환을 마쳤습니다. 64비트 부호 있는 정수로 표현 가능한 범위는 서기 약 2920억 년까지 확장되므로 사실상 인류 문명이 끝날 때까지 이 문제를 걱정할 필요가 없습니다. 그런데도 2038년 문제가 여전히 회자되는 이유는, 시간을 다루는 시스템이 커널 하나로 끝나지 않기 때문입니다. 공장 설비나 통신 장비, 자동차 전자제어장치(ECU) 등에 들어가는 <strong>32비트 임베디드 시스템</strong>은 자원 제약과 긴 교체 주기 때문에 여전히 구형 32비트 time_t를 쓰는 경우가 많고, 이런 기기는 한 번 현장에 설치되면 10~20년씩 그대로 운용되기도 합니다. 또한 데이터베이스에서 날짜 컬럼을 처음 설계할 때 <strong>32비트 정수(INT) 타입</strong>으로 타임스탬프를 저장하도록 스키마를 짜 놓은 오래된 시스템도 마찬가지 위험을 안고 있습니다. 컬럼 타입을 BIGINT(64비트)로 바꾸는 마이그레이션 자체는 간단해 보여도, 그 컬럼을 참조하는 애플리케이션 코드와 인덱스, 저장 프로시저까지 전부 점검해야 하기 때문에 실제 현업에서는 미루다가 뒤늦게 발등에 불이 떨어지는 경우가 반복적으로 보고되고 있습니다.</p>
+
+  <h2>4. JavaScript Date는 왜 이 문제에서 자유로운가</h2>
+  <p>이 사이트의 <a href="../timestamp.html">타임스탬프 변환기</a>를 포함해 브라우저에서 동작하는 JavaScript는 애초에 32비트 정수로 시각을 다루지 않습니다. JavaScript의 <strong>Date 객체</strong>는 1970년 1월 1일 자정 UTC를 기준으로 한 밀리초 값을 <strong>배정밀도 부동소수점(64비트 double)</strong>으로 저장합니다. 이 타입이 정수로서 정밀하게 표현 가능한 범위는 약 ±285,616년(스펙상 실제 Date 객체가 지원하는 범위는 약 ±275,760년으로 제한)에 달하므로, 32비트 정수처럼 특정 시점에 자리가 모자라 값이 뒤집히는 현상 자체가 구조적으로 발생하지 않습니다. 즉 "초 단위 32비트 정수"와 "밀리초 단위 64비트 부동소수점"은 애초에 담을 수 있는 시간 범위의 자릿수가 다르기 때문에, 웹 브라우저나 Node.js 환경에서 Date 객체만으로 시각을 다루는 도구는 2038년이 와도 아무 영향을 받지 않습니다.</p>
+
+  <h2>5. 정리</h2>
+  <ul>
+    <li><strong>문제의 본질</strong>: 부호 있는 32비트 정수(time_t)의 표현 한계 2,147,483,647초가 2038년 1월 19일 03:14:07 UTC에 걸려 그 다음 초에 오버플로우가 발생합니다.</li>
+    <li><strong>여전히 남은 위험 지대</strong>: 32비트 임베디드 기기, 오래된 32비트 정수 DB 스키마는 지금도 점검이 필요합니다.</li>
+    <li><strong>이 사이트의 도구는 안전</strong>: JavaScript Date는 64비트 부동소수점 밀리초를 쓰므로 2038년과 무관하게 정상 동작합니다.</li>
+  </ul>
+
+  <h2>자주 묻는 질문</h2>
+  <details class="faq-item"><summary>Q. 2038년 문제란 정확히 무엇인가요?</summary><p>A. 유닉스 타임스탬프를 부호 있는 32비트 정수(signed 32-bit integer)로 저장하는 시스템에서 2038년 1월 19일 03:14:07 UTC를 넘는 순간 값이 오버플로우되어 음수로 뒤집히는 현상입니다. 이 시각을 지나면 시스템이 시간을 1901년 12월로 잘못 계산하는 오류가 발생합니다.</p></details>
+  <details class="faq-item"><summary>Q. 왜 하필 2,147,483,647초에서 문제가 생기나요?</summary><p>A. 부호 있는 32비트 정수는 1비트를 부호(양수/음수) 표시에 쓰고 나머지 31비트로 크기를 표현하므로 최댓값이 2의 31제곱 빼기 1, 즉 2,147,483,647입니다. 1970년 1월 1일 0시부터 이 초만큼 지난 시각이 정확히 2038년 1월 19일 03:14:07 UTC이고, 그다음 초에 값이 1 늘어나면서 최상위 부호 비트가 뒤집혀 음수로 해석됩니다.</p></details>
+  <details class="faq-item"><summary>Q. 64비트 시스템을 쓰면 이 문제가 완전히 사라지나요?</summary><p>A. 64비트 time_t를 쓰는 최신 리눅스·macOS·윈도우 등 주요 운영체제는 표현 가능한 범위가 수천억 년 단위로 늘어나 사실상 이 문제에서 자유롭습니다. 다만 오래된 32비트 임베디드 기기, 레거시 펌웨어, 32비트 정수 컬럼으로 시각을 저장한 옛날 데이터베이스 스키마는 여전히 영향을 받을 수 있습니다.</p></details>
+  <details class="faq-item"><summary>Q. 이 사이트의 타임스탬프 변환기도 2038년 문제가 있나요?</summary><p>A. 아닙니다. JavaScript의 Date 객체는 1970년 1월 1일 기준 밀리초를 배정밀도 부동소수점(64비트 double)으로 저장하므로 표현 가능한 범위가 약 ±275,760년에 달합니다. 32비트 정수 오버플로우 자체가 발생할 수 없는 구조라 이 도구는 2038년과 무관하게 정상 동작합니다.</p></details>
+  <details class="faq-item"><summary>Q. 2,147,483,647초를 실제 날짜로 환산하면 어떻게 되나요?</summary><p>A. 1970-01-01 00:00:00 UTC를 기준으로 2,147,483,647초를 더하면 2038-01-19 03:14:07 UTC가 됩니다. 이 값에서 1초만 더 지나 2,147,483,648이 되면 32비트 부호 있는 정수로는 이를 표현할 수 없어 -2,147,483,648로 뒤집히고, 이는 1901년 12월 13일 20:45:52 UTC로 잘못 해석됩니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../timestamp.html">→ 타임스탬프 변환기</a>
+    <a href="../timezone-converter.html">→ 시간대 변환기</a>
+    <a href="../date-calc.html">→ 날짜 계산기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적입니다.</footer>
+</main>
+</body>
+</html>

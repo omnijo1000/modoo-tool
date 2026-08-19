@@ -123,7 +123,7 @@ REJECT(4개, 이유 있음): salary(기존 가이드와 중복), salary-negotiat
 - [x] **regex-tester** (guides/regex-catastrophic-backtracking-redos.html, 2026-08-19) — "정규식 그리디 vs 레이지 매칭과 ReDoS" — 중첩 정량자 `(a+)+`가 catastrophic backtracking 유발.
 - [ ] **markdown-preview** — "마크다운 렌더러의 XSS 방어 메커니즘과 CommonMark 표준화 배경" — javascript: 스킴 차단, CommonMark 2014년 등장.
 - [ ] **html-to-markdown** — "HTML→Markdown 변환에서 구조적으로 사라지는 것들" — colspan/rowspan 대응 문법 없어 병합셀 풀림.
-- [ ] **yaml-validator** — "YAML의 노르웨이 문제(Norway Problem)" — YAML1.1에서 `no`가 boolean false로 해석되던 버그.
+- [x] **yaml-validator** (guides/yaml-norway-problem-boolean-parsing.html, 2026-08-19) — "YAML의 노르웨이 문제(Norway Problem)" — YAML1.1에서 `no`가 boolean false로 해석되던 버그.
 - [ ] **json-to-xml** — "JSON→XML 변환의 근본적 한계" — XML엔 배열 개념 없어 같은 태그 반복, null은 self-closing 태그.
 - [ ] **html-minifier** — "정규식 기반 HTML 압축기가 실패하는 지점" — `<pre>`/`<textarea>` 내부 의미있는 공백까지 뭉개짐.
 - [ ] **css-minifier** — "CSS 압축기의 색상 코드 축약 규칙" — `#ffffff`→`#fff`는 각 자리쌍 같을 때만.
@@ -258,7 +258,7 @@ REJECT(7개): webp-to-png, image-to-webp, image-cropper, blur-image, color-picke
 - [ ] **open-graph-generator** — "OG 태그 고쳤는데 카톡/페북 미리보기가 안 바뀌는 이유" — 플랫폼 캐싱, 2010년 f8공개 프로토콜.
 - [ ] **twitter-card-generator** — "twitter:card 안 넣어도 트위터 카드가 뜨는 이유" — OG태그 자동 폴백.
 - [ ] **schema-markup-generator** — "JSON-LD가 구조화 데이터 표준이 된 이유" — 리치스니펫 CTR 평균20~30%↑.
-- [ ] **hreflang-generator** — "hreflang, 절반이 틀리게 쓰는 SEO 태그" — 양방향참조 비대칭이면 구글이 조용히 무시.
+- [x] **hreflang-generator** (guides/hreflang-bidirectional-mistakes.html, 2026-08-19) — "hreflang, 절반이 틀리게 쓰는 SEO 태그" — 양방향참조 비대칭이면 구글이 조용히 무시.
 - [ ] **htaccess-generator** — "HSTS 설정했다가 사이트가 접속 불가가 되는 이유" — 인증서 문제시 HTTPS 강제로 접속불가.
 - [ ] **nginx-config-generator** — "Nginx가 대량 동시접속에 강한 진짜 이유" — 이벤트기반 비동기 vs Apache 스레드/프로세스.
 - [ ] **apache-config-generator** — ".htaccess vs VirtualHost, 왜 성능 차이가 나나" — .htaccess는 요청마다 재로딩.
@@ -338,7 +338,7 @@ REJECT: 없음(10개 전부 ACCEPT).
 
 - [x] **json-validator** (guides/json-large-integer-precision-loss.html, 2026-08-19) — "JSON 숫자가 깨지는 이유: IEEE 754와 2^53의 함정" — 2^53(9007199254740992) 초과 정수 정밀도 손실.
 - [ ] **yaml-formatter** — "YAML의 노르웨이 문제: yes/no가 왜 갑자기 true/false가 되는가" — YAML1.1 vs 1.2 불리언 파싱 차이.
-- [ ] **csv-to-json** — "CSV를 JSON으로 바꿀 때 숫자로 둔갑하는 값: 앞자리 0이 사라지는 문제" — "007"/"010-"는 문자열 유지.
+- [x] **csv-to-json** (guides/csv-to-json-leading-zero-loss.html, 2026-08-19) — "CSV를 JSON으로 바꿀 때 숫자로 둔갑하는 값: 앞자리 0이 사라지는 문제" — "007"/"010-"는 문자열 유지.
 - [ ] **json-diff** — "JSON 배열 비교의 함정: 인덱스 기반 diff가 중간 삽입에서 틀리는 이유" — LCS정렬 없이 인덱스만 대응.
 - [ ] **json-flattener** — "중첩 JSON 평탄화(flatten)와 되돌리기(unflatten), 정보가 사라지는 지점" — 2차원배열서 구조정보 소실.
 - [ ] **xml-to-json** — "XML을 JSON으로 바꾸면 사라지는 것: 혼합 콘텐츠의 순서와 공백" — 텍스트노드 개별trim으로 공백손실.
@@ -354,7 +354,7 @@ REJECT(7개): json-formatter, json-viewer, json-minifier, xml-formatter, sql-for
 - [x] **bmi-calc** (guides/bmi-korean-vs-who-standard.html, 2026-08-19) — "BMI 25 vs 23, 왜 한국 기준이 세계 기준보다 낮은가" — WHO25이상 vs 한국비만학회23이상.
 - [ ] **calorie-calculator** — "칼로리 계산기 숫자가 실제 체중 변화와 다른 진짜 이유" — 10년마다 BMR 2~3%자연감소.
 - [ ] **macro-calculator** — "매크로 비율, 목표 바뀌어도 사실 안 바뀌는 것" — 단백질=체중×2g 고정, 실코드 확인된 실제 로직.
-- [ ] **water-intake** — "갈증 느끼면 이미 늦었다? 물도 과하면 위험한 이유" — 저나트륨혈증(hyponatremia) 위험 병기.
+- [x] **water-intake** (guides/water-intake-hyponatremia-risk.html, 2026-08-19) — "갈증 느끼면 이미 늦었다? 물도 과하면 위험한 이유" — 저나트륨혈증(hyponatremia) 위험 병기.
 - [ ] **pace-calculator** — "마라톤 페이스, 평지 기준으로만 계산하면 틀리는 이유" — 경사1%당 km당 약6초 느려짐(GAP).
 - [ ] **pregnancy-due-date** — "출산 예정일에 정확히 태어나는 아기는 5%뿐인 이유" — 네겔레법칙은 LMP기준, 배란시차 오차.
 - [ ] **health-insurance-calc** — "건강보험료 4월에 왜 더 걷거나 돌려주나" — 전년추정 vs 확정보수 4월정산.
@@ -370,7 +370,7 @@ REJECT: 없음.
 - [x] **time-calculator** (guides/night-shift-overtime-pay-law.html, 2026-08-19) — "야간수당 50%는 왜 밤 10시부터인가 — 근로기준법 제56조 완전정리" — 야간(22~06시) 별도50%가산.
 - [ ] **business-days-calculator** — "계약서 '영업일 5일 이내', 달력으로는 며칠인가" — 공휴일 끼면 달력 10일이상 벌어짐.
 - [ ] **pomodoro-timer** — "뽀모도로 25분, 실제 근거가 있는 숫자인가" — 프란체스코 치릴로 개인 경험칙, 과학적 최적값 아님.
-- [ ] **timestamp** — "유닉스 타임스탬프와 2038년 문제" — 32비트 signed integer 오버플로.
+- [x] **timestamp** (guides/unix-timestamp-2038-problem.html, 2026-08-19) — "유닉스 타임스탬프와 2038년 문제" — 32비트 signed integer 오버플로.
 - [ ] **timezone-converter** — "30분·45분 단위 시간대가 존재하는 이유 — IST(UTC+5:30) 결정의 역사" — 인도UTC+5:30, 네팔UTC+5:45.
 - [ ] **working-days-calc** — "근로자의 날은 왜 법적으로 '공휴일'이 아닌가" — 근로기준법상 별도 유급휴일, 대체공휴일 미적용.
 - [ ] **time-zone-meeting-planner** — "글로벌 회의 시간 추천, UTC 자정을 넘는 구간은 어떻게 합치나" — 자정걸치는 구간 병합알고리즘.
