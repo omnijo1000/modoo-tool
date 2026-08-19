@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XML을 JSON으로 바꾸면 사라지는 것 — 혼합 콘텐츠의 순서와 공백 | MODOO HUB</title>
+<meta name="description" content="XML→JSON 변환기가 텍스트와 자식 태그가 섞인 혼합 콘텐츠에서 왜 순서와 공백 정보를 잃어버리는지, 텍스트 노드 trim 처리 구조로 설명합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/xml-to-json-mixed-content-whitespace-loss.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/xml-to-json-mixed-content-whitespace-loss.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/xml-to-json-mixed-content-whitespace-loss.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"XML을 JSON으로 바꾸면 사라지는 것 — 혼합 콘텐츠의 순서와 공백","description":"XML→JSON 변환기가 텍스트와 자식 태그가 섞인 혼합 콘텐츠에서 왜 순서와 공백 정보를 잃어버리는지, 텍스트 노드 trim 처리 구조로 설명합니다.","datePublished":"2026-08-19","dateModified":"2026-08-19","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--purple);}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;}
+details summary{cursor:pointer;font-weight:600;color:var(--text-muted);}
+details p{margin-top:8px;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>XML을 JSON으로 바꾸면 사라지는 것 — 혼합 콘텐츠의 순서와 공백</h1>
+  <p class="meta">가이드 · 2026-08-19 최종 확인</p>
+
+  <p>RSS 피드나 오래된 문서형 XML을 JSON으로 바꿔봤는데 결과가 이상하게 뭉개져 나온 적이 있다면, 그건 변환기가 고장난 게 아니라 <strong>XML과 JSON이 애초에 표현할 수 있는 구조가 다르기 때문</strong>입니다. 이 가이드는 "혼합 콘텐츠(mixed content)"라는 XML 고유의 개념이 JSON으로 바뀌는 과정에서 왜, 어떻게 정보를 잃는지 구조적으로 설명합니다.</p>
+
+  <h2>1. JSON에는 없는 개념: 혼합 콘텐츠</h2>
+  <p>XML은 원래 문서 마크업 언어로 태어났기 때문에, <code>&lt;p&gt;Hello &lt;b&gt;world&lt;/b&gt;!&lt;/p&gt;</code>처럼 텍스트와 자식 태그가 한 요소 안에 순서대로 뒤섞여 있는 걸 자연스럽게 허용합니다. 이런 구조를 "혼합 콘텐츠"라고 부릅니다. 반면 JSON은 애초에 데이터 직렬화를 위해 설계된 포맷이라, 객체는 그냥 키-값 쌍의 집합일 뿐입니다. "이 텍스트 조각, 이 자식 요소, 저 텍스트 조각이 정확히 이 순서로 나란히 있다"는 개념 자체가 JSON 객체 모델에는 없습니다. 그래서 어떤 XML→JSON 변환기든, 혼합 콘텐츠를 만나면 정보를 버리는 결정을 내릴 수밖에 없습니다.</p>
+
+  <h2>2. 이 도구는 실제로 어떻게 처리하는가</h2>
+  <p>이 사이트의 <a href="../xml-to-json.html">XML to JSON 변환기</a>는 요소를 재귀적으로 순회하면서, 자식 텍스트 노드를 만나면 <code>node.nodeValue.trim()</code>으로 앞뒤 공백을 잘라낸 뒤 기존 <code>#text</code> 값에 그대로 이어붙입니다. 자식 요소(태그)는 별도의 키로 따로 모읍니다. 즉 텍스트 조각들과 자식 요소가 원래 어떤 순서로 섞여 있었는지는 완전히 버려지고, 텍스트는 텍스트끼리, 태그는 태그끼리 각자 그룹으로 재조립됩니다.</p>
+  <div class="box">
+    <strong>실제 예시</strong>: <code>&lt;p&gt;Hello &lt;b&gt;world&lt;/b&gt;!&lt;/p&gt;</code>를 이 도구에 넣으면<br>
+    <code>{"#text":"Hello!","b":"world"}</code>가 나옵니다.<br>
+    "Hello"와 "!" 사이에 있던 공백이 사라졌고("Hello!"로 붙어버림), "world"가 원래 "Hello"와 "!" 사이에 있었다는 위치 정보도 이 JSON만 보고는 전혀 알 수 없습니다.
+  </div>
+
+  <h2>3. 공백이 사라지는 정확한 이유</h2>
+  <p>범인은 <code>trim()</code>을 텍스트 노드 단위로 개별 호출한다는 점입니다. XML 파서는 <code>&lt;p&gt;Hello &lt;b&gt;world&lt;/b&gt;!&lt;/p&gt;</code>를 세 개의 자식 노드로 쪼갭니다 — 텍스트 노드 <code>"Hello "</code>(뒤에 공백 포함), 요소 노드 <code>&lt;b&gt;world&lt;/b&gt;</code>, 텍스트 노드 <code>"!"</code>. 변환기는 각 텍스트 노드를 따로 <code>trim()</code>하기 때문에 <code>"Hello "</code>의 끝공백이 잘려 <code>"Hello"</code>가 되고, 이 값이 뒤에 오는 <code>"!"</code> 노드와 사이 공백 없이 그대로 이어붙습니다. 순수 데이터용 XML(설정 파일, API 응답)에서는 태그 사이 공백이 그저 들여쓰기용 서식이라 지워도 무해하지만, 문서형 XML에서는 그 공백이 실제로 읽었을 때 단어 사이를 띄우는 의미를 갖고 있어서, 지워버리면 내용이 왜곡됩니다.</p>
+
+  <h2>4. 이 문제가 특히 눈에 띄는 XML 종류</h2>
+  <p>RSS/Atom 피드의 <code>&lt;description&gt;</code> 필드처럼 텍스트 안에 HTML 태그가 섞여 들어간 경우, SVG의 텍스트 요소, DocBook 같은 문서형 마크업에서 이 현상이 두드러집니다. 반대로 설정 파일이나 API 응답처럼 각 요소가 순수 텍스트만 담거나 자식 요소만 담고 절대 섞이지 않는 "데이터형" XML이라면, 애초에 혼합 콘텐츠 자체가 발생하지 않으므로 이 문제와 무관합니다.</p>
+
+  <h2>5. 실무 가이드</h2>
+  <ul>
+    <li><strong>API 응답·설정 파일 같은 데이터형 XML</strong>: 안심하고 변환해도 됩니다. 요소가 텍스트만 담거나 자식만 담는 구조라 혼합 콘텐츠가 생기지 않습니다.</li>
+    <li><strong>RSS description, HTML 조각이 섞인 필드</strong>: 변환 후 결과를 반드시 눈으로 확인하세요. 특히 텍스트 사이에 인라인 태그(<code>&lt;b&gt;</code>, <code>&lt;a&gt;</code> 등)가 있었다면 공백·순서 손실 가능성이 높습니다.</li>
+    <li><strong>문서 구조를 그대로 보존해야 한다면</strong>: JSON으로 바꾸지 말고 XML/HTML 형태 그대로 다루는 것이 근본적인 해법입니다. JSON은 이런 용도로 설계되지 않았습니다.</li>
+  </ul>
+
+  <h2>자주 묻는 질문</h2>
+  <details><summary>Q. 혼합 콘텐츠가 아닌 일반 XML도 이 문제가 생기나요?</summary><p>A. 아니요. 요소가 텍스트만 담거나 자식 요소만 담고 절대 섞이지 않는 "순수 콘텐츠" 구조라면 텍스트 조각이 하나뿐이므로 순서·공백 손실 문제 자체가 발생하지 않습니다. 이 문제는 오직 한 요소 안에 텍스트와 자식 태그가 번갈아 나타날 때만 생깁니다.</p></details>
+  <details><summary>Q. CDATA 섹션도 같은 문제를 겪나요?</summary><p>A. 네. CDATA 내용도 일반 텍스트와 동일하게 <code>#text</code>로 추출되므로, 혼합 콘텐츠 안에 CDATA가 섞여 있으면 위와 똑같은 순서·공백 손실이 그대로 적용됩니다.</p></details>
+  <details><summary>Q. 이 손실을 막을 방법은 없나요?</summary><p>A. 완전히 막으려면 변환기가 각 자식 노드에 순서 인덱스를 부여하고 텍스트 노드를 trim하지 않는 식으로 재설계해야 하는데, 이렇게 하면 출력 JSON 구조가 훨씬 복잡해지고(배열 기반의 순서 있는 노드 리스트 등) 일반적인 "간단한 JSON"의 편의성을 잃게 됩니다. 대부분의 경량 변환기는 실용성을 위해 이 손실을 감수하는 쪽을 택합니다.</p></details>
+  <details><summary>Q. 반대로 JSON→XML 변환은 이 문제가 없나요?</summary><p>A. JSON→XML은 애초에 JSON에 혼합 콘텐츠 개념이 없어서 이 특정 손실은 발생하지 않지만, 대신 배열 표현 방식이나 null 처리 등 다른 종류의 구조적 한계가 있습니다. 자세한 내용은 <a href="../guides/json-to-xml-array-null-limits.html">JSON→XML 변환 가이드</a>를 참고하세요.</p></details>
+
+  <div class="tool-links">
+    <a href="../xml-to-json.html">→ XML to JSON 변환기</a>
+    <a href="../json-to-xml.html">→ JSON to XML 변환기</a>
+    <a href="../xml-validator.html">→ XML 유효성 검사기</a>
+    <a href="../xml-beautifier.html">→ XML Beautifier</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적입니다.</footer>
+</main>
+</body>
+</html>

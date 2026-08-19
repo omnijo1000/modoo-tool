@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>이미지를 PDF로 바꾸면 왜 용량이 더 커질까 — 캔버스 재인코딩의 함정 | MODOO HUB</title>
+<meta name="description" content="이미지를 PDF로 변환하면 압축되기는커녕 원본보다 커지는 경우가 있습니다. JPEG는 원본 그대로 삽입되지만 PNG·GIF는 캔버스를 거쳐 무손실 PNG로 재인코딩되는 구조를 해부합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/image-to-pdf-recompression-size-increase.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/image-to-pdf-recompression-size-increase.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/image-to-pdf-recompression-size-increase.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"이미지를 PDF로 바꾸면 왜 용량이 더 커질까 — 캔버스 재인코딩의 함정","description":"이미지를 PDF로 변환하면 압축되기는커녕 원본보다 커지는 경우가 있습니다. JPEG는 원본 그대로 삽입되지만 PNG·GIF는 캔버스를 거쳐 무손실 PNG로 재인코딩되는 구조를 해부합니다.","datePublished":"2026-08-19","dateModified":"2026-08-19","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--purple);}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;}
+details summary{cursor:pointer;font-weight:600;color:var(--text-muted);}
+details p{margin-top:8px;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>이미지를 PDF로 바꾸면 왜 용량이 더 커질까 — 캔버스 재인코딩의 함정</h1>
+  <p class="meta">가이드 · 2026-08-19 최종 확인</p>
+
+  <p>사진 한 장을 PDF로 바꿨을 뿐인데 파일 용량이 원본보다 커져서 당황했다면, 도구가 잘못된 게 아닙니다. "변환"이라는 단어 때문에 압축을 기대하기 쉽지만, PDF로 감싸는 과정 자체는 압축 작업이 아닙니다. 오히려 이미지 포맷에 따라 원본을 통째로 다시 인코딩하는 단계가 숨어 있어, 그 지점에서 용량이 불어날 수 있습니다.</p>
+
+  <h2>1. PDF 변환은 압축이 아니라 "포장"이다</h2>
+  <p>PDF는 이미지를 압축해주는 포맷이 아니라, 이미지 데이터를 페이지 객체·좌표·리소스 사전 같은 자체 구조 안에 담아 감싸는 컨테이너 포맷입니다. 원본 이미지 데이터를 그대로 담든, 다시 인코딩해서 담든 그 위에 PDF 고유의 구조적 오버헤드(xref 테이블, 페이지 트리, 스트림 헤더 등)가 항상 추가로 붙습니다. 즉 "이미지 → PDF" 변환 단계 자체에는 애초에 파일을 줄여주는 로직이 없습니다. 최종 용량은 오로지 이미지 데이터를 어떤 방식으로 PDF 안에 넣느냐에 달려 있습니다.</p>
+
+  <h2>2. 포맷별로 완전히 다른 삽입 경로</h2>
+  <p>이 사이트의 이미지→PDF 변환기가 실제로 쓰는 방식을 코드로 확인해 보면, 파일 형식에 따라 삽입 경로가 완전히 갈립니다.</p>
+  <div class="box">
+    <strong>JPEG (image/jpeg)</strong>: 파일을 읽은 원본 바이트를 그대로 <code>pdf.embedJpg()</code>에 넘겨 PDF에 삽입합니다. 별도의 재인코딩·재압축 과정이 없으므로, 화질과 용량 모두 원본과 거의 동일하게 유지됩니다.
+  </div>
+  <div class="box">
+    <strong>PNG · GIF · WebP · BMP</strong>: 먼저 <code>&lt;img&gt;</code> 태그로 이미지를 로드한 뒤, HTML5 캔버스에 그려 넣고 <code>canvas.toBlob(..., 'image/png')</code>로 <strong>완전히 새로운 무손실 PNG</strong>를 다시 만들어낸 다음, 그 결과물을 <code>pdf.embedPng()</code>으로 삽입합니다. 즉 원본 파일이 아니라 브라우저가 방금 새로 인코딩한 PNG가 최종 PDF에 들어갑니다.
+  </div>
+
+  <h2>3. 왜 하필 이 지점에서 용량이 불어나는가</h2>
+  <p>문제는 브라우저 Canvas API의 PNG 인코더가 dedicated 압축 도구(pngcrush, oxipng, ImageOptim 등)만큼 최적화 압축을 하지 않는다는 데 있습니다. Canvas는 픽셀 데이터를 무손실로 담아내는 것에는 충실하지만, 필터 선택·zlib 압축 레벨 튜닝 같은 후처리 최적화까지는 하지 않는 경우가 많습니다. 게다가 원본 GIF나 WebP가 이미 손실 압축(WebP)이나 색상 팔레트 제한(GIF, 최대 256색)으로 상당히 작았던 파일이라면, 그걸 트루컬러 무손실 PNG로 다시 풀어내는 순간 용량이 눈에 띄게 커질 수 있습니다. 특히 GIF는 원래 팔레트 기반이라 압축률이 좋은데, PNG로 재인코딩되면서 이 이점이 그대로 사라지는 경우가 흔합니다.</p>
+
+  <h2>4. 실전 체감: 어떤 조합이 위험한가</h2>
+  <table>
+    <tr><th>원본 형식</th><th>PDF 삽입 방식</th><th>용량 변화 위험</th></tr>
+    <tr><td>JPEG</td><td>원본 바이트 그대로 삽입 (embedJpg)</td><td>낮음 — 원본과 거의 동일</td></tr>
+    <tr><td>PNG</td><td>캔버스 경유 → 재인코딩 PNG (embedPng)</td><td>중간 — 원본 PNG 압축 수준에 따라 다름</td></tr>
+    <tr><td>GIF</td><td>캔버스 경유 → 트루컬러 PNG로 변환</td><td>높음 — 팔레트 압축 이점 소실</td></tr>
+    <tr><td>WebP</td><td>캔버스 경유 → 무손실 PNG로 변환</td><td>높음 — 손실 압축 이점 소실</td></tr>
+  </table>
+  <p>또한 애니메이션 GIF는 PDF 자체가 애니메이션 개념이 없는 정적 포맷이라, 여러 프레임 중 <strong>첫 프레임 한 장만</strong> 삽입됩니다. 여러 이미지를 한 PDF로 합칠 경우, 위 표의 용량 증가가 이미지 수만큼 누적된다는 점도 감안해야 합니다.</p>
+
+  <h2>5. 용량이 중요하다면 이렇게</h2>
+  <ul>
+    <li><strong>가능하면 JPEG로 변환 후 PDF화</strong>: PNG·GIF·WebP 원본이 있고 사진 계열 이미지(그러데이션·사진)라면, PDF로 바꾸기 전에 JPEG로 먼저 저장해두면 재인코딩 오버헤드를 피할 수 있습니다.</li>
+    <li><strong>PDF 생성 후 압축</strong>: 이미 PDF로 만들었는데 용량이 크다면, PDF 자체를 다시 압축하는 도구를 한 번 더 거치는 방법이 있습니다.</li>
+    <li><strong>단순 문서 아카이빙이라면</strong>: 화질 손실을 감수할 수 있는 문서·스캔본이라면 PNG보다 JPEG 계열 원본을 준비하는 편이 최종 PDF 용량 관리에 유리합니다.</li>
+  </ul>
+
+  <h2>자주 묻는 질문</h2>
+  <details><summary>Q. JPEG는 왜 용량이 거의 안 늘어나나요?</summary><p>A. JPEG는 파일을 다시 그려서 인코딩하지 않고, 원본 압축 바이트를 그대로 PDF 안에 끼워 넣기 때문입니다. 재압축·재인코딩 단계가 아예 없어 화질 손실도, 용량 증가도 최소화됩니다.</p></details>
+  <details><summary>Q. PNG를 PNG로 바꾸는 건데 왜 용량이 달라지나요?</summary><p>A. "PNG를 PNG로" 그대로 복사하는 게 아니라, 픽셀을 캔버스에 새로 그린 뒤 브라우저의 PNG 인코더가 처음부터 다시 압축하기 때문입니다. 원본 PNG가 이미 잘 압축돼 있었다면 재인코딩 결과가 오히려 더 클 수 있습니다.</p></details>
+  <details><summary>Q. GIF 애니메이션도 그대로 움직이는 PDF가 되나요?</summary><p>A. 아니요. PDF는 애니메이션 개념이 없는 정적 문서 포맷이라, 여러 프레임 중 첫 프레임 하나만 정지 이미지로 삽입됩니다.</p></details>
+  <details><summary>Q. 용량을 줄이려면 어떤 순서로 작업해야 하나요?</summary><p>A. 사진류 이미지는 JPEG로 먼저 저장한 뒤 PDF로 변환하는 것이 가장 확실합니다. 이미 만든 PDF가 크다면 별도의 PDF 압축 도구를 한 번 더 거치는 방법도 있습니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../image-to-pdf.html">→ Image to PDF 변환기</a>
+    <a href="../pdf-compressor.html">→ PDF 압축기</a>
+    <a href="../pdf-size-analyzer.html">→ PDF 용량 분석기</a>
+    <a href="../image-resizer.html">→ 이미지 리사이저</a>
+    <a href="../jpg-to-webp.html">→ JPG to WebP 변환기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적입니다.</footer>
+</main>
+</body>
+</html>

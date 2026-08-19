@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HTML→Markdown 변환, 구조적으로 사라지는 것들 | MODOO HUB</title>
+<meta name="description" content="HTML을 Markdown으로 바꿀 때 병합 셀·시맨틱 태그·스타일이 왜 사라지거나 깨지는지, 실제 변환기 코드를 근거로 구조적 한계를 정리합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/html-to-markdown-structural-loss.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"HTML→Markdown 변환, 구조적으로 사라지는 것들","description":"HTML을 Markdown으로 바꿀 때 병합 셀·시맨틱 태그·스타일이 왜 사라지거나 깨지는지 실제 변환기 코드를 근거로 정리합니다.","datePublished":"2026-08-19","dateModified":"2026-08-19","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+pre{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin:12px 0;overflow-x:auto;font-family:'DM Mono',monospace;font-size:12.5px;color:#ccc;line-height:1.6;}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:15px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;margin:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>HTML→Markdown 변환, 구조적으로 사라지는 것들</h1>
+  <p class="meta">가이드 · 2026-08-19 최종 확인</p>
+
+  <p>HTML을 Markdown으로 바꾸는 도구는 크게 두 방식으로 나뉩니다. Turndown.js 같은 라이브러리를 쓰는 방식과, 브라우저의 <code>DOMParser</code>로 직접 태그를 순회하며 규칙을 매핑하는 방식입니다. 어느 쪽이든 결과는 같은 근본 문제에 부딪힙니다 — Markdown(CommonMark) 문법 자체가 HTML보다 훨씬 좁은 표현력을 가지고 있어서, 대응하는 문법이 없는 요소는 변환 과정에서 사라지거나 깨진다는 점입니다. 이 가이드는 <a href="../html-to-markdown.html">HTML→Markdown 변환기</a>가 실제로 어떤 코드로 동작하는지 뜯어보고, 구조적으로 무엇이 살아남고 무엇이 무너지는지 구체적인 입출력 예시로 정리했습니다.</p>
+
+  <h2>1. 표 병합 셀: colspan/rowspan이 통째로 무시된다</h2>
+  <p>이 도구의 표 변환 함수는 각 행의 <code>&lt;th&gt;</code>/<code>&lt;td&gt;</code> 요소를 <code>querySelectorAll</code>로 긁어서 <strong>텍스트만</strong> 추출합니다. <code>colspan</code>/<code>rowspan</code> 속성은 코드 어디에서도 읽지 않습니다. 문제는 단순히 "병합이 무시된다"가 아니라, 헤더 행과 데이터 행의 <strong>셀 개수 자체가 어긋난다</strong>는 데 있습니다. 다음 입력을 보면 바로 드러납니다.</p>
+  <pre>&lt;table&gt;
+  &lt;tr&gt;&lt;th colspan="2"&gt;이름&lt;/th&gt;&lt;th&gt;나이&lt;/th&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;김&lt;/td&gt;&lt;td&gt;철수&lt;/td&gt;&lt;td&gt;28&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;</pre>
+  <p>헤더 행은 <code>&lt;th&gt;</code> 2개(이름, 나이)로 처리되어 열이 2개인 표로 인식되는데, 데이터 행은 <code>&lt;td&gt;</code> 3개(김, 철수, 28)를 그대로 나열합니다. 헤더 열 수와 본문 열 수를 맞추는 로직이 없어서 다음처럼 열이 어긋난 마크다운이 출력됩니다.</p>
+  <div class="box">
+    <strong>실제 출력</strong>:<br>
+    <code>| 이름 | 나이 |</code><br>
+    <code>| --- | --- |</code><br>
+    <code>| 김 | 철수 | 28 |</code><br>
+    데이터 행의 파이프(|) 개수가 헤더보다 많아 GFM 렌더러에 따라 표가 깨지거나 마지막 열이 잘려 보입니다.
+  </div>
+  <p>즉 병합 셀이 있는 표는 변환 전에 미리 병합을 풀어서(또는 병합된 값을 각 셀에 복제해서) 입력하는 것이 안전합니다.</p>
+
+  <h2>2. 시맨틱 태그: 의미는 버리고 텍스트만 남는다</h2>
+  <p>Markdown(CommonMark)에는 강조(<code>**굵게**</code>, <code>*기울임*</code>)와 취소선(GFM의 <code>~~취소선~~</code>) 외에는 인라인 서식 문법이 없습니다. 소스 코드를 보면 <code>&lt;mark&gt;</code>(형광펜), <code>&lt;abbr&gt;</code>(약어), <code>&lt;cite&gt;</code>(출처), <code>&lt;small&gt;</code>, <code>&lt;sub&gt;</code>/<code>&lt;sup&gt;</code>(아래·위 첨자)는 전부 <code>childrenToMd(node)</code>로 그냥 자식 텍스트만 반환하도록 매핑되어 있습니다. 즉 <code>&lt;mark&gt;중요&lt;/mark&gt;</code>는 강조 표시 없이 그냥 "중요"라는 평문이 되고, H<sub>2</sub>O처럼 <code>&lt;sub&gt;</code>로 쓴 아래첨자도 "H2O"로 첨자 없는 평문이 됩니다. CommonMark 표준 자체에 첨자 문법이 없기 때문에 이는 이 도구만의 한계가 아니라 Markdown 생태계 공통의 한계입니다.</p>
+
+  <h2>3. 스타일·속성: class/id/style/data-*는 애초에 읽지 않는다</h2>
+  <p>변환 함수는 태그 이름(<code>tagName</code>)과 <code>href</code>/<code>src</code>/<code>alt</code>, 그리고 코드 블록의 언어 감지를 위한 <code>class</code> 정도만 참조합니다. 인라인 <code>style</code> 속성, <code>class</code>/<code>id</code>, <code>data-*</code>, <code>aria-*</code>, 이벤트 핸들러(<code>onclick</code> 등)는 순회 로직 자체에서 참조되지 않으므로 결과물에 반영될 여지가 없습니다. 디자인이 중요한 HTML(카드 레이아웃, 색상 강조 등)을 변환하면 시각적 정보는 전부 사라지고 콘텐츠 뼈대만 남는다고 생각하면 됩니다.</p>
+
+  <h2>4. 반전: 중첩 목록은 의외로 잘 보존된다</h2>
+  <p>정규식 기반 변환기들이 흔히 실패하는 지점이 중첩 목록인데, 이 도구는 <code>listToMd()</code> 함수가 <code>li</code>의 자식 중 <code>ul</code>/<code>ol</code>을 재귀 호출로 별도 처리하고, 재귀 깊이(depth)만큼 공백 2칸씩 들여쓰기를 누적합니다. 3단계 중첩 목록까지 실제로 정상 변환되는 것을 코드로 확인할 수 있습니다. 표와 시맨틱 태그에서는 정보가 사라지지만, 목록 구조 자체는 DOM 순회 방식 덕분에 비교적 안전하게 살아남는 예외적인 부분입니다.</p>
+
+  <h2>5. 부수 효과: javascript: 링크는 자동으로 무력화된다</h2>
+  <p>링크 변환 코드에는 <code>href.startsWith('javascript')</code>인 경우 링크 문법 대신 텍스트만 반환하는 분기가 들어 있습니다. 의도적인 보안 설계라기보다는 "이런 링크는 마크다운으로 옮길 의미가 없다"는 실용적 처리에 가깝지만, 결과적으로 <code>javascript:</code> 스킴을 이용한 악성 링크가 변환 과정에서 자동으로 제거되는 부수 효과가 있습니다.</p>
+
+  <h2 class="seo-sub">자주 묻는 질문</h2>
+  <details class="faq-item"><summary>Q. 병합된 표를 깨지지 않게 변환하려면 어떻게 해야 하나요?</summary><p>A. 변환 전에 HTML에서 <code>colspan</code>/<code>rowspan</code>을 풀어 각 셀에 값을 개별 복제해 두거나, 변환 후 출력된 Markdown 표를 열 개수 기준으로 손으로 맞춰야 합니다. 이 도구는 병합 정보를 아예 읽지 않으므로 자동 보정을 기대할 수 없습니다.</p></details>
+  <details class="faq-item"><summary>Q. 굵게·기울임 말고 다른 서식(밑줄, 형광펜, 첨자)도 유지되나요?</summary><p>A. 아니요. CommonMark/GFM에는 밑줄·형광펜·첨자 문법이 없어서 해당 태그는 서식 없이 텍스트만 남습니다. 이런 서식이 꼭 필요하다면 원본 HTML을 그대로 유지하거나, 변환 후 Markdown 안에 원시 HTML 태그를 수동으로 다시 삽입해야 합니다.</p></details>
+  <details class="faq-item"><summary>Q. CSS로 만든 디자인(카드, 배지, 색상)도 변환에 반영되나요?</summary><p>A. 아니요. class/id/style 속성은 변환 로직에서 아예 참조하지 않으므로 콘텐츠(텍스트·링크·목록·표 구조)만 남고 시각적 스타일 정보는 전부 사라집니다.</p></details>
+  <details class="faq-item"><summary>Q. 중첩된 목록도 안전하게 변환되나요?</summary><p>A. 네. 이 도구는 목록을 재귀적으로 순회하며 들여쓰기(레벨당 공백 2칸)를 정확히 계산하므로, 다단계로 중첩된 <code>&lt;ul&gt;</code>/<code>&lt;ol&gt;</code>도 표나 시맨틱 태그와 달리 구조가 잘 보존됩니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../html-to-markdown.html">→ HTML → Markdown 변환기</a>
+    <a href="../markdown-preview.html">→ 마크다운 미리보기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적입니다.</footer>
+</main>
+</body>
+</html>

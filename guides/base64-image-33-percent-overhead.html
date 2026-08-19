@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Base64 이미지, 왜 원본보다 정확히 33% 커지나 | MODOO HUB</title>
+<meta name="description" content="Base64 인코딩이 이미지 용량을 정확히 4/3배로 늘리는 수학적 이유와, 그럼에도 써야 할 때 vs 절대 쓰면 안 될 때를 실측 기준으로 정리합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/base64-image-33-percent-overhead.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Base64 이미지, 왜 원본보다 정확히 33% 커지나","description":"Base64 인코딩이 이미지 용량을 정확히 4/3배로 늘리는 수학적 이유와, 그럼에도 써야 할 때 vs 절대 쓰면 안 될 때를 실측 기준으로 정리합니다.","datePublished":"2026-08-19","dateModified":"2026-08-19","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>Base64 이미지, 왜 원본보다 정확히 33% 커지나</h1>
+  <p class="meta">가이드 · 2026-08-19 최종 확인</p>
+
+  <p>이미지를 Base64로 인코딩하면 "대략" 커지는 게 아니라 <strong>정확히 4/3배(약 33.3%)</strong> 커집니다. 이건 근사치가 아니라 인코딩 방식 자체에서 나오는 수학적으로 고정된 값입니다. 이 가이드는 왜 하필 33%인지, 그리고 이 오버헤드를 감수할 가치가 있는 상황과 절대 쓰면 안 되는 상황을 구분해서 정리합니다.</p>
+
+  <h2>1. 왜 하필 33%인가: 6비트와 8비트의 차이</h2>
+  <p>원본 바이너리 파일은 1바이트당 8비트, 즉 256가지 값을 표현합니다. 하지만 Base64는 결과를 사람이 읽고 텍스트로 안전하게 전송할 수 있는 ASCII 문자(A-Z, a-z, 0-9, +, /) 64개로만 표현해야 합니다. 64가지 값을 구분하는 데 필요한 비트 수는 log2(64) = 6비트뿐입니다. 그래서 Base64는 원본을 8비트가 아니라 <strong>6비트 단위</strong>로 잘라서, 그 6비트 조각 하나를 ASCII 문자 1개(=8비트로 저장되는 텍스트 1글자)에 담습니다.</p>
+  <p>즉 원본 3바이트(24비트)는 정확히 4개의 6비트 조각으로 나뉘고, 이 4조각이 각각 텍스트 문자 1개(8비트)가 되어 총 4바이트의 텍스트로 저장됩니다. <strong>3바이트 → 4바이트</strong>, 이 비율이 정확히 4/3 = 1.3333...이고, 이게 33.3% 증가의 정체입니다. 8비트를 6비트로 쪼개 담는 대가로 "저장 밀도"가 25% 손해(8비트 중 6비트만 활용)를 보고, 그 손해가 최종 출력 크기에서는 33% 증가로 나타나는 구조입니다.</p>
+
+  <h2>2. 정확한 계산 공식과 실측 예시</h2>
+  <p>원본이 정확히 3의 배수 바이트가 아니면 마지막에 패딩 문자(<code>=</code>)가 1~2개 붙어 4의 배수 길이를 맞춥니다. 공식은 다음과 같습니다.</p>
+  <div class="box">
+    <strong>Base64 결과 크기(바이트) = ceil(원본바이트 / 3) × 4</strong><br>
+    예: 1,000,000바이트(약 1MB) 이미지 → ceil(1,000,000/3) × 4 = 333,334 × 4 = <strong>1,333,336바이트(약 1.27MiB)</strong>
+  </div>
+  <p>여기에 Data URL로 쓰려면 <code>data:image/png;base64,</code> 같은 접두사(약 20~30바이트)까지 추가로 붙습니다. 미미한 수준이라 전체 오버헤드에는 거의 영향을 주지 않지만, 텍스트 데이터로 저장·전송된다는 점에서 원본 바이너리와는 근본적으로 다른 형태가 됩니다.</p>
+
+  <h2>3. 그럼에도 Base64를 쓰는 게 이득인 경우</h2>
+  <p>33% 손해를 감수하고도 Base64 인라인이 유리한 상황이 있습니다.</p>
+  <ul>
+    <li><strong>작은 아이콘·스프라이트</strong>: 파일 자체가 1~2KB 수준이면 33% 증가는 몇백 바이트에 불과합니다. 반면 별도 파일로 두면 HTTP 요청 1개가 추가되는데, 특히 HTTP/1.1 환경에서는 요청당 지연(latency)이 용량 증가보다 체감 손해가 큽니다.</li>
+    <li><strong>단일 HTML 파일 배포</strong>: 이메일 템플릿, 오프라인 리포트, 설치 없이 공유하는 문서처럼 "파일 하나로 완결"되어야 하는 상황에서는 외부 이미지 파일 자체가 존재할 수 없으므로 Base64가 유일한 선택지입니다.</li>
+    <li><strong>Critical CSS의 인라인 배경 이미지</strong>: 렌더링 차단 없이 최초 화면에 바로 그려야 하는 매우 작은 배경 이미지는 별도 요청을 아예 없애는 편이 낫습니다.</li>
+  </ul>
+
+  <h2>4. 절대 쓰면 안 되는 경우: 캐싱을 잃는다는 게 진짜 손실</h2>
+  <p>사진처럼 큰 이미지를 Base64로 인라인하면 33% 용량 증가보다 훨씬 치명적인 손실이 따로 있습니다. 바로 <strong>브라우저 캐싱을 잃는다</strong>는 점입니다. 별도 이미지 파일(.jpg, .png 등)은 HTTP 캐시 헤더에 따라 브라우저가 저장해뒀다가 재방문 시 재다운로드하지 않습니다. 하지만 Data URL은 HTML이나 CSS 문서 안에 텍스트로 박혀 있기 때문에, 그 이미지만 따로 캐시되는 게 아니라 <strong>부모 문서(HTML/CSS)가 캐시되거나 갱신될 때마다 통째로 다시 다운로드</strong>됩니다. 즉 방문할 때마다, 또는 CSS 파일을 한 글자만 고쳐도 그 안에 박힌 모든 이미지를 다시 받아야 하는 셈입니다.</p>
+  <p>또한 큰 Base64 문자열은 HTML/CSS 파서가 처리해야 할 문서 크기 자체를 키워 파싱·렌더링 지연을 유발하고, gzip/brotli 압축 효율도 원본 바이너리 이미지 압축(JPEG/PNG 자체 압축)보다 떨어지는 경우가 많습니다.</p>
+
+  <h2>5. 실무 기준: 어디까지가 "작은" 이미지인가</h2>
+  <p>업계에서 통용되는 대략적인 기준선은 다음과 같습니다. 절대적 규칙은 아니지만 판단 기준으로 삼기에 무난합니다.</p>
+  <table>
+    <tr><th>원본 크기</th><th>권장</th><th>이유</th></tr>
+    <tr><td>~2KB 이하</td><td>Base64 인라인 무난</td><td>요청 절약 효과 &gt; 33% 오버헤드+캐시 손실</td></tr>
+    <tr><td>2KB~10KB</td><td>상황에 따라 판단</td><td>사용 빈도(반복 노출 여부)에 따라 갈림</td></tr>
+    <tr><td>10KB 이상</td><td>별도 파일 권장</td><td>캐시 손실 효과가 요청 절약 효과를 압도</td></tr>
+  </table>
+  <p>HTTP/2·HTTP/3가 보편화되면서 "요청 수 자체를 줄여야 한다"는 과거의 압박은 많이 완화됐습니다. 멀티플렉싱 덕분에 요청 여러 개를 병렬로 받는 비용이 낮아졌기 때문에, 최근에는 특별한 이유가 없다면 사진·큰 이미지는 별도 파일로 두고 캐싱 이점을 살리는 쪽이 대체로 더 유리합니다.</p>
+
+  <h2>자주 묻는 질문</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 33%는 어떤 이미지든 항상 정확히 33%인가요?</summary><p style="margin-top:8px;">네, 인코딩 원리 자체가 원본 3바이트를 텍스트 4바이트로 바꾸는 구조라 파일 형식(PNG/JPEG/WebP)과 무관하게 항상 정확히 4/3배입니다. 다만 3으로 나누어떨어지지 않는 나머지 부분에 패딩(=)이 붙어 아주 미세하게(최대 2바이트) 더 커질 수 있습니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. gzip으로 압축하면 33% 손해를 상쇄할 수 있나요?</summary><p style="margin-top:8px;">부분적으로만 가능합니다. Base64 텍스트는 원본 바이너리 이미지(이미 JPEG/PNG 자체 압축이 적용된 상태)보다 패턴이 반복되긴 하지만, gzip이 이미지 데이터 자체를 다시 잘 압축하지는 못합니다. 오버헤드를 완전히 없애지는 못합니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Data URL과 순수 Base64 문자열, 크기 차이가 있나요?</summary><p style="margin-top:8px;">Data URL은 <code>data:image/png;base64,</code> 같은 접두사(MIME 타입 표기)가 20~30바이트 정도 추가로 붙습니다. 전체 크기에 비하면 미미하지만, 아주 작은 아이콘에서는 비율상 무시할 수 없을 수도 있습니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. SVG도 Base64로 인코딩하면 33% 커지나요?</summary><p style="margin-top:8px;">네, 동일합니다. 다만 SVG는 텍스트 기반 포맷이라 Base64 대신 URL 인코딩(<code>data:image/svg+xml,...</code>)으로 삽입하면 오버헤드를 줄일 수 있는 경우가 많습니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../base64-image.html">→ Base64 이미지 변환기</a>
+    <a href="../image-base64-encoder.html">→ 이미지 Base64 인코더</a>
+    <a href="../image-base64-decoder.html">→ 이미지 Base64 디코더</a>
+    <a href="../base64-encoder.html">→ Base64 인코더</a>
+    <a href="../base64-decoder.html">→ Base64 디코더</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적입니다.</footer>
+</main>
+</body>
+</html>

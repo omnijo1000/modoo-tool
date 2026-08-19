@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HTML 엔티티 디코더, 왜 정규식 대신 브라우저 파서를 쓰는가 | MODOO HUB</title>
+<meta name="description" content="2000개 넘는 HTML 엔티티를 정규식 없이 정확히 디코딩하는 방법. textarea의 RAWTEXT 콘텐츠 모델이 어떻게 안전하게 이 일을 대신해주는지 설명합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/html-decoder-native-parser-safety.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/html-decoder-native-parser-safety.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/html-decoder-native-parser-safety.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"HTML 엔티티 디코더, 왜 정규식 대신 브라우저 파서를 쓰는가","description":"2000개 넘는 HTML 엔티티를 정규식 없이 정확히 디코딩하는 방법. textarea의 RAWTEXT 콘텐츠 모델이 어떻게 안전하게 이 일을 대신해주는지 설명합니다.","datePublished":"2026-08-19","dateModified":"2026-08-19","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--purple);}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;}
+details summary{cursor:pointer;font-weight:600;color:var(--text-muted);}
+details p{margin-top:8px;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>HTML 엔티티 디코더, 왜 정규식 대신 브라우저 파서를 쓰는가</h1>
+  <p class="meta">가이드 · 2026-08-19 최종 확인</p>
+
+  <p><code>&amp;amp;</code>를 <code>&amp;</code>로, <code>&amp;lt;</code>를 <code>&lt;</code>로 바꾸는 건 정규식 <code>replace</code> 몇 줄로 될 것 같지만, HTML5 표준에는 <code>&amp;copy;</code>, <code>&amp;hearts;</code>, <code>&amp;alpha;</code>처럼 이름 붙은 엔티티가 2,000개 넘게 정의돼 있습니다. 이걸 전부 하드코딩하지 않고도 정확히 디코딩하는 방법이 있는데, 브라우저 자신의 HTML 파서를 그대로 빌려 쓰는 것입니다. 이 가이드는 그 트릭의 원리와, 왜 <code>&lt;div&gt;</code>가 아니라 하필 <code>&lt;textarea&gt;</code>를 쓰는지 설명합니다.</p>
+
+  <h2>1. 정규식만으로는 왜 부족한가</h2>
+  <p>HTML 엔티티는 크게 세 종류입니다. <code>&amp;lt;</code> 같은 <strong>이름 엔티티</strong>(named entity), <code>&amp;#169;</code> 같은 <strong>10진수 숫자 엔티티</strong>, <code>&amp;#x00A9;</code> 같은 <strong>16진수 숫자 엔티티</strong>입니다. 숫자 엔티티는 코드 포인트를 그대로 계산하면 되니 정규식으로도 어렵지 않지만, 이름 엔티티는 WHATWG HTML5 표준에 정의된 전체 이름 목록(2,231개, 대소문자 구분 포함하면 더 많음)을 알아야만 정확히 변환할 수 있습니다. <code>&amp;amp;</code>, <code>&amp;lt;</code>, <code>&amp;gt;</code>, <code>&amp;quot;</code> 몇 개만 손으로 매핑한 디코더는 <code>&amp;copy;</code>(©), <code>&amp;trade;</code>(™), <code>&amp;euro;</code>(€), <code>&amp;alpha;</code>(α) 같은 나머지 수천 개 엔티티를 만나면 그냥 원문 그대로 방치하거나 틀리게 처리합니다.</p>
+
+  <h2>2. 트릭: 브라우저의 HTML 파서를 그대로 빌려쓰기</h2>
+  <p>이 문제를 우회하는 방법은 직접 매핑표를 만드는 대신, 브라우저가 이미 완벽하게 구현해둔 HTML 파서에게 일을 시키는 것입니다. 디코딩할 문자열을 DOM 요소의 <code>innerHTML</code>로 대입한 뒤, 그 요소의 텍스트 콘텐츠를 다시 읽어오면 브라우저의 표준 엔티티 테이블 전체가 적용된 결과를 그대로 얻을 수 있습니다. 브라우저는 스펙에 정의된 모든 이름 엔티티, 숫자 엔티티, 16진수 엔티티를 완벽하게 알고 있으므로, 별도의 매핑 데이터를 유지보수할 필요가 없습니다.</p>
+
+  <h2>3. 왜 하필 &lt;div&gt;가 아니라 &lt;textarea&gt;인가</h2>
+  <p>여기서 중요한 선택이 하나 있습니다. 같은 트릭을 <code>&lt;div&gt;</code>에 적용해도 엔티티 디코딩 자체는 똑같이 됩니다. 문제는 안전성입니다. HTML5 파싱 스펙은 요소마다 다른 "콘텐츠 모델"을 정의하는데, <code>&lt;div&gt;</code>는 일반 콘텐츠 모델이라 <code>innerHTML</code>에 들어간 문자열 속에 <code>&lt;script&gt;</code>나 <code>&lt;img onerror=...&gt;</code> 같은 실제 태그가 있으면 브라우저가 그걸 진짜 자식 DOM 요소로 파싱해버립니다 — 이후 그 결과를 화면에 다시 렌더링하면 스크립트가 실행될 수 있는 XSS 경로가 열립니다. 반면 <code>&lt;textarea&gt;</code>는 HTML5 스펙에서 <strong>RAWTEXT 콘텐츠 모델</strong>로 분류됩니다. RAWTEXT 요소는 닫는 태그를 만나기 전까지 안의 모든 내용을 순수 텍스트로만 취급하고, 그 안에 있는 <code>&lt;script&gt;</code> 같은 문자열도 절대 별도의 살아있는 DOM 요소로 파싱하지 않습니다. 즉 엔티티는 정확히 디코딩되면서도, 그 결과에 우연히 태그처럼 생긴 문자열이 섞여 있어도 실행 가능한 요소로 둔갑하지 않는다는 안전장치가 구조적으로 내장돼 있는 것입니다.</p>
+  <div class="box">
+    <strong>이 사이트의 실제 구현</strong>: <code>html-decoder.html</code>은 정확히 이 방식을 씁니다. <code>const ta = document.createElement('textarea'); ta.innerHTML = text; const decoded = ta.value;</code> — 임시 textarea를 만들어 innerHTML로 원문을 넣고, <code>.value</code>로 디코딩된 순수 텍스트만 다시 꺼냅니다. 이 임시 요소는 DOM에 붙지도 않고 화면에 렌더링되지도 않으므로 부작용이 전혀 없습니다.
+  </div>
+
+  <h2>4. 실무에서 흔히 놓치는 것: 디코딩 이후가 더 중요하다</h2>
+  <p>여기서 꼭 짚어야 할 점은, "엔티티 디코딩 자체"는 위 방식으로 완전히 안전하다는 것입니다. 위험은 디코딩된 <em>결과</em>를 다시 어떻게 쓰느냐에서 생깁니다. 디코딩된 텍스트를 화면에 표시할 때 <code>textContent</code>로 넣으면 항상 안전하지만, 만약 그 결과를 다시 <code>innerHTML</code>로 삽입한다면 이번엔 진짜로 태그가 파싱·실행될 수 있습니다. 즉 "디코딩 함수"는 안전해도 "디코딩한 값을 어디에 넣는지"는 별개의 보안 결정이라는 점을 기억해야 합니다.</p>
+
+  <h2>5. 숫자 엔티티의 자잘한 예외</h2>
+  <p>HTML5 파싱 스펙은 숫자 참조 중 일부를 그대로 통과시키지 않습니다. 예를 들어 <code>&amp;#0;</code>처럼 널(null) 코드 포인트를 가리키는 참조나, 서로게이트 범위(U+D800~U+DFFF)에 해당하는 값은 파싱 오류로 취급돼 유니코드 대체 문자(U+FFFD, �)로 치환됩니다. 이런 경계 케이스는 브라우저 파서에 맡기면 스펙에 정의된 대로 자동 처리되지만, 직접 정규식으로 숫자 엔티티를 디코딩하는 코드를 짠다면 이런 예외를 스스로 챙겨야 합니다.</p>
+
+  <h2>자주 묻는 질문</h2>
+  <details><summary>Q. 이름 엔티티를 전부 하드코딩하면 안 되나요?</summary><p>A. 가능은 하지만 2,000개가 넘는 표준 엔티티(그리고 대소문자를 구분하는 변형까지 포함하면 더 많음)를 유지보수해야 하고, HTML5 표준이 갱신되면 다시 손봐야 합니다. 브라우저 파서를 빌리면 이 유지보수 부담이 아예 사라집니다.</p></details>
+  <details><summary>Q. div 대신 textarea를 쓰면 정말 실행 위험이 없나요?</summary><p>A. 네. textarea는 HTML5 스펙상 RAWTEXT 콘텐츠 모델이라, innerHTML로 들어간 내용 중 무엇도 실제 자식 DOM 노드로 파싱되지 않습니다. script 태그 문자열이 들어가도 실행되지 않고 그냥 텍스트로 취급됩니다.</p></details>
+  <details><summary>Q. 디코딩 결과를 innerHTML로 다시 넣어도 되나요?</summary><p>A. 권장하지 않습니다. 디코딩 자체는 안전하지만, 그 결과 문자열에 우연히 태그가 들어있었다면 innerHTML로 삽입하는 순간 진짜 DOM 요소로 파싱되어 실행될 수 있습니다. 화면에 텍스트로만 표시할 목적이라면 항상 textContent를 쓰세요.</p></details>
+  <details><summary>Q. 이중 인코딩된 문자열은 어떻게 처리하나요?</summary><p>A. 이 방식은 한 번의 패스로 한 겹의 인코딩만 풉니다. 원문이 두 번 인코딩됐다면(예: <code>&amp;lt;</code>가 다시 인코딩돼 <code>&amp;amp;lt;</code>가 된 경우) 디코더를 두 번 연속 실행해야 완전히 원래 텍스트로 돌아갑니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../html-decoder.html">→ HTML 엔티티 디코더</a>
+    <a href="../html-encoder.html">→ HTML 엔티티 인코더</a>
+    <a href="../url-decoder.html">→ URL 디코더</a>
+    <a href="../url-encoder.html">→ URL 인코더</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적입니다.</footer>
+</main>
+</body>
+</html>

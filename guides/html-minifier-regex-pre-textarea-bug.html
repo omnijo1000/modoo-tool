@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>정규식 기반 HTML 압축기가 실패하는 지점 — pre·textarea 공백 붕괴 | MODOO HUB</title>
+<meta name="description" content="정규식으로 동작하는 HTML 압축기가 pre·textarea 태그 안의 의미 있는 공백까지 뭉개버리는 이유와, 실제 파서 기반 압축기와의 차이를 설명합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/html-minifier-regex-pre-textarea-bug.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"정규식 기반 HTML 압축기가 실패하는 지점 — pre·textarea 공백 붕괴","description":"정규식으로 동작하는 HTML 압축기가 pre·textarea 태그 안의 의미 있는 공백까지 뭉개버리는 이유와, 실제 파서 기반 압축기와의 차이를 설명합니다.","datePublished":"2026-08-19","dateModified":"2026-08-19","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--purple);}
+pre{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;overflow-x:auto;font-family:'DM Mono',monospace;font-size:12px;color:#ccc;margin:14px 0;line-height:1.6;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;}
+details summary{cursor:pointer;font-weight:600;color:var(--text-muted);}
+details p{margin-top:8px;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>정규식 기반 HTML 압축기가 실패하는 지점 — pre·textarea 공백 붕괴</h1>
+  <p class="meta">가이드 · 2026-08-19 최종 확인</p>
+
+  <p>HTML을 압축(minify)한다는 건 결국 "의미 없는 공백을 지운다"는 뜻입니다. 그런데 문제는 HTML에서 "의미 없는 공백"과 "의미 있는 공백"을 구분하려면 태그를 이해해야 한다는 점입니다. 이 가이드는 정규식만으로 동작하는 압축기가 왜 이 구분을 못 하는지, 그리고 그게 실제로 어떤 화면 깨짐으로 이어지는지 설명합니다.</p>
+
+  <h2>1. 진짜 파서 vs 정규식 치환</h2>
+  <p>HTML을 제대로 압축하려면 원래는 문서를 파싱해서 각 태그가 "일반 요소"인지 "raw text 요소"(내용을 있는 그대로 취급해야 하는 태그)인지 구분해야 합니다. 하지만 이 도구는 DOM 트리를 전혀 만들지 않습니다. 대신 입력된 텍스트 전체에 정규식을 순서대로 적용합니다: 주석 제거(<code>&lt;!--...--&gt;</code> 패턴 삭제), 줄바꿈 제거(모든 개행을 공백 하나로), 태그 간 공백 제거(<code>&gt;   &lt;</code> → <code>&gt;&lt;</code>), 속성 공백 정규화(연속 공백 2칸 이상 → 1칸). 이 네 단계 어디에도 "지금 이 위치가 pre 태그 안인가"를 확인하는 로직이 없습니다. 정규식은 문자열만 보지, 그 문자열이 어떤 태그 안에 있는지는 전혀 모릅니다.</p>
+
+  <h2>2. 왜 pre·textarea에서 문제가 되나</h2>
+  <p><code>&lt;pre&gt;</code> 태그는 HTML 명세상 "화이트스페이스를 그대로 보존해서 렌더링하라"는 지시입니다. 코드 블록을 표시할 때 들여쓰기·줄바꿈이 그대로 유지되어야 하는 이유가 이것입니다. <code>&lt;textarea&gt;</code>도 마찬가지로 내부 텍스트가 그 입력 필드의 기본값으로 그대로 쓰이며, 줄바꿈과 연속 공백이 실제 값의 일부입니다. 그런데 이 압축기의 "줄바꿈 제거" 옵션은 문서 전체의 개행을 공백으로 바꾸고, "속성 공백 정규화"는 연속 공백을 한 칸으로 줄이는데, 둘 다 지금이 pre/textarea 안인지 밖인지 구분하지 않고 문서 전체에 똑같이 적용됩니다. 결과적으로 코드 블록의 들여쓰기가 전부 한 줄로 뭉개지거나, textarea의 초기값에 있던 개행이 사라집니다.</p>
+  <div class="box">
+    <strong>예시</strong>: <pre>&lt;pre&gt;
+function add(a, b) {
+    return a + b;
+}
+&lt;/pre&gt;</pre>
+    "줄바꿈 제거"를 켜면 이 코드 블록은 <code>function add(a, b) {     return a + b; }</code> 처럼 한 줄로 뭉개져서, 화면에는 들여쓰기도 줄 구분도 없는 코드가 그대로 표시됩니다. 사람이 읽던 코드 스니펫이 압축 한 번에 못 알아보게 변합니다.
+  </div>
+
+  <h2>3. 실제 파서 기반 압축기는 어떻게 다른가</h2>
+  <p>html-minifier-terser 같은 실제 프로덕션용 라이브러리는 HTML을 진짜로 토큰화·파싱해서, 각 요소가 "raw text 요소"(pre, textarea, script, style 등)인지 판단한 뒤 그 안에서는 공백 압축 로직을 아예 건너뜁니다. 게다가 script·style 내부는 별도로 JS/CSS 문법을 이해하는 압축기(terser, cssnano 등)에 넘겨 안전하게 압축합니다. 이 사이트의 도구는 그 반대로, script·style 내부 코드도 HTML 전체와 동일한 정규식으로 처리하기 때문에 문법적으로 안전한 압축이 아닙니다 — 그래서 도구 자체 FAQ에서도 JS는 javascript-minifier, CSS는 css-minifier를 따로 쓰라고 안내하고 있습니다.</p>
+
+  <h2>4. IE 조건부 주석 같은 다른 함정</h2>
+  <p>공백뿐 아니라 주석 제거도 같은 구조적 한계를 가집니다. <code>&lt;!--[if IE]&gt;...&lt;![endif]--&gt;</code> 같은 IE 조건부 주석은 문법적으로는 HTML 주석이지만 실제로 브라우저 동작에 영향을 주는 코드입니다. 이 도구의 주석 제거 정규식은 일반 주석과 조건부 주석을 구분하지 못하므로, 그런 코드가 있는 파일은 주석 제거 옵션 자체를 꺼야 안전합니다.</p>
+
+  <h2>5. 실무에서 이 도구를 안전하게 쓰는 법</h2>
+  <ul>
+    <li><strong>pre/textarea에 의미 있는 공백이 있는 페이지</strong>: 이 도구로 전체 문서를 압축하지 말고, 해당 블록은 미리 빼뒀다가 나중에 다시 끼워 넣으세요.</li>
+    <li><strong>IE 조건부 주석이 있는 레거시 코드</strong>: 주석 제거 옵션을 끄고 압축하세요.</li>
+    <li><strong>빌드 파이프라인에 자동으로 넣어야 하는 경우</strong>: 이 도구는 일회성 확인용으로만 쓰고, 실제 배포 자동화에는 html-minifier-terser나 webpack의 HtmlWebpackPlugin처럼 태그 문맥을 이해하는 라이브러리를 쓰세요.</li>
+  </ul>
+
+  <h2>자주 묻는 질문</h2>
+  <details><summary>Q. 이 압축기는 실제 HTML 파서를 쓰나요?</summary><p>A. 아니요. DOM 트리를 만들어 태그 구조를 이해하는 방식이 아니라, 정규식으로 텍스트를 순서대로 치환하는 방식입니다. 그래서 빠르지만 pre/textarea/조건부 주석처럼 문맥이 중요한 경우를 구분하지 못합니다.</p></details>
+  <details><summary>Q. pre 태그 안 코드가 압축 후 왜 한 줄로 붙나요?</summary><p>A. "줄바꿈 제거"와 "속성 공백 정규화" 옵션이 문서 전체의 개행·연속 공백을 태그 구분 없이 똑같이 처리하기 때문입니다. pre 태그 안은 원래 공백이 보존돼야 하는데 이 도구는 그 예외를 두지 않습니다.</p></details>
+  <details><summary>Q. script·style 태그 내부도 이 도구로 안전하게 압축되나요?</summary><p>A. 문법에 맞는 안전한 압축(변수명 유지, 세미콜론 자동 삽입 등)은 하지 않습니다. HTML 전체를 하나의 텍스트로 취급해 개행·공백만 정리하므로, 실제 JS/CSS 압축이 필요하면 javascript-minifier·css-minifier를 별도로 쓰는 게 안전합니다.</p></details>
+  <details><summary>Q. 그럼 이 도구는 언제 쓰면 되나요?</summary><p>A. pre/textarea가 없고 조건부 주석 같은 특수 코드가 없는 일반적인 HTML을 빠르게 한 번 압축해볼 때는 충분합니다. 코드 스니펫이 들어간 페이지나 자동화된 빌드 파이프라인에는 파서 기반 라이브러리를 쓰는 게 안전합니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../html-minifier.html">→ HTML 압축기</a>
+    <a href="../css-minifier.html">→ CSS 압축기</a>
+    <a href="../javascript-minifier.html">→ JavaScript 압축기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적입니다.</footer>
+</main>
+</body>
+</html>

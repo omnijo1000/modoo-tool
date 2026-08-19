@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SVG 미리보기에서 script 태그가 실행 안 되는 이유 — img+Blob 방식의 안전장치 | MODOO HUB</title>
+<meta name="description" content="SVG는 XML이라 script 태그를 담을 수 있는데, 왜 브라우저 SVG 뷰어에서는 실행되지 않는지 img+Blob 렌더링 방식으로 설명합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/svg-viewer-script-execution-blocked.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/svg-viewer-script-execution-blocked.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/svg-viewer-script-execution-blocked.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"SVG 미리보기에서 script 태그가 실행 안 되는 이유 — img+Blob 방식의 안전장치","description":"SVG는 XML이라 script 태그를 담을 수 있는데, 왜 브라우저 SVG 뷰어에서는 실행되지 않는지 img+Blob 렌더링 방식으로 설명합니다.","datePublished":"2026-08-19","dateModified":"2026-08-19","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--purple);}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;}
+details summary{cursor:pointer;font-weight:600;color:var(--text-muted);}
+details p{margin-top:8px;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>SVG 미리보기에서 script 태그가 실행 안 되는 이유 — img+Blob 방식의 안전장치</h1>
+  <p class="meta">가이드 · 2026-08-19 최종 확인</p>
+
+  <p>SVG는 이미지 포맷이면서 동시에 XML 문서입니다. 그리고 XML 문서 안에는 <code>&lt;script&gt;</code> 태그와 <code>onload</code>, <code>onclick</code> 같은 이벤트 핸들러 속성을 넣을 수 있습니다. 즉 SVG 파일 하나가 사실상 작은 웹페이지처럼 동작할 수 있다는 뜻이고, 이건 출처를 모르는 SVG를 함부로 열었을 때 실제로 악용될 수 있는 잘 알려진 XSS(크로스사이트 스크립팅) 공격 벡터입니다. 그런데 이 사이트의 SVG 뷰어를 포함한 대부분의 안전한 SVG 미리보기 도구는 스크립트가 든 SVG를 붙여넣어도 아무 일도 일어나지 않습니다. 왜 그럴까요?</p>
+
+  <h2>1. SVG는 원래 스크립트를 실행할 수 있는 포맷이다</h2>
+  <p>브라우저 주소창에 SVG 파일을 직접 열거나, HTML 문서 안에 <code>&lt;object&gt;</code>·<code>&lt;iframe&gt;</code>·<code>&lt;embed&gt;</code> 태그로 SVG를 삽입하면, 그 SVG는 완전한 독립 문서(document context)로 취급됩니다. 이 경우 내부의 <code>&lt;script&gt;</code> 태그와 이벤트 핸들러가 그대로 실행됩니다. 마찬가지로 SVG 마크업 문자열을 <code>innerHTML</code>로 DOM에 직접 삽입해도 스크립트가 실행됩니다. 사용자가 붙여넣은 SVG 코드를 이런 방식으로 렌더링하는 도구는 그 자체로 XSS 공격에 노출됩니다.</p>
+
+  <h2>2. 이 도구가 쓰는 방어 기법: img + Blob</h2>
+  <p>이 사이트의 SVG 뷰어는 입력된 코드를 먼저 <code>DOMParser</code>로 파싱해 문법 오류(<code>&lt;parsererror&gt;</code>)가 있는지 검사합니다. 파싱에 성공하면, 원본 코드 문자열을 그대로 <strong><code>Blob</code></strong>(MIME 타입 <code>image/svg+xml</code>)으로 감싸고, <code>URL.createObjectURL()</code>로 만든 임시 URL을 <code>&lt;img&gt;</code> 태그의 <code>src</code>에 넣어 표시합니다. 핵심은 여기에 있습니다 — 브라우저는 <strong><code>&lt;img&gt;</code> 태그로 로드된 리소스를 "정적 이미지 컨텍스트"로 취급</strong>하도록 스펙에 정의돼 있고, 이 컨텍스트에서는 그 이미지가 SVG(XML)라 하더라도 내부의 스크립트나 이벤트 핸들러가 절대 실행되지 않습니다. 이건 우연히 그렇게 동작하는 게 아니라, 브라우저 벤더들이 의도적으로 정한 보안 경계입니다.</p>
+  <div class="box">
+    <strong>왜 안전한가</strong>: <code>&lt;img src="blob:..."&gt;</code>로 불러온 SVG는 렌더링(모양을 그리는 것)만 되고, 그 안의 코드가 "실행"되는 문서 컨텍스트 자체가 아예 생성되지 않습니다. img로 SVG를 로드하는 것은 사실상 png·jpg 같은 래스터 이미지를 로드하는 것과 동일한 보안 취급을 받습니다.
+  </div>
+
+  <h2>3. 반대로 위험한 방식들</h2>
+  <table>
+    <tr><th>렌더링 방식</th><th>스크립트 실행 여부</th></tr>
+    <tr><td><code>&lt;img src="..."&gt;</code> (Blob URL / data URI)</td><td>❌ 실행 안 됨 — 안전</td></tr>
+    <tr><td><code>element.innerHTML = svgCode</code></td><td>✅ 실행됨 — 위험</td></tr>
+    <tr><td><code>&lt;object data="..." type="image/svg+xml"&gt;</code></td><td>✅ 실행됨 — 위험</td></tr>
+    <tr><td><code>&lt;iframe src="..."&gt;</code></td><td>✅ 실행됨 — 위험 (단, cross-origin 격리는 있음)</td></tr>
+    <tr><td>CSS <code>background-image: url(...)</code></td><td>❌ 실행 안 됨 — 안전</td></tr>
+  </table>
+  <p><code>&lt;object&gt;</code>·<code>&lt;iframe&gt;</code>은 SVG를 완전한 독립 문서로 취급하기 때문에 스크립트가 살아납니다. 반면 <code>&lt;img&gt;</code>와 CSS <code>background-image</code>는 SVG를 순수한 그림으로만 취급합니다. 사용자가 업로드하거나 붙여넣은 SVG를 미리보기로 보여줘야 하는 웹서비스를 만든다면, 반드시 <code>&lt;img&gt;</code> 방식을 써야 합니다.</p>
+
+  <h2>4. 줌 기능이 화질 저하 없이 동작하는 이유(덤)</h2>
+  <p>이 도구의 줌 기능은 이미지를 다시 렌더링하는 게 아니라 CSS <code>transform:scale()</code>로 이미 표시된 요소를 확대·축소합니다. SVG는 픽셀이 아니라 수학적 경로(path)로 정의된 벡터 포맷이라, 4배까지 확대해도 래스터 이미지처럼 계단현상(pixelation)이 생기지 않고 선명하게 유지됩니다.</p>
+
+  <h2>5. 인라인 SVG가 꼭 필요한 경우엔?</h2>
+  <p>애니메이션 상호작용이나 CSS 스타일링이 SVG 내부 요소 단위로 필요해서 어쩔 수 없이 인라인으로 삽입해야 하는 경우도 있습니다. 이럴 땐 img 방식을 포기하는 대신, DOMPurify 같은 라이브러리의 SVG 프로필(<code>USE_PROFILES: {svg: true}</code>)로 <code>&lt;script&gt;</code>·이벤트핸들러·<code>&lt;foreignObject&gt;</code> 등 위험 요소를 제거한 뒤 삽입하는 방식이 표준적인 대안입니다.</p>
+
+  <h2>자주 묻는 질문</h2>
+  <details><summary>Q. SVG 안에 스크립트 태그가 있으면 실행되나요?</summary><p>A. 이 도구에서는 실행되지 않습니다. 파싱에 성공한 코드를 Blob으로 감싸 &lt;img&gt; 태그의 src로 표시하는데, 브라우저는 이미지로 로드된 SVG의 스크립트와 이벤트 핸들러를 원천적으로 차단합니다.</p></details>
+  <details><summary>Q. CSS 애니메이션이나 SMIL 애니메이션이 든 SVG도 재생되나요?</summary><p>A. 네. img 태그로 표시되는 SVG는 스크립트만 차단될 뿐, CSS 애니메이션과 SMIL(&lt;animate&gt; 등) 애니메이션은 이미지 자체의 렌더링 기능이라 정상적으로 재생됩니다.</p></details>
+  <details><summary>Q. 그럼 이 방식이면 100% 안전한가요?</summary><p>A. 스크립트 실행이라는 관점에서는 안전합니다. 다만 img+Blob 방식이 XSS는 막아주지만, 외부 리소스를 참조하는 SVG(&lt;image xlink:href="외부URL"&gt; 등)의 경우 그 리소스 요청 자체는 발생할 수 있어, 극도로 민감한 서비스라면 별도의 콘텐츠 검증이 추가로 필요할 수 있습니다.</p></details>
+  <details><summary>Q. innerHTML로 SVG를 넣는 도구는 다 위험한가요?</summary><p>A. 사용자가 직접 입력한 SVG를 검증·정화(sanitize) 없이 innerHTML로 그대로 삽입하는 도구라면 위험합니다. 다만 서비스가 자체 생성한(사용자 입력이 섞이지 않은) SVG를 삽입하는 경우라면 위험이 없습니다 — 위험은 "신뢰할 수 없는 입력"을 그대로 실행 가능한 컨텍스트에 넣을 때 발생합니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../svg-viewer.html">→ SVG 뷰어</a>
+    <a href="../svg-to-png.html">→ SVG to PNG 변환기</a>
+    <a href="../svg-minifier.html">→ SVG 압축기</a>
+    <a href="../svg-cleaner.html">→ SVG 클리너</a>
+    <a href="../svg-optimizer.html">→ SVG 최적화 도구</a>
+    <a href="../png-to-svg.html">→ PNG to SVG 변환기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적입니다.</footer>
+</main>
+</body>
+</html>

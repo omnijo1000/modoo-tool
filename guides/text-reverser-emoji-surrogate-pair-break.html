@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>텍스트를 뒤집으면 왜 이모지가 깨지는가 — 서로게이트 쌍의 함정 | MODOO HUB</title>
+<meta name="description" content="문자열을 .length나 split('')으로 뒤집으면 이모지가 왜 깨지는지, UTF-16 서로게이트 쌍과 코드포인트 단위 반전의 차이로 설명합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/text-reverser-emoji-surrogate-pair-break.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/text-reverser-emoji-surrogate-pair-break.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/text-reverser-emoji-surrogate-pair-break.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"텍스트를 뒤집으면 왜 이모지가 깨지는가 — 서로게이트 쌍의 함정","description":"문자열을 .length나 split('')으로 뒤집으면 이모지가 왜 깨지는지, UTF-16 서로게이트 쌍과 코드포인트 단위 반전의 차이로 설명합니다.","datePublished":"2026-08-19","dateModified":"2026-08-19","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--purple);}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;}
+details summary{cursor:pointer;font-weight:600;color:var(--text-muted);}
+details p{margin-top:8px;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>텍스트를 뒤집으면 왜 이모지가 깨지는가 — 서로게이트 쌍의 함정</h1>
+  <p class="meta">가이드 · 2026-08-19 최종 확인</p>
+
+  <p>"Hi😀!"를 뒤집었더니 이모지 대신 깨진 네모(□)나 물음표가 나온 경험이 있다면, 그건 우연한 버그가 아니라 자바스크립트 문자열이 내부적으로 어떻게 저장되는지에서 비롯된 예정된 함정입니다. 이 가이드는 왜 순진하게 짠 문자열 반전 코드가 이모지를 깨뜨리는지, 그리고 어떻게 고치는지 설명합니다.</p>
+
+  <h2>1. 자바스크립트 문자열의 진짜 단위: UTF-16 코드유닛</h2>
+  <p>자바스크립트 문자열은 사람이 생각하는 "글자" 단위가 아니라 <strong>UTF-16 코드유닛(code unit)</strong> 단위로 저장됩니다. 알파벳·한글 대부분·기본 특수문자는 코드유닛 1개로 표현되지만, 대부분의 이모지와 일부 희귀 한자는 유니코드 코드포인트가 U+FFFF를 넘는 영역(Supplementary Plane)에 있어서 코드유닛 <strong>2개가 한 쌍</strong>으로 묶여야만 의미를 가집니다. 이 쌍을 <strong>서로게이트 쌍(surrogate pair)</strong>이라 부릅니다. 하이 서로게이트(High Surrogate)와 로우 서로게이트(Low Surrogate)가 정해진 순서로 붙어 있을 때만 브라우저가 이를 하나의 이모지로 렌더링합니다.</p>
+
+  <h2>2. 문제가 터지는 지점: split('')과 .length</h2>
+  <p>많은 문자열 반전 코드가 <code>str.split('').reverse().join('')</code> 형태로 짜여 있습니다. 여기서 <code>split('')</code>은 문자열을 "코드유닛" 단위로 쪼갭니다 — 사람이 보는 "글자" 단위가 아닙니다. 이모지 하나가 코드유닛 2개(서로게이트 쌍)로 이루어져 있다면, <code>split('')</code>은 이 쌍을 강제로 둘로 쪼개버립니다. 그 상태에서 <code>.reverse()</code>를 하면 원래 붙어있던 하이/로우 서로게이트가 서로 떨어지거나 순서가 뒤바뀌어, 어느 쪽이든 "쌍이 안 맞는" 상태가 됩니다. 쌍이 안 맞는 서로게이트는 유효한 문자를 가리키지 않으므로 브라우저는 이를 깨진 문자(□, replacement character 등)로 표시합니다.</p>
+  <div class="box">
+    <strong>개념적 예시</strong>: <code>"Hi😀!"</code>는 코드유닛 기준으로 <code>['H','i','😀'의 하이서로게이트,'😀'의 로우서로게이트,'!']</code> 5개로 쪼개집니다. 이걸 그대로 <code>.reverse()</code>하면 <code>['!', 로우서로게이트, 하이서로게이트, 'i', 'H']</code>가 되는데, 로우서로게이트가 하이서로게이트보다 <strong>앞</strong>에 오는 순서는 유효하지 않은 서로게이트 배열이라 이모지가 깨집니다.
+  </div>
+
+  <h2>3. 올바른 해법: 코드포인트 단위 반전</h2>
+  <p>ECMAScript(자바스크립트 표준) 스펙은 <code>[...str]</code> 스프레드 문법과 <code>Array.from(str)</code>을 문자열의 <strong>코드포인트(code point)</strong> 단위로 순회하도록 정의합니다. 즉 서로게이트 쌍을 자동으로 인식해서 하나의 단위로 묶어줍니다. <code>[...str].reverse().join('')</code>으로 바꾸면, 서로게이트 쌍이 통째로 이동하기 때문에 하이/로우 순서가 유지되고 이모지가 깨지지 않습니다.</p>
+  <table>
+    <tr><th>방식</th><th>분해 단위</th><th>이모지 안전성</th></tr>
+    <tr><td><code>str.split('')</code></td><td>UTF-16 코드유닛</td><td>❌ 서로게이트 쌍 분리 위험</td></tr>
+    <tr><td><code>[...str]</code> / <code>Array.from(str)</code></td><td>유니코드 코드포인트</td><td>✅ 서로게이트 쌍 보존</td></tr>
+    <tr><td><code>Intl.Segmenter</code></td><td>그래프임 클러스터(사람이 보는 "글자")</td><td>✅✅ ZWJ 합성 이모지까지 보존</td></tr>
+  </table>
+
+  <h2>4. 코드포인트 반전으로도 못 막는 것: 그래프임 클러스터</h2>
+  <p>다만 <code>[...str]</code>이 만능은 아닙니다. 국기 이모지(🇰🇷)는 지역 표시 기호(Regional Indicator) 코드포인트 2개가 나란히 붙어 하나의 국기로 렌더링되는데, 이 둘은 서로게이트 쌍이 아니라 <strong>서로 다른 두 개의 코드포인트</strong>라서 코드포인트 단위 반전에서도 따로따로 취급됩니다. 가족 이모지(👨‍👩‍👧‍👦)처럼 ZWJ(zero-width joiner)로 여러 이모지를 하나로 합친 경우도 마찬가지입니다. 이런 "사람이 보는 진짜 한 글자(그래프임 클러스터)"까지 정확히 보존하려면 더 최신 API인 <code>Intl.Segmenter</code>가 필요합니다 — 코드포인트보다 한 단계 더 높은 수준에서 텍스트를 분해해줍니다.</p>
+
+  <h2>5. 이 도구는 어떻게 처리하는가</h2>
+  <p>modoohub의 텍스트 뒤집기 도구는 실제 소스 코드에서 <code>[...input].reverse().join('')</code> 방식(텍스트 전체 뒤집기)과 각 단어에 대해서도 <code>[...seg].reverse().join('')</code> 방식(단어별 뒤집기)을 사용합니다. 즉 처음부터 <code>split('')</code>이 아니라 스프레드 연산자로 코드포인트 단위 반전을 적용하고 있어, 일반적인 이모지(서로게이트 쌍으로 구성된 것)는 깨지지 않고 그대로 유지됩니다. 다만 위에서 설명한 국기·ZWJ 합성 이모지처럼 여러 코드포인트로 이루어진 그래프임 클러스터는 <code>Intl.Segmenter</code> 없이는 순서가 흐트러질 수 있다는 점은 이 도구를 포함한 코드포인트 단위 반전 방식 전반의 공통적인 한계입니다.</p>
+
+  <h2>자주 묻는 질문</h2>
+  <details><summary>Q. 왜 하필 이모지에서만 이 문제가 생기나요?</summary><p>A. 영어·한글 대부분의 글자는 유니코드 코드포인트가 U+FFFF 이하라서 UTF-16 코드유닛 1개로 표현됩니다. 반면 대부분의 이모지는 코드포인트가 U+FFFF를 넘는 영역(예: 😀는 U+1F600)에 있어서 코드유닛 2개(서로게이트 쌍)가 필요합니다. 그래서 코드유닛 단위로 자르는 연산에서만 이 문제가 터집니다.</p></details>
+  <details><summary>Q. .length로 이모지 개수를 세면 왜 틀리나요?</summary><p>A. <code>.length</code>는 코드유닛 개수를 반환하므로, 서로게이트 쌍으로 이루어진 이모지 하나는 길이 2로 계산됩니다. "😀".length는 1이 아니라 2입니다. 정확한 "글자 수"를 세려면 [...str].length나 Intl.Segmenter를 써야 합니다.</p></details>
+  <details><summary>Q. modoohub 텍스트 뒤집기 도구는 이 버그가 있나요?</summary><p>A. 없습니다. 이 도구는 처음부터 [...text] 스프레드 연산자로 코드포인트 단위 반전을 구현하고 있어 일반적인 이모지는 깨지지 않습니다. 다만 국기 이모지나 ZWJ 합성 이모지처럼 여러 코드포인트가 결합된 경우는 코드포인트 단위 반전의 공통적인 한계로 순서가 흐트러질 수 있습니다.</p></details>
+  <details><summary>Q. 팰린드롬(회문) 검사도 같은 문제를 겪나요?</summary><p>A. 네. split('')과 reverse()로 팰린드롬을 검사하는 코드는 이모지가 포함된 문자열에서 잘못된 결과를 낼 수 있습니다. 코드포인트 단위 비교를 쓰거나 전용 <a href="../palindrome-checker.html">팰린드롬 체커</a>를 사용하는 것이 안전합니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../text-reverser.html">→ 텍스트 뒤집기</a>
+    <a href="../unicode-inspector.html">→ 유니코드 검사기</a>
+    <a href="../emoji-counter.html">→ 이모지 카운터</a>
+    <a href="../emoji-remover.html">→ 이모지 제거기</a>
+    <a href="../palindrome-checker.html">→ 팰린드롬 체커</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적입니다.</footer>
+</main>
+</body>
+</html>

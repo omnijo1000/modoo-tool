@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JSON 배열 비교의 함정 — 인덱스 diff가 중간 삽입에서 틀리는 이유 | MODOO HUB</title>
+<meta name="description" content="JSON diff 도구가 배열 중간에 요소가 하나 끼어들면 왜 그 뒤 전부를 '변경'으로 잘못 표시하는지, 인덱스 비교와 LCS 정렬의 차이로 설명합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/json-array-diff-index-vs-lcs.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/json-array-diff-index-vs-lcs.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/json-array-diff-index-vs-lcs.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"JSON 배열 비교의 함정 — 인덱스 diff가 중간 삽입에서 틀리는 이유","description":"JSON diff 도구가 배열 중간에 요소가 하나 끼어들면 왜 그 뒤 전부를 '변경'으로 잘못 표시하는지, 인덱스 비교와 LCS 정렬의 차이로 설명합니다.","datePublished":"2026-08-19","dateModified":"2026-08-19","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--purple);}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;}
+details summary{cursor:pointer;font-weight:600;color:var(--text-muted);}
+details p{margin-top:8px;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>JSON 배열 비교의 함정 — 인덱스 diff가 중간 삽입에서 틀리는 이유</h1>
+  <p class="meta">가이드 · 2026-08-19 최종 확인</p>
+
+  <p>두 JSON을 비교했는데 분명 배열 맨 앞에 항목 하나만 추가했을 뿐인데 diff 결과에 "변경됨"이 수십 줄씩 뜨는 걸 본 적 있다면, 그건 도구가 고장난 게 아니라 <strong>인덱스 기반 비교</strong>라는 설계 방식의 예정된 부작용입니다. 이 가이드는 JSON 배열 diff가 왜 이런 식으로 동작하는지, 그리고 git diff 같은 도구는 왜 같은 문제를 겪지 않는지 알고리즘 수준에서 설명합니다.</p>
+
+  <h2>1. 인덱스 대응 방식이란 무엇인가</h2>
+  <p>객체를 비교할 때는 키 이름으로 대응시키면 되니 문제가 단순합니다. <code>{"name":"Alice"}</code>과 <code>{"name":"Bob"}</code>을 비교하면 "name"이라는 같은 키를 찾아 값만 다르다고 판단하면 끝입니다. 그런데 배열에는 이름이 없습니다. <code>["a","b","c"]</code>의 각 요소를 무엇으로 구분할까요? 가장 단순한 해법은 배열 인덱스(0, 1, 2...)를 마치 객체의 키처럼 취급하는 것입니다. 즉 <code>arr1[0]</code>과 <code>arr2[0]</code>을 비교하고, <code>arr1[1]</code>과 <code>arr2[1]</code>을 비교하는 식으로 <strong>같은 위치끼리만</strong> 값을 대조합니다. 구현이 간단하고 빠르며, 배열 안에 중첩된 객체나 배열이 있어도 그 위치 그대로 재귀적으로 파고들 수 있다는 장점이 있습니다.</p>
+
+  <h2>2. 문제가 터지는 지점: 중간 삽입</h2>
+  <p>인덱스 대응 방식의 근본적인 약점은 "삽입"과 "변경"을 구분하지 못한다는 데 있습니다. 배열 맨 끝에 요소를 추가하는 경우는 문제없이 "추가"로 정확히 표시됩니다. 하지만 배열 <strong>중간</strong>에 요소 하나가 끼어들면, 그 뒤에 있던 모든 요소의 인덱스가 한 칸씩 밀립니다. 인덱스 비교기는 이 밀림을 이해하지 못하고, 원래 인덱스 1에 있던 값이 이제 인덱스 2에 있다는 걸 "그 값이 다른 값으로 바뀌었다"고 오해합니다.</p>
+  <div class="box">
+    <strong>예시</strong>: <code>["a","b","c"]</code> → <code>["x","a","b","c"]</code> (맨 앞에 "x" 하나 삽입)<br>
+    사람이 보면 "x 하나가 앞에 추가됐을 뿐, a·b·c는 그대로"입니다. 하지만 인덱스 비교기는:<br>
+    <code>[0]: "a" → "x"</code> (변경), <code>[1]: "b" → "a"</code> (변경), <code>[2]: "c" → "b"</code> (변경), <code>[3]: 추가됨 "c"</code> — 실제로는 삽입 1건인데 변경 3건+추가 1건, 총 4건의 diff로 부풀려집니다.
+  </div>
+
+  <h2>3. 진짜 diff 도구는 어떻게 이 문제를 피하는가: LCS</h2>
+  <p>Unix의 <code>diff</code> 명령어나 git이 파일 비교에 쓰는 알고리즘은 인덱스를 그대로 대응시키지 않습니다. 대신 <strong>최장 공통 부분열(Longest Common Subsequence, LCS)</strong>을 먼저 찾습니다. LCS는 두 시퀀스에서 순서를 유지한 채(연속일 필요는 없음) 공통으로 나타나는 가장 긴 부분을 찾는 알고리즘입니다. 위 예시라면 <code>["a","b","c"]</code>가 그대로 LCS이므로, 이 알고리즘은 "a, b, c는 공통으로 그대로 있고, 그 앞에 x가 하나 삽입됐다"는 최소한의, 의미적으로 올바른 diff를 만들어냅니다. git이 실제로 쓰는 <strong>Myers diff 알고리즘</strong>은 이 LCS 아이디어를 O(ND) 시간에 계산하도록 최적화한 변형입니다. 반면 순수 LCS는 일반적으로 O(n×m) 시간이 걸려, 배열이 커지면 계산 비용이 눈에 띄게 늘어납니다.</p>
+
+  <h2>4. JSON 배열 diff 도구가 LCS를 안 쓰는 이유</h2>
+  <p>가벼운 브라우저 기반 JSON 비교 도구가 LCS 정렬을 생략하는 데는 실용적인 이유가 있습니다. 첫째, LCS는 문자열이나 단순 값 배열에는 잘 맞지만, 배열 안에 객체가 들어있을 때 "두 객체가 같다"를 어떻게 정의할지가 모호합니다(완전 동일해야 같다고 볼지, 특정 필드만 같으면 같다고 볼지). 둘째, 실무에서 다루는 JSON 배열의 상당수는 <code>id</code> 같은 고유 키를 가진 객체 배열이라, 애초에 순서가 크게 안 바뀌는 경우가 많습니다. 셋째, 계산 복잡도와 구현 단순성 사이의 트레이드오프에서, 일반 목적 JSON 비교기는 "대부분의 경우 충분히 맞는" 인덱스 비교 쪽을 택하는 경우가 많습니다.</p>
+
+  <h2>5. 실무에서 이 함정을 피하는 법</h2>
+  <ul>
+    <li><strong>배열 요소가 객체이고 고유 ID가 있다면</strong>: 비교 전에 두 배열을 같은 ID 순서로 미리 정렬한 뒤 diff를 돌리면 인덱스 밀림 문제가 사라집니다.</li>
+    <li><strong>순서 자체가 중요하지 않은 배열이라면</strong>: 비교 전에 양쪽을 정렬(sort)해서 순서 차이를 제거한 뒤 비교하세요.</li>
+    <li><strong>중간 삽입/삭제가 잦은 배열이라면</strong>: 인덱스 기반 diff 결과에서 "변경"이 유독 많이 뜨는 게 정상적인 신호이니, 결과를 그대로 믿기보다 실제로 어떤 값이 바뀌었는지 눈으로 한 번 더 확인하는 습관이 안전합니다.</li>
+  </ul>
+
+  <h2>자주 묻는 질문</h2>
+  <details><summary>Q. 객체 비교는 이 문제가 없나요?</summary><p>A. 없습니다. 객체는 키 이름으로 대응시키므로 순서가 바뀌어도(JSON 객체 키 순서는 원래 의미가 없음) 정확히 같은 키끼리 비교됩니다. 순서에 의존하는 것은 배열뿐입니다.</p></details>
+  <details><summary>Q. 배열 끝에 추가/삭제하는 것도 문제가 되나요?</summary><p>A. 아니요, 배열의 맨 끝에서 일어나는 추가·삭제는 인덱스 밀림이 없으므로 인덱스 비교기로도 정확히 "추가"/"삭제"로 표시됩니다. 문제는 중간 삽입·삭제일 때만 발생합니다.</p></details>
+  <details><summary>Q. git diff는 왜 이런 문제가 없나요?</summary><p>A. git diff는 파일을 줄 단위 시퀀스로 보고 Myers diff(LCS 기반) 알고리즘으로 비교하기 때문에, 중간에 줄이 하나 삽입돼도 그 줄만 "추가"로 표시되고 나머지 줄은 그대로 "동일"로 인식됩니다. 반면 단순 JSON 배열 비교기는 이런 정렬 단계 없이 인덱스를 그대로 매칭하는 경우가 많습니다.</p></details>
+  <details><summary>Q. LCS 기반 배열 diff를 지원하는 도구는 없나요?</summary><p>A. 있습니다. jsondiffpatch 같은 JS 라이브러리는 배열 요소마다 해시를 계산해 LCS 방식으로 이동/삽입/삭제를 구분해줍니다. 다만 이런 라이브러리는 계산 비용이 더 크고 구현이 복잡해, 모든 온라인 JSON diff 도구가 채택하지는 않습니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../json-diff.html">→ JSON 비교기</a>
+    <a href="../yaml-diff-checker.html">→ YAML Diff 체커</a>
+    <a href="../csv-diff-checker.html">→ CSV Diff 체커</a>
+    <a href="../json-validator.html">→ JSON 유효성 검사기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적입니다.</footer>
+</main>
+</body>
+</html>

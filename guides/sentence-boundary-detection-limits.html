@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>문장은 어디서 끝나는가 — 규칙 기반 문장 분리기의 한계 | MODOO HUB</title>
+<meta name="description" content="정규식 기반 문장 분리기가 'Dr. Kim' 같은 약어나 소수점 앞에서 왜 틀리게 셀 수 있는지, 그리고 종결부호 없는 문장을 처리하는 방식을 분석합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/sentence-boundary-detection-limits.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"문장은 어디서 끝나는가 — 규칙 기반 문장 분리기의 한계","description":"정규식 기반 문장 분리기가 약어나 소수점 앞에서 왜 틀리게 셀 수 있는지, 종결부호 없는 문장 처리 방식을 분석합니다.","datePublished":"2026-08-19","dateModified":"2026-08-19","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:14px;color:#ccc;line-height:1.8;margin:0;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--blue);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>문장은 어디서 끝나는가 — 규칙 기반 문장 분리기의 한계</h1>
+  <p class="meta">가이드 · 2026-08-19 최종 확인</p>
+
+  <p>"문장 수를 센다"는 건 사람에게는 당연한 일이지만, 컴퓨터에게는 생각보다 까다로운 문제입니다. 마침표 하나로 문장이 끝나는지 판단하려면, 그 마침표가 정말 문장의 끝인지 아니면 약어·소수점·말줄임표의 일부인지 먼저 구분해야 하기 때문입니다. 이 문제를 <strong>문장 경계 인식(Sentence Boundary Detection, SBD)</strong>이라 부르며, 자연어 처리(NLP) 분야에서는 지금도 완벽히 풀리지 않은 영역으로 취급됩니다. 이 가이드는 정규식 기반의 가벼운 문장 분리기가 어디서 왜 틀리는지, 그리고 그것이 실제로 문제가 되는 경우와 아닌 경우를 구분해 정리합니다.</p>
+
+  <h2>1. 약어가 만드는 함정: "Dr. Kim"이 두 문장으로 잘리는 이유</h2>
+  <p>영어 문장에서 가장 흔한 SBD 실패 사례는 약어입니다. "Dr. Kim went to the U.S. yesterday."라는 하나의 문장을 정규식으로 마침표 기준 분리하면, "Dr."과 "U.S."의 마침표까지 문장 종결로 오인해 최대 3개 문장으로 쪼개질 수 있습니다. 사람은 "Dr."이 "Doctor"의 축약임을 문맥으로 즉시 알지만, 마침표 뒤에 대문자가 오는지 정도의 단순 규칙으로는 "Mr.", "Ms.", "vs.", "etc." 같은 약어와 진짜 문장 종결을 구분하지 못합니다. 정교한 SBD 엔진은 수백 개의 약어 사전을 미리 등록해 예외 처리하지만, 사전에 없는 신조어·고유명사 약어(예: "Inc.", "Ph.D.")가 나오면 여전히 실패할 수 있습니다.</p>
+
+  <h2>2. 소수점과 말줄임표: 마침표가 숫자·감정 표현에 쓰일 때</h2>
+  <p>숫자 "3.14"나 "1.5억원" 같은 소수점 표기, 그리고 한국어의 "잠깐..." 같은 말줄임표도 정규식 기반 분리기에는 함정입니다. 마침표 뒤에 숫자가 오는지, 마침표가 3개 연속되는지 등을 예외 처리하지 않으면 "3.14는 원주율이다."라는 문장이 "3", "14는 원주율이다"로 쪼개질 수 있습니다. 특히 금액·통계가 많이 등장하는 보고서나 기사 텍스트를 분석기에 넣으면 이런 오분리가 누적되어 실제 문장 수보다 훨씬 많은 수치가 나올 수 있습니다.</p>
+
+  <h2>3. 한국어 문장 부호와 이 도구의 실제 처리 방식</h2>
+  <p>모두의 툴 <a href="../sentence-counter.html">문장 수 세기</a> 도구의 실제 분리 로직은 다음과 같습니다. 먼저 모든 공백·줄바꿈을 하나의 공백으로 정규화한 뒤, 정규식 <code>/[^.!?。！？]+[.!?。！？]+/g</code>로 마침표(.)·느낌표(!)·물음표(?)와 그 전각 문자(。！？)를 기준으로 텍스트를 잘라냅니다. 즉 종결 부호 앞뒤 문맥은 전혀 보지 않고, 오직 그 문자 자체만으로 자릅니다. 약어 사전이나 소수점 예외 처리는 들어있지 않으므로, 위에서 설명한 "Dr. Kim" 예시나 "3.14" 예시를 입력하면 실제로 문장이 과다 분리됩니다. 반대로 한국어는 "다/요/까"로 끝나는 종결어미를 마침표 없이 쓰는 경우가 많아, 부호 기반 분리기가 오히려 한국어 대화체 텍스트에서는 저평가(문장을 너무 적게 셈)로 이어질 수도 있습니다.</p>
+
+  <h2>4. 종결부호 없는 마지막 조각, 왜 그냥 버리지 않을까</h2>
+  <p>이 도구의 분리 함수(<code>splitSentences</code>)는 정규식 매칭이 끝난 뒤 남은 나머지 텍스트(<code>rest</code>)가 있으면, 종결 부호가 없더라도 그 조각을 마지막 문장으로 추가합니다. 마침표를 빼먹고 끝낸 초안이나 대화체 텍스트, 혹은 SNS 게시글처럼 종결부호 생략이 흔한 텍스트에서 마지막 한 문장이 통째로 누락되는 것을 막기 위한 설계입니다. 다만 이 방식은 "단어 하나만 덩그러니 남은 조각"도 문장으로 셀 수 있다는 뜻이라, 문장당 평균 단어 수 같은 파생 통계를 낼 때는 이 점을 감안해서 읽어야 합니다.</p>
+
+  <div class="box">
+    <strong>예시</strong>: "Dr. Kim은 3.14를 좋아한다." 라는 한 문장을 이 도구에 넣으면, 마침표가 3번(Dr., 3.14의 소수점, 문장 끝) 등장하므로 정규식은 이를 여러 조각으로 분리할 수 있습니다. 사람이 보기엔 명백히 한 문장이지만, 약어·소수점 예외 처리가 없는 순수 부호 기반 분리기의 구조적 한계입니다.
+  </div>
+
+  <h2>5. 전문 NLP 라이브러리는 어떻게 다른가</h2>
+  <p>spaCy, NLTK 같은 영어 NLP 라이브러리는 규칙과 통계 모델을 함께 써서 약어 사전, 문맥 앞뒤 대소문자, 품사 정보까지 반영해 문장 경계를 판단합니다. 한국어는 <code>kss</code>(Korean Sentence Splitter), <code>KoNLPy</code> 연계 도구들이 형태소 분석 결과를 바탕으로 종결어미·인용부호·괄호 안 문장을 구분해 훨씬 정교하게 분리합니다. 이런 라이브러리는 학습된 모델이나 수천 개의 규칙 예외를 내장하고 있어 무겁고, 브라우저에서 실시간으로 돌리기엔 부담이 큽니다. 반면 이 도구처럼 가벼운 정규식 기반 분리기는 즉시 응답하는 대신 약어·소수점 같은 엣지 케이스에서 정확도를 일부 포기하는 트레이드오프를 택한 것입니다. 일반적인 글쓰기 분석·초안 검토에는 충분하지만, 논문·법률 문서처럼 약어와 숫자가 많은 텍스트의 정밀한 문장 수를 원한다면 이 한계를 감안해야 합니다.</p>
+
+  <h2>자주 묻는 질문</h2>
+  <details class="faq-item"><summary>Q. 왜 "Dr. Kim"처럼 약어가 있으면 문장 수가 부풀려지나요?</summary><p>A. 이 도구는 마침표·느낌표·물음표 문자 자체만 보고 문장을 자르는 정규식 방식이라, 약어 뒤 마침표와 진짜 문장 종결 마침표를 구분하지 못합니다. 약어가 많은 영어 텍스트일수록 실제 문장 수보다 많이 집계될 수 있습니다.</p></details>
+  <details class="faq-item"><summary>Q. 소수점이 있는 숫자를 넣으면 어떻게 되나요?</summary><p>A. "3.14"처럼 마침표가 소수점으로 쓰인 경우도 문장 종결로 오인되어 분리될 수 있습니다. 통계·금액이 많이 포함된 텍스트는 결과를 그대로 신뢰하기보다 참고용으로 보는 것이 안전합니다.</p></details>
+  <details class="faq-item"><summary>Q. 마침표 없이 끝난 문장은 어떻게 처리되나요?</summary><p>A. 종결 부호가 없는 마지막 조각도 하나의 문장으로 인식해 통계와 문장 목록에 포함시킵니다. 마침표를 빼먹은 초안이나 대화체 텍스트에서도 마지막 문장이 누락되지 않도록 하기 위한 설계입니다.</p></details>
+  <details class="faq-item"><summary>Q. 더 정확한 문장 분리가 필요하면 어떤 도구를 써야 하나요?</summary><p>A. 논문·법률 문서처럼 약어·숫자가 많은 텍스트를 정밀하게 분석해야 한다면 spaCy·NLTK(영어) 또는 kss·KoNLPy(한국어) 같은 전문 NLP 라이브러리 기반 도구를 사용하는 것이 정확합니다. 이 도구는 빠른 초안 점검·글쓰기 리듬 확인용으로 적합합니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../sentence-counter.html">→ 문장 수 세기</a>
+    <a href="../word-counter.html">→ 단어 수 세기</a>
+    <a href="../character-counter.html">→ 글자 수 세기</a>
+    <a href="../text-statistics.html">→ 텍스트 통계</a>
+    <a href="../reading-level-checker.html">→ 가독성 점수 확인</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적입니다.</footer>
+</main>
+</body>
+</html>

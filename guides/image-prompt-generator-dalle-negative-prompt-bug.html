@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>이미지 프롬프트 생성기, DALL-E 모드에만 있는 숨은 버그 | MODOO HUB</title>
+<meta name="description" content="이미지 프롬프트 생성기의 DALL-E 모드에서 공백이 중복되고 네거티브 프롬프트가 조용히 버려지는 실제 코드 버그를 소스 레벨에서 해부합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/image-prompt-generator-dalle-negative-prompt-bug.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/image-prompt-generator-dalle-negative-prompt-bug.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/image-prompt-generator-dalle-negative-prompt-bug.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"이미지 프롬프트 생성기, DALL-E 모드에만 있는 숨은 버그","description":"이미지 프롬프트 생성기의 DALL-E 모드에서 공백이 중복되고 네거티브 프롬프트가 조용히 버려지는 실제 코드 버그를 소스 레벨에서 해부합니다.","datePublished":"2026-08-19","dateModified":"2026-08-19","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--purple);}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;}
+details summary{cursor:pointer;font-weight:600;color:var(--text-muted);}
+details p{margin-top:8px;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>이미지 프롬프트 생성기, DALL-E 모드에만 있는 숨은 버그</h1>
+  <p class="meta">가이드 · 2026-08-19 최종 확인</p>
+
+  <p>Midjourney·DALL-E·Stable Diffusion 세 가지 모델용 프롬프트를 자동으로 만들어주는 도구가 있다면, 세 모델 모두 같은 방식으로 값이 조립될 것이라 생각하기 쉽습니다. 하지만 실제 소스 코드를 뜯어보면 <strong>DALL-E 모드만 완전히 다른 조립 방식</strong>을 쓰고 있고, 그 차이 때문에 눈에 보이는 공백 버그와, 눈에 안 보여서 더 위험한 네거티브 프롬프트 소실 버그가 동시에 존재합니다. 이 가이드는 실제 도구의 JS 코드를 그대로 인용해서 두 버그가 정확히 어디서, 왜 생기는지 설명합니다.</p>
+
+  <h2>1. 모델별로 조립 방식이 다르다</h2>
+  <p>이 도구는 스타일·분위기·조명·카메라·품질태그 등 사용자가 고른 값들을 <code>parts</code>라는 배열에 모아둡니다. 문제는 이 배열을 최종 프롬프트 문자열로 바꾸는 방식이 모델마다 다르다는 점입니다. Midjourney와 Stable Diffusion 모드는 다음처럼 배열을 그대로 이어붙입니다.</p>
+  <div class="box">
+    <code>prompt = parts.join(', ');</code><br>
+    쉼표+공백 하나만 각 요소 사이에 들어가므로 값이 몇 개든, 비어있든 문제가 생기지 않습니다.
+  </div>
+  <p>반면 DALL-E 모드는 배열을 쓰지 않고, 값을 <strong>문장 템플릿 리터럴에 직접 끼워 넣는 방식</strong>을 씁니다.</p>
+  <div class="box">
+    <code>prompt = `A ${mood?mood+' ':''} ${style?style+' image of ':''} ${subject}`;</code>
+  </div>
+
+  <h2>2. 공백 중복 버그: 삼항연산자와 템플릿 고정 공백의 충돌</h2>
+  <p>위 코드를 자세히 보면 문제가 두 겹으로 겹쳐 있습니다. 첫째, <code>mood?mood+' ':''</code> 부분은 mood 값이 있을 때 이미 그 값 뒤에 공백 하나(<code>+' '</code>)를 직접 붙입니다. 둘째, 그 뒤 템플릿 리터럴 자체에도 <code>${...}</code> 사이사이에 고정된 공백이 그대로 남아 있습니다. 즉 값이 있을 때는 "값이 붙인 공백"과 "템플릿이 원래 갖고 있던 공백"이 겹쳐서 <strong>단어 사이에 공백이 두 번씩</strong> 들어갑니다.</p>
+  <p>더 눈에 띄는 문제는 값이 <strong>없을 때</strong>입니다. mood나 style을 선택하지 않으면 삼항연산자는 빈 문자열(<code>''</code>)만 반환하지만, 그 자리 앞뒤에 있던 템플릿의 고정 공백은 삼항연산자와 무관하게 그대로 남습니다. 그 결과 스타일·분위기를 아무것도 선택하지 않고 주제만 "a cat"으로 입력하면 실제 출력은 다음과 같습니다.</p>
+  <div class="box">
+    <strong>실제 출력</strong>: <code>"A&nbsp;&nbsp;&nbsp;a cat"</code> — "A"와 "a cat" 사이에 공백이 3개.<br>
+    스타일·분위기를 둘 다 선택한 경우: <code>"A dramatic&nbsp;&nbsp;photorealistic image of&nbsp;&nbsp;a cat"</code> — 단어 사이 공백이 매번 2개.
+  </div>
+
+  <h2>3. 네거티브 프롬프트가 조용히 사라지는 버그</h2>
+  <p>더 심각한 문제는 네거티브 프롬프트(제외하고 싶은 요소)입니다. 이 도구는 모델 선택과 무관하게 항상 네거티브 프롬프트 입력창을 보여주고, 입력도 정상적으로 받습니다. 하지만 실제로 그 값을 최종 프롬프트에 반영하는 코드는 모델별로 완전히 갈립니다.</p>
+  <table>
+    <tr><th>모델</th><th>네거티브 프롬프트 처리 코드</th></tr>
+    <tr><td>Midjourney</td><td><code>if(negative)prompt+=` --no ${negative}`;</code> — 정상 반영</td></tr>
+    <tr><td>Stable Diffusion</td><td><code>if(negative)prompt+=`\nNegative prompt: ${negative}`;</code> — 정상 반영</td></tr>
+    <tr><td><strong>DALL-E</strong></td><td>해당 분기 코드 전체에 <code>negative</code> 변수를 참조하는 줄이 <strong>단 한 줄도 없음</strong></td></tr>
+  </table>
+  <p>즉 사용자가 DALL-E 모드에서 "blurry, low quality, text" 같은 네거티브 프롬프트를 입력해도, 생성 버튼을 눌렀을 때 그 값은 어디에도 쓰이지 않고 조용히 버려집니다. 에러도, 경고도 뜨지 않습니다 — 입력창이 계속 활성화돼 있으니 사용자는 자신이 입력한 내용이 반영됐다고 믿기 쉽습니다.</p>
+
+  <h2>4. 이게 버그인가, DALL-E의 한계인가</h2>
+  <p>여기서 짚어야 할 중요한 구분이 있습니다. DALL-E의 공식 API 자체가 Midjourney의 <code>--no</code> 파라미터나 Stable Diffusion의 negative prompt 같은 "네거티브 프롬프트" 개념을 지원하지 않는다는 것은 사실입니다. 이건 이 도구만의 문제가 아니라 OpenAI DALL-E API의 실제 설계 특성입니다. 하지만 그 사실과 별개로, <strong>이 도구가 DALL-E 모드에서도 네거티브 프롬프트 입력창을 비활성화하거나 안내 문구를 띄우지 않고 계속 입력 가능한 상태로 놔둔다</strong>는 것은 순수하게 UX/구현 버그입니다. API가 지원하지 않는다면 최소한 그 사실을 사용자에게 알려야 하는데, 이 도구는 그렇게 하지 않습니다.</p>
+
+  <h2>5. 실무 대응: DALL-E에서 네거티브 프롬프트 대신 쓸 방법</h2>
+  <p>DALL-E용 프롬프트를 만들 때는 애초에 "제외" 개념을 쓸 수 없다는 걸 알고, 원하지 않는 요소를 <strong>긍정문으로 바꿔 본문에 녹이는 방식</strong>으로 우회해야 합니다. 예를 들어 "no text"라고 제외 지시를 넣는 대신, 본문 프롬프트 자체에 "a clean image with no visible text or lettering"처럼 긍정적으로 서술하는 식입니다. 이 방식이 완벽하지는 않지만, DALL-E API에 존재하지도 않는 채널에 값을 흘려보내는 것보다는 실제로 결과에 영향을 줍니다.</p>
+
+  <h2>자주 묻는 질문</h2>
+  <details><summary>Q. 공백 중복 버그는 실제로 재현되나요?</summary><p>A. 네. 실제 코드(<code>prompt=\`A ${mood?mood+' ':''} ${style?style+' image of ':''} ${subject}\`</code>)를 그대로 실행하면, 스타일·분위기 미선택 시 "A"와 주제 사이에 공백 3개, 선택 시 단어 사이마다 공백 2개가 재현됩니다.</p></details>
+  <details><summary>Q. 네거티브 프롬프트를 입력했는데 DALL-E 결과에 왜 반영이 안 되나요?</summary><p>A. DALL-E 분기 코드에는 negative 변수를 참조하는 코드가 아예 없기 때문입니다. Midjourney·Stable Diffusion 분기에만 반영 코드가 있고, DALL-E 분기는 입력값을 그대로 무시합니다.</p></details>
+  <details><summary>Q. Midjourney·Stable Diffusion 모드에도 같은 공백 문제가 있나요?</summary><p>A. 아니요. 두 모드는 <code>parts.join(', ')</code>로 배열을 이어붙이는 방식이라 값이 몇 개든 정확히 쉼표 하나씩만 들어가며, 이번 버그와 무관합니다. 문제는 DALL-E 분기의 템플릿 리터럴 조립 방식에서만 발생합니다.</p></details>
+  <details><summary>Q. DALL-E는 원래 네거티브 프롬프트를 지원하지 않나요?</summary><p>A. 맞습니다. DALL-E API 자체가 이 개념을 공식 지원하지 않습니다. 다만 이 도구가 DALL-E 모드에서도 네거티브 프롬프트 입력창을 계속 활성화 상태로 보여주는 것은 API 제약과는 별개의 UX 결함입니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../image-prompt-generator.html">→ 이미지 프롬프트 생성기</a>
+    <a href="../prompt-optimizer.html">→ 프롬프트 최적화 도구</a>
+    <a href="../prompt-cleaner.html">→ 프롬프트 정제기</a>
+    <a href="../ai-model-comparison.html">→ AI 모델 비교</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적입니다.</footer>
+</main>
+</body>
+</html>
