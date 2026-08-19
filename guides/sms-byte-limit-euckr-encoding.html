@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SMS 한글 45자 제한, 왜 90바이트가 기준일까 — EUC-KR과 UTF-8 바이트 차이 | MODOO HUB</title>
+<meta name="description" content="SMS는 한글 기준 45자, 영문 기준 80자까지만 보낼 수 있고 넘으면 자동으로 LMS로 전환됩니다. 이 90바이트 기준이 왜 EUC-KR 인코딩에서 나온 숫자인지, UTF-8과 EUC-KR의 한글 바이트 수 차이부터 이모지가 몇 바이트인지까지 정리합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/sms-byte-limit-euckr-encoding.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"SMS 한글 45자 제한, 왜 90바이트가 기준일까 — EUC-KR과 UTF-8 바이트 차이","description":"SMS는 한글 기준 45자, 영문 기준 80자까지만 보낼 수 있고 넘으면 자동으로 LMS로 전환됩니다. 90바이트 기준이 왜 EUC-KR 인코딩에서 나온 숫자인지, UTF-8과 EUC-KR의 한글 바이트 수 차이까지 정리합니다.","datePublished":"2026-08-19","dateModified":"2026-08-19","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"SMS는 왜 한글 45자, 영문 80자로 제한이 다른가요?","acceptedAnswer":{"@type":"Answer","text":"SMS의 실제 제한은 '글자 수'가 아니라 '바이트 수'(90바이트)이기 때문입니다. 통신사가 SMS 바이트 계산에 쓰는 EUC-KR 인코딩에서 한글 1글자는 2바이트, 영문 1글자는 1바이트를 차지합니다. 90바이트를 2로 나누면 45(한글), 1로 나누면 90에 가까운 80(실제로는 헤더 여유분 때문에 80자로 운영)이 나오는 구조입니다."}},
+{"@type":"Question","name":"90바이트를 넘으면 어떻게 되나요?","acceptedAnswer":{"@type":"Answer","text":"자동으로 LMS(장문 메시지)로 전환됩니다. LMS는 최대 2,000자까지 보낼 수 있지만 SMS보다 요금이 비쌉니다. 대량 문자 발송 서비스를 쓸 때 무심코 몇 글자만 넘겨도 전체 발송 건이 LMS 요금으로 청구될 수 있어 사전에 바이트 수를 확인하는 것이 중요합니다."}},
+{"@type":"Question","name":"UTF-8과 EUC-KR의 한글 바이트 수는 왜 다른가요?","acceptedAnswer":{"@type":"Answer","text":"UTF-8은 유니코드 전체(약 14만자)를 가변 길이로 표현해야 해서 한글 완성형 한 글자에 3바이트를 씁니다. 반면 EUC-KR은 한글·한자를 포함한 동아시아 문자 집합만을 목표로 설계된 2바이트 고정 인코딩이라 한글 한 글자에 2바이트만 씁니다. 웹에서 쓰는 UTF-8 기준 글자수 제한과 SMS의 EUC-KR 기준 바이트 제한을 혼동하면 실제 전송 가능 글자수를 오판하게 됩니다."}},
+{"@type":"Question","name":"이모지가 들어간 문자는 SMS에서 몇 바이트로 계산되나요?","acceptedAnswer":{"@type":"Answer","text":"대부분의 통신사 SMS 시스템은 이모지를 EUC-KR로 표현할 수 없어 UCS-2(2바이트 고정) 인코딩으로 전환하는데, 이 경우 전체 메시지 제한이 한글 45자가 아니라 영문 기준으로도 훨씬 짧은 70자 안팎으로 줄어드는 경우가 많습니다. 이모지가 섞인 메시지는 발송 전 반드시 발송 대행사의 실제 제한을 확인해야 합니다."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>SMS 한글 45자 제한, 왜 90바이트가 기준일까 — EUC-KR과 UTF-8 바이트 차이</h1>
+  <p class="meta">가이드 · 2026-08-19 최종 확인</p>
+
+  <p>"SMS는 한글 45자, 영문 80자까지"라는 안내를 문자 발송 서비스에서 한 번쯤 봤을 겁니다. 그런데 왜 하필 45와 80일까요. 두 숫자 모두 하나의 공통 기준에서 나온 값입니다 — SMS의 진짜 제한은 <strong>90바이트</strong>이고, 한글과 영문이 인코딩에서 차지하는 바이트 수가 다르기 때문에 글자수 제한이 서로 달라 보이는 것뿐입니다.</p>
+
+  <h2>1. SMS의 진짜 기준은 글자 수가 아니라 바이트</h2>
+  <p>통신 3사가 SMS 표준으로 쓰는 인코딩은 EUC-KR입니다. 이 인코딩에서 영문·숫자 1글자는 1바이트, 한글 1글자는 2바이트를 차지합니다. SMS 한 건의 최대 용량은 90바이트로 정해져 있으므로, 한글만으로 채우면 90÷2=45자, 영문만으로 채우면 이론상 90자지만 실제로는 발신번호·제어정보 등 헤더가 일부 바이트를 차지해 통상 80자로 안내됩니다. 즉 "한글 45자"와 "영문 80자"는 서로 다른 규칙이 아니라, 같은 90바이트 한도를 EUC-KR의 2바이트(한글)와 1바이트(영문) 단위로 나눈 결과입니다.</p>
+
+  <table>
+    <tr><th>문자 종류</th><th>EUC-KR 바이트/글자</th><th>90바이트 기준 최대 글자수</th></tr>
+    <tr><td>한글(완성형)</td><td>2바이트</td><td>약 45자</td></tr>
+    <tr><td>영문·숫자</td><td>1바이트</td><td>약 80자(헤더 여유분 반영)</td></tr>
+    <tr><td>한글+영문 혼합</td><td>혼합 계산</td><td>바이트 합산 90 이하까지</td></tr>
+  </table>
+
+  <h2>2. UTF-8과 EUC-KR, 한글 바이트 수가 다른 이유</h2>
+  <p>웹페이지나 API에서 흔히 쓰는 UTF-8은 한글 완성형 한 글자에 3바이트를 씁니다. 반면 SMS가 쓰는 EUC-KR은 2바이트를 씁니다. 이 차이는 두 인코딩이 커버하려는 범위가 다르기 때문입니다. UTF-8은 이모지·전 세계 문자를 포함한 유니코드 전체(14만자 이상)를 가변 길이 바이트로 표현해야 하므로 한글처럼 유니코드 코드포인트 값이 큰 문자는 3바이트가 필요합니다. 반면 EUC-KR은 애초에 한글·한자 등 동아시아 문자만 다루도록 설계된 2바이트 고정 인코딩이라 더 적은 바이트로 표현할 수 있습니다. "우리 서버 DB는 UTF-8인데 SMS 발송 대행사는 90바이트라고 안내한다"는 상황에서, 그 90바이트는 UTF-8이 아니라 EUC-KR 기준이라는 걸 알아야 정확한 글자수를 계산할 수 있습니다.</p>
+
+  <h2>3. 이모지·특수문자가 섞이면 기준이 또 바뀐다</h2>
+  <p>EUC-KR은 이모지를 표현할 수 있는 문자 집합이 아닙니다. 그래서 메시지에 이모지가 하나라도 포함되면 상당수 통신사 SMS 시스템은 자동으로 UCS-2라는 2바이트 고정 유니코드 인코딩으로 전체 메시지를 다시 인코딩합니다. 이 경우 원래 한글 기준 45자였던 제한이 UCS-2 기준으로 재계산되면서 실질 최대 글자수가 70자 안팎까지 줄어드는 경우가 흔합니다. 즉 "이모지 하나만 넣었을 뿐인데 갑자기 글자수 제한이 확 줄었다"는 현상은 버그가 아니라 인코딩 전환에 따른 정상 동작입니다.</p>
+
+  <h2>4. 정리</h2>
+  <ul>
+    <li><strong>SMS 90바이트가 진짜 기준</strong>: 한글 45자·영문 80자는 이 90바이트를 EUC-KR 바이트 단위로 나눈 결과일 뿐입니다.</li>
+    <li><strong>UTF-8과 EUC-KR은 한글 바이트 수가 다르다</strong>: UTF-8 3바이트 vs EUC-KR 2바이트.</li>
+    <li><strong>이모지 포함 시 UCS-2로 전환</strong>: 제한 글자수가 더 줄어들 수 있습니다.</li>
+    <li><strong>초과 시 자동 LMS 전환</strong>: 요금이 더 비싸므로 발송 전 바이트 수 확인이 중요합니다.</li>
+  </ul>
+
+  <h2>자주 묻는 질문</h2>
+  <details class="faq-item"><summary>Q. SMS는 왜 한글 45자, 영문 80자로 제한이 다른가요?</summary><p>A. SMS의 실제 제한은 '글자 수'가 아니라 '바이트 수'(90바이트)이기 때문입니다. 통신사가 SMS 바이트 계산에 쓰는 EUC-KR 인코딩에서 한글 1글자는 2바이트, 영문 1글자는 1바이트를 차지합니다. 90바이트를 2로 나누면 45(한글), 헤더 여유분을 감안하면 80(영문) 안팎이 나오는 구조입니다.</p></details>
+  <details class="faq-item"><summary>Q. 90바이트를 넘으면 어떻게 되나요?</summary><p>A. 자동으로 LMS(장문 메시지)로 전환됩니다. LMS는 최대 2,000자까지 보낼 수 있지만 SMS보다 요금이 비쌉니다. 대량 문자 발송 서비스를 쓸 때 무심코 몇 글자만 넘겨도 전체 발송 건이 LMS 요금으로 청구될 수 있어 사전에 바이트 수를 확인하는 것이 중요합니다.</p></details>
+  <details class="faq-item"><summary>Q. UTF-8과 EUC-KR의 한글 바이트 수는 왜 다른가요?</summary><p>A. UTF-8은 유니코드 전체(약 14만자)를 가변 길이로 표현해야 해서 한글 완성형 한 글자에 3바이트를 씁니다. 반면 EUC-KR은 한글·한자를 포함한 동아시아 문자 집합만을 목표로 설계된 2바이트 고정 인코딩이라 한글 한 글자에 2바이트만 씁니다. 웹 UTF-8 기준 글자수 제한과 SMS의 EUC-KR 기준 바이트 제한을 혼동하면 실제 전송 가능 글자수를 오판하게 됩니다.</p></details>
+  <details class="faq-item"><summary>Q. 이모지가 들어간 문자는 SMS에서 몇 바이트로 계산되나요?</summary><p>A. 대부분의 통신사 SMS 시스템은 이모지를 EUC-KR로 표현할 수 없어 UCS-2(2바이트 고정) 인코딩으로 전환하는데, 이 경우 전체 메시지 제한이 한글 45자가 아니라 훨씬 짧은 70자 안팎으로 줄어드는 경우가 많습니다. 이모지가 섞인 메시지는 발송 전 반드시 발송 대행사의 실제 제한을 확인해야 합니다.</p></details>
+  <details class="faq-item"><summary>Q. 완성형 한글이 아닌 자음·모음 낱자도 2바이트인가요?</summary><p>A. 네. 이 사이트 글자수 세기 도구는 EUC-KR 추정 계산에서 완성형 한글(가~힣)뿐 아니라 자음(ㄱ~ㅎ)과 모음(ㅏ~ㅣ) 낱자도 각각 2바이트로 계산합니다. 실제 EUC-KR 규격에서도 이들은 별도 코드 영역에 2바이트로 할당돼 있습니다.</p></details>
+  <details class="faq-item"><summary>Q. LMS와 MMS는 어떻게 다른가요?</summary><p>A. LMS는 SMS보다 긴 텍스트(최대 2,000자)만 담는 문자 메시지입니다. MMS는 이미지·동영상 등 멀티미디어 콘텐츠를 포함할 수 있는 복합 메시지로, 요금이 LMS보다도 더 비쌉니다.</p></details>
+  <details class="faq-item"><summary>Q. 카카오톡 알림톡도 이 바이트 제한을 따르나요?</summary><p>A. 아닙니다. 카카오 알림톡은 SMS 망이 아니라 카카오톡 자체 서버를 통해 전송되므로 EUC-KR 90바이트 제한과 무관하게 별도의 자체 글자수 정책(보통 1,000자 안팎)을 적용합니다.</p></details>
+  <details class="faq-item"><summary>Q. 이 사이트 글자수 세기 도구로 SMS 발송 전 바이트를 미리 확인할 수 있나요?</summary><p>A. 네. EUC-KR 추정 바이트 항목에서 90바이트 초과 여부를 바로 확인할 수 있어, 문자메시지 발송 전 SMS/LMS 전환 여부를 미리 가늠하는 데 유용합니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../character-counter.html">→ 글자수 세기</a>
+    <a href="../word-counter.html">→ 단어 수 세기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적입니다.</footer>
+</main>
+</body>
+</html>

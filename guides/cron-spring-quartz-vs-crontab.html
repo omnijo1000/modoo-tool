@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spring/Quartz Cron이 표준 crontab과 다른 필드 하나 — 초(seconds) 필드의 함정 | MODOO HUB</title>
+<meta name="description" content="Linux crontab은 5개 필드인데 Spring @Scheduled와 Quartz는 맨 앞에 초(seconds) 필드가 하나 더 붙습니다. 서버 crontab 표현식을 그대로 복사해 Spring에 넣으면 왜 예외가 터지는지, Quartz의 day-of-month/day-of-week 동시 지정 제약까지 정리합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/cron-spring-quartz-vs-crontab.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Spring/Quartz Cron이 표준 crontab과 다른 필드 하나 — 초(seconds) 필드의 함정","description":"Linux crontab은 5개 필드인데 Spring @Scheduled와 Quartz는 맨 앞에 초(seconds) 필드가 하나 더 붙습니다. crontab 표현식을 그대로 Spring에 복사하면 왜 예외가 터지는지, Quartz의 day-of-month/day-of-week 동시 지정 제약까지 정리합니다.","datePublished":"2026-08-19","dateModified":"2026-08-19","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"crontab의 \"0 9 * * MON-FRI\"를 Spring @Scheduled에 그대로 넣으면 어떻게 되나요?","acceptedAnswer":{"@type":"Answer","text":"IllegalArgumentException이 발생합니다. Spring의 cron 파서는 필드 개수를 정확히 6개(초 분 시 일 월 요일)로 기대하는데, 5개짜리 표준 crontab 문자열을 넣으면 필드 하나가 모자라 파싱에 실패합니다. 앞에 초 필드를 추가해 \"0 0 9 * * MON-FRI\"로 바꿔야 매일 오전 9시 정각(0초)에 실행됩니다."}},
+{"@type":"Question","name":"Quartz cron은 day-of-month와 day-of-week를 동시에 특정 값으로 지정할 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"없습니다. Quartz는 두 필드 중 정확히 하나는 반드시 물음표(?)로 '미지정'을 표시해야 합니다. 예를 들어 \"매월 15일에 실행\"이면 요일 자리에 ?를 써서 \"0 0 9 15 * ?\"처럼 적고, \"매주 월요일에 실행\"이면 일 자리에 ?를 써서 \"0 0 9 ? * MON\"처럼 적습니다. 둘 다 *를 쓰거나 둘 다 구체값을 쓰면 파서가 예외를 던집니다."}},
+{"@type":"Question","name":"표준 Linux crontab에서는 L(마지막)이나 W(가장 가까운 평일)를 쓸 수 없나요?","acceptedAnswer":{"@type":"Answer","text":"쓸 수 없습니다. L·W·#(N번째 요일) 같은 특수 문자는 Quartz와 Spring이 자체적으로 확장한 문법이며 POSIX 표준 crontab 명세엔 없습니다. crond에 \"0 0 L * *\"를 등록하면 무시되거나 오류가 나므로, 매월 말일 실행이 필요하면 실제 일수를 계산하는 별도 스크립트를 crontab에 등록하는 우회가 필요합니다."}},
+{"@type":"Question","name":"Spring과 Quartz의 초 필드 위치는 같은가요?","acceptedAnswer":{"@type":"Answer","text":"네, 둘 다 맨 앞(첫 번째 필드)이 초입니다. 순서는 초 분 시 일 월 요일 순으로 동일하고, Quartz는 여기에 선택적으로 연도 필드를 맨 뒤에 하나 더 추가할 수 있어 최대 7개 필드까지 씁니다."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>Spring/Quartz Cron이 표준 crontab과 다른 필드 하나 — 초(seconds) 필드의 함정</h1>
+  <p class="meta">가이드 · 2026-08-19 최종 확인</p>
+
+  <p>서버 운영 경험이 있는 개발자라면 <code>0 9 * * MON-FRI</code>처럼 5개 필드로 된 crontab 표현식에 익숙합니다. 그런데 Spring Boot 프로젝트에서 <code>@Scheduled(cron="0 9 * * MON-FRI")</code>를 그대로 붙여넣으면 애플리케이션이 시작하자마자 <code>IllegalArgumentException</code>을 던지며 죽습니다. 표현식 자체엔 아무 문제가 없어 보이는데 왜 실패할까요. 답은 필드 개수에 있습니다 — Spring과 Quartz는 crontab에는 없는 <strong>초(seconds) 필드</strong>가 맨 앞에 하나 더 붙습니다.</p>
+
+  <h2>1. 필드 개수부터 다르다: 5개 vs 6개</h2>
+  <p>표준 Linux crontab은 <code>분 시 일 월 요일</code> 5개 필드로 최소 단위가 "분"입니다. 반면 Spring의 cron 파서는 <code>초 분 시 일 월 요일</code> 6개 필드를 정확히 기대합니다. 그래서 "매일 오전 9시 정각, 평일에만"을 Spring에서 쓰려면 맨 앞에 초 필드 <code>0</code>을 추가해 <code>0 0 9 * * MON-FRI</code>로 써야 합니다. 필드가 5개면 파서가 즉시 예외를 던지고, 실수로 6번째 필드 자리를 밀려 쓰면(예: 초 자리에 분 값을 넣는 식) 애플리케이션은 정상 기동되지만 의도한 시각과 전혀 다른 시점에 실행되는 조용한 버그가 됩니다.</p>
+
+  <table>
+    <tr><th>구분</th><th>필드 순서</th><th>필드 수</th><th>특수문자</th></tr>
+    <tr><td>표준 crontab</td><td>분 시 일 월 요일</td><td>5개</td><td>* , - /</td></tr>
+    <tr><td>Spring @Scheduled</td><td>초 분 시 일 월 요일</td><td>6개</td><td>* , - /</td></tr>
+    <tr><td>Quartz Scheduler</td><td>초 분 시 일 월 요일 [연도]</td><td>6~7개</td><td>* , - / L W #</td></tr>
+  </table>
+
+  <h2>2. Quartz만의 제약: day-of-month와 day-of-week는 함께 못 쓴다</h2>
+  <p>Quartz는 필드 개수뿐 아니라 문법 규칙도 하나 더 있습니다. 일(day-of-month)과 요일(day-of-week) 필드 중 <strong>정확히 하나는 반드시 물음표(<code>?</code>)</strong>로 "미지정"을 표시해야 합니다. crontab이나 Spring cron에서는 두 필드에 모두 <code>*</code>를 넣어도 문제없지만, Quartz는 이 조합을 모호하다고 보고 파싱 단계에서 거부합니다. "매월 15일"처럼 날짜로만 지정할 땐 요일 자리에 <code>?</code>를 써서 <code>0 0 9 15 * ?</code>, "매주 월요일"처럼 요일로만 지정할 땐 일 자리에 <code>?</code>를 써서 <code>0 0 9 ? * MON</code>으로 적습니다.</p>
+
+  <h2>3. L·W·# — crontab엔 없는 Quartz/Spring 전용 문법</h2>
+  <p>매월 마지막 날, 또는 매월 가장 가까운 평일을 지정하고 싶을 때 Quartz와 Spring cron은 <code>L</code>(Last)과 <code>W</code>(Weekday) 문자를 지원합니다. <code>0 0 L * *</code>는 매월 마지막 날 자정, <code>0 0 15W * *</code>는 매월 15일에 가장 가까운 평일을 의미합니다. 하지만 이는 POSIX 표준 crontab 명세엔 없는 확장 문법이라, 같은 표현식을 서버 crontab에 등록하면 무시되거나 문법 오류로 처리됩니다. crontab에서 "매월 말일"이 필요하면 <code>date -d</code> 등으로 마지막 날짜를 직접 계산하는 셸 스크립트를 만들어 등록하는 우회가 필요합니다.</p>
+
+  <h2>4. 정리</h2>
+  <ul>
+    <li><strong>필드 개수가 다르다</strong>: crontab 5개, Spring/Quartz는 맨 앞에 초가 붙어 6개(Quartz는 연도까지 최대 7개).</li>
+    <li><strong>crontab 표현식을 그대로 복사하면 예외 발생</strong>: Spring은 필드 부족 시 IllegalArgumentException을 던집니다.</li>
+    <li><strong>Quartz는 day-of-month/day-of-week 동시지정 금지</strong>: 둘 중 하나는 반드시 <code>?</code>.</li>
+    <li><strong>L/W/# 문법은 Quartz·Spring 전용</strong>: 표준 crontab엔 없으므로 서버 등록 시 별도 스크립트로 우회해야 합니다.</li>
+  </ul>
+
+  <h2>자주 묻는 질문</h2>
+  <details class="faq-item"><summary>Q. crontab의 "0 9 * * MON-FRI"를 Spring @Scheduled에 그대로 넣으면 어떻게 되나요?</summary><p>A. IllegalArgumentException이 발생합니다. Spring의 cron 파서는 필드 개수를 정확히 6개(초 분 시 일 월 요일)로 기대하는데, 5개짜리 표준 crontab 문자열을 넣으면 필드 하나가 모자라 파싱에 실패합니다. 앞에 초 필드를 추가해 "0 0 9 * * MON-FRI"로 바꿔야 매일 오전 9시 정각(0초)에 실행됩니다.</p></details>
+  <details class="faq-item"><summary>Q. Quartz cron은 day-of-month와 day-of-week를 동시에 특정 값으로 지정할 수 있나요?</summary><p>A. 없습니다. Quartz는 두 필드 중 정확히 하나는 반드시 물음표(?)로 '미지정'을 표시해야 합니다. "매월 15일에 실행"이면 요일 자리에 ?를 써서 "0 0 9 15 * ?"처럼, "매주 월요일에 실행"이면 일 자리에 ?를 써서 "0 0 9 ? * MON"처럼 적습니다. 둘 다 *를 쓰거나 둘 다 구체값을 쓰면 파서가 예외를 던집니다.</p></details>
+  <details class="faq-item"><summary>Q. 표준 Linux crontab에서는 L(마지막)이나 W(가장 가까운 평일)를 쓸 수 없나요?</summary><p>A. 쓸 수 없습니다. L·W·#(N번째 요일) 같은 특수 문자는 Quartz와 Spring이 자체적으로 확장한 문법이며 POSIX 표준 crontab 명세엔 없습니다. crond에 "0 0 L * *"를 등록하면 무시되거나 오류가 나므로, 매월 말일 실행이 필요하면 실제 일수를 계산하는 별도 스크립트를 crontab에 등록하는 우회가 필요합니다.</p></details>
+  <details class="faq-item"><summary>Q. Spring과 Quartz의 초 필드 위치는 같은가요?</summary><p>A. 네, 둘 다 맨 앞(첫 번째 필드)이 초입니다. 순서는 초 분 시 일 월 요일 순으로 동일하고, Quartz는 여기에 선택적으로 연도 필드를 맨 뒤에 하나 더 추가할 수 있어 최대 7개 필드까지 씁니다.</p></details>
+  <details class="faq-item"><summary>Q. */5 * * * * 같은 표현식은 Spring에서도 그대로 쓸 수 있나요?</summary><p>A. 표현식 자체는 쓸 수 있지만 필드 위치가 다르게 해석됩니다. crontab에서 */5 * * * *는 "5분마다"지만, 이 문자열을 Spring에 그대로 넣으면 6개 필드 규칙상 첫 필드(초)가 */5로 해석되어 "5초마다"가 됩니다. 분 단위 반복이 필요하면 초 필드에 0을 넣고 분 필드에 */5를 써야 합니다.</p></details>
+  <details class="faq-item"><summary>Q. 서버가 꺼져 있어 Quartz 작업이 누락되면 어떻게 되나요?</summary><p>A. Quartz는 misfire(놓친 실행) 정책을 설정할 수 있어, 서버 복구 시 놓친 작업을 즉시 1회 재실행하거나 무시하도록 선택할 수 있습니다. 반면 표준 crontab은 이런 재실행 개념 자체가 없어 다음 예정 시각까지 그냥 기다립니다.</p></details>
+  <details class="faq-item"><summary>Q. Quartz의 연도 필드는 언제 쓰나요?</summary><p>A. 특정 연도에만 한 번 실행되는 일회성 작업에 씁니다. 예를 들어 "0 0 9 1 1 ? 2027"은 2027년 1월 1일 오전 9시에 한 번만 실행됩니다. 생략하면 매년 반복되는 것으로 취급됩니다.</p></details>
+  <details class="faq-item"><summary>Q. 이 사이트 Cron 생성기로 만든 표현식을 Spring에 바로 쓸 수 있나요?</summary><p>A. MODOO HUB의 Cron 표현식 생성기는 표준 5필드 crontab 기준으로 동작합니다. Spring 프로젝트에 쓰려면 생성된 표현식 맨 앞에 초 필드(보통 0)를 직접 추가해야 합니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../cron-generator.html">→ Cron 표현식 생성기</a>
+    <a href="../cron-parser.html">→ Cron 파서</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적입니다.</footer>
+</main>
+</body>
+</html>

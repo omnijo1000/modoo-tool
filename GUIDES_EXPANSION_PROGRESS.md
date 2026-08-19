@@ -118,7 +118,7 @@ REJECT(4개, 이유 있음): salary(기존 가이드와 중복), salary-negotiat
 
 ## developer-tools (52개 ACCEPT)
 
-- [ ] **cron-generator** — "Spring/Quartz Cron vs 표준 crontab, 필드 하나가 다른 이유" — Spring은 초 필드 추가돼 6필드.
+- [x] **cron-generator** (guides/cron-spring-quartz-vs-crontab.html, 2026-08-19) — "Spring/Quartz Cron vs 표준 crontab, 필드 하나가 다른 이유" — Spring은 초 필드 추가돼 6필드.
 - [x] **uuid-validator** (guides/uuid-primary-key-performance.html, 2026-08-19) — "UUID v4를 DB 기본키로 쓰면 느려지는 이유" — B-트리 페이지 분할 유발, v7/ULID가 대안.
 - [x] **regex-tester** (guides/regex-catastrophic-backtracking-redos.html, 2026-08-19) — "정규식 그리디 vs 레이지 매칭과 ReDoS" — 중첩 정량자 `(a+)+`가 catastrophic backtracking 유발.
 - [ ] **markdown-preview** — "마크다운 렌더러의 XSS 방어 메커니즘과 CommonMark 표준화 배경" — javascript: 스킴 차단, CommonMark 2014년 등장.
@@ -177,7 +177,7 @@ REJECT(3개): ip-address-lookup(일반 네트워킹 상식 나열뿐), website-s
 
 ## text-tools (32개 ACCEPT)
 
-- [ ] **character-counter** — "글자수 세기, UTF-8 vs EUC-KR 바이트가 다른 이유와 SMS 요금 폭탄" — SMS 한글45자(90바이트) 초과시 LMS 전환.
+- [x] **character-counter** (guides/sms-byte-limit-euckr-encoding.html, 2026-08-19) — "글자수 세기, UTF-8 vs EUC-KR 바이트가 다른 이유와 SMS 요금 폭탄" — SMS 한글45자(90바이트) 초과시 LMS 전환.
 - [ ] **word-counter** — "고유 단어 비율(TTR)로 내 글의 어휘 다양성 진단하기" — TTR=고유단어÷총단어.
 - [ ] **sentence-counter** — "문장은 어디서 끝나는가, 규칙 기반 문장 분리기의 한계" — 종결부호 없는 마지막 조각도 별도 카운트.
 - [ ] **read-time-calculator** — "읽기 시간 계산기, 한국어는 왜 '단어 수'가 아니라 '글자 수'로 계산하나" — CJK 40%초과시 계산방식 전환.
@@ -216,7 +216,7 @@ REJECT(9개): line-counter, find-replace, remove-empty-lines, remove-duplicate-l
 
 ## image-tools (24개 ACCEPT)
 
-- [ ] **image-resizer** — "이미지를 키우면 왜 화질이 안 좋아지나: 업스케일의 함정" — A4 300DPI 인쇄=2480×3508px.
+- [x] **image-resizer** (guides/image-upscale-quality-loss.html, 2026-08-19) — "이미지를 키우면 왜 화질이 안 좋아지나: 업스케일의 함정" — A4 300DPI 인쇄=2480×3508px.
 - [ ] **png-to-jpg** — "프로그레시브 JPEG vs 기본 JPEG, 로딩 방식이 다르다" — Canvas 기본출력은 항상 baseline방식.
 - [ ] **base64-image** — "Base64 이미지, 왜 원본보다 33% 커지나" — 1MB→약1.33MB.
 - [ ] **svg-viewer** — "SVG 미리보기 안에서 스크립트가 실행되지 않는 이유" — Blob+img src로 script실행 원천차단.
@@ -247,7 +247,7 @@ REJECT(7개): webp-to-png, image-to-webp, image-cropper, blur-image, color-picke
 
 ## generator-tools (21개 ACCEPT)
 
-- [ ] **seo-title-generator** — "SEO 제목, 왜 한글은 영어보다 훨씬 빨리 잘리나" — 구글 픽셀폭 기준(약580px), 한글28~30자 vs 영문50~60자.
+- [x] **seo-title-generator** (guides/google-title-pixel-width-truncation.html, 2026-08-19) — "SEO 제목, 왜 한글은 영어보다 훨씬 빨리 잘리나" — 구글 픽셀폭 기준(약580px), 한글28~30자 vs 영문50~60자.
 - [ ] **meta-description-generator** — "메타 설명, 써도 구글이 무시하는 이유" — 순위요소 아니나 CTR 간접기여, 구글이 본문서 발췌대체.
 - [ ] **ai-youtube-title-generator** — "유튜브 제목 vs 썸네일, 같은 말 두 번 하면 손해인 이유" — 70자초과 잘림, 이탈률↑시 알고리즘 노출↓.
 - [ ] **ai-thumbnail-title-generator** — "유튜브 썸네일 문구, 왜 10자를 넘기면 안 되나" — 한줄10자·2줄20자 권장.
@@ -275,7 +275,7 @@ REJECT(8개): youtube-script-generator, ai-email-generator, ai-resume-generator,
 
 ## security-tools (17개 ACCEPT)
 
-- [ ] **url-encoder** — "encodeURIComponent vs encodeURI, 이중 인코딩(%2520) 버그는 왜 생기나" — 폼(+) vs REST API(%20) 인코딩 차이.
+- [x] **url-encoder** (guides/url-double-encoding-plus-vs-percent20.html, 2026-08-19) — "encodeURIComponent vs encodeURI, 이중 인코딩(%2520) 버그는 왜 생기나" — 폼(+) vs REST API(%20) 인코딩 차이.
 - [ ] **url-decoder** — "URL 디코딩에서 '+'가 공백이 안 되는 이유, 이중 디코딩 처리법" — decodeURI는 %XX만 처리, +는 안건드림.
 - [ ] **html-decoder** — "브라우저 네이티브 파서로 HTML 엔티티를 안전하게 디코딩하는 원리" — textarea.innerHTML RAWTEXT모델.
 - [ ] **hash-generator** — "MD5·SHA-1은 왜 아직 쓰이지만 보안엔 못 쓰나 — 해시 vs HMAC vs CRC32" — 실제 해시충돌 사례.

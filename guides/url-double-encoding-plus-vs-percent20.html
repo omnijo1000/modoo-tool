@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>이중 인코딩(%2520)은 왜 생기나 — encodeURIComponent와 '+'의 함정 | MODOO HUB</title>
+<meta name="description" content="이미 인코딩된 URL을 또 인코딩하면 %20이 %2520이 됩니다. 폼 데이터가 공백을 +로 표현하는 것과 API가 공백을 %20으로 표현하는 것의 차이, 그리고 이중 디코딩을 막는 실무 체크포인트를 정리합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/url-double-encoding-plus-vs-percent20.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"이중 인코딩(%2520)은 왜 생기나 — encodeURIComponent와 '+'의 함정","description":"이미 인코딩된 URL을 또 인코딩하면 %20이 %2520이 됩니다. 폼 데이터가 공백을 +로 표현하는 것과 API가 공백을 %20으로 표현하는 것의 차이, 그리고 이중 디코딩을 막는 실무 체크포인트를 정리합니다.","datePublished":"2026-08-19","dateModified":"2026-08-19","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"%2520은 왜 생기나요?","acceptedAnswer":{"@type":"Answer","text":"이미 퍼센트 인코딩된 문자열을 다시 한 번 인코딩할 때 생깁니다. 공백 하나가 첫 번째 인코딩에서 %20이 되고, 이 문자열을 인코딩 여부를 확인하지 않은 채 다시 인코딩하면 %20의 %문자가 %25로 바뀌어 최종적으로 %2520이 됩니다. 서버에서 이 값을 한 번만 디코딩하면 공백이 아니라 문자 그대로의 '%20'이라는 문자열이 남게 됩니다."}},
+{"@type":"Question","name":"HTML 폼과 REST API는 공백을 다르게 인코딩하나요?","acceptedAnswer":{"@type":"Answer","text":"네. method=GET인 HTML 폼은 application/x-www-form-urlencoded 규격을 따라 공백을 +로 인코딩합니다. 반면 REST API 요청에서 흔히 쓰는 encodeURIComponent()는 공백을 %20으로 인코딩합니다. 둘 다 유효한 표현이지만 서버가 어느 쪽 규격으로 파싱하느냐에 따라 +를 공백이 아닌 실제 '+' 문자로 잘못 해석하는 문제가 생길 수 있습니다."}},
+{"@type":"Question","name":"encodeURIComponent와 encodeURI 중 무엇을 써야 이중 인코딩을 피할 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"둘 다 이중 인코딩 자체를 막아주진 않습니다. 핵심은 '무엇을 인코딩하느냐'를 명확히 구분하는 것입니다. 쿼리 파라미터 값 하나하나는 encodeURIComponent로, 이미 조합된 전체 URL은 encodeURI로 인코딩해야 하며, 인코딩된 값을 다른 함수로 다시 인코딩하는 상황을 피하는 것이 이중 인코딩 방지의 핵심입니다."}},
+{"@type":"Question","name":"이중 인코딩 여부를 어떻게 확인하나요?","acceptedAnswer":{"@type":"Answer","text":"문자열에 %25(퍼센트 기호 자체의 인코딩)나 %2520처럼 연속된 퍼센트 패턴이 보이면 이중 인코딩을 의심할 수 있습니다. 가장 확실한 방법은 인코딩하기 전에 입력값을 한 번 디코딩(decodeURIComponent)해 이미 인코딩된 상태인지 확인한 뒤, 순수한 원본 텍스트에만 인코딩을 적용하는 것입니다."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>이중 인코딩(%2520)은 왜 생기나 — encodeURIComponent와 '+'의 함정</h1>
+  <p class="meta">가이드 · 2026-08-19 최종 확인</p>
+
+  <p>URL 파라미터를 다루다 보면 <code>%2520</code>처럼 퍼센트가 두 번 겹친 이상한 값을 마주칠 때가 있습니다. 이건 오타가 아니라 <strong>이미 인코딩된 문자열을 또 인코딩</strong>했을 때 생기는 전형적인 버그입니다. 프론트엔드에서 한 번, 백엔드 프록시나 라이브러리에서 또 한 번 인코딩이 걸리는 식으로 여러 계층을 거치는 URL에서 특히 자주 발생합니다.</p>
+
+  <h2>1. %20이 %2520이 되는 과정</h2>
+  <p>공백 한 칸을 <code>encodeURIComponent</code>로 인코딩하면 <code>%20</code>이 됩니다. 여기서 <code>%</code> 문자 자체도 URL에서 특별한 의미를 가진 문자이므로, 이 <code>%20</code> 문자열을 아무 확인 없이 다시 인코딩하면 <code>%</code>가 그 자신의 퍼센트 인코딩 값인 <code>%25</code>로 바뀌어 최종적으로 <code>%2520</code>이 남습니다. 서버가 이 값을 한 번만 디코딩하면 공백이 아니라 <code>%20</code>이라는 문자 그대로의 문자열이 남고, 두 번 디코딩해야 비로소 원래의 공백으로 돌아갑니다. 이 상태에서는 검색어나 파일명이 원래 의도와 다르게 저장되거나 조회되는 문제가 생깁니다.</p>
+
+  <table>
+    <tr><th>단계</th><th>값</th><th>설명</th></tr>
+    <tr><td>원본</td><td>hello world</td><td>공백 포함 원문</td></tr>
+    <tr><td>1차 인코딩</td><td>hello%20world</td><td>공백 → %20으로 정상 변환</td></tr>
+    <tr><td>2차 인코딩(실수)</td><td>hello%2520world</td><td>%가 %25로 다시 인코딩되어 이중 인코딩 발생</td></tr>
+    <tr><td>1차 디코딩만 수행</td><td>hello%20world</td><td>공백이 아닌 문자 그대로 %20 문자열이 남음</td></tr>
+  </table>
+
+  <h2>2. 폼 데이터의 '+'와 API의 '%20', 서로 다른 공백 표기</h2>
+  <p>이중 인코딩과 별개로, 공백을 표현하는 방식 자체가 두 가지라는 점도 혼란의 원인입니다. HTML 폼이 <code>method="GET"</code>으로 제출될 때는 <code>application/x-www-form-urlencoded</code> 규격을 따라 공백을 <code>+</code> 기호로 표현합니다. 반면 REST API 요청을 만들 때 흔히 쓰는 <code>encodeURIComponent()</code>는 공백을 <code>%20</code>으로 표현합니다. 두 표기 모두 표준상 유효하지만, <code>+</code> 기호는 폼 데이터 맥락 밖에서는 문자 그대로의 '더하기'로 해석될 수 있어, 폼에서 만든 쿼리스트링을 REST API 파서에 그대로 넘기면 <code>+</code>가 공백이 아니라 실제 <code>+</code> 문자로 잘못 해석되는 문제가 생길 수 있습니다.</p>
+
+  <h2>3. 이중 인코딩을 실무에서 막는 법</h2>
+  <p>이 사이트의 <a href="../url-encoder.html">URL 인코더</a>가 안내하듯, encodeURIComponent는 쿼리 파라미터 값 "하나"를 인코딩할 때, encodeURI는 이미 조합된 URL "전체"를 인코딩할 때 쓰도록 설계돼 있습니다. 이중 인코딩은 대개 이 구분이 흐트러졌을 때, 즉 이미 인코딩된 값을 "혹시 안 됐을까봐" 다시 인코딩하는 방어적 코드에서 생깁니다. 가장 확실한 예방법은 값을 인코딩하기 전에 <code>decodeURIComponent</code>로 먼저 디코딩을 시도해, 이미 인코딩된 상태인지 확인하는 것입니다. 문자열에 <code>%25</code>나 연속된 <code>%2X</code> 패턴이 보인다면 이중 인코딩을 의심하고 원본 상태부터 다시 점검해야 합니다.</p>
+
+  <h2>4. 정리</h2>
+  <ul>
+    <li><strong>이중 인코딩은 %가 또 인코딩될 때 생긴다</strong>: %20 → %2520.</li>
+    <li><strong>폼의 +와 API의 %20은 다른 표기</strong>: 맥락을 섞어 쓰면 파싱 오류가 생깁니다.</li>
+    <li><strong>인코딩 전 디코딩 확인</strong>: 이미 인코딩된 값인지 먼저 확인하는 습관이 가장 확실한 예방책입니다.</li>
+    <li><strong>encodeURIComponent는 값 하나, encodeURI는 URL 전체</strong>: 용도를 구분해 쓰면 대부분의 이중 인코딩을 피할 수 있습니다.</li>
+  </ul>
+
+  <h2>자주 묻는 질문</h2>
+  <details class="faq-item"><summary>Q. %2520은 왜 생기나요?</summary><p>A. 이미 퍼센트 인코딩된 문자열을 다시 한 번 인코딩할 때 생깁니다. 공백 하나가 첫 번째 인코딩에서 %20이 되고, 이 문자열을 인코딩 여부를 확인하지 않은 채 다시 인코딩하면 %20의 % 문자가 %25로 바뀌어 최종적으로 %2520이 됩니다. 서버에서 이 값을 한 번만 디코딩하면 공백이 아니라 문자 그대로의 '%20'이라는 문자열이 남게 됩니다.</p></details>
+  <details class="faq-item"><summary>Q. HTML 폼과 REST API는 공백을 다르게 인코딩하나요?</summary><p>A. 네. method=GET인 HTML 폼은 application/x-www-form-urlencoded 규격을 따라 공백을 +로 인코딩합니다. 반면 REST API 요청에서 흔히 쓰는 encodeURIComponent()는 공백을 %20으로 인코딩합니다. 둘 다 유효한 표현이지만 서버가 어느 쪽 규격으로 파싱하느냐에 따라 +를 공백이 아닌 실제 '+' 문자로 잘못 해석하는 문제가 생길 수 있습니다.</p></details>
+  <details class="faq-item"><summary>Q. encodeURIComponent와 encodeURI 중 무엇을 써야 이중 인코딩을 피할 수 있나요?</summary><p>A. 둘 다 이중 인코딩 자체를 막아주진 않습니다. 핵심은 '무엇을 인코딩하느냐'를 명확히 구분하는 것입니다. 쿼리 파라미터 값 하나하나는 encodeURIComponent로, 이미 조합된 전체 URL은 encodeURI로 인코딩해야 하며, 인코딩된 값을 다른 함수로 다시 인코딩하는 상황을 피하는 것이 이중 인코딩 방지의 핵심입니다.</p></details>
+  <details class="faq-item"><summary>Q. 이중 인코딩 여부를 어떻게 확인하나요?</summary><p>A. 문자열에 %25(퍼센트 기호 자체의 인코딩)나 %2520처럼 연속된 퍼센트 패턴이 보이면 이중 인코딩을 의심할 수 있습니다. 가장 확실한 방법은 인코딩하기 전에 입력값을 한 번 디코딩(decodeURIComponent)해 이미 인코딩된 상태인지 확인한 뒤, 순수한 원본 텍스트에만 인코딩을 적용하는 것입니다.</p></details>
+  <details class="faq-item"><summary>Q. 한글이 포함된 URL도 이중 인코딩 문제가 생기나요?</summary><p>A. 네. 한글 '안'을 인코딩하면 %EC%95%88이 되는데, 이 값을 다시 인코딩하면 각 %가 %25로 바뀌어 %25EC%2595%2588처럼 훨씬 길고 복잡한 문자열이 됩니다. 한글이 섞인 URL일수록 이중 인코딩 시 눈에 띄게 문자열이 길어지므로 오히려 발견하기는 쉬운 편입니다.</p></details>
+  <details class="faq-item"><summary>Q. 브라우저 주소창에 직접 입력한 URL도 이중 인코딩될 수 있나요?</summary><p>A. 브라우저 자체는 주소창 입력값을 한 번만 인코딩해서 요청을 보냅니다. 이중 인코딩은 주로 애플리케이션 코드에서 URL을 조합·전달하는 여러 단계(프론트엔드 → 백엔드 → 외부 API 등)를 거치며 발생하는 문제입니다.</p></details>
+  <details class="faq-item"><summary>Q. decodeURIComponent로 이미 디코딩된 문자열을 또 디코딩하면 어떻게 되나요?</summary><p>A. 인코딩되지 않은 일반 문자(퍼센트 기호가 없는 문자열)에 decodeURIComponent를 적용하면 원본 문자열이 그대로 반환되어 에러는 나지 않습니다. 다만 % 뒤에 유효한 16진수 두 자리가 오지 않는 잘못된 형식이면 URIError가 발생할 수 있습니다.</p></details>
+  <details class="faq-item"><summary>Q. 쿼리스트링에서 &와 =는 왜 인코딩해야 하나요?</summary><p>A. &와 =는 쿼리스트링에서 파라미터를 구분하는 예약 문자이기 때문입니다. 파라미터 값 안에 &나 =가 그대로 들어가면 URL 구조 자체가 깨져 서버가 파라미터 경계를 잘못 인식하게 되므로, encodeURIComponent로 반드시 인코딩해야 합니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../url-encoder.html">→ URL 인코더</a>
+    <a href="../url-decoder.html">→ URL 디코더</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적입니다.</footer>
+</main>
+</body>
+</html>
