@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JSON Schema 자동생성기가 놓치는 null과 배열 타입 함정 | MODOO HUB</title>
+<meta name="description" content="JSON Schema 자동생성기가 null 값을 nullable로 표현하지 못하고, 배열의 타입을 첫 번째 요소만 보고 추론하는 이유를 코드 구조로 설명합니다. 실제 스키마 예시와 수동 보정 방법 포함.">
+<link rel="canonical" href="https://modoohub.com/guides/json-schema-null-array-type-gaps.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"JSON Schema 자동생성기가 놓치는 null과 배열 타입 함정","description":"JSON Schema 자동생성기가 null 값을 nullable로 표현하지 못하고, 배열의 타입을 첫 번째 요소만 보고 추론하는 구조적 한계를 설명합니다.","datePublished":"2026-08-20","dateModified":"2026-08-20","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>JSON Schema 자동생성기가 놓치는 null과 배열 타입 함정</h1>
+  <p class="meta">가이드 · 2026.08.20 최종 확인</p>
+
+  <p>샘플 JSON 하나를 넣으면 스키마를 뚝딱 만들어주는 <a href="../json-schema-generator.html">JSON Schema 생성기</a>는 API 문서화나 폼 검증 초안을 잡을 때 매우 편리합니다. 하지만 "생성됐다"는 사실과 "정확하다"는 사실은 다릅니다. 이 도구뿐 아니라 대부분의 샘플 기반 스키마 자동생성기가 구조적으로 놓치는 두 가지 지점 — null 값 처리와 배열 타입 추론 — 을 실제 코드 로직으로 뜯어보고, 왜 이런 한계가 생기는지, 어떻게 수동으로 보정해야 하는지 정리했습니다.</p>
+
+  <h2>1. 샘플 기반 추론의 근본적 한계</h2>
+  <p>JSON Schema 자동생성기는 마법이 아니라 단순한 규칙입니다. 입력된 JSON 값 하나하나의 <code>typeof</code>를 확인해서 대응하는 스키마 타입을 매핑할 뿐입니다. 문자열이면 <code>string</code>, 불린이면 <code>boolean</code>, 정수면 <code>integer</code>로 변환하는 식입니다. 문제는 이 방식이 <strong>"지금 이 샘플에 존재하는 값 하나"</strong>만 보고 판단한다는 점입니다. 실제 운영 데이터에서 같은 필드가 다른 타입의 값을 가질 수 있다는 가능성은 애초에 고려 대상이 아닙니다. null과 배열은 이 한계가 가장 뚜렷하게 드러나는 두 지점입니다.</p>
+
+  <h2>2. null 값: nullable이 아니라 "null 전용" 스키마가 생성된다</h2>
+  <p><a href="../json-schema-generator.html">JSON Schema 생성기</a>의 실제 추론 함수를 보면 첫 줄이 <code>if(val===null)return{type:'null'};</code>입니다. 즉 값이 null이면 무조건 <code>{"type":"null"}</code>만 돌려주고, 다른 타입과 결합한 <code>{"type":["string","null"]}</code> 같은 유니온 표현은 애초에 생성 로직에 없습니다. 문제는 실무 API 응답에서 어떤 필드가 "값이 있을 때는 문자열, 없을 때는 null"인 경우가 흔하다는 점입니다. 하필 샘플로 넣은 JSON에서 그 필드가 null이었다면, 생성된 스키마는 이후 그 필드에 실제 문자열 값이 들어온 데이터를 전부 검증 실패로 처리합니다.</p>
+  <div class="box">
+    <strong>예시</strong>: 입력 <code>{"middleName": null}</code>을 넣으면 생성되는 스키마는<br>
+    <code>"middleName": {"type": "null"}</code><br>
+    이 스키마로 <code>{"middleName": "Kim"}</code>이라는 정상 데이터를 검증하면 타입 불일치 오류가 발생합니다. 올바른 스키마는 사람이 직접<br>
+    <code>"middleName": {"type": ["string", "null"]}</code><br>
+    로 고쳐야 합니다.
+  </div>
+
+  <h2>3. 배열: 첫 번째 요소만 보고 나머지는 버려진다</h2>
+  <p>배열 처리 로직도 마찬가지로 단순합니다. <code>if(val.length&gt;0)s.items=inferSchema(val[0],...)</code> — 배열의 <strong>첫 번째 요소 하나</strong>만 재귀 호출해서 그 결과를 <code>items</code> 스키마로 통째로 채택합니다. 배열 안에 타입이 섞인 값(heterogeneous array)이 있어도 두 번째 요소부터는 아예 읽지도 않습니다. JSON Schema 명세 자체는 <code>items</code>에 여러 타입을 허용하는 <code>anyOf</code>나 튜플 검증(<code>prefixItems</code>) 같은 표현을 지원하지만, 이 생성기는 그런 표현을 시도조차 하지 않고 첫 요소의 타입 하나로 단순화합니다.</p>
+  <table>
+    <tr><th>입력 배열</th><th>실제 구성</th><th>생성된 items 스키마</th><th>문제</th></tr>
+    <tr><td><code>[1,"two",3]</code></td><td>숫자+문자열 혼합</td><td><code>{"type":"integer"}</code></td><td>문자열 "two"는 검증 시 오류 처리됨</td></tr>
+    <tr><td><code>["admin","user"]</code></td><td>문자열만</td><td><code>{"type":"string"}</code></td><td>문제 없음(우연히 동질적 배열)</td></tr>
+  </table>
+  <p>여기서 두 번째 행처럼 실제 배열이 처음부터 동질적(모든 요소가 같은 타입)이면 우연히 정확한 스키마가 나옵니다. 문제는 개발자가 넣은 샘플 하나만으로는 그 배열이 "우연히 동질적이었던 것"인지 "원래 이질적인데 샘플이 운 좋게 통일된 것"인지 구분할 수 없다는 점입니다.</p>
+
+  <h2>4. 배열 안의 객체 구조가 다를 때는 더 위험하다</h2>
+  <p>배열 요소가 객체인 경우 이 한계는 한층 더 커집니다. 예를 들어 사용자 목록 배열의 첫 번째 객체에는 <code>email</code> 필드가 있지만 두 번째 객체부터는 <code>phone</code> 필드가 추가로 있다면, 생성기는 오직 첫 번째 객체의 <code>properties</code>만 보고 <code>items</code> 스키마를 확정합니다. <code>phone</code> 필드는 생성된 스키마 어디에도 등장하지 않아, 이 필드가 있는 실제 데이터를 <code>additionalProperties: false</code> 옵션과 함께 검증하면 오히려 유효한 데이터가 거부되는 역설적인 상황이 생깁니다.</p>
+
+  <h2>5. 실전 체크리스트: 생성된 스키마를 그대로 배포하지 않기</h2>
+  <ul>
+    <li>샘플 JSON에 null 값이 하나라도 있다면, 해당 필드의 <code>"type":"null"</code>을 <code>["실제타입","null"]</code> 배열로 직접 고칠 것.</li>
+    <li>배열 필드는 실제 운영 데이터에서 요소 타입이 항상 동일한지 먼저 확인하고, 섞여 있다면 <code>anyOf</code>로 수동 보강할 것.</li>
+    <li>배열 안 객체들의 필드 구성이 다양하다면 여러 샘플을 모아 필드 합집합을 직접 <code>properties</code>에 반영할 것.</li>
+    <li>생성 결과는 초안일 뿐이며, <code>minLength</code>·<code>minimum</code>·<code>enum</code> 같은 제약 조건은 이 도구가 추가하지 않으므로 별도로 채워야 합니다.</li>
+  </ul>
+
+  <h2>자주 묻는 질문</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. null 필드가 있는 스키마를 그대로 API 검증에 쓰면 어떻게 되나요?</summary><p style="margin-top:8px;">해당 필드에 null이 아닌 실제 값(문자열·숫자 등)이 들어오면 스키마 검증이 실패합니다. 사람이 <code>["실제타입","null"]</code> 형태로 직접 수정해야 정상 작동합니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 배열의 타입 혼합 문제를 자동으로 잡아주는 방법은 없나요?</summary><p style="margin-top:8px;">이 도구는 샘플 하나의 첫 요소만 보는 단순 규칙이라 자동 감지 기능이 없습니다. 배열 요소 타입이 다양할 가능성이 있다면 생성 후 반드시 직접 검토해야 합니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 여러 개의 샘플 JSON을 합쳐서 넣으면 문제가 해결되나요?</summary><p style="margin-top:8px;">아니요. 이 도구는 한 번에 하나의 JSON 값만 입력받아 그 구조를 그대로 반영하므로, 여러 샘플을 합치는 기능 자체가 없습니다. 여러 샘플을 비교해 필드·타입의 합집합을 만드는 작업은 사람이 직접 해야 합니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 생성된 스키마에 required 배열은 정확한가요?</summary><p style="margin-top:8px;">required 배열은 샘플 객체에 실제로 존재하는 모든 키를 그대로 필수로 지정합니다. 특정 필드가 선택적(optional)이어야 한다면, 생성 후 required 배열에서 해당 필드명을 수동으로 제거해야 합니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../json-schema-generator.html">→ JSON Schema 생성기</a>
+    <a href="../json-validator.html">→ JSON 유효성 검사기</a>
+    <a href="../json-viewer.html">→ JSON 뷰어</a>
+    <a href="../json-diff.html">→ JSON 비교(Diff)</a>
+    <a href="../json-flattener.html">→ JSON 평탄화</a>
+    <a href="../json-path-tester.html">→ JSONPath 테스터</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적이며 개별 사안은 세무사·노무사 상담을 권장합니다.</footer>
+</main>
+</body>
+</html>

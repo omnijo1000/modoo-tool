@@ -92,7 +92,7 @@
 - [ ] **cheongyak-score** — "청약 가점 84점 만점, 이렇게 배분된다 + 당첨 포기의 함정" — 무주택32+부양가족35+통장17. 포기시 재당첨제한 최대10년.
 - [ ] **credit-loan-limit** — "신용대출 한도, DSR만으로 안 끝나는 이유: 마이너스통장의 함정" — 마이너스통장은 실인출액 아닌 설정한도 전체로 DSR 반영.
 - [ ] **electricity-cost-calculator** — "한국 전기요금 누진제 3단계, 여름·겨울엔 왜 완화되나" — 200/201~400/400초과 3단계.
-- [ ] **four-insurance** — "사업주가 근로자보다 4대보험을 더 많이 낸다? 숨은 부담 구조" — 산재보험 평균1.47%는 전액 사업주 부담.
+- [x] **four-insurance** (guides/four-insurance-employer-burden-structure.html, 2026-08-20) — "사업주가 근로자보다 4대보험을 더 많이 낸다? 숨은 부담 구조" — 산재보험 평균1.47%는 전액 사업주 부담.
 - [ ] **fuel-cost-calculator** — "L/100km와 MPG, 왜 헷갈리는가 + 경유가 항상 economical하진 않다" — MPG=235.21÷(L/100km).
 - [ ] **income-tax** — "종합소득세 누진세, 왜 세율표보다 적게 내는가" — 8단계 누진세율+누진공제 개념.
 - [ ] **loan-calc** — "원리금균등 vs 원금균등, 총이자 3,500만원 차이의 비밀" — 3억·4%·30년: 총이자 차이 약3,510만원.
@@ -126,7 +126,7 @@ REJECT(4개, 이유 있음): salary(기존 가이드와 중복), salary-negotiat
 - [x] **yaml-validator** (guides/yaml-norway-problem-boolean-parsing.html, 2026-08-19) — "YAML의 노르웨이 문제(Norway Problem)" — YAML1.1에서 `no`가 boolean false로 해석되던 버그.
 - [x] **json-to-xml** (guides/json-to-xml-array-null-limits.html, 2026-08-19) — "JSON→XML 변환의 근본적 한계" — XML엔 배열 개념 없어 같은 태그 반복, null은 self-closing 태그.
 - [x] **html-minifier** (guides/html-minifier-regex-pre-textarea-bug.html, 2026-08-19) — "정규식 기반 HTML 압축기가 실패하는 지점" — `<pre>`/`<textarea>` 내부 의미있는 공백까지 뭉개짐.
-- [ ] **css-minifier** — "CSS 압축기의 색상 코드 축약 규칙" — `#ffffff`→`#fff`는 각 자리쌍 같을 때만.
+- [x] **css-minifier** (guides/css-color-shorthand-minification.html, 2026-08-20) — "CSS 압축기의 색상 코드 축약 규칙" — `#ffffff`→`#fff`는 각 자리쌍 같을 때만.
 - [ ] **javascript-minifier** — "JS 압축기의 문자열 손상 위험, 경고는 엉뚱한 곳에 뜬다" — 문자열 경계 무시하는 정규식 위험.
 - [ ] **javascript-beautifier** — "중괄호만 세는 JS 포매터가 for문을 깨뜨리는 이유" — 들여쓰기 깊이를 `{}` 개수로만 계산.
 - [ ] **css-beautifier** — "문자 단위 CSS 포매터의 중첩 깊이 추적 방식" — SCSS 전처리기 문법은 깨짐.
@@ -135,7 +135,7 @@ REJECT(4개, 이유 있음): salary(기존 가이드와 중복), salary-negotiat
 - [ ] **serp-snippet-preview** — "구글 제목 스니펫은 글자수가 아니라 픽셀로 잘린다" — 약600px(Arial기준), 60자는 근사치일뿐.
 - [ ] **open-graph-preview** — "소셜 공유 미리보기가 안 바뀌는 이유: 플랫폼 캐시" — Facebook Sharing Debugger로 Scrape Again 필요.
 - [ ] **keyword-cannibalization-checker** — "키워드 카니발라이제이션, 문자열은 같아도 검색 의도는 다를 수 있다" — 301/canonical/차별화가 해법.
-- [ ] **json-schema-generator** — "JSON Schema 자동생성기가 놓치는 null과 배열 타입 함정" — null은 nullable 표현 안 됨, 배열은 첫요소만 봄.
+- [x] **json-schema-generator** (guides/json-schema-null-array-type-gaps.html, 2026-08-20) — "JSON Schema 자동생성기가 놓치는 null과 배열 타입 함정" — null은 nullable 표현 안 됨, 배열은 첫요소만 봄.
 - [ ] **yaml-diff-checker** — "YAML Diff 비교기는 사실 YAML을 이해하지 못한다" — 정규식으로 한줄만 인식, 인라인 주석만 바꿔도 diff 오탐.
 - [ ] **csv-diff-checker** — "CSV diff가 전체 행을 다 다르다고 표시하는 인코딩 함정 3가지" — EUC-KR/CP949, BOM 유무, 구분자 차이.
 - [ ] **uuid-extractor** — "UUID를 텍스트에서 정확히 골라내는 정규식 조건" — 13번째자리 버전, 19번째자리 변형비트 검사.
@@ -185,7 +185,7 @@ REJECT(3개): ip-address-lookup(일반 네트워킹 상식 나열뿐), website-s
 - [ ] **text-shuffler** — "Array.sort(Math.random)이 왜 편향된 셔플인가, Fisher-Yates가 필요한 이유" — 비교횟수 불균등으로 편향.
 - [ ] **text-sorter** — "자연 정렬(Natural Sort), item2가 item10보다 왜 먼저 와야 하나" — 문자열속 숫자를 값으로 비교.
 - [x] **alphabetizer** (guides/alphabetizer-localecompare-vs-unicode-sort.html, 2026-08-19) — "가나다순 정렬, localeCompare와 유니코드 순서는 왜 다른가" — 중국어·일본어는 유니코드 순서로만 정렬.
-- [ ] **text-diff-checker** — "diff 도구는 어떻게 변경사항을 찾아내는가, LCS 알고리즘 해부" — 줄단위 LCS만 지원, git Myers 알고리즘과 차이.
+- [x] **text-diff-checker** (guides/text-diff-lcs-algorithm-explained.html, 2026-08-20) — "diff 도구는 어떻게 변경사항을 찾아내는가, LCS 알고리즘 해부" — 줄단위 LCS만 지원, git Myers 알고리즘과 차이.
 - [x] **case-converter** (guides/turkish-i-problem-case-conversion.html, 2026-08-19) — "터키어의 I 문제, 표준 대소문자 변환이 깨지는 언어가 있다" — 터키어 점없는I/점있는i 구분.
 - [ ] **typing-speed-test** — "타자 속도 WPM, 왜 항상 '5글자=1단어'로 계산하나" — 영문 평균단어길이 5자 기준 국제표준.
 - [ ] **cps-calculator** — "인간 클릭 속도의 한계, 버터플라이·드래그 클릭이 필요한 이유" — 한손가락 한계 ~10CPS, 기법동원시 14~16CPS.
@@ -196,7 +196,7 @@ REJECT(3개): ip-address-lookup(일반 네트워킹 상식 나열뿐), website-s
 - [ ] **anagram-checker** — "애너그램 판별, 정렬 대신 문자 빈도표를 쓰는 이유" — 각 글자 등장횟수 배열 누적비교.
 - [ ] **ascii-converter** — "ASCII가 사실 UTF-8의 부분집합인 이유" — 0~127범위 바이트단위 완전동일.
 - [ ] **ascii-table** — "제어문자 DEL(127)은 왜 하필 127번일까 — 천공 테이프가 남긴 흔적" — 천공테이프 무효화 관습 유래.
-- [ ] **emoji-counter** — "이모지 하나가 글자수 2~11개로 세지는 이유 — SNS 글자수 제한의 함정" — 가족이모지 11코드유닛 이상.
+- [x] **emoji-counter** (guides/emoji-counter-surrogate-pair-sns-limit.html, 2026-08-20) — "이모지 하나가 글자수 2~11개로 세지는 이유 — SNS 글자수 제한의 함정" — 가족이모지 11코드유닛 이상.
 - [ ] **emoji-remover** — "숫자도 기술적으로는 이모지다? — Intl.Segmenter와 이모지 오탐 문제" — 0~9,#,*가 Emoji속성 보유.
 - [ ] **hashtag-generator** — "해시태그 몇 개가 적당한가 — 인기·중간·틈새 3:4:3 전략" — 플랫폼별 적정개수 차이.
 - [x] **keyword-extractor** (guides/keyword-extractor-korean-particle-limitation.html, 2026-08-19) — "왜 '텍스트를'과 '텍스트가'가 다른 단어로 집계될까 — 조사 없는 언어를 위해 설계된 도구의 한계" — 형태소분석 없이 조사포함 집계.
@@ -225,7 +225,7 @@ REJECT(9개): line-counter, find-replace, remove-empty-lines, remove-duplicate-l
 - [ ] **image-rotator** — "정각이 아닌 각도로 회전하면 캔버스가 왜 커지는가" — cos·sin 바운딩박스 동적계산.
 - [ ] **image-watermark** — "이미지 워터마크는 한글이 안 깨지는데 PDF 워터마크는 왜 깨지나" — 웹폰트 vs PDF내장폰트 차이.
 - [x] **exif-viewer** (guides/exif-gps-dms-rational-format.html, 2026-08-19) — "GPS 좌표가 숫자 하나가 아니라 세 개인 이유" — 도·분·초 3개 유리수(RATIONAL) 저장.
-- [ ] **exif-remover** — "사진 속 GPS 좌표, 왜 SNS 올리기 전에 지워야 하나" — Canvas 재인코딩으로 메타데이터 원천 제거.
+- [x] **exif-remover** (guides/exif-remover-gps-privacy-sns.html, 2026-08-20) — "사진 속 GPS 좌표, 왜 SNS 올리기 전에 지워야 하나" — Canvas 재인코딩으로 메타데이터 원천 제거.
 - [ ] **ico-converter** — "ICO 파일 속 아이콘, 사실은 전부 PNG로 저장된다" — Vista이후 PNG바이트 그대로 담는 방식.
 - [x] **webp-to-jpg** (guides/webp-compatibility-kakaotalk-old-devices.html, 2026-08-20) — "카카오톡에 웹피(WebP) 이미지가 안 열리는 이유" — 구형iOS/안드로이드 WebP 미리보기 실패.
 - [ ] **image-color-extractor** — "이미지 대표색, 평균값이 아니라 클러스터링을 쓰는 이유" — 빨강+파랑 평균=보라 오류 방지.
@@ -234,10 +234,10 @@ REJECT(9개): line-counter, find-replace, remove-empty-lines, remove-duplicate-l
 - [ ] **color-converter** — "같은 HEX 코드인데 화면마다 색이 다르게 보이는 이유" — sRGB vs Display P3 색공간 차이.
 - [x] **color-blindness-simulator** (guides/color-blindness-simulator-accuracy.html, 2026-08-19) — "색맹 시뮬레이터의 숨은 버그, 왜 완전한 회색이 안 나올까" — 3×4행렬을 3×3으로 착각한 실제 코드버그.
 - [ ] **avif-to-jpg** — "투명 배경 이미지를 JPG로 바꾸면 왜 까맣게 나오는가" — Canvas 기본픽셀(투명검정)+알파소실.
-- [ ] **heic-to-jpg** — "iPhone 사진이 브라우저에서 안 열리는 이유" — HEVC특허코덱, libheif WASM 이식.
 - [ ] **image-dimension-checker** — "16:9는 어떻게 계산되나: 종횡비의 유클리드 호제법" — GCD알고리즘으로 정수비 약분.
 - [ ] **image-dpi-checker** — "인쇄용 300DPI 사진이 118로 잘못 표시되는 이유" — 카메라 cm단위 저장시 변환버그.
 - [ ] **jpg-to-heic** — "JPG to HEIC라는 이름인데 실제로는 HEIC를 만들 수 없다" — 코덱 라이선스로 브라우저 인코딩 불가, WebP로 대체.
+- [x] **heic-to-jpg** (guides/heic-to-jpg-hevc-codec-license.html, 2026-08-20) — "iPhone 사진이 브라우저에서 안 열리는 이유" — HEVC특허코덱, libheif WASM 이식.
 - [ ] **transparent-background-maker** — "배경 제거 도구의 색상 키 알고리즘, 허용범위는 실제로 어떻게 계산되나" — RGB거리×2.2, 알파 선형감소.
 - [ ] **svg-cleaner** — "SVG 파일 용량의 숨은 범인, 에디터 네임스페이스" — Inkscape/AI/Figma 메타데이터 10~40% 감소.
 
@@ -267,7 +267,7 @@ REJECT(7개): webp-to-png, image-to-webp, image-cropper, blur-image, color-picke
 - [ ] **ulid-generator** — "ULID 알파벳에 I, L, O, U가 없는 이유" — Crockford Base32, 서기10889년까지 표현.
 - [x] **nanoid-generator** (guides/random-string-modulo-bias-rejection-sampling.html, 2026-08-20) — "랜덤 문자열 생성기가 몰래 편향되는 이유(그리고 고치는 법)" — 거부샘플링(rejection sampling) 메커니즘.
 - [x] **qr-code-generator** (guides/qr-code-error-correction-logo.html, 2026-08-19) — "QR코드 오류 수정 레벨, H(30%)를 쓰면 정말 로고를 박아도 되나" — L7/M15/Q25/H30% 4단계.
-- [ ] **lorem-ipsum-generator** — "Lorem Ipsum, 키케로가 쓴 그 문장이 왜 의미 없는 글자로 보이나" — 기원전45년 키케로 원문 훼손 역사.
+- [x] **lorem-ipsum-generator** (guides/lorem-ipsum-cicero-history.html, 2026-08-20) — "Lorem Ipsum, 키케로가 쓴 그 문장이 왜 의미 없는 글자로 보이나" — 기원전45년 키케로 원문 훼손 역사.
 
 REJECT(8개): youtube-script-generator, ai-email-generator, ai-resume-generator, ai-cover-letter-generator, ai-product-description-generator, ai-blog-title-generator, ai-tweet-generator, ai-linkedin-post-generator (전부 FAQ가 자기 도구 내부 버그/한계 고백뿐, 외부지식 없음).
 
@@ -283,7 +283,7 @@ REJECT(8개): youtube-script-generator, ai-email-generator, ai-resume-generator,
 - [ ] **http-header-checker** — "HSTS max-age=0의 함정 — 보안 헤더가 있어도 없는 셈인 경우" — RFC6797상 max-age=0은 HSTS비활성.
 - [x] **ssl-checker** (guides/ssl-checker-certificate-transparency-logs.html, 2026-08-20) — "SSL 체커는 실제로 서버에 접속하지 않는다 — Certificate Transparency 로그의 원리와 한계" — crt.sh CT로그 대체조회.
 - [ ] **csr-generator** — "CSR 키 크기 2048 vs 4096, EC vs RSA — 뭘 골라야 인증서가 빨라지나" — EC P-256=RSA2048과 동등보안.
-- [ ] **csp-generator** — "'unsafe-inline' 한 줄이 CSP 방어를 무력화하는 이유와 nonce 대안" — meta태그는 frame-ancestors 미지원.
+- [x] **csp-generator** (guides/csp-unsafe-inline-nonce-alternative.html, 2026-08-20) — "'unsafe-inline' 한 줄이 CSP 방어를 무력화하는 이유와 nonce 대안" — meta태그는 frame-ancestors 미지원.
 - [ ] **csp-validator** — "CSP를 사이트 안 깨뜨리고 도입하는 법 — Report-Only에서 강제 모드까지 3단계" — data:URI가 img-src/script-src서 위험도 다름.
 - [ ] **cors-header-checker** — "Preflight가 도는 요청 vs 안 도는 요청 — CORS 에러의 진짜 원인" — simple request는 preflight없이 즉시전송.
 - [ ] **hash-checker** — "왜 브라우저 표준 해시 API는 MD5를 지원하지 않는가" — crypto.subtle.digest는 MD5 넘기면 즉시 예외.
@@ -371,7 +371,7 @@ REJECT: 없음.
 - [x] **business-days-calculator** (guides/business-days-vs-calendar-days-contract.html, 2026-08-19) — "계약서 '영업일 5일 이내', 달력으로는 며칠인가" — 공휴일 끼면 달력 10일이상 벌어짐.
 - [x] **pomodoro-timer** (guides/pomodoro-25-minute-origin-science.html, 2026-08-19) — "뽀모도로 25분, 실제 근거가 있는 숫자인가" — 프란체스코 치릴로 개인 경험칙, 과학적 최적값 아님.
 - [x] **timestamp** (guides/unix-timestamp-2038-problem.html, 2026-08-19) — "유닉스 타임스탬프와 2038년 문제" — 32비트 signed integer 오버플로.
-- [ ] **timezone-converter** — "30분·45분 단위 시간대가 존재하는 이유 — IST(UTC+5:30) 결정의 역사" — 인도UTC+5:30, 네팔UTC+5:45.
+- [x] **timezone-converter** (guides/timezone-30-45-minute-offsets.html, 2026-08-20) — "30분·45분 단위 시간대가 존재하는 이유 — IST(UTC+5:30) 결정의 역사" — 인도UTC+5:30, 네팔UTC+5:45(단, 이 도구 프리셋엔 네팔 없음, 가이드에서 지적).
 - [x] **working-days-calc** (guides/workers-day-not-legal-public-holiday.html, 2026-08-20) — "근로자의 날은 왜 법적으로 '공휴일'이 아닌가" — 근로기준법상 별도 유급휴일, 대체공휴일 미적용.
 - [ ] **time-zone-meeting-planner** — "글로벌 회의 시간 추천, UTC 자정을 넘는 구간은 어떻게 합치나" — 자정걸치는 구간 병합알고리즘.
 

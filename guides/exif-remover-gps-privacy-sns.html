@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>사진 속 GPS 좌표, 왜 SNS 올리기 전에 지워야 하나 | MODOO HUB</title>
+<meta name="description" content="스마트폰 사진에 GPS 좌표가 어떻게 저장되고, SNS에 올릴 때 왜 위험한지, Canvas 재인코딩으로 EXIF를 제거하는 원리까지 구조를 해부합니다. 좌표 변환 실전 예시 포함.">
+<link rel="canonical" href="https://modoohub.com/guides/exif-remover-gps-privacy-sns.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"사진 속 GPS 좌표, 왜 SNS 올리기 전에 지워야 하나","description":"스마트폰 사진에 GPS 좌표가 어떻게 저장되고, SNS에 올릴 때 왜 위험한지, Canvas 재인코딩으로 EXIF를 제거하는 원리까지 구조를 해부합니다.","datePublished":"2026-08-20","dateModified":"2026-08-20","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>사진 속 GPS 좌표, 왜 SNS 올리기 전에 지워야 하나</h1>
+  <p class="meta">가이드 · 2026.08.20 최종 확인</p>
+
+  <p>스마트폰으로 찍은 사진 한 장에는 화면에 보이는 풍경 말고도 촬영 당시의 위도·경도, 시각, 기기 정보가 함께 저장됩니다. 이 데이터를 EXIF(Exchangeable Image File Format)라고 부르는데, 대부분의 SNS 업로드 버튼은 이 값을 사용자에게 전혀 알려주지 않고 그대로 넘겨받습니다. 이 가이드는 GPS 좌표가 사진 파일 안에 실제로 어떤 형식으로 저장되는지, 그리고 왜 "이미지를 다시 그리는" 방식으로 그 정보를 통째로 없앨 수 있는지 구조를 뜯어봅니다.</p>
+
+  <h2>1. GPS 좌표는 숫자 하나가 아니라 도·분·초 3쌍이다</h2>
+  <p>EXIF 표준에서 GPSLatitude와 GPSLongitude 태그는 소수점 좌표(예: 37.5566) 하나로 저장되지 않습니다. 대신 도(度)·분(分)·초(秒) 각각을 분자/분모로 이루어진 유리수(RATIONAL) 세 쌍으로 저장합니다. 예를 들어 "37° 33' 24\""라는 값은 (37/1, 33/1, 24/1) 세 개의 분수 형태로 파일에 박혀 있고, 이를 읽는 프로그램이 도+분/60+초/3600 공식으로 다시 계산해 십진 좌표로 변환합니다. 이 저장 방식과 실제 변환 과정은 <a href="../exif-viewer.html">EXIF 뷰어</a>로 사진을 열어보면 직접 확인할 수 있고, 좀 더 깊은 구조는 <a href="exif-gps-dms-rational-format.html">GPS 좌표가 숫자 하나가 아닌 이유</a> 가이드에 정리되어 있습니다.</p>
+
+  <h2>2. SNS에 사진을 올리면 실제로 무슨 일이 벌어지나</h2>
+  <p>많은 사람이 "SNS에 올리면 어차피 화질도 낮아지고 메타데이터도 자동으로 지워지겠지"라고 짐작하지만, 이는 플랫폼마다 다릅니다. 일부 서비스는 업로드 시점에 서버 쪽에서 EXIF를 제거하지만, 이메일 첨부·클라우드 공유 링크·메신저 원본 전송처럼 서버 가공을 거치지 않는 경로로 사진이 퍼지면 GPS 좌표가 그대로 남아 함께 이동합니다. 특히 집 앞마당에서 찍은 아이 사진, 회사 사무실에서 찍은 업무 사진을 원본 그대로 올리면, 사진을 내려받은 누구든 좌표를 십진수로 변환해 정확한 위치를 특정할 수 있습니다.</p>
+
+  <h2>3. Canvas 재인코딩이 EXIF를 지우는 원리</h2>
+  <p><a href="../exif-remover.html">EXIF 제거기</a>는 파일에서 GPS 태그만 골라 삭제하는 방식이 아니라, 이미지를 브라우저의 &lt;canvas&gt; 요소에 통째로 다시 그린 뒤 그 결과를 새 PNG·JPEG 파일로 재인코딩하는 방식을 씁니다. Canvas의 drawImage와 toBlob은 픽셀 색상값만 다루는 API이고, 원본 파일에 붙어 있던 메타데이터 세그먼트(EXIF, IPTC, XMP 등)를 결과 파일로 옮기는 경로 자체가 애초에 존재하지 않습니다. 그래서 "GPS만 골라 지운다"가 아니라 "GPS를 포함한 EXIF 블록 전체가 출력물에 처음부터 없다"는 결과가 됩니다. JPEG 출력은 품질 95%로 재인코딩되어 육안으로 체감할 만한 화질 저하는 거의 없습니다.</p>
+  <div class="box">
+    <strong>예시</strong>: 서울시청 인근에서 촬영한 사진의 EXIF에 GPSLatitude가 (37/1, 33/1, 24/1), GPSLongitude가 (126/1, 58/1, 39/1)로 저장돼 있다면, 십진 좌표는 37 + 33/60 + 24/3600 = <strong>37.5567°N</strong>, 126 + 58/60 + 39/3600 = <strong>126.9775°E</strong>입니다. 지도 앱에 이 두 숫자만 입력해도 정확한 촬영 지점이 그대로 특정됩니다.
+  </div>
+
+  <h2>4. 제거 전후를 직접 검증하는 법</h2>
+  <p>EXIF를 지웠다고 주장하는 도구를 맹신하기보다, 처리 전후 파일을 각각 <a href="../exif-viewer.html">EXIF 뷰어</a>에 올려 GPS·촬영일시·카메라 모델 항목이 실제로 비어 있는지 비교해보는 것이 확실합니다. Canvas 재인코딩 방식은 EXIF뿐 아니라 원본에 남아 있던 회전 방향 정보(Orientation 태그)도 함께 사라지므로, 세로로 찍은 사진이 처리 후 다르게 보이는 경우가 있는데 이는 정상적인 부작용입니다.</p>
+
+  <h2>5. GPS 외에 함께 딸려가는 정보들</h2>
+  <p>GPS 좌표만이 문제는 아닙니다. EXIF에는 카메라·스마트폰 기종명, 렌즈 정보, 촬영 시각(분·초 단위까지)도 함께 담겨 있어, 여러 장의 사진을 조합하면 사용자의 동선과 생활 패턴을 재구성하는 것도 이론적으로 가능합니다. 중고 거래 플랫폼에 물건 사진을 올릴 때나, 재택근무 중 업무 화면을 캡처해 공유할 때도 같은 원리로 위치·기기 정보가 노출될 수 있으므로, 외부에 공개하는 모든 원본 사진은 업로드 전에 한 번 걸러내는 습관이 안전합니다.</p>
+
+  <h2>자주 묻는 질문</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 스크린샷에도 GPS 좌표가 들어가나요?</summary><p style="margin-top:8px;">아니요. 스크린샷은 화면을 캡처한 새 이미지이므로 원본 사진의 EXIF가 애초에 존재하지 않습니다. GPS가 문제 되는 것은 카메라 앱으로 직접 촬영한 원본 파일입니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 아이폰에서 위치 서비스를 꺼두면 아예 저장이 안 되나요?</summary><p style="margin-top:8px;">네. 설정에서 카메라 앱의 위치 접근 권한을 끄면 애초에 GPS 태그 자체가 기록되지 않습니다. 다만 이미 촬영해둔 과거 사진들은 이 설정과 무관하게 이미 GPS가 박혀 있으므로 별도로 제거해야 합니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. GPS만 지우고 촬영 날짜는 남길 수 있나요?</summary><p style="margin-top:8px;">이 도구는 Canvas 재인코딩 방식이라 EXIF 블록 전체가 한 번에 사라지며, 특정 태그만 선택적으로 남기는 기능은 없습니다. 촬영 날짜를 보존해야 한다면 별도의 EXIF 편집 도구가 필요합니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 처리한 사진이 서버에 업로드되나요?</summary><p style="margin-top:8px;">아니요. Canvas API와 재인코딩 전 과정이 브라우저 안에서만 실행되므로 원본 사진이 외부로 전송되지 않습니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../exif-remover.html">→ EXIF 제거기</a>
+    <a href="../exif-viewer.html">→ EXIF 뷰어</a>
+    <a href="../image-metadata-viewer.html">→ 이미지 메타데이터 뷰어</a>
+    <a href="../heic-to-jpg.html">→ HEIC to JPG 변환기</a>
+    <a href="../image-watermark.html">→ 이미지 워터마크</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적이며 개별 사안은 세무사·노무사 상담을 권장합니다.</footer>
+</main>
+</body>
+</html>

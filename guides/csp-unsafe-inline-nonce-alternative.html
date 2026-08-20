@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>'unsafe-inline' 한 줄이 CSP 방어를 무력화하는 이유와 nonce 대안 | MODOO HUB</title>
+<meta name="description" content="script-src에 'unsafe-inline'을 넣으면 CSP의 핵심 방어 기능이 사실상 꺼집니다. nonce·hash 기반 대안이 이를 어떻게 해결하는지, meta 태그로는 frame-ancestors가 왜 동작하지 않는지 원리부터 정리.">
+<link rel="canonical" href="https://modoohub.com/guides/csp-unsafe-inline-nonce-alternative.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"'unsafe-inline' 한 줄이 CSP 방어를 무력화하는 이유와 nonce 대안","description":"script-src에 'unsafe-inline'을 넣으면 CSP의 핵심 방어 기능이 사실상 꺼집니다. nonce·hash 기반 대안의 원리와 meta 태그의 frame-ancestors 제약을 정리합니다.","datePublished":"2026-08-20","dateModified":"2026-08-20","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>'unsafe-inline' 한 줄이 CSP 방어를 무력화하는 이유와 nonce 대안</h1>
+  <p class="meta">가이드 · 2026.08.20 최종 확인</p>
+
+  <p>Content-Security-Policy(CSP) 헤더를 처음 도입할 때 가장 흔하게 저지르는 실수가 <code>script-src 'self' 'unsafe-inline'</code>처럼 'unsafe-inline'을 습관적으로 넣는 것입니다. 당장 에러 없이 페이지가 동작한다는 이유만으로 넘어가기 쉽지만, 사실 이 한 줄이 CSP를 도입한 이유 자체를 지워버립니다. 이 가이드는 왜 그런지 원리를 짚고, <a href="../csp-generator.html">CSP 생성기</a>가 실제로 이 문제를 어떻게 다루는지, meta 태그 방식의 스펙상 제약까지 정리합니다.</p>
+
+  <h2>1. CSP가 막으려는 공격은 정확히 무엇인가</h2>
+  <p>CSP의 핵심 목적은 XSS(크로스 사이트 스크립팅) 방어입니다. 공격자가 게시판 댓글이나 URL 파라미터 등을 통해 <code>&lt;script&gt;alert(document.cookie)&lt;/script&gt;</code> 같은 코드를 페이지에 주입했다고 가정하면, CSP 없이는 이 스크립트가 그대로 실행되어 세션 쿠키가 유출될 수 있습니다. CSP는 "브라우저가 실행을 허용할 스크립트의 출처"를 화이트리스트로 지정하는 헤더입니다. script-src에 명시되지 않은 출처의 스크립트는 브라우저가 아예 실행을 거부합니다.</p>
+
+  <h2>2. 'unsafe-inline'이 이 방어를 통째로 꺼버리는 이유</h2>
+  <p>문제는 CSP가 기본적으로 <strong>인라인 스크립트(HTML 안에 직접 쓴 &lt;script&gt; 태그, onclick 같은 이벤트 속성)를 출처 구분 없이 전부 차단</strong>한다는 데 있습니다. 그런데 script-src에 'unsafe-inline' 키워드를 추가하면, 이 인라인 차단 규칙 자체가 해제됩니다. 문제는 공격자가 주입하는 스크립트도 대부분 인라인 형태라는 점입니다 — 외부 파일을 새로 서버에 올릴 필요 없이 텍스트만 삽입하면 되기 때문입니다. 즉 'unsafe-inline'을 넣는 순간, "출처를 화이트리스트로 제한한다"는 CSP의 존재 이유였던 인라인 차단이 무력화되어, 정상적으로 로드되는 스크립트와 공격자가 주입한 스크립트를 브라우저가 구분하지 못하게 됩니다. 다른 지시어(예: img-src, font-src)를 아무리 촘촘하게 설정해도 script-src에 'unsafe-inline'이 남아 있으면 XSS 방어라는 관점에서는 사실상 CSP를 켜지 않은 것과 큰 차이가 없습니다.</p>
+
+  <h2>3. nonce 기반 대안: "이번 요청에서만 유효한 암호"</h2>
+  <p>그렇다고 인라인 스크립트를 아예 못 쓰면 실무에서 불편한 경우가 많습니다(서버 렌더링 시 동적 값을 즉시 심어야 할 때 등). 이때 쓰는 것이 <strong>nonce(number used once)</strong> 방식입니다. 서버가 매 요청마다 무작위 문자열을 생성해 두 곳에 동시에 넣습니다 — 스크립트 태그의 <code>nonce="랜덤값"</code> 속성, 그리고 CSP 헤더의 <code>'nonce-랜덤값'</code>. 브라우저는 두 값이 정확히 일치하는 인라인 스크립트만 실행을 허용합니다. 공격자가 페이지에 스크립트를 주입하더라도 서버가 그 요청 시점에 발급한 nonce 값을 알아낼 방법이 없으므로(매 요청마다 값이 바뀌고, HTML 응답을 가로채지 않는 한 예측 불가능하므로) 주입된 스크립트는 nonce 불일치로 차단됩니다.</p>
+
+  <h2>4. hash 기반 대안: "내용이 곧 통행증"</h2>
+  <p>서버가 요청마다 랜덤값을 심기 어려운 정적 사이트라면 hash 방식을 씁니다. 허용하고 싶은 인라인 스크립트의 정확한 내용을 SHA-256 등으로 해시한 값을 CSP에 <code>'sha256-해시값'</code> 형태로 등록해두면, 브라우저는 실행하려는 인라인 스크립트의 해시를 계산해 등록된 값과 비교합니다. 한 글자라도 다르면 해시가 달라지므로 공격자가 주입한 코드는 통과하지 못합니다. 다만 스크립트 내용이 바뀔 때마다 해시도 다시 계산해 CSP를 갱신해야 하므로, 내용이 자주 바뀌지 않는 정적 인라인 코드에 적합합니다.</p>
+  <div class="box">
+    <strong>비교 예시</strong>: 아래는 동일한 인라인 스크립트를 세 가지 CSP 설정으로 각각 처리했을 때 결과입니다.
+    <table style="margin-top:10px;">
+      <tr><th>CSP script-src 설정</th><th>정상 인라인 스크립트</th><th>공격자 주입 스크립트</th></tr>
+      <tr><td>'unsafe-inline'</td><td>실행됨</td><td style="color:var(--red);">실행됨(차단 안 됨)</td></tr>
+      <tr><td>'nonce-a1b2c3...'</td><td>nonce 일치 시 실행됨</td><td style="color:var(--green);">nonce 없어 차단됨</td></tr>
+      <tr><td>'sha256-Xy8f...'</td><td>해시 일치 시 실행됨</td><td style="color:var(--green);">해시 불일치로 차단됨</td></tr>
+    </table>
+  </div>
+
+  <h2>5. meta 태그로 CSP를 걸 때의 스펙상 제약</h2>
+  <p>서버 설정 없이 <code>&lt;meta http-equiv="Content-Security-Policy" content="..."&gt;</code>만으로 CSP를 적용하려는 경우도 많은데, 여기에는 스펙상 명확한 한계가 있습니다. <strong>frame-ancestors, report-uri, report-to, sandbox 지시어는 meta 태그에서 아예 동작하지 않습니다</strong> — HTTP 응답 헤더로 전달할 때만 유효합니다. 특히 frame-ancestors는 클릭재킹 방어에 쓰이는 지시어인데, meta 태그로는 처음부터 이 방어를 켤 수 없다는 뜻입니다. 실제로 <a href="../csp-generator.html">CSP 생성기</a>의 코드를 확인해보면 <code>META_UNSUPPORTED</code> 목록에 이 4개 지시어를 정의해두고, HTML meta 태그용 출력을 만들 때는 이 목록에 해당하는 지시어를 자동으로 제외하고 있습니다. 즉 도구 차원에서 이미 이 제약을 반영해, 사용자가 meta 태그 출력에 frame-ancestors를 넣었다가 "설정했는데 안 먹힌다"는 혼란을 겪지 않도록 처리되어 있습니다. 프로덕션 환경이라면 meta 태그보다 서버(Nginx·Apache 설정 또는 애플리케이션 코드)에서 HTTP 헤더로 직접 CSP를 내려주는 방식이 권장됩니다.</p>
+
+  <h2>6. 설정 후에는 검증까지가 한 세트</h2>
+  <p>CSP는 문법 오류가 있어도 브라우저가 조용히 일부만 무시하고 넘어가는 경우가 있어, 직접 눈으로 검토하는 것만으로는 놓치는 지시어가 생기기 쉽습니다. <a href="../csp-generator.html">CSP 생성기</a>로 헤더 값을 만든 뒤에는 <a href="../csp-validator.html">CSP 검증기</a>로 실제 문법과 위험한 키워드(예: script-src의 '*'나 'unsafe-inline' 잔존 여부)가 남아있지 않은지 다시 확인하는 것이 안전합니다.</p>
+
+  <h2>자주 묻는 질문</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 'unsafe-inline'을 넣으면 CSP를 아예 안 쓰는 것과 같나요?</summary><p style="margin-top:8px;">완전히 같지는 않습니다. img-src, connect-src 등 다른 지시어는 여전히 유효해 리소스 출처 제한 효과는 남아있습니다. 다만 script-src의 'unsafe-inline'은 XSS 방어라는 CSP의 핵심 목적을 무력화하므로, 보안 관점에서는 사실상 그 부분의 방어가 꺼진 것과 같다고 보는 것이 정확합니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. nonce와 hash 중 어느 것이 더 안전한가요?</summary><p style="margin-top:8px;">보안 수준은 비슷하지만 용도가 다릅니다. 서버가 매 요청마다 동적으로 값을 생성할 수 있다면 nonce가 관리하기 쉽고, 내용이 고정된 정적 인라인 스크립트라면 hash가 서버 로직 없이도 적용 가능합니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. meta 태그 CSP로 frame-ancestors를 설정하면 에러가 나나요?</summary><p style="margin-top:8px;">브라우저가 에러를 띄우지는 않지만 해당 지시어가 조용히 무시됩니다. 즉 설정했다고 착각하기 쉬운 대표적인 함정입니다. 클릭재킹 방어가 필요하다면 반드시 HTTP 응답 헤더로 CSP를 내려주세요.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Google Analytics 같은 외부 스크립트를 쓰면서도 'unsafe-inline' 없이 설정할 수 있나요?</summary><p style="margin-top:8px;">가능합니다. 외부 스크립트는 script-src에 해당 도메인(예: googletagmanager.com)을 명시하면 되고, 페이지 내 인라인 초기화 코드만 nonce나 hash로 별도 허용하면 'unsafe-inline' 없이도 정상 동작시킬 수 있습니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../csp-generator.html">→ CSP 생성기</a>
+    <a href="../csp-validator.html">→ CSP 검증기</a>
+    <a href="../cors-header-checker.html">→ CORS 헤더 체커</a>
+    <a href="../http-header-checker.html">→ HTTP 헤더 체커</a>
+    <a href="../nginx-config-generator.html">→ Nginx 설정 생성기</a>
+    <a href="../ssl-checker.html">→ SSL 인증서 체커</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적이며 개별 보안 정책은 실제 서비스 환경에 맞춰 전문가 검토를 권장합니다.</footer>
+</main>
+</body>
+</html>

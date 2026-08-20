@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>이모지 하나가 글자수 2~11개로 세지는 이유, SNS 글자수 제한의 함정 | MODOO HUB</title>
+<meta name="description" content="이모지 하나가 글자수 계산에서 2개, 심지어 11개로 세지는 이유를 UTF-16 서로게이트 쌍과 ZWJ 결합 시퀀스로 설명합니다. 코드포인트·코드유닛·그래핌의 차이와 SNS 글자수 제한 실전 대응법.">
+<link rel="canonical" href="https://modoohub.com/guides/emoji-counter-surrogate-pair-sns-limit.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"이모지 하나가 글자수 2~11개로 세지는 이유 — SNS 글자수 제한의 함정","description":"이모지 하나가 글자수 계산에서 2개, 심지어 11개로 세지는 이유를 UTF-16 서로게이트 쌍과 ZWJ 결합 시퀀스로 설명합니다.","datePublished":"2026-08-20","dateModified":"2026-08-20","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>이모지 하나가 글자수 2~11개로 세지는 이유 — SNS 글자수 제한의 함정</h1>
+  <p class="meta">가이드 · 2026.08.20 최종 확인</p>
+
+  <p>화면에는 이모지 하나(😀)가 딱 한 글자로 보이는데, 글자수를 세는 프로그램에 넣으면 갑자기 2글자로 잡히는 경험을 해본 적이 있을 겁니다. 가족 이모지(👨‍👩‍👧‍👦)처럼 여러 이모지가 겹쳐 보이는 경우는 더 심해서, 프로그램에 따라 최대 11글자까지도 잡힙니다. 이건 버그가 아니라 유니코드가 문자를 저장하는 방식과 "글자수를 어떤 기준으로 셀 것이냐"의 차이에서 나오는 현상입니다. <a href="../emoji-counter.html">이모지 카운터</a>의 실제 코드를 근거로 세 가지 서로 다른 "글자수" 개념을 정리하고, 트위터/X·인스타그램 같은 SNS 글자수 제한과 어떻게 연결되는지 설명합니다.</p>
+
+  <h2>1. 이모지는 왜 UTF-16에서 두 조각으로 쪼개지는가</h2>
+  <p>유니코드는 전 세계 문자에 고유 번호(코드포인트)를 부여합니다. 대부분의 이모지는 U+1F600(😀) 같은 코드포인트를 갖는데, 이 값은 16비트로 표현할 수 있는 범위(0~FFFF)를 넘어서는 "확장 영역"에 있습니다. JavaScript 문자열은 내부적으로 UTF-16 인코딩을 쓰기 때문에, 16비트를 넘는 문자는 <strong>서로게이트 쌍(surrogate pair)</strong>이라는 방식으로 2개의 16비트 코드유닛에 나눠 담습니다. 그 결과 JavaScript의 <code>string.length</code> 속성(코드유닛 개수를 세는 방식)으로 이모지 하나를 재면 1이 아니라 2가 나옵니다. 사람 눈에는 한 글자, 컴퓨터 내부적으로는 두 조각인 셈입니다.</p>
+
+  <h2>2. ZWJ: 이모지 여러 개를 하나로 붙이는 보이지 않는 접착제</h2>
+  <p>가족·직업·커플 이모지처럼 여러 사람이 함께 나오는 이모지는 실제로 존재하는 단일 문자가 아닙니다. 👨‍👩‍👧‍👦는 "남자 어른" + ZWJ(Zero-Width Joiner, U+200D, 폭이 0인 결합 문자) + "여자 어른" + ZWJ + "여자아이" + ZWJ + "남자아이", 이렇게 4개의 독립된 이모지가 눈에 보이지 않는 접착제 3개로 이어진 하나의 시퀀스입니다. 폰트와 브라우저가 이 시퀀스를 인식하면 화면에는 합쳐진 하나의 그림으로 렌더링하지만, 문자열 데이터 안에는 여전히 7개의 코드포인트(이모지 4개+ZWJ 3개)가 그대로 들어 있습니다. 지원하지 않는 오래된 환경에서 이 이모지가 4명이 나란히 붙어 보이는 것도 이 때문입니다.</p>
+
+  <h2>3. 모두의 툴 이모지 카운터는 실제로 무엇을 세는가</h2>
+  <p><a href="../emoji-counter.html">이모지 카운터</a>의 소스 코드를 보면, 이모지 개수(총 이모지·종류)는 <code>Intl.Segmenter</code>라는 브라우저 내장 API로 텍스트를 "그래핌 클러스터(grapheme cluster, 사람이 인지하는 하나의 글자 단위)" 단위로 쪼갠 뒤, 이모지 속성을 가진 클러스터만 걸러서 셉니다. 이 방식은 서로게이트 쌍이나 ZWJ 시퀀스를 모두 하나의 단위로 정확히 묶어주기 때문에, 가족 이모지도 "1개"로 정확히 집계됩니다. 반면 화면 하단의 "전체 문자" 수치는 <code>[...text].length</code>(스프레드 연산자로 문자열을 코드포인트 단위로 펼친 배열의 길이)를 사용합니다. 이는 코드유닛 기준인 <code>string.length</code>와도 다른, 세 번째 기준입니다.</p>
+
+  <h2>4. 코드포인트·코드유닛·그래핌 — 같은 이모지, 다른 숫자 셋</h2>
+  <p>가족 이모지 👨‍👩‍👧‍👦 하나를 놓고 세 가지 방식으로 세면 결과가 모두 다릅니다.</p>
+  <table>
+    <tr><th>측정 방식</th><th>사용하는 기준</th><th>👨‍👩‍👧‍👦의 값</th></tr>
+    <tr><td>그래핌 클러스터(Intl.Segmenter)</td><td>사람이 인지하는 글자 단위 — 이모지 카운터의 "총 이모지" 집계 방식</td><td>1</td></tr>
+    <tr><td>코드포인트(<code>[...str].length</code>)</td><td>유니코드 문자 번호 개수 — 이모지 카운터의 "전체 문자" 집계 방식</td><td>7 (이모지 4 + ZWJ 3)</td></tr>
+    <tr><td>UTF-16 코드유닛(<code>str.length</code>)</td><td>JavaScript 순수 <code>.length</code> 기준 — 대부분의 SNS 글자수 카운터 뼈대</td><td>11 (서로게이트 쌍 4×2 + ZWJ 3×1)</td></tr>
+  </table>
+  <div class="box">
+    <strong>기본 이모지 😀 하나</strong>는 그래핌 1, 코드포인트 1, 코드유닛(<code>.length</code>) <strong>2</strong>입니다. 제목의 "2~11개"는 이 두 극단 — 서로게이트 쌍만 있는 기본 이모지(2)와, ZWJ로 여러 개가 결합된 복합 이모지(11 이상)의 범위입니다.
+  </div>
+
+  <h2>5. Twitter/X·Instagram 글자수 제한과의 실전 연결</h2>
+  <p>SNS 플랫폼의 글자수 제한은 대부분 순수 <code>.length</code>(코드유닛)와 비슷한 방식이거나 그와 유사한 가중치 규칙을 적용합니다. 즉 화면에는 이모지 하나로 보여도 실제로는 2글자 이상을 소모하며, ZWJ로 결합된 복합 이모지는 훨씬 더 많은 글자수를 잡아먹습니다. 짧은 문구에 이모지를 여러 개, 특히 가족·커플·직업 계열의 결합 이모지를 자주 쓰면 눈에 보이는 글자 수보다 훨씬 빨리 글자수 제한에 도달할 수 있습니다. 캡션이나 트윗을 작성하기 전에 실제로 몇 글자로 잡히는지 <a href="../emoji-counter.html">이모지 카운터</a>와 <a href="../character-counter.html">글자수 세기</a>로 미리 확인하는 것이 안전합니다.</p>
+
+  <h2>6. 이모지를 코드 단위까지 뜯어보고 싶다면</h2>
+  <p>특정 이모지가 정확히 몇 개의 코드포인트로 구성되어 있는지, ZWJ가 몇 번 들어갔는지 문자 단위로 직접 확인하고 싶다면 <a href="../unicode-inspector.html">유니코드 인스펙터</a>를 사용하세요. 반대로 이모지를 텍스트에서 모두 제거하고 순수 글자수만 세고 싶다면 <a href="../emoji-remover.html">이모지 제거기</a>로 먼저 걸러낸 뒤 글자수를 재는 것이 정확합니다.</p>
+
+  <h2>자주 묻는 질문</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 왜 기본 이모지도 1글자가 아니라 2글자로 세지나요?</summary><p style="margin-top:8px;">이모지의 유니코드 코드포인트가 16비트로 표현 가능한 범위를 넘기 때문입니다. JavaScript 문자열은 UTF-16을 쓰므로 이런 문자를 서로게이트 쌍이라는 2개의 코드유닛으로 나눠 저장하고, <code>.length</code>는 이 코드유닛 개수를 셉니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 이모지 카운터의 "전체 문자" 수치와 실제 SNS 글자수 제한이 다르게 나오는 이유는?</summary><p style="margin-top:8px;">이모지 카운터의 "전체 문자"는 코드포인트 기준(<code>[...text].length</code>)으로 집계되는 반면, 대부분의 SNS 글자수 제한은 UTF-16 코드유닛(<code>.length</code>)에 가까운 방식을 씁니다. 기본 이모지는 코드포인트 1개가 코드유닛 2개로 늘어나므로, SNS 쪽 글자수가 더 크게 나올 수 있습니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 피부색이 적용된 이모지(👋🏽)도 여러 글자로 세지나요?</summary><p style="margin-top:8px;">네. 피부색 변형은 기본 이모지 뒤에 별도의 수정자(modifier) 코드포인트가 붙는 방식이라, 코드포인트·코드유닛 기준으로는 기본 이모지보다 글자수가 더 늘어납니다. 다만 그래핌 클러스터 기준(사람이 보는 단위)으로는 여전히 1개로 인식됩니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. ZWJ로 결합된 이모지는 항상 모든 기기에서 하나로 보이나요?</summary><p style="margin-top:8px;">아닙니다. 폰트와 운영체제가 해당 ZWJ 시퀀스를 지원하지 않으면, 결합되지 않은 개별 이모지들이 나란히 표시될 수 있습니다. 데이터 상으로는 항상 여러 코드포인트가 이어진 시퀀스이며, 렌더링만 환경에 따라 달라집니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../emoji-counter.html">→ 이모지 카운터</a>
+    <a href="../emoji-remover.html">→ 이모지 제거기</a>
+    <a href="../unicode-inspector.html">→ 유니코드 인스펙터</a>
+    <a href="../unicode-converter.html">→ 유니코드 변환기</a>
+    <a href="../character-counter.html">→ 글자수 세기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 도구 동작 원리를 이해하기 위한 일반 정보이며, 실제 화면과 옵션은 도구 업데이트에 따라 달라질 수 있습니다.</footer>
+</main>
+</body>
+</html>
