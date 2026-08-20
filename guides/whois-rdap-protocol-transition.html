@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WHOIS는 죽었다? RDAP가 대체하는 이유 | MODOO HUB</title>
+<meta name="description" content="도메인 조회의 오래된 표준 WHOIS가 왜 RDAP로 대체되고 있는지, 두 프로토콜의 구조적 차이와 이 도구가 실제로 쓰는 방식을 설명합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/whois-rdap-protocol-transition.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/whois-rdap-protocol-transition.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/whois-rdap-protocol-transition.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"WHOIS는 죽었다? RDAP가 대체하는 이유","description":"도메인 조회의 오래된 표준 WHOIS가 왜 RDAP로 대체되고 있는지, 두 프로토콜의 구조적 차이를 설명합니다.","datePublished":"2026-08-19","dateModified":"2026-08-19","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--purple);}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;}
+details summary{cursor:pointer;font-weight:600;color:var(--text-muted);}
+details p{margin-top:8px;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>WHOIS는 죽었다? RDAP가 대체하는 이유</h1>
+  <p class="meta">가이드 · 2026-08-19 최종 확인</p>
+
+  <p>도메인 등록 정보를 조회할 때 흔히 "WHOIS 조회"라고 부르지만, 요즘 대부분의 조회 도구는 실제로는 WHOIS가 아니라 <strong>RDAP</strong>라는 완전히 다른 프로토콜을 쓰고 있습니다. 이름은 그대로 남았지만 내부는 이미 세대교체가 끝났습니다. 이 가이드는 왜 이런 전환이 일어났는지, 그리고 이 도구가 실제로 무엇을 호출하는지 설명합니다.</p>
+
+  <h2>1. 전통 WHOIS의 한계: 표준 없는 텍스트</h2>
+  <p>WHOIS는 RFC 3912로 정리된, 1980년대에 만들어진 매우 단순한 프로토콜입니다. TCP 43번 포트로 접속해서 도메인 이름을 보내면 사람이 읽을 수 있는 평문(plain text)이 돌아오는 방식입니다. 문제는 <strong>이 평문의 형식이 표준화되어 있지 않다</strong>는 점입니다. 등록기관(registrar)마다, 레지스트리(registry)마다 필드 이름과 줄바꿈 방식이 제각각이라, 이걸 프로그램이 자동으로 파싱하려면 등록기관별로 별도의 파싱 규칙을 유지보수해야 했습니다. 새 레지스트리가 생기거나 기존 레지스트리가 포맷을 살짝 바꾸면 파서가 조용히 깨지는 일이 흔했습니다.</p>
+
+  <h2>2. RDAP: 구조화된 응답으로 재설계</h2>
+  <p><strong>RDAP(Registration Data Access Protocol)</strong>는 이 문제를 근본적으로 다시 설계해서 해결한 표준입니다. IETF가 여러 RFC로 정의했고, ICANN이 gTLD(일반 최상위 도메인) 레지스트리·레지스트라들에게 지원을 의무화하면서 2021년 무렵 본격적으로 자리잡았습니다. 핵심 차이는 세 가지입니다.</p>
+  <table>
+    <tr><th>항목</th><th>전통 WHOIS</th><th>RDAP</th></tr>
+    <tr><td>전송 방식</td><td>TCP 43번 포트, 평문</td><td>HTTPS(암호화)</td></tr>
+    <tr><td>응답 형식</td><td>레지스트리마다 제각각인 텍스트</td><td>표준화된 JSON</td></tr>
+    <tr><td>국제화·접근 제어</td><td>사실상 없음</td><td>유니코드 지원, 요청자별 차등 응답 가능</td></tr>
+  </table>
+  <p>RDAP는 REST 방식의 HTTPS 요청으로 도메인 정보를 조회하고, 그 응답이 어느 레지스트리에서 왔든 <strong>같은 JSON 스키마</strong>를 따르기 때문에, 이걸 소비하는 프로그램은 레지스트리별 예외 처리를 만들 필요가 없어집니다.</p>
+
+  <h2>3. 이 도구가 실제로 쓰는 방식</h2>
+  <p>이 WHOIS 조회 도구는 이름과 달리 전통 WHOIS 프로토콜을 전혀 쓰지 않습니다. 소스 코드를 보면 <code>fetch('https://rdap.org/domain/' + domain)</code> 형태로 RDAP 브로커 서비스(rdap.org)에 HTTPS 요청을 보내고, 돌아온 JSON을 파싱해서 등록기관·등록일·만료일·네임서버 정보를 화면에 표시합니다. "Raw WHOIS / RDAP 데이터" 토글을 열어보면 실제로 JSON 원본이 그대로 노출되는데, 이게 바로 RDAP 응답입니다 — 옛날식 WHOIS 텍스트 블롭이 아닙니다.</p>
+
+  <h2>4. GDPR과 개인정보 처리가 쉬워진 이유</h2>
+  <p>RDAP가 각광받은 또 다른 이유는 GDPR(유럽 일반 개인정보 보호 규정) 시대와 맞물렸기 때문입니다. 전통 WHOIS는 "전체 공개" 아니면 "전체 비공개" 식의 이분법이었지만, RDAP는 프로토콜 차원에서 요청자의 권한에 따라 응답 내용을 다르게 줄 수 있는 구조를 갖고 있어서, 등록자 개인정보를 상황에 맞게 가리는 게 더 자연스럽습니다. 이 도구의 결과에서 등록자 개인정보 필드가 종종 비어 있거나 프록시 정보로 대체돼 있는 것도 이 때문입니다.</p>
+
+  <h2>5. 그래도 WHOIS라는 이름이 남아있는 이유</h2>
+  <p>사용자 입장에서는 "도메인 등록 정보를 조회한다"는 행위 자체가 오랫동안 "WHOIS 조회"로 불려왔기 때문에, 서비스 이름은 관성적으로 WHOIS를 유지하는 경우가 많습니다. 또한 모든 도메인이 RDAP로 완전히 넘어간 건 아닙니다 — ICANN이 의무화한 건 gTLD(.com, .net, .org 등) 레지스트리·레지스트라이고, 국가 코드 도메인(ccTLD, 예: .kr, .jp)은 RDAP 지원 여부가 레지스트리마다 다릅니다. 일부 ccTLD는 여전히 전통 WHOIS만 지원하기 때문에, "모든 도메인이 RDAP로 조회된다"고 단정할 수는 없습니다.</p>
+
+  <h2>자주 묻는 질문</h2>
+  <details><summary>Q. 이 도구는 진짜 WHOIS 프로토콜(포트 43)을 쓰나요?</summary><p>A. 아닙니다. 소스 코드 기준으로 <code>https://rdap.org/domain/{도메인}</code>에 HTTPS 요청을 보내는 RDAP 방식만 사용합니다. TCP 43번 포트로 접속하는 전통 WHOIS 로직은 없습니다.</p></details>
+  <details><summary>Q. RDAP와 WHOIS 중 뭐가 더 정확한가요?</summary><p>A. 정확도 자체는 같은 등록 데이터를 가져오는 것이므로 동일합니다. 차이는 "얼마나 안정적으로 파싱 가능한가"입니다 — RDAP는 표준 JSON이라 파싱 오류 가능성이 훨씬 낮습니다.</p></details>
+  <details><summary>Q. 모든 도메인이 RDAP로 조회되나요?</summary><p>A. gTLD(.com/.net/.org 등)는 ICANN 의무화로 대부분 RDAP를 지원합니다. 일부 국가 코드 도메인(ccTLD)은 아직 RDAP를 지원하지 않아 전통 WHOIS만 가능한 경우가 있습니다.</p></details>
+  <details><summary>Q. RDAP 응답에서 등록자 개인정보가 안 보이는 이유는?</summary><p>A. GDPR 등 개인정보 보호 규정 시행 이후 대부분의 레지스트라가 등록자 실명·이메일·전화번호를 기본적으로 비공개 처리하거나 프록시 정보로 대체하기 때문입니다. RDAP 프로토콜 자체가 이런 차등 공개를 지원하도록 설계되었습니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../whois-lookup.html">→ WHOIS 조회</a>
+    <a href="../dns-lookup.html">→ DNS 조회</a>
+    <a href="../ssl-checker.html">→ SSL 인증서 체커</a>
+    <a href="dns-propagation-ttl-explained.html">→ DNS 전파와 TTL 원리 가이드</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적입니다.</footer>
+</main>
+</body>
+</html>

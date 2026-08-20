@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SSL 체커는 실제로 서버에 접속하지 않는다 — Certificate Transparency 로그의 원리 | MODOO HUB</title>
+<meta name="description" content="브라우저 기반 SSL 체커가 왜 실제 TLS 핸드셰이크 대신 crt.sh 인증서 투명성 로그를 조회하는지, 그 원리와 한계를 설명합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/ssl-checker-certificate-transparency-logs.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/ssl-checker-certificate-transparency-logs.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/ssl-checker-certificate-transparency-logs.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"SSL 체커는 실제로 서버에 접속하지 않는다 — Certificate Transparency 로그의 원리","description":"브라우저 기반 SSL 체커가 왜 실제 TLS 핸드셰이크 대신 crt.sh 인증서 투명성 로그를 조회하는지, 그 원리와 한계를 설명합니다.","datePublished":"2026-08-19","dateModified":"2026-08-19","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--purple);}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;}
+details summary{cursor:pointer;font-weight:600;color:var(--text-muted);}
+details p{margin-top:8px;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>SSL 체커는 실제로 서버에 접속하지 않는다 — Certificate Transparency 로그의 원리</h1>
+  <p class="meta">가이드 · 2026-08-19 최종 확인</p>
+
+  <p>"이 도메인 SSL 인증서 언제 만료돼?"를 브라우저에서 바로 확인해주는 도구를 쓰다 보면 한 가지 궁금증이 생깁니다. 브라우저 자바스크립트가 임의의 제3자 서버에 직접 접속해서 인증서를 확인하는 게 정말 가능한가요? 답은 "아니오"입니다. 이 가이드는 브라우저 기반 SSL 체커가 실제로 어떻게 동작하는지, 그리고 그 방식이 갖는 근본적인 한계를 설명합니다.</p>
+
+  <h2>1. 브라우저는 임의 서버에 TLS 핸드셰이크를 걸 수 없다</h2>
+  <p>서버 터미널에서 <code>openssl s_client -connect example.com:443</code>나 <code>curl -vI https://example.com</code>을 실행하면 실제로 대상 서버와 TLS 핸드셰이크를 주고받아 인증서를 즉석에서 받아올 수 있습니다. 하지만 브라우저에서 실행되는 자바스크립트에는 이런 저수준 TCP 소켓 API가 애초에 존재하지 않습니다. 이는 버그가 아니라 의도된 보안 설계입니다 — 웹페이지가 임의의 포트로 임의의 서버에 raw 소켓을 열 수 있다면 심각한 보안 문제(내부망 스캐닝, 프로토콜 스머글링 등)로 이어지기 때문입니다. 그래서 브라우저에서 동작하는 "SSL 체커" 류의 도구는 다른 방식으로 인증서 정보를 가져와야 합니다.</p>
+
+  <h2>2. 대안: Certificate Transparency(CT) 로그 조회</h2>
+  <p>구글이 2013년경부터 주도해 확산시킨 <strong>Certificate Transparency(인증서 투명성)</strong> 제도는, 공인 인증기관(CA)이 발급하는 모든 인증서를 공개적이고 검증 가능한 append-only 로그에 반드시 제출하도록 요구합니다. 현재는 사실상 모든 주요 브라우저가 CT 로그에 등록되지 않은 인증서를 신뢰하지 않기 때문에, 사실상 강제 조항이나 다름없습니다. <code>crt.sh</code>(Sectigo가 운영)는 이 CT 로그 전체를 색인화해서 검색 가능한 형태로 제공하는 공개 서비스입니다. 도메인 이름만 넣으면 그 도메인에 발급된 모든 인증서 이력을 대상 서버에 단 한 번도 접속하지 않고 조회할 수 있습니다.</p>
+
+  <h2>3. 이 도구가 실제로 하는 일</h2>
+  <p>실제로 소스 코드를 확인해보면, SSL 체커는 <code>fetch('https://crt.sh/?q=도메인&output=json')</code> 형태로 crt.sh의 JSON API를 호출합니다. 서버에 직접 접속해 실시간 핸드셰이크를 수행하는 대신, 이미 발급 이력이 기록된 CT 로그에서 가장 최근 인증서 정보(만료일·발급자·SAN 도메인 목록)를 가져와 보여주는 방식입니다. 참고로 crt.sh가 반환하는 날짜 문자열은 타임존 표기가 없지만 실제로는 UTC 기준이라, 도구는 이를 브라우저 로컬 시간대로 잘못 해석하지 않도록 명시적으로 UTC 변환 처리를 거칩니다.</p>
+  <div class="box">
+    <strong>정리</strong>: CT 로그 조회 = "이 도메인에 어떤 인증서가 발급된 적 있는가"를 확인하는 방식. 실시간 핸드셰이크 = "지금 이 순간 서버가 실제로 무슨 인증서를 제시하고 있는가"를 확인하는 방식. 둘은 답하는 질문 자체가 다릅니다.
+  </div>
+
+  <h2>4. CT 로그 조회 방식의 한계</h2>
+  <p>CT 로그는 "발급 이력"을 보여줄 뿐, 서버가 <strong>지금 이 순간</strong> 실제로 제시하고 있는 인증서와 반드시 일치한다는 보장은 없습니다. 예를 들어 서버 설정 실수로 만료된 구 인증서를 여전히 제공하고 있거나, 여러 인증서 중 의도와 다른 것을 로드하고 있는 경우 CT 로그만으로는 알 수 없습니다. 또한 실시간 핸드셰이크가 알려주는 정보 — 지원하는 TLS 프로토콜 버전, 실제로 협상되는 암호 스위트(cipher suite), 클라이언트 관점에서의 체인 검증 결과, 인증서가 폐기(revoke)됐는지에 대한 OCSP/CRL 응답 여부 — 는 CT 로그 조회로는 전혀 알 수 없습니다. 이 둘은 상호보완적인 서로 다른 확인 방법입니다.</p>
+
+  <h2>5. 실무에서 어떻게 나눠 써야 하나</h2>
+  <ul>
+    <li><strong>발급 이력·감사 목적</strong>(이 도메인에 수상한 인증서가 발급된 적 있는지, 사설 CA가 잘못 발급하지 않았는지 확인)에는 CT 로그 기반 조회가 적합합니다. 보안 연구자들이 실제로 CT 로그를 이런 용도로 활용합니다.</li>
+    <li><strong>지금 이 순간 서버 설정이 제대로 됐는지</strong> 확인하려면 실제 핸드셰이크를 수행하는 도구(SSL Labs의 서버 테스트 등, 서버 사이드에서 동작하는 도구)가 필요합니다.</li>
+    <li>이는 이 도구 하나만의 결함이 아니라, 브라우저 자바스크립트만으로 구현 가능한 것의 <strong>구조적 한계</strong>입니다.</li>
+  </ul>
+
+  <h2>자주 묻는 질문</h2>
+  <details><summary>Q. 이 도구는 왜 서버에 직접 접속하지 않나요?</summary><p>A. 브라우저 자바스크립트에는 임의의 서버에 raw TCP 소켓을 열어 TLS 핸드셰이크를 수행할 수 있는 API가 존재하지 않습니다. 이는 웹 보안 모델상 의도적으로 막혀 있는 기능입니다.</p></details>
+  <details><summary>Q. crt.sh는 무엇인가요?</summary><p>A. Sectigo가 운영하는 무료 공개 서비스로, 모든 공인 CA가 의무적으로 제출하는 Certificate Transparency 로그를 검색 가능한 형태로 인덱싱해 제공합니다.</p></details>
+  <details><summary>Q. CT 로그 조회 결과가 실제 서버 상태와 다를 수도 있나요?</summary><p>A. 네. CT 로그는 "발급된 적 있는 인증서" 이력을 보여줄 뿐, 서버가 지금 실제로 그 인증서를 제시하고 있는지는 보장하지 않습니다. 실시간 확인이 필요하면 서버 사이드 핸드셰이크 도구를 별도로 사용해야 합니다.</p></details>
+  <details><summary>Q. crt.sh 조회가 가끔 실패하거나 느린 이유는?</summary><p>A. crt.sh는 무료 공개 서비스라 접속량이 많은 도메인에서는 JSON 응답이 지연되거나 일시적으로 실패할 수 있습니다. 잠시 후 재시도하면 대부분 해결됩니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../ssl-checker.html">→ SSL 체커</a>
+    <a href="../ssl-decoder.html">→ SSL 인증서 디코더</a>
+    <a href="../csr-generator.html">→ CSR 생성기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적입니다.</footer>
+</main>
+</body>
+</html>

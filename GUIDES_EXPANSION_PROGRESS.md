@@ -75,7 +75,7 @@
 - [ ] **vat-calculator-global** — "전세계 VAT 최고·최저 세율, 영국의 4단계 구조" — 헝가리27% vs 룩셈부르크17%, 영국 20/5/0/면세 4단계.
 - [ ] **mortgage-calculator** — "PMI vs 한국 LTV, 계약금 20%가 갖는 의미" — 미국 LTV80%이하 PMI면제 vs 한국 LTV50~60%규제.
 - [ ] **roi-calculator** — "ROI와 CAGR, 같은 투자인데 숫자가 다른 이유" — 단순누적 vs 연평균복리환산 비교.
-- [ ] **apr-calculator** — "APR과 EAR, 카드 이자가 표시금리보다 비싸 보이는 이유" — 명목12%월복리→EAR≈12.68%.
+- [x] **apr-calculator** (guides/apr-vs-ear-credit-card-compounding.html, 2026-08-20) — "APR과 EAR, 카드 이자가 표시금리보다 비싸 보이는 이유" — 명목12%월복리→EAR≈12.68%.
 - [ ] **loan-payoff-calculator** — "월 상환액이 이자보다 적으면 벌어지는 일" — 음의 상각(negative amortization) 함정.
 - [ ] **investment-return-calculator** — "복리 주기(연/분기/월), 실제로 얼마나 차이 나나" — 1000만·10%·10년: 연2,594만 vs 월2,707만.
 - [ ] **fire-calculator** — "4% 룰(Trinity Study), 한국에서도 안전한가" — 1998년 미국 30년 가정, 비미국은 3~3.5% 권장.
@@ -168,7 +168,7 @@ REJECT(4개, 이유 있음): salary(기존 가이드와 중복), salary-negotiat
 - [ ] **user-agent-parser** — "크롬도 왜 AppleWebKit/537.36을 달고 다니나 — UA 문자열의 역사적 유물" — 호환성 위해 고정값 유지.
 - [ ] **webhook-generator** — "GitHub·Stripe·Slack, 웹훅 서명이 플랫폼마다 다르게 계산되는 이유" — 해시대상 문자열이 각각 다름.
 - [ ] **webhook-tester** — "웹훅 서명 검증, === 대신 XOR로 비교하는 이유 — 타이밍 공격 방어" — 상수시간 비교 로직.
-- [ ] **whois-lookup** — "WHOIS는 죽었다? RDAP가 대체하는 이유" — HTTPS+JSON 구조화 응답.
+- [x] **whois-lookup** (guides/whois-rdap-protocol-transition.html, 2026-08-20) — "WHOIS는 죽었다? RDAP가 대체하는 이유" — HTTPS+JSON 구조화 응답.
 - [ ] **yaml-to-json** — "YAML→JSON 변환기가 쿠버네티스 매니페스트에서 실패하는 이유" — 다중문서 YAML(`---`)에서 에러.
 
 REJECT(3개): ip-address-lookup(일반 네트워킹 상식 나열뿐), website-speed-estimator(범용 웹퍼포먼스 상식뿐), (json-schema-validator는 이미 클레임되어 제외).
@@ -207,7 +207,7 @@ REJECT(3개): ip-address-lookup(일반 네트워킹 상식 나열뿐), website-s
 - [ ] **text-encryptor** — "카이사르 암호부터 AES-256-GCM까지, 이 도구 하나로 보는 암호화 발전사" — PBKDF2 10만회 반복+매번 새salt.
 - [ ] **text-statistics** — "Flesch 가독성 지수, 왜 한국어에는 안 통하나" — 1948년 영어전용 공식, 한글엔 점수 미표시.
 - [ ] **unicode-converter** — "이모지 하나, 프로그래밍 언어마다 다른 세 가지 이스케이프 표기" — JS/JSON/Python 표기 비교.
-- [ ] **unicode-inspector** — "apple.com이 진짜 apple.com이 아닐 수도 있다 — 호모글리프 피싱의 원리" — IDN 호모그래프 도메인 피싱.
+- [x] **unicode-inspector** (guides/unicode-homograph-phishing-domains.html, 2026-08-20) — "apple.com이 진짜 apple.com이 아닐 수도 있다 — 호모글리프 피싱의 원리" — IDN 호모그래프 도메인 피싱.
 - [ ] **word-frequency-counter** — "빈도 막대그래프의 %가 어떤 값을 기준으로 하는지" — 분모가 전체토큰(발생횟수) 기준.
 
 REJECT(9개): line-counter, find-replace, remove-empty-lines, remove-duplicate-lines, text-cleaner, line-merger, random-word-generator, remove-duplicate-words, text-merger (전부 순수 UI/기능 나열, 원리·비교 앵글 부재).
@@ -227,7 +227,7 @@ REJECT(9개): line-counter, find-replace, remove-empty-lines, remove-duplicate-l
 - [x] **exif-viewer** (guides/exif-gps-dms-rational-format.html, 2026-08-19) — "GPS 좌표가 숫자 하나가 아니라 세 개인 이유" — 도·분·초 3개 유리수(RATIONAL) 저장.
 - [ ] **exif-remover** — "사진 속 GPS 좌표, 왜 SNS 올리기 전에 지워야 하나" — Canvas 재인코딩으로 메타데이터 원천 제거.
 - [ ] **ico-converter** — "ICO 파일 속 아이콘, 사실은 전부 PNG로 저장된다" — Vista이후 PNG바이트 그대로 담는 방식.
-- [ ] **webp-to-jpg** — "카카오톡에 웹피(WebP) 이미지가 안 열리는 이유" — 구형iOS/안드로이드 WebP 미리보기 실패.
+- [x] **webp-to-jpg** (guides/webp-compatibility-kakaotalk-old-devices.html, 2026-08-20) — "카카오톡에 웹피(WebP) 이미지가 안 열리는 이유" — 구형iOS/안드로이드 WebP 미리보기 실패.
 - [ ] **image-color-extractor** — "이미지 대표색, 평균값이 아니라 클러스터링을 쓰는 이유" — 빨강+파랑 평균=보라 오류 방지.
 - [ ] **pixelate-image** — "픽셀화로 가린 사진, 낮은 강도면 복원될 수 있다" — 저강도 픽셀화 원본추정 가능 연구.
 - [ ] **color-palette** — "보색·삼색·분할보색, 각도로 배우는 색상 조화 이론" — 보색180°, 삼색120°씩.
@@ -265,7 +265,7 @@ REJECT(7개): webp-to-png, image-to-webp, image-cropper, blur-image, color-picke
 - [ ] **uuid-generator** — "UUID를 DB 기본키로 쓰면 안 되는 이유" — B-트리 인덱스 단편화, crypto.randomUUID() 필수 보안경고.
 - [ ] **uuid-converter** — "UUID 네 번째 그룹 첫 글자, 아무도 안 보는 그 한 글자의 의미" — variant 비트 판별규칙.
 - [ ] **ulid-generator** — "ULID 알파벳에 I, L, O, U가 없는 이유" — Crockford Base32, 서기10889년까지 표현.
-- [ ] **nanoid-generator** — "랜덤 문자열 생성기가 몰래 편향되는 이유(그리고 고치는 법)" — 거부샘플링(rejection sampling) 메커니즘.
+- [x] **nanoid-generator** (guides/random-string-modulo-bias-rejection-sampling.html, 2026-08-20) — "랜덤 문자열 생성기가 몰래 편향되는 이유(그리고 고치는 법)" — 거부샘플링(rejection sampling) 메커니즘.
 - [x] **qr-code-generator** (guides/qr-code-error-correction-logo.html, 2026-08-19) — "QR코드 오류 수정 레벨, H(30%)를 쓰면 정말 로고를 박아도 되나" — L7/M15/Q25/H30% 4단계.
 - [ ] **lorem-ipsum-generator** — "Lorem Ipsum, 키케로가 쓴 그 문장이 왜 의미 없는 글자로 보이나" — 기원전45년 키케로 원문 훼손 역사.
 
@@ -281,7 +281,7 @@ REJECT(8개): youtube-script-generator, ai-email-generator, ai-resume-generator,
 - [x] **hash-generator** (guides/md5-sha1-hash-vs-hmac-vs-crc32.html, 2026-08-19) — "MD5·SHA-1은 왜 아직 쓰이지만 보안엔 못 쓰나 — 해시 vs HMAC vs CRC32" — 실제 해시충돌 사례.
 - [x] **random-string** (guides/random-string-crypto-entropy-calculation.html, 2026-08-19) — "Math.random()과 crypto.getRandomValues(), 비밀번호 생성기 엔트로피 계산법" — 128비트 엔트로피=최소22자.
 - [ ] **http-header-checker** — "HSTS max-age=0의 함정 — 보안 헤더가 있어도 없는 셈인 경우" — RFC6797상 max-age=0은 HSTS비활성.
-- [ ] **ssl-checker** — "SSL 체커는 실제로 서버에 접속하지 않는다 — Certificate Transparency 로그의 원리와 한계" — crt.sh CT로그 대체조회.
+- [x] **ssl-checker** (guides/ssl-checker-certificate-transparency-logs.html, 2026-08-20) — "SSL 체커는 실제로 서버에 접속하지 않는다 — Certificate Transparency 로그의 원리와 한계" — crt.sh CT로그 대체조회.
 - [ ] **csr-generator** — "CSR 키 크기 2048 vs 4096, EC vs RSA — 뭘 골라야 인증서가 빨라지나" — EC P-256=RSA2048과 동등보안.
 - [ ] **csp-generator** — "'unsafe-inline' 한 줄이 CSP 방어를 무력화하는 이유와 nonce 대안" — meta태그는 frame-ancestors 미지원.
 - [ ] **csp-validator** — "CSP를 사이트 안 깨뜨리고 도입하는 법 — Report-Only에서 강제 모드까지 3단계" — data:URI가 img-src/script-src서 위험도 다름.
@@ -306,7 +306,7 @@ REJECT(5개): base64-encoder, base64-decoder, html-encoder(순수 인코딩 스�
 - [x] **pdf-rotate** (guides/pdf-rotate-metadata-no-quality-loss.html, 2026-08-19) — "PDF를 돌려도 화질이 그대로인 이유 — /Rotate 메타데이터의 원리" — 재렌더링 없이 값만 변경.
 - [x] **pdf-extract-images** (guides/pdf-extract-images-page-rasterize-not-embedded.html, 2026-08-19) — "PDF 이미지 추출, 사실은 페이지 전체를 사진 찍는 방식" — 캔버스 렌더링, 1pt=1/72인치.
 - [x] **pdf-metadata-viewer** (guides/pdf-metadata-privacy-leak.html, 2026-08-19) — "이력서에 몰래 딸려가는 정보 — PDF 메타데이터 유출 실제 사례" — Info Dict+XMP 이중저장구조.
-- [ ] **pdf-watermark** — "PDF 워터마크에 한글이 깨지는 이유 — 내장 폰트의 한계" — PDF표준14개 기본폰트 라틴전용.
+- [x] **pdf-watermark** (guides/pdf-watermark-korean-font-embedding-limit.html, 2026-08-20) — "PDF 워터마크에 한글이 깨지는 이유 — 내장 폰트의 한계" — PDF표준14개 기본폰트 라틴전용.
 - [ ] **pdf-to-text** — "PDF에서 복사한 표가 다 깨지는 이유" — 연속문자열 아닌 좌표+폰트정보로 흩어져 저장.
 - [ ] **pdf-ocr** — "PDF OCR가 페이지마다 다르게 동작하는 원리" — 텍스트항목수 기준 페이지별 독립판별.
 - [ ] **pdf-metadata-remover** — "PDF 메타데이터 제거, '완전 삭제'와 '빈 값'은 다르다" — 6필드 빈값 vs 2필드 키자체 삭제 비대칭.
@@ -328,7 +328,7 @@ REJECT(4개): pdf-merge, pdf-split, pdf-to-image, pdf-reorder-pages (순수 기�
 - [ ] **prompt-template-generator** — "Chain-of-Thought 템플릿 '3단계'는 왜 고정값일 뿐인가" — CoT 하드코딩 3단계 vs 최신 reasoning모델.
 - [ ] **prompt-variable-extractor** — "{{변수}}는 되는데 [변수]는 왜 안 되나" — 마크다운 링크/각주와 구분불가해 미지원.
 - [ ] **ai-model-comparison** — "GPT vs Claude vs Gemini, 무료 티어는 뭐가 다른가" — Gemini 계열내 무료티어 비대칭.
-- [ ] **markdown-chat-exporter** — "AI 채팅 내보내기가 조용히 실패하는 순간" — 역할접두사 없으면 무오류로 결과빔.
+- [x] **markdown-chat-exporter** (guides/chat-export-silent-failure-role-prefix.html, 2026-08-20) — "AI 채팅 내보내기가 조용히 실패하는 순간" — 역할접두사 없으면 무오류로 결과빔.
 
 REJECT: 없음(10개 전부 ACCEPT).
 
@@ -357,7 +357,7 @@ REJECT(7개): json-formatter, json-viewer, json-minifier, xml-formatter, sql-for
 - [x] **water-intake** (guides/water-intake-hyponatremia-risk.html, 2026-08-19) — "갈증 느끼면 이미 늦었다? 물도 과하면 위험한 이유" — 저나트륨혈증(hyponatremia) 위험 병기.
 - [x] **pace-calculator** (guides/marathon-pace-grade-adjusted-elevation.html, 2026-08-19) — "마라톤 페이스, 평지 기준으로만 계산하면 틀리는 이유" — 경사1%당 km당 약6초 느려짐(GAP).
 - [x] **pregnancy-due-date** (guides/pregnancy-due-date-naegele-accuracy.html, 2026-08-19) — "출산 예정일에 정확히 태어나는 아기는 5%뿐인 이유" — 네겔레법칙은 LMP기준, 배란시차 오차.
-- [ ] **health-insurance-calc** — "건강보험료 4월에 왜 더 걷거나 돌려주나" — 전년추정 vs 확정보수 4월정산.
+- [x] **health-insurance-calc** (guides/health-insurance-april-settlement-reconciliation.html, 2026-08-20) — "건강보험료 4월에 왜 더 걷거나 돌려주나" — 전년추정 vs 확정보수 4월정산.
 - [ ] **national-pension** — "국민연금 몇 살에 받아야 손해 안 볼까" — 조기수령 1년당6%감액 vs 연기수령 1년당7.2%증액.
 
 REJECT: 없음.
@@ -372,7 +372,7 @@ REJECT: 없음.
 - [x] **pomodoro-timer** (guides/pomodoro-25-minute-origin-science.html, 2026-08-19) — "뽀모도로 25분, 실제 근거가 있는 숫자인가" — 프란체스코 치릴로 개인 경험칙, 과학적 최적값 아님.
 - [x] **timestamp** (guides/unix-timestamp-2038-problem.html, 2026-08-19) — "유닉스 타임스탬프와 2038년 문제" — 32비트 signed integer 오버플로.
 - [ ] **timezone-converter** — "30분·45분 단위 시간대가 존재하는 이유 — IST(UTC+5:30) 결정의 역사" — 인도UTC+5:30, 네팔UTC+5:45.
-- [ ] **working-days-calc** — "근로자의 날은 왜 법적으로 '공휴일'이 아닌가" — 근로기준법상 별도 유급휴일, 대체공휴일 미적용.
+- [x] **working-days-calc** (guides/workers-day-not-legal-public-holiday.html, 2026-08-20) — "근로자의 날은 왜 법적으로 '공휴일'이 아닌가" — 근로기준법상 별도 유급휴일, 대체공휴일 미적용.
 - [ ] **time-zone-meeting-planner** — "글로벌 회의 시간 추천, UTC 자정을 넘는 구간은 어떻게 합치나" — 자정걸치는 구간 병합알고리즘.
 
 REJECT(3개): age-calculator(korean-age와 중복), countdown-timer(순수 UI), dday(순수 UI).
