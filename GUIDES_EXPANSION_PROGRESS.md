@@ -136,8 +136,8 @@ REJECT(4개, 이유 있음): salary(기존 가이드와 중복), salary-negotiat
 - [ ] **open-graph-preview** — "소셜 공유 미리보기가 안 바뀌는 이유: 플랫폼 캐시" — Facebook Sharing Debugger로 Scrape Again 필요.
 - [ ] **keyword-cannibalization-checker** — "키워드 카니발라이제이션, 문자열은 같아도 검색 의도는 다를 수 있다" — 301/canonical/차별화가 해법.
 - [x] **json-schema-generator** (guides/json-schema-null-array-type-gaps.html, 2026-08-20) — "JSON Schema 자동생성기가 놓치는 null과 배열 타입 함정" — null은 nullable 표현 안 됨, 배열은 첫요소만 봄.
-- [ ] **yaml-diff-checker** — "YAML Diff 비교기는 사실 YAML을 이해하지 못한다" — 정규식으로 한줄만 인식, 인라인 주석만 바꿔도 diff 오탐.
-- [ ] **csv-diff-checker** — "CSV diff가 전체 행을 다 다르다고 표시하는 인코딩 함정 3가지" — EUC-KR/CP949, BOM 유무, 구분자 차이.
+- [x] **yaml-diff-checker** (guides/yaml-diff-regex-comment-false-positive.html, 2026-08-20) — "YAML Diff 비교기는 사실 YAML을 이해하지 못한다" — 정규식으로 한줄만 인식, 인라인 주석만 바꿔도 diff 오탐.
+- [x] **csv-diff-checker** (guides/csv-diff-encoding-bom-delimiter-traps.html, 2026-08-20) — "CSV diff가 전체 행을 다 다르다고 표시하는 인코딩 함정 3가지" — EUC-KR/CP949, BOM 유무, 구분자 차이.
 - [ ] **uuid-extractor** — "UUID를 텍스트에서 정확히 골라내는 정규식 조건" — 13번째자리 버전, 19번째자리 변형비트 검사.
 - [ ] **api-response-viewer** — "API 뷰어가 큰 정수를 반올림하는 이유" — JSON.parse가 2^53-1 넘는 정수 정밀도 손실(JS표준동작).
 - [ ] **xml-validator** — "XML 파서는 왜 HTML보다 깐깐한가(well-formed vs valid)" — strict모드 즉시 파싱중단.
@@ -193,7 +193,7 @@ REJECT(3개): ip-address-lookup(일반 네트워킹 상식 나열뿐), website-s
 - [ ] **reading-level-checker** — "가독성 점수의 함정, 이 도구의 SMOG 지수가 표준 공식과 다르게 나오는 이유" — 계수간소화로 실제 2배 오차.
 - [ ] **remove-special-characters** — "정규식 문자 클래스의 함정, 왜 이모지가 절반만 지워지는가" — u플래그 부재로 서로게이트쌍 절반삭제.
 - [x] **text-summarizer** (guides/text-summarizer-korean-limitation.html, 2026-08-19) — "이 텍스트 요약기, 사실 한국어에서는 작동하지 않는다" — `\w`가 한글 비인식, 문장점수 전부 0되는 버그.
-- [ ] **anagram-checker** — "애너그램 판별, 정렬 대신 문자 빈도표를 쓰는 이유" — 각 글자 등장횟수 배열 누적비교.
+- [x] **anagram-checker** (guides/anagram-checker-character-frequency-array.html, 2026-08-20) — "애너그램 판별, 정렬 대신 문자 빈도표를 쓰는 이유" — 각 글자 등장횟수 배열 누적비교.
 - [ ] **ascii-converter** — "ASCII가 사실 UTF-8의 부분집합인 이유" — 0~127범위 바이트단위 완전동일.
 - [ ] **ascii-table** — "제어문자 DEL(127)은 왜 하필 127번일까 — 천공 테이프가 남긴 흔적" — 천공테이프 무효화 관습 유래.
 - [x] **emoji-counter** (guides/emoji-counter-surrogate-pair-sns-limit.html, 2026-08-20) — "이모지 하나가 글자수 2~11개로 세지는 이유 — SNS 글자수 제한의 함정" — 가족이모지 11코드유닛 이상.
@@ -228,7 +228,7 @@ REJECT(9개): line-counter, find-replace, remove-empty-lines, remove-duplicate-l
 - [x] **exif-remover** (guides/exif-remover-gps-privacy-sns.html, 2026-08-20) — "사진 속 GPS 좌표, 왜 SNS 올리기 전에 지워야 하나" — Canvas 재인코딩으로 메타데이터 원천 제거.
 - [ ] **ico-converter** — "ICO 파일 속 아이콘, 사실은 전부 PNG로 저장된다" — Vista이후 PNG바이트 그대로 담는 방식.
 - [x] **webp-to-jpg** (guides/webp-compatibility-kakaotalk-old-devices.html, 2026-08-20) — "카카오톡에 웹피(WebP) 이미지가 안 열리는 이유" — 구형iOS/안드로이드 WebP 미리보기 실패.
-- [ ] **image-color-extractor** — "이미지 대표색, 평균값이 아니라 클러스터링을 쓰는 이유" — 빨강+파랑 평균=보라 오류 방지.
+- [x] **image-color-extractor** (guides/image-color-extractor-clustering-vs-average.html, 2026-08-20) — "이미지 대표색, 평균값이 아니라 클러스터링을 쓰는 이유" — 빨강+파랑 평균=보라 오류 방지(k-means 유사 클러스터링 실제 구현 확인됨).
 - [ ] **pixelate-image** — "픽셀화로 가린 사진, 낮은 강도면 복원될 수 있다" — 저강도 픽셀화 원본추정 가능 연구.
 - [ ] **color-palette** — "보색·삼색·분할보색, 각도로 배우는 색상 조화 이론" — 보색180°, 삼색120°씩.
 - [ ] **color-converter** — "같은 HEX 코드인데 화면마다 색이 다르게 보이는 이유" — sRGB vs Display P3 색공간 차이.
@@ -307,11 +307,11 @@ REJECT(5개): base64-encoder, base64-decoder, html-encoder(순수 인코딩 스�
 - [x] **pdf-extract-images** (guides/pdf-extract-images-page-rasterize-not-embedded.html, 2026-08-19) — "PDF 이미지 추출, 사실은 페이지 전체를 사진 찍는 방식" — 캔버스 렌더링, 1pt=1/72인치.
 - [x] **pdf-metadata-viewer** (guides/pdf-metadata-privacy-leak.html, 2026-08-19) — "이력서에 몰래 딸려가는 정보 — PDF 메타데이터 유출 실제 사례" — Info Dict+XMP 이중저장구조.
 - [x] **pdf-watermark** (guides/pdf-watermark-korean-font-embedding-limit.html, 2026-08-20) — "PDF 워터마크에 한글이 깨지는 이유 — 내장 폰트의 한계" — PDF표준14개 기본폰트 라틴전용.
-- [ ] **pdf-to-text** — "PDF에서 복사한 표가 다 깨지는 이유" — 연속문자열 아닌 좌표+폰트정보로 흩어져 저장.
+- [x] **pdf-to-text** (guides/pdf-to-text-table-coordinate-scatter.html, 2026-08-20) — "PDF에서 복사한 표가 다 깨지는 이유" — 연속문자열 아닌 좌표+폰트정보로 흩어져 저장.
 - [ ] **pdf-ocr** — "PDF OCR가 페이지마다 다르게 동작하는 원리" — 텍스트항목수 기준 페이지별 독립판별.
 - [ ] **pdf-metadata-remover** — "PDF 메타데이터 제거, '완전 삭제'와 '빈 값'은 다르다" — 6필드 빈값 vs 2필드 키자체 삭제 비대칭.
 - [ ] **pdf-size-analyzer** — "PDF 크기 분석기의 '페이지별 크기', 사실은 용량이 아니다" — 리소스 공유구조상 페이지별 바이트계산 불가.
-- [ ] **pdf-word-counter** — "PDF 단어 수 세기, 중국어·일본어는 왜 부정확할까" — 공백기준분할이 CJK서 텍스트조각개수로 집계.
+- [x] **pdf-word-counter** (guides/pdf-word-counter-cjk-whitespace-split.html, 2026-08-20) — "PDF 단어 수 세기, 중국어·일본어는 왜 부정확할까" — 공백기준분할이 CJK서 텍스트조각개수로 집계.
 
 REJECT(4개): pdf-merge, pdf-split, pdf-to-image, pdf-reorder-pages (순수 기능 사용법, 독자 앵글 없음).
 
@@ -322,12 +322,12 @@ REJECT(4개): pdf-merge, pdf-split, pdf-to-image, pdf-reorder-pages (순수 기�
 - [x] **ai-token-counter** (guides/korean-ai-token-inefficiency.html, 2026-08-19) — "한국어는 왜 영어보다 토큰을 더 많이 먹는가" — "안녕하세요"≈5토큰 vs "Hello"≈3토큰.
 - [x] **prompt-formatter** (guides/prompt-formats-chatml-xml-jsonl.html, 2026-08-19) — "ChatML vs XML vs JSONL, 모델마다 프롬프트 포맷이 다른 이유" — OpenAI ChatML vs Claude XML태그.
 - [x] **image-prompt-generator** (guides/image-prompt-generator-dalle-negative-prompt-bug.html, 2026-08-19) — "이미지 프롬프트 생성기, DALL-E 모드에만 있는 숨은 버그" — 공백중복+네거티브프롬프트 무시되는 실제버그.
-- [ ] **prompt-optimizer** — "프롬프트 하나로 안 되는 이유: 작업 유형별 8가지 구조(RCTF)" — 요약/번역별 요구사항 항목 차이.
+- [x] **prompt-optimizer** (guides/prompt-optimizer-task-type-rctf-structure.html, 2026-08-20) — "프롬프트 하나로 안 되는 이유: 작업 유형별 8가지 구조(RCTF)" — 요약/번역별 요구사항 항목 차이.
 - [x] **system-prompt-generator** (guides/system-prompt-fixed-clauses-roleplay-conflict.html, 2026-08-19) — "시스템 프롬프트에 숨어있는 고정 문구, 캐릭터 롤플레이와 충돌하는 이유" — 4가지 일반원칙 무조건 덧붙는 구조.
 - [x] **prompt-cleaner** (guides/prompt-cleaner-token-count-approximation.html, 2026-08-19) — "프롬프트 정제기가 보여주는 토큰 수는 가짜다" — 문자수×0.25 근사식, 한글서 과소표시.
 - [ ] **prompt-template-generator** — "Chain-of-Thought 템플릿 '3단계'는 왜 고정값일 뿐인가" — CoT 하드코딩 3단계 vs 최신 reasoning모델.
 - [ ] **prompt-variable-extractor** — "{{변수}}는 되는데 [변수]는 왜 안 되나" — 마크다운 링크/각주와 구분불가해 미지원.
-- [ ] **ai-model-comparison** — "GPT vs Claude vs Gemini, 무료 티어는 뭐가 다른가" — Gemini 계열내 무료티어 비대칭.
+- [x] **ai-model-comparison** (guides/ai-model-comparison-free-tier-differences.html, 2026-08-20) — "GPT vs Claude vs Gemini, 무료 티어는 뭐가 다른가" — Gemini 계열내 무료티어 비대칭.
 - [x] **markdown-chat-exporter** (guides/chat-export-silent-failure-role-prefix.html, 2026-08-20) — "AI 채팅 내보내기가 조용히 실패하는 순간" — 역할접두사 없으면 무오류로 결과빔.
 
 REJECT: 없음(10개 전부 ACCEPT).
@@ -358,9 +358,9 @@ REJECT(7개): json-formatter, json-viewer, json-minifier, xml-formatter, sql-for
 - [x] **pace-calculator** (guides/marathon-pace-grade-adjusted-elevation.html, 2026-08-19) — "마라톤 페이스, 평지 기준으로만 계산하면 틀리는 이유" — 경사1%당 km당 약6초 느려짐(GAP).
 - [x] **pregnancy-due-date** (guides/pregnancy-due-date-naegele-accuracy.html, 2026-08-19) — "출산 예정일에 정확히 태어나는 아기는 5%뿐인 이유" — 네겔레법칙은 LMP기준, 배란시차 오차.
 - [x] **health-insurance-calc** (guides/health-insurance-april-settlement-reconciliation.html, 2026-08-20) — "건강보험료 4월에 왜 더 걷거나 돌려주나" — 전년추정 vs 확정보수 4월정산.
-- [ ] **national-pension** — "국민연금 몇 살에 받아야 손해 안 볼까" — 조기수령 1년당6%감액 vs 연기수령 1년당7.2%증액.
+- [x] **national-pension** (guides/national-pension-early-late-claim-timing.html, 2026-08-20) — "국민연금 몇 살에 받아야 손해 안 볼까" — 조기수령 1년당6%감액 vs 연기수령 1년당7.2%증액.
 
-REJECT: 없음.
+REJECT: 없음. (health-calculators 8/8 완료)
 
 ---
 
@@ -373,9 +373,9 @@ REJECT: 없음.
 - [x] **timestamp** (guides/unix-timestamp-2038-problem.html, 2026-08-19) — "유닉스 타임스탬프와 2038년 문제" — 32비트 signed integer 오버플로.
 - [x] **timezone-converter** (guides/timezone-30-45-minute-offsets.html, 2026-08-20) — "30분·45분 단위 시간대가 존재하는 이유 — IST(UTC+5:30) 결정의 역사" — 인도UTC+5:30, 네팔UTC+5:45(단, 이 도구 프리셋엔 네팔 없음, 가이드에서 지적).
 - [x] **working-days-calc** (guides/workers-day-not-legal-public-holiday.html, 2026-08-20) — "근로자의 날은 왜 법적으로 '공휴일'이 아닌가" — 근로기준법상 별도 유급휴일, 대체공휴일 미적용.
-- [ ] **time-zone-meeting-planner** — "글로벌 회의 시간 추천, UTC 자정을 넘는 구간은 어떻게 합치나" — 자정걸치는 구간 병합알고리즘.
+- [x] **time-zone-meeting-planner** (guides/timezone-meeting-midnight-crossing-merge.html, 2026-08-20) — "글로벌 회의 시간 추천, UTC 자정을 넘는 구간은 어떻게 합치나" — 자정걸치는 구간 병합알고리즘.
 
-REJECT(3개): age-calculator(korean-age와 중복), countdown-timer(순수 UI), dday(순수 UI).
+REJECT(3개): age-calculator(korean-age와 중복), countdown-timer(순수 UI), dday(순수 UI). (date-time-tools 8/8 완료)
 
 ---
 
