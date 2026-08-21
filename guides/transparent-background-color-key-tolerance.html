@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>배경 제거 도구의 색상 키 알고리즘, 허용범위는 실제로 어떻게 계산되나 | MODOO HUB</title>
+<meta name="description" content="단색 배경 제거(color-key) 방식이 RGB 유클리드 거리와 허용범위(tolerance)로 어떻게 픽셀을 투명하게 만드는지, 하드 컷이 아닌 선형 페더링 원리를 코드로 확인합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/transparent-background-color-key-tolerance.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"배경 제거 도구의 색상 키 알고리즘, 허용범위는 실제로 어떻게 계산되나","description":"단색 배경 제거(color-key) 방식이 RGB 유클리드 거리와 허용범위(tolerance)로 어떻게 픽셀을 투명하게 만드는지, 하드 컷이 아닌 선형 페더링 원리를 코드로 확인합니다.","datePublished":"2026-08-21","dateModified":"2026-08-21","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>배경 제거 도구의 색상 키 알고리즘, 허용범위는 실제로 어떻게 계산되나</h1>
+  <p class="meta">가이드 · 2026.08.21 최종 확인</p>
+
+  <p>흰 배경에서 찍은 제품 사진의 배경만 지워 투명 PNG를 만드는 "색상 키(color key)" 방식 배경 제거 도구를 쓰다 보면 "허용범위(tolerance)" 슬라이더 하나로 결과가 크게 달라지는 걸 경험합니다. 이 슬라이더가 정확히 무엇을 계산하고 있는지, 왜 값을 조금만 올려도 경계가 부드러워지는지 실제 코드를 뜯어 확인했습니다.</p>
+
+  <h2>1. 색상 키 제거의 기본 아이디어</h2>
+  <p>색상 키 방식은 사용자가 지정한 기준색(대개 배경색을 스포이드로 찍은 값)과 이미지의 모든 픽셀을 하나씩 비교해, "이 픽셀이 기준색과 얼마나 비슷한가"를 거리로 계산합니다. 거리가 가까우면(=색이 비슷하면) 배경일 가능성이 높다고 보고 투명하게 만들고, 거리가 멀면(=색이 다르면) 피사체로 보고 그대로 둡니다. 문제는 "거리"를 어떻게 정의하고, 어디까지를 "가깝다"고 볼지를 정하는 기준선입니다.</p>
+
+  <h2>2. 거리는 RGB 유클리드 거리, 허용범위는 단순 배율</h2>
+  <p><a href="../transparent-background-maker.html">투명 배경 만들기</a>의 실제 코드를 보면 두 색의 거리는 각 채널(R·G·B) 차이의 제곱합에 루트를 씌운 표준 유클리드 거리(<code>Math.sqrt((dr)²+(dg)²+(db)²)</code>)로 계산됩니다. 채널별 가중치나 감마 보정 없이 세 채널을 동등하게 취급하는 순수한 거리 공식입니다. 허용범위 슬라이더(0~100)는 이 거리에 곧바로 가중치를 곱하는 게 아니라, <strong>실제 판정 임계값 = 슬라이더 값 × 2.2</strong>로 스케일만 조정하는 역할을 합니다. 즉 2.2라는 계수는 색상 거리 계산 자체에 관여하는 감마 보정이 아니라, 0~100 범위의 사용자 입력을 실제 RGB 거리 스케일(최대 약 441)에 맞게 늘려주는 단순 매핑 상수입니다.</p>
+
+  <h2>3. 하드 컷이 아니라 선형 페더링이다</h2>
+  <p>임계값 안에 든 픽셀을 전부 한 번에 완전히 투명하게 만드는 것도 아닙니다. 코드는 거리가 임계값에 얼마나 가까운지 비율을 구해 알파값을 <strong>선형으로</strong> 깎습니다 — 기준색과 정확히 같은(거리 0) 픽셀은 알파가 최대 255만큼 줄어 완전히 투명해지고, 임계값 경계에 걸친 픽셀은 알파가 거의 줄지 않아 원래 색이 대부분 살아남습니다. 그 결과 배경과 피사체 사이 경계가 계단처럼 뚝 끊기지 않고 자연스러운 그라데이션으로 이어집니다.</p>
+  <div class="box">
+    <strong>계산 예시</strong>: 기준색을 흰색(255,255,255), 허용범위를 30으로 설정하면 임계값 = 30×2.2 = 66입니다.
+  </div>
+  <table>
+    <tr><th>픽셀 RGB</th><th>유클리드 거리</th><th>임계값(66) 이내?</th><th>알파 처리 결과</th></tr>
+    <tr><td>(250,250,250) 거의 흰색</td><td>약 8.7</td><td>예</td><td>약 31 (거의 투명)</td></tr>
+    <tr><td>(230,230,230) 옅은 회색</td><td>약 43.3</td><td>예</td><td>약 90 (반투명)</td></tr>
+    <tr><td>(200,200,200) 중간 회색</td><td>약 95.3</td><td>아니오</td><td>255 (그대로 불투명)</td></tr>
+  </table>
+  <p>표에서 보듯 거리가 0에 가까울수록 알파가 급격히 깎이고, 임계값을 살짝 넘는 순간부터는 전혀 손대지 않습니다. 허용범위를 크게 잡을수록 이 임계값 자체가 늘어나 회색 계열도 함께 지워지는 원리입니다.</p>
+
+  <h2>4. 경계 부드럽게: 색상 거리와는 별개의 두 번째 패스</h2>
+  <p>"경계 부드럽게(Edge Smooth)" 슬라이더는 색상 거리 계산과 완전히 다른 독립적인 후처리 단계입니다. 색상 키 제거가 끝난 뒤의 알파 채널만 따로 떼어내, 지정한 반경만큼 <strong>박스 블러(box blur)</strong>를 적용합니다. 가로 방향으로 한 번, 세로 방향으로 한 번 누적합(prefix sum) 기법을 써서 각 픽셀 주변 알파값의 평균을 빠르게 구하는 방식으로, 색상 임계값만으로 남는 톱니 모양의 픽셀 경계를 한 번 더 매끄럽게 다듬는 역할을 합니다. 즉 이 도구는 (1) 색상 거리 기반 선형 페더링과 (2) 알파 채널 박스 블러라는 두 겹의 경계 처리를 순차적으로 적용합니다.</p>
+
+  <h2>5. 미리보기와 다운로드는 왜 해상도가 다른가</h2>
+  <p>화면에 실시간으로 표시되는 미리보기 캔버스는 반응 속도를 위해 최대 360px로 축소된 상태에서 이 모든 연산을 수행합니다. 하지만 "PNG 다운로드"를 누르는 순간에는 원본 이미지의 실제 크기(naturalWidth × naturalHeight)로 새 캔버스를 다시 만들어 같은 색상 제거·경계 부드럽게 연산을 원본 해상도에서 처음부터 다시 계산합니다. 미리보기가 작게 보인다고 해서 결과물 해상도가 낮아지는 것은 아니라는 뜻입니다.</p>
+
+  <h2>6. 실전 팁: 언제 잘 되고 언제 안 되는가</h2>
+  <p>이 방식은 배경이 완전한 단색일 때 가장 정확합니다. 그림자나 조명 반사로 배경 색이 미세하게 변하는 사진이라면 허용범위를 적당히 올려야 하지만, 너무 올리면 피사체 중 배경과 비슷한 색(흰 셔츠, 밝은 피부톤 등)까지 함께 지워질 위험이 있습니다. 배경과 피사체의 색 대비가 뚜렷한 사진일수록 낮은 허용범위로도 깔끔하게 처리되며, 결과물의 색을 다시 확인하고 싶다면 <a href="../image-color-extractor.html">이미지 색상 추출</a>이나 <a href="../dominant-color-finder.html">주요 색상 찾기</a> 도구로 원본의 배경색·피사체색 분포를 미리 점검하는 것도 도움이 됩니다.</p>
+
+  <h2>자주 묻는 질문</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 허용범위를 100으로 하면 배경이 전부 지워지나요?</summary><p style="margin-top:8px;">100이면 임계값이 220(=100×2.2)까지 커지지만, RGB 거리의 이론적 최댓값은 약 441(흑백 대비)이므로 100이어도 색 차이가 아주 큰 픽셀까지 지워지지는 않습니다. 다만 대부분의 실사진에서는 배경과 무관한 영역까지 지워질 만큼 넓은 값입니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 2.2라는 배율은 감마 보정과 관련이 있나요?</summary><p style="margin-top:8px;">아닙니다. 이 도구의 코드에는 감마 보정 연산이 없습니다. 2.2는 단순히 0~100 슬라이더 값을 실제 RGB 거리 스케일에 맞게 늘려주는 매핑 상수일 뿐, 색상 채널 자체를 비선형으로 보정하지는 않습니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 여러 색상의 배경도 한 번에 지울 수 있나요?</summary><p style="margin-top:8px;">아니요. 이 도구는 한 번에 기준색 하나만 지정합니다. 배경에 여러 색이 섞여 있다면 결과 PNG를 다시 업로드해 다른 색으로 한 번 더 처리하거나 허용범위를 높여야 합니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 파일이 서버로 업로드되나요?</summary><p style="margin-top:8px;">아니요. 색상 거리 계산과 블러 처리 모두 Canvas API를 통해 브라우저 안에서만 실행됩니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../transparent-background-maker.html">→ 투명 배경 만들기</a>
+    <a href="../image-color-extractor.html">→ 이미지 색상 추출</a>
+    <a href="../dominant-color-finder.html">→ 주요 색상 찾기</a>
+    <a href="../blur-image.html">→ 이미지 블러 처리</a>
+    <a href="../png-to-jpg.html">→ PNG to JPG 변환기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적이며, 실제 도구 동작은 브라우저·이미지 파일에 따라 달라질 수 있습니다.</footer>
+</main>
+</body>
+</html>

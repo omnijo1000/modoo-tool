@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>.htaccess vs VirtualHost, 왜 성능 차이가 나나 | MODOO HUB</title>
+<meta name="description" content=".htaccess와 VirtualHost/httpd.conf 설정이 왜 성능 차이를 만드는지 Apache가 요청을 처리하는 내부 동작부터 해부합니다. 디렉토리 탐색 비용과 실전 수치 예시 포함.">
+<link rel="canonical" href="https://modoohub.com/guides/apache-htaccess-vs-virtualhost-performance.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":".htaccess vs VirtualHost, 왜 성능 차이가 나나","description":".htaccess와 VirtualHost/httpd.conf 설정이 왜 성능 차이를 만드는지 Apache가 요청을 처리하는 내부 동작부터 해부합니다.","datePublished":"2026-08-21","dateModified":"2026-08-21","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>.htaccess vs VirtualHost, 왜 성능 차이가 나나</h1>
+  <p class="meta">가이드 · 2026.08.21 최종 확인</p>
+
+  <p>"성능을 위해 .htaccess 대신 VirtualHost를 쓰라"는 조언은 Apache를 다뤄본 사람이면 한 번쯤 들어봤을 겁니다. 하지만 왜 그런지 설명하라고 하면 "그냥 그렇다더라" 수준에 머무는 경우가 많습니다. 이 가이드는 Apache가 요청 하나를 처리할 때 실제로 디스크에서 무슨 일이 벌어지는지부터 풀어서, 왜 이 둘의 성능 차이가 이론이 아니라 실측 가능한 수치인지 정리합니다.</p>
+
+  <h2>1. 요청마다 반복되는 .htaccess 탐색</h2>
+  <p>AllowOverride가 켜진 디렉토리에 요청이 들어오면, Apache는 그 요청을 처리하기 전에 해당 디렉토리부터 웹 루트(DocumentRoot)까지 상위 디렉토리를 하나씩 거슬러 올라가며 .htaccess 파일이 있는지 <strong>매 요청마다</strong> 확인합니다. 예를 들어 <code>/var/www/html/blog/2026/post</code> 경로로 들어온 요청이라면 post, 2026, blog, html 네 단계 디렉토리 각각에서 .htaccess 존재 여부를 파일시스템에 물어보고, 있으면 열어서 파싱까지 합니다. 이 작업은 캐시되지 않고 다음 요청에서 또 반복됩니다. 트래픽이 초당 수백 건이면 이 디스크 I/O와 파싱 비용도 그만큼 곱해집니다.</p>
+
+  <h2>2. VirtualHost/httpd.conf는 왜 다른가</h2>
+  <p>반면 httpd.conf나 sites-available/의 VirtualHost 블록에 적힌 설정은 <strong>Apache 프로세스가 시작될 때 딱 한 번</strong> 읽혀 메모리에 파싱된 형태로 유지됩니다. 이후 들어오는 요청은 이미 메모리에 있는 설정을 참조할 뿐 디스크를 다시 건드리지 않습니다. 즉 같은 RewriteRule이나 Header 지시어라도 그것을 .htaccess에 두느냐 VirtualHost에 두느냐에 따라 "요청마다 디스크 I/O"와 "시작 시 1회 I/O"라는 전혀 다른 비용 구조가 됩니다. 이 차이는 <a href="../apache-config-generator.html">Apache 설정 생성기</a>로 VirtualHost 블록을 만들어보면 체감하기 쉽습니다 — 이 도구가 생성하는 결과물 자체가 .htaccess가 아니라 VirtualHost용 설정이기 때문입니다.</p>
+
+  <h2>3. 디렉토리 깊이와 곱해지는 비용</h2>
+  <p>탐색 비용은 디렉토리 계층 깊이에 비례해서 커집니다. 얕은 구조라면 체감이 덜하지만, CMS나 프레임워크 특성상 라우팅이 깊어질수록(예: 상품 상세 페이지처럼 카테고리/서브카테고리/상품ID 식으로 3~4단계 중첩되는 URL 구조) 요청 하나당 확인해야 할 디렉토리 수가 늘어나고, 그만큼 stat() 시스템콜 호출 횟수도 늘어납니다. 아래는 디렉토리 깊이와 요청 수에 따른 대략적인 stat() 호출 규모를 보여주는 예시입니다.</p>
+  <table>
+    <tr><th>조건</th><th>요청당 stat() 호출</th><th>초당 100건 요청 시 총 호출</th></tr>
+    <tr><td>얕은 구조(2단계), .htaccess 사용</td><td>약 2회</td><td>약 200회/초</td></tr>
+    <tr><td>깊은 구조(5단계), .htaccess 사용</td><td>약 5회</td><td>약 500회/초</td></tr>
+    <tr><td>동일 설정을 VirtualHost로 이전</td><td>0회(시작 시 1회로 고정)</td><td>0회/초(상시)</td></tr>
+  </table>
+  <p>숫자 자체는 서버 환경과 캐시 정책에 따라 달라지지만, 핵심은 .htaccess 방식만 트래픽에 비례해 비용이 계속 늘어난다는 구조적 차이입니다.</p>
+
+  <h2>4. 그래도 .htaccess를 써야 하는 경우</h2>
+  <p>이 차이가 있다고 해서 .htaccess가 항상 나쁜 선택은 아닙니다. 공유 호스팅처럼 httpd.conf나 VirtualHost 파일에 직접 접근할 권한이 없는 환경에서는 .htaccess가 사실상 유일한 설정 수단입니다. 또한 디렉토리별로 관리자가 자주 바뀌거나, 서버 재시작 없이 즉시 설정을 반영해야 하는 특수한 워크플로우에서는 .htaccess의 "즉시 반영" 특성이 오히려 장점이 됩니다. 반대로 서버 전체에 적용할 보안 헤더, 압축, 캐싱 정책처럼 자주 바뀌지 않는 설정이라면 VirtualHost로 옮기는 편이 명백히 유리합니다. 실제로 어떤 헤더가 적용되고 있는지는 <a href="../http-header-checker.html">HTTP 헤더 검사기</a>로, 응답 속도 자체는 <a href="../website-speed-estimator.html">웹사이트 속도 측정기</a>로 확인할 수 있습니다.</p>
+
+  <h2>5. 마이그레이션 체크리스트</h2>
+  <ul>
+    <li><strong>AllowOverride 범위 좁히기</strong>: 전체를 None으로 바꾸기 부담스럽다면, 실제로 .htaccess를 필요로 하는 디렉토리만 남기고 나머지는 None으로 좁혀도 탐색 비용이 줄어듭니다.</li>
+    <li><strong>RewriteRule 우선 이전</strong>: mod_rewrite 규칙은 .htaccess에서 가장 흔히 발견되는 항목이자 VirtualHost로 옮겼을 때 체감 효과가 큰 항목입니다.</li>
+    <li><strong>설정 문법 검사</strong>: VirtualHost로 옮긴 뒤에는 반드시 <code>apache2ctl configtest</code>(또는 RHEL 계열의 <code>httpd -t</code>)로 문법 오류를 확인하고 재시작하세요. .htaccess와 달리 VirtualHost 설정은 오타가 있으면 서버 전체가 기동에 실패할 수 있습니다.</li>
+    <li><strong>Nginx 전환도 고려</strong>: 아예 .htaccess라는 개념이 없는 Nginx로 옮기는 것도 대안입니다. Nginx는 처음부터 모든 설정을 시작 시 1회 로딩하는 구조라 이런 고민 자체가 없습니다. <a href="../nginx-config-generator.html">Nginx 설정 생성기</a>로 동등한 설정을 미리 만들어볼 수 있습니다.</li>
+  </ul>
+
+  <h2>자주 묻는 질문</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. AllowOverride None으로 바꾸면 기존 .htaccess 파일은 어떻게 되나요?</summary><p style="margin-top:8px;">파일 자체는 삭제되지 않지만 Apache가 더 이상 읽지 않으므로 그 안의 규칙은 전혀 적용되지 않습니다. 반드시 해당 내용을 VirtualHost 블록으로 옮긴 뒤에 None으로 바꿔야 사이트가 깨지지 않습니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. .htaccess 탐색 비용이 실제로 체감될 만큼 큰가요?</summary><p style="margin-top:8px;">트래픽이 적은 개인 사이트라면 거의 체감되지 않습니다. 하지만 요청량이 많거나 디렉토리 구조가 깊은 사이트(전자상거래, 대형 커뮤니티 등)라면 stat() 호출이 누적되어 응답 지연에 영향을 줄 수 있습니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Apache 설정 생성기로 만든 결과물은 어디에 적용해야 하나요?</summary><p style="margin-top:8px;"><a href="../apache-config-generator.html">Apache 설정 생성기</a>가 만드는 코드는 VirtualHost 블록 형식입니다. .htaccess 파일이 아니라 /etc/apache2/sites-available/의 도메인별 설정 파일에 붙여넣고 a2ensite로 활성화해야 합니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 공유 호스팅에서는 선택의 여지가 없나요?</summary><p style="margin-top:8px;">대부분의 공유 호스팅은 httpd.conf 접근 권한을 주지 않기 때문에 .htaccess가 유일한 설정 수단입니다. 이 경우 성능보다는 필요한 지시어만 최소한으로 넣어 파일 크기를 작게 유지하는 것이 현실적인 절충안입니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../apache-config-generator.html">→ Apache 설정 생성기</a>
+    <a href="../htaccess-generator.html">→ htaccess 생성기</a>
+    <a href="../nginx-config-generator.html">→ Nginx 설정 생성기</a>
+    <a href="../http-header-checker.html">→ HTTP 헤더 검사기</a>
+    <a href="../website-speed-estimator.html">→ 웹사이트 속도 측정기</a>
+    <a href="../redirect-checker.html">→ 리다이렉트 검사기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적이며, 실제 서버 설정 변경 전에는 반드시 스테이징 환경에서 먼저 테스트하시기 바랍니다.</footer>
+</main>
+</body>
+</html>

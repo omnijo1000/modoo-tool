@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSR 키 크기 2048 vs 4096, EC vs RSA — 뭘 골라야 인증서가 빨라지나 | MODOO HUB</title>
+<meta name="description" content="RSA 2048·4096비트와 EC P-256 키의 보안 강도·속도 차이를 CSR 생성 관점에서 분해합니다. TLS 핸드셰이크 부하와 CA 호환성까지 실제 선택 기준 정리.">
+<link rel="canonical" href="https://modoohub.com/guides/csr-key-size-rsa-vs-ec-tradeoff.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"CSR 키 크기 2048 vs 4096, EC vs RSA — 뭘 골라야 인증서가 빨라지나","description":"RSA 2048·4096비트와 EC P-256 키의 보안 강도·속도 차이를 CSR 생성 관점에서 분해합니다.","datePublished":"2026-08-21","dateModified":"2026-08-21","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>CSR 키 크기 2048 vs 4096, EC vs RSA — 뭘 골라야 인증서가 빨라지나</h1>
+  <p class="meta">가이드 · 2026.08.21 최종 확인</p>
+
+  <p>CSR을 생성할 때 "키 크기" 드롭다운을 그냥 기본값으로 넘기는 사람이 대부분입니다. 하지만 이 선택 하나가 인증서 발급 후 서버가 매 접속마다 치르는 연산 비용, 그리고 실제 보안 강도를 동시에 결정합니다. RSA 2048과 4096, 그리고 EC(타원곡선) P-256이 각각 무엇을 담보하고 무엇을 희생하는지 원리부터 분해합니다.</p>
+
+  <h2>1. 키 크기가 결정하는 것: 보안 강도가 아니라 "무차별 대입 난이도"</h2>
+  <p>RSA 키 크기는 소인수분해 문제의 난이도로 보안을 담보합니다. 2048비트 모듈러스를 소인수분해하는 데 필요한 연산량은 현재 슈퍼컴퓨터로도 사실상 비현실적이라, NIST는 2030년까지 2048비트를 안전한 기준으로 권고합니다. 4096비트는 이 난이도를 지수적으로 더 키우지만, 정작 실무에서 뚫리는 인증서는 키 크기 부족이 아니라 개인 키 유출·설정 실수 때문입니다. 즉 4096비트는 "더 안전"하지만 그 이득이 실제 위협 모델과 맞아떨어지는 경우는 드뭅니다.</p>
+
+  <h2>2. EC(타원곡선)가 다른 이유: 같은 안전도를 훨씬 짧은 키로</h2>
+  <p>EC 암호는 소인수분해가 아니라 타원곡선 이산로그 문제의 난이도에 기댑니다. 이 문제는 키 길이 대비 난이도 증가율이 RSA보다 훨씬 가팔라서, EC P-256(256비트)이 RSA 2048비트와 거의 동등한 보안 강도를 냅니다. 키가 짧다는 건 단순히 저장 공간 문제가 아닙니다. TLS 핸드셰이크마다 서버가 수행하는 서명·키 교환 연산량이 줄어들어, 동시 접속이 많은 서버일수록 CPU 부하 차이가 체감됩니다. <a href="../csr-generator.html">CSR 생성기</a>는 2048-bit·4096-bit RSA와 EC P-256 세 옵션을 모두 제공하므로, 발급받을 CA가 EC를 지원한다면 굳이 RSA를 고집할 이유가 적습니다.</p>
+
+  <div class="box">
+    <strong>비교 예시</strong>: RSA 2048과 EC P-256은 대략 동등한 보안 강도를 제공하지만, EC P-256의 키 길이는 RSA 2048의 약 8분의 1입니다. RSA 4096으로 올리면 보안 마진은 커지지만, 개인 키 서명 연산 시간은 RSA 2048 대비 여러 배 늘어나 로그인 폭주 시점의 TLS 처리량에 영향을 줍니다.
+  </div>
+
+  <table>
+    <tr><th>키 타입</th><th>대략적 동등 보안</th><th>키 길이 체감</th><th>연산 비용</th></tr>
+    <tr><td>RSA 2048</td><td>기준</td><td>보통</td><td>보통</td></tr>
+    <tr><td>RSA 4096</td><td>2048보다 높음</td><td>큼</td><td>2048 대비 눈에 띄게 느림</td></tr>
+    <tr><td>EC P-256</td><td>RSA 2048과 유사</td><td>가장 짧음</td><td>가장 빠름</td></tr>
+  </table>
+
+  <h2>3. 그런데도 RSA가 여전히 표준인 이유</h2>
+  <p>EC가 속도·크기 면에서 유리한데도 여전히 RSA 2048이 기본값으로 깔리는 경우가 많은 이유는 순전히 호환성입니다. 오래된 클라이언트·내부망 레거시 장비·일부 결제 게이트웨이는 EC 인증서를 지원하지 않거나 특정 곡선만 허용합니다. 반대로 공개 웹사이트처럼 현대적인 브라우저만 상대한다면 EC P-256을 선택 못 할 이유가 없습니다. 결국 선택 기준은 "얼마나 오래된 클라이언트까지 지원해야 하는가"이지 순수한 보안 우열이 아닙니다.</p>
+
+  <h2>4. 4096비트를 실제로 골라야 하는 상황</h2>
+  <p>4096비트가 정당화되는 경우는 두 가지로 좁혀집니다. 첫째, 인증서 수명이 매우 길어 미래의 연산력 향상까지 감안해야 하는 루트 CA·중간 CA 인증서. 둘째, 금융·의료처럼 규제가 특정 키 길이 하한을 명시하는 업종입니다. 반대로 일반적인 웹 서버·API 서버라면 4096비트가 주는 보안 이득보다 서명·복호화 지연이 주는 실질적 손해가 더 클 수 있습니다. CSR 발급 전 개인 키를 따로 준비하려면 <a href="../rsa-key-generator.html">RSA 키 생성기</a>로 키 크기별 생성 속도 차이를 직접 체감해볼 수 있습니다.</p>
+
+  <h2>5. CA·서버 설정에서 실제로 확인해야 할 것</h2>
+  <ul>
+    <li><strong>CA의 EC 지원 여부</strong>: Let's Encrypt를 포함한 대부분의 현대 CA는 EC P-256/P-384를 지원하지만, 일부 유료 EV 인증서 상품은 RSA만 허용하기도 합니다.</li>
+    <li><strong>서버 소프트웨어 버전</strong>: 오래된 Nginx·Apache·OpenSSL 버전은 특정 EC 곡선을 인식하지 못할 수 있습니다.</li>
+    <li><strong>발급 후 검증</strong>: 발급받은 인증서가 의도한 키 타입·크기로 나왔는지는 <a href="../ssl-decoder.html">SSL 인증서 디코더</a>로 바로 확인할 수 있습니다.</li>
+  </ul>
+
+  <h2>자주 묻는 질문</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. EC 키를 쓰면 CSR 생성 명령어가 어떻게 달라지나요?</summary><p style="margin-top:8px;">RSA는 openssl genrsa로 개인 키를 만들지만, EC는 openssl ecparam -name prime256v1 -genkey로 곡선을 지정해 키를 생성합니다. CSR 발급 명령어(openssl req -new) 자체는 동일합니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 이미 발급받은 RSA 인증서를 EC로 바꾸려면 재발급이 필요한가요?</summary><p style="margin-top:8px;">네. 키 타입은 CSR 생성 시점에 결정되므로, 다른 키 타입으로 바꾸려면 새 개인 키와 CSR을 만들어 CA에 재제출해야 합니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. RSA 3072비트 같은 중간 옵션은 없나요?</summary><p style="margin-top:8px;">이론적으로는 가능하지만 대부분의 CSR 생성 도구와 CA는 2048·4096비트만 표준 옵션으로 제공합니다. 중간값이 필요하면 OpenSSL 명령어를 직접 수정해야 합니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 와일드카드 인증서도 EC로 발급받을 수 있나요?</summary><p style="margin-top:8px;">CN에 *.example.com을 입력하는 방식은 키 타입과 무관하게 동일하게 동작하므로, EC 키로도 와일드카드 CSR을 생성할 수 있습니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../csr-generator.html">→ CSR 생성기</a>
+    <a href="../rsa-key-generator.html">→ RSA 키 생성기</a>
+    <a href="../ssl-checker.html">→ SSL 인증서 체커</a>
+    <a href="../ssl-decoder.html">→ SSL 인증서 디코더</a>
+    <a href="../ssh-key-generator.html">→ SSH 키 생성기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적이며 실제 인증서 발급·서버 설정은 담당 인프라 엔지니어와 함께 검토하시기 바랍니다.</footer>
+</main>
+</body>
+</html>

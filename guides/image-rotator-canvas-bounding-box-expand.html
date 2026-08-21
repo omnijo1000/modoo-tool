@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>정각이 아닌 각도로 회전하면 캔버스가 왜 커지는가 | MODOO HUB</title>
+<meta name="description" content="이미지를 15도, 45도처럼 정각이 아닌 각도로 회전시키면 결과물의 캔버스 크기가 원본보다 커지는 이유를 바운딩 박스와 cos·sin 공식으로 해부합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/image-rotator-canvas-bounding-box-expand.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"정각이 아닌 각도로 회전하면 캔버스가 왜 커지는가","description":"이미지를 15도, 45도처럼 정각이 아닌 각도로 회전시키면 결과물의 캔버스 크기가 원본보다 커지는 이유를 바운딩 박스와 cos·sin 공식으로 해부합니다.","datePublished":"2026-08-21","dateModified":"2026-08-21","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>정각이 아닌 각도로 회전하면 캔버스가 왜 커지는가</h1>
+  <p class="meta">가이드 · 2026.08.21 최종 확인</p>
+
+  <p>사진을 90도만 돌릴 때는 가로세로가 그대로 맞바뀔 뿐 아무 문제가 없습니다. 그런데 스캔한 문서가 3도쯤 기울어져 있어서 미세 조정으로 돌리거나, 사진을 45도 회전시켜 보면 결과 이미지의 캔버스 크기가 원본보다 눈에 띄게 커지는 걸 볼 수 있습니다. 왜 회전만 했는데 이미지 크기가 달라질까요? 정답은 "회전하는 것은 이미지가 아니라 그 이미지를 담는 사각형"이라는 데 있습니다.</p>
+
+  <h2>1. 회전은 사각형을 기울이는 일이다</h2>
+  <p>이미지는 항상 가로×세로 직사각형입니다. 이 직사각형을 원점을 중심으로 각도 θ만큼 회전시키면, 네 꼭짓점도 함께 회전하면서 원래의 가로·세로 축과 어긋난 마름모꼴 모양이 됩니다. 그런데 화면이나 파일에 저장되는 캔버스는 항상 가로축·세로축에 나란한(axis-aligned) 사각형이어야 하므로, 기울어진 마름모 전체를 잘라내지 않고 담으려면 그 마름모를 완전히 감싸는 새로운 가로축 정렬 사각형, 즉 <strong>바운딩 박스(bounding box)</strong>가 필요합니다. 이 바운딩 박스는 원본 사각형보다 항상 크거나 같습니다 — 정확히 언제 커지는지가 다음 절의 핵심입니다.</p>
+
+  <h2>2. 바운딩 박스 크기는 cos·sin으로 계산된다</h2>
+  <p>원본 이미지의 가로를 w, 세로를 h, 회전각을 θ라고 하면, 회전된 사각형을 감싸는 바운딩 박스의 새 가로·세로는 다음 공식으로 구해집니다.</p>
+  <div class="box">
+    <strong>새 가로(nw)</strong> = w·|cos θ| + h·|sin θ|<br>
+    <strong>새 세로(nh)</strong> = w·|sin θ| + h·|cos θ|
+  </div>
+  <p>이 공식은 회전된 사각형의 네 꼭짓점을 각각 x축·y축에 투영했을 때 차지하는 최대 폭과 최대 높이를 삼각함수로 표현한 것입니다. 각도가 0도에 가까울수록 sin θ가 0에 가까워 원본 크기와 거의 같고, 45도에 근접할수록 cos·sin이 모두 커져 바운딩 박스가 최대로 부풀어 오릅니다.</p>
+  <p>실제로 <a href="../image-rotator.html">이미지 회전 도구</a>의 내부 코드를 확인해 보면 이 공식이 그대로 구현돼 있습니다. 라디안으로 변환한 각도의 절댓값 cos·sin을 구한 뒤 <code>ow*cos+oh*sin</code>, <code>ow*sin+oh*cos</code>로 캔버스의 새 가로·세로를 계산하고, 그 크기에 맞춰 캔버스 자체를 다시 만듭니다. 즉 "원본 크기 그대로 두고 모서리를 잘라내는" 방식이 아니라, 캔버스 크기 자체를 회전 결과에 맞춰 동적으로 넓히는 방식으로 잘림을 원천 차단합니다.</p>
+
+  <h2>3. 숫자로 확인하기: 800×400 이미지를 30도 회전</h2>
+  <p>가로 800px, 세로 400px인 직사각형 이미지를 30도 회전시키면 다음과 같이 계산됩니다.</p>
+  <table>
+    <tr><th>값</th><th>계산식</th><th>결과</th></tr>
+    <tr><td>cos(30°)</td><td>0.8660</td><td>-</td></tr>
+    <tr><td>sin(30°)</td><td>0.5000</td><td>-</td></tr>
+    <tr><td>새 가로(nw)</td><td>800×0.8660 + 400×0.5</td><td>약 893px</td></tr>
+    <tr><td>새 세로(nh)</td><td>800×0.5 + 400×0.8660</td><td>약 746px</td></tr>
+  </table>
+  <p>원본이 800×400(가로가 세로의 2배)이었는데 회전 후에는 893×746으로, 가로는 약 12% 늘고 세로는 거의 2배 가까이 늘어납니다. 세로가 훨씬 크게 늘어나는 이유는 원래 짧았던 세로 방향이 회전으로 인해 원본 가로 성분(800×sin30°=400px)을 새로 흡수하기 때문입니다.</p>
+
+  <h2>4. 왜 90·180·270도에서는 안 커지는가</h2>
+  <p>같은 공식에 정각을 넣어보면 이유가 바로 보입니다. 90도에서는 cos(90°)=0, sin(90°)=1이므로 nw = w×0 + h×1 = h, nh = w×1 + h×0 = w — 즉 가로세로가 정확히 맞바뀔 뿐 더 커지지 않습니다. 180도에서는 cos=-1, sin=0이라 nw=w, nh=h로 원본 그대로입니다. 정각 회전이 특별한 게 아니라, cos·sin 값이 정확히 0 또는 1이 되는 지점이라 우연히 바운딩 박스가 원본과 같아지는 것뿐입니다. 반대로 45도는 cos·sin이 둘 다 약 0.707로 최대치에 가까워 바운딩 박스가 가장 크게 부푸는 각도입니다.</p>
+
+  <h2>5. 모서리에 남는 빈 공간과 저장 포맷 함정</h2>
+  <p>바운딩 박스가 원본보다 커진 만큼, 회전된 사각형과 새 캔버스 사이의 네 모서리에는 빈 공간이 생깁니다. 이 부분은 캔버스를 초기화할 때 기본값인 완전 투명(alpha 0)으로 남기 때문에 PNG로 저장하면 자연스럽게 투명한 모서리가 됩니다. 문제는 이 결과물을 투명도를 지원하지 않는 JPG로 저장할 때입니다 — 투명 모서리가 검은색으로 바뀌어 버릴 수 있는데, 이 함정의 원리는 <a href="avif-to-jpg-transparent-background-black.html">투명 배경을 JPG로 바꾸면 검게 나오는 이유</a> 가이드에서 자세히 다룹니다. 회전 결과물을 다른 배경 위에 합성하려면 <a href="../transparent-background-maker.html">투명 배경 만들기</a> 도구로 후처리하는 것도 방법입니다.</p>
+
+  <h2>6. 실전 팁: 기울어진 문서 스캔 보정</h2>
+  <p>스캔 문서를 미세하게 회전시켜 수평을 맞추는 경우, 대개 1~5도 안팎의 작은 각도만 사용하므로 바운딩 박스 확장 폭도 크지 않습니다. 하지만 결과 이미지를 다시 <a href="../image-cropper.html">이미지 자르기</a> 도구로 다듬어 여백을 제거하거나, <a href="../image-dimension-checker.html">이미지 크기 확인</a> 도구로 최종 픽셀 크기를 검증하는 습관을 들이면 후속 작업(인쇄, 업로드 등)에서 예상치 못한 캔버스 크기 때문에 놀라는 일을 줄일 수 있습니다.</p>
+
+  <h2>자주 묻는 질문</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 정사각형 이미지도 회전하면 캔버스가 커지나요?</summary><p style="margin-top:8px;">네. w=h인 정사각형이라도 45도 회전 시 nw=nh=w×(cos45°+sin45°)≈w×1.414로, 원본보다 약 41% 커집니다. 정사각형이라고 예외는 아닙니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 캔버스가 커지지 않게 원본 크기로 고정해서 회전할 수는 없나요?</summary><p style="margin-top:8px;">가능하지만 그 경우 회전된 사각형의 네 모서리가 캔버스 밖으로 밀려나 잘려나갑니다. 잘림 없이 전체를 보존하려면 바운딩 박스 확장이 필수입니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 회전과 좌우 반전을 같이 적용하면 바운딩 박스 계산이 달라지나요?</summary><p style="margin-top:8px;">아니요. 반전은 scale(-1,1) 같은 단순 부호 반전이라 가로·세로 크기 자체에는 영향을 주지 않습니다. 바운딩 박스 크기는 순전히 회전각의 cos·sin에만 의존합니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 파일이 서버로 업로드되나요?</summary><p style="margin-top:8px;">아니요. 회전 연산은 Canvas API로 브라우저 안에서 실행되므로 원본 이미지가 외부로 전송되지 않습니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../image-rotator.html">→ 이미지 회전 도구</a>
+    <a href="../image-cropper.html">→ 이미지 자르기</a>
+    <a href="../image-dimension-checker.html">→ 이미지 크기 확인</a>
+    <a href="../transparent-background-maker.html">→ 투명 배경 만들기</a>
+    <a href="../svg-to-png.html">→ SVG to PNG 변환기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적이며, 실제 도구 동작은 브라우저·이미지 파일에 따라 달라질 수 있습니다.</footer>
+</main>
+</body>
+</html>
