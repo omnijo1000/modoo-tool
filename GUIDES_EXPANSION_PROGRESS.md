@@ -223,25 +223,25 @@ REJECT(9개): line-counter, find-replace, remove-empty-lines, remove-duplicate-l
 - [x] **svg-to-png** (guides/svg-animation-to-png-static-frame.html, 2026-08-19) — "SVG 애니메이션을 PNG로 구우면 왜 항상 정지 프레임인가" — 애니메이션 시작전 상태만 캡처.
 - [x] **png-to-svg** (guides/png-to-svg-not-real-vector-tracing.html, 2026-08-19) — "PNG를 SVG로 바꿔준다는 도구, 사실은 벡터 트레이싱이 아니다" — 픽셀마다 1×1 rect 방식.
 - [x] **image-rotator** (guides/image-rotator-canvas-bounding-box-expand.html, 2026-08-21) — "정각이 아닌 각도로 회전하면 캔버스가 왜 커지는가" — cos·sin 바운딩박스 동적계산.
-- [ ] **image-watermark** — "이미지 워터마크는 한글이 안 깨지는데 PDF 워터마크는 왜 깨지나" — 웹폰트 vs PDF내장폰트 차이.
+- [x] **image-watermark** (guides/image-watermark-webfont-vs-pdf-font.html, 2026-08-21) — "이미지 워터마크는 한글이 안 깨지는데 PDF 워터마크는 왜 깨지나" — 웹폰트 vs PDF내장폰트 차이.
 - [x] **exif-viewer** (guides/exif-gps-dms-rational-format.html, 2026-08-19) — "GPS 좌표가 숫자 하나가 아니라 세 개인 이유" — 도·분·초 3개 유리수(RATIONAL) 저장.
 - [x] **exif-remover** (guides/exif-remover-gps-privacy-sns.html, 2026-08-20) — "사진 속 GPS 좌표, 왜 SNS 올리기 전에 지워야 하나" — Canvas 재인코딩으로 메타데이터 원천 제거.
 - [x] **ico-converter** (guides/ico-converter-png-inside-ico.html, 2026-08-21) — "ICO 파일 속 아이콘, 사실은 전부 PNG로 저장된다" — Vista이후 PNG바이트 그대로 담는 방식.
 - [x] **webp-to-jpg** (guides/webp-compatibility-kakaotalk-old-devices.html, 2026-08-20) — "카카오톡에 웹피(WebP) 이미지가 안 열리는 이유" — 구형iOS/안드로이드 WebP 미리보기 실패.
 - [x] **image-color-extractor** (guides/image-color-extractor-clustering-vs-average.html, 2026-08-20) — "이미지 대표색, 평균값이 아니라 클러스터링을 쓰는 이유" — 빨강+파랑 평균=보라 오류 방지(k-means 유사 클러스터링 실제 구현 확인됨).
-- [ ] **pixelate-image** — "픽셀화로 가린 사진, 낮은 강도면 복원될 수 있다" — 저강도 픽셀화 원본추정 가능 연구.
+- [x] **pixelate-image** (guides/pixelate-image-low-intensity-recovery-risk.html, 2026-08-21) — "픽셀화로 가린 사진, 낮은 강도면 복원될 수 있다" — 저강도 픽셀화 원본추정 가능 연구.
 - [x] **color-palette** (guides/color-palette-complementary-triadic-angles.html, 2026-08-21) — "보색·삼색·분할보색, 각도로 배우는 색상 조화 이론" — 보색180°, 삼색120°씩.
 - [x] **color-converter** (guides/color-converter-srgb-vs-display-p3.html, 2026-08-21) — "같은 HEX 코드인데 화면마다 색이 다르게 보이는 이유" — sRGB vs Display P3 색공간 차이.
 - [x] **color-blindness-simulator** (guides/color-blindness-simulator-accuracy.html, 2026-08-19) — "색맹 시뮬레이터의 숨은 버그, 왜 완전한 회색이 안 나올까" — 3×4행렬을 3×3으로 착각한 실제 코드버그.
 - [x] **avif-to-jpg** (guides/avif-to-jpg-transparent-background-black.html, 2026-08-21) — "투명 배경 이미지를 JPG로 바꾸면 왜 까맣게 나오는가" — Canvas 기본픽셀(투명검정)+알파소실.
-- [ ] **image-dimension-checker** — "16:9는 어떻게 계산되나: 종횡비의 유클리드 호제법" — GCD알고리즘으로 정수비 약분.
+- [x] **image-dimension-checker** (guides/image-dimension-aspect-ratio-gcd.html, 2026-08-21) — "16:9는 어떻게 계산되나: 종횡비의 유클리드 호제법" — GCD알고리즘으로 정수비 약분.
 - [x] **image-dpi-checker** (guides/image-dpi-checker-cm-inch-conversion-bug.html, 2026-08-21) — "인쇄용 300DPI 사진이 118로 잘못 표시되는 이유" — 이 도구는 ResolutionUnit 태그 확인해 실제로 정상 처리 중(버그 아님, 일반 현상 설명용).
-- [ ] **jpg-to-heic** — "JPG to HEIC라는 이름인데 실제로는 HEIC를 만들 수 없다" — 코덱 라이선스로 브라우저 인코딩 불가, WebP로 대체.
+- [x] **jpg-to-heic** (guides/jpg-to-heic-codec-license-webp-fallback.html, 2026-08-21) — "JPG to HEIC라는 이름인데 실제로는 HEIC를 만들 수 없다" — 코덱 라이선스로 브라우저 인코딩 불가, WebP로 대체.
 - [x] **heic-to-jpg** (guides/heic-to-jpg-hevc-codec-license.html, 2026-08-20) — "iPhone 사진이 브라우저에서 안 열리는 이유" — HEVC특허코덱, libheif WASM 이식.
 - [x] **transparent-background-maker** (guides/transparent-background-color-key-tolerance.html, 2026-08-21) — "배경 제거 도구의 색상 키 알고리즘, 허용범위는 실제로 어떻게 계산되나" — RGB거리×2.2, 알파 선형감소.
 - [x] **svg-cleaner** (guides/svg-cleaner-editor-namespace-bloat.html, 2026-08-21) — "SVG 파일 용량의 숨은 범인, 에디터 네임스페이스" — Inkscape/AI/Figma 메타데이터 10~40% 감소. **버그 발견**: Illustrator+Inkscape 정리 동시 활성화 시 `i:` 정규식이 `sodipodi:` 속성 끝문자와 충돌해 훼손, 연속된 빈 속성(`class="" style=""`) 중 하나만 제거됨. 별도 수정 필요.
 
-REJECT(7개): webp-to-png, image-to-webp, image-cropper, blur-image, color-picker, css-gradient-generator, jpg-to-avif (기존 image-format-comparison-2026 가이드와 중복 또는 순수 UI 조작).
+REJECT(7개): webp-to-png, image-to-webp, image-cropper, blur-image, color-picker, css-gradient-generator, jpg-to-avif (기존 image-format-comparison-2026 가이드와 중복 또는 순수 UI 조작). (image-tools 24/24 완료)
 
 ---
 
@@ -250,7 +250,7 @@ REJECT(7개): webp-to-png, image-to-webp, image-cropper, blur-image, color-picke
 - [x] **seo-title-generator** (guides/google-title-pixel-width-truncation.html, 2026-08-19) — "SEO 제목, 왜 한글은 영어보다 훨씬 빨리 잘리나" — 구글 픽셀폭 기준(약580px), 한글28~30자 vs 영문50~60자.
 - [x] **meta-description-generator** (guides/meta-description-google-rewrite.html, 2026-08-19) — "메타 설명, 써도 구글이 무시하는 이유" — 순위요소 아니나 CTR 간접기여, 구글이 본문서 발췌대체.
 - [x] **ai-youtube-title-generator** (guides/youtube-title-thumbnail-redundancy.html, 2026-08-19) — "유튜브 제목 vs 썸네일, 같은 말 두 번 하면 손해인 이유" — 70자초과 잘림, 이탈률↑시 알고리즘 노출↓.
-- [ ] **ai-thumbnail-title-generator** — "유튜브 썸네일 문구, 왜 10자를 넘기면 안 되나" — 한줄10자·2줄20자 권장.
+- [x] **ai-thumbnail-title-generator** (guides/youtube-thumbnail-text-10-char-limit.html, 2026-08-21) — "유튜브 썸네일 문구, 왜 10자를 넘기면 안 되나" — 한줄10자·2줄20자 권장.
 - [x] **utm-builder** (guides/utm-internal-link-tracking-mistake.html, 2026-08-19) — "UTM, 내부 링크에 붙이면 왜 절대 안 되나" — 내부링크에 붙이면 GA가 새 세션으로 오집계.
 - [x] **robots-txt-generator** (guides/robots-txt-allow-disallow-conflict-rule.html, 2026-08-19) — "robots.txt, Allow와 Disallow 충돌하면 누가 이기나" — 더 긴(구체적)경로 우선.
 - [x] **meta-tag-generator** (guides/meta-keywords-tag-google-2009-deprecated.html, 2026-08-21) — "구글은 2009년부터 keywords 메타태그를 안 본다" — 2009년(구글)/2011년(빙) 공식 폐기 발표.
@@ -260,16 +260,16 @@ REJECT(7개): webp-to-png, image-to-webp, image-cropper, blur-image, color-picke
 - [x] **schema-markup-generator** (guides/schema-markup-json-ld-rich-snippet-ctr.html, 2026-08-21) — "JSON-LD가 구조화 데이터 표준이 된 이유" — 리치스니펫 CTR 평균20~30%↑.
 - [x] **hreflang-generator** (guides/hreflang-bidirectional-mistakes.html, 2026-08-19) — "hreflang, 절반이 틀리게 쓰는 SEO 태그" — 양방향참조 비대칭이면 구글이 조용히 무시.
 - [x] **htaccess-generator** (guides/htaccess-hsts-lockout-risk.html, 2026-08-21) — "HSTS 설정했다가 사이트가 접속 불가가 되는 이유" — 인증서 문제시 HTTPS 강제로 접속불가.
-- [ ] **nginx-config-generator** — "Nginx가 대량 동시접속에 강한 진짜 이유" — 이벤트기반 비동기 vs Apache 스레드/프로세스.
+- [x] **nginx-config-generator** (guides/nginx-event-driven-vs-apache-thread.html, 2026-08-21) — "Nginx가 대량 동시접속에 강한 진짜 이유" — 이벤트기반 비동기 vs Apache 스레드/프로세스.
 - [x] **apache-config-generator** (guides/apache-htaccess-vs-virtualhost-performance.html, 2026-08-21) — ".htaccess vs VirtualHost, 왜 성능 차이가 나나" — .htaccess는 요청마다 재로딩.
-- [ ] **uuid-generator** — "UUID를 DB 기본키로 쓰면 안 되는 이유" — B-트리 인덱스 단편화, crypto.randomUUID() 필수 보안경고.
-- [ ] **uuid-converter** — "UUID 네 번째 그룹 첫 글자, 아무도 안 보는 그 한 글자의 의미" — variant 비트 판별규칙.
+- [x] **uuid-generator** (guides/uuid-crypto-randomuuid-collision-probability.html, 2026-08-21) — "왜 crypto.randomUUID()를 꼭 써야 하나 — UUID 충돌 확률과 예측 가능성" (당초 예정 "DB 기본키" 주제는 uuid-validator 가이드와 중복이라 각도 변경).
+- [x] **uuid-converter** (guides/uuid-variant-bits-fourth-group.html, 2026-08-21) — "UUID 네 번째 그룹 첫 글자, 아무도 안 보는 그 한 글자의 의미" — variant 비트 판별규칙.
 - [x] **ulid-generator** (guides/ulid-crockford-base32-no-ilou.html, 2026-08-21) — "ULID 알파벳에 I, L, O, U가 없는 이유" — Crockford Base32, 서기10889년까지 표현.
 - [x] **nanoid-generator** (guides/random-string-modulo-bias-rejection-sampling.html, 2026-08-20) — "랜덤 문자열 생성기가 몰래 편향되는 이유(그리고 고치는 법)" — 거부샘플링(rejection sampling) 메커니즘.
 - [x] **qr-code-generator** (guides/qr-code-error-correction-logo.html, 2026-08-19) — "QR코드 오류 수정 레벨, H(30%)를 쓰면 정말 로고를 박아도 되나" — L7/M15/Q25/H30% 4단계.
 - [x] **lorem-ipsum-generator** (guides/lorem-ipsum-cicero-history.html, 2026-08-20) — "Lorem Ipsum, 키케로가 쓴 그 문장이 왜 의미 없는 글자로 보이나" — 기원전45년 키케로 원문 훼손 역사.
 
-REJECT(8개): youtube-script-generator, ai-email-generator, ai-resume-generator, ai-cover-letter-generator, ai-product-description-generator, ai-blog-title-generator, ai-tweet-generator, ai-linkedin-post-generator (전부 FAQ가 자기 도구 내부 버그/한계 고백뿐, 외부지식 없음).
+REJECT(8개): youtube-script-generator, ai-email-generator, ai-resume-generator, ai-cover-letter-generator, ai-product-description-generator, ai-blog-title-generator, ai-tweet-generator, ai-linkedin-post-generator (전부 FAQ가 자기 도구 내부 버그/한계 고백뿐, 외부지식 없음). (generator-tools 21/21 완료)
 
 ---
 
@@ -284,16 +284,16 @@ REJECT(8개): youtube-script-generator, ai-email-generator, ai-resume-generator,
 - [x] **ssl-checker** (guides/ssl-checker-certificate-transparency-logs.html, 2026-08-20) — "SSL 체커는 실제로 서버에 접속하지 않는다 — Certificate Transparency 로그의 원리와 한계" — crt.sh CT로그 대체조회.
 - [x] **csr-generator** (guides/csr-key-size-rsa-vs-ec-tradeoff.html, 2026-08-21) — "CSR 키 크기 2048 vs 4096, EC vs RSA — 뭘 골라야 인증서가 빨라지나" — EC P-256=RSA2048과 동등보안.
 - [x] **csp-generator** (guides/csp-unsafe-inline-nonce-alternative.html, 2026-08-20) — "'unsafe-inline' 한 줄이 CSP 방어를 무력화하는 이유와 nonce 대안" — meta태그는 frame-ancestors 미지원.
-- [ ] **csp-validator** — "CSP를 사이트 안 깨뜨리고 도입하는 법 — Report-Only에서 강제 모드까지 3단계" — data:URI가 img-src/script-src서 위험도 다름.
+- [x] **csp-validator** (guides/csp-report-only-rollout-three-stages.html, 2026-08-21) — "CSP를 사이트 안 깨뜨리고 도입하는 법 — Report-Only에서 강제 모드까지 3단계" — data:URI가 img-src/script-src서 위험도 다름. (도구 자체는 Report-Only 생성·지시어별 위험도 구분은 미지원, FAQ에만 언급)
 - [x] **cors-header-checker** (guides/cors-preflight-simple-vs-non-simple-request.html, 2026-08-21) — "Preflight가 도는 요청 vs 안 도는 요청 — CORS 에러의 진짜 원인" — simple request는 preflight없이 즉시전송.
 - [x] **hash-checker** (guides/hash-checker-md5-web-crypto-unsupported.html, 2026-08-21) — "왜 브라우저 표준 해시 API는 MD5를 지원하지 않는가" — crypto.subtle.digest는 MD5 넘기면 즉시 예외. (hash-checker.html은 MD5 자체 미지원, 자체 JS MD5 구현은 자매 도구 hash-generator.html 쪽)
 - [x] **bcrypt-generator** (guides/bcrypt-72-byte-korean-limit.html, 2026-08-19) — "bcrypt 72바이트 제한, 한글 비밀번호는 24자에서 잘린다" — 72바이트 이후 다른 한글비번 2개 동일해시 실증.
-- [ ] **bcrypt-validator** — "bcrypt는 salt를 따로 안 저장하는데 어떻게 검증하나 — compare()의 실제 동작" — 해시 앞29자를 salt로 재사용.
+- [x] **bcrypt-validator** (guides/bcrypt-validator-salt-embedded-hash.html, 2026-08-21) — "bcrypt는 salt를 따로 안 저장하는데 어떻게 검증하나 — compare()의 실제 동작" — 해시 앞29자를 salt로 재사용.
 - [x] **hmac-generator** (guides/hmac-length-extension-attack.html, 2026-08-19) — "HMAC이 길이 확장 공격을 막는 이중 해시 구조(ipad/opad)" — 단순연결해시는 length-extension 취약.
 - [x] **rsa-key-generator** (guides/rsa-public-exponent-65537-pkcs-formats.html, 2026-08-21) — "RSA 공개지수 65537의 의미와 PKCS#8 vs PKCS#1 포맷 함정" — 2048비트+OAEP 평문190바이트 제한.
 - [x] **ssh-key-generator** (guides/ssh-key-ed25519-vs-rsa-shell-escape.html, 2026-08-21) — "Ed25519가 RSA를 대체하는 이유 — SSH 키 알고리즘 비교와 셸 이스케이프 함정" — 고정256비트로 RSA2048 이상 보안.
 
-REJECT(5개): base64-encoder, base64-decoder, html-encoder(순수 인코딩 스펙뿐), jwt-decoder, jwt-generator(기존 jwt-authentication-guide와 중복).
+REJECT(5개): base64-encoder, base64-decoder, html-encoder(순수 인코딩 스펙뿐), jwt-decoder, jwt-generator(기존 jwt-authentication-guide와 중복). (security-tools 17/17 완료)
 
 ---
 

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>16:9는 어떻게 계산되나: 종횡비의 유클리드 호제법 | MODOO HUB</title>
+<meta name="description" content="1920×1080이 왜 16:9로 표시되는지, 두 픽셀값에서 최대공약수(GCD)를 구하는 유클리드 호제법의 원리와 실제 계산 과정을 단계별로 설명합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/image-dimension-aspect-ratio-gcd.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/image-dimension-aspect-ratio-gcd.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/image-dimension-aspect-ratio-gcd.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"16:9는 어떻게 계산되나: 종횡비의 유클리드 호제법","description":"1920×1080이 왜 16:9로 표시되는지, 두 픽셀값에서 최대공약수(GCD)를 구하는 유클리드 호제법의 원리와 실제 계산 과정을 단계별로 설명합니다.","datePublished":"2026-08-21","dateModified":"2026-08-21","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--purple);}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>16:9는 어떻게 계산되나: 종횡비의 유클리드 호제법</h1>
+  <p class="meta">가이드 · 2026.08.21 최종 확인</p>
+
+  <p>이미지 파일을 <a href="../image-dimension-checker.html">이미지 크기 확인기</a>에 올리면 "1920×1080 → 16:9"처럼 종횡비가 자동으로 표시됩니다. 1920과 1080이라는 두 숫자에서 어떻게 16과 9라는 훨씬 단순한 숫자가 나올까요. 답은 2,300년 전 유클리드가 정리한 알고리즘, 최대공약수(GCD)를 구하는 방법에 있습니다.</p>
+
+  <h2>1. 종횡비란: 가장 단순한 형태로 줄인 비율</h2>
+  <p>종횡비(aspect ratio)는 가로와 세로의 비율을 뜻합니다. 1920×1080이라는 픽셀값 자체도 비율이지만(1920:1080), 관례적으로는 이를 더 이상 나눌 수 없는 가장 단순한 정수쌍으로 표기합니다. 1920:1080과 16:9는 수학적으로 완전히 동일한 비율이지만, 16:9 쪽이 사람이 인식하고 비교하기 훨씬 쉽습니다. 이 "가장 단순한 형태로 줄이는" 과정이 바로 최대공약수 나눗셈입니다.</p>
+
+  <h2>2. 최대공약수(GCD)를 구하는 두 가지 방법</h2>
+  <p>두 수의 최대공약수를 구하는 전통적인 방법은 각 수를 소인수분해한 뒤 공통 인수를 곱하는 것입니다. 하지만 숫자가 커지면 소인수분해 자체가 느려집니다. 그 대안이 기원전 300년경 유클리드가 저서 「원론」에 기록한 <strong>유클리드 호제법(Euclidean algorithm)</strong>입니다. 소인수분해 없이 나눗셈의 나머지만 반복해서 구하면 되므로 훨씬 빠르고, 이 사이트의 이미지 크기 확인기를 포함해 대부분의 소프트웨어가 이 방식을 씁니다.</p>
+
+  <h2>3. 유클리드 호제법의 원리</h2>
+  <p>핵심 공식은 <code>GCD(a, b) = GCD(b, a mod b)</code>이고, <code>b</code>가 0이 되는 순간의 <code>a</code>값이 곧 최대공약수입니다. 이 도구가 실제로 쓰는 코드도 이 공식을 그대로 한 줄로 구현한 재귀 함수입니다.</p>
+  <div class="box">
+    <code>function gcd(a,b){return b===0 ? a : gcd(b, a%b);}</code>
+  </div>
+  <p>원리는 "두 수의 공약수는 두 수의 차(또는 나머지)의 공약수와 같다"는 성질을 이용하는 것입니다. 큰 수를 작은 수로 나눈 나머지로 계속 문제를 축소해가다 보면, 나머지가 0이 되는 지점에서 자연스럽게 답이 나옵니다.</p>
+
+  <h2>4. 실제 계산: 1920×1080이 16:9가 되는 과정</h2>
+  <p>Full HD 해상도인 1920×1080을 예로 들어 유클리드 호제법을 손으로 따라가 보면 다음과 같습니다.</p>
+  <table>
+    <tr><th>단계</th><th>계산</th><th>결과(나머지)</th></tr>
+    <tr><td>1</td><td>1920 ÷ 1080</td><td>몫 1, 나머지 840</td></tr>
+    <tr><td>2</td><td>1080 ÷ 840</td><td>몫 1, 나머지 240</td></tr>
+    <tr><td>3</td><td>840 ÷ 240</td><td>몫 3, 나머지 120</td></tr>
+    <tr><td>4</td><td>240 ÷ 120</td><td>몫 2, 나머지 0</td></tr>
+  </table>
+  <div class="box">
+    나머지가 0이 되는 순간의 나누는 수, 즉 <strong>120</strong>이 1920과 1080의 최대공약수입니다.<br>
+    1920 ÷ 120 = <strong>16</strong>, 1080 ÷ 120 = <strong>9</strong> → 종횡비는 <strong>16:9</strong>
+  </div>
+
+  <h2>5. 흔한 해상도들의 종횡비</h2>
+  <p>같은 방식으로 대표적인 해상도들을 계산하면 다음과 같은 익숙한 비율이 나옵니다.</p>
+  <table>
+    <tr><th>해상도</th><th>GCD</th><th>종횡비</th><th>용도</th></tr>
+    <tr><td>1920×1080</td><td>120</td><td>16:9</td><td>Full HD, 유튜브 표준</td></tr>
+    <tr><td>3840×2160</td><td>240</td><td>16:9</td><td>4K UHD</td></tr>
+    <tr><td>1080×1080</td><td>1080</td><td>1:1</td><td>인스타그램 정사각형</td></tr>
+    <tr><td>1200×675</td><td>75</td><td>16:9</td><td>트위터/X 카드 이미지</td></tr>
+    <tr><td>2160×3840</td><td>240</td><td>9:16</td><td>세로 영상(쇼츠·릴스)</td></tr>
+  </table>
+  <p>가로세로가 뒤집힌 세로 영상(9:16)도 GCD 계산 원리는 동일하며, 단지 큰 값이 세로에 오는 것뿐입니다. 정확한 종횡비를 확인한 뒤 <a href="../image-cropper.html">이미지 자르기</a>로 원하는 비율에 맞춰 잘라내거나, <a href="../image-rotator.html">이미지 회전</a>으로 방향을 맞추는 식으로 후속 작업에 활용할 수 있습니다.</p>
+
+  <h2>자주 묻는 질문</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 유클리드 호제법은 왜 소인수분해보다 빠른가요?</summary><p style="margin-top:8px;">A. 소인수분해는 숫자가 소수인지 일일이 확인해야 해 큰 수일수록 느려지지만, 유클리드 호제법은 나눗셈의 나머지만 반복하면 되므로 숫자 크기와 무관하게 몇 단계 안에 끝납니다. 실제로 1920, 1080 같은 4자리 수도 단 4단계 만에 계산이 끝났습니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 두 수가 서로소(공약수가 1뿐)이면 어떻게 되나요?</summary><p style="margin-top:8px;">A. GCD가 1이 되므로 원래 픽셀값 자체가 이미 가장 단순한 비율입니다. 예를 들어 1920×1081이라면 종횡비는 그대로 1920:1081로 표시됩니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. SVG처럼 픽셀 크기가 없는 이미지도 종횡비를 구할 수 있나요?</summary><p style="margin-top:8px;">A. SVG는 벡터 형식이라 viewBox 또는 width/height 속성값을 픽셀 대신 사용해 같은 방식으로 계산합니다. 둘 다 없으면 브라우저의 기본 대체 크기(보통 300×150)를 기준으로 계산되므로 실제 의도와 다를 수 있습니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 이 계산이 서버에서 이루어지나요?</summary><p style="margin-top:8px;">A. 아니요. gcd() 함수를 포함한 모든 계산이 브라우저 안에서 즉시 실행되며 이미지 파일이 서버로 전송되지 않습니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../image-dimension-checker.html">→ 이미지 크기 확인기</a>
+    <a href="../image-cropper.html">→ 이미지 자르기</a>
+    <a href="../image-rotator.html">→ 이미지 회전</a>
+    <a href="../exif-viewer.html">→ EXIF 뷰어</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적입니다.</footer>
+</main>
+</body>
+</html>
