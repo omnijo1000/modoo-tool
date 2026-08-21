@@ -150,6 +150,9 @@ function countSyllables(word){return (word.toLowerCase().match(/[aeiouy]+/g)||[]
 function fleschScore(text){
   const words=text.trim().split(/\s+/).filter(Boolean);
   if(words.length<10)return null;
+  const nonSpace=text.replace(/\s/g,'').length;
+  const cjk=(text.match(/[가-힣぀-ヿ一-鿿]/g)||[]).length;
+  if(nonSpace&&cjk/nonSpace>0.3)return null;
   const sents=Math.max(1,(text.match(/[.!?](\s|$)/g)||[]).length);
   const syls=words.reduce((a,w)=>a+countSyllables(w),0);
   const score=206.835-1.015*(words.length/sents)-84.6*(syls/words.length);
