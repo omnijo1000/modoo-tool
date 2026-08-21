@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>왜 브라우저 표준 해시 API는 MD5를 지원하지 않는가 | MODOO HUB</title>
+<meta name="description" content="브라우저 내장 Web Crypto API(crypto.subtle.digest)가 SHA-1/256/384/512만 지원하고 MD5는 아예 스펙에서 배제한 이유를, MD5가 깨진 역사와 실제 코드 동작 관점에서 분석합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/hash-checker-md5-web-crypto-unsupported.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"왜 브라우저 표준 해시 API는 MD5를 지원하지 않는가","description":"브라우저 내장 Web Crypto API가 SHA 계열만 지원하고 MD5는 아예 스펙에서 배제한 이유를 MD5가 깨진 역사와 실제 코드 동작 관점에서 분석합니다.","datePublished":"2026-08-21","dateModified":"2026-08-21","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>왜 브라우저 표준 해시 API는 MD5를 지원하지 않는가</h1>
+  <p class="meta">가이드 · 2026.08.21 최종 확인</p>
+
+  <p>브라우저 콘솔에서 <code>crypto.subtle.digest('MD5', ...)</code>를 직접 호출해 보면 즉시 <code>NotSupportedError</code> 예외가 발생합니다. SHA-256이나 SHA-1은 되는데 MD5만 안 되는 이유는 구현 실수가 아니라, 브라우저 표준 자체가 애초에 MD5를 지원 목록에서 뺐기 때문입니다. 왜 이런 선택을 했는지, 그리고 그럼에도 MD5 해시가 필요한 상황은 실제로 어떻게 처리하는지 살펴봅니다.</p>
+
+  <h2>1. MD5가 표준에서 배제된 근본 이유: 이미 죽은 암호였다</h2>
+  <p>MD5는 1992년 발표된 해시 함수로, 1996년 초기 취약점이 학계에서 지적되기 시작했고 2004~2005년 왕샤오윈(Wang Xiaoyun) 등의 연구로 실제 충돌(서로 다른 두 입력이 같은 해시값을 만드는 상황)을 인위적으로 만들어내는 공격이 성공했습니다. 이후 MD5는 보안 무결성 검증이나 전자서명 용도로는 사실상 폐기된 알고리즘으로 취급됩니다. Web Crypto API는 2013~2017년 사이 W3C에서 표준화됐는데, 이 시점에 이미 MD5는 신뢰할 수 없는 알고리즘으로 결론이 난 상태였기 때문에 새 표준에 아예 포함시키지 않았습니다.</p>
+
+  <h2>2. SubtleCrypto 스펙이 정의한 지원 알고리즘</h2>
+  <p><code>crypto.subtle.digest()</code>의 W3C 명세는 다이제스트 알고리즘으로 <code>SHA-1</code>, <code>SHA-256</code>, <code>SHA-384</code>, <code>SHA-512</code> 네 가지만 정의합니다. SHA-1조차 충돌 공격(2017년 구글의 SHAttered 연구)이 실증돼 보안 용도로는 권장되지 않지만, 하위 호환을 위해 스펙에는 남아 있습니다. MD5는 SHA-1보다 먼저, 더 심각하게 깨진 알고리즘이라 아예 논의 대상조차 되지 않았습니다.</p>
+
+  <div class="box">
+    <strong>실측 확인</strong>: 이 사이트의 <a href="../hash-checker.html">해시 체커</a>는 내부적으로 <code>await crypto.subtle.digest(algo, data)</code> 한 줄로 모든 해시를 계산합니다. algo 값으로 'SHA-256'을 넘기면 정상 동작하지만, 'MD5'를 넘기면 브라우저가 즉시 예외를 던지므로 이 도구는 MD5를 아예 지원 알고리즘 목록에서 제외하고 SHA-1/256/384/512 4종만 제공합니다.
+  </div>
+
+  <h2>3. 그래서 MD5가 필요할 땐 어떻게 하는가: 순수 JS 구현</h2>
+  <p>Web Crypto API로 계산할 수 없다고 해서 브라우저에서 MD5 계산 자체가 불가능한 것은 아닙니다. 알고리즘을 JavaScript 코드로 직접 구현하면 됩니다. 실제로 같은 사이트의 <a href="../hash-generator.html">해시 생성기</a>는 SHA 계열은 <code>crypto.subtle.digest</code>를 쓰면서도, MD5만큼은 <code>md5cmn</code>·<code>md5ff</code>·<code>md5gg</code> 같은 내부 함수로 구성된 순수 JS MD5 알고리즘을 직접 구현해서 계산합니다. 브라우저 표준 API가 못 하는 부분을 애플리케이션 레벨 라이브러리로 메꾸는 전형적인 패턴입니다.</p>
+
+  <h2>4. 표준 API 방식과 순수 JS 구현 방식의 차이</h2>
+  <table>
+    <tr><th>구분</th><th>Web Crypto API</th><th>순수 JS 구현</th></tr>
+    <tr><td>지원 알고리즘</td><td>SHA-1/256/384/512만</td><td>MD5 포함 임의 알고리즘 가능</td></tr>
+    <tr><td>실행 속도</td><td>브라우저 네이티브 코드, 빠름</td><td>JS 인터프리터 실행, 상대적으로 느림</td></tr>
+    <tr><td>구현 신뢰도</td><td>브라우저 벤더가 검증</td><td>라이브러리 코드 품질에 의존</td></tr>
+    <tr><td>이 사이트 예시</td><td>hash-checker.html (SHA 전용)</td><td>hash-generator.html (MD5 자체 구현 포함)</td></tr>
+  </table>
+
+  <h2>5. MD5를 여전히 써도 되는 용도, 안 되는 용도</h2>
+  <ul>
+    <li><strong>써도 되는 경우</strong>: 파일 중복 감지, 캐시 무효화 키, 비보안 목적의 체크섬처럼 "고의적 위조 공격"을 가정하지 않는 상황.</li>
+    <li><strong>쓰면 안 되는 경우</strong>: 비밀번호 저장, 디지털 서명, 파일 무결성 보증처럼 공격자가 의도적으로 원본과 다른 데이터로 같은 해시를 만들 수 있는 상황(충돌 공격) 자체가 문제가 되는 보안 용도.</li>
+  </ul>
+  <p>보안이 필요한 경우 <a href="../sha256-generator.html">SHA-256 생성기</a>를, 비밀번호 저장이라면 해시가 아닌 <a href="../bcrypt-generator.html">bcrypt 생성기</a> 같은 전용 키 스트레칭 알고리즘을 사용해야 합니다.</p>
+
+  <h2>자주 묻는 질문</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. crypto.subtle.digest('MD5', data)를 호출하면 정확히 무슨 에러가 나나요?</summary><p style="margin-top:8px;">브라우저마다 문구는 다르지만 대체로 "Algorithm: Unrecognized name" 또는 NotSupportedError 계열의 예외가 발생합니다. 스펙에 정의되지 않은 알고리즘 이름을 넘겼기 때문입니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Node.js에서는 MD5를 계산할 수 있나요?</summary><p style="margin-top:8px;">네. Node.js의 crypto 모듈은 OpenSSL 기반이라 브라우저 표준(SubtleCrypto)과 별개로 MD5를 포함한 훨씬 다양한 알고리즘을 지원합니다. 브라우저에서 제약이 있는 것은 SubtleCrypto라는 웹 표준 스펙 자체의 제한 때문입니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. SHA-1도 언젠가 표준에서 빠지나요?</summary><p style="margin-top:8px;">가능성이 있습니다. 이미 보안 용도로는 권장되지 않지만, 레거시 시스템과의 호환을 위해 현재 스펙에는 남아 있습니다. MD5처럼 완전히 배제되기까지는 시간이 걸릴 수 있습니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 이 사이트에서 MD5 해시가 필요하면 어떤 도구를 써야 하나요?</summary><p style="margin-top:8px;"><a href="../hash-generator.html">해시 생성기</a>가 순수 JS로 구현한 MD5를 포함해 SHA 계열까지 함께 제공합니다. 반면 <a href="../hash-checker.html">해시 체커</a>는 Web Crypto API만 사용하므로 MD5는 지원하지 않습니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../hash-checker.html">→ 해시 체커</a>
+    <a href="../hash-generator.html">→ 해시 생성기</a>
+    <a href="../sha256-generator.html">→ SHA-256 생성기</a>
+    <a href="../bcrypt-validator.html">→ bcrypt 검증기</a>
+    <a href="../bcrypt-generator.html">→ bcrypt 생성기</a>
+    <a href="../hmac-generator.html">→ HMAC 생성기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적이며 보안이 중요한 시스템은 최신 암호 표준 권고를 별도로 확인하시기 바랍니다.</footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HSTS 설정했다가 사이트가 접속 불가가 되는 이유 | MODOO HUB</title>
+<meta name="description" content="HSTS 헤더를 켜면 브라우저가 해당 도메인에 무조건 HTTPS로만 접속을 강제하는 원리와, SSL 인증서 문제 발생 시 우회 접속조차 불가능해지는 구조를 max-age·includeSubDomains·preload 옵션별로 분석합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/htaccess-hsts-lockout-risk.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"HSTS 설정했다가 사이트가 접속 불가가 되는 이유","description":"HSTS 헤더를 켜면 브라우저가 해당 도메인에 무조건 HTTPS로만 접속을 강제하는 원리와, SSL 인증서 문제 발생 시 우회 접속조차 불가능해지는 구조를 분석합니다.","datePublished":"2026-08-21","dateModified":"2026-08-21","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>HSTS 설정했다가 사이트가 접속 불가가 되는 이유</h1>
+  <p class="meta">가이드 · 2026.08.21 최종 확인</p>
+
+  <p>보안 강화를 위해 HSTS(HTTP Strict Transport Security) 헤더를 켰다가 오히려 사이트에 아예 접속할 수 없게 되는 사고가 실무에서 종종 발생합니다. 원인은 HSTS가 "권장"이 아니라 "강제" 메커니즘이라는 점을 모르고 설정하기 때문입니다. 이 가이드는 HSTS가 브라우저 안에서 실제로 어떻게 동작하는지, 왜 인증서 문제 하나가 사이트 전체를 마비시킬 수 있는지 구조적으로 설명합니다.</p>
+
+  <h2>1. HSTS는 서버 응답이 아니라 브라우저 로컬 규칙이다</h2>
+  <p>일반적인 HTTP→HTTPS 리다이렉트는 서버가 요청을 받은 뒤 "여기로 다시 가라"고 응답하는 방식입니다. 반면 HSTS는 다릅니다. 서버가 <code>Strict-Transport-Security</code> 헤더를 한 번 응답에 실어 보내면, 브라우저는 그 도메인과 만료 시각(max-age)을 로컬 저장소에 기록합니다. 이후 그 기간 동안은 사용자가 <code>http://</code>로 주소를 입력하거나 링크를 클릭해도, 브라우저가 서버에 요청을 보내기도 전에 스스로 <code>https://</code>로 바꿔서 요청합니다. 즉 서버가 아니라 브라우저가 강제하는 규칙이라는 점이 핵심입니다.</p>
+
+  <h2>2. 인증서 문제가 발생하면 왜 "그래도 진행" 버튼조차 없는가</h2>
+  <p>일반적인 SSL 인증서 오류(자체 서명, 만료 등)가 발생하면 브라우저는 경고 화면을 띄우면서도 "위험을 감수하고 계속 진행" 버튼을 제공합니다. 그러나 HSTS가 활성화된 도메인에서는 이 예외 버튼 자체가 사라집니다. 브라우저 입장에서 HSTS는 "이 사이트는 반드시 안전한 연결이어야 한다"는 사이트 소유자의 명시적 지시이므로, 사용자의 임의 판단으로 우회하는 것을 원천 차단합니다. 결과적으로 인증서가 만료되거나 설정이 꼬이면 개발자 본인조차 그 사이트에 접속할 방법이 없어집니다.</p>
+
+  <div class="box">
+    <strong>실제 시나리오</strong>: <code>max-age=31536000</code>(1년)으로 HSTS를 설정한 상태에서 SSL 인증서 자동 갱신이 실패해 인증서가 만료됐다고 가정합시다. 방문자는 최대 1년간 그 사이트에 HTTP로도, "위험을 감수하고 계속"으로도 접속할 수 없습니다. 유일한 해결책은 인증서를 정상화하는 것뿐이며, 그동안 발생하는 트래픽 손실은 전적으로 사이트 운영자 책임입니다.
+  </div>
+
+  <h2>3. includeSubDomains와 preload가 위험을 증폭시키는 이유</h2>
+  <table>
+    <tr><th>옵션</th><th>적용 범위</th><th>위험도</th></tr>
+    <tr><td>max-age만</td><td>해당 도메인만, 지정 기간만</td><td>중간 — 기간 지나면 자동 해제</td></tr>
+    <tr><td>+ includeSubDomains</td><td>모든 서브도메인 포함</td><td>높음 — 서브도메인 중 HTTPS 미지원 하나만 있어도 마비</td></tr>
+    <tr><td>+ preload</td><td>브라우저 제조사 하드코딩 리스트에 등록</td><td>매우 높음 — 해제까지 수개월, 등록 요청도 필요</td></tr>
+  </table>
+  <p><code>includeSubDomains</code>를 추가하면 예를 들어 <code>test.example.com</code>이나 사내 개발용 서브도메인처럼 HTTPS를 아직 지원하지 않는 서브도메인까지 강제로 HTTPS 전용이 되어버립니다. <code>preload</code>는 한 단계 더 나아가 Chrome·Firefox 등 브라우저 자체에 하드코딩된 HSTS 프리로드 리스트에 도메인을 등록하는 것으로, 등록 이후에는 max-age 만료를 기다릴 필요도 없이 즉시 강제 적용되고, 리스트에서 제외 요청을 해도 브라우저 배포 주기 때문에 실제 반영까지 수개월이 걸립니다.</p>
+
+  <h2>4. 안전하게 도입하는 순서</h2>
+  <ol>
+    <li>먼저 짧은 max-age(예: 300초~1일)로 시작해 실제 사이트와 모든 서브도메인이 HTTPS로 문제없이 동작하는지 충분히 검증합니다.</li>
+    <li>SSL 인증서 자동 갱신(Let's Encrypt 등)이 안정적으로 동작하는지 최소 한 번 이상의 갱신 주기를 실제로 관찰합니다.</li>
+    <li>문제가 없으면 max-age를 점진적으로 늘리고(1주 → 1개월 → 1년), 이 단계까지 확인된 후에만 <code>includeSubDomains</code>를 추가합니다.</li>
+    <li><code>preload</code>는 모든 서브도메인이 항구적으로 HTTPS를 지원할 자신이 있을 때만, 가장 마지막 단계에서 신중히 적용합니다.</li>
+  </ol>
+  <p><a href="../htaccess-generator.html">.htaccess 생성기</a>로 보안 헤더를 설정할 때 HSTS 옵션을 켜기 전에 이 순서를 따르는 것이 안전합니다. 헤더가 실제로 어떤 형태로 응답에 실리는지는 <a href="../http-header-checker.html">HTTP 헤더 체커</a>로 배포 후 반드시 확인하세요.</p>
+
+  <h2>5. 이미 HSTS 때문에 접속이 안 될 때</h2>
+  <p>브라우저 캐시에 이미 HSTS가 기록된 상태에서 로컬 개발 서버 접속이 막히는 경우처럼, 개발자 본인 브라우저에서만 문제라면 Chrome 기준 <code>chrome://net-internals/#hsts</code>에서 해당 도메인의 등록을 직접 삭제할 수 있습니다. 하지만 이는 자신의 브라우저에만 해당하는 임시 조치이며, 이미 방문했던 다른 사용자들의 브라우저에는 여전히 HSTS 규칙이 남아 있으므로 근본 해결은 SSL 인증서 정상화뿐입니다.</p>
+
+  <h2>자주 묻는 질문</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. HSTS를 설정하지 않아도 되는 이유가 있나요?</summary><p style="margin-top:8px;">보안 관점에서는 HSTS가 권장됩니다. 다만 SSL 인증서 관리 체계(자동 갱신 등)가 아직 불안정한 사이트라면, 먼저 인증서 자동화를 안정화한 뒤 HSTS를 도입하는 순서가 안전합니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. max-age를 짧게 설정하면 보안 효과가 줄어드나요?</summary><p style="margin-top:8px;">테스트 단계에서는 짧게 설정해도 무방합니다. 실제 운영 단계에서는 6개월~1년(15768000~31536000초) 이상으로 늘려야 다운그레이드 공격 방어 효과가 충분합니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. HSTS 프리로드 리스트에서 도메인을 빼려면 어떻게 하나요?</summary><p style="margin-top:8px;">hstspreload.org에서 제외 신청을 할 수 있지만, 각 브라우저 제조사의 배포 주기에 맞춰 반영되므로 실제로 모든 사용자에게 해제가 적용되기까지 수개월이 걸릴 수 있습니다. 그래서 preload는 가장 신중하게 결정해야 하는 옵션입니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. HSTS와 일반 HTTPS 리다이렉트(301)는 뭐가 다른가요?</summary><p style="margin-top:8px;">301 리다이렉트는 서버가 매 요청마다 응답해야 하고, 첫 HTTP 요청 자체는 네트워크로 전송됩니다. HSTS는 브라우저가 요청을 만들기 전에 로컬에서 처리하므로 그 첫 HTTP 요청 자체가 발생하지 않아 더 빠르고, 중간자 공격에 의한 다운그레이드도 방어할 수 있습니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../htaccess-generator.html">→ .htaccess 생성기</a>
+    <a href="../nginx-config-generator.html">→ Nginx 설정 생성기</a>
+    <a href="../ssl-checker.html">→ SSL 체커</a>
+    <a href="../http-header-checker.html">→ HTTP 헤더 체커</a>
+    <a href="../csp-generator.html">→ CSP 생성기</a>
+    <a href="../redirect-checker.html">→ 리다이렉트 체커</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적이며 실제 서버 환경에 적용하기 전 충분한 테스트를 권장합니다.</footer>
+</main>
+</body>
+</html>

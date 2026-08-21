@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>URL 슬러그 생성기가 café를 caf-zrich로 안 만드는 이유 | MODOO HUB</title>
+<meta name="description" content="악센트 문자를 제거할 때 무작정 비ASCII를 지우면 café가 cf로 깨집니다. 유니코드 NFD 정규화로 기본 문자와 결합 발음기호를 분리한 뒤 발음기호만 지우는 원리를 코드로 확인합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/slug-generator-nfd-unicode-normalization.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"URL 슬러그 생성기가 café를 caf-zrich로 안 만드는 이유","description":"악센트 문자를 제거할 때 무작정 비ASCII를 지우면 café가 cf로 깨집니다. 유니코드 NFD 정규화로 기본 문자와 결합 발음기호를 분리한 뒤 발음기호만 지우는 원리를 코드로 확인합니다.","datePublished":"2026-08-21","dateModified":"2026-08-21","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>URL 슬러그 생성기가 café를 caf-zrich로 안 만드는 이유</h1>
+  <p class="meta">가이드 · 2026.08.21 최종 확인</p>
+
+  <p>"Café Zürich"라는 블로그 제목을 슬러그로 바꾼다고 해봅시다. 가장 단순한 구현은 "영문자·숫자가 아닌 건 전부 지운다"는 정규식 하나로 끝낼 수 있습니다. 그런데 이렇게 만들면 é와 ü가 통째로 사라져서 "caf-zrich"라는 이상한 결과가 나옵니다. 원래 있던 글자가 그냥 삭제된 것이지, "e"나 "u"로 바뀐 게 아니기 때문입니다. 이 문제를 제대로 푸는 방법이 유니코드 NFD 정규화이고, <a href="../slug-generator.html">슬러그 생성기</a>는 실제로 이 방식을 사용합니다.</p>
+
+  <h2>1. 문제의 원인: 악센트 문자는 "다른 문자"다</h2>
+  <p>é라는 글자를 사람은 "e에 악센트가 붙은 것"으로 인식하지만, 컴퓨터 입장에서 é는 기본적으로 e와 완전히 다른 코드포인트(U+00E9)입니다. 정규식 <code>[^a-z0-9]</code>로 걸러내면 é는 a-z 범위에 속하지 않으므로 그냥 삭제 대상이 됩니다. e로 치환되는 게 아니라 통째로 없어지는 것이죠. café에서 é가 사라지면 "caf"만 남고, Zürich에서 ü가 사라지면 "zrich"만 남아 "caf-zrich"라는 읽을 수 없는 슬러그가 만들어집니다.</p>
+
+  <h2>2. 유니코드 정규화: 한 글자를 두 조각으로 분해하기</h2>
+  <p>유니코드에는 같은 글자를 표현하는 두 가지 방식이 있습니다. 하나는 é를 단일 코드포인트(U+00E9, 합성형·NFC)로 저장하는 방식이고, 다른 하나는 e(U+0065)와 악센트 결합 기호(U+0301, combining acute accent)를 별도 코드포인트 두 개로 나눠 저장하는 방식(NFD, Normalization Form Decomposition)입니다. 화면에는 둘 다 똑같이 é로 보이지만, 내부 데이터 구조는 완전히 다릅니다. JavaScript의 <code>String.prototype.normalize('NFD')</code>는 문자열을 두 번째 방식, 즉 "기본 문자 + 결합 기호"로 분해해줍니다.</p>
+
+  <div class="box">
+    <strong>핵심 아이디어</strong>: NFD로 분해하면 é가 "e"라는 기본 문자와 U+0301이라는 결합 기호, 두 개의 별개 문자로 쪼개집니다. 이때 결합 기호만 정규식으로 골라서 지우면, 기본 문자 "e"는 그대로 남습니다.
+  </div>
+
+  <h2>3. 결합 기호만 골라 지우는 정규식</h2>
+  <p>유니코드에는 결합 발음 구별 기호(Combining Diacritical Marks)만 모아놓은 블록이 있는데, 코드 범위가 U+0300부터 U+036F까지입니다. NFD로 분해한 뒤 이 범위에 속하는 문자만 정규식으로 제거하면, 원래 있던 기본 문자(e, u, n, c 등)는 그대로 남고 발음기호만 사라집니다. 그 결과 é → e, ü → u, ñ → n처럼 사람이 기대하는 자연스러운 변환이 이루어집니다. 무작정 비ASCII 문자를 지우는 방식과 달리, "글자를 지우는" 게 아니라 "장식만 벗기는" 접근입니다.</p>
+
+  <table>
+    <tr><th>단계</th><th>café</th><th>설명</th></tr>
+    <tr><td>원본</td><td>café</td><td>é는 단일 코드포인트(U+00E9)</td></tr>
+    <tr><td>NFD 정규화</td><td>cafe + ́</td><td>e(U+0065)와 결합 악센트(U+0301)로 분해</td></tr>
+    <tr><td>결합 기호 제거</td><td>cafe</td><td>U+0300~U+036F 범위 문자만 삭제</td></tr>
+    <tr><td>NFD 없이 단순 삭제 시</td><td>caf</td><td>é 전체가 통째로 사라지는 잘못된 결과</td></tr>
+  </table>
+
+  <h2>4. 슬러그 생성기 코드가 실제로 하는 일</h2>
+  <p>이 도구의 <code>generateSlug()</code> 함수를 보면 <code>v.normalize('NFD').replace(/[̀-ͯ]/g,'')</code>라는 줄이 있습니다. 이는 문자열을 NFD로 분해한 뒤, 정규식으로 U+0300~U+036F 범위(결합 발음 구별 기호)에 해당하는 문자만 골라 제거하는 코드입니다. 이 처리는 "특수문자 제거" 옵션보다 먼저 실행되므로, café나 Zürich 같은 텍스트를 넣어도 알파벳이 통째로 사라지지 않고 자연스럽게 cafe, zurich로 바뀝니다. 그 이후에 "특수문자 제거" 옵션이 켜져 있으면 영문·숫자·공백·하이픈·언더스코어 외 문자를 추가로 지우고, 마지막으로 공백과 구분자 연속 구간을 선택한 하나의 구분자로 합칩니다. 힌트에서 말한 대로 실제 코드가 <code>.normalize('NFD')</code>를 쓰고 있음을 확인했습니다.</p>
+
+  <h2>5. 한국어·중국어 같은 비라틴 문자는 왜 다르게 처리되는가</h2>
+  <p>NFD 정규화는 "기본 문자 + 발음기호" 구조를 가진 라틴 계열 악센트 문자에만 효과가 있습니다. 한글이나 한자는 애초에 발음기호가 분리되는 구조가 아니기 때문에 NFD를 적용해도 분해되지 않고, "특수문자 제거" 단계에서 영문·숫자 범위를 벗어난 문자로 간주되어 그대로 삭제됩니다. 그래서 한국어 제목으로 SEO 슬러그를 만들려면 영문 번역이나 로마자 표기 후 이 도구에 입력하는 것이 권장됩니다. 슬러그를 만들기 전 제목 자체를 다듬고 싶다면 <a href="../seo-title-generator.html">SEO 제목 생성기</a>를 함께 활용할 수 있습니다.</p>
+
+  <h2>자주 묻는 질문</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. NFC와 NFD 중 어떤 걸 써도 상관없나요?</summary><p style="margin-top:8px;">아니요, 순서가 중요합니다. 결합 기호를 제거하려면 반드시 문자를 먼저 분해된 형태(NFD)로 바꿔야 합니다. 합성형(NFC) 상태에서는 é가 이미 하나의 코드포인트라 결합 기호만 골라 지울 수 없습니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 모든 악센트 문자가 이 방식으로 처리되나요?</summary><p style="margin-top:8px;">é, ü, ñ, à, ç처럼 "기본 문자+결합 기호"로 분해 가능한 라틴 확장 문자는 대부분 처리됩니다. 다만 독일어 ß(에스체트)처럼 애초에 발음기호 조합이 아니라 별도의 고유 문자인 경우는 NFD로 분해되지 않고 그대로 남거나 삭제될 수 있습니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 하이픈과 언더스코어 중 SEO에 뭐가 더 나은가요?</summary><p style="margin-top:8px;">구글은 하이픈(-)을 단어 구분자로 인식하지만 언더스코어(_)는 하나의 단어로 붙여 읽습니다. 검색 노출을 고려한다면 하이픈을 권장합니다. 이 도구도 기본값이 하이픈입니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 이미 게시한 글의 슬러그를 이 방식으로 다시 만들어 바꿔도 되나요?</summary><p style="margin-top:8px;">변환 로직이 바뀌어 슬러그가 달라진다면 반드시 이전 URL에서 새 URL로 301 리다이렉트를 설정해야 합니다. 리다이렉트 없이 슬러그만 바꾸면 기존 백링크와 검색 순위가 끊어질 수 있습니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../slug-generator.html">→ URL 슬러그 생성기</a>
+    <a href="../url-slug-generator.html">→ URL 슬러그 생성기(대체)</a>
+    <a href="../slug-checker.html">→ 슬러그 검사기</a>
+    <a href="../seo-title-generator.html">→ SEO 제목 생성기</a>
+    <a href="../meta-description-generator.html">→ 메타 설명 생성기</a>
+    <a href="../url-encoder.html">→ URL 인코더</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적입니다.</footer>
+</main>
+</body>
+</html>
