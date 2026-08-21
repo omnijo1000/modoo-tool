@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDF 크기 분석기의 '페이지별 크기', 사실은 용량이 아니다 | MODOO HUB</title>
+<meta name="description" content="PDF 크기 분석기가 표시하는 '페이지별 크기'는 데이터 용량(KB)이 아니라 물리적 종이 치수입니다. PDF가 리소스를 여러 페이지가 공유하는 구조라 페이지별 바이트를 정확히 나눌 수 없는 이유를 코드 레벨에서 설명합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/pdf-size-analyzer-shared-resource-limit.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"PDF 크기 분석기의 '페이지별 크기', 사실은 용량이 아니다","description":"PDF 크기 분석기가 표시하는 '페이지별 크기'는 데이터 용량(KB)이 아니라 물리적 종이 치수입니다. PDF가 리소스를 여러 페이지가 공유하는 구조라 페이지별 바이트를 정확히 나눌 수 없는 이유를 코드 레벨에서 설명합니다.","datePublished":"2026-08-21","dateModified":"2026-08-21","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>PDF 크기 분석기의 '페이지별 크기', 사실은 용량이 아니다</h1>
+  <p class="meta">가이드 · 2026.08.21 최종 확인</p>
+
+  <p>"이 PDF의 어느 페이지가 용량을 많이 차지하는지 알고 싶다"는 요청은 자연스러워 보입니다. 그런데 이 질문에 정확한 숫자로 답하는 것이 PDF 파일 형식 자체의 구조 때문에 원천적으로 어렵다는 사실은 잘 알려져 있지 않습니다. <a href="../pdf-size-analyzer.html">PDF 크기 분석기</a>가 "페이지별 크기" 항목에서 실제로 무엇을 보여주는지, 그리고 왜 바이트 단위 용량을 보여줄 수 없는지 구조적인 이유부터 짚어봅니다.</p>
+
+  <h2>1. PDF 페이지는 독립된 파일 조각이 아니다</h2>
+  <p>JPG나 PNG처럼 페이지마다 완전히 독립된 이미지 파일이라면 "이 페이지가 몇 KB"라는 질문에 답은 간단합니다. 하지만 PDF는 그렇게 설계되지 않았습니다. PDF 내부에는 폰트, 이미지, 색상 프로필 같은 "리소스 객체"가 별도로 저장되고, 각 페이지는 이 리소스를 "참조"하는 방식으로 구성됩니다. 문서 전체에서 같은 폰트를 쓴다면 그 폰트 데이터는 파일 안에 딱 한 번만 저장되고, 모든 페이지가 같은 객체를 가리킵니다. 즉 페이지 수가 100장이어도 폰트 용량은 1번만 계산되는 구조입니다.</p>
+
+  <h2>2. "귀속 문제"가 발생하는 지점</h2>
+  <p>이 공유 구조 때문에 "페이지 5의 용량은 몇 바이트인가"라는 질문 자체가 모호해집니다. 예를 들어 문서 전체가 공유하는 폰트 파일이 500KB라고 할 때, 이 500KB를 페이지 5에 귀속시켜야 할까요, 아니면 그 폰트를 처음 쓴 페이지에만 귀속시켜야 할까요, 아니면 그 폰트를 쓰는 모든 페이지에 균등하게 나눠야 할까요? 어느 방식을 택해도 "정답"이라고 부를 근거가 없습니다. 이미지 하나가 여러 페이지에 반복 삽입된 경우도 마찬가지입니다. 그래서 pdf.js 같은 라이브러리는 애초에 "페이지별 바이트 크기"라는 값 자체를 제공하지 않습니다.</p>
+  <div class="box">
+    <strong>실제 코드 동작</strong>: 이 도구는 각 페이지를 <code>pdf.getPage(i)</code>로 불러온 뒤 <code>pg.getViewport({scale:1})</code>로 뷰포트의 <code>width</code>·<code>height</code>(포인트 단위)만 읽습니다. 이 값을 mm로 환산해 A4·Letter 등 표준 용지 이름과 ±5mm 오차 안에서 매칭하고, 막대그래프는 이 폭(포인트) 값을 페이지 간에 상대 비교한 것입니다. 바이트 단위 크기는 어디에도 계산되지 않습니다.
+  </div>
+
+  <h2>3. "페이지별 크기" 막대그래프가 실제로 보여주는 것</h2>
+  <p>화면에 나타나는 막대그래프는 각 페이지의 종이 폭(너비)을 기준으로 상대 길이를 그린 것뿐입니다. 폭이 넓은 페이지(가로 방향 페이지 등)일수록 막대가 길게 나타나지만, 이는 그 페이지에 이미지가 많이 들어있거나 용량이 크다는 뜻이 전혀 아닙니다. 텍스트만 있는 A4 페이지와 고해상도 사진이 가득한 A4 페이지는 물리적 치수가 같으므로 이 도구에서는 막대 길이도 동일하게 표시됩니다.</p>
+  <table>
+    <tr><th>항목</th><th>실제로 계산되는 값</th><th>계산되지 않는 값</th></tr>
+    <tr><td>페이지별 크기</td><td>물리적 치수(포인트→mm 환산, 표준 용지명 매칭)</td><td>바이트 단위 데이터 용량</td></tr>
+    <tr><td>막대그래프 길이</td><td>페이지 폭(포인트)의 상대 비교</td><td>해당 페이지의 이미지·폰트 사용량</td></tr>
+  </table>
+
+  <h2>4. 예시로 보는 오해</h2>
+  <p>10페이지짜리 PDF 중 3페이지에만 고해상도 사진이 5장씩 들어있고 나머지는 순수 텍스트라고 가정하면, 실제 데이터 용량은 그 3페이지에 압도적으로 몰려 있을 가능성이 높습니다. 하지만 모든 페이지가 A4로 동일하다면, 이 도구의 "페이지별 크기" 막대그래프는 10개 페이지 모두 똑같은 길이로 표시됩니다. 즉 이 화면만 보고 "어느 페이지가 무거운지"를 판단하면 실제와 정반대의 결론에 이를 수 있습니다.</p>
+
+  <h2>5. 실제 페이지별 용량이 필요하다면</h2>
+  <p>이 도구는 파일이 서버에 업로드되지 않고 브라우저 안에서만 처리되는 대신, PDF.js가 안정적으로 제공하는 정보(치수)만 다룹니다. 페이지별 실제 바이트 용량까지 알고 싶다면 Acrobat 같은 전문 편집기의 "PDF 최적화" 리포트를 쓰거나, <a href="../pdf-page-extractor.html">PDF 페이지 추출기</a>로 페이지를 개별 파일로 분리한 뒤 각 파일 크기를 직접 비교하는 방법이 현재로선 가장 정확합니다. 전체 파일 용량 자체를 줄이는 것이 목적이라면 <a href="../pdf-compressor.html">PDF 압축기</a>를 바로 사용하는 편이 빠릅니다.</p>
+
+  <h2>자주 묻는 질문</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 그러면 "페이지별 크기"라는 이름 자체가 오해의 소지가 있는 것 아닌가요?</summary><p style="margin-top:8px;">그렇습니다. "크기"라는 단어가 한국어에서 데이터 용량과 물리적 치수 양쪽에 다 쓰이기 때문에 생기는 혼동입니다. 이 도구에서는 종이 크기(A4, Letter 등)를 의미하며, 화면 하단 FAQ와 SEO 설명에서도 이 점을 명시하고 있습니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 다른 PDF 도구는 페이지별 바이트 용량을 보여주나요?</summary><p style="margin-top:8px;">Adobe Acrobat 같은 데스크톱 전문 편집기는 문서를 재작성(rewrite)하는 최적화 과정에서 내부적으로 리소스를 페이지별로 재배치·계산하는 리포트 기능을 제공하기도 합니다. 다만 이 역시 공유 리소스를 어떤 기준으로 페이지에 배분할지는 도구마다 내부 알고리즘이 다르므로 절대적인 정답은 아닙니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 파일 전체 용량이 큰 원인을 페이지 단위로 알 수 없다면 어떻게 줄여야 하나요?</summary><p style="margin-top:8px;">페이지 단위 분석 없이도 이미지 압축률을 낮추거나 불필요한 폰트 임베딩을 제거하는 방식으로 전체 용량을 줄일 수 있습니다. PDF 압축 도구는 페이지별 귀속 계산 없이 문서 전체의 리소스를 일괄 재인코딩하는 방식으로 동작하므로 이 문제와 무관하게 사용할 수 있습니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 작성일/수정일이 이상한 문자열로 나오는 것도 같은 맥락인가요?</summary><p style="margin-top:8px;">별개의 이슈입니다. 이는 PDF 표준이 날짜를 <code>D:20240115093000+09'00'</code> 형식으로 저장하는데, 이 도구가 pdf.js의 원본 문자열을 그대로 표시할 뿐 사람이 읽기 쉬운 형태로 변환하는 코드가 없어서 발생합니다. 페이지 크기 이슈와는 원인이 다릅니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../pdf-size-analyzer.html">→ PDF 크기 분석기</a>
+    <a href="../pdf-compressor.html">→ PDF 압축기</a>
+    <a href="../pdf-page-extractor.html">→ PDF 페이지 추출기</a>
+    <a href="../pdf-page-counter.html">→ PDF 페이지 수 계산기</a>
+    <a href="../pdf-metadata-viewer.html">→ PDF 메타데이터 뷰어</a>
+    <a href="../pdf-word-counter.html">→ PDF 단어 수 계산기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적이며 정밀한 파일 구조 분석이 필요한 경우 전문 편집 소프트웨어를 함께 활용하는 것을 권장합니다.</footer>
+</main>
+</body>
+</html>

@@ -164,7 +164,7 @@ REJECT(4개, 이유 있음): salary(기존 가이드와 중복), salary-negotiat
 - [ ] **sql-minifier** — "SQL 압축기가 문자열 속 --를 만나면 쿼리를 통째로 잘라먹는다" — 주석제거가 문자열보호보다 먼저 실행되는 버그.
 - [ ] **sql-validator** — "SQL 유효성 검사기는 사실 파서가 아니다 — 괄호·따옴표·키워드 3가지만 본다" — 순서 뒤죽박죽이어도 통과.
 - [ ] **tailwind-color-generator** — "가장 비슷한 Tailwind 색상을 찾는 법 — RGB 대신 CIE Lab을 쓰는 이유" — 인간 색지각 비례 거리계산.
-- [ ] **unit-converter** — "GB와 GiB는 왜 다른가 — 하드디스크 용량이 실제보다 작아 보이는 이유" — 500GB→실제 약465GiB표시.
+- [x] **unit-converter** (guides/unit-converter-gb-vs-gib-binary-decimal.html, 2026-08-21) — "GB와 GiB는 왜 다른가 — 하드디스크 용량이 실제보다 작아 보이는 이유" — 500GB→실제 약465GiB표시. **참고**: 이 도구는 "GB" 단위가 사실상 GiB(2진법)로 계산되고 있음(라벨과 실제 계산 불일치).
 - [ ] **user-agent-parser** — "크롬도 왜 AppleWebKit/537.36을 달고 다니나 — UA 문자열의 역사적 유물" — 호환성 위해 고정값 유지.
 - [ ] **webhook-generator** — "GitHub·Stripe·Slack, 웹훅 서명이 플랫폼마다 다르게 계산되는 이유" — 해시대상 문자열이 각각 다름.
 - [ ] **webhook-tester** — "웹훅 서명 검증, === 대신 XOR로 비교하는 이유 — 타이밍 공격 방어" — 상수시간 비교 로직.
@@ -201,7 +201,7 @@ REJECT(3개): ip-address-lookup(일반 네트워킹 상식 나열뿐), website-s
 - [ ] **hashtag-generator** — "해시태그 몇 개가 적당한가 — 인기·중간·틈새 3:4:3 전략" — 플랫폼별 적정개수 차이.
 - [x] **keyword-extractor** (guides/keyword-extractor-korean-particle-limitation.html, 2026-08-19) — "왜 '텍스트를'과 '텍스트가'가 다른 단어로 집계될까 — 조사 없는 언어를 위해 설계된 도구의 한계" — 형태소분석 없이 조사포함 집계.
 - [ ] **ngram-analyzer** — "다국어 UI인데 정작 중국어·일본어는 분석 못 하는 N-그램 분석기 — 정규식 언어 편향" — 한자·가나 정규식으로 삭제.
-- [ ] **palindrome-checker** — "사람 눈엔 회문인데 알고리즘은 아니라는 경우 — 코드포인트 vs 그래프임 함정" — 국기·ZWJ이모지 오판 가능.
+- [x] **palindrome-checker** (guides/palindrome-checker-codepoint-vs-grapheme.html, 2026-08-21) — "사람 눈엔 회문인데 알고리즘은 아니라는 경우 — 코드포인트 vs 그래프임 함정" — 국기·ZWJ이모지 오판 가능.
 - [ ] **stopword-remover** — "TF-IDF 돌리기 전에 불용어부터 지우는 이유" — 통계왜곡시키는 고빈도단어 개념.
 - [ ] **text-case-detector** — "camelCase vs kebab-case, 왜 언어마다 다른 표기법을 쓰나" — kebab은 JS 변수명 문법상 불가.
 - [ ] **text-encryptor** — "카이사르 암호부터 AES-256-GCM까지, 이 도구 하나로 보는 암호화 발전사" — PBKDF2 10만회 반복+매번 새salt.
@@ -235,7 +235,7 @@ REJECT(9개): line-counter, find-replace, remove-empty-lines, remove-duplicate-l
 - [x] **color-blindness-simulator** (guides/color-blindness-simulator-accuracy.html, 2026-08-19) — "색맹 시뮬레이터의 숨은 버그, 왜 완전한 회색이 안 나올까" — 3×4행렬을 3×3으로 착각한 실제 코드버그.
 - [ ] **avif-to-jpg** — "투명 배경 이미지를 JPG로 바꾸면 왜 까맣게 나오는가" — Canvas 기본픽셀(투명검정)+알파소실.
 - [ ] **image-dimension-checker** — "16:9는 어떻게 계산되나: 종횡비의 유클리드 호제법" — GCD알고리즘으로 정수비 약분.
-- [ ] **image-dpi-checker** — "인쇄용 300DPI 사진이 118로 잘못 표시되는 이유" — 카메라 cm단위 저장시 변환버그.
+- [x] **image-dpi-checker** (guides/image-dpi-checker-cm-inch-conversion-bug.html, 2026-08-21) — "인쇄용 300DPI 사진이 118로 잘못 표시되는 이유" — 이 도구는 ResolutionUnit 태그 확인해 실제로 정상 처리 중(버그 아님, 일반 현상 설명용).
 - [ ] **jpg-to-heic** — "JPG to HEIC라는 이름인데 실제로는 HEIC를 만들 수 없다" — 코덱 라이선스로 브라우저 인코딩 불가, WebP로 대체.
 - [x] **heic-to-jpg** (guides/heic-to-jpg-hevc-codec-license.html, 2026-08-20) — "iPhone 사진이 브라우저에서 안 열리는 이유" — HEVC특허코덱, libheif WASM 이식.
 - [ ] **transparent-background-maker** — "배경 제거 도구의 색상 키 알고리즘, 허용범위는 실제로 어떻게 계산되나" — RGB거리×2.2, 알파 선형감소.
@@ -264,7 +264,7 @@ REJECT(7개): webp-to-png, image-to-webp, image-cropper, blur-image, color-picke
 - [ ] **apache-config-generator** — ".htaccess vs VirtualHost, 왜 성능 차이가 나나" — .htaccess는 요청마다 재로딩.
 - [ ] **uuid-generator** — "UUID를 DB 기본키로 쓰면 안 되는 이유" — B-트리 인덱스 단편화, crypto.randomUUID() 필수 보안경고.
 - [ ] **uuid-converter** — "UUID 네 번째 그룹 첫 글자, 아무도 안 보는 그 한 글자의 의미" — variant 비트 판별규칙.
-- [ ] **ulid-generator** — "ULID 알파벳에 I, L, O, U가 없는 이유" — Crockford Base32, 서기10889년까지 표현.
+- [x] **ulid-generator** (guides/ulid-crockford-base32-no-ilou.html, 2026-08-21) — "ULID 알파벳에 I, L, O, U가 없는 이유" — Crockford Base32, 서기10889년까지 표현.
 - [x] **nanoid-generator** (guides/random-string-modulo-bias-rejection-sampling.html, 2026-08-20) — "랜덤 문자열 생성기가 몰래 편향되는 이유(그리고 고치는 법)" — 거부샘플링(rejection sampling) 메커니즘.
 - [x] **qr-code-generator** (guides/qr-code-error-correction-logo.html, 2026-08-19) — "QR코드 오류 수정 레벨, H(30%)를 쓰면 정말 로고를 박아도 되나" — L7/M15/Q25/H30% 4단계.
 - [x] **lorem-ipsum-generator** (guides/lorem-ipsum-cicero-history.html, 2026-08-20) — "Lorem Ipsum, 키케로가 쓴 그 문장이 왜 의미 없는 글자로 보이나" — 기원전45년 키케로 원문 훼손 역사.
@@ -291,7 +291,7 @@ REJECT(8개): youtube-script-generator, ai-email-generator, ai-resume-generator,
 - [ ] **bcrypt-validator** — "bcrypt는 salt를 따로 안 저장하는데 어떻게 검증하나 — compare()의 실제 동작" — 해시 앞29자를 salt로 재사용.
 - [x] **hmac-generator** (guides/hmac-length-extension-attack.html, 2026-08-19) — "HMAC이 길이 확장 공격을 막는 이중 해시 구조(ipad/opad)" — 단순연결해시는 length-extension 취약.
 - [ ] **rsa-key-generator** — "RSA 공개지수 65537의 의미와 PKCS#8 vs PKCS#1 포맷 함정" — 2048비트+OAEP 평문190바이트 제한.
-- [ ] **ssh-key-generator** — "Ed25519가 RSA를 대체하는 이유 — SSH 키 알고리즘 비교와 셸 이스케이프 함정" — 고정256비트로 RSA2048 이상 보안.
+- [x] **ssh-key-generator** (guides/ssh-key-ed25519-vs-rsa-shell-escape.html, 2026-08-21) — "Ed25519가 RSA를 대체하는 이유 — SSH 키 알고리즘 비교와 셸 이스케이프 함정" — 고정256비트로 RSA2048 이상 보안.
 
 REJECT(5개): base64-encoder, base64-decoder, html-encoder(순수 인코딩 스펙뿐), jwt-decoder, jwt-generator(기존 jwt-authentication-guide와 중복).
 
@@ -308,9 +308,11 @@ REJECT(5개): base64-encoder, base64-decoder, html-encoder(순수 인코딩 스�
 - [x] **pdf-metadata-viewer** (guides/pdf-metadata-privacy-leak.html, 2026-08-19) — "이력서에 몰래 딸려가는 정보 — PDF 메타데이터 유출 실제 사례" — Info Dict+XMP 이중저장구조.
 - [x] **pdf-watermark** (guides/pdf-watermark-korean-font-embedding-limit.html, 2026-08-20) — "PDF 워터마크에 한글이 깨지는 이유 — 내장 폰트의 한계" — PDF표준14개 기본폰트 라틴전용.
 - [x] **pdf-to-text** (guides/pdf-to-text-table-coordinate-scatter.html, 2026-08-20) — "PDF에서 복사한 표가 다 깨지는 이유" — 연속문자열 아닌 좌표+폰트정보로 흩어져 저장.
-- [ ] **pdf-ocr** — "PDF OCR가 페이지마다 다르게 동작하는 원리" — 텍스트항목수 기준 페이지별 독립판별.
-- [ ] **pdf-metadata-remover** — "PDF 메타데이터 제거, '완전 삭제'와 '빈 값'은 다르다" — 6필드 빈값 vs 2필드 키자체 삭제 비대칭.
-- [ ] **pdf-size-analyzer** — "PDF 크기 분석기의 '페이지별 크기', 사실은 용량이 아니다" — 리소스 공유구조상 페이지별 바이트계산 불가.
+- [x] **pdf-ocr** (guides/pdf-ocr-per-page-text-detection.html, 2026-08-21) — "PDF OCR가 페이지마다 다르게 동작하는 원리" — 텍스트항목수 기준 페이지별 독립판별.
+- [x] **pdf-metadata-remover** (guides/pdf-metadata-remove-empty-vs-delete.html, 2026-08-21) — "PDF 메타데이터 제거, '완전 삭제'와 '빈 값'은 다르다" — 6필드 빈값 vs 2필드 키자체 삭제 비대칭.
+- [x] **pdf-size-analyzer** (guides/pdf-size-analyzer-shared-resource-limit.html, 2026-08-21) — "PDF 크기 분석기의 '페이지별 크기', 사실은 용량이 아니다" — 리소스 공유구조상 페이지별 바이트계산 불가.
+
+(pdf-tools 13/13 완료)
 - [x] **pdf-word-counter** (guides/pdf-word-counter-cjk-whitespace-split.html, 2026-08-20) — "PDF 단어 수 세기, 중국어·일본어는 왜 부정확할까" — 공백기준분할이 CJK서 텍스트조각개수로 집계.
 
 REJECT(4개): pdf-merge, pdf-split, pdf-to-image, pdf-reorder-pages (순수 기능 사용법, 독자 앵글 없음).
@@ -325,12 +327,12 @@ REJECT(4개): pdf-merge, pdf-split, pdf-to-image, pdf-reorder-pages (순수 기�
 - [x] **prompt-optimizer** (guides/prompt-optimizer-task-type-rctf-structure.html, 2026-08-20) — "프롬프트 하나로 안 되는 이유: 작업 유형별 8가지 구조(RCTF)" — 요약/번역별 요구사항 항목 차이.
 - [x] **system-prompt-generator** (guides/system-prompt-fixed-clauses-roleplay-conflict.html, 2026-08-19) — "시스템 프롬프트에 숨어있는 고정 문구, 캐릭터 롤플레이와 충돌하는 이유" — 4가지 일반원칙 무조건 덧붙는 구조.
 - [x] **prompt-cleaner** (guides/prompt-cleaner-token-count-approximation.html, 2026-08-19) — "프롬프트 정제기가 보여주는 토큰 수는 가짜다" — 문자수×0.25 근사식, 한글서 과소표시.
-- [ ] **prompt-template-generator** — "Chain-of-Thought 템플릿 '3단계'는 왜 고정값일 뿐인가" — CoT 하드코딩 3단계 vs 최신 reasoning모델.
-- [ ] **prompt-variable-extractor** — "{{변수}}는 되는데 [변수]는 왜 안 되나" — 마크다운 링크/각주와 구분불가해 미지원.
+- [x] **prompt-template-generator** (guides/prompt-template-chain-of-thought-fixed-steps.html, 2026-08-21) — "Chain-of-Thought 템플릿 '3단계'는 왜 고정값일 뿐인가" — CoT 하드코딩 3단계 vs 최신 reasoning모델.
+- [x] **prompt-variable-extractor** (guides/prompt-variable-extractor-bracket-syntax-limit.html, 2026-08-21) — "{{변수}}는 되는데 [변수]는 왜 안 되나" — 마크다운 링크/각주와 구분불가해 미지원. **버그 발견**: 정규식이 `\w`(ASCII전용)라 한글 변수명(예: `{{역할}}`) 매칭 0건 — 내장 한국어 예시 로드 시 변수 추출 안 됨. 별도 수정 필요.
 - [x] **ai-model-comparison** (guides/ai-model-comparison-free-tier-differences.html, 2026-08-20) — "GPT vs Claude vs Gemini, 무료 티어는 뭐가 다른가" — Gemini 계열내 무료티어 비대칭.
 - [x] **markdown-chat-exporter** (guides/chat-export-silent-failure-role-prefix.html, 2026-08-20) — "AI 채팅 내보내기가 조용히 실패하는 순간" — 역할접두사 없으면 무오류로 결과빔.
 
-REJECT: 없음(10개 전부 ACCEPT).
+REJECT: 없음(10개 전부 ACCEPT). (ai-tools 10/10 완료)
 
 ---
 

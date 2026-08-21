@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{변수}}는 되는데 [변수]는 왜 안 되나 — 프롬프트 변수 문법 해부 | MODOO HUB</title>
+<meta name="description" content="프롬프트 변수 추출기가 {{변수}}, {변수}는 인식하면서 [변수](대괄호)는 지원하지 않는 이유를 정규식 구조와 마크다운 링크·각주 문법 충돌 관점에서 분석합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/prompt-variable-extractor-bracket-syntax-limit.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"{{변수}}는 되는데 [변수]는 왜 안 되나","description":"프롬프트 변수 추출기가 {{변수}}, {변수}는 인식하면서 [변수](대괄호)는 지원하지 않는 이유를 정규식 구조와 마크다운 링크·각주 문법 충돌 관점에서 분석합니다.","datePublished":"2026-08-21","dateModified":"2026-08-21","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>{{변수}}는 되는데 [변수]는 왜 안 되나</h1>
+  <p class="meta">가이드 · 2026.08.21 최종 확인</p>
+
+  <p>프롬프트 템플릿을 여기저기서 긁어 쓰다 보면 변수 표기법이 도구마다 제각각이라는 걸 알게 됩니다. 어떤 곳은 <code>{{변수}}</code>, 어떤 곳은 <code>{변수}</code>, 또 어떤 문서는 <code>[변수]</code>로 표시합니다. <a href="../prompt-variable-extractor.html">프롬프트 변수 추출기</a>에 대괄호로 쓴 템플릿을 넣으면 아무것도 추출되지 않는데, 이건 버그가 아니라 의도된 설계입니다. 왜 하필 대괄호만 빠졌는지, 실제 정규식 구조를 뜯어보면서 그 이유를 정리했습니다.</p>
+
+  <h2>1. 변수 문법이 도구마다 다른 이유</h2>
+  <p>프롬프트 변수 표기법은 표준이 정해진 적이 없습니다. 각 생태계가 자기 언어의 문자열 치환 문법을 그대로 가져다 썼을 뿐입니다. <code>{{변수}}</code>(이중 중괄호)는 LangChain의 PromptTemplate, Jinja2, Handlebars.js가 표준으로 쓰고, <code>{변수}</code>(단일 중괄호)는 파이썬의 <code>str.format()</code>과 f-string 계열에서 흔합니다. <code>$변수</code>는 파이썬 <code>string.Template</code>과 셸 스크립트 파이프라인에서, <code>{% for %}</code> 같은 퍼센트 구문은 반복·조건이 필요한 Jinja2 고급 템플릿에서 사용됩니다. 즉 "어떤 문법을 쓰느냐"는 그 프롬프트가 어느 프레임워크를 거쳐 왔는지를 보여주는 흔적이기도 합니다.</p>
+
+  <h2>2. 실제 정규식으로 확인하는 지원 범위</h2>
+  <p>이 도구가 변수를 찾는 로직은 아래 두 정규식뿐입니다.</p>
+  <div class="box">
+    <strong>실제 코드</strong><br>
+    <code>/\{\{(\w+)\}\}/g</code> — 이중 중괄호 캡처<br>
+    <code>/\{(\w+)\}/g</code> — 단일 중괄호 캡처
+  </div>
+  <p>정규식 자체에 대괄호 <code>[ ]</code>를 다루는 패턴이 아예 존재하지 않습니다. 즉 "인식률이 낮다"가 아니라 "애초에 검사 대상이 아니다"가 정확한 설명입니다. 흥미로운 점은 두 정규식이 서로 겹친다는 것입니다. <code>{{역할}}</code>이라는 문자열은 이중 중괄호 정규식에도 걸리지만, 단일 중괄호 정규식이 안쪽의 <code>{역할}</code> 부분도 별도로 매칭합니다. 결과가 중복되지 않는 이유는 추출된 값을 배열이 아니라 <strong>Set(중복 제거 집합)</strong>에 담기 때문입니다. 두 정규식이 겹쳐도 최종 결과에는 "역할" 하나만 남습니다.</p>
+
+  <h2>3. 대괄호가 빠진 진짜 이유: 마크다운과의 충돌</h2>
+  <p>대괄호 문법 <code>[변수]</code>를 넣지 않은 이유는 기술적으로 불가능해서가 아니라, 지원하는 순간 오작동 위험이 훨씬 커지기 때문입니다. 대괄호는 이미 두 가지 흔한 텍스트 문법에서 쓰이고 있습니다.</p>
+  <ul>
+    <li><strong>마크다운 링크</strong>: <code>[텍스트](URL)</code> 형식에서 대괄호 안은 링크의 표시 텍스트입니다.</li>
+    <li><strong>각주 표기</strong>: <code>[1]</code>, <code>[^1]</code> 처럼 참고문헌·주석 번호를 나타냅니다.</li>
+  </ul>
+  <p>만약 <code>[변수]</code>를 변수 문법으로 지원했다면, GPT 답변을 그대로 붙여넣은 프롬프트에 있는 <code>[출처](https://example.com)</code>나 <code>[1]</code> 같은 멀쩡한 텍스트까지 전부 "변수"로 오인식됩니다. 사용자가 원치 않는데도 값을 입력하라는 입력창이 생기고, 최악의 경우 링크의 표시 텍스트 부분이 통째로 다른 내용으로 치환되어 버립니다. 즉 대괄호 미지원은 성능상의 한계가 아니라, 실제 텍스트를 잘못 건드리지 않기 위한 의도적인 선택입니다.</p>
+
+  <h2>4. 숫자로 보는 오작동 시나리오</h2>
+  <p>아래는 실제로 자주 쓰이는 회의 안내 프롬프트 예시입니다. 대괄호까지 변수로 인식했다고 가정했을 때 어떤 문제가 생기는지 정리했습니다.</p>
+  <table>
+    <tr><th>원문</th><th>현재(대괄호 미지원) 결과</th><th>대괄호를 지원했다면</th></tr>
+    <tr><td><code>{{이름}}</code>님, 회의 안내</td><td>변수 1개: 이름</td><td>변수 1개: 이름 (동일)</td></tr>
+    <tr><td>자세한 내용은 <code>[회의록](https://x.com/notes)</code></td><td>변경 없음, 링크 그대로 유지</td><td>변수로 오인식 → "회의록" 입력창 생성, 값 입력 시 링크 텍스트가 깨짐</td></tr>
+    <tr><td>참고문헌은 <code>[1]</code>을 확인</td><td>변경 없음, 각주 번호 유지</td><td>변수 "1"로 오인식 → 입력하지 않으면 원문 그대로 남아 사용자가 혼란</td></tr>
+  </table>
+  <p>이 표에서 보듯, 실제 변수는 1개뿐인데 대괄호까지 인식했다면 오탐이 2건 추가로 발생합니다. 프롬프트 한 건에서 오탐률이 66%(3건 중 2건)까지 치솟는 셈이니, 지원하지 않는 쪽이 합리적인 기본값입니다.</p>
+
+  <h2>5. 안전하게 변수 이름 짓는 법</h2>
+  <p>캡처 그룹이 <code>\w+</code>인데, 자바스크립트 정규식에서 <code>\w</code>는 <code>[A-Za-z0-9_]</code>, 즉 <strong>영문 알파벳·숫자·언더스코어만</strong> 의미합니다. 한글이나 공백, 하이픈(<code>-</code>)은 포함되지 않습니다. 그래서 <code>{{사용자 이름}}</code>처럼 띄어쓰기가 들어가면 정규식이 그 지점에서 끊어져 통째로 인식에 실패하고, <code>{{역할}}</code>처럼 순수 한글로만 이루어진 변수명도 <code>\w</code>가 한글 문자를 매치하지 않기 때문에 추출되지 않습니다. 실제로 <code>{{역할}}</code>에 정규식을 그대로 적용하면 매칭 결과가 0건입니다. 안전하게 쓰려면 변수명을 <code>{{role}}</code>, <code>{{user_name}}</code>처럼 영문·숫자·언더스코어 조합으로 짓거나, 한글을 꼭 써야 한다면 <code>{{role1}}</code>처럼 영문 접두사를 붙이는 방식을 권장합니다.</p>
+  <div class="box"><strong>확인 방법</strong>: 브라우저 콘솔에서 <code>[..."{{역할}}".matchAll(/\{\{(\w+)\}\}/g)]</code>을 실행하면 빈 배열 <code>[]</code>이 반환됩니다. 반면 <code>[..."{{role}}".matchAll(/\{\{(\w+)\}\}/g)]</code>은 정상적으로 "role"을 캡처합니다.</div>
+
+  <h2>자주 묻는 질문</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. [변수]를 꼭 써야 한다면 어떻게 해야 하나요?</summary><p style="margin-top:8px;">붙여넣기 전에 <code>[변수]</code>를 <code>{{변수}}</code>나 <code>{변수}</code>로 미리 바꿔두는 방법이 가장 간단합니다. 템플릿을 직접 새로 만드는 경우라면 처음부터 중괄호 문법을 쓰는 것을 권장합니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. {{변수}}와 {변수}를 한 템플릿에 섞어 써도 되나요?</summary><p style="margin-top:8px;">네. 두 정규식이 독립적으로 동작하고 결과가 Set으로 합쳐지기 때문에 섞어 써도 정상적으로 모두 추출됩니다. 다만 가독성을 위해 한 프로젝트 안에서는 한 가지 문법으로 통일하는 것을 권장합니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. $변수나 {% %} 같은 문법도 지원되나요?</summary><p style="margin-top:8px;">지원하지 않습니다. 이 도구의 추출 로직은 <code>{{변수}}</code>, <code>{변수}</code> 두 정규식만 사용하며, 달러 기호나 Jinja2 제어 구문(반복·조건)은 애초에 검사 대상이 아닙니다. 다른 문법으로 작성된 템플릿은 중괄호 형태로 먼저 변환해야 합니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 같은 변수가 여러 번 나오면 입력창도 여러 개 생기나요?</summary><p style="margin-top:8px;">아니요. Set으로 중복이 제거되므로 입력창은 한 번만 생성되고, 값을 입력하면 템플릿 안의 모든 위치에 동시에 반영됩니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../prompt-variable-extractor.html">→ 프롬프트 변수 추출기</a>
+    <a href="../prompt-template-generator.html">→ 프롬프트 템플릿 생성기</a>
+    <a href="../prompt-cleaner.html">→ 프롬프트 클리너</a>
+    <a href="../regex-generator.html">→ 정규식 생성기</a>
+    <a href="../markdown-to-html.html">→ 마크다운 → HTML 변환기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적이며, 실제 프롬프트 관리 프로세스는 사용 중인 프레임워크 문서를 함께 참고하시기 바랍니다.</footer>
+</main>
+</body>
+</html>

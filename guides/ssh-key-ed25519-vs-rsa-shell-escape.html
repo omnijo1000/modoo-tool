@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ed25519가 RSA를 대체하는 이유 — SSH 키 알고리즘 비교와 셸 이스케이프 함정 | MODOO HUB</title>
+<meta name="description" content="Ed25519는 왜 256비트만으로 RSA 2048비트 이상의 안전성을 내는지 타원곡선 암호의 원리로 설명하고, ssh-keygen 명령어에 코멘트를 넣을 때 생기는 셸 이스케이프 함정을 실제 예시로 짚습니다.">
+<link rel="canonical" href="https://modoohub.com/guides/ssh-key-ed25519-vs-rsa-shell-escape.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Ed25519가 RSA를 대체하는 이유 — SSH 키 알고리즘 비교와 셸 이스케이프 함정","description":"Ed25519가 짧은 키로도 RSA 이상의 보안 강도를 내는 원리와, ssh-keygen 명령어의 코멘트·경로에 특수문자가 들어갈 때 생기는 셸 이스케이프 문제를 다룹니다.","datePublished":"2026-08-21","dateModified":"2026-08-21","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>Ed25519가 RSA를 대체하는 이유 — SSH 키 알고리즘 비교와 셸 이스케이프 함정</h1>
+  <p class="meta">가이드 · 2026.08.21 최종 확인</p>
+
+  <p>새 서버에 SSH 키를 등록할 때 <code>ssh-keygen</code>이 물어보는 첫 질문은 알고리즘입니다. 예전엔 별생각 없이 RSA 2048비트를 골랐지만, GitHub를 비롯한 대부분의 서비스가 이제 Ed25519를 기본값으로 권장합니다. 키 길이만 보면 RSA 2048비트가 훨씬 커 보이는데 왜 더 짧은 Ed25519가 "더 안전하다"고 하는 걸까요. 그리고 명령어를 만들 때 코멘트에 특수문자를 넣으면 왜 문제가 생기는지, <a href="../ssh-key-generator.html">SSH 키 생성기</a>의 실제 동작을 근거로 짚어봅니다.</p>
+
+  <h2>1. 두 알고리즘은 완전히 다른 수학 문제에 기반한다</h2>
+  <p>RSA의 안전성은 <strong>큰 정수를 소인수분해하기 어렵다</strong>는 문제에서 나옵니다. 키가 크면 클수록(2048비트, 4096비트) 소인수분해에 필요한 계산량이 지수적으로 늘어나는 방식으로 안전성을 확보합니다. 반면 Ed25519는 <strong>타원곡선 이산로그 문제</strong>에 기반한 전자서명 알고리즘(EdDSA의 한 구현)입니다. 타원곡선 암호는 같은 비트 수의 키라도 정수분해 기반 암호보다 훨씬 풀기 어려운 문제 위에 서 있기 때문에, 상대적으로 훨씬 짧은 키로도 동등하거나 더 높은 안전성 수준을 낼 수 있습니다. "키가 짧다 = 약하다"는 직관은 서로 다른 수학 문제를 같은 잣대로 비교할 때 생기는 오해입니다.</p>
+
+  <h2>2. 그래서 256비트가 2048비트보다 강한 이유</h2>
+  <p>암호학에서 "안전성 수준"은 공격자가 키를 깨는 데 필요한 연산 횟수를 2의 거듭제곱으로 나타낸 값입니다. NIST 권고 기준으로 대략적인 대응 관계는 다음과 같습니다.</p>
+  <table>
+    <tr><th>알고리즘 · 키 길이</th><th>추정 안전성 수준</th><th>기반 문제</th></tr>
+    <tr><td>RSA 2048비트</td><td>약 112비트</td><td>정수 소인수분해</td></tr>
+    <tr><td>RSA 3072비트</td><td>약 128비트</td><td>정수 소인수분해</td></tr>
+    <tr><td>RSA 4096비트</td><td>약 140~150비트</td><td>정수 소인수분해</td></tr>
+    <tr><td>Ed25519 (256비트)</td><td>약 128비트</td><td>타원곡선 이산로그</td></tr>
+  </table>
+  <p>즉 <strong>Ed25519 256비트</strong>는 <strong>RSA 3072비트</strong>와 비슷한 안전성 수준을 8분의 1도 안 되는 키 크기로 달성합니다. RSA 2048비트보다도 안전성이 높으면서 키·서명은 훨씬 짧아, 저장 공간뿐 아니라 키 생성·서명·검증 연산 속도까지 함께 빨라지는 구조입니다. RSA는 키를 키워서 안전성을 유지해야 하지만(양자컴퓨터 위협 이전 기준으로도 이미 RSA 1024비트는 사실상 폐기됨), 타원곡선은 작은 키로도 같은 목표를 달성하는 효율적인 수학적 구조를 쓰기 때문입니다.</p>
+
+  <h2>3. 속도 차이가 실제로 체감되는 지점</h2>
+  <p>RSA는 키 생성 과정에서 큰 소수 두 개를 찾아야 하는데, 이 소수 판별 자체가 무거운 연산입니다. 4096비트 RSA 키를 <a href="../ssh-key-generator.html">SSH 키 생성기</a>로 명령어를 만들어 직접 실행해보면 몇 초에서 길게는 수십 초까지 걸릴 수 있는 반면, Ed25519는 거의 즉시 끝납니다. 서명 검증도 마찬가지로 Ed25519가 더 빠른데, 이 차이는 키를 한 번만 만드는 개인 사용자에겐 크게 중요하지 않지만, SSH 접속마다 서명이 오가는 서버 환경이나 CI/CD 파이프라인처럼 연결이 빈번한 상황에서는 누적된 지연으로 체감됩니다.</p>
+
+  <h2>4. 명령어를 셸에 붙여넣을 때 생기는 함정</h2>
+  <p>키 알고리즘과 별개로, <code>ssh-keygen</code> 명령어를 만들 때 실수하기 쉬운 지점이 코멘트(<code>-C</code>)나 파일 경로(<code>-f</code>)에 셸이 특별하게 해석하는 문자를 그대로 넣는 경우입니다. 예를 들어 코멘트에 큰따옴표가 포함된 <code>John "Desktop" Kim</code>을 이스케이프 없이 <code>-C "John "Desktop" Kim"</code>처럼 그대로 넣으면, 셸은 따옴표가 짝이 맞지 않는다고 판단해 구문 오류를 내거나 의도치 않은 부분에서 명령어가 끊깁니다. <code>$</code> 역시 변수 참조로 해석되어 원하지 않는 값이 치환될 수 있고, 백틱은 그 안의 내용을 별도 명령어로 실행해버립니다.</p>
+  <div class="box">
+    <strong>실제 코드 확인</strong>: 이 도구의 <code>escShellDouble()</code> 함수는 백슬래시 → <code>$</code> → 큰따옴표 → 백틱 순서로 <code>replace()</code> 체인을 걸어 입력값을 자동 이스케이프합니다. 코멘트에 <code>John "Desktop" Kim</code>을 입력하면 생성되는 명령어는 <code>-C "John \"Desktop\" Kim"</code> 형태가 되어, 그대로 터미널에 붙여넣어도 셸이 하나의 문자열로 정확히 인식합니다.
+  </div>
+
+  <h2>5. 언제 여전히 RSA를 써야 하나</h2>
+  <p>Ed25519가 대부분의 상황에서 더 나은 선택이지만, 아주 오래된 레거시 서버나 일부 네트워크 장비(구형 라우터·스위치의 관리 콘솔 등)는 EdDSA를 아예 지원하지 않고 RSA만 받아들이는 경우가 있습니다. 이런 호환성 제약이 확실할 때만 RSA를, 그것도 최소 3072비트 이상을 권장하는 것이 합리적입니다. 참고로 이 도구는 RSA 2048비트·4096비트와 Ed25519 세 가지만 지원하며 ECDSA는 별도로 제공하지 않는데, 이는 EdDSA가 ECDSA보다 구현 실수(난수 재사용 등)에 더 안전하게 설계되어 실무에서 권장 순위가 더 높기 때문입니다.</p>
+
+  <h2>자주 묻는 질문</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Ed25519 키를 이미 쓰던 RSA 키와 함께 쓸 수 있나요?</summary><p style="margin-top:8px;">네. <code>~/.ssh/</code>에 여러 키를 동시에 둘 수 있으며, 서버·서비스마다 다른 키를 등록해도 됩니다. 파일명을 다르게 지정(예: id_ed25519_github)하면 기존 키를 덮어쓰지 않습니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 키 길이를 키우면 무조건 더 안전한가요?</summary><p style="margin-top:8px;">같은 알고리즘 안에서는 대체로 그렇지만, 알고리즘이 다르면 단순 비교가 무의미합니다. RSA 4096비트가 Ed25519 256비트보다 숫자상 훨씬 크지만 안전성 수준은 비슷하거나 오히려 Ed25519 쪽이 높게 평가되는 경우도 있습니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 패스프레이즈에도 특수문자를 넣어도 되나요?</summary><p style="margin-top:8px;">패스프레이즈는 ssh-keygen 실행 중 별도 프롬프트로 입력하기 때문에 명령어 문자열에 포함되지 않아 셸 이스케이프 문제와 무관합니다. 오히려 특수문자를 섞은 긴 패스프레이즈가 보안상 권장됩니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 코멘트를 비워도 되나요?</summary><p style="margin-top:8px;">네. 코멘트는 공개키 파일 끝에 식별용으로 붙는 문자열일 뿐 키 자체의 보안과는 무관하므로 생략해도 키 생성에 문제가 없습니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../ssh-key-generator.html">→ SSH 키 생성기</a>
+    <a href="../rsa-key-generator.html">→ RSA 키 생성기</a>
+    <a href="../hmac-generator.html">→ HMAC 생성기</a>
+    <a href="../bcrypt-generator.html">→ bcrypt 해시 생성기</a>
+    <a href="../hash-checker.html">→ 해시 체커</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적이며, 실제 서버·조직의 보안 정책 적용 시에는 해당 시스템 관리자 또는 보안 전문가와 상의하시길 권장합니다.</footer>
+</main>
+</body>
+</html>
