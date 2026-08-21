@@ -84,7 +84,7 @@
 - [ ] **profit-calculator** — "총이익·영업이익·순이익, 세 단계로 나눠 보는 이유" — COGS/OPEX 분리 3단계 이익구조.
 - [ ] **break-even-calculator** — "손익분기점만으론 부족한 이유, 안전마진율" — 안전마진율=(예상매출−BEP)÷예상매출.
 - [ ] **commission-calculator** — "구간별 누진 수수료, 소득세처럼 계산되는 원리" — 100만까지3%+나머지5%, 200만매출시 수수료8만(10만 아님).
-- [ ] **discount-calculator** — "중복 할인 30%+10%는 40% 할인이 아니다" — 50%+50%=75%할인(25%남음, 100%아님).
+- [x] **discount-calculator** (guides/discount-calculator-stacked-discount-math.html, 2026-08-21) — "중복 할인 30%+10%는 40% 할인이 아니다" — 50%+50%=75%할인(25%남음, 100%아님).
 - [ ] **salary-per-hour-calculator** — "주4일제, 같은 연봉인데 시급은 왜 25% 오르나" — 연봉5000만: 주5일24,038원 vs 주4일30,048원.
 - [ ] **freelancer-rate-calculator** — "프리랜서 시급, 비청구 시간을 빼먹으면 생기는 일" — 신규 비청구율40~50%, 목표시급 72,222원 예시.
 - [ ] **acquisition-tax** — "임시적 2주택 특례, 3년 안에 못 팔면 생기는 일" — 3년 초과시 중과세율 소급추징+경정청구 5년시효.
@@ -154,9 +154,9 @@ REJECT(4개, 이유 있음): salary(기존 가이드와 중복), salary-negotiat
 - [ ] **http-request-builder** — "CORS 프리플라이트(OPTIONS)는 언제 발생하나 — 3가지 조건" — 비단순 메서드/Content-Type/커스텀헤더.
 - [ ] **json-to-yaml** — "JSON→YAML 변환기가 문자열에 멋대로 따옴표를 씌우는 이유" — true/false/null처럼 보이면 자동인용.
 - [ ] **keyword-grouping-tool** — "검색 의도 분류와 키워드 클러스터링은 다른 개념이다" — 4대 검색의도 키워드 사전매칭.
-- [ ] **mime-type-finder** — "MIME 스니핑이 뭐길래 보안 헤더가 필요한가" — X-Content-Type-Options:nosniff로 방지.
+- [x] **mime-type-finder** (guides/mime-type-sniffing-nosniff-header.html, 2026-08-21) — "MIME 스니핑이 뭐길래 보안 헤더가 필요한가" — X-Content-Type-Options:nosniff로 방지. (이 도구 자체는 매직바이트가 아닌 file.type/확장자 기준 판별)
 - [x] **number-converter** (guides/number-converter-twos-complement-negative.html, 2026-08-21) — "2의 보수, 컴퓨터가 음수를 표현하는 방법" — 0xFFFFFFFF=-1.
-- [ ] **redirect-checker** — "301 vs 302 vs 307 vs 308, 리다이렉트 코드 헷갈리지 않는 법" — 307/308은 HTTP메서드 보존.
+- [x] **redirect-checker** (guides/redirect-checker-301-302-307-308-explained.html, 2026-08-21) — "301 vs 302 vs 307 vs 308, 리다이렉트 코드 헷갈리지 않는 법" — 307/308은 HTTP메서드 보존.
 - [ ] **regex-cheatsheet** — "정규식 매칭 개수는 뜨는데 하이라이트가 안 보이는 이유" — 길이0 매칭은 카운트되지만 폭0이라 안 보임.
 - [ ] **regex-generator** — "정규식 생성기의 '신용카드' 패턴은 사실 아무 13자리 숫자에나 매칭된다" — Luhn체크섬 검증 없음.
 - [ ] **sitemap-validator** — "changefreq·priority, 구글은 사실 무시한다" — 사이트맵 1개당 최대5만URL·50MB.
@@ -195,14 +195,14 @@ REJECT(3개): ip-address-lookup(일반 네트워킹 상식 나열뿐), website-s
 - [x] **text-summarizer** (guides/text-summarizer-korean-limitation.html, 2026-08-19) — "이 텍스트 요약기, 사실 한국어에서는 작동하지 않는다" — `\w`가 한글 비인식, 문장점수 전부 0되는 버그.
 - [x] **anagram-checker** (guides/anagram-checker-character-frequency-array.html, 2026-08-20) — "애너그램 판별, 정렬 대신 문자 빈도표를 쓰는 이유" — 각 글자 등장횟수 배열 누적비교.
 - [ ] **ascii-converter** — "ASCII가 사실 UTF-8의 부분집합인 이유" — 0~127범위 바이트단위 완전동일.
-- [ ] **ascii-table** — "제어문자 DEL(127)은 왜 하필 127번일까 — 천공 테이프가 남긴 흔적" — 천공테이프 무효화 관습 유래.
+- [x] **ascii-table** (guides/ascii-del-127-punch-tape-history.html, 2026-08-21) — "제어문자 DEL(127)은 왜 하필 127번일까 — 천공 테이프가 남긴 흔적" — 천공테이프 무효화 관습 유래.
 - [x] **emoji-counter** (guides/emoji-counter-surrogate-pair-sns-limit.html, 2026-08-20) — "이모지 하나가 글자수 2~11개로 세지는 이유 — SNS 글자수 제한의 함정" — 가족이모지 11코드유닛 이상.
 - [ ] **emoji-remover** — "숫자도 기술적으로는 이모지다? — Intl.Segmenter와 이모지 오탐 문제" — 0~9,#,*가 Emoji속성 보유.
 - [ ] **hashtag-generator** — "해시태그 몇 개가 적당한가 — 인기·중간·틈새 3:4:3 전략" — 플랫폼별 적정개수 차이.
 - [x] **keyword-extractor** (guides/keyword-extractor-korean-particle-limitation.html, 2026-08-19) — "왜 '텍스트를'과 '텍스트가'가 다른 단어로 집계될까 — 조사 없는 언어를 위해 설계된 도구의 한계" — 형태소분석 없이 조사포함 집계.
 - [ ] **ngram-analyzer** — "다국어 UI인데 정작 중국어·일본어는 분석 못 하는 N-그램 분석기 — 정규식 언어 편향" — 한자·가나 정규식으로 삭제.
 - [x] **palindrome-checker** (guides/palindrome-checker-codepoint-vs-grapheme.html, 2026-08-21) — "사람 눈엔 회문인데 알고리즘은 아니라는 경우 — 코드포인트 vs 그래프임 함정" — 국기·ZWJ이모지 오판 가능.
-- [ ] **stopword-remover** — "TF-IDF 돌리기 전에 불용어부터 지우는 이유" — 통계왜곡시키는 고빈도단어 개념.
+- [x] **stopword-remover** (guides/stopword-remover-tfidf-distortion.html, 2026-08-21) — "TF-IDF 돌리기 전에 불용어부터 지우는 이유" — 통계왜곡시키는 고빈도단어 개념. (도구 표기 "약70개"는 실제 95개, 가이드에서 정정)
 - [ ] **text-case-detector** — "camelCase vs kebab-case, 왜 언어마다 다른 표기법을 쓰나" — kebab은 JS 변수명 문법상 불가.
 - [ ] **text-encryptor** — "카이사르 암호부터 AES-256-GCM까지, 이 도구 하나로 보는 암호화 발전사" — PBKDF2 10만회 반복+매번 새salt.
 - [x] **text-statistics** (guides/text-statistics-flesch-korean-limitation.html, 2026-08-21) — "Flesch 가독성 지수, 왜 한국어에는 안 통하나" — 1948년 영어전용 공식. **버그 발견**: 실제로는 한글도 점수 미표시가 아니라 10단어↑면 무의미한 점수(음절수 강제 fallback=1)를 그대로 노출함 — 도구 자체 FAQ 설명과 실제 동작이 다름. 별도 수정 필요.
@@ -226,11 +226,11 @@ REJECT(9개): line-counter, find-replace, remove-empty-lines, remove-duplicate-l
 - [ ] **image-watermark** — "이미지 워터마크는 한글이 안 깨지는데 PDF 워터마크는 왜 깨지나" — 웹폰트 vs PDF내장폰트 차이.
 - [x] **exif-viewer** (guides/exif-gps-dms-rational-format.html, 2026-08-19) — "GPS 좌표가 숫자 하나가 아니라 세 개인 이유" — 도·분·초 3개 유리수(RATIONAL) 저장.
 - [x] **exif-remover** (guides/exif-remover-gps-privacy-sns.html, 2026-08-20) — "사진 속 GPS 좌표, 왜 SNS 올리기 전에 지워야 하나" — Canvas 재인코딩으로 메타데이터 원천 제거.
-- [ ] **ico-converter** — "ICO 파일 속 아이콘, 사실은 전부 PNG로 저장된다" — Vista이후 PNG바이트 그대로 담는 방식.
+- [x] **ico-converter** (guides/ico-converter-png-inside-ico.html, 2026-08-21) — "ICO 파일 속 아이콘, 사실은 전부 PNG로 저장된다" — Vista이후 PNG바이트 그대로 담는 방식.
 - [x] **webp-to-jpg** (guides/webp-compatibility-kakaotalk-old-devices.html, 2026-08-20) — "카카오톡에 웹피(WebP) 이미지가 안 열리는 이유" — 구형iOS/안드로이드 WebP 미리보기 실패.
 - [x] **image-color-extractor** (guides/image-color-extractor-clustering-vs-average.html, 2026-08-20) — "이미지 대표색, 평균값이 아니라 클러스터링을 쓰는 이유" — 빨강+파랑 평균=보라 오류 방지(k-means 유사 클러스터링 실제 구현 확인됨).
 - [ ] **pixelate-image** — "픽셀화로 가린 사진, 낮은 강도면 복원될 수 있다" — 저강도 픽셀화 원본추정 가능 연구.
-- [ ] **color-palette** — "보색·삼색·분할보색, 각도로 배우는 색상 조화 이론" — 보색180°, 삼색120°씩.
+- [x] **color-palette** (guides/color-palette-complementary-triadic-angles.html, 2026-08-21) — "보색·삼색·분할보색, 각도로 배우는 색상 조화 이론" — 보색180°, 삼색120°씩.
 - [x] **color-converter** (guides/color-converter-srgb-vs-display-p3.html, 2026-08-21) — "같은 HEX 코드인데 화면마다 색이 다르게 보이는 이유" — sRGB vs Display P3 색공간 차이.
 - [x] **color-blindness-simulator** (guides/color-blindness-simulator-accuracy.html, 2026-08-19) — "색맹 시뮬레이터의 숨은 버그, 왜 완전한 회색이 안 나올까" — 3×4행렬을 3×3으로 착각한 실제 코드버그.
 - [ ] **avif-to-jpg** — "투명 배경 이미지를 JPG로 바꾸면 왜 까맣게 나오는가" — Canvas 기본픽셀(투명검정)+알파소실.
@@ -254,9 +254,9 @@ REJECT(7개): webp-to-png, image-to-webp, image-cropper, blur-image, color-picke
 - [x] **utm-builder** (guides/utm-internal-link-tracking-mistake.html, 2026-08-19) — "UTM, 내부 링크에 붙이면 왜 절대 안 되나" — 내부링크에 붙이면 GA가 새 세션으로 오집계.
 - [x] **robots-txt-generator** (guides/robots-txt-allow-disallow-conflict-rule.html, 2026-08-19) — "robots.txt, Allow와 Disallow 충돌하면 누가 이기나" — 더 긴(구체적)경로 우선.
 - [x] **meta-tag-generator** (guides/meta-keywords-tag-google-2009-deprecated.html, 2026-08-21) — "구글은 2009년부터 keywords 메타태그를 안 본다" — 2009년(구글)/2011년(빙) 공식 폐기 발표.
-- [ ] **sitemap-generator** — "사이트맵 5만 개 URL 제한, 왜 하필 그 숫자인가" — 단일 사이트맵 최대5만URL·50MB.
+- [x] **sitemap-generator** (guides/sitemap-generator-50000-url-limit.html, 2026-08-21) — "사이트맵 5만 개 URL 제한, 왜 하필 그 숫자인가" — 단일 사이트맵 최대5만URL·50MB. (이 도구는 초과 시 경고조차 없음, 가이드에서 지적)
 - [ ] **open-graph-generator** — "OG 태그 고쳤는데 카톡/페북 미리보기가 안 바뀌는 이유" — 플랫폼 캐싱, 2010년 f8공개 프로토콜.
-- [ ] **twitter-card-generator** — "twitter:card 안 넣어도 트위터 카드가 뜨는 이유" — OG태그 자동 폴백.
+- [x] **twitter-card-generator** (guides/twitter-card-og-tag-fallback.html, 2026-08-21) — "twitter:card 안 넣어도 트위터 카드가 뜨는 이유" — OG태그 자동 폴백.
 - [ ] **schema-markup-generator** — "JSON-LD가 구조화 데이터 표준이 된 이유" — 리치스니펫 CTR 평균20~30%↑.
 - [x] **hreflang-generator** (guides/hreflang-bidirectional-mistakes.html, 2026-08-19) — "hreflang, 절반이 틀리게 쓰는 SEO 태그" — 양방향참조 비대칭이면 구글이 조용히 무시.
 - [x] **htaccess-generator** (guides/htaccess-hsts-lockout-risk.html, 2026-08-21) — "HSTS 설정했다가 사이트가 접속 불가가 되는 이유" — 인증서 문제시 HTTPS 강제로 접속불가.
@@ -285,7 +285,7 @@ REJECT(8개): youtube-script-generator, ai-email-generator, ai-resume-generator,
 - [ ] **csr-generator** — "CSR 키 크기 2048 vs 4096, EC vs RSA — 뭘 골라야 인증서가 빨라지나" — EC P-256=RSA2048과 동등보안.
 - [x] **csp-generator** (guides/csp-unsafe-inline-nonce-alternative.html, 2026-08-20) — "'unsafe-inline' 한 줄이 CSP 방어를 무력화하는 이유와 nonce 대안" — meta태그는 frame-ancestors 미지원.
 - [ ] **csp-validator** — "CSP를 사이트 안 깨뜨리고 도입하는 법 — Report-Only에서 강제 모드까지 3단계" — data:URI가 img-src/script-src서 위험도 다름.
-- [ ] **cors-header-checker** — "Preflight가 도는 요청 vs 안 도는 요청 — CORS 에러의 진짜 원인" — simple request는 preflight없이 즉시전송.
+- [x] **cors-header-checker** (guides/cors-preflight-simple-vs-non-simple-request.html, 2026-08-21) — "Preflight가 도는 요청 vs 안 도는 요청 — CORS 에러의 진짜 원인" — simple request는 preflight없이 즉시전송.
 - [x] **hash-checker** (guides/hash-checker-md5-web-crypto-unsupported.html, 2026-08-21) — "왜 브라우저 표준 해시 API는 MD5를 지원하지 않는가" — crypto.subtle.digest는 MD5 넘기면 즉시 예외. (hash-checker.html은 MD5 자체 미지원, 자체 JS MD5 구현은 자매 도구 hash-generator.html 쪽)
 - [x] **bcrypt-generator** (guides/bcrypt-72-byte-korean-limit.html, 2026-08-19) — "bcrypt 72바이트 제한, 한글 비밀번호는 24자에서 잘린다" — 72바이트 이후 다른 한글비번 2개 동일해시 실증.
 - [ ] **bcrypt-validator** — "bcrypt는 salt를 따로 안 저장하는데 어떻게 검증하나 — compare()의 실제 동작" — 해시 앞29자를 salt로 재사용.

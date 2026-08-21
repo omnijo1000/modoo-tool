@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>301 vs 302 vs 307 vs 308, 리다이렉트 코드 헷갈리지 않는 법 | MODOO HUB</title>
+<meta name="description" content="301·302·307·308 리다이렉트 코드의 차이를 영구/임시, 메서드 보존 여부 두 축으로 정리합니다. POST 요청이 리다이렉트되면서 GET으로 바뀌는 이유까지 해부.">
+<link rel="canonical" href="https://modoohub.com/guides/redirect-checker-301-302-307-308-explained.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"301 vs 302 vs 307 vs 308, 리다이렉트 코드 헷갈리지 않는 법","description":"301·302·307·308 리다이렉트 코드의 차이를 영구/임시, 메서드 보존 여부 두 축으로 정리합니다. POST 요청이 리다이렉트되면서 GET으로 바뀌는 이유까지 해부.","datePublished":"2026-08-21","dateModified":"2026-08-21","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>301 vs 302 vs 307 vs 308, 리다이렉트 코드 헷갈리지 않는 법</h1>
+  <p class="meta">가이드 · 2026.08.21 최종 확인</p>
+
+  <p>리다이렉트 상태 코드는 4개뿐인데도 매번 헷갈립니다. "301은 영구, 302는 임시"까지는 대부분 외우고 있지만, 307과 308이 왜 따로 필요한지는 잘 모릅니다. 사실 이 4개는 서로 다른 목적으로 만들어진 게 아니라, <strong>같은 두 가지 성격(영구/임시, 메서드 보존 여부)을 시대 순으로 다르게 정의한 결과물</strong>입니다. 이 구조를 이해하면 4개를 따로 외울 필요 없이 표 하나로 정리됩니다.</p>
+
+  <h2>1. 두 개의 축으로 정리하면 끝난다</h2>
+  <p>4개의 리다이렉트 코드는 딱 두 가지 질문으로 나뉩니다. 첫째, 이 이동은 영구적인가 임시적인가. 둘째, 리다이렉트되면서 원래의 HTTP 요청 메서드(GET, POST 등)와 본문이 그대로 유지되는가.</p>
+  <table>
+    <tr><th>코드</th><th>영구/임시</th><th>메서드 보존</th></tr>
+    <tr><td>301</td><td>영구</td><td>보장 안 됨 (역사적으로 모호)</td></tr>
+    <tr><td>302</td><td>임시</td><td>보장 안 됨 (역사적으로 모호)</td></tr>
+    <tr><td>307</td><td>임시</td><td>보장됨</td></tr>
+    <tr><td>308</td><td>영구</td><td>보장됨</td></tr>
+  </table>
+  <p>즉 307은 "메서드를 보존하는 302"이고, 308은 "메서드를 보존하는 301"입니다. 4개를 따로 외우지 않아도 "301/302는 오래됐고 애매함", "307/308은 나중에 나왔고 명확함"이라는 관계만 기억하면 됩니다.</p>
+
+  <h2>2. 왜 301/302는 "메서드가 바뀔 수 있다"는 게 문제인가</h2>
+  <p>301과 302는 HTTP/1.0 시절인 1990년대 초에 정의되었는데, 스펙 문서에는 리다이렉트 시 메서드를 어떻게 처리해야 하는지 명확히 규정되어 있지 않았습니다. 그 결과 대부분의 초기 브라우저가 관행적으로 "리다이렉트를 받으면 원래 메서드가 무엇이었든 GET으로 바꿔서 재요청한다"는 동작을 구현했고, 이 관행이 표준처럼 굳어졌습니다. 즉 사용자가 POST로 폼을 제출했는데 서버가 301이나 302로 응답하면, 브라우저가 그 폼 데이터를 버리고 GET으로 다음 URL을 재요청할 수 있습니다. 문제는 이게 "명세"가 아니라 "관행"이라 브라우저마다 실제 동작이 다를 수 있다는 점입니다.</p>
+
+  <h2>3. 307/308이 명확하게 고친 부분</h2>
+  <p>HTTP/1.1 스펙(RFC 7231, 이후 RFC 9110)에서 307과 308이 새로 정의되면서, "리다이렉트를 따라갈 때 원래 요청의 메서드와 본문을 절대 바꾸지 않는다"는 조항이 명문화되었습니다. 즉 POST로 보낸 요청이 307이나 308 리다이렉트를 받으면, 재요청도 반드시 POST로, 원래 본문 그대로 전송됩니다. API 엔드포인트나 결제·로그인처럼 요청 본문이 의미를 가지는 경로를 리다이렉트할 때는 301/302 대신 307/308을 써야 데이터 유실이나 의도치 않은 동작 변경을 막을 수 있습니다.</p>
+  <div class="box">
+    <strong>예시</strong>: <code>POST /old-api/submit</code> 요청이 <code>/new-api/submit</code>으로 리다이렉트되는 상황<br>
+    · 301/302 사용 시: 브라우저 구현에 따라 GET /new-api/submit으로 바뀌어 재요청될 수 있음(폼 데이터 유실 위험)<br>
+    · 307/308 사용 시: 반드시 POST /new-api/submit + 원본 본문 그대로 재요청됨
+  </div>
+
+  <h2>4. SEO 관점에서는 301/302, 308/307 중 무엇을 쓸까</h2>
+  <p>일반적인 웹페이지 URL 이동(HTTPS 전환, URL 구조 변경, 도메인 이전)은 GET 요청만 오가는 경우가 대부분이라 메서드 보존 여부가 실질적으로 문제되지 않습니다. 이런 경우는 관례적으로 검색엔진이 잘 처리하는 301(영구)·302(임시)를 그대로 쓰는 것이 무난합니다. 308/307은 GET이 아닌 요청(폼 제출, API 호출)이 오가는 경로를 리다이렉트할 때 선택하는 것이 원칙입니다. 실제 사이트의 리다이렉트 체인에 어떤 코드가 섞여 있는지, 그리고 체인이 몇 단계나 이어지는지는 <a href="../redirect-checker.html">리다이렉트 체인 검사기</a>로 한 번에 확인할 수 있습니다.</p>
+
+  <h2>5. 흔한 실수: 302를 영구 이동에 계속 쓰는 경우</h2>
+  <p>서버 설정을 급하게 할 때 301과 302를 구분하지 않고 302(또는 프레임워크 기본값)를 그대로 쓰는 경우가 흔합니다. 콘텐츠가 실제로는 영구히 이동했는데 302로 응답하면 검색엔진이 "이 이동은 임시일 수 있다"고 판단해 원본 URL의 색인·링크 권위도를 쉽게 새 URL로 넘기지 않습니다. 결과적으로 SEO 순위가 새 URL로 온전히 이전되지 않는 문제가 생깁니다. URL을 영구적으로 바꿨다면 반드시 301(또는 GET이 아닌 요청이라면 308)로 응답하도록 서버 설정을 확인해야 합니다. <a href="../htaccess-generator.html">.htaccess 생성기</a>나 <a href="../nginx-config-generator.html">Nginx 설정 생성기</a>로 리다이렉트 규칙을 만들 때도 코드 번호를 명시적으로 지정하는 것이 안전합니다.</p>
+
+  <h2>자주 묻는 질문</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 303 See Other는 왜 표에 없나요?</summary><p style="margin-top:8px;">303은 "PUT이나 POST 처리 결과를 GET으로 조회하라"는 의도로 만들어진 별도의 코드로, 항상 GET으로 재요청하도록 명시되어 있습니다. 302와 달리 메서드 변경이 관행이 아니라 스펙에 명시된 의도된 동작이라 이 가이드가 다루는 "영구/임시 + 메서드 보존" 두 축과는 다른 성격입니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 리다이렉트 체인이 길면 SEO에 안 좋나요?</summary><p style="margin-top:8px;">네. A→B→C처럼 체인이 길어질수록 각 단계에서 약간의 권위도 손실이 누적되고, 검색엔진 크롤러가 5~10단계 넘는 체인은 중간에 추적을 포기할 수 있습니다. 리다이렉트 체인 검사기로 전체 체인을 확인해 최종 목적지로 바로 연결되도록 정리하는 것이 좋습니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 301과 302 모두 PageRank가 전달되나요?</summary><p style="margin-top:8px;">구글은 현재 301과 302 모두 PageRank(링크 권위도)를 전달한다고 공식적으로 밝혔습니다. 다만 302는 "임시 이동"이라는 의미상 검색엔진이 원본 URL을 색인에서 완전히 대체하지 않고 유지하려는 경향이 있어, 영구 이동에는 여전히 301을 쓰는 것이 안전합니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. HTTPS 전환 시 어떤 코드를 써야 하나요?</summary><p style="margin-top:8px;">HTTP → HTTPS 전환은 GET 요청 기반 페이지 이동이 대부분이므로 301을 사용하는 것이 표준입니다. www와 non-www 중 하나로 통일할 때도 마찬가지로 301을 사용합니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../redirect-checker.html">→ 리다이렉트 체인 검사기</a>
+    <a href="../http-header-checker.html">→ HTTP 헤더 검사기</a>
+    <a href="../htaccess-generator.html">→ .htaccess 생성기</a>
+    <a href="../nginx-config-generator.html">→ Nginx 설정 생성기</a>
+    <a href="../ssl-checker.html">→ SSL 인증서 검사기</a>
+    <a href="../sitemap-validator.html">→ 사이트맵 검증기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적이며 실제 서버 설정은 사용 중인 프레임워크·서버 문서를 함께 참고하시기 바랍니다.</footer>
+</main>
+</body>
+</html>
