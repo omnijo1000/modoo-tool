@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ASCII가 사실 UTF-8의 부분집합인 이유 | MODOO HUB</title>
+<meta name="description" content="ASCII 0~127 범위가 왜 UTF-8과 바이트 단위로 완전히 동일한지, 128 경계를 넘는 순간 인코딩이 어떻게 확장되는지 실제 변환 도구 코드로 확인하며 설명합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/ascii-utf8-subset-compatibility.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"ASCII가 사실 UTF-8의 부분집합인 이유","description":"ASCII 0~127 범위가 왜 UTF-8과 바이트 단위로 완전히 동일한지, 128 경계를 넘는 순간 인코딩이 어떻게 확장되는지 실제 변환 도구 코드로 확인하며 설명합니다.","datePublished":"2026-08-24","dateModified":"2026-08-24","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>ASCII가 사실 UTF-8의 부분집합인 이유</h1>
+  <p class="meta">가이드 · 2026.08.24 최종 확인</p>
+
+  <p>"UTF-8로 저장했더니 옛날 ASCII 텍스트 파일이 깨졌다"는 경험담은 사실 존재하기 어렵습니다. 순수 영문 텍스트라면 인코딩을 ASCII로 읽든 UTF-8로 읽든 바이트가 완전히 똑같기 때문입니다. 이 우연이 아니라 설계입니다. 이 가이드는 <a href="../ascii-converter.html">ASCII 변환기</a>의 실제 코드를 근거로, 왜 0~127 범위에서는 두 인코딩이 하나이고 128부터는 갈라지는지 그 경계선의 정체를 정리합니다.</p>
+
+  <h2>1. ASCII는 원래 7비트였다</h2>
+  <p>ASCII(American Standard Code for Information Interchange)는 1963년 제정 당시부터 7비트, 즉 0~127까지의 숫자만 사용하도록 설계됐습니다. 8비트 바이트 하나에 담기면서 맨 앞 1비트는 항상 0으로 남았습니다. 'A'는 65(0100_0001), 스페이스는 32(0010_0000), 줄바꿈(LF)은 10(0000_1010)처럼, ASCII 문자를 8비트로 표현하면 언제나 최상위 비트가 0으로 고정됩니다. 이 "맨 앞 비트가 항상 0"이라는 성질이 나중에 UTF-8 설계의 핵심 전제가 됩니다.</p>
+
+  <h2>2. UTF-8이 이 성질을 그대로 이어받았다</h2>
+  <p>1990년대 유니코드가 등장하며 전 세계 문자를 하나의 표준으로 담을 인코딩이 필요해졌습니다. UTF-8을 설계한 켄 톰프슨과 롭 파이크는 기존 ASCII 인프라(유닉스 파일시스템, 초기 인터넷 프로토콜, 수많은 텍스트 처리 코드)를 깨뜨리지 않는 것을 최우선 조건으로 삼았습니다. 그 결과 UTF-8의 첫 바이트가 <strong>0으로 시작하면 그 바이트 자체가 그대로 하나의 ASCII 문자</strong>가 되도록 규칙을 만들었습니다. 즉 0~127 코드포인트는 UTF-8에서도 정확히 1바이트, 정확히 같은 값으로 인코딩됩니다. 별도의 변환 로직이 끼어들 여지가 없는, 바이트 단위로 100% 동일한 표현입니다.</p>
+  <div class="box">
+    <strong>왜 중요한가</strong>: 이 덕분에 순수 영문 소스코드, HTTP 헤더, JSON 키, URL 등 ASCII만 쓰는 모든 기존 데이터는 "UTF-8로 재인코딩"이라는 변환 과정 없이 그 자체로 이미 유효한 UTF-8 파일입니다. 1990년대에 작성된 영문 텍스트 파일을 지금 UTF-8 에디터로 열어도 깨지지 않는 이유가 바로 이것입니다.
+  </div>
+
+  <h2>3. 128을 넘는 순간 인코딩이 확장된다</h2>
+  <p>128부터는 이야기가 완전히 달라집니다. UTF-8은 코드포인트 크기에 따라 첫 바이트의 상위 비트 패턴으로 전체 바이트 수를 표시하는 가변 길이 인코딩입니다.</p>
+  <table>
+    <tr><th>코드포인트 범위</th><th>UTF-8 바이트 수</th><th>첫 바이트 패턴</th><th>예</th></tr>
+    <tr><td>0 ~ 127</td><td>1바이트</td><td><code>0xxxxxxx</code></td><td>ASCII 전체 (A, 0, 스페이스 등)</td></tr>
+    <tr><td>128 ~ 2,047</td><td>2바이트</td><td><code>110xxxxx</code></td><td>라틴 확장 문자 등</td></tr>
+    <tr><td>2,048 ~ 65,535</td><td>3바이트</td><td><code>1110xxxx</code></td><td>한글 대부분(가~힣)</td></tr>
+    <tr><td>65,536 이상</td><td>4바이트</td><td><code>11110xxx</code></td><td>대부분의 이모지</td></tr>
+  </table>
+  <p>한글 "가"는 유니코드 코드포인트 U+AC00(십진수 44032)로, 128을 훌쩍 넘기 때문에 3바이트로 인코딩됩니다. 이모지는 대개 65,536 이상이라 4바이트가 필요합니다. 반면 알파벳·숫자·기본 특수문자는 전부 127 이하이므로 항상 1바이트, 즉 ASCII와 동일합니다.</p>
+
+  <h2>4. 실제 도구 코드로 확인하는 128 경계</h2>
+  <p><a href="../ascii-converter.html">ASCII 변환기</a>의 텍스트→ASCII 변환 함수를 열어보면 이 경계가 그대로 코드에 박혀 있습니다. 핵심 로직은 문자 배열을 <code>c.charCodeAt(0)&lt;=127</code> 조건으로 필터링해서, 127 이하인 문자만 ASCII 코드로 변환하고 128 이상은 결과에서 아예 제외합니다. 문자별 미리보기 영역에서도 코드가 127을 넘는 문자는 변환값 대신 대시(–) 기호로 표시합니다. 즉 이 도구는 "128 경계"를 자의적 규칙이 아니라 ASCII 표준 자체의 정의(0~127)를 코드로 그대로 옮긴 것입니다. 한글이나 이모지를 이 도구에 입력하면 아무 코드도 나오지 않고 대시만 보이는데, 이는 버그가 아니라 ASCII의 정의상 당연한 동작입니다. 한글·이모지처럼 128 이상 범위를 다루려면 <a href="../unicode-converter.html">유니코드 변환기</a>나 <a href="../text-to-unicode.html">텍스트→유니코드 변환기</a>를 사용해야 합니다.</p>
+
+  <h2>5. 실무에서 자주 마주치는 오해</h2>
+  <ul>
+    <li><strong>"확장 ASCII"는 표준이 아니다</strong>: 128~255를 사용하는 코드페이지(예: Windows-1252, EUC-KR 일부 구간)는 회사·운영체제마다 문자 배치가 달라서 같은 바이트 값이 다른 문자를 가리킬 수 있습니다. UTF-8의 2바이트 이상 시퀀스와는 전혀 다른 체계입니다.</li>
+    <li><strong>"ASCII 파일을 UTF-8로 저장하면 커진다"는 절반만 맞다</strong>: 영문·숫자·기본 기호만 있다면 바이트 수는 전혀 늘지 않습니다. 한글·이모지가 섞여 있을 때만 그 문자들 몫으로 용량이 늘어납니다.</li>
+    <li><strong>Base64 인코딩과는 별개 개념</strong>: Base64는 임의의 바이트를 ASCII 64개 문자로 표현하는 별도의 인코딩 방식으로, UTF-8과의 하위 호환성과는 무관합니다. <a href="../base64-encoder.html">Base64 인코더</a>에서 확인해 보세요.</li>
+  </ul>
+
+  <h2>자주 묻는 질문</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 그럼 모든 ASCII 텍스트 파일은 UTF-8로도 유효한가요?</summary><p style="margin-top:8px;">네. 0~127 범위만 사용하는 파일은 바이트 시퀀스가 ASCII와 UTF-8에서 완전히 동일하므로, 별도 변환 없이 그대로 유효한 UTF-8 파일입니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 반대로 UTF-8 파일은 항상 ASCII로도 읽을 수 있나요?</summary><p style="margin-top:8px;">아니요. 128 이상의 코드포인트(한글, 한자, 이모지 등)가 하나라도 포함되면 멀티바이트 시퀀스가 생기고, 이를 ASCII로 읽으면 각 바이트가 제어 문자나 깨진 기호로 오인식됩니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. ASCII 변환기에 한글을 넣으면 왜 아무것도 안 나오나요?</summary><p style="margin-top:8px;">한글은 코드포인트가 128을 훨씬 넘기 때문에 ASCII 정의(0~127) 밖입니다. 이 도구는 127 이하 문자만 변환하도록 만들어져 있어 한글은 결과에서 제외되고 미리보기에 대시(–)로 표시됩니다. 한글 변환은 유니코드 변환기를 사용하세요.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. UTF-8 외에 다른 인코딩(UTF-16 등)도 ASCII와 바이트가 같나요?</summary><p style="margin-top:8px;">아니요. UTF-16은 ASCII 문자도 최소 2바이트로 표현하므로 바이트 단위 호환성이 없습니다. 이 하위 호환성은 UTF-8만의 설계상 특징입니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../ascii-converter.html">→ ASCII 변환기</a>
+    <a href="../unicode-converter.html">→ 유니코드 변환기</a>
+    <a href="../text-to-unicode.html">→ 텍스트→유니코드 변환기</a>
+    <a href="../unicode-to-text.html">→ 유니코드→텍스트 변환기</a>
+    <a href="../base64-encoder.html">→ Base64 인코더</a>
+    <a href="../ascii-table.html">→ ASCII 코드표</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적이며 정확한 표준 문서는 Unicode Consortium·RFC 3629를 참고하세요.</footer>
+</main>
+</body>
+</html>

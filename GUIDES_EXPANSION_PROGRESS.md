@@ -78,9 +78,9 @@
 - [x] **apr-calculator** (guides/apr-vs-ear-credit-card-compounding.html, 2026-08-20) — "APR과 EAR, 카드 이자가 표시금리보다 비싸 보이는 이유" — 명목12%월복리→EAR≈12.68%.
 - [ ] **loan-payoff-calculator** — "월 상환액이 이자보다 적으면 벌어지는 일" — 음의 상각(negative amortization) 함정.
 - [ ] **investment-return-calculator** — "복리 주기(연/분기/월), 실제로 얼마나 차이 나나" — 1000만·10%·10년: 연2,594만 vs 월2,707만.
-- [ ] **fire-calculator** — "4% 룰(Trinity Study), 한국에서도 안전한가" — 1998년 미국 30년 가정, 비미국은 3~3.5% 권장.
+- [x] **fire-calculator** (guides/fire-calculator-4-percent-rule-trinity-study.html, 2026-08-24) — "4% 룰(Trinity Study), 한국에서도 안전한가" — 1998년 미국 30년 가정, 비미국은 3~3.5% 권장.
 - [ ] **cagr-calculator** — "CAGR이 감추는 변동성의 함정" — -30%/+80% 등락도 CAGR은 매년 동일성장처럼 평활화.
-- [ ] **margin-calculator** — "마진율과 마크업, 같은 거래인데 다른 숫자가 나오는 이유" — 원가700·판매1000: 마진30% vs 마크업42.86%.
+- [x] **margin-calculator** (guides/margin-markup-percentage-confusion.html, 2026-08-24) — "마진율과 마크업, 같은 거래인데 다른 숫자가 나오는 이유" — 원가700·판매1000: 마진30% vs 마크업42.86%.
 - [ ] **profit-calculator** — "총이익·영업이익·순이익, 세 단계로 나눠 보는 이유" — COGS/OPEX 분리 3단계 이익구조.
 - [ ] **break-even-calculator** — "손익분기점만으론 부족한 이유, 안전마진율" — 안전마진율=(예상매출−BEP)÷예상매출.
 - [ ] **commission-calculator** — "구간별 누진 수수료, 소득세처럼 계산되는 원리" — 100만까지3%+나머지5%, 200만매출시 수수료8만(10만 아님).
@@ -98,7 +98,7 @@
 - [ ] **loan-calc** — "원리금균등 vs 원금균등, 총이자 3,500만원 차이의 비밀" — 3억·4%·30년: 총이자 차이 약3,510만원.
 - [ ] **overtime-pay** — "연장+야간 겹치면 200% — 그런데 5인 미만은 의무가 없다" — 5인미만 사업장 야간수당 의무 없음.
 - [ ] **payslip-calc** — "급여명세서 미교부, 과태료 500만원 — 2021년 이후 전 사업장 의무" — 2021.11부터 전사업장 의무.
-- [ ] **percent-calc** — "퍼센트 포인트(%p)와 퍼센트(%)는 다르다 + 중복할인은 더하지 않는다" — 40%→45%는 5%p(12.5% 아님).
+- [x] **percent-calc** (guides/percentage-point-vs-percent-difference.html, 2026-08-24) — "퍼센트 포인트(%p)와 퍼센트(%)는 다르다" — 40%→45%는 5%p(12.5% 아님).
 - [ ] **prepayment-fee** — "중도상환수수료, 왜 3년 지나면 사라지나" — 대부분 실행일로부터 3년 경과시 면제.
 - [ ] **property-tax** — "종부세, 재산세를 또 걷는 이중과세가 아닌 이유" — 종부세의 20% 농특세 추가부과.
 - [ ] **realestate-fee** — "부동산 중개수수료 상한요율, 사실은 협상 가능하다" — 월세 환산=(보증금+월세×100).
@@ -128,6 +128,10 @@ REJECT(4개, 이유 있음): salary(기존 가이드와 중복), salary-negotiat
 - [x] **html-minifier** (guides/html-minifier-regex-pre-textarea-bug.html, 2026-08-19) — "정규식 기반 HTML 압축기가 실패하는 지점" — `<pre>`/`<textarea>` 내부 의미있는 공백까지 뭉개짐.
 - [x] **css-minifier** (guides/css-color-shorthand-minification.html, 2026-08-20) — "CSS 압축기의 색상 코드 축약 규칙" — `#ffffff`→`#fff`는 각 자리쌍 같을 때만.
 - [ ] **javascript-minifier** — "JS 압축기의 문자열 손상 위험, 경고는 엉뚱한 곳에 뜬다" — 문자열 경계 무시하는 정규식 위험.
+- [x] **xml-validator** (guides/xml-validator-well-formed-vs-valid.html, 2026-08-24) — "XML 파서는 왜 HTML보다 깐깐한가(well-formed vs valid)" — strict모드 즉시 파싱중단.
+- [x] **user-agent-parser** (guides/user-agent-applewebkit-537-36-legacy.html, 2026-08-24) — "크롬도 왜 AppleWebKit/537.36을 달고 다니나 — UA 문자열의 역사적 유물" — 호환성 위해 고정값 유지.
+- [x] **webhook-generator** (guides/webhook-signature-github-stripe-slack-differ.html, 2026-08-24) — "GitHub·Stripe·Slack, 웹훅 서명이 플랫폼마다 다르게 계산되는 이유" — 해시대상 문자열이 각각 다름.
+- [x] **sql-minifier** (guides/sql-minifier-comment-string-collision-bug.html, 2026-08-24) — "SQL 압축기가 문자열 속 --를 만나면 쿼리를 통째로 잘라먹는다" — 주석제거가 문자열보호보다 먼저 실행되는 버그(실제 재현 확인).
 - [ ] **javascript-beautifier** — "중괄호만 세는 JS 포매터가 for문을 깨뜨리는 이유" — 들여쓰기 깊이를 `{}` 개수로만 계산.
 - [ ] **css-beautifier** — "문자 단위 CSS 포매터의 중첩 깊이 추적 방식" — SCSS 전처리기 문법은 깨짐.
 - [ ] **keyword-difficulty-estimator** — "키워드 난이도 점수, 실제 검색 데이터 없이 어떻게 계산되나" — 규칙기반 점수, 5~95 클램프.
@@ -182,7 +186,7 @@ REJECT(3개): ip-address-lookup(일반 네트워킹 상식 나열뿐), website-s
 - [x] **sentence-counter** (guides/sentence-boundary-detection-limits.html, 2026-08-19) — "문장은 어디서 끝나는가, 규칙 기반 문장 분리기의 한계" — 종결부호 없는 마지막 조각도 별도 카운트.
 - [x] **read-time-calculator** (guides/reading-time-korean-cjk-char-count.html, 2026-08-19) — "읽기 시간 계산기, 한국어는 왜 '단어 수'가 아니라 '글자 수'로 계산하나" — CJK 40%초과시 계산방식 전환.
 - [x] **text-reverser** (guides/text-reverser-emoji-surrogate-pair-break.html, 2026-08-19) — "텍스트를 뒤집으면 왜 이모지가 깨지는가, 서로게이트 쌍의 함정" — UTF-16 서로게이트쌍 2개 구성.
-- [ ] **text-shuffler** — "Array.sort(Math.random)이 왜 편향된 셔플인가, Fisher-Yates가 필요한 이유" — 비교횟수 불균등으로 편향.
+- [x] **text-shuffler** (guides/text-shuffler-fisher-yates-bias.html, 2026-08-24) — "Array.sort(Math.random)이 왜 편향된 셔플인가, Fisher-Yates가 필요한 이유" — 이 도구는 실제로 Fisher-Yates 정확 구현.
 - [x] **text-sorter** (guides/text-sorter-natural-sort-numeric-order.html, 2026-08-21) — "자연 정렬(Natural Sort), item2가 item10보다 왜 먼저 와야 하나" — 문자열속 숫자를 값으로 비교.
 - [x] **alphabetizer** (guides/alphabetizer-localecompare-vs-unicode-sort.html, 2026-08-19) — "가나다순 정렬, localeCompare와 유니코드 순서는 왜 다른가" — 중국어·일본어는 유니코드 순서로만 정렬.
 - [x] **text-diff-checker** (guides/text-diff-lcs-algorithm-explained.html, 2026-08-20) — "diff 도구는 어떻게 변경사항을 찾아내는가, LCS 알고리즘 해부" — 줄단위 LCS만 지원, git Myers 알고리즘과 차이.
@@ -194,7 +198,7 @@ REJECT(3개): ip-address-lookup(일반 네트워킹 상식 나열뿐), website-s
 - [ ] **remove-special-characters** — "정규식 문자 클래스의 함정, 왜 이모지가 절반만 지워지는가" — u플래그 부재로 서로게이트쌍 절반삭제.
 - [x] **text-summarizer** (guides/text-summarizer-korean-limitation.html, 2026-08-19) — "이 텍스트 요약기, 사실 한국어에서는 작동하지 않는다" — `\w`가 한글 비인식, 문장점수 전부 0되는 버그.
 - [x] **anagram-checker** (guides/anagram-checker-character-frequency-array.html, 2026-08-20) — "애너그램 판별, 정렬 대신 문자 빈도표를 쓰는 이유" — 각 글자 등장횟수 배열 누적비교.
-- [ ] **ascii-converter** — "ASCII가 사실 UTF-8의 부분집합인 이유" — 0~127범위 바이트단위 완전동일.
+- [x] **ascii-converter** (guides/ascii-utf8-subset-compatibility.html, 2026-08-24) — "ASCII가 사실 UTF-8의 부분집합인 이유" — 0~127범위 바이트단위 완전동일.
 - [x] **ascii-table** (guides/ascii-del-127-punch-tape-history.html, 2026-08-21) — "제어문자 DEL(127)은 왜 하필 127번일까 — 천공 테이프가 남긴 흔적" — 천공테이프 무효화 관습 유래.
 - [x] **emoji-counter** (guides/emoji-counter-surrogate-pair-sns-limit.html, 2026-08-20) — "이모지 하나가 글자수 2~11개로 세지는 이유 — SNS 글자수 제한의 함정" — 가족이모지 11코드유닛 이상.
 - [x] **emoji-remover** (guides/emoji-remover-digit-false-positive.html, 2026-08-21) — "숫자도 기술적으로는 이모지다? — Intl.Segmenter와 이모지 오탐 문제" — 0~9,#,*가 Emoji속성 보유.
@@ -204,7 +208,7 @@ REJECT(3개): ip-address-lookup(일반 네트워킹 상식 나열뿐), website-s
 - [x] **palindrome-checker** (guides/palindrome-checker-codepoint-vs-grapheme.html, 2026-08-21) — "사람 눈엔 회문인데 알고리즘은 아니라는 경우 — 코드포인트 vs 그래프임 함정" — 국기·ZWJ이모지 오판 가능.
 - [x] **stopword-remover** (guides/stopword-remover-tfidf-distortion.html, 2026-08-21) — "TF-IDF 돌리기 전에 불용어부터 지우는 이유" — 통계왜곡시키는 고빈도단어 개념. (도구 표기 "약70개"는 실제 95개, 가이드에서 정정)
 - [ ] **text-case-detector** — "camelCase vs kebab-case, 왜 언어마다 다른 표기법을 쓰나" — kebab은 JS 변수명 문법상 불가.
-- [ ] **text-encryptor** — "카이사르 암호부터 AES-256-GCM까지, 이 도구 하나로 보는 암호화 발전사" — PBKDF2 10만회 반복+매번 새salt.
+- [x] **text-encryptor** (guides/text-encryptor-caesar-to-aes-history.html, 2026-08-24) — "카이사르 암호부터 AES-256-GCM까지, 이 도구 하나로 보는 암호화 발전사" — PBKDF2 10만회 반복+매번 새salt(16바이트)+IV(12바이트) 실측 확인.
 - [x] **text-statistics** (guides/text-statistics-flesch-korean-limitation.html, 2026-08-21) — "Flesch 가독성 지수, 왜 한국어에는 안 통하나" — 1948년 영어전용 공식. **버그 발견**: 실제로는 한글도 점수 미표시가 아니라 10단어↑면 무의미한 점수(음절수 강제 fallback=1)를 그대로 노출함 — 도구 자체 FAQ 설명과 실제 동작이 다름. 별도 수정 필요.
 - [ ] **unicode-converter** — "이모지 하나, 프로그래밍 언어마다 다른 세 가지 이스케이프 표기" — JS/JSON/Python 표기 비교.
 - [x] **unicode-inspector** (guides/unicode-homograph-phishing-domains.html, 2026-08-20) — "apple.com이 진짜 apple.com이 아닐 수도 있다 — 호모글리프 피싱의 원리" — IDN 호모그래프 도메인 피싱.

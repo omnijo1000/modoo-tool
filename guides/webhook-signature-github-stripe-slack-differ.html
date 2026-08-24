@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GitHub·Stripe·Slack, 웹훅 서명이 플랫폼마다 다르게 계산되는 이유 | MODOO HUB</title>
+<meta name="description" content="웹훅 위변조 방지를 위해 각 플랫폼이 HMAC 서명을 붙이지만, 해시 대상 문자열 구성이 GitHub·Stripe·Slack마다 다릅니다. 한 플랫폼 검증 코드를 다른 곳에 그대로 쓰면 왜 항상 실패하는지 구조를 해부합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/webhook-signature-github-stripe-slack-differ.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"GitHub·Stripe·Slack, 웹훅 서명이 플랫폼마다 다르게 계산되는 이유","description":"웹훅 위변조 방지를 위해 각 플랫폼이 HMAC 서명을 붙이지만, 해시 대상 문자열 구성이 GitHub·Stripe·Slack마다 다릅니다. 그 구조 차이를 해부합니다.","datePublished":"2026-08-24","dateModified":"2026-08-24","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>GitHub·Stripe·Slack, 웹훅 서명이 플랫폼마다 다르게 계산되는 이유</h1>
+  <p class="meta">가이드 · 2026.08.24 최종 확인</p>
+
+  <p>웹훅 수신 서버를 만들 때 가장 흔한 삽질 중 하나가 "시크릿 키는 맞는데 서명 검증이 계속 실패한다"입니다. 원인을 뜯어보면 대개 다른 플랫폼의 검증 코드를 복사해와서 그대로 쓴 경우입니다. GitHub, Stripe, Slack 모두 "HMAC-SHA256 서명"이라는 같은 이름의 메커니즘을 쓰지만, 실제로 해시하는 대상 문자열이 서로 다르기 때문에 코드를 그대로 옮기면 시크릿이 100% 정확해도 검증은 항상 실패합니다. 이 가이드는 세 플랫폼이 왜, 어떻게 다르게 서명을 구성하는지 원리부터 짚습니다.</p>
+
+  <h2>1. 웹훅 서명이 필요한 이유: 발신자 확인 + 변조 탐지</h2>
+  <p>웹훅은 외부 서버가 내 엔드포인트로 HTTP POST를 던지는 구조라, URL만 알면 누구나 가짜 요청을 보낼 수 있습니다. 이를 막기 위해 플랫폼들은 요청 본문(과 부가 정보)을 발신자와 수신자만 아는 시크릿 키로 HMAC-SHA256 해시해서 헤더에 실어 보냅니다. 수신 서버는 같은 시크릿으로 같은 문자열을 동일하게 해시해서, 받은 서명값과 일치하는지 비교합니다. 일치하면 "이 요청은 진짜 그 플랫폼이 보냈고 중간에 변조되지 않았다"고 신뢰할 수 있습니다. 여기까지는 세 플랫폼 모두 원리가 같습니다 — 다른 것은 "정확히 무엇을 해시하느냐"입니다.</p>
+
+  <h2>2. GitHub: 바디를 그대로 해시</h2>
+  <p>GitHub는 가장 단순한 구조를 씁니다. 요청 바디(JSON 페이로드) 원문을 그대로 HMAC-SHA256으로 해시해서 <code>sha256=</code> 접두사를 붙인 값을 <code>X-Hub-Signature-256</code> 헤더에 담아 보냅니다. 타임스탬프 같은 부가 요소는 서명 대상에 포함되지 않습니다.</p>
+
+  <h2>3. Stripe: 타임스탬프를 붙여 리플레이 공격을 막는다</h2>
+  <p>Stripe는 여기에 한 겹을 더합니다. <code>{현재 유닉스 타임스탬프}.{바디}</code> 형태로 타임스탬프와 바디를 마침표로 이어붙인 문자열을 해시하고, <code>t=타임스탬프,v1=HEX</code> 형식으로 <code>Stripe-Signature</code> 헤더에 담습니다. 타임스탬프를 서명 대상에 포함시키는 이유는 <strong>리플레이 공격(replay attack)</strong> 방지입니다. 만약 바디만 해시한다면, 공격자가 과거에 가로챈 진짜 요청(서명 포함)을 그대로 다시 보내도 서명이 여전히 유효해서 통과됩니다. 타임스탬프가 서명에 포함되면 수신 서버가 "이 타임스탬프가 너무 오래됐다"고 판단해 오래된 요청을 거부할 수 있습니다.</p>
+
+  <h2>4. Slack: 버전 접두사까지 포함한 3단 구조</h2>
+  <p>Slack은 한 단계 더 나아가 <code>v0:{타임스탬프}:{바디}</code> 형식으로 버전 접두사·타임스탬프·바디 세 요소를 콜론으로 이어붙여 해시합니다. 결과는 <code>v0=HEX</code> 형식으로 <code>X-Slack-Signature</code> 헤더에, 사용된 타임스탬프는 별도로 <code>X-Slack-Request-Timestamp</code> 헤더에 담겨 함께 전달됩니다. 버전 접두사(v0)를 넣는 이유는 향후 서명 방식이 바뀌더라도(v1, v2 등) 하위 호환을 유지하면서 새 버전을 구분할 수 있게 하기 위함입니다.</p>
+
+  <h2>5. 세 방식을 나란히 비교하면</h2>
+  <table>
+    <tr><th>플랫폼</th><th>해시 대상 문자열</th><th>결과 형식</th><th>헤더</th></tr>
+    <tr><td>GitHub</td><td>바디 원문</td><td>sha256=HEX</td><td>X-Hub-Signature-256</td></tr>
+    <tr><td>Stripe</td><td>{타임스탬프}.{바디}</td><td>t=타임스탬프,v1=HEX</td><td>Stripe-Signature</td></tr>
+    <tr><td>Slack</td><td>v0:{타임스탬프}:{바디}</td><td>v0=HEX</td><td>X-Slack-Signature (+타임스탬프 별도 헤더)</td></tr>
+  </table>
+  <div class="box">
+    <strong>왜 코드를 그대로 옮기면 항상 실패하는가</strong>: 시크릿 키가 정확해도, HMAC 함수에 넣는 <em>입력 문자열</em>이 플랫폼마다 다릅니다. Stripe용 검증 코드(<code>timestamp + '.' + body</code>를 해시)를 GitHub 웹훅에 그대로 쓰면, GitHub는 애초에 타임스탬프를 서명에 포함시키지 않으므로 해시 입력 자체가 다르고, 결과 해시값도 절대 일치하지 않습니다. 이건 시크릿 관리 실수가 아니라 "어떤 문자열을 해시했는가"를 혼동한 구조적 실수입니다.
+  </div>
+
+  <h2>6. 도구로 세 형식을 직접 비교해보기</h2>
+  <p><a href="../webhook-generator.html">Webhook 생성기</a>는 이 차이를 코드 레벨에서 그대로 반영합니다. 템플릿을 GitHub로 선택하면 바디 전체를 그대로 <code>HMAC-SHA256</code> 해시해 <code>sha256=</code>로 출력하고, Stripe를 선택하면 현재 유닉스 타임스탬프를 생성해 <code>{타임스탬프}.{바디}</code> 문자열을 해시한 뒤 <code>t=타임스탬프,v1=HEX</code>로, Slack을 선택하면 <code>v0:{타임스탬프}:{바디}</code> 문자열을 해시해 <code>v0=HEX</code>와 타임스탬프 값을 함께 표시합니다. 세 서명 모두 브라우저의 Web Crypto API(<code>crypto.subtle</code>)로만 계산되고 네트워크로 전송되지 않으므로, 수신 서버 쪽 검증 로직이 어느 플랫폼의 형식을 정확히 재현하는지 안전하게 테스트해볼 수 있습니다.</p>
+
+  <h2>자주 묻는 질문</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. GitHub는 왜 타임스탬프를 서명에 포함하지 않나요?</summary><p style="margin-top:8px;">GitHub의 웹훅 이벤트는 대개 델리버리 ID로 중복 처리를 막는 별도 메커니즘을 두고 있어, 서명 자체에 타임스탬프를 강제하지 않는 설계를 택한 것으로 보입니다. 다만 리플레이 방어가 필요하다면 수신 서버 쪽에서 델리버리 ID 중복 체크를 직접 구현해야 합니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Stripe·Slack의 타임스탬프 허용 오차는 어느 정도인가요?</summary><p style="margin-top:8px;">플랫폼마다 권장 값이 다르지만, 통상 수신 서버가 현재 시각과 요청 타임스탬프 차이가 일정 범위(예: 5분)를 넘으면 거부하도록 구현하는 것이 일반적인 관행입니다. 정확한 권장값은 각 플랫폼의 최신 공식 문서를 확인하는 것이 안전합니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 커스텀 웹훅을 직접 설계한다면 어느 방식을 참고해야 하나요?</summary><p style="margin-top:8px;">리플레이 공격 방어가 필요하다면 Stripe나 Slack처럼 타임스탬프를 서명 대상에 포함시키는 편이 안전합니다. 향후 서명 방식을 바꿀 가능성이 있다면 Slack처럼 버전 접두사를 넣어두면 나중에 하위 호환을 유지하기 쉽습니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. HMAC 비교 시 문자열을 그냥 <code>===</code>로 비교해도 되나요?</summary><p style="margin-top:8px;">보안상 권장되지 않습니다. 일반 문자열 비교는 타이밍 공격에 취약할 수 있어, Node.js의 <code>crypto.timingSafeEqual</code>처럼 상수 시간 비교 함수를 쓰는 것이 안전합니다. 대부분의 플랫폼 공식 SDK가 이 비교 로직을 내장하고 있습니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../webhook-generator.html">→ Webhook 생성기</a>
+    <a href="../webhook-tester.html">→ Webhook 테스터</a>
+    <a href="../hmac-generator.html">→ HMAC 생성기</a>
+    <a href="../sha256-generator.html">→ SHA-256 생성기</a>
+    <a href="../jwt-validator.html">→ JWT 검증기</a>
+    <a href="../api-tester.html">→ API 테스터</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적이며 각 플랫폼의 정확한 서명 검증 방식은 최신 공식 문서를 기준으로 확인하시기 바랍니다.</footer>
+</main>
+</body>
+</html>

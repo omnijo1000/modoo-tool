@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SQL 압축기가 문자열 속 --를 만나면 쿼리를 통째로 잘라먹는다 | MODOO HUB</title>
+<meta name="description" content="SQL 최소화 도구에서 문자열 리터럴 안에 우연히 --가 들어가면 왜 쿼리가 통째로 잘려나가는지, 처리 순서 문제를 코드 레벨에서 재현하고 분석합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/sql-minifier-comment-string-collision-bug.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"SQL 압축기가 문자열 속 --를 만나면 쿼리를 통째로 잘라먹는다","description":"SQL 최소화 도구에서 문자열 리터럴 안에 우연히 --가 들어가면 왜 쿼리가 통째로 잘려나가는지, 처리 순서 문제를 코드 레벨에서 재현하고 분석합니다.","datePublished":"2026-08-24","dateModified":"2026-08-24","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+code{background:var(--surface2);padding:2px 5px;border-radius:4px;font-family:'DM Mono',monospace;font-size:13px;color:var(--blue);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>SQL 압축기가 문자열 속 --를 만나면 쿼리를 통째로 잘라먹는다</h1>
+  <p class="meta">가이드 · 2026.08.24 최종 확인</p>
+
+  <p>SQL을 한 줄로 압축하는 도구는 공백·줄바꿈·주석을 지워서 크기를 줄이는 단순한 작업처럼 보입니다. 하지만 "주석 제거"라는 한 단계가 문자열 리터럴 내부를 침범하면 결과가 조용히 틀리는 게 아니라 쿼리 자체가 깨질 수 있습니다. 이 글은 <a href="../sql-minifier.html">SQL 최소화 도구</a>의 실제 코드를 그대로 읽고, 문제가 재현되는지 검증한 뒤 그 원인을 분해합니다.</p>
+
+  <h2>1. SQL 주석 문법이 가진 근본적인 모호함</h2>
+  <p>SQL에서 <code>--</code>는 그 뒤로 줄바꿈이 나올 때까지를 한 줄 주석으로 처리하고, <code>/* ... */</code>는 블록 주석입니다. 문제는 이 기호들이 문자열 리터럴 안에서도 똑같은 문자로 나타날 수 있다는 점입니다. <code>WHERE note='A--B'</code>처럼 하이픈 두 개가 우연히 문자열 값 안에 들어가는 경우는 URL(<code>https://a--b.example.com</code>), 코드 스니펫을 저장하는 컬럼, 자유 텍스트 필드 등에서 실제로 드물지 않게 발생합니다. 파서가 "지금 문자열 안에 있는가"를 모른 채 정규식만으로 <code>--</code> 이후를 지워버리면, 문자열 경계라는 개념 자체가 무시됩니다.</p>
+
+  <h2>2. 실제 코드로 확인: 처리 순서가 문제다</h2>
+  <p>도구의 <code>minify()</code> 함수를 그대로 옮기면 핵심 로직은 이렇습니다.</p>
+  <div class="box">
+<code>if(rmComments){ sql=sql.replace(/\/\*[\s\S]*?\*\//g,' ').replace(/--[^\n]*/g,' '); }<br>
+// 문자열 리터럴 보호 (플레이스홀더 치환) — 이 시점에야 실행됨<br>
+const strings=[]; sql=sql.replace(/'[^']*'/g, m =&gt; { strings.push(m); return '__STR'+(strings.length-1)+'__'; });</code>
+  </div>
+  <p>공백 압축과 키워드 대문자화는 문자열을 <code>__STR0__</code> 같은 플레이스홀더로 먼저 바꿔치기한 뒤 처리하고 마지막에 복원하므로 문자열 값을 절대 건드리지 않습니다. 그런데 주석 제거 코드는 이 보호 로직보다 <strong>먼저</strong> 실행됩니다. 즉 정규식 <code>/--[^\n]*/g</code>가 원본 SQL 문자열 전체를 훑을 때 어떤 <code>--</code>가 진짜 주석이고 어떤 게 문자열 값 내부인지 구분할 방법이 코드 안에 전혀 없습니다.</p>
+
+  <h2>3. 재현: 실제로 쿼리가 끊긴다</h2>
+  <p>주석 제거 옵션을 켠 채로 아래 입력을 넣으면 어떻게 되는지 실측한 결과입니다.</p>
+  <table>
+    <tr><th>입력</th><th>출력</th><th>결과</th></tr>
+    <tr><td><code>WHERE note='A--B' AND x=1</code></td><td><code>WHERE note='A</code></td><td>따옴표 미종결, 뒤 조건 전부 소실</td></tr>
+    <tr><td><code>note='a/*b*/c'</code></td><td><code>note='a c'</code></td><td>따옴표는 닫혀 있어 오류는 안 나지만 값이 조용히 변조됨</td></tr>
+  </table>
+  <p>첫 번째 케이스는 심각합니다. <code>--</code> 이후 전체(<code>B' AND x=1</code>)가 "한 줄 주석"으로 취급되어 지워지고, 결과는 닫히지 않은 따옴표를 가진 문법 오류 SQL이 됩니다. 두 번째 케이스는 더 위험합니다 — 문법적으로는 멀쩡해 보이지만 저장하려던 문자열 값(<code>a/*b*/c</code>)이 <code>a c</code>로 조용히 바뀌어 있어서, 실행은 되지만 데이터가 손상됩니다. 두 케이스 모두 도구가 별도 오류 메시지를 띄우지 않기 때문에 눈으로 결과를 대조하지 않으면 알아채기 어렵습니다.</p>
+
+  <h2>4. 왜 이런 설계가 나왔는가</h2>
+  <p>이 순서 자체가 "설계 실수"라기보다는, SQL을 진짜로 토큰화(tokenize)하지 않고 정규식 치환만으로 압축을 구현할 때 거의 필연적으로 마주치는 함정입니다. 올바르게 처리하려면 <strong>문자열 리터럴을 가장 먼저 식별해 보호</strong>한 다음, 나머지 영역에서만 주석을 제거해야 합니다. 이 도구는 공백 압축·대문자화 단계에서는 이 순서를 지키고 있지만(그래서 그 두 기능은 안전합니다), 유독 주석 제거 단계만 문자열 보호보다 앞에 배치되어 있어 같은 파일 안에서도 기능별로 안전성이 다릅니다. <a href="../sql-validator.html">SQL 검증기</a>처럼 구문을 실제로 파싱하는 도구라면 이런 문제가 원천적으로 발생하지 않습니다.</p>
+
+  <h2>5. 실무에서 안전하게 쓰는 방법</h2>
+  <ul>
+    <li><strong>문자열 값에 URL·코드·자유 텍스트가 들어갈 가능성이 있다면 주석 제거 옵션을 끄고 사용</strong>하세요. 공백 압축만으로도 상당한 크기 절감 효과가 있습니다.</li>
+    <li>주석 제거를 켰다면 <strong>압축 결과를 실제로 실행하기 전에 반드시 눈으로 대조</strong>하세요. 특히 따옴표 개수가 홀수로 끝나지 않는지 확인하는 것만으로도 첫 번째 유형의 사고는 대부분 걸러집니다.</li>
+    <li>운영 DB에 반영되는 쿼리라면 압축은 배포 편의를 위한 것일 뿐, 원본 포맷 SQL을 별도로 버전 관리하는 것이 안전합니다.</li>
+  </ul>
+
+  <h2>자주 묻는 질문</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 이 버그는 실제로 재현되나요, 아니면 이론상 가능성일 뿐인가요?</summary><p style="margin-top:8px;">실제로 재현됩니다. 도구의 <code>minify()</code> 함수를 그대로 실행해보면 <code>WHERE note='A--B' AND x=1</code> 입력이 주석 제거 옵션 켠 상태에서 <code>WHERE note='A</code>로 잘려나가는 것을 직접 확인할 수 있습니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 공백 압축이나 키워드 대문자화도 같은 문제가 있나요?</summary><p style="margin-top:8px;">아니요. 이 두 기능은 문자열 리터럴을 플레이스홀더로 먼저 치환한 뒤 처리하고 마지막에 복원하므로 문자열 값을 건드리지 않습니다. 문제는 주석 제거 단계에서만 발생합니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 이 문제를 피하려면 어떻게 해야 하나요?</summary><p style="margin-top:8px;">SQL 문자열 값 안에 우연히 <code>--</code>나 <code>/*</code>가 들어갈 가능성이 있다면 주석 제거 옵션을 끄고 사용하거나, 압축 후 결과를 반드시 눈으로 대조 확인하세요.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 블록 주석 기호가 문자열 안에 있을 때도 쿼리가 끊기나요?</summary><p style="margin-top:8px;">끊기지는 않지만 값이 조용히 변조됩니다. <code>note='a/*b*/c'</code>는 <code>note='a c'</code>로 바뀌어 실행은 되지만 저장되는 데이터가 원본과 달라집니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../sql-minifier.html">→ SQL 최소화 도구</a>
+    <a href="../sql-validator.html">→ SQL 검증기</a>
+    <a href="../sql-to-json.html">→ SQL to JSON</a>
+    <a href="../json-minifier.html">→ JSON 최소화</a>
+    <a href="../regex-generator.html">→ 정규식 생성기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적이며, 실제 운영 환경에 적용하기 전 결과를 반드시 직접 검증하시기 바랍니다.</footer>
+</main>
+</body>
+</html>

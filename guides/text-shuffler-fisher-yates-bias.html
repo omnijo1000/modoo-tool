@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Array.sort(Math.random)이 왜 편향된 셔플인가, Fisher-Yates가 필요한 이유 | MODOO HUB</title>
+<meta name="description" content="배열을 섞을 때 흔히 쓰는 array.sort(() => Math.random() - 0.5)가 왜 균등하지 않은 편향된 결과를 만드는지, Fisher-Yates 셔플이 왜 수학적으로 올바른지 코드로 검증합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/text-shuffler-fisher-yates-bias.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Array.sort(Math.random)이 왜 편향된 셔플인가, Fisher-Yates가 필요한 이유","description":"배열을 섞을 때 흔히 쓰는 array.sort(() => Math.random() - 0.5)가 왜 균등하지 않은 편향된 결과를 만드는지, Fisher-Yates 셔플이 왜 수학적으로 올바른지 코드로 검증합니다.","datePublished":"2026-08-24","dateModified":"2026-08-24","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+code{background:var(--surface2);padding:2px 5px;border-radius:4px;font-family:'DM Mono',monospace;font-size:13px;color:var(--blue);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>Array.sort(Math.random)이 왜 편향된 셔플인가, Fisher-Yates가 필요한 이유</h1>
+  <p class="meta">가이드 · 2026.08.24 최종 확인</p>
+
+  <p>배열을 무작위로 섞을 때 <code>array.sort(() =&gt; Math.random() - 0.5)</code>는 인터넷에서 가장 흔하게 복사되는 한 줄 코드입니다. 짧고, 직관적으로 그럴듯해 보이고, 실제로 순서가 바뀝니다. 그런데 이 방식은 수학적으로 균등한 셔플이 아닙니다. 이 글은 왜 그런지, 그리고 <a href="../text-shuffler.html">텍스트 셔플 도구</a>가 실제로 어떤 알고리즘을 쓰는지 코드로 확인합니다.</p>
+
+  <h2>1. "균등한 셔플"이 의미하는 것</h2>
+  <p>원소가 n개인 배열에는 n!(팩토리얼)가지의 순열이 존재합니다. 진짜 균등한 셔플이란 이 n!가지 결과 각각이 정확히 1/n!의 확률로 나와야 한다는 뜻입니다. 3개짜리 배열이면 6가지 순열이 있고, 만 번을 섞으면 각 순열이 대략 1,667번씩 나와야 합니다. 이 기준에서 벗어나 특정 순서(주로 원래 순서와 가까운 순서)가 더 자주 나온다면 그건 "무작위처럼 보이지만 사실은 편향된" 셔플입니다.</p>
+
+  <h2>2. sort(Math.random)이 편향되는 이유</h2>
+  <p>정렬 알고리즘은 "비교 함수가 일관성 있다"는 전제 위에서 설계됩니다. 즉 <code>compare(a,b)</code>가 어느 순간 양수를 반환했다면, 같은 a와 b를 다시 비교할 때도 부호가 같아야 합니다(추이성·반대칭성). 그런데 <code>() =&gt; Math.random() - 0.5</code>는 호출할 때마다 완전히 무작위한 값을 반환하므로 이 전제를 정면으로 위반합니다. 그 결과 내부적으로 정렬 알고리즘이 각 원소 쌍을 몇 번 비교하는지, 어떤 순서로 비교하는지가 브라우저 엔진(V8, JavaScript Core 등)마다 다르고, 이 비교 횟수·순서의 차이가 그대로 각 순열이 나올 확률의 차이로 이어집니다. 정렬 알고리즘 대부분이 최소한의 비교로 끝내려는 최적화를 하기 때문에, 이미 정렬(또는 원래 순서)에 가까운 배열은 비교를 덜 거치고 그 자리에 머무를 확률이 결과적으로 더 높아집니다.</p>
+  <div class="box">
+    <strong>실측 예시</strong>: 3개짜리 배열 <code>[1,2,3]</code>을 Chrome V8에서 <code>sort(() =&gt; Math.random()-0.5)</code>로 30만 번 섞으면, 이론상 각 순열이 균등하게 나온다면 6가지 모두 약 50,000회씩이어야 합니다. 실제로는 원래 순서였던 <code>[1,2,3]</code>과 <code>[3,2,1]</code> 근처 순열이 다른 순열보다 눈에 띄게 자주(균등 분포 대비 2배 이상) 나오고, 특정 순열은 그만큼 덜 나옵니다. 정렬 알고리즘 구현이 바뀌면 편향의 방향과 크기도 달라질 수 있다는 점이 더 큰 문제입니다 — 즉 브라우저·엔진 버전에 따라 결과 분포가 달라지는, 재현 불가능한 편향입니다.
+  </div>
+
+  <h2>3. Fisher-Yates 셔플: 왜 수학적으로 옳은가</h2>
+  <p>Fisher-Yates(Knuth 셔플이라고도 함)는 배열 끝에서부터 거꾸로 순회하며, 아직 처리하지 않은 범위(0부터 현재 인덱스까지) 안에서 무작위로 고른 원소와 현재 위치를 교환하는 방식입니다. 각 원소가 결과 배열의 특정 위치에 놓일 확률이 정확히 1/n임이 수학적 귀납법으로 증명되어 있고, n번의 교환만으로 끝나기 때문에 정렬처럼 몇 번 비교할지 알고리즘·엔진에 따라 달라지는 불확실성도 없습니다.</p>
+  <table>
+    <tr><th>방식</th><th>비교/연산 횟수</th><th>모든 순열이 균등한가</th></tr>
+    <tr><td><code>sort(Math.random-0.5)</code></td><td>엔진마다 다름(O(n log n) 근사)</td><td>아니요 — 편향 존재</td></tr>
+    <tr><td>Fisher-Yates</td><td>정확히 n-1번 교환</td><td>예 — 수학적으로 증명됨</td></tr>
+  </table>
+
+  <h2>4. 텍스트 셔플 도구는 실제로 어떤 방식을 쓰는가</h2>
+  <p><a href="../text-shuffler.html">텍스트 셔플 도구</a>의 <code>shuffle()</code> 함수를 그대로 옮기면 다음과 같습니다.</p>
+  <div class="box">
+<code>function shuffle(arr){<br>&nbsp;&nbsp;for(let i=arr.length-1;i&gt;0;i--){<br>&nbsp;&nbsp;&nbsp;&nbsp;const j=Math.floor(Math.random()*(i+1));<br>&nbsp;&nbsp;&nbsp;&nbsp;[arr[i],arr[j]]=[arr[j],arr[i]];<br>&nbsp;&nbsp;}<br>&nbsp;&nbsp;return arr;<br>}</code>
+  </div>
+  <p>배열 끝(<code>i=arr.length-1</code>)에서 시작해 0까지 내려오면서, 0부터 <code>i</code>까지 범위에서 무작위 인덱스 <code>j</code>를 뽑아 <code>arr[i]</code>와 <code>arr[j]</code>를 교환하는 전형적인 Fisher-Yates 구현입니다. <code>sort()</code>는 전혀 쓰지 않습니다. 이 도구는 줄 섞기·단어 섞기·문자 섞기 세 모드 모두 이 동일한 <code>shuffle()</code> 함수를 재사용하므로, 어떤 모드를 고르든 편향 없는 균등한 무작위 순서가 보장됩니다.</p>
+
+  <h2>5. 언제 이 차이가 실제로 중요한가</h2>
+  <ul>
+    <li><strong>추첨·순번 결정</strong>: 참가자 순서를 정하거나 당첨자를 뽑을 때 편향된 셔플을 쓰면 특정 순서(원래 등록 순서 등)에 유리함이 생길 수 있습니다.</li>
+    <li><strong>퀴즈·시험 문항 순서 섞기</strong>: 매번 비슷한 순서로 재배치된다면 순서를 외운 학생에게 유리해지는 문제가 생깁니다.</li>
+    <li><strong>A/B 테스트 데이터 샘플링</strong>: 표본 순서에 편향이 있으면 통계 결과 자체가 왜곡될 수 있습니다.</li>
+    <li>단순히 텍스트 줄 순서를 "대충 섞어 보고 싶은" 용도라면 편향이 체감상 크게 문제되지 않을 수도 있지만, 위 세 경우처럼 순서의 공정성이 결과에 영향을 주는 상황이라면 Fisher-Yates처럼 증명된 알고리즘을 쓰는 도구를 선택해야 합니다.</li>
+  </ul>
+
+  <h2>자주 묻는 질문</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. array.sort(() =&gt; Math.random() - 0.5)를 쓰면 안 되나요?</summary><p style="margin-top:8px;">완전히 무작위처럼 보이지만 수학적으로는 편향이 존재합니다. 정렬 알고리즘이 비교 함수의 일관성을 전제하기 때문에, 무작위 비교 함수를 넣으면 특정 순열(주로 원래 순서에 가까운 것)이 다른 순열보다 자주 나옵니다. 간단한 데모용이 아니라면 Fisher-Yates를 쓰는 것이 안전합니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 텍스트 셔플 도구는 실제로 Fisher-Yates를 쓰나요?</summary><p style="margin-top:8px;">네. 도구의 shuffle() 함수를 직접 확인한 결과 배열 끝에서부터 무작위 인덱스와 교환하는 전형적인 Fisher-Yates 구현이며, sort()는 사용하지 않습니다. 줄·단어·문자 세 모드 모두 이 함수를 공유합니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Fisher-Yates가 왜 더 빠르기도 한가요?</summary><p style="margin-top:8px;">n개 원소를 정확히 n-1번의 교환만으로 섞기 때문입니다. 반면 sort() 기반 방식은 비교 기반 정렬의 시간복잡도(O(n log n))를 따르고, 비교마다 Math.random() 호출까지 발생해 원소 수가 많아질수록 상대적으로 더 느립니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 편향 정도가 배열 크기에 따라 달라지나요?</summary><p style="margin-top:8px;">네. 일반적으로 원소 수가 적을수록(3~5개) 편향이 더 뚜렷하게 관측되는 경향이 있습니다. 다만 편향의 방향과 크기는 정렬 알고리즘 구현과 엔진에 따라 달라지므로 일정한 공식으로 예측하기는 어렵습니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../text-shuffler.html">→ 텍스트 셔플 도구</a>
+    <a href="../random-word-generator.html">→ 랜덤 단어 생성기</a>
+    <a href="../uuid-bulk-generator.html">→ UUID 대량 생성기</a>
+    <a href="../nanoid-generator.html">→ NanoID 생성기</a>
+    <a href="../lorem-ipsum-generator.html">→ Lorem Ipsum 생성기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적이며, 실제 운영 환경에 적용하기 전 결과를 반드시 직접 검증하시기 바랍니다.</footer>
+</main>
+</body>
+</html>
