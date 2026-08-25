@@ -74,7 +74,7 @@
 - [x] **gst-calculator** (guides/gst-calculator-itc-explained.html, 2026-08-19) — "인도 GST 매입세액공제(ITC), 실제로 얼마나 절세되나" — 원자재매입 ₹18,000 ITC→실제납부 ₹9,000.
 - [ ] **vat-calculator-global** — "전세계 VAT 최고·최저 세율, 영국의 4단계 구조" — 헝가리27% vs 룩셈부르크17%, 영국 20/5/0/면세 4단계.
 - [ ] **mortgage-calculator** — "PMI vs 한국 LTV, 계약금 20%가 갖는 의미" — 미국 LTV80%이하 PMI면제 vs 한국 LTV50~60%규제.
-- [ ] **roi-calculator** — "ROI와 CAGR, 같은 투자인데 숫자가 다른 이유" — 단순누적 vs 연평균복리환산 비교.
+- [x] **roi-calculator** (guides/roi-vs-cagr-different-numbers-same-investment.html, 2026-08-25) — "ROI와 CAGR, 같은 투자인데 숫자가 다른 이유" — 단순누적 vs 연평균복리환산 비교.
 - [x] **apr-calculator** (guides/apr-vs-ear-credit-card-compounding.html, 2026-08-20) — "APR과 EAR, 카드 이자가 표시금리보다 비싸 보이는 이유" — 명목12%월복리→EAR≈12.68%.
 - [ ] **loan-payoff-calculator** — "월 상환액이 이자보다 적으면 벌어지는 일" — 음의 상각(negative amortization) 함정.
 - [ ] **investment-return-calculator** — "복리 주기(연/분기/월), 실제로 얼마나 차이 나나" — 1000만·10%·10년: 연2,594만 vs 월2,707만.
@@ -83,7 +83,7 @@
 - [x] **margin-calculator** (guides/margin-markup-percentage-confusion.html, 2026-08-24) — "마진율과 마크업, 같은 거래인데 다른 숫자가 나오는 이유" — 원가700·판매1000: 마진30% vs 마크업42.86%.
 - [ ] **profit-calculator** — "총이익·영업이익·순이익, 세 단계로 나눠 보는 이유" — COGS/OPEX 분리 3단계 이익구조.
 - [ ] **break-even-calculator** — "손익분기점만으론 부족한 이유, 안전마진율" — 안전마진율=(예상매출−BEP)÷예상매출.
-- [ ] **commission-calculator** — "구간별 누진 수수료, 소득세처럼 계산되는 원리" — 100만까지3%+나머지5%, 200만매출시 수수료8만(10만 아님).
+- [x] **commission-calculator** (guides/commission-tiered-progressive-like-income-tax.html, 2026-08-25) — "구간별 누진 수수료, 소득세처럼 계산되는 원리" — 100만까지3%+나머지5%, 200만매출시 수수료8만(10만 아님, 실제 재현 확인).
 - [x] **discount-calculator** (guides/discount-calculator-stacked-discount-math.html, 2026-08-21) — "중복 할인 30%+10%는 40% 할인이 아니다" — 50%+50%=75%할인(25%남음, 100%아님).
 - [ ] **salary-per-hour-calculator** — "주4일제, 같은 연봉인데 시급은 왜 25% 오르나" — 연봉5000만: 주5일24,038원 vs 주4일30,048원.
 - [ ] **freelancer-rate-calculator** — "프리랜서 시급, 비청구 시간을 빼먹으면 생기는 일" — 신규 비청구율40~50%, 목표시급 72,222원 예시.
@@ -103,7 +103,7 @@
 - [ ] **property-tax** — "종부세, 재산세를 또 걷는 이중과세가 아닌 이유" — 종부세의 20% 농특세 추가부과.
 - [ ] **realestate-fee** — "부동산 중개수수료 상한요율, 사실은 협상 가능하다" — 월세 환산=(보증금+월세×100).
 - [ ] **rent-convert** — "전월세 전환율 법정 상한, 기준금리+2%p를 넘기면 불법" — 상한=한국은행 기준금리+2%p.
-- [ ] **retirement-calc** — "파이어(FIRE) 4%룰, 1998년 논문이 여전히 기준인 이유" — 목표자산=연지출×25배.
+- [x] **retirement-calc** (guides/retirement-fire-25x-annual-expense-target.html, 2026-08-25) — "파이어(FIRE) 목표자산, 왜 연지출의 25배인가" (25=1/4% 도출과정 중심으로 각도 조정, fire-calculator 가이드와 중복 방지). **참고**: 이 도구는 실제로 단순 25배가 아니라 유한 은퇴기간 연금현재가치로 계산(기본값 기준 25배가 아닌 약16.6배).
 - [ ] **retirement-pension** — "퇴직연금 DB형 vs DC형, 임금인상률이 갈림길" — 임금인상률>예상투자수익률이면 DB유리.
 - [ ] **salary-raise** — "명목 인상률 5%인데 실질은 1.94%? 물가 반영 실질 인상률" — 실질=((1+명목)÷(1+물가)−1)×100.
 - [ ] **salary-reverse** — "실수령액 역산, 왜 단순히 0.85로 나누면 안 되나" — 비선형 역산, 월300만 실수령→세전 약4,530만.
@@ -147,12 +147,12 @@ REJECT(4개, 이유 있음): salary(기존 가이드와 중복), salary-negotiat
 - [x] **robots-txt-validator** (guides/robots-txt-disallow-empty-vs-slash.html, 2026-08-25) — "robots.txt에서 Disallow: ''와 Disallow: /는 정반대 의미" — 빈값=전체허용, /=전체차단.
 - [x] **meta-tag-analyzer** (guides/robots-meta-tag-noindex-follow-combinations.html, 2026-08-25) — "robots 메타태그 4가지 조합, noindex인데 follow하는 이유" — noindex,follow는 인덱싱만 제외. (도구는 원본값만 노출, 4조합 해설은 FAQ에만 있음)
 - [x] **schema-validator** (guides/schema-required-vs-recommended-fields.html, 2026-08-25) — "JSON-LD 필수 vs 권장 필드, 없어도 되는데 왜 넣으라 하나" — 필수필드 누락시 리치스니펫 자체 미표시.
-- [ ] **canonical-tag-checker** — "canonical 태그 2개면 구글은 둘 다 무시한다" — CMS 플러그인 충돌·테마 중복출력이 원인.
+- [x] **canonical-tag-checker** (guides/canonical-tag-duplicate-google-ignores-both.html, 2026-08-25) — "canonical 태그 2개면 구글은 둘 다 무시한다" — CMS 플러그인 충돌·테마 중복출력이 원인.
 - [ ] **api-tester** — "CORS 에러 vs 네트워크 오류, 브라우저는 왜 구분해주지 않을까" — fetch()가 둘다 같은 TypeError.
 - [x] **curl-generator** (guides/curl-generator-shell-escaping-asymmetry.html, 2026-08-25) — "cURL 명령어 생성기가 조용히 깨지는 순간 — 셸 이스케이핑의 비대칭" — 헤더값 아포스트로피는 이스케이프 안 됨(바디는 됨, 실제 확인).
-- [ ] **curl-parser** — "curl -d만 쓰고 -X 안 써도 POST로 잡히는 이유" — -X없이 -d있으면 자동 POST 판정.
+- [x] **curl-parser** (guides/curl-parser-d-flag-implicit-post.html, 2026-08-25) — "curl -d만 쓰고 -X 안 써도 POST로 잡히는 이유" — -X없이 -d있으면 자동 POST 판정(실제 재현 확인).
 - [x] **dns-lookup** (guides/dns-propagation-ttl-explained.html, 2026-08-19) — "DNS 전파는 왜 최대 48시간이나 걸리나 — TTL의 원리" — TTL3600초=1시간 캐시.
-- [ ] **graphql-formatter** — "GraphQL 포맷터가 문자열 속 #을 주석으로 착각하지 않는 법" — 문자열 placeholder 치환 후 복원.
+- [x] **graphql-formatter** (guides/graphql-formatter-hash-comment-vs-string.html, 2026-08-25) — "GraphQL 포맷터가 문자열 속 #을 주석으로 착각하지 않는 법" — 문자열 placeholder 치환 후 복원(실제 구현 확인).
 - [ ] **graphql-query-builder** — "GraphQL 쿼리 빌더의 타입 자동추론, 이름만 보고 어떻게 아나" — id로 끝나면 ID!, count/limit은 Int!.
 - [ ] **http-request-builder** — "CORS 프리플라이트(OPTIONS)는 언제 발생하나 — 3가지 조건" — 비단순 메서드/Content-Type/커스텀헤더.
 - [ ] **json-to-yaml** — "JSON→YAML 변환기가 문자열에 멋대로 따옴표를 씌우는 이유" — true/false/null처럼 보이면 자동인용.
@@ -162,7 +162,7 @@ REJECT(4개, 이유 있음): salary(기존 가이드와 중복), salary-negotiat
 - [x] **redirect-checker** (guides/redirect-checker-301-302-307-308-explained.html, 2026-08-21) — "301 vs 302 vs 307 vs 308, 리다이렉트 코드 헷갈리지 않는 법" — 307/308은 HTTP메서드 보존.
 - [ ] **regex-cheatsheet** — "정규식 매칭 개수는 뜨는데 하이라이트가 안 보이는 이유" — 길이0 매칭은 카운트되지만 폭0이라 안 보임.
 - [x] **regex-generator** (guides/regex-generator-credit-card-no-luhn-check.html, 2026-08-25) — "정규식 생성기의 '신용카드' 패턴은 사실 아무 13자리 숫자에나 매칭된다" — Luhn체크섬 검증 없음.
-- [ ] **sitemap-validator** — "changefreq·priority, 구글은 사실 무시한다" — 사이트맵 1개당 최대5만URL·50MB.
+- [x] **sitemap-validator** (guides/sitemap-changefreq-priority-google-ignores.html, 2026-08-25) — "changefreq·priority, 구글은 사실 무시한다" — 사이트맵 1개당 최대5만URL·50MB.
 - [x] **slug-generator** (guides/slug-generator-nfd-unicode-normalization.html, 2026-08-21) — "URL 슬러그 생성기가 café를 caf-zrich로 안 만드는 이유" — NFD 정규화로 결합기호만 제거.
 - [x] **sql-validator** (guides/sql-validator-not-a-real-parser.html, 2026-08-25) — "SQL 유효성 검사기는 사실 파서가 아니다 — 괄호·따옴표·키워드 3가지만 본다" — 순서 뒤죽박죽이어도 통과(실제 재현 확인).
 - [ ] **tailwind-color-generator** — "가장 비슷한 Tailwind 색상을 찾는 법 — RGB 대신 CIE Lab을 쓰는 이유" — 인간 색지각 비례 거리계산.
@@ -188,9 +188,9 @@ REJECT(3개): ip-address-lookup(일반 네트워킹 상식 나열뿐), website-s
 - [x] **text-diff-checker** (guides/text-diff-lcs-algorithm-explained.html, 2026-08-20) — "diff 도구는 어떻게 변경사항을 찾아내는가, LCS 알고리즘 해부" — 줄단위 LCS만 지원, git Myers 알고리즘과 차이.
 - [x] **case-converter** (guides/turkish-i-problem-case-conversion.html, 2026-08-19) — "터키어의 I 문제, 표준 대소문자 변환이 깨지는 언어가 있다" — 터키어 점없는I/점있는i 구분.
 - [x] **typing-speed-test** (guides/typing-speed-wpm-5-char-word-standard.html, 2026-08-25) — "타자 속도 WPM, 왜 항상 '5글자=1단어'로 계산하나" — 영문 평균단어길이 5자 기준 국제표준(단, 이 도구는 공백기준 실제 단어수 사용, 가이드에서 지적).
-- [ ] **cps-calculator** — "인간 클릭 속도의 한계, 버터플라이·드래그 클릭이 필요한 이유" — 한손가락 한계 ~10CPS, 기법동원시 14~16CPS.
+- [x] **cps-calculator** (guides/cps-human-click-speed-limit-butterfly.html, 2026-08-25) — "인간 클릭 속도의 한계, 버터플라이·드래그 클릭이 필요한 이유" — 한손가락 한계 ~10CPS, 기법동원시 14~16CPS.
 - [ ] **wpm-calculator** — "한글 타자속도(타/분)와 영문 WPM, 왜 1:1 환산이 안 되는가" — 초성·중성·종성 조합 타건 기준.
-- [ ] **reading-level-checker** — "가독성 점수의 함정, 이 도구의 SMOG 지수가 표준 공식과 다르게 나오는 이유" — 계수간소화로 실제 2배 오차.
+- [x] **reading-level-checker** (guides/reading-level-smog-formula-simplification-error.html, 2026-08-25) — "가독성 점수의 함정, 이 도구의 SMOG 지수가 표준 공식과 다르게 나오는 이유" — 계수3으로 단순화, +3.1291 상수 아예 없음(코드 실측 확인).
 - [x] **remove-special-characters** (guides/remove-special-characters-emoji-surrogate-bug.html, 2026-08-25) — "정규식 문자 클래스의 함정, 왜 이모지가 절반만 지워지는가" — u플래그 부재 확인, 같은 상위서로게이트 공유하는 다른 이모지가 오손됨.
 - [x] **text-summarizer** (guides/text-summarizer-korean-limitation.html, 2026-08-19) — "이 텍스트 요약기, 사실 한국어에서는 작동하지 않는다" — `\w`가 한글 비인식, 문장점수 전부 0되는 버그.
 - [x] **anagram-checker** (guides/anagram-checker-character-frequency-array.html, 2026-08-20) — "애너그램 판별, 정렬 대신 문자 빈도표를 쓰는 이유" — 각 글자 등장횟수 배열 누적비교.
@@ -203,7 +203,7 @@ REJECT(3개): ip-address-lookup(일반 네트워킹 상식 나열뿐), website-s
 - [ ] **ngram-analyzer** — "다국어 UI인데 정작 중국어·일본어는 분석 못 하는 N-그램 분석기 — 정규식 언어 편향" — 한자·가나 정규식으로 삭제.
 - [x] **palindrome-checker** (guides/palindrome-checker-codepoint-vs-grapheme.html, 2026-08-21) — "사람 눈엔 회문인데 알고리즘은 아니라는 경우 — 코드포인트 vs 그래프임 함정" — 국기·ZWJ이모지 오판 가능.
 - [x] **stopword-remover** (guides/stopword-remover-tfidf-distortion.html, 2026-08-21) — "TF-IDF 돌리기 전에 불용어부터 지우는 이유" — 통계왜곡시키는 고빈도단어 개념. (도구 표기 "약70개"는 실제 95개, 가이드에서 정정)
-- [ ] **text-case-detector** — "camelCase vs kebab-case, 왜 언어마다 다른 표기법을 쓰나" — kebab은 JS 변수명 문법상 불가.
+- [x] **text-case-detector** (guides/text-case-camelcase-vs-kebab-case-origin.html, 2026-08-25) — "camelCase vs kebab-case, 왜 언어마다 다른 표기법을 쓰나" — kebab은 JS 변수명 문법상 불가.
 - [x] **text-encryptor** (guides/text-encryptor-caesar-to-aes-history.html, 2026-08-24) — "카이사르 암호부터 AES-256-GCM까지, 이 도구 하나로 보는 암호화 발전사" — PBKDF2 10만회 반복+매번 새salt(16바이트)+IV(12바이트) 실측 확인.
 - [x] **text-statistics** (guides/text-statistics-flesch-korean-limitation.html, 2026-08-21) — "Flesch 가독성 지수, 왜 한국어에는 안 통하나" — 1948년 영어전용 공식. **버그 발견**: 실제로는 한글도 점수 미표시가 아니라 10단어↑면 무의미한 점수(음절수 강제 fallback=1)를 그대로 노출함 — 도구 자체 FAQ 설명과 실제 동작이 다름. 별도 수정 필요.
 - [x] **unicode-converter** (guides/unicode-escape-js-json-python-comparison.html, 2026-08-25) — "이모지 하나, 프로그래밍 언어마다 다른 세 가지 이스케이프 표기" — JS/JSON/Python 표기 비교.

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>curl -d만 쓰고 -X 안 써도 POST로 잡히는 이유 | MODOO HUB</title>
+<meta name="description" content="curl에 -X 없이 -d만 써도 실제로는 POST 요청이 나갑니다. cURL 자체의 암묵적 규칙과, 이를 그대로 재현하지 못한 파서가 왜 결과를 잘못 보여주는지 구조를 정리했습니다.">
+<link rel="canonical" href="https://modoohub.com/guides/curl-parser-d-flag-implicit-post.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"curl -d만 쓰고 -X 안 써도 POST로 잡히는 이유","description":"curl에 -X 없이 -d만 써도 실제로는 POST 요청이 나갑니다. cURL 자체의 암묵적 규칙과, 이를 그대로 재현하지 못한 파서가 왜 결과를 잘못 보여주는지 구조를 정리했습니다.","datePublished":"2026-08-25","dateModified":"2026-08-25","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>curl -d만 쓰고 -X 안 써도 POST로 잡히는 이유</h1>
+  <p class="meta">가이드 · 2026.08.25 최종 확인</p>
+
+  <p>API 문서나 개발자 도구의 "Copy as cURL"에서 <code>curl -d '{"key":"value"}' https://example.com</code> 같은 명령을 본 적이 있을 겁니다. -X POST가 안 보이는데도 이 요청은 실제로 GET이 아니라 POST로 나갑니다. 많은 사람이 "-X가 없으면 기본값은 GET"이라고만 알고 있어서 이 동작을 처음 보면 당황합니다. 이 가이드는 왜 -d만으로 메서드가 바뀌는지, 그리고 이 규칙을 파싱 도구가 정확히 재현하지 못하면 어떤 문제가 생기는지를 정리합니다.</p>
+
+  <h2>1. curl의 기본 메서드 규칙: 조건부 GET</h2>
+  <p>curl의 공식 매뉴얼을 보면 메서드 관련 동작은 생각보다 단순하지 않습니다. -X/--request 옵션을 전혀 안 쓰면 curl은 "기본적으로" GET을 보내지만, 이 기본값에는 예외가 있습니다. -d, --data, --data-raw, --data-binary, --data-urlencode 같은 데이터 전송 옵션이 하나라도 있으면, curl은 자동으로 메서드를 POST로 바꿔서 보냅니다. 즉 "-X가 없으면 무조건 GET"이 아니라 "-X가 없고 데이터도 없으면 GET, 데이터가 있으면 POST"가 정확한 규칙입니다. 이건 curl이 임의로 넣은 편의 기능이 아니라, HTTP 스펙상 GET 요청에는 원칙적으로 본문(body)을 싣지 않기 때문에 본문이 있다는 사실 자체가 "이건 GET이 아니다"라는 강한 신호로 취급되는 것입니다.</p>
+
+  <h2>2. 왜 자꾸 헷갈리는가: 문서·툴마다 표기가 다름</h2>
+  <p>이 규칙이 자주 오해받는 이유는 실무에서 마주치는 세 가지 소스가 서로 다른 습관을 갖고 있기 때문입니다.</p>
+  <ul>
+    <li><strong>API 공식 문서</strong>: 명확성을 위해 관례적으로 -X POST를 항상 명시하는 경우가 많습니다. 그래서 "cURL 예제에는 항상 -X가 있다"는 인상을 갖기 쉽습니다.</li>
+    <li><strong>브라우저 개발자 도구의 "Copy as cURL"</strong>: 실제 요청 메서드가 POST였어도, Chrome/Firefox는 -X를 생략하고 -d만 넣는 경우가 있습니다. 실제 전송된 메서드와 무관하게 curl 자체 규칙에 맡기는 방식입니다.</li>
+    <li><strong>직접 손으로 짠 스크립트</strong>: 개발자가 "-d를 쓰니까 당연히 POST겠지"라고 생각하고 -X를 생략하는 경우입니다. 대부분 의도대로 동작하지만, 이 규칙을 모르고 짠 게 아니라 알고 생략한 것인지 코드 리뷰에서 구분하기 어렵습니다.</li>
+  </ul>
+  <p>세 경우 모두 결과 자체는 같은 POST 요청이지만, 겉보기 명령어 형태가 다르기 때문에 "이게 맞는 문법인가?"라는 의문이 반복해서 생깁니다.</p>
+
+  <h2>3. 파싱 도구가 이 규칙을 놓치면 생기는 문제</h2>
+  <p>cURL 명령어를 분석해서 URL·메서드·헤더·본문으로 분해해주는 도구를 쓸 때 이 규칙이 특히 중요합니다. 단순하게 "-X 뒤 값을 메서드로, 없으면 GET"이라고만 구현하면 다음과 같은 흔한 입력에서 실제 동작과 다른 결과를 보여줍니다.</p>
+  <div class="box">
+    <strong>예시 입력</strong>: <code>curl -d '{"name":"Alice"}' https://api.example.com/users</code><br>
+    <strong>실제 curl 동작</strong>: -d가 있으므로 자동으로 POST 요청 전송<br>
+    <strong>규칙을 안 지키는 파서</strong>: -X가 없으니 기본값 GET으로 표시 → 실제 동작과 다른 결과를 보여줘 사용자가 API 서버 로그와 비교하며 혼란을 겪음
+  </div>
+  <table>
+    <tr><th>입력 형태</th><th>실제 curl이 보내는 메서드</th><th>규칙 없는 파서의 오답</th></tr>
+    <tr><td>-X 없음, -d 없음</td><td>GET</td><td>GET (일치)</td></tr>
+    <tr><td>-X 없음, -d 있음</td><td>POST</td><td>GET (불일치)</td></tr>
+    <tr><td>-X GET, -d 있음</td><td>GET(명시적으로 지정했으므로 그대로 유지)</td><td>GET (일치)</td></tr>
+    <tr><td>-X PUT, -d 있음</td><td>PUT</td><td>PUT (일치)</td></tr>
+  </table>
+  <p>즉 문제가 되는 건 정확히 "-X 없이 -d만 있는" 한 가지 조합뿐이지만, 이게 실무에서 가장 자주 나오는 패턴이라는 게 함정입니다. <a href="../curl-parser.html">cURL 파서</a>는 -X가 명시적으로 없고 body가 있을 때만 GET 기본값을 POST로 교정하도록 구현되어 있어, 이 흔한 패턴에서도 실제 curl과 동일한 결과를 보여줍니다.</p>
+
+  <h2>4. 검증 방법: 직접 확인하는 법</h2>
+  <p>도구를 믿기 전에 직접 눈으로 규칙을 확인하고 싶다면, 터미널에서 <code>curl -v -d 'test=1' https://example.com 2>&1 | grep "&gt; POST"</code> 처럼 verbose 모드로 실행해 실제 전송되는 요청 라인을 확인하면 됩니다. -v 옵션은 실제로 나간 HTTP 요청 라인(<code>&gt; POST / HTTP/1.1</code>)을 그대로 출력하므로, 문서나 도구를 거치지 않고 curl 바이너리 자체의 동작을 검증할 수 있습니다. 온라인에서 명령어만 분해해 확인하고 싶다면 <a href="../curl-parser.html">cURL 파서</a>에 명령어를 붙여넣어 Method 필드가 어떻게 표시되는지 바로 확인할 수 있습니다.</p>
+
+  <h2>5. 관련해서 자주 같이 겪는 실수</h2>
+  <p>-d와 메서드 규칙 외에도 cURL 명령어를 다룰 때 흔히 헷갈리는 부분들이 있습니다. -H로 헤더를 여러 개 붙일 때 따옴표 처리를 잘못해 명령어가 깨지는 경우, 반대로 이미 완성된 요청을 바탕으로 cURL 명령어를 새로 만들어야 하는 경우도 자주 있습니다. 후자의 상황이라면 <a href="../curl-generator.html">cURL 생성기</a>로 폼 입력값을 채워 명령어를 역으로 만들어낼 수 있고, API 응답 구조 자체를 보기 좋게 확인하고 싶다면 <a href="../api-tester.html">API 테스터</a>나 <a href="../json-viewer.html">JSON 뷰어</a>를 함께 활용하면 편합니다.</p>
+
+  <h2>자주 묻는 질문</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. -X GET과 -d를 같이 쓰면 어떻게 되나요?</summary><p style="margin-top:8px;">-X로 메서드를 명시적으로 지정하면 그 값이 그대로 유지됩니다. -d가 있어도 자동 POST 교정은 -X가 아예 없을 때만 적용되므로, -X GET -d '...'는 흔치 않지만 유효한 조합으로 GET 요청에 본문을 실어 보냅니다(서버가 이를 어떻게 처리할지는 별개 문제입니다).</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. --data-raw나 --data-binary도 같은 규칙이 적용되나요?</summary><p style="margin-top:8px;">네. -d/--data뿐 아니라 --data-raw, --data-binary, --data-urlencode 등 데이터를 본문에 싣는 옵션은 모두 동일하게 -X가 없을 때 메서드를 POST로 바꿉니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. -F(멀티파트 폼 업로드)도 같은 규칙인가요?</summary><p style="margin-top:8px;">-F/--form도 본문을 전송하는 옵션이므로 -X 없이 쓰면 마찬가지로 자동 POST가 적용됩니다. GET으로 파일을 업로드하는 것은 애초에 의미가 없기 때문입니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 이 규칙은 curl 버전에 따라 다른가요?</summary><p style="margin-top:8px;">오래전부터 이어진 curl의 기본 동작으로, 현재 널리 쓰이는 버전들에서 공통적으로 유지되고 있습니다. 다만 정확한 동작이 궁금하면 <code>curl --manual</code> 또는 공식 매뉴얼 페이지에서 최신 문서를 확인하는 것이 가장 안전합니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../curl-parser.html">→ cURL 파서</a>
+    <a href="../curl-generator.html">→ cURL 생성기</a>
+    <a href="../api-tester.html">→ API 테스터</a>
+    <a href="../http-request-builder.html">→ HTTP 요청 빌더</a>
+    <a href="../json-viewer.html">→ JSON 뷰어</a>
+    <a href="../webhook-tester.html">→ Webhook 테스터</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적이며 정확한 옵션별 동작은 사용 중인 curl 버전의 공식 매뉴얼(curl --manual)로 최종 확인하시기 바랍니다.</footer>
+</main>
+</body>
+</html>

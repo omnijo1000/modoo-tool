@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>구간별 누진 수수료, 소득세처럼 계산되는 원리 | MODOO HUB</title>
+<meta name="description" content="구간을 넘었다고 전체 금액에 높은 요율이 붙는 게 아닙니다. 구간별 누진 수수료가 소득세 누진세율표와 똑같은 원리로 계산되는 이유를 실제 예시와 함께 분해합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/commission-tiered-progressive-like-income-tax.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"구간별 누진 수수료, 소득세처럼 계산되는 원리","description":"구간을 넘었다고 전체 금액에 높은 요율이 붙는 게 아닙니다. 구간별 누진 수수료가 소득세 누진세율표와 똑같은 원리로 계산되는 이유를 분해합니다.","datePublished":"2026-08-25","dateModified":"2026-08-25","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>구간별 누진 수수료, 소득세처럼 계산되는 원리</h1>
+  <p class="meta">가이드 · 2026.08.25 최종 확인</p>
+
+  <p>"매출이 100만원을 넘으면 요율이 5%로 오른다"는 계약 조건을 보고 "그럼 200만원 전체에 5%를 곱해야겠네"라고 계산하면 틀립니다. 구간별(누진) 수수료는 소득세 누진세율표와 정확히 같은 원리로 작동하며, <a href="../commission-calculator.html">수수료 계산기</a>의 구간별 모드도 이 원리 그대로 코드가 짜여 있습니다. 이 가이드는 왜 그렇게 계산해야 하는지, 그리고 실제로 흔히 저지르는 계산 실수가 무엇인지 정리합니다.</p>
+
+  <h2>1. 흔한 오해: "구간을 넘으면 전체에 높은 요율"</h2>
+  <p>구간별 수수료 계약을 처음 접하면 "매출이 다음 구간에 들어가는 순간 전체 매출에 그 구간 요율이 통째로 적용된다"고 착각하기 쉽습니다. 이렇게 계산하면 구간 경계선 바로 위와 아래에서 실수령액이 뒤집히는 역전 현상이 생깁니다. 예를 들어 100만원까지 3%, 초과분은 5%인 구조에서 이 오해대로 계산하면, 매출 100만원일 때 수수료는 3만원인데 매출이 100만 1천원으로 딱 1천원만 늘어도 전체에 5%가 붙어 수수료가 5만50원으로 껑충 뛰어버립니다. 1천원 더 벌었는데 수수료가 2만원 넘게 늘어나는 비상식적인 결과입니다.</p>
+
+  <h2>2. 실제 계산 원리: 구간을 초과한 부분에만 높은 요율</h2>
+  <p>올바른 누진 계산은 각 구간의 상한 금액까지는 그 구간의 요율만 적용하고, 상한을 넘어선 부분에 대해서만 다음 구간의 요율을 적용합니다. 즉 전체 금액을 여러 조각으로 잘라서 조각마다 다른 요율을 곱한 뒤 합산하는 방식입니다. 이 원리는 한국 소득세법의 누진세율표와 완전히 동일합니다. 소득세도 "과세표준이 다음 구간에 들어갔다고 전체 소득에 높은 세율을 적용"하지 않고, 초과한 부분에만 높은 세율을 적용하기 때문에 소득이 조금 늘었다고 세후 실수령액이 줄어드는 역전 현상이 원천적으로 생기지 않습니다. 구간별 수수료도 같은 설계 논리를 그대로 차용한 것입니다.</p>
+
+  <h2>3. 코드로 직접 검증: modoohub 수수료 계산기</h2>
+  <p><a href="../commission-calculator.html">수수료 계산기</a>의 구간별 모드 기본값은 100만원까지 3%, 500만원까지 5%, 그 초과분은 7%로 설정되어 있습니다. 이 기본 설정에서 매출 200만원을 입력해 실제 계산 로직을 추적하면 다음과 같이 동작합니다 — 먼저 0원부터 100만원 구간에 3%를 적용해 3만원을 계산하고, 남은 100만원(100만원 초과분)에 5%를 적용해 5만원을 계산한 뒤 둘을 더합니다. 즉 200만원 전체에 5%를 곱한 10만원이 아니라, 구간별로 쪼개서 합산한 8만원이 정답입니다. 코드는 입력 구간을 상한 금액 기준 오름차순으로 자동 정렬한 뒤 이 방식으로 순서대로 계산하므로, 구간을 뒤죽박죽 입력해도 결과 자체는 항상 정확합니다.</p>
+
+  <h2>4. 실전 계산 예시</h2>
+  <p>매출 200만원, 100만원까지 3%·초과분 5% 구조를 기준으로 실제 계산 과정을 표로 정리하면 다음과 같습니다.</p>
+  <table>
+    <tr><th>구간</th><th>해당 금액</th><th>요율</th><th>구간별 수수료</th></tr>
+    <tr><td>0원 ~ 100만원</td><td>100만원</td><td>3%</td><td>30,000원</td></tr>
+    <tr><td>100만원 초과분</td><td>100만원</td><td>5%</td><td>50,000원</td></tr>
+    <tr><td><strong>합계</strong></td><td>200만원</td><td>-</td><td><strong>80,000원</strong></td></tr>
+  </table>
+  <div class="box">
+    <strong>오답과 비교</strong>: 만약 전체 금액에 최고 구간 요율(5%)을 그대로 곱하면 200만원×5%=100,000원이 되어 실제 정답(80,000원)보다 20,000원 더 많이 계산됩니다. 이 차이가 바로 "구간 전체 적용"과 "초과분만 적용"의 차이입니다.
+  </div>
+
+  <h2>5. 실무에서 이 구조를 쓰는 대표적인 사례</h2>
+  <p>구간별 누진 요율은 한국 부동산 매매 중개보수에서 그대로 확인할 수 있습니다. 공인중개사법 기준으로 5천만원 미만은 0.6%, 5천만원~2억원 구간은 0.5%, 2억원~9억원 구간은 0.4%로 구간마다 상한요율이 낮아지는데, 이 역시 구간별로 해당 금액에만 그 구간 요율을 적용하는 누진 구조입니다. 영업사원의 매출 성과급, 보험 설계사 수수료, 일부 위탁판매 계약에서도 같은 방식이 흔히 쓰입니다. 반대로 오픈마켓·배달앱 수수료는 대체로 단일 요율(전체 매출에 하나의 % 적용) 방식이라 <a href="../commission-calculator.html">수수료 계산기</a>의 단일 요율 모드로 충분합니다. 계약서에서 "구간별", "누진" 같은 표현이 있는지 먼저 확인하는 것이 계산 실수를 막는 첫걸음입니다.</p>
+
+  <h2>6. 계산 전 반드시 확인할 것</h2>
+  <p>같은 "구간별 수수료"라도 계약마다 기준이 다를 수 있습니다. 건별 거래마다 구간을 처음부터 다시 적용하는 계약인지, 정산 기간(월·분기·연) 동안의 누적 매출을 기준으로 구간이 이어지는 계약인지에 따라 최종 수수료 총액이 크게 달라집니다. 계산기에 입력하기 전에 계약서상 "구간 산정 기준 기간"이 명시되어 있는지부터 확인하는 것이 중요합니다.</p>
+
+  <h2>자주 묻는 질문</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 구간별 수수료는 왜 소득세 계산과 같은 원리인가요?</summary><p style="margin-top:8px;">둘 다 "구간을 초과한 부분에만 해당 구간의 요율을 적용"하는 누진 구조를 씁니다. 소득이 조금 늘었다고 세후 실수령액이 줄어드는 역전 현상이 없듯, 매출이 구간을 살짝 넘어도 수수료가 비상식적으로 급등하지 않도록 설계된 방식입니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 전체 금액에 최고 구간 요율을 곱하면 왜 틀린가요?</summary><p style="margin-top:8px;">그렇게 계산하면 구간 경계선 부근에서 소득(매출)이 조금만 늘어도 수수료가 비정상적으로 크게 뛰는 역전 현상이 생깁니다. 실제 누진 구조는 초과분에만 높은 요율을 적용해 이런 역전을 막습니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. modoohub 수수료 계산기는 구간 순서를 잘못 입력해도 정확한가요?</summary><p style="margin-top:8px;">네. 구간별 모드는 입력된 구간을 상한 금액 기준으로 자동 오름차순 정렬한 뒤 계산하므로, 화면에 입력한 순서와 무관하게 계산 결과 자체는 항상 정확합니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 세금을 반영한 실수령 수수료도 계산할 수 있나요?</summary><p style="margin-top:8px;">이 계산기가 산출하는 금액은 세전(gross) 수수료입니다. 사업소득세나 부가가치세를 반영한 실수령액을 원하면 산출된 수수료에 해당 세율을 별도로 곱해 공제해야 합니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../commission-calculator.html">→ 수수료 계산기</a>
+    <a href="../income-tax.html">→ 소득세 계산기</a>
+    <a href="../margin-calculator.html">→ 마진 계산기</a>
+    <a href="../salary.html">→ 연봉 실수령액 계산기</a>
+    <a href="../vat-reverse-calculator.html">→ 부가세 역산 계산기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적이며 개별 사안은 세무사·노무사 상담을 권장합니다.</footer>
+</main>
+</body>
+</html>
