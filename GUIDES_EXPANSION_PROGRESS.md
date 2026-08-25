@@ -87,20 +87,20 @@
 - [x] **discount-calculator** (guides/discount-calculator-stacked-discount-math.html, 2026-08-21) — "중복 할인 30%+10%는 40% 할인이 아니다" — 50%+50%=75%할인(25%남음, 100%아님).
 - [x] **salary-per-hour-calculator** (guides/salary-per-hour-4-day-week-25-percent-jump.html, 2026-08-25) — "주4일제, 같은 연봉인데 시급은 왜 25% 오르나" — 연봉5000만: 주5일24,038원 vs 주4일30,048원(실제 재현 확인).
 - [ ] **freelancer-rate-calculator** — "프리랜서 시급, 비청구 시간을 빼먹으면 생기는 일" — 신규 비청구율40~50%, 목표시급 72,222원 예시.
-- [ ] **acquisition-tax** — "임시적 2주택 특례, 3년 안에 못 팔면 생기는 일" — 3년 초과시 중과세율 소급추징+경정청구 5년시효.
+- [x] **acquisition-tax** (guides/acquisition-tax-temporary-2house-3year-penalty.html, 2026-08-25) — "임시적 2주택 특례, 3년 안에 못 팔면 생기는 일" — 3년 초과시 중과세율 소급추징. (계산기 자체엔 전용 입력 없음, 1주택 선택으로 수동 모사 필요)
 - [ ] **annual-leave** — "연차 사용촉진제도, 회사가 이 절차 안 지키면 수당 줘야 한다" — 6개월전 고지+10일전 통보 둘 다 이행해야 면제.
 - [ ] **cheongyak-score** — "청약 가점 84점 만점, 이렇게 배분된다 + 당첨 포기의 함정" — 무주택32+부양가족35+통장17. 포기시 재당첨제한 최대10년.
-- [ ] **credit-loan-limit** — "신용대출 한도, DSR만으로 안 끝나는 이유: 마이너스통장의 함정" — 마이너스통장은 실인출액 아닌 설정한도 전체로 DSR 반영.
-- [ ] **electricity-cost-calculator** — "한국 전기요금 누진제 3단계, 여름·겨울엔 왜 완화되나" — 200/201~400/400초과 3단계.
+- [x] **credit-loan-limit** (guides/credit-loan-overdraft-dsr-full-limit-trap.html, 2026-08-25) — "신용대출 한도, DSR만으로 안 끝나는 이유: 마이너스통장의 함정" — 마이너스통장은 실인출액 아닌 설정한도 전체로 DSR 반영. (계산기 자체엔 전용 로직 없음, 기존대출 월상환액 필드에 수동 환산 입력 필요)
+- [x] **electricity-cost-calculator** (guides/electricity-progressive-tariff-seasonal-relaxation.html, 2026-08-25) — "한국 전기요금 누진제 3단계, 여름·겨울엔 왜 완화되나" — 200/201~400/400초과 3단계. **참고**: 이 계산기 자체는 누진제 구간 로직이 전혀 없는 단순 kWh×단가 계산기(가전제품 비교용).
 - [x] **four-insurance** (guides/four-insurance-employer-burden-structure.html, 2026-08-20) — "사업주가 근로자보다 4대보험을 더 많이 낸다? 숨은 부담 구조" — 산재보험 평균1.47%는 전액 사업주 부담.
 - [ ] **fuel-cost-calculator** — "L/100km와 MPG, 왜 헷갈리는가 + 경유가 항상 economical하진 않다" — MPG=235.21÷(L/100km).
 - [x] **income-tax** (guides/income-tax-progressive-deduction-less-than-table.html, 2026-08-25) — "종합소득세 누진세, 왜 세율표보다 적게 내는가" — 8단계 누진세율+누진공제 개념(코드에서 누진공제액 역산 검증).
 - [x] **loan-calc** (guides/loan-equal-payment-vs-equal-principal-interest-diff.html, 2026-08-25) — "원리금균등 vs 원금균등, 총이자 3,500만원 차이의 비밀" — 3억·4%·30년: 실제 계산 차이 35,108,519원(코드 실행 검증).
-- [ ] **overtime-pay** — "연장+야간 겹치면 200% — 그런데 5인 미만은 의무가 없다" — 5인미만 사업장 야간수당 의무 없음.
-- [ ] **payslip-calc** — "급여명세서 미교부, 과태료 500만원 — 2021년 이후 전 사업장 의무" — 2021.11부터 전사업장 의무.
+- [x] **overtime-pay** (guides/overtime-night-pay-200-percent-5-employee-exemption.html, 2026-08-25) — "연장+야간 겹치면 200% — 그런데 5인 미만은 의무가 없다" — 5인미만 사업장 야간수당 의무 없음(단, 계산기 자체엔 5인 여부 토글 없음, 안내문구로만 존재).
+- [x] **payslip-calc** (guides/payslip-mandatory-disclosure-500man-fine.html, 2026-08-25) — "급여명세서 미교부, 과태료 500만원 — 2021년 이후 전 사업장 의무" — 2021.11부터 전사업장 의무.
 - [x] **percent-calc** (guides/percentage-point-vs-percent-difference.html, 2026-08-24) — "퍼센트 포인트(%p)와 퍼센트(%)는 다르다" — 40%→45%는 5%p(12.5% 아님).
 - [ ] **prepayment-fee** — "중도상환수수료, 왜 3년 지나면 사라지나" — 대부분 실행일로부터 3년 경과시 면제.
-- [ ] **property-tax** — "종부세, 재산세를 또 걷는 이중과세가 아닌 이유" — 종부세의 20% 농특세 추가부과.
+- [x] **property-tax** (guides/property-tax-comprehensive-not-double-taxation.html, 2026-08-25) — "종부세, 재산세를 또 걷는 이중과세가 아닌 이유" — 종부세의 20% 농특세 추가부과(재산세액공제 로직 코드 확인).
 - [ ] **realestate-fee** — "부동산 중개수수료 상한요율, 사실은 협상 가능하다" — 월세 환산=(보증금+월세×100).
 - [ ] **rent-convert** — "전월세 전환율 법정 상한, 기준금리+2%p를 넘기면 불법" — 상한=한국은행 기준금리+2%p.
 - [x] **retirement-calc** (guides/retirement-fire-25x-annual-expense-target.html, 2026-08-25) — "파이어(FIRE) 목표자산, 왜 연지출의 25배인가" (25=1/4% 도출과정 중심으로 각도 조정, fire-calculator 가이드와 중복 방지). **참고**: 이 도구는 실제로 단순 25배가 아니라 유한 은퇴기간 연금현재가치로 계산(기본값 기준 25배가 아닌 약16.6배).
@@ -142,25 +142,25 @@ REJECT(4개, 이유 있음): salary(기존 가이드와 중복), salary-negotiat
 - [x] **json-schema-generator** (guides/json-schema-null-array-type-gaps.html, 2026-08-20) — "JSON Schema 자동생성기가 놓치는 null과 배열 타입 함정" — null은 nullable 표현 안 됨, 배열은 첫요소만 봄.
 - [x] **yaml-diff-checker** (guides/yaml-diff-regex-comment-false-positive.html, 2026-08-20) — "YAML Diff 비교기는 사실 YAML을 이해하지 못한다" — 정규식으로 한줄만 인식, 인라인 주석만 바꿔도 diff 오탐.
 - [x] **csv-diff-checker** (guides/csv-diff-encoding-bom-delimiter-traps.html, 2026-08-20) — "CSV diff가 전체 행을 다 다르다고 표시하는 인코딩 함정 3가지" — EUC-KR/CP949, BOM 유무, 구분자 차이.
-- [ ] **uuid-extractor** — "UUID를 텍스트에서 정확히 골라내는 정규식 조건" — 13번째자리 버전, 19번째자리 변형비트 검사.
+- [x] **uuid-extractor** (guides/uuid-extractor-version-variant-regex-detection.html, 2026-08-25) — "UUID를 텍스트에서 정확히 골라내는 정규식 조건" — 13번째자리 버전, 19번째자리 변형비트 검사(실제 정규식 확인).
 - [x] **api-response-viewer** (guides/api-response-viewer-large-integer-rounding.html, 2026-08-25) — "API 뷰어가 큰 정수를 반올림하는 이유" — JSON.parse가 2^53-1 넘는 정수 정밀도 손실(JS표준동작, reviver 미사용 확인).
 - [x] **robots-txt-validator** (guides/robots-txt-disallow-empty-vs-slash.html, 2026-08-25) — "robots.txt에서 Disallow: ''와 Disallow: /는 정반대 의미" — 빈값=전체허용, /=전체차단.
 - [x] **meta-tag-analyzer** (guides/robots-meta-tag-noindex-follow-combinations.html, 2026-08-25) — "robots 메타태그 4가지 조합, noindex인데 follow하는 이유" — noindex,follow는 인덱싱만 제외. (도구는 원본값만 노출, 4조합 해설은 FAQ에만 있음)
 - [x] **schema-validator** (guides/schema-required-vs-recommended-fields.html, 2026-08-25) — "JSON-LD 필수 vs 권장 필드, 없어도 되는데 왜 넣으라 하나" — 필수필드 누락시 리치스니펫 자체 미표시.
 - [x] **canonical-tag-checker** (guides/canonical-tag-duplicate-google-ignores-both.html, 2026-08-25) — "canonical 태그 2개면 구글은 둘 다 무시한다" — CMS 플러그인 충돌·테마 중복출력이 원인.
-- [ ] **api-tester** — "CORS 에러 vs 네트워크 오류, 브라우저는 왜 구분해주지 않을까" — fetch()가 둘다 같은 TypeError.
+- [x] **api-tester** (guides/api-tester-cors-vs-network-error-typeerror.html, 2026-08-25) — "CORS 에러 vs 네트워크 오류, 브라우저는 왜 구분해주지 않을까" — fetch()가 둘다 같은 TypeError.
 - [x] **curl-generator** (guides/curl-generator-shell-escaping-asymmetry.html, 2026-08-25) — "cURL 명령어 생성기가 조용히 깨지는 순간 — 셸 이스케이핑의 비대칭" — 헤더값 아포스트로피는 이스케이프 안 됨(바디는 됨, 실제 확인).
 - [x] **curl-parser** (guides/curl-parser-d-flag-implicit-post.html, 2026-08-25) — "curl -d만 쓰고 -X 안 써도 POST로 잡히는 이유" — -X없이 -d있으면 자동 POST 판정(실제 재현 확인).
 - [x] **dns-lookup** (guides/dns-propagation-ttl-explained.html, 2026-08-19) — "DNS 전파는 왜 최대 48시간이나 걸리나 — TTL의 원리" — TTL3600초=1시간 캐시.
 - [x] **graphql-formatter** (guides/graphql-formatter-hash-comment-vs-string.html, 2026-08-25) — "GraphQL 포맷터가 문자열 속 #을 주석으로 착각하지 않는 법" — 문자열 placeholder 치환 후 복원(실제 구현 확인).
 - [ ] **graphql-query-builder** — "GraphQL 쿼리 빌더의 타입 자동추론, 이름만 보고 어떻게 아나" — id로 끝나면 ID!, count/limit은 Int!.
 - [ ] **http-request-builder** — "CORS 프리플라이트(OPTIONS)는 언제 발생하나 — 3가지 조건" — 비단순 메서드/Content-Type/커스텀헤더.
-- [ ] **json-to-yaml** — "JSON→YAML 변환기가 문자열에 멋대로 따옴표를 씌우는 이유" — true/false/null처럼 보이면 자동인용.
+- [x] **json-to-yaml** (guides/json-to-yaml-auto-quoting-reserved-words.html, 2026-08-25) — "JSON→YAML 변환기가 문자열에 멋대로 따옴표를 씌우는 이유" — true/false/null처럼 보이면 자동인용.
 - [ ] **keyword-grouping-tool** — "검색 의도 분류와 키워드 클러스터링은 다른 개념이다" — 4대 검색의도 키워드 사전매칭.
 - [x] **mime-type-finder** (guides/mime-type-sniffing-nosniff-header.html, 2026-08-21) — "MIME 스니핑이 뭐길래 보안 헤더가 필요한가" — X-Content-Type-Options:nosniff로 방지. (이 도구 자체는 매직바이트가 아닌 file.type/확장자 기준 판별)
 - [x] **number-converter** (guides/number-converter-twos-complement-negative.html, 2026-08-21) — "2의 보수, 컴퓨터가 음수를 표현하는 방법" — 0xFFFFFFFF=-1.
 - [x] **redirect-checker** (guides/redirect-checker-301-302-307-308-explained.html, 2026-08-21) — "301 vs 302 vs 307 vs 308, 리다이렉트 코드 헷갈리지 않는 법" — 307/308은 HTTP메서드 보존.
-- [ ] **regex-cheatsheet** — "정규식 매칭 개수는 뜨는데 하이라이트가 안 보이는 이유" — 길이0 매칭은 카운트되지만 폭0이라 안 보임.
+- [x] **regex-cheatsheet** (guides/regex-zero-width-match-count-not-visible.html, 2026-08-25) — "정규식 매칭 개수는 뜨는데 하이라이트가 안 보이는 이유" — 길이0 매칭은 카운트되지만 폭0이라 안 보임(실제 재현 확인).
 - [x] **regex-generator** (guides/regex-generator-credit-card-no-luhn-check.html, 2026-08-25) — "정규식 생성기의 '신용카드' 패턴은 사실 아무 13자리 숫자에나 매칭된다" — Luhn체크섬 검증 없음.
 - [x] **sitemap-validator** (guides/sitemap-changefreq-priority-google-ignores.html, 2026-08-25) — "changefreq·priority, 구글은 사실 무시한다" — 사이트맵 1개당 최대5만URL·50MB.
 - [x] **slug-generator** (guides/slug-generator-nfd-unicode-normalization.html, 2026-08-21) — "URL 슬러그 생성기가 café를 caf-zrich로 안 만드는 이유" — NFD 정규화로 결합기호만 제거.

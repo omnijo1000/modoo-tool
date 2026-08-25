@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UUID를 텍스트에서 정확히 골라내는 정규식 조건 | MODOO HUB</title>
+<meta name="description" content="8-4-4-4-12 형태만 보는 정규식은 UUID가 아닌 문자열도 오탐합니다. 버전 자리와 RFC 4122 variant 비트까지 검증해야 하는 이유를 UUID 추출기 코드로 확인합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/uuid-extractor-version-variant-regex-detection.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"UUID를 텍스트에서 정확히 골라내는 정규식 조건","description":"8-4-4-4-12 형태만 보는 정규식은 UUID가 아닌 문자열도 오탐합니다. 버전 자리와 RFC 4122 variant 비트까지 검증해야 하는 이유를 UUID 추출기 코드로 확인합니다.","datePublished":"2026-08-25","dateModified":"2026-08-25","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>UUID를 텍스트에서 정확히 골라내는 정규식 조건</h1>
+  <p class="meta">가이드 · 2026.08.25 최종 확인</p>
+
+  <p>로그 파일이나 JSON 응답에서 UUID만 뽑아내는 도구를 쓰다 보면 "8-4-4-4-12 자리 16진수 문자열"이라는 형태만 검사하면 충분할 것 같지만, 실제로는 그렇지 않습니다. 하이픈으로 구분된 32자리 16진수 문자열은 UUID가 아니어도 얼마든지 우연히 만들어질 수 있기 때문입니다. 이 가이드는 정확한 UUID 매칭을 위해 정규식이 어디까지 검증해야 하는지, 그리고 실제 도구 코드가 이를 어떻게 구현하는지 확인합니다.</p>
+
+  <h2>1. 형태(shape)만 본 정규식이 오탐하는 이유</h2>
+  <p>UUID의 겉모습은 단순합니다. 8자리-4자리-4자리-4자리-12자리, 하이픈으로 구분된 총 36자(하이픈 4개 포함)의 16진수 문자열입니다. 문제는 이 형태 자체는 UUID 고유의 특징이 아니라는 점입니다. 임의의 해시값을 하이픈으로 잘라 붙이거나, 테스트 데이터로 생성한 랜덤 16진수 문자열도 우연히 같은 자릿수 구성을 가질 수 있습니다. 형태만 검사하는 정규식(예: <code>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}</code>)은 이런 문자열까지 전부 "UUID"로 잘못 인식합니다.</p>
+
+  <h2>2. UUID 규격 속에 숨어 있는 두 개의 검증 자리</h2>
+  <p>RFC 4122 표준은 UUID의 36자 중 두 자리를 특정 값으로 고정해 두었습니다. 세 번째 그룹(13번째 문자)은 <strong>버전 필드</strong>로, 1부터 5 사이의 숫자만 올 수 있습니다. 네 번째 그룹의 첫 글자(19번째 문자)는 <strong>variant 비트</strong>로, 표준 variant(RFC 4122 방식)를 나타내는 8·9·a·b 중 하나만 올 수 있습니다. 이 두 자리는 UUID를 생성하는 알고리즘이 반드시 지켜야 하는 규칙이므로, 진짜 UUID라면 이 조건을 항상 만족합니다. 반대로 말하면 이 두 자리가 조건을 벗어난 문자열은 UUID일 수 없다는 뜻이고, 정규식이 이 두 자리까지 검증하면 오탐률을 크게 줄일 수 있습니다.</p>
+
+  <h2>3. UUID 버전 1~5가 실제로 의미하는 것</h2>
+  <p>버전 필드는 단순한 검증용 숫자가 아니라 UUID가 어떤 방식으로 생성됐는지를 나타냅니다. v1은 타임스탬프와 MAC 주소 기반, v3·v5는 이름(namespace) 기반 해시(각각 MD5, SHA-1), v4는 완전 무작위 생성으로 현재 가장 널리 쓰이는 방식입니다. v2는 DCE 보안 버전으로 실무에서는 거의 쓰이지 않습니다. 버전 필드 자리에 6, 7, 0처럼 1~5 범위를 벗어난 값이 온다면 표준 UUID 생성 알고리즘이 만들어낼 수 없는 값이므로, 그 문자열은 UUID가 아니라 형태만 비슷한 다른 16진수 데이터일 가능성이 높습니다.</p>
+
+  <h2>4. 모두의 툴 UUID 추출기의 정규식 뜯어보기</h2>
+  <p>실제 <a href="../uuid-extractor.html">UUID 추출기</a>의 소스코드를 확인하면 다음과 같은 정규식을 사용합니다.</p>
+  <div class="box">
+    <strong>실제 사용 중인 정규식</strong>: <code>/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/gi</code><br>
+    세 번째 그룹이 <code>[1-5]</code>로 시작하도록, 네 번째 그룹이 <code>[89ab]</code>로 시작하도록 명시적으로 제한되어 있어, 단순 형태 매칭이 아니라 버전·variant 자리까지 검증하는 방식으로 구현되어 있습니다.
+  </div>
+  <p>즉 이 도구는 "그럴듯해 보이는 16진수 문자열"이 아니라 실제 RFC 4122 규격을 만족하는 문자열만 UUID로 인식하도록 설계되어 있습니다.</p>
+
+  <h2>5. 형태는 같지만 UUID가 아닌 문자열 예시</h2>
+  <p>아래 표는 겉보기엔 UUID처럼 생겼지만 버전·variant 조건을 만족하지 못해 실제로는 걸러지는 문자열의 예시입니다.</p>
+  <table>
+    <tr><th>문자열</th><th>8-4-4-4-12 형태</th><th>버전 자리(13번째)</th><th>variant 자리(19번째)</th><th>실제 UUID 인식</th></tr>
+    <tr><td>550e8400-e29b-41d4-a716-446655440000</td><td>충족</td><td>4 (유효)</td><td>a (유효)</td><td>인식됨</td></tr>
+    <tr><td>12345678-1234-6789-1234-123456789012</td><td>충족</td><td>6 (범위 밖)</td><td>1 (범위 밖)</td><td>거부됨</td></tr>
+    <tr><td>ffffffff-ffff-ffff-ffff-ffffffffffff</td><td>충족</td><td>f (범위 밖)</td><td>f (범위 밖)</td><td>거부됨</td></tr>
+  </table>
+  <p>두 번째, 세 번째 문자열은 하이픈 구조와 16진수 자릿수는 정확히 UUID와 같지만, 버전 자리와 variant 자리가 규격을 벗어나 있어 진짜 UUID일 수 없습니다. 형태만 검사하는 도구라면 이 셋을 모두 UUID로 오인하지만, 버전·variant까지 검증하는 정규식은 첫 번째만 골라냅니다. 텍스트에 뒤섞인 <a href="../md5-generator.html">해시값</a>이나 임의의 토큰에서 진짜 UUID만 걸러내고 싶다면 이 차이가 실무에서 꽤 크게 체감됩니다.</p>
+
+  <h2>6. 직접 테스트하는 방법</h2>
+  <p>도구가 형태만 보는지 버전·variant까지 검증하는지는 직접 넣어보면 가장 빨리 확인됩니다. 위 표의 두 번째 문자열(<code>12345678-1234-6789-1234-123456789012</code>)을 <a href="../uuid-extractor.html">UUID 추출기</a>에 붙여넣었을 때 추출 결과에 나타나지 않는다면, 그 도구는 버전·variant 검증까지 포함된 정규식을 쓰고 있다는 뜻입니다. 반대로 이 문자열까지 UUID로 집계된다면 형태만 보는 느슨한 정규식일 가능성이 높습니다.</p>
+
+  <h2>자주 묻는 질문</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 버전 필드가 1~5가 아니면 무조건 가짜 UUID인가요?</summary><p style="margin-top:8px;">표준 UUID 생성 알고리즘(v1~v5)이 만들어낼 수 없는 값이라는 뜻입니다. 다만 실무에서 임의로 만든 "UUID처럼 생긴" 식별자가 이 조건을 어겼을 뿐 실제로는 유효한 다른 종류의 식별자일 수도 있으니, "RFC 4122 표준 UUID가 아니다"로 이해하는 것이 정확합니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 하이픈 없는 32자리 UUID도 인식되나요?</summary><p style="margin-top:8px;">모두의 툴 UUID 추출기의 현재 정규식은 하이픈으로 구분된 8-4-4-4-12 형식만 매칭합니다. 하이픈이 제거된 연속 32자리 16진수 문자열은 인식되지 않습니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. v6, v7 같은 최신 UUID 버전도 인식되나요?</summary><p style="margin-top:8px;">현재 정규식은 버전 자리를 1~5로 제한하므로, 최근 표준화가 진행 중인 v6·v7 형식 UUID는 버전 자리 조건에서 걸려 인식되지 않습니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 대문자로 쓰인 UUID도 추출되나요?</summary><p style="margin-top:8px;">네. 정규식에 대소문자 구분 없음(i) 플래그가 적용되어 있어 대문자 UUID도 동일하게 인식되며, '소문자 정규화' 옵션을 켜면 결과를 소문자로 통일해 표시합니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../uuid-extractor.html">→ UUID 추출기</a>
+    <a href="../uuid-bulk-generator.html">→ UUID 대량 생성기</a>
+    <a href="../uuid-converter.html">→ UUID 변환기</a>
+    <a href="../uuid-validator.html">→ UUID 검증기</a>
+    <a href="../regex-generator.html">→ 정규식 생성기</a>
+    <a href="../md5-generator.html">→ MD5 생성기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적이며 실제 구현 세부사항은 각 도구의 최신 코드를 기준으로 확인하시기 바랍니다.</footer>
+</main>
+</body>
+</html>
