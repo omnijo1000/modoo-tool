@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JS 압축기의 문자열 손상 위험, 경고는 엉뚱한 곳에 뜬다 | MODOO HUB</title>
+<meta name="description" content="정규식 기반 JS 압축기는 문자열 리터럴을 인식하지 못하면 안에 든 //, /* */, 공백까지 코드처럼 지워버릴 수 있습니다. 실제 옵션별 코드를 뜯어 어디가 안전하고 어디가 위험한지, 화면 경고는 왜 엉뚱한 곳에서 뜨는지 확인합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/javascript-minifier-string-boundary-regex-risk.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"JS 압축기의 문자열 손상 위험, 경고는 엉뚱한 곳에 뜬다","description":"정규식 기반 JS 압축기의 5가지 옵션 중 어느 것이 문자열 경계를 인식하고 어느 것이 인식하지 못하는지, 실제 코드를 읽고 재현 가능한 예시로 확인합니다.","datePublished":"2026-08-25","dateModified":"2026-08-25","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>JS 압축기의 문자열 손상 위험, 경고는 엉뚱한 곳에 뜬다</h1>
+  <p class="meta">가이드 · 2026.08.25 최종 확인</p>
+
+  <p>정규식만으로 주석과 공백을 지우는 압축기는 SQL 압축기의 <code>--</code> 버그, GraphQL 압축기의 <code>#</code> 버그와 같은 종류의 함정을 안고 있습니다. 문자열 리터럴 경계를 인식하지 못하면, 문자열 안에 우연히 주석처럼 보이는 패턴이 들어있을 때 그 내용을 진짜 코드로 착각해 지워버릴 수 있습니다. <a href="../javascript-minifier.html">JS 압축기</a>의 실제 소스를 함수 단위로 읽어 어느 옵션이 이 함정에 걸리고 어느 옵션이 걸리지 않는지 확인했습니다.</p>
+
+  <h2>1. 정규식 압축의 근본적인 문제</h2>
+  <p>프로그래밍 언어의 문법을 제대로 파싱하려면 문자열 리터럴이 시작되고 끝나는 지점을 추적해야 합니다. <code>"http://example.com"</code>이라는 문자열 안의 <code>//</code>는 주석이 아니라 그냥 텍스트지만, 문자열 경계를 모르는 정규식 입장에서는 코드 전체가 평평한 텍스트일 뿐이라 이 둘을 구분할 방법이 없습니다. 안전한 압축기는 보통 문자열·템플릿 리터럴을 먼저 플레이스홀더로 치환해 보호한 다음 주석·공백을 제거하고, 마지막에 다시 복원하는 순서를 씁니다. 이 도구가 실제로 그런 보호 단계를 거치는지 소스를 직접 읽어봤습니다.</p>
+
+  <h2>2. 5가지 옵션, 실제로는 안전도가 다 다르다</h2>
+  <p>결론부터 말하면 5개 옵션 중 하나만 문자열을 인식하고 나머지 4개는 인식하지 않습니다.</p>
+  <table>
+    <tr><th>옵션</th><th>구현 방식</th><th>문자열 보호 여부</th></tr>
+    <tr><td>// 주석 제거</td><td>문자 단위 스캐너(<code>stripLineComments</code>)</td><td>보호됨 — 따옴표를 만나면 이스케이프까지 인식하며 문자열 전체를 건너뜀</td></tr>
+    <tr><td>/* */ 주석 제거</td><td>정규식 <code>/\/\*[\s\S]*?\*\//g</code>를 원문 전체에 바로 적용</td><td>보호 안 됨</td></tr>
+    <tr><td>줄바꿈 제거</td><td>정규식 <code>/\r?\n/g</code>를 원문 전체에 적용</td><td>보호 안 됨</td></tr>
+    <tr><td>연속 공백 제거</td><td>정규식 <code>/\s{2,}/g</code>를 원문 전체에 적용</td><td>보호 안 됨</td></tr>
+    <tr><td>연산자 주변 공백 제거</td><td>정규식으로 =,+,-,쉼표,괄호 등 주변 공백 제거</td><td>보호 안 됨</td></tr>
+  </table>
+  <p><code>// 주석 제거</code>만 따옴표(<code>"</code>, <code>'</code>, <code>`</code>)를 만나면 그 문자열을 통째로 건너뛰는 문자 단위 루프로 짜여 있어, 문자열 리터럴 안의 <code>//</code>는 실제로 안전합니다. 반면 나머지 4개 옵션은 전부 원본 텍스트에 정규식을 그대로 적용하는 방식이라 문자열 경계라는 개념 자체가 없습니다.</p>
+
+  <h2>3. 코드로 직접 재현: http:// URL은 의외로 안전하다</h2>
+  <p>가장 흔히 걱정하는 케이스인 <code>const url = "http://example.com"; // 여기까지</code> 같은 코드를 넣어 봤습니다.</p>
+  <div class="box">
+    <strong>입력</strong>: <code>const url = "http://example.com"; // 여기까지</code><br>
+    <strong>출력</strong>: <code>const url="http://example.com";</code><br>
+    URL 문자열 안의 <code>//</code>는 그대로 남고, 진짜 줄 끝 주석(<code>// 여기까지</code>)만 정확히 제거됩니다.
+  </div>
+  <p>이건 <code>stripLineComments</code>가 따옴표를 만나면 그 안의 모든 문자(이스케이프 포함)를 그대로 통과시키고 닫는 따옴표에서만 "문자열 종료"로 인식하기 때문입니다. 즉 가장 널리 알려진 위험 시나리오는 이 도구에서 실제로는 처리되어 있습니다.</p>
+
+  <h2>4. 진짜 위험한 케이스: 블록 주석 정규식</h2>
+  <p>반대로 <code>/* */ 주석 제거</code>는 문자열 여부를 전혀 구분하지 않으므로, 문자열 값 안에 우연히 <code>/*</code>와 <code>*/</code>가 둘 다 들어있으면 그 사이 내용이 실제로 삭제됩니다.</p>
+  <div class="box">
+    <strong>입력</strong>: <code>const note = "/* 이건 그냥 문자열 */";</code><br>
+    <strong>출력</strong>: <code>const note="";</code><br>
+    문자열 값이 완전히 비어버립니다 — 프로그램은 오류 없이 조용히 다른 값을 담게 됩니다.
+  </div>
+  <p>연산자 주변 공백 제거, 줄바꿈 제거, 연속 공백 제거도 같은 이유로 위험합니다. 예를 들어 문자열 값이 <code>"a = b"</code>라면 연산자 공백 제거 정규식이 이를 <code>"a=b"</code>로 바꿔버릴 수 있습니다. 코드 밖에서는 스타일 차이일 뿐이지만 문자열 "값" 자체가 바뀌는 것이므로 데이터 손상입니다.</p>
+
+  <h2>5. 화면 경고는 왜 엉뚱한 곳에서 뜨는가</h2>
+  <p>이 도구는 <code>optLineComments</code>가 켜져 있을 때 <code>/["'`].*\/\//.test(j)</code>라는 별도의 정규식으로 "문자열 안에 // 가 있는지"를 검사해서 경고 배너를 띄웁니다. 그런데 앞서 확인했듯 <code>// 주석 제거</code> 자체는 문자열을 안전하게 건너뛰는 방식이라, 이 경고가 뜨는 상황은 사실 이미 안전하게 처리되고 있는 경우입니다. 반대로 진짜 위험한 블록 주석 정규식, 줄바꿈·공백·연산자 정규식에는 이런 검사 로직 자체가 아예 없어서 문자열이 실제로 손상되는 순간에는 어떤 경고도 뜨지 않습니다. 경고 시스템과 실제 위험이 서로 다른 곳을 가리키고 있는 셈입니다.</p>
+
+  <h2>6. 실무에서는 어떻게 압축해야 하나</h2>
+  <p>이 도구는 정규식 리터럴(<code>/.../</code>)을 별도로 인식하는 코드도 없어서, 정규식 패턴 안에 공백이나 하이픈처럼 연산자 문자 클래스에 포함된 기호가 있으면 코드와 똑같이 지워질 수 있습니다. 변수명 단축(맹글링)도 지원하지 않습니다. 간단한 스니펫을 빠르게 줄여보는 용도로는 적합하지만, 실제 배포용 코드라면 실제 파서로 문자열·정규식·주석을 정확히 구분하는 Terser, esbuild, webpack 같은 AST 기반 도구를 쓰는 것이 안전합니다. 반대로 JSON처럼 문자열 안에 <code>//</code>나 <code>/*</code>가 나올 일이 거의 없는 포맷을 압축한다면 <a href="../json-minifier.html">JSON 압축기</a>가 더 예측 가능하고, CSS나 HTML을 다룬다면 각각 <a href="../css-minifier.html">CSS 압축기</a>, <a href="../html-minifier.html">HTML 압축기</a>를 쓰는 편이 이런 언어별 함정에서 자유롭습니다. 압축을 풀어 원래 형태로 되돌려야 할 때는 <a href="../javascript-beautifier.html">JS 정렬기</a>를 참고하세요.</p>
+
+  <h2>자주 묻는 질문</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. URL 문자열이 있는 코드를 압축해도 안전한가요?</summary><p style="margin-top:8px;">// 주석 제거 옵션 자체는 문자 단위 스캐너라 http:// 같은 URL 문자열은 안전하게 보존됩니다. 다만 같은 코드에 블록 주석 제거·공백 제거 옵션이 함께 켜져 있으면 그쪽 정규식은 문자열을 구분하지 못하므로 별개로 주의해야 합니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 화면에 경고가 안 떴다면 안심해도 되나요?</summary><p style="margin-top:8px;">아니요. 경고는 "문자열 안에 // 가 있는지"만 검사하며, 정작 더 위험한 블록 주석·공백·연산자 정규식에는 검사 로직이 없습니다. 경고가 없다고 문자열이 손상되지 않았다는 보장은 없습니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 정규식 리터럴이 포함된 코드는 어떻게 되나요?</summary><p style="margin-top:8px;">이 도구는 정규식 리터럴(/.../)을 별도로 인식하지 않으므로, 정규식 패턴 안에 공백이나 하이픈이 있으면 일반 코드와 똑같이 처리되어 패턴이 바뀔 위험이 있습니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 그럼 이 도구는 언제 쓰는 게 맞나요?</summary><p style="margin-top:8px;">문자열 안에 /*, */, 연산자 기호가 들어갈 일이 거의 없는 짧고 단순한 스니펫을 빠르게 확인할 때는 무리 없습니다. 실제 프로덕션 배포 코드처럼 손상되면 안 되는 코드라면 Terser·esbuild 같은 AST 기반 도구를 쓰세요.</p></details>
+
+  <div class="tool-links">
+    <a href="../javascript-minifier.html">→ JS 압축기</a>
+    <a href="../javascript-beautifier.html">→ JS 정렬기</a>
+    <a href="../css-minifier.html">→ CSS 압축기</a>
+    <a href="../html-minifier.html">→ HTML 압축기</a>
+    <a href="../json-minifier.html">→ JSON 압축기</a>
+    <a href="../sql-minifier.html">→ SQL 압축기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적이며, 실제 배포 전에는 반드시 압축 결과를 직접 검산하시기 바랍니다.</footer>
+</main>
+</body>
+</html>

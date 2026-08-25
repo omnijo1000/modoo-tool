@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CAGR이 감추는 변동성의 함정 — 시작·끝값만 보는 지표의 맹점 | MODOO HUB</title>
+<meta name="description" content="CAGR(연평균 복합성장률)은 시작값과 끝값만으로 계산되는 평활화 지표라 중간의 폭락·급등 같은 변동성을 전혀 반영하지 못합니다. CAGR 계산기의 실제 입력 구조와 예시로 왜 CAGR만 보고 안심하면 안 되는지 정리했습니다.">
+<link rel="canonical" href="https://modoohub.com/guides/cagr-hides-volatility-trap.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"CAGR이 감추는 변동성의 함정","description":"CAGR(연평균 복합성장률)은 시작값과 끝값만으로 계산되는 평활화 지표라 중간의 폭락·급등 같은 변동성을 전혀 반영하지 못합니다.","datePublished":"2026-08-25","dateModified":"2026-08-25","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>CAGR이 감추는 변동성의 함정</h1>
+  <p class="meta">가이드 · 2026.08.25 최종 확인</p>
+
+  <p>"이 펀드는 5년간 연평균 12% 성장했습니다"라는 문장을 보면 대부분 꾸준하고 안정적인 성장을 떠올립니다. 하지만 CAGR(연평균 복합성장률)이라는 숫자 하나가 실제로 담고 있는 정보는 딱 두 개, 시작값과 끝값뿐입니다. 그 사이 5년 동안 30% 폭락했다가 80% 급등했어도, 결과가 같은 끝값에 도달했다면 CAGR은 똑같은 12%로 나옵니다. 이 가이드는 <a href="../cagr-calculator.html">CAGR 계산기</a>의 실제 입력 구조를 근거로 이 맹점이 어디서 발생하는지, 그리고 CAGR만 보고 투자 판단을 내리면 안 되는 이유를 정리합니다.</p>
+
+  <h2>1. CAGR 공식이 실제로 보는 것: 딱 두 개의 점</h2>
+  <p>CAGR 계산기의 입력창을 열어보면 시작값, 종료값, 기간(년) 세 칸뿐입니다. 몇 년차에 무슨 일이 있었는지 묻는 칸은 아예 존재하지 않습니다. 계산식 자체가 CAGR = (끝값/시작값)^(1/기간) − 1로, 중간 연도의 값은 수식 어디에도 등장하지 않기 때문입니다. 그래프로 그리면 CAGR은 시작점과 끝점을 매끄러운 복리 곡선으로 이은 것일 뿐이고, 실제 자산가치가 그 사이에서 어떤 경로를 지나왔는지는 이 숫자 하나에 전혀 반영되지 않습니다.</p>
+
+  <h2>2. 변동성이 통째로 사라지는 수학적 이유</h2>
+  <p>CAGR은 기하평균(geometric mean)의 성질을 그대로 물려받습니다. 기하평균은 각 연도의 성장 배수를 모두 곱한 뒤 그 값의 n제곱근을 취하는 방식이라, 곱셈의 결과값(최종 배수)만 같으면 중간에 어떤 순서로 곱해졌는지는 결과에 영향을 주지 않습니다. -30%와 +80%를 곱한 배수(0.7×1.8=1.26)와, 매년 똑같이 12.25%씩 두 번 곱한 배수(1.1225×1.1225≈1.26)가 우연히 같다면, 두 경우의 CAGR은 정확히 같은 숫자로 나옵니다. 즉 CAGR은 "무엇을 곱해서 여기까지 왔는가"만 보고 "어떤 순서로, 얼마나 요동치며 왔는가"는 구조적으로 지울 수밖에 없는 지표입니다.</p>
+
+  <h2>3. 실전 예시: 같은 CAGR, 완전히 다른 여정</h2>
+  <p>아래 두 투자는 시작값(1,000)과 종료값(1,260), 기간(2년)이 완전히 같아 CAGR도 똑같이 12.25%로 계산됩니다. 하지만 실제로 겪는 경험은 전혀 다릅니다.</p>
+  <table>
+    <tr><th>구분</th><th>시작(0년차)</th><th>1년차</th><th>2년차(종료)</th><th>CAGR</th></tr>
+    <tr><td>투자 X (변동형)</td><td>1,000</td><td>700 (−30%)</td><td>1,260 (+80%)</td><td>12.25%</td></tr>
+    <tr><td>투자 Y (꾸준형)</td><td>1,000</td><td>1,122.5 (+12.25%)</td><td>1,260 (+12.25%)</td><td>12.25%</td></tr>
+  </table>
+  <div class="box">
+    <strong>핵심</strong>: 투자 X는 1년차에 30%나 원금이 깎이는 구간을 견뎌야 했지만, 투자 Y는 단 한 번도 손실 구간을 지나지 않았습니다. 두 투자의 CAGR은 완전히 동일한 12.25%지만, 투자 X를 1년차 시점에 팔았다면 -30% 손실을 확정 지었을 것이고, 투자 Y였다면 그런 위험이 아예 없었습니다.
+  </div>
+
+  <h2>4. CAGR과 산술평균의 차이 — "변동성 손실"</h2>
+  <p>변동성이 클수록 CAGR과 단순 산술평균 성장률의 격차도 커집니다. 예를 들어 1년차 +50%, 2년차 -50%를 단순 평균 내면 0%로 "변화 없음"처럼 보이지만, 실제로는 100 → 150 → 75로 25%가 사라진 것이고 CAGR로 계산하면 약 -13.40%가 나와 진짜 손실을 정확히 보여줍니다. 이 간극을 흔히 "변동성 손실(volatility drag)"이라 부르는데, 등락폭이 클수록 산술평균은 실제보다 낙관적인 숫자를 보여주고 CAGR이 진실에 더 가깝습니다. 다만 CAGR이 진실에 가깝다는 것과, CAGR이 그 진실에 이르는 "과정의 위험"까지 알려준다는 것은 별개의 문제입니다.</p>
+
+  <h2>5. CAGR과 함께 봐야 하는 지표들</h2>
+  <p>투자의 진짜 리스크를 파악하려면 CAGR 옆에 최소 두 가지를 더 봐야 합니다. 하나는 표준편차(연도별 수익률이 평균에서 얼마나 퍼져 있는지)이고, 다른 하나는 최대낙폭(MDD, 고점 대비 가장 크게 떨어진 폭)입니다. <a href="../cagr-calculator.html">CAGR 계산기</a>는 시작·끝값·기간만 입력받도록 설계되어 있어 이 두 지표를 계산해주지 않으므로, 실제 연도별(또는 월별) 데이터를 별도로 확보해 직접 변동폭을 확인하는 절차가 반드시 필요합니다. 총수익 규모 자체를 보고 싶다면 <a href="../roi-calculator.html">ROI 계산기</a>를, 원금과 이자가 매년 어떻게 불어나는지 표로 확인하고 싶다면 <a href="../compound-interest.html">복리 계산기</a>를 함께 활용하는 것이 CAGR 하나만 보는 것보다 훨씬 안전한 접근입니다.</p>
+
+  <h2>자주 묻는 질문</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. CAGR이 높으면 무조건 좋은 투자인가요?</summary><p style="margin-top:8px;">A. 아닙니다. CAGR이 같아도 그 사이의 최대낙폭이 크다면 심리적으로 버티기 어렵거나, 중간에 자금이 필요해 매도해야 하는 시점에 큰 손실이 확정될 수 있습니다. CAGR은 결과의 요약일 뿐 과정의 안정성을 보장하지 않습니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 변동성을 알고 싶으면 어떤 데이터가 필요한가요?</summary><p style="margin-top:8px;">A. 연도별(가능하면 월별) 자산가치 전체 시계열이 필요합니다. 시작값·끝값만으로는 표준편차나 최대낙폭을 계산할 수 없고, 중간의 모든 관측치가 있어야 변동폭을 산출할 수 있습니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. CAGR 대신 IRR·XIRR을 써야 할 때는 언제인가요?</summary><p style="margin-top:8px;">A. 중간에 추가 매수·매도나 배당 재투자처럼 현금흐름이 여러 시점에 발생했다면 IRR·XIRR이 더 정확합니다. CAGR은 시작·끝 두 시점의 현금흐름만 가정하는 단순화된 지표이기 때문입니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 두 투자상품의 CAGR을 비교할 때 주의할 점은?</summary><p style="margin-top:8px;">A. CAGR이 같거나 비슷하더라도 변동성(표준편차·MDD)이 다르면 위험 수준이 전혀 다른 상품입니다. 반드시 같은 CAGR이라도 과거 가격 추이 그래프를 함께 확인하고 비교하세요.</p></details>
+
+  <div class="tool-links">
+    <a href="../cagr-calculator.html">→ CAGR 계산기</a>
+    <a href="../roi-calculator.html">→ ROI 계산기</a>
+    <a href="../compound-interest.html">→ 복리 계산기</a>
+    <a href="../investment-return-calculator.html">→ 투자수익률 계산기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적이며 투자 판단은 개인 책임하에 신중히 결정하시기 바랍니다.</footer>
+</main>
+</body>
+</html>

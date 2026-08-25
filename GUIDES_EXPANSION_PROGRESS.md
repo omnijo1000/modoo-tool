@@ -79,13 +79,13 @@
 - [ ] **loan-payoff-calculator** — "월 상환액이 이자보다 적으면 벌어지는 일" — 음의 상각(negative amortization) 함정.
 - [ ] **investment-return-calculator** — "복리 주기(연/분기/월), 실제로 얼마나 차이 나나" — 1000만·10%·10년: 연2,594만 vs 월2,707만.
 - [x] **fire-calculator** (guides/fire-calculator-4-percent-rule-trinity-study.html, 2026-08-24) — "4% 룰(Trinity Study), 한국에서도 안전한가" — 1998년 미국 30년 가정, 비미국은 3~3.5% 권장.
-- [ ] **cagr-calculator** — "CAGR이 감추는 변동성의 함정" — -30%/+80% 등락도 CAGR은 매년 동일성장처럼 평활화.
+- [x] **cagr-calculator** (guides/cagr-hides-volatility-trap.html, 2026-08-25) — "CAGR이 감추는 변동성의 함정" — -30%/+80% 등락도 CAGR은 매년 동일성장처럼 평활화.
 - [x] **margin-calculator** (guides/margin-markup-percentage-confusion.html, 2026-08-24) — "마진율과 마크업, 같은 거래인데 다른 숫자가 나오는 이유" — 원가700·판매1000: 마진30% vs 마크업42.86%.
 - [ ] **profit-calculator** — "총이익·영업이익·순이익, 세 단계로 나눠 보는 이유" — COGS/OPEX 분리 3단계 이익구조.
-- [ ] **break-even-calculator** — "손익분기점만으론 부족한 이유, 안전마진율" — 안전마진율=(예상매출−BEP)÷예상매출.
+- [x] **break-even-calculator** (guides/break-even-margin-of-safety-beyond-bep.html, 2026-08-25) — "손익분기점만으론 부족한 이유, 안전마진율" — 안전마진율=(예상매출−BEP)÷예상매출. (계산기 자체는 안전마진율 자동계산 안 함, FAQ에만 설명)
 - [x] **commission-calculator** (guides/commission-tiered-progressive-like-income-tax.html, 2026-08-25) — "구간별 누진 수수료, 소득세처럼 계산되는 원리" — 100만까지3%+나머지5%, 200만매출시 수수료8만(10만 아님, 실제 재현 확인).
 - [x] **discount-calculator** (guides/discount-calculator-stacked-discount-math.html, 2026-08-21) — "중복 할인 30%+10%는 40% 할인이 아니다" — 50%+50%=75%할인(25%남음, 100%아님).
-- [ ] **salary-per-hour-calculator** — "주4일제, 같은 연봉인데 시급은 왜 25% 오르나" — 연봉5000만: 주5일24,038원 vs 주4일30,048원.
+- [x] **salary-per-hour-calculator** (guides/salary-per-hour-4-day-week-25-percent-jump.html, 2026-08-25) — "주4일제, 같은 연봉인데 시급은 왜 25% 오르나" — 연봉5000만: 주5일24,038원 vs 주4일30,048원(실제 재현 확인).
 - [ ] **freelancer-rate-calculator** — "프리랜서 시급, 비청구 시간을 빼먹으면 생기는 일" — 신규 비청구율40~50%, 목표시급 72,222원 예시.
 - [ ] **acquisition-tax** — "임시적 2주택 특례, 3년 안에 못 팔면 생기는 일" — 3년 초과시 중과세율 소급추징+경정청구 5년시효.
 - [ ] **annual-leave** — "연차 사용촉진제도, 회사가 이 절차 안 지키면 수당 줘야 한다" — 6개월전 고지+10일전 통보 둘 다 이행해야 면제.
@@ -127,7 +127,7 @@ REJECT(4개, 이유 있음): salary(기존 가이드와 중복), salary-negotiat
 - [x] **json-to-xml** (guides/json-to-xml-array-null-limits.html, 2026-08-19) — "JSON→XML 변환의 근본적 한계" — XML엔 배열 개념 없어 같은 태그 반복, null은 self-closing 태그.
 - [x] **html-minifier** (guides/html-minifier-regex-pre-textarea-bug.html, 2026-08-19) — "정규식 기반 HTML 압축기가 실패하는 지점" — `<pre>`/`<textarea>` 내부 의미있는 공백까지 뭉개짐.
 - [x] **css-minifier** (guides/css-color-shorthand-minification.html, 2026-08-20) — "CSS 압축기의 색상 코드 축약 규칙" — `#ffffff`→`#fff`는 각 자리쌍 같을 때만.
-- [ ] **javascript-minifier** — "JS 압축기의 문자열 손상 위험, 경고는 엉뚱한 곳에 뜬다" — 문자열 경계 무시하는 정규식 위험.
+- [x] **javascript-minifier** (guides/javascript-minifier-string-boundary-regex-risk.html, 2026-08-25) — "JS 압축기의 문자열 손상 위험, 경고는 엉뚱한 곳에 뜬다" — 줄주석 제거는 문자열 인식하지만 블록주석·공백제거는 실제로 위험, 화면 경고는 이미 안전한 케이스만 검사.
 - [x] **xml-validator** (guides/xml-validator-well-formed-vs-valid.html, 2026-08-24) — "XML 파서는 왜 HTML보다 깐깐한가(well-formed vs valid)" — strict모드 즉시 파싱중단.
 - [x] **user-agent-parser** (guides/user-agent-applewebkit-537-36-legacy.html, 2026-08-24) — "크롬도 왜 AppleWebKit/537.36을 달고 다니나 — UA 문자열의 역사적 유물" — 호환성 위해 고정값 유지.
 - [x] **webhook-generator** (guides/webhook-signature-github-stripe-slack-differ.html, 2026-08-24) — "GitHub·Stripe·Slack, 웹훅 서명이 플랫폼마다 다르게 계산되는 이유" — 해시대상 문자열이 각각 다름.
@@ -136,9 +136,9 @@ REJECT(4개, 이유 있음): salary(기존 가이드와 중복), salary-negotiat
 - [ ] **css-beautifier** — "문자 단위 CSS 포매터의 중첩 깊이 추적 방식" — SCSS 전처리기 문법은 깨짐.
 - [ ] **keyword-difficulty-estimator** — "키워드 난이도 점수, 실제 검색 데이터 없이 어떻게 계산되나" — 규칙기반 점수, 5~95 클램프.
 - [x] **sitemap-extractor** (guides/sitemap-priority-changefreq-ignored.html, 2026-08-19) — "사이트맵 priority·changefreq, 구글이 이미 무시한다고 밝힌 태그" — 2014년부터 priority 안 씀.
-- [ ] **serp-snippet-preview** — "구글 제목 스니펫은 글자수가 아니라 픽셀로 잘린다" — 약600px(Arial기준), 60자는 근사치일뿐.
+- [x] **serp-snippet-preview** (guides/serp-title-pixel-width-not-char-count.html, 2026-08-25) — "구글 제목 스니펫은 글자수가 아니라 픽셀로 잘린다" — 약600px(Arial기준), 60자는 근사치일뿐.
 - [ ] **open-graph-preview** — "소셜 공유 미리보기가 안 바뀌는 이유: 플랫폼 캐시" — Facebook Sharing Debugger로 Scrape Again 필요.
-- [ ] **keyword-cannibalization-checker** — "키워드 카니발라이제이션, 문자열은 같아도 검색 의도는 다를 수 있다" — 301/canonical/차별화가 해법.
+- [x] **keyword-cannibalization-checker** (guides/keyword-cannibalization-string-vs-intent.html, 2026-08-25) — "키워드 카니발라이제이션, 문자열은 같아도 검색 의도는 다를 수 있다" — 301/canonical/차별화가 해법.
 - [x] **json-schema-generator** (guides/json-schema-null-array-type-gaps.html, 2026-08-20) — "JSON Schema 자동생성기가 놓치는 null과 배열 타입 함정" — null은 nullable 표현 안 됨, 배열은 첫요소만 봄.
 - [x] **yaml-diff-checker** (guides/yaml-diff-regex-comment-false-positive.html, 2026-08-20) — "YAML Diff 비교기는 사실 YAML을 이해하지 못한다" — 정규식으로 한줄만 인식, 인라인 주석만 바꿔도 diff 오탐.
 - [x] **csv-diff-checker** (guides/csv-diff-encoding-bom-delimiter-traps.html, 2026-08-20) — "CSV diff가 전체 행을 다 다르다고 표시하는 인코딩 함정 3가지" — EUC-KR/CP949, BOM 유무, 구분자 차이.
@@ -189,7 +189,7 @@ REJECT(3개): ip-address-lookup(일반 네트워킹 상식 나열뿐), website-s
 - [x] **case-converter** (guides/turkish-i-problem-case-conversion.html, 2026-08-19) — "터키어의 I 문제, 표준 대소문자 변환이 깨지는 언어가 있다" — 터키어 점없는I/점있는i 구분.
 - [x] **typing-speed-test** (guides/typing-speed-wpm-5-char-word-standard.html, 2026-08-25) — "타자 속도 WPM, 왜 항상 '5글자=1단어'로 계산하나" — 영문 평균단어길이 5자 기준 국제표준(단, 이 도구는 공백기준 실제 단어수 사용, 가이드에서 지적).
 - [x] **cps-calculator** (guides/cps-human-click-speed-limit-butterfly.html, 2026-08-25) — "인간 클릭 속도의 한계, 버터플라이·드래그 클릭이 필요한 이유" — 한손가락 한계 ~10CPS, 기법동원시 14~16CPS.
-- [ ] **wpm-calculator** — "한글 타자속도(타/분)와 영문 WPM, 왜 1:1 환산이 안 되는가" — 초성·중성·종성 조합 타건 기준.
+- [x] **wpm-calculator** (guides/wpm-korean-typing-vs-english-conversion.html, 2026-08-25) — "한글 타자속도(타/분)와 영문 WPM, 왜 1:1 환산이 안 되는가" — 초성·중성·종성 조합 타건 기준.
 - [x] **reading-level-checker** (guides/reading-level-smog-formula-simplification-error.html, 2026-08-25) — "가독성 점수의 함정, 이 도구의 SMOG 지수가 표준 공식과 다르게 나오는 이유" — 계수3으로 단순화, +3.1291 상수 아예 없음(코드 실측 확인).
 - [x] **remove-special-characters** (guides/remove-special-characters-emoji-surrogate-bug.html, 2026-08-25) — "정규식 문자 클래스의 함정, 왜 이모지가 절반만 지워지는가" — u플래그 부재 확인, 같은 상위서로게이트 공유하는 다른 이모지가 오손됨.
 - [x] **text-summarizer** (guides/text-summarizer-korean-limitation.html, 2026-08-19) — "이 텍스트 요약기, 사실 한국어에서는 작동하지 않는다" — `\w`가 한글 비인식, 문장점수 전부 0되는 버그.
@@ -198,9 +198,9 @@ REJECT(3개): ip-address-lookup(일반 네트워킹 상식 나열뿐), website-s
 - [x] **ascii-table** (guides/ascii-del-127-punch-tape-history.html, 2026-08-21) — "제어문자 DEL(127)은 왜 하필 127번일까 — 천공 테이프가 남긴 흔적" — 천공테이프 무효화 관습 유래.
 - [x] **emoji-counter** (guides/emoji-counter-surrogate-pair-sns-limit.html, 2026-08-20) — "이모지 하나가 글자수 2~11개로 세지는 이유 — SNS 글자수 제한의 함정" — 가족이모지 11코드유닛 이상.
 - [x] **emoji-remover** (guides/emoji-remover-digit-false-positive.html, 2026-08-21) — "숫자도 기술적으로는 이모지다? — Intl.Segmenter와 이모지 오탐 문제" — 0~9,#,*가 Emoji속성 보유.
-- [ ] **hashtag-generator** — "해시태그 몇 개가 적당한가 — 인기·중간·틈새 3:4:3 전략" — 플랫폼별 적정개수 차이.
+- [x] **hashtag-generator** (guides/hashtag-count-strategy-3-4-3-ratio.html, 2026-08-25) — "해시태그 몇 개가 적당한가 — 인기·중간·틈새 3:4:3 전략" — 플랫폼별 적정개수 차이.
 - [x] **keyword-extractor** (guides/keyword-extractor-korean-particle-limitation.html, 2026-08-19) — "왜 '텍스트를'과 '텍스트가'가 다른 단어로 집계될까 — 조사 없는 언어를 위해 설계된 도구의 한계" — 형태소분석 없이 조사포함 집계.
-- [ ] **ngram-analyzer** — "다국어 UI인데 정작 중국어·일본어는 분석 못 하는 N-그램 분석기 — 정규식 언어 편향" — 한자·가나 정규식으로 삭제.
+- [x] **ngram-analyzer** (guides/ngram-analyzer-cjk-regex-language-bias.html, 2026-08-25) — "다국어 UI인데 정작 중국어·일본어는 분석 못 하는 N-그램 분석기 — 정규식 언어 편향" — 한자·가나 정규식으로 삭제(실제 재현 확인).
 - [x] **palindrome-checker** (guides/palindrome-checker-codepoint-vs-grapheme.html, 2026-08-21) — "사람 눈엔 회문인데 알고리즘은 아니라는 경우 — 코드포인트 vs 그래프임 함정" — 국기·ZWJ이모지 오판 가능.
 - [x] **stopword-remover** (guides/stopword-remover-tfidf-distortion.html, 2026-08-21) — "TF-IDF 돌리기 전에 불용어부터 지우는 이유" — 통계왜곡시키는 고빈도단어 개념. (도구 표기 "약70개"는 실제 95개, 가이드에서 정정)
 - [x] **text-case-detector** (guides/text-case-camelcase-vs-kebab-case-origin.html, 2026-08-25) — "camelCase vs kebab-case, 왜 언어마다 다른 표기법을 쓰나" — kebab은 JS 변수명 문법상 불가.
@@ -208,7 +208,9 @@ REJECT(3개): ip-address-lookup(일반 네트워킹 상식 나열뿐), website-s
 - [x] **text-statistics** (guides/text-statistics-flesch-korean-limitation.html, 2026-08-21) — "Flesch 가독성 지수, 왜 한국어에는 안 통하나" — 1948년 영어전용 공식. **버그 발견**: 실제로는 한글도 점수 미표시가 아니라 10단어↑면 무의미한 점수(음절수 강제 fallback=1)를 그대로 노출함 — 도구 자체 FAQ 설명과 실제 동작이 다름. 별도 수정 필요.
 - [x] **unicode-converter** (guides/unicode-escape-js-json-python-comparison.html, 2026-08-25) — "이모지 하나, 프로그래밍 언어마다 다른 세 가지 이스케이프 표기" — JS/JSON/Python 표기 비교.
 - [x] **unicode-inspector** (guides/unicode-homograph-phishing-domains.html, 2026-08-20) — "apple.com이 진짜 apple.com이 아닐 수도 있다 — 호모글리프 피싱의 원리" — IDN 호모그래프 도메인 피싱.
-- [ ] **word-frequency-counter** — "빈도 막대그래프의 %가 어떤 값을 기준으로 하는지" — 분모가 전체토큰(발생횟수) 기준.
+- [x] **word-frequency-counter** (guides/word-frequency-percentage-denominator-basis.html, 2026-08-25) — "빈도 막대그래프의 %가 어떤 값을 기준으로 하는지" — 분모가 전체토큰(발생횟수) 기준.
+
+(text-tools 32/32 완료)
 
 REJECT(9개): line-counter, find-replace, remove-empty-lines, remove-duplicate-lines, text-cleaner, line-merger, random-word-generator, remove-duplicate-words, text-merger (전부 순수 UI/기능 나열, 원리·비교 앵글 부재).
 

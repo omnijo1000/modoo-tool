@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>다국어 UI인데 정작 중국어·일본어는 분석 못 하는 N-그램 분석기 | MODOO HUB</title>
+<meta name="description" content="N-그램 분석기는 화면을 한국어·영어·중국어·일본어로 번역해두고도, 기본 옵션의 정규식이 한글과 영문만 남기고 한자·가나를 전부 지워버립니다. UI 다국어와 처리 로직 다국어가 왜 다른 층위인지 정규식을 직접 뜯어봅니다.">
+<link rel="canonical" href="https://modoohub.com/guides/ngram-analyzer-cjk-regex-language-bias.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"다국어 UI인데 정작 중국어·일본어는 분석 못 하는 N-그램 분석기 — 정규식 언어 편향","description":"N-그램 분석기의 화면은 4개 언어로 번역돼 있지만, 핵심 정규식은 한글과 영문만 보존하도록 짜여 있어 중국어 한자와 일본어 가나가 전처리 단계에서 통째로 사라집니다.","datePublished":"2026-08-25","dateModified":"2026-08-25","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>다국어 UI인데 정작 중국어·일본어는 분석 못 하는 N-그램 분석기 — 정규식 언어 편향</h1>
+  <p class="meta">가이드 · 2026.08.25 최종 확인</p>
+
+  <p><a href="../ngram-analyzer.html">N-그램 분석기</a>는 화면 자체가 한국어·영어·중국어·일본어 4개 언어로 번역되어 있습니다. 언어 버튼을 눌러 中文이나 日本語로 바꿔도 메뉴와 안내 문구는 멀쩡하게 그 언어로 표시됩니다. 그런데 정작 그 화면에 중국어나 일본어 문장을 붙여넣고 분석을 돌리면, 결과에는 한자도 가나도 하나도 남지 않습니다. UI가 다국어라는 것과 텍스트 처리 로직이 다국어라는 것은 완전히 다른 층위의 이야기라는 걸 보여주는 실제 사례입니다.</p>
+
+  <h2>1. "다국어 지원"이라는 말의 두 가지 뜻</h2>
+  <p>웹 도구에서 "다국어 지원"은 보통 두 가지를 뭉뚱그려 가리킵니다. 하나는 버튼·라벨·안내문 같은 인터페이스 문자열을 번역하는 것이고, 다른 하나는 사용자가 입력하는 실제 데이터(텍스트)를 그 언어의 문법과 문자 체계에 맞게 처리하는 것입니다. 앞의 것은 <code>_i18n</code> 객체에 언어별 문자열 사전을 채워 넣기만 하면 끝나지만, 뒤의 것은 정규식·토큰화 규칙·문자 범위 하나하나가 그 언어를 실제로 고려해서 짜여 있어야 합니다. 이 두 층위가 항상 같이 가는 게 아니라는 점이 이번 사례의 핵심입니다.</p>
+
+  <h2>2. 정규식을 직접 뜯어본 결과</h2>
+  <p>N-그램 분석기의 "구두점 제거" 옵션은 기본값이 켜짐(체크)이며, 코드에서 <code>text.replace(/[^\w\s가-힣]/g, ' ')</code> 형태로 적용됩니다. 이 정규식을 문자 그대로 읽으면 "영문자·숫자·언더스코어(<code>\w</code>), 공백(<code>\s</code>), 그리고 한글 완성형 음절 범위(가-힣)가 아닌 모든 문자를 공백으로 바꿔라"입니다. 즉 허용 목록에 명시적으로 들어간 문자군은 라틴 알파벳과 한글 두 가지뿐이고, 중국어 한자(CJK 통합 한자 영역)나 일본어 히라가나·가타카나는 이 목록 어디에도 없습니다. 허용되지 않은 문자는 예외 처리 없이 그냥 공백으로 치환되므로, 한자·가나로만 이루어진 단어는 토큰화 이전 단계에서 이미 흔적도 없이 사라집니다.</p>
+
+  <h2>3. 실제로 넣어보면 벌어지는 일</h2>
+  <p>다음은 한중일 세 언어가 섞인 문장을 기본 설정(구두점 제거 켜짐)으로 분석했을 때의 결과입니다.</p>
+  <table>
+    <tr><th>입력 원문</th><th>정규식 통과 후 남는 텍스트</th></tr>
+    <tr><td>这是一个测试。日本語のテストです。한국어 테스트입니다.</td><td>한국어 테스트입니다</td></tr>
+  </table>
+  <div class="box">
+    <strong>결과 요약</strong>: 원문 3개 문장 중 중국어 문장과 일본어 문장은 통째로 공백 처리되어 사라지고, 한국어 문장만 살아남습니다. Unigram·Bigram·Trigram 결과 테이블 어디에도 "测试"나 "テスト" 같은 토큰은 등장하지 않습니다 — 오류 메시지 없이 조용히 사라지기 때문에, UI 언어를 중국어로 바꿔놓고 분석기를 쓰는 사용자는 왜 결과가 텅 비었는지 원인을 짐작하기 어렵습니다.</div>
+
+  <h2>4. 왜 한글만 예외로 들어갔을까</h2>
+  <p>자바스크립트 정규식의 <code>\w</code>는 유니코드 전체가 아니라 ASCII 범위(a-z, A-Z, 0-9, _)만 의미합니다. 애초에 이 도구가 한국 서비스로 시작해 한국어 콘텐츠 분석을 1순위 요구사항으로 짰기 때문에, 개발 단계에서 "한글이 지워지는 문제"만 발견해 <code>가-힣</code> 범위를 명시적으로 추가한 것으로 보입니다. 그 뒤 UI를 중국어·일본어로도 번역하면서 인터페이스 층위는 확장됐지만, 정규식이라는 처리 로직 층위는 그 확장을 따라가지 못한 채 남아있는 상태입니다. 즉 "한글은 되는데 한자·가나는 안 되는" 비대칭은 실수라기보다, 한 언어를 기준으로 짠 정규식을 다른 언어로 그대로 재사용할 때 생기는 전형적인 구멍입니다.</p>
+
+  <h2>5. 구두점 제거를 끄면 해결될까</h2>
+  <p>"구두점 제거" 체크박스를 끄면 이 정규식 자체가 적용되지 않으므로 한자·가나가 살아남긴 합니다. 다만 그 대가로 마침표·쉼표·물음표 같은 진짜 문장부호까지 토큰 안에 그대로 남아 N-그램 결과에 섞여 들어갑니다. 예를 들어 "테스트。" 같은 토큰이 "테스트"와 별개의 항목으로 집계되어 빈도 통계가 흐려질 수 있습니다. 또한 이 상태에서 원문에 큰따옴표가 포함돼 있으면, CSV 내보내기 코드가 필드 내부의 큰따옴표를 이스케이프하지 않기 때문에 내보낸 CSV의 열 구조가 깨지는 별개의 버그도 함께 마주칠 수 있습니다. 결국 지금 버전에서 중국어·일본어 텍스트를 다루려면 옵션을 끄는 것 외에는 우회로가 없고, 그마저도 완전한 해결책은 아닙니다.</p>
+
+  <h2>6. 실무에서 언어 편향을 피하는 법</h2>
+  <p>텍스트 전처리 정규식을 직접 짤 일이 있다면, 특정 문자 범위를 하나씩 나열하는 대신 유니코드 스크립트 속성(<code>\p{Script=Han}</code>, <code>\p{Script=Hiragana}</code>, <code>\p{Script=Katakana}</code> 등, <code>u</code> 플래그 필요)을 쓰는 편이 안전합니다. 다만 이 도구처럼 이미 배포된 정규식을 직접 고칠 수 없는 입장이라면, 분석하려는 언어에 맞춰 옵션을 조정하고 결과를 눈으로 한 번 검산하는 습관이 현실적인 대안입니다. 키워드 빈도만 필요하다면 <a href="../word-frequency-counter.html">단어 빈도 카운터</a>나 <a href="../keyword-extractor.html">키워드 추출기</a>가 더 단순한 로직으로 비슷한 결과를 줄 수 있고, 불용어 제거까지 함께 쓴다면 <a href="../stopword-remover.html">불용어 제거기</a>도 참고할 만합니다. 다만 이 도구들도 내부 로직이 언어별로 다르게 짜여 있을 수 있으므로, 다국어 텍스트를 다룰 때는 항상 실제 결과를 눈으로 검산하는 것이 가장 확실합니다.</p>
+
+  <h2>자주 묻는 질문</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. N-그램 분석기가 중국어·일본어를 아예 지원하지 않는다는 뜻인가요?</summary><p style="margin-top:8px;">UI 번역은 지원하지만 기본 옵션 상태의 텍스트 처리 로직은 지원하지 않습니다. "구두점 제거"를 끄면 문자 자체는 살아남지만 문장부호가 섞여 들어가는 부작용이 있어, 완전한 지원이라고 보기는 어렵습니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 왜 오류 메시지 없이 조용히 텍스트가 사라지나요?</summary><p style="margin-top:8px;">정규식 치환은 매칭되지 않는 문자를 공백으로 바꿀 뿐 예외를 던지지 않기 때문입니다. 프로그램 입장에서는 정상 동작이라 별도 경고를 띄울 이유가 없고, 그래서 사용자가 결과가 빈 이유를 스스로 알아차리기 어렵습니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 영어나 유럽어 텍스트는 문제없이 처리되나요?</summary><p style="margin-top:8px;">기본 ASCII 알파벳(a-z, A-Z)은 <code>\w</code>에 포함되어 정상 처리됩니다. 다만 é, ü, ñ 같은 악센트 부호가 붙은 라틴 문자는 <code>\w</code> 범위 밖이라 마찬가지로 공백으로 치환되어 사라집니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 비슷한 언어 편향이 다른 텍스트 도구에도 있을 수 있나요?</summary><p style="margin-top:8px;">네, 있을 수 있습니다. 특정 문자 범위를 하드코딩한 정규식은 그 범위 밖의 언어에서 같은 유형의 문제가 재현될 가능성이 있으므로, 다국어 텍스트를 다룰 도구를 고를 때는 실제로 그 언어를 넣어 결과를 확인해보는 것이 안전합니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../ngram-analyzer.html">→ N-그램 분석기</a>
+    <a href="../word-frequency-counter.html">→ 단어 빈도 카운터</a>
+    <a href="../keyword-extractor.html">→ 키워드 추출기</a>
+    <a href="../text-statistics.html">→ 텍스트 통계</a>
+    <a href="../stopword-remover.html">→ 불용어 제거기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적이며, 실제 분석 결과는 반드시 눈으로 직접 검산해 확인하시기 바랍니다.</footer>
+</main>
+</body>
+</html>

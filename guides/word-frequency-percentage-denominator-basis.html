@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>빈도 막대그래프의 %가 어떤 값을 기준으로 하는지 | MODOO HUB</title>
+<meta name="description" content="단어 빈도 분석 결과에 표시되는 %가 고유 단어 수 기준인지 전체 토큰 수 기준인지에 따라 완전히 다른 숫자가 나옵니다. 실제 계산 코드를 확인해 정확한 기준과 숫자 예시로 정리했습니다.">
+<link rel="canonical" href="https://modoohub.com/guides/word-frequency-percentage-denominator-basis.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"빈도 막대그래프의 %가 어떤 값을 기준으로 하는지","description":"단어 빈도 분석 결과에 표시되는 %가 고유 단어 수 기준인지 전체 토큰 수 기준인지에 따라 완전히 다른 숫자가 나옵니다. 실제 계산 코드를 확인해 정확한 기준과 숫자 예시로 정리했습니다.","datePublished":"2026-08-25","dateModified":"2026-08-25","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>빈도 막대그래프의 %가 어떤 값을 기준으로 하는지</h1>
+  <p class="meta">가이드 · 2026.08.25 최종 확인</p>
+
+  <p>텍스트를 분석기에 넣으면 각 단어 옆에 빈도 숫자와 함께 "%"가 함께 표시됩니다. 이 숫자를 보고 "이 단어가 텍스트 전체에서 차지하는 비중"이라고 직관적으로 받아들이기 쉽지만, 그 "전체"가 정확히 무엇을 뜻하는지는 도구마다 다를 수 있습니다. 후보는 두 가지입니다. 하나는 <strong>전체 토큰 수</strong>(같은 단어가 여러 번 나오면 그만큼 여러 번 센 값, 중복 포함), 다른 하나는 <strong>고유 단어 종류 수</strong>(중복을 제거하고 서로 다른 단어가 몇 종류인지 센 값)입니다. 이 둘은 숫자 자체가 완전히 다르고, 어느 쪽을 기준으로 삼느냐에 따라 같은 빈도라도 표시되는 %가 몇 배씩 차이 납니다.</p>
+
+  <h2>1. 두 분모가 왜 이렇게 다른 숫자를 만드는가</h2>
+  <p>전체 토큰 수는 "단어가 등장한 횟수의 총합"입니다. 문장을 공백으로 쪼갠 조각을 하나씩 셀 때마다 늘어나므로, 같은 단어가 반복될수록 분모 자체도 함께 커집니다. 반면 고유 단어 종류 수는 반복 여부와 무관하게 "서로 다른 단어가 몇 개 있는가"만 셉니다. 예를 들어 "고양이 고양이 고양이 강아지"라는 텍스트는 전체 토큰 수로는 4개지만, 고유 단어 종류 수로는 2개(고양이, 강아지)뿐입니다. 특정 단어의 등장 횟수를 이 두 분모 중 어느 쪽으로 나누느냐에 따라 결과 %가 크게 벌어지는 이유가 여기에 있습니다.</p>
+
+  <h2>2. 실제 코드로 확인한 기준: 전체 토큰 수</h2>
+  <p><a href="../word-frequency-counter.html">단어 빈도 분석기</a>의 계산 로직을 직접 읽어보면, 각 단어의 % 값은 <code>(해당 단어 등장 횟수 / total) × 100</code>으로 계산되고, 여기서 <code>total</code>은 텍스트를 공백 기준으로 쪼갠 전체 토큰 개수입니다. 고유 단어 종류 수(표에 나열되는 서로 다른 단어의 개수)는 이 계산식에 전혀 등장하지 않습니다. 즉 이 도구의 %는 <strong>전체 토큰 수를 분모로 한 비율</strong>이며, "이 단어가 고유 단어 목록 중 몇 번째 비중을 차지하는가"가 아니라 "전체 텍스트에서 이 단어가 등장한 절대적 밀도"를 나타냅니다.</p>
+  <p>여기서 한 가지 더 확인해 둘 점이 있습니다. <code>total</code>은 대소문자 통합·불용어 제거 옵션을 적용하기 <strong>이전</strong>, 구두점만 제거한 직후의 토큰 개수로 고정됩니다. 즉 불용어 제거를 켜서 화면에서 특정 단어들이 사라지더라도, 분모인 total 자체는 줄어들지 않습니다. 표에 남은 단어들의 % 합계를 다 더해도 100%가 되지 않는 경우가 흔한 이유가 이것입니다 — 걸러진 단어들의 몫이 분모에는 여전히 포함돼 있기 때문입니다.</p>
+
+  <h2>3. 숫자로 보는 차이: 같은 빈도, 다른 %</h2>
+  <p>총 100개의 단어 토큰(그중 서로 다른 단어는 20종)으로 이루어진 텍스트에서, 특정 단어 하나가 10번 등장했다고 가정해 보겠습니다.</p>
+  <table>
+    <tr><th>기준(분모)</th><th>계산식</th><th>결과 %</th></tr>
+    <tr><td>전체 토큰 수 기준 (이 도구의 방식)</td><td>10 ÷ 100</td><td><strong>10.0%</strong></td></tr>
+    <tr><td>고유 단어 종류 수 기준</td><td>1 ÷ 20</td><td><strong>5.0%</strong></td></tr>
+  </table>
+  <p>같은 데이터, 같은 단어 하나를 놓고도 분모를 무엇으로 잡느냐에 따라 정확히 2배 차이가 납니다. 반복이 많은 텍스트일수록 두 값의 격차는 더 벌어집니다. 리포트나 콘텐츠에 이 %를 인용할 때는 "전체 단어 등장 횟수 중 몇 %"라고 명시해야 다른 도구의 결과와 섞여 오해를 만들지 않습니다.</p>
+
+  <h2>4. 막대(bar) 길이는 %와 기준이 다르다</h2>
+  <p>표 안의 막대 길이도 %와 같은 값을 쓸 거라 오해하기 쉽지만, 실제로는 별개의 계산입니다. 막대는 현재 화면에 표시된 결과 중 <strong>가장 빈도가 높은 단어를 100%로 놓고</strong> 나머지 단어의 상대 길이를 정하는 방식이라, 최소 빈도·상위 N 필터를 적용한 뒤 남은 단어들끼리의 상대 비교일 뿐입니다. 반면 % 열은 필터와 무관하게 전체 토큰 수를 고정 분모로 씁니다. 그래서 막대 길이가 비슷한 두 단어라도 % 숫자는 크게 다를 수 있고, 반대로 % 숫자가 비슷해도 막대 길이는 다를 수 있습니다. 두 시각 요소를 같은 척도로 읽지 않도록 주의해야 합니다.</p>
+
+  <h2>5. SEO 키워드 밀도와 혼동하지 말 것</h2>
+  <p>이 %를 "키워드 밀도"로 그대로 가져다 쓰는 경우가 있는데, 정확히는 다른 개념입니다. 키워드 밀도는 보통 특정 키워드(구, phrase)의 등장 비율을 다루고, 불용어·형태소 처리 방식도 SEO 목적에 맞춰 별도로 설계됩니다. 단어 하나 단위의 순수 빈도 %를 SEO 리포트에 그대로 인용하기보다는, 목적에 맞게 설계된 <a href="../keyword-density-checker.html">키워드 밀도 체크 도구</a>를 별도로 쓰는 편이 더 정확한 결과를 줍니다. 연속된 단어 조합의 빈도가 궁금하다면 <a href="../ngram-analyzer.html">N-gram 분석기</a>가, 텍스트 전체의 통계적 개요가 필요하다면 <a href="../text-statistics.html">텍스트 통계 도구</a>가 더 적합합니다.</p>
+
+  <div class="box">
+    <strong>요약</strong>: 이 도구의 % 열은 "고유 단어 수" 기준이 아니라 "전체 토큰 수(중복 포함, 필터 적용 전)" 기준입니다. 막대 길이는 또 다른 기준(현재 화면 최고 빈도 대비 상대값)을 씁니다. 두 숫자를 같은 의미로 읽지 마세요.
+  </div>
+
+  <h2>자주 묻는 질문</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. %의 분모가 고유 단어 수가 아니라는 걸 어떻게 확인했나요?</summary><p style="margin-top:8px;">단어 빈도 분석기의 계산 코드를 직접 읽어 확인했습니다. % 값은 각 단어의 등장 횟수를 텍스트 전체를 공백으로 쪼갠 토큰 총개수(total)로 나누어 계산하며, 고유 단어 종류 수는 이 계산식 어디에도 쓰이지 않습니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 불용어 제거를 켜면 %도 다시 계산되나요?</summary><p style="margin-top:8px;">단어별 등장 횟수는 불용어 제거 후 남은 단어 기준으로 집계되지만, 분모(total)는 구두점 제거 직후에 고정된 값이라 불용어 제거로 줄어들지 않습니다. 그래서 화면에 보이는 단어들의 % 합계가 100%보다 작게 나오는 경우가 흔합니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 막대 길이와 % 숫자가 서로 안 맞는 것처럼 보이는데 버그인가요?</summary><p style="margin-top:8px;">버그가 아닙니다. 막대 길이는 현재 화면에 표시된 단어들 중 최고 빈도를 100%로 놓은 상대값이고, % 열은 전체 토큰 수를 고정 분모로 쓰는 절대적 비율이라 서로 다른 척도입니다. 두 값이 정비례하지 않는 것이 정상입니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 이 %를 그대로 논문이나 리포트에 인용해도 되나요?</summary><p style="margin-top:8px;">기준을 명시한다면 가능합니다. "전체 단어 등장 횟수(토큰 수) 대비 비율"이라고 분모를 밝혀 두면, 고유 단어 수를 분모로 쓰는 다른 도구의 결과와 혼동될 위험이 줄어듭니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../word-frequency-counter.html">→ 단어 빈도 분석기</a>
+    <a href="../text-statistics.html">→ 텍스트 통계 도구</a>
+    <a href="../keyword-density-checker.html">→ 키워드 밀도 체크</a>
+    <a href="../ngram-analyzer.html">→ N-gram 분석기</a>
+    <a href="../stopword-remover.html">→ 불용어 제거 도구</a>
+    <a href="../duplicate-line-finder.html">→ 중복 줄 찾기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적이며, 실제 도구 동작은 업데이트로 바뀔 수 있습니다.</footer>
+</main>
+</body>
+</html>
