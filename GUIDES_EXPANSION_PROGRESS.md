@@ -81,7 +81,7 @@
 - [x] **fire-calculator** (guides/fire-calculator-4-percent-rule-trinity-study.html, 2026-08-24) — "4% 룰(Trinity Study), 한국에서도 안전한가" — 1998년 미국 30년 가정, 비미국은 3~3.5% 권장.
 - [x] **cagr-calculator** (guides/cagr-hides-volatility-trap.html, 2026-08-25) — "CAGR이 감추는 변동성의 함정" — -30%/+80% 등락도 CAGR은 매년 동일성장처럼 평활화.
 - [x] **margin-calculator** (guides/margin-markup-percentage-confusion.html, 2026-08-24) — "마진율과 마크업, 같은 거래인데 다른 숫자가 나오는 이유" — 원가700·판매1000: 마진30% vs 마크업42.86%.
-- [ ] **profit-calculator** — "총이익·영업이익·순이익, 세 단계로 나눠 보는 이유" — COGS/OPEX 분리 3단계 이익구조.
+- [x] **profit-calculator** (guides/profit-gross-operating-net-three-stages.html, 2026-08-25) — "총이익·영업이익·순이익, 세 단계로 나눠 보는 이유" — COGS/OPEX 분리 3단계 이익구조.
 - [x] **break-even-calculator** (guides/break-even-margin-of-safety-beyond-bep.html, 2026-08-25) — "손익분기점만으론 부족한 이유, 안전마진율" — 안전마진율=(예상매출−BEP)÷예상매출. (계산기 자체는 안전마진율 자동계산 안 함, FAQ에만 설명)
 - [x] **commission-calculator** (guides/commission-tiered-progressive-like-income-tax.html, 2026-08-25) — "구간별 누진 수수료, 소득세처럼 계산되는 원리" — 100만까지3%+나머지5%, 200만매출시 수수료8만(10만 아님, 실제 재현 확인).
 - [x] **discount-calculator** (guides/discount-calculator-stacked-discount-math.html, 2026-08-21) — "중복 할인 30%+10%는 40% 할인이 아니다" — 50%+50%=75%할인(25%남음, 100%아님).
@@ -94,8 +94,8 @@
 - [ ] **electricity-cost-calculator** — "한국 전기요금 누진제 3단계, 여름·겨울엔 왜 완화되나" — 200/201~400/400초과 3단계.
 - [x] **four-insurance** (guides/four-insurance-employer-burden-structure.html, 2026-08-20) — "사업주가 근로자보다 4대보험을 더 많이 낸다? 숨은 부담 구조" — 산재보험 평균1.47%는 전액 사업주 부담.
 - [ ] **fuel-cost-calculator** — "L/100km와 MPG, 왜 헷갈리는가 + 경유가 항상 economical하진 않다" — MPG=235.21÷(L/100km).
-- [ ] **income-tax** — "종합소득세 누진세, 왜 세율표보다 적게 내는가" — 8단계 누진세율+누진공제 개념.
-- [ ] **loan-calc** — "원리금균등 vs 원금균등, 총이자 3,500만원 차이의 비밀" — 3억·4%·30년: 총이자 차이 약3,510만원.
+- [x] **income-tax** (guides/income-tax-progressive-deduction-less-than-table.html, 2026-08-25) — "종합소득세 누진세, 왜 세율표보다 적게 내는가" — 8단계 누진세율+누진공제 개념(코드에서 누진공제액 역산 검증).
+- [x] **loan-calc** (guides/loan-equal-payment-vs-equal-principal-interest-diff.html, 2026-08-25) — "원리금균등 vs 원금균등, 총이자 3,500만원 차이의 비밀" — 3억·4%·30년: 실제 계산 차이 35,108,519원(코드 실행 검증).
 - [ ] **overtime-pay** — "연장+야간 겹치면 200% — 그런데 5인 미만은 의무가 없다" — 5인미만 사업장 야간수당 의무 없음.
 - [ ] **payslip-calc** — "급여명세서 미교부, 과태료 500만원 — 2021년 이후 전 사업장 의무" — 2021.11부터 전사업장 의무.
 - [x] **percent-calc** (guides/percentage-point-vs-percent-difference.html, 2026-08-24) — "퍼센트 포인트(%p)와 퍼센트(%)는 다르다" — 40%→45%는 5%p(12.5% 아님).
@@ -106,11 +106,11 @@
 - [x] **retirement-calc** (guides/retirement-fire-25x-annual-expense-target.html, 2026-08-25) — "파이어(FIRE) 목표자산, 왜 연지출의 25배인가" (25=1/4% 도출과정 중심으로 각도 조정, fire-calculator 가이드와 중복 방지). **참고**: 이 도구는 실제로 단순 25배가 아니라 유한 은퇴기간 연금현재가치로 계산(기본값 기준 25배가 아닌 약16.6배).
 - [ ] **retirement-pension** — "퇴직연금 DB형 vs DC형, 임금인상률이 갈림길" — 임금인상률>예상투자수익률이면 DB유리.
 - [ ] **salary-raise** — "명목 인상률 5%인데 실질은 1.94%? 물가 반영 실질 인상률" — 실질=((1+명목)÷(1+물가)−1)×100.
-- [ ] **salary-reverse** — "실수령액 역산, 왜 단순히 0.85로 나누면 안 되나" — 비선형 역산, 월300만 실수령→세전 약4,530만.
+- [x] **salary-reverse** (guides/salary-reverse-nonlinear-gross-from-net.html, 2026-08-25) — "실수령액 역산, 왜 단순히 0.85로 나누면 안 되나" — 이분탐색 방식 확인, 월300만 실수령→세전 45,320,000원(코드 로직대로 실측).
 - [ ] **severance-tax** — "퇴직소득세가 유독 적은 이유: 근속연수공제와 연분연승법" — 15년근속시 공제액 2,750만원.
 - [ ] **stock-tax** — "국내주식 손실과 해외주식 이익, 왜 서로 상계가 안 되나" — 해외주식 손익통산 불가, 기본공제 250만.
 - [ ] **tip-calculator** — "서비스 차지와 팁은 다르다 + 나라별 팁 비율이 이렇게 다른 이유" — 미국18~20% vs 유럽10~15% vs 한중일 없음.
-- [ ] **vat-calc** — "간이과세자는 왜 부가세를 10%가 아니라 1.5~4%만 내나" — 연매출1억400만이하 업종별 부가가치율 적용.
+- [x] **vat-calc** (guides/vat-simplified-taxpayer-1-5-4-percent.html, 2026-08-25) — "간이과세자는 왜 부가세를 10%가 아니라 1.5~4%만 내나" — 연매출1억400만이하 업종별 부가가치율 적용. **참고**: 이 계산기 자체는 일반과세(10%)·영세율(0%)만 지원, 간이과세 업종별 계산 미지원(가이드에서 이 한계도 명시).
 
 REJECT(4개, 이유 있음): salary(기존 가이드와 중복), salary-negotiation(수치 근거 얕음), split-calculator(순수 UI), weekly-holiday(minimum-wage 가이드와 중복).
 
@@ -132,18 +132,18 @@ REJECT(4개, 이유 있음): salary(기존 가이드와 중복), salary-negotiat
 - [x] **user-agent-parser** (guides/user-agent-applewebkit-537-36-legacy.html, 2026-08-24) — "크롬도 왜 AppleWebKit/537.36을 달고 다니나 — UA 문자열의 역사적 유물" — 호환성 위해 고정값 유지.
 - [x] **webhook-generator** (guides/webhook-signature-github-stripe-slack-differ.html, 2026-08-24) — "GitHub·Stripe·Slack, 웹훅 서명이 플랫폼마다 다르게 계산되는 이유" — 해시대상 문자열이 각각 다름.
 - [x] **sql-minifier** (guides/sql-minifier-comment-string-collision-bug.html, 2026-08-24) — "SQL 압축기가 문자열 속 --를 만나면 쿼리를 통째로 잘라먹는다" — 주석제거가 문자열보호보다 먼저 실행되는 버그(실제 재현 확인).
-- [ ] **javascript-beautifier** — "중괄호만 세는 JS 포매터가 for문을 깨뜨리는 이유" — 들여쓰기 깊이를 `{}` 개수로만 계산.
-- [ ] **css-beautifier** — "문자 단위 CSS 포매터의 중첩 깊이 추적 방식" — SCSS 전처리기 문법은 깨짐.
-- [ ] **keyword-difficulty-estimator** — "키워드 난이도 점수, 실제 검색 데이터 없이 어떻게 계산되나" — 규칙기반 점수, 5~95 클램프.
+- [x] **javascript-beautifier** (guides/javascript-beautifier-brace-counting-for-loop-bug.html, 2026-08-25) — "중괄호만 세는 JS 포매터가 for문을 깨뜨리는 이유" — 들여쓰기 깊이를 `{}` 개수로만 계산(실제 재현 확인).
+- [x] **css-beautifier** (guides/css-beautifier-char-by-char-nesting-scss-limit.html, 2026-08-25) — "문자 단위 CSS 포매터의 중첩 깊이 추적 방식" — SCSS 전처리기 문법은 깨짐. **추가발견**: 문자열/주석 보호 로직 자체가 없음.
+- [x] **keyword-difficulty-estimator** (guides/keyword-difficulty-rule-based-no-real-data.html, 2026-08-25) — "키워드 난이도 점수, 실제 검색 데이터 없이 어떻게 계산되나" — 규칙기반 점수, 5~95 클램프.
 - [x] **sitemap-extractor** (guides/sitemap-priority-changefreq-ignored.html, 2026-08-19) — "사이트맵 priority·changefreq, 구글이 이미 무시한다고 밝힌 태그" — 2014년부터 priority 안 씀.
 - [x] **serp-snippet-preview** (guides/serp-title-pixel-width-not-char-count.html, 2026-08-25) — "구글 제목 스니펫은 글자수가 아니라 픽셀로 잘린다" — 약600px(Arial기준), 60자는 근사치일뿐.
-- [ ] **open-graph-preview** — "소셜 공유 미리보기가 안 바뀌는 이유: 플랫폼 캐시" — Facebook Sharing Debugger로 Scrape Again 필요.
+- [x] **open-graph-preview** (guides/open-graph-preview-tool-accuracy-limits.html, 2026-08-25) — "OG 미리보기 도구, 왜 실제 카카오톡·페이스북과 다르게 보일 수 있나" (open-graph-generator 가이드의 캐시 주제와 중복 피해 "도구는 URL fetch 없이 붙여넣은 HTML만 파싱" 각도로 작성).
 - [x] **keyword-cannibalization-checker** (guides/keyword-cannibalization-string-vs-intent.html, 2026-08-25) — "키워드 카니발라이제이션, 문자열은 같아도 검색 의도는 다를 수 있다" — 301/canonical/차별화가 해법.
 - [x] **json-schema-generator** (guides/json-schema-null-array-type-gaps.html, 2026-08-20) — "JSON Schema 자동생성기가 놓치는 null과 배열 타입 함정" — null은 nullable 표현 안 됨, 배열은 첫요소만 봄.
 - [x] **yaml-diff-checker** (guides/yaml-diff-regex-comment-false-positive.html, 2026-08-20) — "YAML Diff 비교기는 사실 YAML을 이해하지 못한다" — 정규식으로 한줄만 인식, 인라인 주석만 바꿔도 diff 오탐.
 - [x] **csv-diff-checker** (guides/csv-diff-encoding-bom-delimiter-traps.html, 2026-08-20) — "CSV diff가 전체 행을 다 다르다고 표시하는 인코딩 함정 3가지" — EUC-KR/CP949, BOM 유무, 구분자 차이.
 - [ ] **uuid-extractor** — "UUID를 텍스트에서 정확히 골라내는 정규식 조건" — 13번째자리 버전, 19번째자리 변형비트 검사.
-- [ ] **api-response-viewer** — "API 뷰어가 큰 정수를 반올림하는 이유" — JSON.parse가 2^53-1 넘는 정수 정밀도 손실(JS표준동작).
+- [x] **api-response-viewer** (guides/api-response-viewer-large-integer-rounding.html, 2026-08-25) — "API 뷰어가 큰 정수를 반올림하는 이유" — JSON.parse가 2^53-1 넘는 정수 정밀도 손실(JS표준동작, reviver 미사용 확인).
 - [x] **robots-txt-validator** (guides/robots-txt-disallow-empty-vs-slash.html, 2026-08-25) — "robots.txt에서 Disallow: ''와 Disallow: /는 정반대 의미" — 빈값=전체허용, /=전체차단.
 - [x] **meta-tag-analyzer** (guides/robots-meta-tag-noindex-follow-combinations.html, 2026-08-25) — "robots 메타태그 4가지 조합, noindex인데 follow하는 이유" — noindex,follow는 인덱싱만 제외. (도구는 원본값만 노출, 4조합 해설은 FAQ에만 있음)
 - [x] **schema-validator** (guides/schema-required-vs-recommended-fields.html, 2026-08-25) — "JSON-LD 필수 vs 권장 필드, 없어도 되는데 왜 넣으라 하나" — 필수필드 누락시 리치스니펫 자체 미표시.
@@ -341,7 +341,7 @@ REJECT: 없음(10개 전부 ACCEPT). (ai-tools 10/10 완료)
 ## data-tools (8개 ACCEPT)
 
 - [x] **json-validator** (guides/json-large-integer-precision-loss.html, 2026-08-19) — "JSON 숫자가 깨지는 이유: IEEE 754와 2^53의 함정" — 2^53(9007199254740992) 초과 정수 정밀도 손실.
-- [ ] **yaml-formatter** — "YAML의 노르웨이 문제: yes/no가 왜 갑자기 true/false가 되는가" — YAML1.1 vs 1.2 불리언 파싱 차이.
+REJECT: **yaml-formatter** — "YAML의 노르웨이 문제" 주제는 yaml-validator 가이드(guides/yaml-norway-problem-boolean-parsing.html)와 완전 중복돼 스킵. (data-tools 8/8 완료, yaml-formatter는 별도 앵글 없이 제외)
 - [x] **csv-to-json** (guides/csv-to-json-leading-zero-loss.html, 2026-08-19) — "CSV를 JSON으로 바꿀 때 숫자로 둔갑하는 값: 앞자리 0이 사라지는 문제" — "007"/"010-"는 문자열 유지.
 - [x] **json-diff** (guides/json-array-diff-index-vs-lcs.html, 2026-08-19) — "JSON 배열 비교의 함정: 인덱스 기반 diff가 중간 삽입에서 틀리는 이유" — LCS정렬 없이 인덱스만 대응.
 - [x] **json-flattener** (guides/json-flatten-unflatten-array-loss.html, 2026-08-19) — "중첩 JSON 평탄화(flatten)와 되돌리기(unflatten), 정보가 사라지는 지점" — 2차원배열서 구조정보 소실.

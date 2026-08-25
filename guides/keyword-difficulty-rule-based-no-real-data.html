@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>키워드 난이도 점수, 실제 검색 데이터 없이 어떻게 계산되나 | MODOO HUB</title>
+<meta name="description" content="Ahrefs 같은 유료 SEO 툴은 실시간 SERP 데이터를 크롤링하지만, 브라우저에서 도는 무료 도구는 접근할 수 없습니다. 규칙 기반 키워드 난이도 점수의 실제 계산식을 코드로 공개합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/keyword-difficulty-rule-based-no-real-data.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"키워드 난이도 점수, 실제 검색 데이터 없이 어떻게 계산되나","description":"Ahrefs 같은 유료 SEO 툴은 실시간 SERP 데이터를 크롤링하지만, 브라우저에서 도는 무료 도구는 접근할 수 없습니다. 규칙 기반 키워드 난이도 점수의 실제 계산식을 코드로 공개합니다.","datePublished":"2026-08-25","dateModified":"2026-08-25","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+code{background:var(--surface2);padding:1px 5px;border-radius:4px;font-family:'DM Mono',monospace;font-size:13px;color:var(--blue);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>키워드 난이도 점수, 실제 검색 데이터 없이 어떻게 계산되나</h1>
+  <p class="meta">가이드 · 2026.08.25 최종 확인</p>
+
+  <p>"키워드 난이도 87점" 같은 숫자를 보면 마치 구글 검색 결과를 실시간으로 분석한 것처럼 느껴집니다. 하지만 브라우저에서 즉시 계산되는 무료 도구는 애초에 그런 데이터에 접근할 방법이 없습니다. <a href="../keyword-difficulty-estimator.html">키워드 난이도 추정기</a>의 실제 계산 로직을 코드 레벨로 열어, 이 숫자가 정확히 어디서 나오는지 공개합니다.</p>
+
+  <h2>1. 진짜 유료 SEO 툴은 어떻게 계산하는가</h2>
+  <p>Ahrefs, SEMrush 같은 유료 서비스는 자체 크롤러가 상시로 웹을 돌며 수집한 백링크 데이터베이스를 갖고 있습니다. 특정 키워드를 검색하면 실제 구글 SERP 상위 10개 페이지를 가져와 각 도메인의 도메인 권위(Domain Rating)·백링크 수·referring domain 수를 종합해 난이도를 산출합니다. 이 과정은 서버에서 대규모 인덱스를 조회하는 작업이라, 브라우저 안의 자바스크립트만으로는 애초에 재현이 불가능합니다.</p>
+
+  <h2>2. 브라우저 도구의 근본적 한계: 실시간 데이터 접근 불가</h2>
+  <p>이 도구는 어떤 외부 API도 호출하지 않습니다. 서버도 없고, 검색엔진에 요청을 보내지도 않습니다. 오직 사용자가 화면에서 직접 선택한 4가지 입력값(경쟁사 도메인 강도, 검색 의도, 콘텐츠 유형, 도메인 연령)과 입력한 키워드 문자열의 단어 수만으로 그 자리에서 사칙연산을 수행합니다. 즉 "난이도"라는 말은 실제 SERP 경쟁을 관측한 결과가 아니라, 사용자가 입력한 가정을 규칙에 대입한 시뮬레이션 결과에 가깝습니다.</p>
+
+  <h2>3. 실제 계산식 전체 공개</h2>
+  <p>코드의 <code>calcScore()</code> 함수를 그대로 옮기면 다음과 같은 가중치 구조입니다.</p>
+  <table>
+    <tr><th>요인</th><th>가중치</th></tr>
+    <tr><td>경쟁사 도메인 강도 (1~4단계)</td><td>단계 × 18점 → 18 / 36 / 54 / 72점</td></tr>
+    <tr><td>검색 의도</td><td>정보형 +10, 탐색형 +25, 상업형 +20, 구매형 +30</td></tr>
+    <tr><td>콘텐츠 유형</td><td>무료 툴 +5, 블로그 +10, 뉴스 +8, 제품 페이지 +20</td></tr>
+    <tr><td>도메인 연령</td><td>오래됨 -10, 중간 0, 신규 +10</td></tr>
+    <tr><td>키워드 단어 수(롱테일 보정)</td><td>(단어 수-1)을 4로 상한 후 × 5점 감점 (최대 -20)</td></tr>
+  </table>
+  <p>이 다섯 값을 모두 더한 뒤 <code>Math.max(5, Math.min(95, score))</code>로 5~95 범위에 강제로 가둡니다. 즉 아무리 조건이 나빠도 5점 밑으로, 아무리 나빠도 95점 위로는 절대 나오지 않습니다.</p>
+
+  <h2>4. 왜 5~95로 clamp하는가</h2>
+  <p>0점이나 100점처럼 극단값을 허용하면 "이 키워드는 절대 불가능" 또는 "완전히 공짜"라는 잘못된 확신을 줄 수 있습니다. 실제로는 이 도구가 관측하지 못하는 변수(실제 백링크, 콘텐츠 품질, 알고리즘 변화)가 훨씬 많으므로, 점수 양 끝을 열어두는 방식으로 "이건 참고용 추정치일 뿐"이라는 신호를 수치 설계 자체에 담아둔 것입니다.</p>
+
+  <h2>5. 실전 계산 예시</h2>
+  <div class="box">
+    <strong>예시 키워드</strong>: "무료 SEO 도구 추천" (4단어) · 경쟁사 도메인 강도 보통(2단계) · 검색 의도 상업형 · 콘텐츠 유형 블로그 · 도메인 연령 중간
+  </div>
+  <table>
+    <tr><th>항목</th><th>값</th></tr>
+    <tr><td>도메인 강도</td><td>2 × 18 = 36</td></tr>
+    <tr><td>검색 의도(상업형)</td><td>+20</td></tr>
+    <tr><td>콘텐츠 유형(블로그)</td><td>+10</td></tr>
+    <tr><td>도메인 연령(중간)</td><td>0</td></tr>
+    <tr><td>단어 수 보정(4단어 → min(3,4)×5)</td><td>-15</td></tr>
+    <tr><td><strong>합계</strong></td><td><strong>51점 (clamp 범위 내)</strong></td></tr>
+  </table>
+  <p>같은 키워드라도 도메인 강도를 "매우 강함"으로 바꾸면 36점이 72점으로 뛰어 합계가 크게 오릅니다. 결국 이 점수는 키워드 자체의 객관적 속성이 아니라 사용자가 입력한 가정에 크게 좌우된다는 뜻입니다.</p>
+
+  <h2>6. 이 점수를 실무에서 어떻게 써야 하는가</h2>
+  <p>절대값(51점, 87점)을 그대로 신뢰하기보다, 같은 조건에서 여러 키워드 후보를 상대 비교하는 용도로 쓰는 것이 안전합니다. 실제 검색량과 SERP 경쟁 강도를 확인하려면 Google Search Console 같은 실측 데이터나 Ahrefs·SEMrush 같은 유료 툴을 병행해야 합니다. 콘텐츠 방향을 잡을 때는 <a href="../keyword-density-checker.html">키워드 밀도 체커</a>·<a href="../seo-title-generator.html">SEO 제목 생성기</a>·<a href="../meta-description-generator.html">메타 설명 생성기</a>와 함께 참고용 지표로만 활용하세요.</p>
+
+  <h2>자주 묻는 질문</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 이 도구는 실제 검색량 데이터를 사용하나요?</summary><p style="margin-top:8px;">아니요. 실시간 검색 API를 호출하지 않고, 사용자가 입력한 4가지 요소와 키워드 단어 수만으로 계산하는 규칙 기반 추정 도구입니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 롱테일 키워드가 점수가 낮게 나오는 이유는 무엇인가요?</summary><p style="margin-top:8px;">단어 수가 늘어날수록 (단어 수-1)을 최대 4로 제한한 값에 5를 곱한 만큼 점수를 깎기 때문입니다. 실무에서 검색어가 구체적일수록 경쟁이 줄어드는 경향을 반영한 보정치입니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 점수가 5점 미만이나 95점 초과로 나올 수 있나요?</summary><p style="margin-top:8px;">아니요. <code>Math.max(5, Math.min(95, score))</code>로 코드에서 강제로 범위를 제한하고 있어 이 구간을 벗어난 값은 절대 출력되지 않습니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 구매형(transactional) 키워드가 가장 높은 가중치를 받는 이유는?</summary><p style="margin-top:8px;">구매형 키워드는 광고 경쟁과 CPC가 높아 SEO 난이도도 높은 경향이 있다는 실무 통념을 반영해, 4가지 검색 의도 중 가장 높은 +30점 가중치가 부여되어 있습니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../keyword-difficulty-estimator.html">→ 키워드 난이도 추정기</a>
+    <a href="../keyword-density-checker.html">→ 키워드 밀도 체커</a>
+    <a href="../seo-title-generator.html">→ SEO 제목 생성기</a>
+    <a href="../meta-description-generator.html">→ 메타 설명 생성기</a>
+    <a href="../serp-snippet-preview.html">→ SERP 스니펫 미리보기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적이며, 실제 키워드 전략 수립에는 검색엔진 실측 데이터를 제공하는 전문 SEO 툴과 병행 확인을 권장합니다.</footer>
+</main>
+</body>
+</html>

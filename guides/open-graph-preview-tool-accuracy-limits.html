@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OG 미리보기 도구, 왜 실제 카카오톡·페이스북과 다르게 보일 수 있나 | MODOO HUB</title>
+<meta name="description" content="브라우저에서 도는 OG 미리보기 도구가 실제 카카오톡·페이스북·트위터 크롤러와 다르게 렌더링하는 이유를 코드 구조로 설명합니다. 왜 근사치일 수밖에 없는지 정리.">
+<link rel="canonical" href="https://modoohub.com/guides/open-graph-preview-tool-accuracy-limits.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"OG 미리보기 도구, 왜 실제 카카오톡·페이스북과 다르게 보일 수 있나","description":"브라우저에서 도는 OG 미리보기 도구가 실제 카카오톡·페이스북·트위터 크롤러와 다르게 렌더링하는 이유를 코드 구조로 설명합니다.","datePublished":"2026-08-25","dateModified":"2026-08-25","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>OG 미리보기 도구, 왜 실제 카카오톡·페이스북과 다르게 보일 수 있나</h1>
+  <p class="meta">가이드 · 2026.08.25 최종 확인</p>
+
+  <p>OG 미리보기 도구에서 확인한 카드 모양과 실제로 카카오톡·페이스북·트위터에 링크를 붙여넣었을 때 보이는 카드가 다르면 "도구가 고장 났나?"라고 생각하기 쉽습니다. 하지만 이건 버그가 아니라 애초에 미리보기 도구와 실제 소셜 플랫폼이 완전히 다른 방식으로 페이지를 읽기 때문에 생기는 구조적 차이입니다. 그 차이가 정확히 어디서 오는지, <a href="../open-graph-preview.html">OG 미리보기</a> 도구 코드를 근거로 짚어봅니다.</p>
+
+  <h2>1. 이 도구는 URL을 직접 가져오지 않는다</h2>
+  <p>가장 먼저 확인해야 할 사실은, 이 도구가 사용자가 입력한 URL로 직접 네트워크 요청을 보내 og 태그를 긁어오는 방식이 아니라는 점입니다. 실제 코드를 보면 <code>parseOGFromHtml()</code> 함수는 사용자가 "HTML 소스" 탭 텍스트영역에 직접 붙여넣은 HTML 문자열을 정규식으로 스캔해서 &lt;meta&gt; 태그를 추출할 뿐, <code>fetch()</code>나 <code>XMLHttpRequest</code> 같은 URL 요청 코드는 어디에도 없습니다. "직접 입력" 탭도 마찬가지로 og:title/og:description/og:image/og:url 값을 사용자가 손으로 타이핑하도록 되어 있습니다. 즉 이 도구는 "URL을 넣으면 서버가 그 페이지를 가져와 분석해주는" 방식이 아니라, "사용자가 이미 갖고 있는 HTML 소스(또는 값)를 파싱해 보여주는" 방식입니다.</p>
+  <p>이렇게 설계된 이유는 브라우저의 <strong>CORS(Cross-Origin Resource Sharing)</strong> 제약 때문입니다. 브라우저 자바스크립트에서 임의의 외부 사이트 URL로 <code>fetch()</code>를 보내면, 그 사이트 서버가 CORS 헤더로 명시적으로 허용하지 않는 한 응답을 읽을 수 없습니다. 대부분의 일반 웹사이트는 이런 크로스오리진 fetch를 허용하지 않으므로, 브라우저에서만 도는 무료 도구가 "아무 URL이나 넣으면 자동으로 가져와 분석"하는 기능을 구현하려면 별도의 서버(프록시)가 페이지를 대신 가져와야 합니다. 이 도구는 그런 서버 컴포넌트 없이 순수 클라이언트 사이드로 동작하기 때문에, 사용자가 브라우저 개발자도구나 "페이지 소스 보기"로 직접 떠온 HTML을 붙여넣는 구조를 택한 것입니다.</p>
+
+  <h2>2. 실제 플랫폼은 각자 다른 크롤러로 페이지를 가져간다</h2>
+  <p>진짜 차이는 여기서 시작됩니다. 카카오톡, 페이스북, 트위터(X), 슬랙 등은 사용자가 링크를 붙여넣는 순간 자기들만의 크롤러 봇을 그 URL로 보내 페이지를 가져갑니다. 이 크롤러들은 브라우저와 전혀 다른 존재입니다.</p>
+  <ul>
+    <li><strong>User-Agent가 다르다</strong>: 페이스북은 <code>facebookexternalhit</code>, 카카오톡은 자체 UA 문자열로 요청을 보냅니다. 서버가 UA별로 다른 응답(예: 크롤러에게는 서버사이드 렌더링된 정적 HTML, 일반 사용자에게는 SPA 셸)을 내려주도록 구성돼 있다면, 미리보기 도구에 붙여넣는 "브라우저로 본 HTML"과 실제 크롤러가 받는 HTML 자체가 다를 수 있습니다.</li>
+    <li><strong>robots.txt와 접근 제한을 확인한다</strong>: 크롤러는 접근이 차단된 경로면 아예 og 태그를 읽지 못하고 기본 썸네일이나 빈 카드로 표시합니다. 브라우저에서 직접 소스를 볼 때는 이 차단 여부가 전혀 드러나지 않습니다.</li>
+    <li><strong>이미지 크기·비율을 자체적으로 재처리한다</strong>: og:image로 지정한 원본 이미지를 각 플랫폼이 자기 서버로 한 번 더 가져가 리사이즈·크롭·캐시합니다. 원본 비율이 권장 비율(1.91:1)과 다르면 플랫폼마다 잘라내는 위치가 달라 실제 카드에서 보이는 이미지 영역이 조금씩 다릅니다.</li>
+    <li><strong>텍스트 길이 재단 기준이 다르다</strong>: 이 도구는 Facebook 제목 88자, LinkedIn 설명 300자처럼 알려진 대략적 기준으로 미리 잘라 보여주지만, 실제 서비스는 화면 폭·폰트·언어(한글/영문 문자폭 차이)에 따라 픽셀 단위로 줄임표를 넣기 때문에 도구가 보여주는 글자 수 컷과 실제 서비스의 컷 위치가 딱 맞아떨어지지 않을 수 있습니다.</li>
+  </ul>
+
+  <div class="box">
+    <strong>예시</strong>: og:title이 "겨울 세일 최대 70% 할인 – 지금 확인하세요 | 모두의 스토어"(총 28자)라면, 이 도구는 88자 이하이므로 자르지 않고 그대로 보여줍니다. 하지만 실제 카카오톡 인앱 브라우저는 한글 기준 자체 픽셀폭 계산으로 화면이 좁은 기기에서 "겨울 세일 최대 70% 할인 – 지금…"처럼 더 짧게 잘라 표시할 수 있습니다. 같은 제목이라도 문자 수 기준(도구)과 픽셀폭 기준(실제 서비스)이 다르면 결과가 갈립니다.
+  </div>
+
+  <h2>3. 로그인 필요 페이지·SPA는 크롤러가 아예 못 읽는다</h2>
+  <p>가장 큰 함정은 페이지 접근 자체가 크롤러 입장에서 막혀 있는 경우입니다. 로그인해야만 콘텐츠가 보이는 페이지라면, 크롤러는 로그인 세션이 없으므로 로그인 페이지의 og 태그(또는 빈 기본값)만 보게 됩니다. React·Vue 같은 SPA에서 og 태그를 자바스크립트가 실행된 뒤에야 <code>&lt;head&gt;</code>에 주입하는 방식으로 짜여 있다면, 자바스크립트를 실행하지 않고 최초 HTML만 읽는 크롤러는 og 태그를 영영 못 찾습니다. 반면 사람이 브라우저에서 그 페이지를 열어 "소스 보기"로 복사한 HTML에는 이미 자바스크립트가 실행된 이후의 최종 상태가 반영돼 있을 수 있어(또는 개발자도구 Elements 탭 복사 시 렌더링 후 DOM이 나옴), 도구에 넣었을 때는 정상으로 보이는데 실제 크롤러는 아무것도 못 읽어가는 역설이 발생합니다.</p>
+  <p>이런 문제를 피하려면 og 태그는 자바스크립트 실행 없이도 최초 HTML 응답(view-source 기준)에 정적으로 박혀 있어야 하고, 로그인이 필요 없는 공개 URL이어야 합니다. og 태그 자체가 제대로 작성됐는지는 <a href="../open-graph-generator.html">오픈그래프 생성기</a>로 먼저 만들어보고, 실제로 배포된 페이지의 최초 HTML에 그 태그가 그대로 박혀 있는지는 "페이지 소스 보기(Ctrl+U)"로 직접 확인하는 것이 가장 확실합니다.</p>
+
+  <h2>4. 그래서 이 도구는 어떻게 쓰는 게 맞나</h2>
+  <p>정리하면 이 미리보기 도구는 "og 태그를 문법적으로 제대로 작성했는지, 6개 핵심 태그가 빠짐없이 들어갔는지, 대략 어떤 톤으로 카드가 구성될지"를 빠르게 확인하는 <strong>1차 검수용 근사치 도구</strong>입니다. 실제 플랫폼에서 정확히 어떻게 보일지 최종 확인하려면 각 플랫폼이 공식 제공하는 디버거를 반드시 함께 사용해야 합니다. 이미 배포한 페이지인데 OG 태그를 고쳤음에도 카카오톡·페이스북 미리보기가 그대로라면, 그건 이 문서의 주제와는 다른 문제 — 플랫폼이 예전 크롤링 결과를 캐시하고 있는 경우입니다. 그 캐싱 문제와 강제 재크롤링 방법은 별도로 <a href="open-graph-social-cache-not-updating.html">OG 캐시가 안 바뀌는 이유</a> 가이드에서 다룹니다.</p>
+
+  <h2>자주 묻는 질문</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;padding:10px 14px;margin-bottom:8px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 이 도구에 URL만 입력하면 자동으로 og 태그를 가져와주나요?</summary><p style="margin-top:8px;">아니요. 코드상 fetch나 XHR로 외부 URL을 직접 요청하는 로직이 없습니다. "HTML 소스" 탭에 직접 붙여넣은 HTML 문자열을 정규식으로 파싱하거나, "직접 입력" 탭에서 og:title 등의 값을 손으로 입력해야 미리보기가 생성됩니다. 브라우저 CORS 제약상 서버 프록시 없이는 임의 URL을 직접 가져올 수 없기 때문입니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;padding:10px 14px;margin-bottom:8px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 도구에서는 정상으로 보이는데 카카오톡에서는 이미지가 안 나와요.</summary><p style="margin-top:8px;">카카오톡 크롤러가 그 페이지 자체를 못 읽었거나(로그인 필요, robots.txt 차단, SPA 자바스크립트 렌더링), 이미지 URL에 직접 접근이 안 되거나(핫링크 차단, 인증 필요), 이미지 용량·비율이 카카오톡 내부 재처리 기준을 벗어났을 가능성이 큽니다. 도구는 붙여넣은 HTML의 og:image 값만 그대로 보여줄 뿐, 실제 크롤러가 그 이미지에 접근 가능한지는 검증하지 않습니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;padding:10px 14px;margin-bottom:8px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 그럼 실제 카카오톡·페이스북 렌더링을 정확히 확인하려면 어떻게 하나요?</summary><p style="margin-top:8px;">각 플랫폼이 공식 제공하는 디버거를 써야 합니다 — 페이스북은 Sharing Debugger, 트위터(X)는 Card Validator 등입니다. 이 도구들은 실제로 그 플랫폼의 크롤러를 URL로 보내 가져온 결과를 보여주므로, 브라우저에서 도는 근사치 미리보기보다 훨씬 정확합니다. 카카오톡은 별도 공개 디버거가 없어 실제 채팅방에 링크를 붙여넣어 확인하는 방법이 가장 확실합니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;padding:10px 14px;margin-bottom:8px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. SPA(React 등)로 만든 사이트는 og 태그를 어떻게 넣어야 하나요?</summary><p style="margin-top:8px;">자바스크립트가 실행된 후에야 &lt;head&gt;에 og 태그를 주입하는 방식(클라이언트 사이드 렌더링만)은 크롤러가 못 읽을 위험이 큽니다. 서버 사이드 렌더링(SSR)이나 정적 사전 렌더링(prerendering)으로 최초 HTML 응답 자체에 og 태그가 이미 박혀 있도록 만들어야 자바스크립트를 실행하지 않는 크롤러도 정상적으로 읽어갑니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../open-graph-preview.html">→ OG 미리보기</a>
+    <a href="../open-graph-generator.html">→ 오픈그래프 생성기</a>
+    <a href="../meta-tag-analyzer.html">→ 메타 태그 분석기</a>
+    <a href="../twitter-card-generator.html">→ 트위터 카드 생성기</a>
+    <a href="../robots-txt-tester.html">→ robots.txt 테스터</a>
+    <a href="open-graph-social-cache-not-updating.html">→ OG 캐시가 안 바뀌는 이유 가이드</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적이며, 실제 플랫폼별 렌더링은 각 플랫폼 공식 디버거로 최종 확인하시기 바랍니다.</footer>
+</main>
+</body>
+</html>

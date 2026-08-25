@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>API 뷰어가 큰 정수를 반올림하는 이유 | MODOO HUB</title>
+<meta name="description" content="API 응답의 큰 정수 ID가 뷰어에서 마지막 자리가 바뀌어 보이는 이유를 JSON.parse와 IEEE 754 배정밀도 부동소수점 구조로 설명합니다. 도구 버그가 아닌 JS 표준 동작입니다.">
+<link rel="canonical" href="https://modoohub.com/guides/api-response-viewer-large-integer-rounding.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"API 뷰어가 큰 정수를 반올림하는 이유","description":"API 응답의 큰 정수 ID가 뷰어에서 마지막 자리가 바뀌어 보이는 이유를 JSON.parse와 IEEE 754 배정밀도 부동소수점 구조로 설명합니다.","datePublished":"2026-08-25","dateModified":"2026-08-25","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>API 뷰어가 큰 정수를 반올림하는 이유</h1>
+  <p class="meta">가이드 · 2026.08.25 최종 확인</p>
+
+  <p>API 응답을 <a href="../api-response-viewer.html">API 응답 뷰어</a>에 붙여넣었더니 원본에 있던 게시물 ID나 사용자 ID의 마지막 몇 자리가 다르게 표시된 경험이 있다면, 도구가 오작동한 게 아닙니다. 이건 자바스크립트의 <code>JSON.parse()</code> 자체가 가진 숫자 표현 한계 때문에 생기는 현상이고, 원인을 알면 왜 API 스펙에서 큰 정수를 문자열로 내려주라고 권고하는지도 함께 이해할 수 있습니다.</p>
+
+  <h2>1. 코드로 먼저 확인: 이 도구는 순정 JSON.parse를 쓴다</h2>
+  <p>이 도구의 파싱 로직은 <code>viewResponse()</code> 함수 안에 있는데, 실제 코드는 <code>_parsed=JSON.parse(raw);</code> 한 줄입니다. reviver 콜백도 없고, 큰 정수를 문자열로 별도 보존하는 전처리도, BigInt 변환 로직도 없는 순정 <code>JSON.parse</code>입니다. 즉 이 도구가 특별히 부정확한 게 아니라, 자바스크립트 표준 API를 표준 방식 그대로 쓰고 있을 뿐이며 반올림은 바로 그 표준 동작에서 나옵니다.</p>
+
+  <h2>2. JSON.parse가 숫자를 저장하는 방식: IEEE 754 배정밀도</h2>
+  <p>자바스크립트에는 정수 전용 타입이 따로 없습니다. <code>1</code>도, <code>3.14</code>도, <code>9007199254740993</code>도 모두 <strong>IEEE 754 배정밀도 부동소수점(double)</strong>이라는 하나의 숫자 형식으로 저장됩니다. 이 형식은 부호 1비트, 지수 11비트, 가수(유효숫자) 52비트로 구성되는데, 정수를 오차 없이 정확히 표현할 수 있는 범위가 가수 52비트가 표현 가능한 한계에 묶여 있습니다. 그 한계가 바로 <code>Number.MAX_SAFE_INTEGER</code>, 즉 2<sup>53</sup>-1 = <strong>9,007,199,254,740,991</strong>입니다.</p>
+  <p>이 값보다 큰 정수는 배정밀도 형식의 표현 단위 간격(정밀도)이 1보다 커지기 시작하기 때문에, 서로 다른 정수 여러 개가 같은 부동소수점 값으로 뭉개져 표현될 수 있습니다. <code>JSON.parse()</code>는 JSON 텍스트 안의 숫자 리터럴을 읽을 때 예외 없이 이 double 형식으로 변환하므로, 원본 텍스트에 9,007,199,254,740,993이라고 적혀 있어도 파싱 결과 객체에는 그와 가장 가까운 표현 가능한 double 값(예: 9,007,199,254,740,992)이 저장됩니다. 이후 그 값을 다시 <code>JSON.stringify</code>나 화면 출력으로 문자열화하면, 원본과 다른 숫자가 나오는 것입니다.</p>
+
+  <div class="box">
+    <strong>예시</strong>: 아래 JSON을 이 도구(또는 브라우저 콘솔에서 직접 <code>JSON.parse</code>)에 넣으면 <code>id</code> 필드의 마지막 자리가 바뀝니다.
+    <table style="margin-top:10px;">
+      <tr><th>원본 JSON 텍스트</th><th>JSON.parse 결과</th></tr>
+      <tr><td><code>{"id": 9223372036854775807}</code></td><td><code>9223372036854775808</code>로 반올림 (마지막 자리 7→8)</td></tr>
+      <tr><td><code>{"id": 123456789012345678}</code></td><td><code>123456789012345680</code>로 반올림 (마지막 3자리 678→680)</td></tr>
+    </table>
+    <p style="margin-top:10px;margin-bottom:0;">이런 값은 실제로 트위터(X)나 디스코드의 스노우플레이크 ID, 대형 서비스의 64비트 데이터베이스 PK에서 흔히 나타납니다. 64비트 정수는 2<sup>63</sup>-1 = 약 9.2×10<sup>18</sup>까지 가능한데, 이는 안전 정수 한계(약 9.0×10<sup>15</sup>)보다 1,000배 이상 큽니다.</p>
+  </div>
+
+  <h2>3. 이 도구만의 문제가 아니라 JS 언어 표준의 동작</h2>
+  <p>이 현상은 특정 라이브러리 버그가 아니라 ECMA-262(자바스크립트 언어 표준)에 정의된 <code>JSON.parse</code>의 명세 그대로입니다. Node.js 백엔드, 브라우저, 다른 JSON 파서 등 자바스크립트로 짜인 어떤 코드라도 별도 처리 없이 <code>JSON.parse</code>를 쓰면 동일하게 반올림이 일어납니다. 그래서 이 사이트의 다른 도구인 <a href="../json-formatter.html">JSON 포맷터</a>나 <a href="../json-validator.html">JSON 검증기</a>도 내부적으로 <code>JSON.parse</code>를 사용한다면 같은 한계를 공유합니다. 반대로 파이썬의 <code>json</code> 모듈처럼 정수를 임의 정밀도로 다루는 언어에서는 이런 반올림이 아예 일어나지 않으므로, "다른 도구/언어에서는 정상이었는데 여기서만 깨진다"는 인상을 받을 수 있지만 실제로는 언어별 숫자 타입 설계 차이입니다.</p>
+
+  <h2>4. API 스펙 관례: 큰 정수는 애초에 문자열로 내려준다</h2>
+  <p>이 문제를 근본적으로 피하는 방법은 뷰어 쪽 파싱을 고치는 게 아니라, API 응답을 설계하는 쪽에서 애초에 안전 정수 범위를 넘는 값을 JSON 숫자 리터럴이 아니라 <strong>문자열</strong>로 내려주는 것입니다. 문자열은 JSON.parse가 숫자 변환을 거치지 않고 원본 문자 그대로 보존하기 때문입니다.</p>
+  <ul>
+    <li>트위터(X) API: 게시물 <code>id</code>는 큰 정수로도 내려주지만, 동시에 문자열 버전인 <code>id_str</code> 필드를 별도로 함께 제공합니다.</li>
+    <li>디스코드 API: 스노우플레이크 ID를 전부 문자열 타입으로 내려줍니다.</li>
+    <li>다수의 대형 결제·핀테크 API: 금액이나 계좌 관련 큰 정수 식별자를 문자열로 감싸는 것을 스펙 권고 사항으로 명시합니다.</li>
+  </ul>
+  <p>API를 직접 설계하는 입장이라면, 64비트 정수형(BIGINT)을 그대로 JSON 숫자로 노출하지 말고 문자열로 감싸는 것이 클라이언트 언어를 가리지 않는 안전한 관례입니다.</p>
+
+  <h2>5. 그렇다면 반올림 여부를 어떻게 확인하나</h2>
+  <p>이 도구의 Info 탭은 줄 수·크기·최상위 키 개수·중첩 깊이는 보여주지만 반올림된 숫자를 자동으로 경고해주지는 않습니다. 의심되는 필드가 있다면 원본 텍스트에서 해당 숫자를 눈으로 직접 복사해 자릿수를 비교하거나, 애초에 문제가 되는 큰 정수 필드가 있는 API라면 브라우저 콘솔에서 <code>JSON.parse</code> 대신 <code>reviver</code> 함수로 해당 필드만 문자열로 남기거나 <code>BigInt</code>로 변환하는 별도 파서를 쓰는 것이 안전합니다. 이 도구는 그런 커스텀 파싱 없이 응답 구조를 빠르게 훑어보는 용도에 맞춰져 있으므로, 정수 정밀도가 중요한 필드를 다룰 때는 참고용으로만 사용하는 게 맞습니다.</p>
+
+  <h2>자주 묻는 질문</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;padding:10px 14px;margin-bottom:8px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 이 도구에서 반올림을 막는 옵션이 있나요?</summary><p style="margin-top:8px;">아니요. 코드상 <code>JSON.parse(raw)</code> 한 줄만 사용하며 BigInt 변환이나 reviver 옵션 같은 정밀도 보존 처리가 없습니다. 2<sup>53</sup>-1(9,007,199,254,740,991)을 넘는 정수가 포함된 응답은 항상 마지막 자리가 반올림될 수 있습니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;padding:10px 14px;margin-bottom:8px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 몇 자리부터 반올림이 생기나요?</summary><p style="margin-top:8px;">정수가 9,007,199,254,740,991(약 900조)을 넘어서면 발생할 수 있습니다. 그보다 작은 정수는 배정밀도 부동소수점으로도 정확히 표현되므로 반올림이 일어나지 않습니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;padding:10px 14px;margin-bottom:8px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 다른 프로그래밍 언어로 같은 JSON을 파싱하면 안 그런가요?</summary><p style="margin-top:8px;">언어마다 다릅니다. 파이썬의 표준 json 모듈은 정수를 임의 정밀도로 다루므로 반올림이 없습니다. 반면 자바스크립트(및 JSON.parse를 그대로 쓰는 다른 언어의 일부 라이브러리)는 모든 숫자를 배정밀도 부동소수점으로 다루므로 동일하게 반올림이 발생합니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;padding:10px 14px;margin-bottom:8px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. API를 직접 만든다면 어떻게 설계해야 하나요?</summary><p style="margin-top:8px;">안전 정수 범위를 넘을 가능성이 있는 ID·금액 필드는 JSON 숫자 타입이 아니라 문자열로 내려주는 것이 표준 관례입니다. 트위터(X)의 id_str, 디스코드의 문자열 스노우플레이크 ID가 대표적인 예시입니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../api-response-viewer.html">→ API 응답 뷰어</a>
+    <a href="../json-formatter.html">→ JSON 포맷터</a>
+    <a href="../json-validator.html">→ JSON 검증기</a>
+    <a href="../curl-generator.html">→ cURL 생성기</a>
+    <a href="../epoch-converter.html">→ 유닉스 타임스탬프 변환기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적이며, 실제 API 응답 구조는 각 API 공식 문서를 함께 확인하시기 바랍니다.</footer>
+</main>
+</body>
+</html>

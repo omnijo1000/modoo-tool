@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>문자 단위 CSS 포매터의 중첩 깊이 추적 방식 | MODOO HUB</title>
+<meta name="description" content="순수 CSS는 문자 단위 중괄호 카운팅만으로 왜 안전한지, SCSS 전처리기 문법과 문자열·주석이 섞이면 왜 구조가 깨질 수 있는지 실제 코드를 기준으로 분석합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/css-beautifier-char-by-char-nesting-scss-limit.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"문자 단위 CSS 포매터의 중첩 깊이 추적 방식","description":"순수 CSS는 문자 단위 중괄호 카운팅만으로 왜 안전한지, SCSS 전처리기 문법과 문자열·주석이 섞이면 왜 구조가 깨질 수 있는지 실제 코드를 기준으로 분석합니다.","datePublished":"2026-08-25","dateModified":"2026-08-25","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+code{background:var(--surface2);padding:1px 5px;border-radius:4px;font-family:'DM Mono',monospace;font-size:13px;color:var(--blue);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>문자 단위 CSS 포매터의 중첩 깊이 추적 방식</h1>
+  <p class="meta">가이드 · 2026.08.25 최종 확인</p>
+
+  <p>CSS는 원래 중첩 규칙(nesting)이 없는 언어였습니다. 선택자 하나에 <code>{ }</code> 블록 하나, 그 안에 선언들이 나열될 뿐이라, 여는 중괄호마다 깊이를 늘리고 닫는 중괄호마다 줄이는 단순한 카운팅만으로도 들여쓰기가 항상 정확했습니다. 하지만 SCSS 같은 전처리기와 최신 CSS Nesting 스펙이 등장하면서 이 전제가 흔들리기 시작했습니다. <a href="../css-beautifier.html">CSS 포매터</a>의 실제 코드를 열어 어디까지 안전하고 어디서부터 깨지는지 확인했습니다.</p>
+
+  <h2>1. 왜 순수 CSS는 문자 카운팅만으로 충분했는가</h2>
+  <p>표준 CSS 문법은 셀렉터 뒤에 <code>{</code>가 오고, 선언이 세미콜론으로 끝나고, <code>}</code>로 블록이 닫히는 평평한(flat) 구조입니다. 미디어 쿼리(<code>@media</code>)나 키프레임(<code>@keyframes</code>)조차 중괄호가 한두 겹 더 겹칠 뿐 같은 규칙을 그대로 따릅니다. 그래서 "여는 중괄호를 만나면 depth+1, 닫는 중괄호를 만나면 depth-1"이라는 규칙 하나로 어떤 CSS 파일이든 정확한 들여쓰기를 재현할 수 있었습니다.</p>
+
+  <h2>2. 이 도구가 실제로 인식하는 문자는 단 4종류</h2>
+  <p>코드를 확인한 결과 <code>cssBeautify()</code> 함수는 입력을 한 글자씩 순회하면서 <code>{</code>, <code>}</code>, <code>;</code>, <code>,</code> 이 네 가지 문자에만 반응합니다. <code>{</code>를 만나면 <code>depth++</code> 후 줄바꿈, <code>}</code>를 만나면 <code>depth--</code> 후 줄바꿈, <code>;</code> 뒤에는 항상 줄바꿈, <code>,</code>는 옵션이 켜져 있고 depth가 0(최상위 선택자 목록)일 때만 줄바꿈합니다. 이 네 문자 외에는 전부 그대로 복사됩니다.</p>
+
+  <h2>3. 발견된 추가 위험: 문자열·주석 보호 로직이 아예 없다</h2>
+  <p><a href="../javascript-beautifier.html">JavaScript 포매터</a>는 따옴표 안의 내용을 통째로 보호하는 <code>inStr()</code> 처리가 있지만, CSS 포매터의 코드에는 그런 보호 로직 자체가 없습니다. 즉 <code>content:";{}"</code>처럼 따옴표 안에 구조 문자가 들어가거나, <code>/* 여기 세미콜론; */</code> 같은 주석 안에 세미콜론·중괄호가 들어가면 문자열·주석이라는 맥락과 무관하게 곧바로 줄바꿈·깊이 변화가 발생합니다. 순수 CSS 실무에서는 이런 값이 드물어 잘 드러나지 않지만, 힌트로 알려진 "SCSS 중첩만 문제"라는 통념보다 실제로는 더 근본적인 한계입니다.</p>
+
+  <h2>4. SCSS 문법을 넣으면 무엇이 깨지는가</h2>
+  <p>SCSS의 <code>&:hover{ }</code> 같은 중첩 셀렉터 자체는 중괄호가 정상적으로 짝을 이루므로 depth 카운팅만 놓고 보면 의외로 형태가 유지됩니다. 진짜 문제는 <code>$primary-color: #333;</code> 같은 변수 선언이나 <code>@if</code>/<code>@else</code> 조건문, 문자열 보간 <code>#{$var}</code>입니다. 이들은 CSS 표준 구조 문자가 아니라 전처리기 전용 토큰인데, 이 도구는 그런 토큰을 구분할 방법이 없어 일반 선언과 동일하게 세미콜론마다 기계적으로 줄바꿈만 넣습니다. 결과적으로 문법 오류는 아니지만 SCSS 특유의 논리 구조(조건 분기, 변수 스코프)가 시각적으로 사라져 버립니다.</p>
+  <div class="box">
+    <strong>실제 입력 → 출력 예시</strong>
+  </div>
+  <table>
+    <tr><th>단계</th><th>내용</th></tr>
+    <tr><td>입력(SCSS)</td><td><code>.btn{$c:#333;&:hover{color:$c;}}</code></td></tr>
+    <tr><td>순수 CSS라면 기대하는 형태</td><td>중첩 구조가 depth 2단계로 정확히 반영</td></tr>
+    <tr><td>실제 출력</td><td><code>$c:#333;</code>이 일반 선언처럼 처리되어 변수라는 의미 없이 다른 속성과 같은 줄바꿈 규칙만 적용됨</td></tr>
+  </table>
+
+  <h2>5. 결론: 어디까지 믿고 써도 되는가</h2>
+  <p>서버·빌드 도구가 이미 컴파일해 배포한 순수 CSS 결과물을 다시 보기 좋게 펴는 용도라면 이 방식은 100% 신뢰할 수 있습니다. 반대로 <code>.scss</code>/<code>.less</code> 원본 파일을 그대로 넣거나, 값에 세미콜론·중괄호가 포함된 문자열·주석이 섞인 CSS라면 결과를 검산 없이 그대로 쓰지 말아야 합니다. 압축된 CSS를 처음 만들 때는 <a href="../css-minifier.html">CSS 압축기</a>로 만든 결과물을 이 포매터로 되돌려보는 조합이 가장 안전합니다.</p>
+
+  <h2>자주 묻는 질문</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 미디어 쿼리(@media)도 정확히 들여쓰기되나요?</summary><p style="margin-top:8px;">네. @media 블록의 여는 중괄호도 다른 중괄호와 동일하게 depth를 1 증가시키므로, 내부 선택자·속성이 자동으로 한 단계 더 들여쓰기됩니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. CSS 변수(커스텀 프로퍼티)는 안전한가요?</summary><p style="margin-top:8px;">네. <code>--primary-color: #fbbf24;</code>는 콜론과 세미콜론을 가진 일반 선언과 구조가 같아서 다른 속성과 동일한 규칙으로 줄바꿈·들여쓰기가 적용됩니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. @keyframes처럼 중괄호가 두 겹 중첩돼도 괜찮나요?</summary><p style="margin-top:8px;">네. <code>@keyframes spin{ 0%{...} 100%{...} }</code>처럼 두 겹 중첩된 구조도 여는 중괄호마다 depth를 늘리는 방식이 그대로 적용되어 0%와 100% 블록이 한 단계 더 들여쓰기되어 표시됩니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Prettier 같은 도구와는 정확히 무엇이 다른가요?</summary><p style="margin-top:8px;">Prettier는 CSS 문법을 완전히 파싱해 문자열·주석·전처리기 문법까지 맥락을 이해하고 처리합니다. 이 도구는 그런 파싱 단계 없이 소수의 구조 문자만 보고 판단하는 훨씬 단순한 방식이라 빠르지만, 위에서 설명한 경계 조건에서는 결과가 달라질 수 있습니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../css-beautifier.html">→ CSS 포매터</a>
+    <a href="../css-minifier.html">→ CSS 압축기</a>
+    <a href="../javascript-beautifier.html">→ JavaScript 포매터</a>
+    <a href="../css-gradient-generator.html">→ CSS 그라디언트 생성기</a>
+    <a href="../tailwind-color-generator.html">→ Tailwind 색상 생성기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적이며, SCSS/LESS 원본 파일 포맷팅에는 해당 전처리기를 지원하는 전용 도구 사용을 권장합니다.</footer>
+</main>
+</body>
+</html>
