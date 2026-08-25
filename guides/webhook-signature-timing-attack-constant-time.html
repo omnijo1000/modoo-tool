@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>웹훅 서명 검증, === 대신 XOR로 비교하는 이유 — 타이밍 공격 방어 | MODOO HUB</title>
+<meta name="description" content="웹훅 서명을 문자열 === 로 비교하면 안 되는 이유와, XOR 누적 방식의 상수 시간(constant-time) 비교가 타이밍 공격을 막는 원리를 코드로 확인합니다. GitHub·Stripe 서명 검증 실제 구현 예시 포함.">
+<link rel="canonical" href="https://modoohub.com/guides/webhook-signature-timing-attack-constant-time.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"웹훅 서명 검증, === 대신 XOR로 비교하는 이유 — 타이밍 공격 방어","description":"웹훅 서명을 문자열 === 로 비교하면 안 되는 이유와, XOR 누적 방식의 상수 시간(constant-time) 비교가 타이밍 공격을 막는 원리를 코드로 확인합니다.","datePublished":"2026-08-25","dateModified":"2026-08-25","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>웹훅 서명 검증, === 대신 XOR로 비교하는 이유 — 타이밍 공격 방어</h1>
+  <p class="meta">가이드 · 2026.08.25 최종 확인</p>
+
+  <p>웹훅 서명을 검증하는 코드를 짤 때 계산한 해시와 수신한 서명을 <code>if (computed === received)</code> 한 줄로 비교하는 경우가 많습니다. 기능적으로는 맞는 코드지만, 보안 관점에서는 이 한 줄이 미묘한 구멍이 될 수 있습니다. 이 가이드는 그 구멍이 왜 생기는지, 그리고 XOR 누적 방식의 "상수 시간 비교"가 어떻게 그것을 막는지 실제 구현 코드를 통해 정리합니다.</p>
+
+  <h2>1. 짧은 회로 평가(short-circuit)가 만드는 시간차</h2>
+  <p>대부분의 언어·엔진에서 문자열 비교는 앞 글자부터 순서대로 비교하다가 다른 글자를 만나는 즉시 false를 반환합니다. 이를 짧은 회로 평가라고 부릅니다. 즉 정답과 첫 글자부터 다른 추측은 아주 빨리 끝나고, 정답과 앞부분이 많이 일치하는 추측은 비교가 더 오래 걸립니다. 이 시간차는 한 번의 요청으로는 네트워크 지연에 묻혀 거의 감지되지 않지만, 같은 자리를 수천~수만 번 반복 요청해 평균을 내면 통계적으로 구분 가능한 수준까지 드러날 수 있습니다. 이 원리를 이용해 정답 해시를 한 글자씩 추측해나가는 공격을 <strong>타이밍 공격(timing attack)</strong>이라 부릅니다.</p>
+
+  <h2>2. 웹훅 서명 검증이 왜 특히 위험한 지점인가</h2>
+  <p>웹훅 엔드포인트는 정의상 인터넷에 공개된 URL이라 누구나 원하는 만큼 반복 요청을 보낼 수 있습니다. 공격자가 아무 서명값이나 넣고 응답 시간을 재는 것을 딱히 막을 방법이 없다는 뜻입니다. 만약 서버가 <code>computed === received</code> 같은 단순 비교로 서명을 검증한다면, 공격자는 한 글자씩 값을 바꿔가며 응답 시간이 미세하게 늘어나는 지점을 찾아 나갈 수 있는 이론적 여지가 생깁니다. 실전에서 성공시키려면 네트워크 지터를 극복할 만큼 많은 샘플이 필요해 난이도는 높지만, "이론상 가능한 결함을 방치한다"는 것 자체가 보안 감사에서 반복적으로 지적되는 항목입니다.</p>
+
+  <h2>3. 상수 시간 비교: 끝까지 다 보고 나서 답한다</h2>
+  <p>해법은 간단합니다. 어느 자리에서 다르든 상관없이 <strong>항상 전체 길이를 끝까지 비교</strong>해서, 비교에 걸리는 시간이 값 자체와 무관하게 일정하도록 만드는 것입니다. 이를 상수 시간(constant-time) 비교라 하며, 가장 흔한 구현은 각 자리를 XOR한 뒤 그 결과를 OR로 계속 누적하는 방식입니다. 한 글자라도 다르면 XOR 결과가 0이 아니게 되고, 이 누적값은 루프가 끝날 때까지 절대 조기 반환되지 않습니다. Node.js 표준 라이브러리의 <code>crypto.timingSafeEqual</code>도 동일한 원리로 구현되어 있습니다.</p>
+  <div class="box">
+    <strong>실제 구현 예시</strong> (<a href="../webhook-tester.html">웹훅 테스터</a>의 서명 비교 함수):
+    <table>
+      <tr><th>비교 방식</th><th>동작</th><th>타이밍 안전성</th></tr>
+      <tr><td><code>a === b</code></td><td>첫 다른 글자에서 즉시 false 반환</td><td>취약 (이론상)</td></tr>
+      <tr><td>길이 우선 확인 + XOR 누적</td><td>길이가 다르면 즉시 false, 길이가 같으면 모든 자리를 끝까지 XOR로 훑은 뒤 최종 판정</td><td>안전</td></tr>
+    </table>
+  </div>
+  <p>여기서 흥미로운 점은 "길이 우선 확인" 자체는 정보를 흘리지 않는다는 점입니다. HMAC-SHA256 해시는 항상 64자 고정 길이의 16진수 문자열이라 서명 형식만 알면 길이는 이미 공개된 정보이기 때문입니다. 진짜로 지켜야 할 것은 자리별 값 비교 단계뿐이고, 그 부분만 조기 반환 없이 끝까지 도는 것으로 충분합니다.</p>
+
+  <h2>4. GitHub·Stripe 서명 재계산에서 실제로 쓰이는 흐름</h2>
+  <p>브라우저 내장 Web Crypto API로 HMAC-SHA256을 계산하는 실제 구현을 보면, 시크릿 키와 원시 바디(Stripe라면 <code>타임스탬프.바디</code> 문자열)를 해시해 16진수 문자열로 만든 뒤, 위에서 설명한 XOR 누적 방식으로 수신한 서명과 대조합니다. 이 계산과 비교 전 과정이 서버 없이 브라우저 안에서만 이루어지며, 시크릿 키·바디·서명 어느 것도 네트워크로 전송되지 않는다는 점도 실무에서 중요합니다 — 검증 도구 자체가 또 다른 유출 경로가 되지 않아야 하기 때문입니다.</p>
+
+  <h2>5. 그래서 어떻게 검증해야 하나</h2>
+  <ul>
+    <li>서버 코드에서 서명을 비교할 때는 언어별 상수 시간 비교 함수를 쓰세요: Node.js는 <code>crypto.timingSafeEqual</code>, Python은 <code>hmac.compare_digest</code>, Go는 <code>hmac.Equal</code>이 이미 이 원리로 구현되어 있어 직접 짤 필요가 없습니다.</li>
+    <li>직접 구현해야 한다면 길이가 다를 때만 조기 반환을 허용하고(길이는 비밀이 아니므로), 값 자체를 비교하는 루프는 절대 중간에 끊지 마세요.</li>
+    <li>HMAC 생성·검증 원리 자체를 더 알아보고 싶다면 <a href="../hmac-generator.html">HMAC 생성기</a>로 직접 값을 만들어보고, JWT처럼 서명이 포함된 다른 토큰 형식은 <a href="../jwt-validator.html">JWT 유효성 검사기</a>로 구조를 확인해볼 수 있습니다.</li>
+  </ul>
+
+  <h2>자주 묻는 질문</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. === 비교를 쓰면 무조건 뚫리나요?</summary><p style="margin-top:8px;">아닙니다. 실전에서 이 공격을 성공시키려면 네트워크 지연 변동을 압도할 만큼 방대한 반복 요청과 정밀한 시간 측정이 필요해 난이도가 높습니다. 다만 상수 시간 비교는 구현 비용이 거의 들지 않으므로 굳이 그 이론적 위험을 남겨둘 이유가 없다는 것이 핵심입니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 길이가 다르면 바로 false를 반환하는 것도 타이밍 공격에 취약하지 않나요?</summary><p style="margin-top:8px;">HMAC-SHA256처럼 해시 길이가 알고리즘에 의해 고정된 경우, 길이 자체는 비밀 정보가 아니라 이미 공개된 값이므로 그 단계에서 조기 반환해도 안전합니다. 지켜야 하는 것은 값의 내용이지 길이가 아닙니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 상수 시간 비교를 직접 구현하지 말고 라이브러리를 쓰라는 이유는?</summary><p style="margin-top:8px;">컴파일러·JIT 최적화가 의도와 다르게 루프를 단축시키는 경우가 실제로 보고된 적이 있어, 직접 짠 코드가 정말 상수 시간으로 동작하는지 보장하기 어렵습니다. Node의 crypto.timingSafeEqual처럼 검증된 표준 구현을 쓰는 것이 안전합니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 서명 검증 자체를 브라우저에서 해도 안전한가요?</summary><p style="margin-top:8px;">웹훅을 실제로 수신하는 서버 쪽 검증은 반드시 서버 코드에서 이루어져야 합니다. 브라우저 도구는 발신 서비스가 보낸 서명이 특정 바디·시크릿 조합과 일치하는지 미리 눈으로 확인·디버깅하는 용도이며, 시크릿·바디·서명이 외부로 전송되지 않는 방식으로 동작하는지 확인하고 사용해야 합니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../webhook-tester.html">→ 웹훅 테스터</a>
+    <a href="../hmac-generator.html">→ HMAC 생성기</a>
+    <a href="../jwt-validator.html">→ JWT 유효성 검사기</a>
+    <a href="../sha256-generator.html">→ SHA256 생성기</a>
+    <a href="../api-tester.html">→ API 테스터</a>
+    <a href="../curl-generator.html">→ cURL 생성기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적이며, 실제 서비스에 적용하는 보안 로직은 반드시 별도의 코드 리뷰·보안 검토를 거치시기 바랍니다.</footer>
+</main>
+</body>
+</html>

@@ -144,13 +144,12 @@ REJECT(4개, 이유 있음): salary(기존 가이드와 중복), salary-negotiat
 - [x] **csv-diff-checker** (guides/csv-diff-encoding-bom-delimiter-traps.html, 2026-08-20) — "CSV diff가 전체 행을 다 다르다고 표시하는 인코딩 함정 3가지" — EUC-KR/CP949, BOM 유무, 구분자 차이.
 - [ ] **uuid-extractor** — "UUID를 텍스트에서 정확히 골라내는 정규식 조건" — 13번째자리 버전, 19번째자리 변형비트 검사.
 - [ ] **api-response-viewer** — "API 뷰어가 큰 정수를 반올림하는 이유" — JSON.parse가 2^53-1 넘는 정수 정밀도 손실(JS표준동작).
-- [ ] **xml-validator** — "XML 파서는 왜 HTML보다 깐깐한가(well-formed vs valid)" — strict모드 즉시 파싱중단.
-- [ ] **robots-txt-validator** — "robots.txt에서 Disallow: ''와 Disallow: /는 정반대 의미" — 빈값=전체허용, /=전체차단.
-- [ ] **meta-tag-analyzer** — "robots 메타태그 4가지 조합, noindex인데 follow하는 이유" — noindex,follow는 인덱싱만 제외.
-- [ ] **schema-validator** — "JSON-LD 필수 vs 권장 필드, 없어도 되는데 왜 넣으라 하나" — 필수필드 누락시 리치스니펫 자체 미표시.
+- [x] **robots-txt-validator** (guides/robots-txt-disallow-empty-vs-slash.html, 2026-08-25) — "robots.txt에서 Disallow: ''와 Disallow: /는 정반대 의미" — 빈값=전체허용, /=전체차단.
+- [x] **meta-tag-analyzer** (guides/robots-meta-tag-noindex-follow-combinations.html, 2026-08-25) — "robots 메타태그 4가지 조합, noindex인데 follow하는 이유" — noindex,follow는 인덱싱만 제외. (도구는 원본값만 노출, 4조합 해설은 FAQ에만 있음)
+- [x] **schema-validator** (guides/schema-required-vs-recommended-fields.html, 2026-08-25) — "JSON-LD 필수 vs 권장 필드, 없어도 되는데 왜 넣으라 하나" — 필수필드 누락시 리치스니펫 자체 미표시.
 - [ ] **canonical-tag-checker** — "canonical 태그 2개면 구글은 둘 다 무시한다" — CMS 플러그인 충돌·테마 중복출력이 원인.
 - [ ] **api-tester** — "CORS 에러 vs 네트워크 오류, 브라우저는 왜 구분해주지 않을까" — fetch()가 둘다 같은 TypeError.
-- [ ] **curl-generator** — "cURL 명령어 생성기가 조용히 깨지는 순간 — 셸 이스케이핑의 비대칭" — 헤더값 아포스트로피는 이스케이프 안 됨.
+- [x] **curl-generator** (guides/curl-generator-shell-escaping-asymmetry.html, 2026-08-25) — "cURL 명령어 생성기가 조용히 깨지는 순간 — 셸 이스케이핑의 비대칭" — 헤더값 아포스트로피는 이스케이프 안 됨(바디는 됨, 실제 확인).
 - [ ] **curl-parser** — "curl -d만 쓰고 -X 안 써도 POST로 잡히는 이유" — -X없이 -d있으면 자동 POST 판정.
 - [x] **dns-lookup** (guides/dns-propagation-ttl-explained.html, 2026-08-19) — "DNS 전파는 왜 최대 48시간이나 걸리나 — TTL의 원리" — TTL3600초=1시간 캐시.
 - [ ] **graphql-formatter** — "GraphQL 포맷터가 문자열 속 #을 주석으로 착각하지 않는 법" — 문자열 placeholder 치환 후 복원.
@@ -162,16 +161,13 @@ REJECT(4개, 이유 있음): salary(기존 가이드와 중복), salary-negotiat
 - [x] **number-converter** (guides/number-converter-twos-complement-negative.html, 2026-08-21) — "2의 보수, 컴퓨터가 음수를 표현하는 방법" — 0xFFFFFFFF=-1.
 - [x] **redirect-checker** (guides/redirect-checker-301-302-307-308-explained.html, 2026-08-21) — "301 vs 302 vs 307 vs 308, 리다이렉트 코드 헷갈리지 않는 법" — 307/308은 HTTP메서드 보존.
 - [ ] **regex-cheatsheet** — "정규식 매칭 개수는 뜨는데 하이라이트가 안 보이는 이유" — 길이0 매칭은 카운트되지만 폭0이라 안 보임.
-- [ ] **regex-generator** — "정규식 생성기의 '신용카드' 패턴은 사실 아무 13자리 숫자에나 매칭된다" — Luhn체크섬 검증 없음.
+- [x] **regex-generator** (guides/regex-generator-credit-card-no-luhn-check.html, 2026-08-25) — "정규식 생성기의 '신용카드' 패턴은 사실 아무 13자리 숫자에나 매칭된다" — Luhn체크섬 검증 없음.
 - [ ] **sitemap-validator** — "changefreq·priority, 구글은 사실 무시한다" — 사이트맵 1개당 최대5만URL·50MB.
 - [x] **slug-generator** (guides/slug-generator-nfd-unicode-normalization.html, 2026-08-21) — "URL 슬러그 생성기가 café를 caf-zrich로 안 만드는 이유" — NFD 정규화로 결합기호만 제거.
-- [ ] **sql-minifier** — "SQL 압축기가 문자열 속 --를 만나면 쿼리를 통째로 잘라먹는다" — 주석제거가 문자열보호보다 먼저 실행되는 버그.
-- [ ] **sql-validator** — "SQL 유효성 검사기는 사실 파서가 아니다 — 괄호·따옴표·키워드 3가지만 본다" — 순서 뒤죽박죽이어도 통과.
+- [x] **sql-validator** (guides/sql-validator-not-a-real-parser.html, 2026-08-25) — "SQL 유효성 검사기는 사실 파서가 아니다 — 괄호·따옴표·키워드 3가지만 본다" — 순서 뒤죽박죽이어도 통과(실제 재현 확인).
 - [ ] **tailwind-color-generator** — "가장 비슷한 Tailwind 색상을 찾는 법 — RGB 대신 CIE Lab을 쓰는 이유" — 인간 색지각 비례 거리계산.
 - [x] **unit-converter** (guides/unit-converter-gb-vs-gib-binary-decimal.html, 2026-08-21) — "GB와 GiB는 왜 다른가 — 하드디스크 용량이 실제보다 작아 보이는 이유" — 500GB→실제 약465GiB표시. **참고**: 이 도구는 "GB" 단위가 사실상 GiB(2진법)로 계산되고 있음(라벨과 실제 계산 불일치).
-- [ ] **user-agent-parser** — "크롬도 왜 AppleWebKit/537.36을 달고 다니나 — UA 문자열의 역사적 유물" — 호환성 위해 고정값 유지.
-- [ ] **webhook-generator** — "GitHub·Stripe·Slack, 웹훅 서명이 플랫폼마다 다르게 계산되는 이유" — 해시대상 문자열이 각각 다름.
-- [ ] **webhook-tester** — "웹훅 서명 검증, === 대신 XOR로 비교하는 이유 — 타이밍 공격 방어" — 상수시간 비교 로직.
+- [x] **webhook-tester** (guides/webhook-signature-timing-attack-constant-time.html, 2026-08-25) — "웹훅 서명 검증, === 대신 XOR로 비교하는 이유 — 타이밍 공격 방어" — 상수시간 비교 로직(실제 구현 확인).
 - [x] **whois-lookup** (guides/whois-rdap-protocol-transition.html, 2026-08-20) — "WHOIS는 죽었다? RDAP가 대체하는 이유" — HTTPS+JSON 구조화 응답.
 - [ ] **yaml-to-json** — "YAML→JSON 변환기가 쿠버네티스 매니페스트에서 실패하는 이유" — 다중문서 YAML(`---`)에서 에러.
 
@@ -191,11 +187,11 @@ REJECT(3개): ip-address-lookup(일반 네트워킹 상식 나열뿐), website-s
 - [x] **alphabetizer** (guides/alphabetizer-localecompare-vs-unicode-sort.html, 2026-08-19) — "가나다순 정렬, localeCompare와 유니코드 순서는 왜 다른가" — 중국어·일본어는 유니코드 순서로만 정렬.
 - [x] **text-diff-checker** (guides/text-diff-lcs-algorithm-explained.html, 2026-08-20) — "diff 도구는 어떻게 변경사항을 찾아내는가, LCS 알고리즘 해부" — 줄단위 LCS만 지원, git Myers 알고리즘과 차이.
 - [x] **case-converter** (guides/turkish-i-problem-case-conversion.html, 2026-08-19) — "터키어의 I 문제, 표준 대소문자 변환이 깨지는 언어가 있다" — 터키어 점없는I/점있는i 구분.
-- [ ] **typing-speed-test** — "타자 속도 WPM, 왜 항상 '5글자=1단어'로 계산하나" — 영문 평균단어길이 5자 기준 국제표준.
+- [x] **typing-speed-test** (guides/typing-speed-wpm-5-char-word-standard.html, 2026-08-25) — "타자 속도 WPM, 왜 항상 '5글자=1단어'로 계산하나" — 영문 평균단어길이 5자 기준 국제표준(단, 이 도구는 공백기준 실제 단어수 사용, 가이드에서 지적).
 - [ ] **cps-calculator** — "인간 클릭 속도의 한계, 버터플라이·드래그 클릭이 필요한 이유" — 한손가락 한계 ~10CPS, 기법동원시 14~16CPS.
 - [ ] **wpm-calculator** — "한글 타자속도(타/분)와 영문 WPM, 왜 1:1 환산이 안 되는가" — 초성·중성·종성 조합 타건 기준.
 - [ ] **reading-level-checker** — "가독성 점수의 함정, 이 도구의 SMOG 지수가 표준 공식과 다르게 나오는 이유" — 계수간소화로 실제 2배 오차.
-- [ ] **remove-special-characters** — "정규식 문자 클래스의 함정, 왜 이모지가 절반만 지워지는가" — u플래그 부재로 서로게이트쌍 절반삭제.
+- [x] **remove-special-characters** (guides/remove-special-characters-emoji-surrogate-bug.html, 2026-08-25) — "정규식 문자 클래스의 함정, 왜 이모지가 절반만 지워지는가" — u플래그 부재 확인, 같은 상위서로게이트 공유하는 다른 이모지가 오손됨.
 - [x] **text-summarizer** (guides/text-summarizer-korean-limitation.html, 2026-08-19) — "이 텍스트 요약기, 사실 한국어에서는 작동하지 않는다" — `\w`가 한글 비인식, 문장점수 전부 0되는 버그.
 - [x] **anagram-checker** (guides/anagram-checker-character-frequency-array.html, 2026-08-20) — "애너그램 판별, 정렬 대신 문자 빈도표를 쓰는 이유" — 각 글자 등장횟수 배열 누적비교.
 - [x] **ascii-converter** (guides/ascii-utf8-subset-compatibility.html, 2026-08-24) — "ASCII가 사실 UTF-8의 부분집합인 이유" — 0~127범위 바이트단위 완전동일.
@@ -210,7 +206,7 @@ REJECT(3개): ip-address-lookup(일반 네트워킹 상식 나열뿐), website-s
 - [ ] **text-case-detector** — "camelCase vs kebab-case, 왜 언어마다 다른 표기법을 쓰나" — kebab은 JS 변수명 문법상 불가.
 - [x] **text-encryptor** (guides/text-encryptor-caesar-to-aes-history.html, 2026-08-24) — "카이사르 암호부터 AES-256-GCM까지, 이 도구 하나로 보는 암호화 발전사" — PBKDF2 10만회 반복+매번 새salt(16바이트)+IV(12바이트) 실측 확인.
 - [x] **text-statistics** (guides/text-statistics-flesch-korean-limitation.html, 2026-08-21) — "Flesch 가독성 지수, 왜 한국어에는 안 통하나" — 1948년 영어전용 공식. **버그 발견**: 실제로는 한글도 점수 미표시가 아니라 10단어↑면 무의미한 점수(음절수 강제 fallback=1)를 그대로 노출함 — 도구 자체 FAQ 설명과 실제 동작이 다름. 별도 수정 필요.
-- [ ] **unicode-converter** — "이모지 하나, 프로그래밍 언어마다 다른 세 가지 이스케이프 표기" — JS/JSON/Python 표기 비교.
+- [x] **unicode-converter** (guides/unicode-escape-js-json-python-comparison.html, 2026-08-25) — "이모지 하나, 프로그래밍 언어마다 다른 세 가지 이스케이프 표기" — JS/JSON/Python 표기 비교.
 - [x] **unicode-inspector** (guides/unicode-homograph-phishing-domains.html, 2026-08-20) — "apple.com이 진짜 apple.com이 아닐 수도 있다 — 호모글리프 피싱의 원리" — IDN 호모그래프 도메인 피싱.
 - [ ] **word-frequency-counter** — "빈도 막대그래프의 %가 어떤 값을 기준으로 하는지" — 분모가 전체토큰(발생횟수) 기준.
 
