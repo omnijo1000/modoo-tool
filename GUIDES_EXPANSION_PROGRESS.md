@@ -69,15 +69,15 @@
 - [x] **inflation-calculator** (guides/inflation-purchasing-power-decay.html, 2026-08-19) — "월세·연금 실질가치, 인플레이션이 몇 년 만에 갉아먹나" — 월$1,000 연금, 연2% 인플레 시 구매력 약67%로 하락.
 - [x] **currency-converter** (guides/currency-exchange-hidden-spread-cost.html, 2026-08-19) — "환율의 숨은 비용, 스프레드는 얼마나 되나" — USD/KRW 스프레드 20~40원+카드수수료 1.25~2%.
 - [x] **sip-calculator** (guides/sip-step-up-compounding-effect.html, 2026-08-26) — "Step-Up SIP, 매년 늘리면 복리효과가 얼마나 커지나" — 월$100+매년10%증액, 10년뒤 월$235.79(코드 실행 검증). **참고**: 이 계산기 자체엔 Step-Up 옵션 없음, FAQ에만 언급.
-- [ ] **emi-calculator** — "인도 EMI 대출한도, FOIR 40%가 정하는 것" — 월소득5만루피·FOIR40%→최대EMI 2만루피.
-- [ ] **loan-calculator-en** — "중도상환수수료, 미국과 한국은 왜 이렇게 다른가" — 미국 대부분 무료 vs 한국 잔여원금 0.5~1.5%.
+- [x] **emi-calculator** (guides/emi-india-foir-40-percent-limit.html, 2026-08-26) — "인도 EMI 대출한도, FOIR 40%가 정하는 것" — 월소득5만루피·FOIR40%→최대EMI 2만루피. **참고**: 계산기 자체엔 FOIR 역산 기능 없음, FAQ에만 언급.
+- [x] **loan-calculator-en** (guides/loan-prepayment-fee-us-vs-korea.html, 2026-08-26) — "중도상환수수료, 미국과 한국은 왜 이렇게 다른가" — 미국 대부분 무료 vs 한국 잔여원금 0.5~1.5%. (계산기 자체엔 중도상환수수료 필드 없음)
 - [x] **gst-calculator** (guides/gst-calculator-itc-explained.html, 2026-08-19) — "인도 GST 매입세액공제(ITC), 실제로 얼마나 절세되나" — 원자재매입 ₹18,000 ITC→실제납부 ₹9,000.
-- [ ] **vat-calculator-global** — "전세계 VAT 최고·최저 세율, 영국의 4단계 구조" — 헝가리27% vs 룩셈부르크17%, 영국 20/5/0/면세 4단계.
+- [x] **vat-calculator-global** (guides/vat-global-highest-lowest-uk-4-tier.html, 2026-08-26) — "전세계 VAT 최고·최저 세율, 영국의 4단계 구조" — 헝가리27% vs 룩셈부르크17%, 영국 20/5/0/면세 4단계. **참고**: 도구 프리셋에 룩셈부르크·영세율/면세 옵션 실제로 없음(가이드에서 지적).
 - [x] **mortgage-calculator** (guides/mortgage-pmi-vs-korea-ltv-20-percent-down.html, 2026-08-26) — "PMI vs 한국 LTV, 계약금 20%가 갖는 의미" — 미국 LTV80%이하 PMI면제 vs 한국 LTV50~60%규제. **참고**: 이 계산기 자체는 PMI 자동계산 미지원(보험료 필드는 수동입력).
 - [x] **roi-calculator** (guides/roi-vs-cagr-different-numbers-same-investment.html, 2026-08-25) — "ROI와 CAGR, 같은 투자인데 숫자가 다른 이유" — 단순누적 vs 연평균복리환산 비교.
 - [x] **apr-calculator** (guides/apr-vs-ear-credit-card-compounding.html, 2026-08-20) — "APR과 EAR, 카드 이자가 표시금리보다 비싸 보이는 이유" — 명목12%월복리→EAR≈12.68%.
-- [ ] **loan-payoff-calculator** — "월 상환액이 이자보다 적으면 벌어지는 일" — 음의 상각(negative amortization) 함정.
-- [ ] **investment-return-calculator** — "복리 주기(연/분기/월), 실제로 얼마나 차이 나나" — 1000만·10%·10년: 연2,594만 vs 월2,707만.
+- [x] **loan-payoff-calculator** (guides/loan-payoff-negative-amortization-trap.html, 2026-08-26) — "월 상환액이 이자보다 적으면 벌어지는 일" — 음의 상각(negative amortization) 함정(실제로 계산 차단하지만 궤적 시뮬레이션은 안 함).
+- [x] **investment-return-calculator** (guides/investment-return-compounding-frequency-diff.html, 2026-08-26) — "복리 주기(연/분기/월), 실제로 얼마나 차이 나나" — 1000만·10%·10년: 연25,937,425 vs 월27,070,415원(코드 실행 검증).
 - [x] **fire-calculator** (guides/fire-calculator-4-percent-rule-trinity-study.html, 2026-08-24) — "4% 룰(Trinity Study), 한국에서도 안전한가" — 1998년 미국 30년 가정, 비미국은 3~3.5% 권장.
 - [x] **cagr-calculator** (guides/cagr-hides-volatility-trap.html, 2026-08-25) — "CAGR이 감추는 변동성의 함정" — -30%/+80% 등락도 CAGR은 매년 동일성장처럼 평활화.
 - [x] **margin-calculator** (guides/margin-markup-percentage-confusion.html, 2026-08-24) — "마진율과 마크업, 같은 거래인데 다른 숫자가 나오는 이유" — 원가700·판매1000: 마진30% vs 마크업42.86%.
@@ -93,23 +93,25 @@
 - [x] **credit-loan-limit** (guides/credit-loan-overdraft-dsr-full-limit-trap.html, 2026-08-25) — "신용대출 한도, DSR만으로 안 끝나는 이유: 마이너스통장의 함정" — 마이너스통장은 실인출액 아닌 설정한도 전체로 DSR 반영. (계산기 자체엔 전용 로직 없음, 기존대출 월상환액 필드에 수동 환산 입력 필요)
 - [x] **electricity-cost-calculator** (guides/electricity-progressive-tariff-seasonal-relaxation.html, 2026-08-25) — "한국 전기요금 누진제 3단계, 여름·겨울엔 왜 완화되나" — 200/201~400/400초과 3단계. **참고**: 이 계산기 자체는 누진제 구간 로직이 전혀 없는 단순 kWh×단가 계산기(가전제품 비교용).
 - [x] **four-insurance** (guides/four-insurance-employer-burden-structure.html, 2026-08-20) — "사업주가 근로자보다 4대보험을 더 많이 낸다? 숨은 부담 구조" — 산재보험 평균1.47%는 전액 사업주 부담.
-- [ ] **fuel-cost-calculator** — "L/100km와 MPG, 왜 헷갈리는가 + 경유가 항상 economical하진 않다" — MPG=235.21÷(L/100km).
+- [x] **fuel-cost-calculator** (guides/fuel-cost-l-per-100km-vs-mpg-diesel-myth.html, 2026-08-26) — "L/100km와 MPG, 왜 헷갈리는가 + 경유가 항상 economical하진 않다" — MPG=235.21÷(L/100km). (연료종류별 나란히 비교는 미지원, 수동 2회 계산 필요)
 - [x] **income-tax** (guides/income-tax-progressive-deduction-less-than-table.html, 2026-08-25) — "종합소득세 누진세, 왜 세율표보다 적게 내는가" — 8단계 누진세율+누진공제 개념(코드에서 누진공제액 역산 검증).
 - [x] **loan-calc** (guides/loan-equal-payment-vs-equal-principal-interest-diff.html, 2026-08-25) — "원리금균등 vs 원금균등, 총이자 3,500만원 차이의 비밀" — 3억·4%·30년: 실제 계산 차이 35,108,519원(코드 실행 검증).
 - [x] **overtime-pay** (guides/overtime-night-pay-200-percent-5-employee-exemption.html, 2026-08-25) — "연장+야간 겹치면 200% — 그런데 5인 미만은 의무가 없다" — 5인미만 사업장 야간수당 의무 없음(단, 계산기 자체엔 5인 여부 토글 없음, 안내문구로만 존재).
 - [x] **payslip-calc** (guides/payslip-mandatory-disclosure-500man-fine.html, 2026-08-25) — "급여명세서 미교부, 과태료 500만원 — 2021년 이후 전 사업장 의무" — 2021.11부터 전사업장 의무.
 - [x] **percent-calc** (guides/percentage-point-vs-percent-difference.html, 2026-08-24) — "퍼센트 포인트(%p)와 퍼센트(%)는 다르다" — 40%→45%는 5%p(12.5% 아님).
-- [ ] **prepayment-fee** — "중도상환수수료, 왜 3년 지나면 사라지나" — 대부분 실행일로부터 3년 경과시 면제.
+- [x] **prepayment-fee** (guides/prepayment-fee-3year-exemption.html, 2026-08-26) — "중도상환수수료, 왜 3년 지나면 사라지나" — 대부분 실행일로부터 3년 경과시 면제. **버그 발견**: 36개월 이상이면 UI엔 "면제됩니다" 뜨지만 실제 계산 로직은 checkpoint 없이 그대로 비율공식 적용해 수수료 계속 청구됨. 별도 수정 필요.
 - [x] **property-tax** (guides/property-tax-comprehensive-not-double-taxation.html, 2026-08-25) — "종부세, 재산세를 또 걷는 이중과세가 아닌 이유" — 종부세의 20% 농특세 추가부과(재산세액공제 로직 코드 확인).
-- [ ] **realestate-fee** — "부동산 중개수수료 상한요율, 사실은 협상 가능하다" — 월세 환산=(보증금+월세×100).
-- [ ] **rent-convert** — "전월세 전환율 법정 상한, 기준금리+2%p를 넘기면 불법" — 상한=한국은행 기준금리+2%p.
+- [x] **realestate-fee** (guides/realestate-agent-fee-negotiable-cap-rate.html, 2026-08-26) — "부동산 중개수수료 상한요율, 사실은 협상 가능하다" — 월세 환산=(보증금+월세×100). **추가발견**: ×100 결과가 5천만원 미만이면 ×70으로 계산하는 예외 조건 있음.
+- [x] **rent-convert** (guides/jeonse-monthly-rent-conversion-rate-cap.html, 2026-08-26) — "전월세 전환율 법정 상한, 기준금리+2%p를 넘기면 불법" — 상한=한국은행 기준금리+2%p. **참고**: 기준금리 실시간 반영 안 됨, 정적 기본값(5.0%)이라 사용자가 직접 수정 필요.
 - [x] **retirement-calc** (guides/retirement-fire-25x-annual-expense-target.html, 2026-08-25) — "파이어(FIRE) 목표자산, 왜 연지출의 25배인가" (25=1/4% 도출과정 중심으로 각도 조정, fire-calculator 가이드와 중복 방지). **참고**: 이 도구는 실제로 단순 25배가 아니라 유한 은퇴기간 연금현재가치로 계산(기본값 기준 25배가 아닌 약16.6배).
-- [ ] **retirement-pension** — "퇴직연금 DB형 vs DC형, 임금인상률이 갈림길" — 임금인상률>예상투자수익률이면 DB유리.
-- [ ] **salary-raise** — "명목 인상률 5%인데 실질은 1.94%? 물가 반영 실질 인상률" — 실질=((1+명목)÷(1+물가)−1)×100.
+- [x] **retirement-pension** (guides/retirement-pension-db-vs-dc-wage-growth.html, 2026-08-26) — "퇴직연금 DB형 vs DC형, 임금인상률이 갈림길" — 임금인상률>예상투자수익률이면 DB유리(도구는 두 탭 독립계산, 나란히 비교는 안 해줌).
+- [x] **salary-raise** (guides/salary-raise-nominal-vs-real-inflation-adjusted.html, 2026-08-26) — "명목 인상률 5%인데 실질은 1.94%? 물가 반영 실질 인상률" — 실질=((1+명목)÷(1+물가)−1)×100. **참고**: 계산기 자체엔 물가 입력·실질인상률 계산 기능 없음, FAQ에만 공식 언급.
 - [x] **salary-reverse** (guides/salary-reverse-nonlinear-gross-from-net.html, 2026-08-25) — "실수령액 역산, 왜 단순히 0.85로 나누면 안 되나" — 이분탐색 방식 확인, 월300만 실수령→세전 45,320,000원(코드 로직대로 실측).
-- [ ] **severance-tax** — "퇴직소득세가 유독 적은 이유: 근속연수공제와 연분연승법" — 15년근속시 공제액 2,750만원.
-- [ ] **stock-tax** — "국내주식 손실과 해외주식 이익, 왜 서로 상계가 안 되나" — 해외주식 손익통산 불가, 기본공제 250만.
-- [ ] **tip-calculator** — "서비스 차지와 팁은 다르다 + 나라별 팁 비율이 이렇게 다른 이유" — 미국18~20% vs 유럽10~15% vs 한중일 없음.
+- [x] **severance-tax** (guides/severance-tax-service-year-deduction-yeonbun-yeonseung.html, 2026-08-26) — "퇴직소득세가 유독 적은 이유: 근속연수공제와 연분연승법" — 15년근속시 공제액 2,750만원(코드 실행 검증).
+- [x] **stock-tax** (guides/stock-tax-domestic-loss-overseas-gain-no-offset.html, 2026-08-26) — "국내주식 손실과 해외주식 이익, 왜 서로 상계가 안 되나" — 해외주식 손익통산 불가, 기본공제 250만.
+- [x] **tip-calculator** (guides/tip-service-charge-vs-tip-country-comparison.html, 2026-08-26) — "서비스 차지와 팁은 다르다 + 나라별 팁 비율이 이렇게 다른 이유" — 미국18~20% vs 유럽10~15% vs 한중일 없음. **참고**: 도구엔 국가별 프리셋 없음, FAQ 텍스트로만 설명.
+
+(finance-calculators 61/61 완료 — 전체 250개 후보 풀 소진)
 - [x] **vat-calc** (guides/vat-simplified-taxpayer-1-5-4-percent.html, 2026-08-25) — "간이과세자는 왜 부가세를 10%가 아니라 1.5~4%만 내나" — 연매출1억400만이하 업종별 부가가치율 적용. **참고**: 이 계산기 자체는 일반과세(10%)·영세율(0%)만 지원, 간이과세 업종별 계산 미지원(가이드에서 이 한계도 명시).
 
 REJECT(4개, 이유 있음): salary(기존 가이드와 중복), salary-negotiation(수치 근거 얕음), split-calculator(순수 UI), weekly-holiday(minimum-wage 가이드와 중복).

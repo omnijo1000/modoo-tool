@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>월 상환액이 이자보다 적으면 벌어지는 일 | MODOO HUB</title>
+<meta name="description" content="대출 월 상환액이 그 달 이자보다 적으면 원금이 오히려 늘어나는 음의 상각(negative amortization) 함정을, 실제 계산기 코드 검증과 함께 정리합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/loan-payoff-negative-amortization-trap.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"월 상환액이 이자보다 적으면 벌어지는 일","description":"대출 월 상환액이 그 달 이자보다 적으면 원금이 오히려 늘어나는 음의 상각(negative amortization) 함정을, 실제 계산기 코드 검증과 함께 정리합니다.","datePublished":"2026-08-26","dateModified":"2026-08-26","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>월 상환액이 이자보다 적으면 벌어지는 일</h1>
+  <p class="meta">가이드 · 2026.08.26 최종 확인</p>
+
+  <p>대출을 갚고 있는데 잔액이 오히려 늘어나는 경우가 있습니다. 원인은 단순합니다 — 월 상환액이 그 달 발생한 이자보다 적으면, 못 갚은 이자가 원금에 그대로 얹혀 다음 달 이자 계산 기준이 더 커지는 악순환이 생깁니다. 이를 <strong>음의 상각(negative amortization)</strong>이라 부릅니다. 특히 변동금리 대출에서 금리가 급등했는데 월 상환액을 예전 그대로 유지하면 이 함정에 빠지기 쉽습니다.</p>
+
+  <h2>1. 왜 원금이 거꾸로 늘어나는가</h2>
+  <p>정상적인 원리금균등상환에서는 매달 납입액 중 이자를 먼저 내고 남은 부분이 원금 상환에 쓰입니다. 그런데 납입액이 그 달 이자보다 작으면 "이자를 다 내지도 못한" 상태가 됩니다. 이 부족분(미납 이자)이 사라지지 않고 원금에 가산되면서, 다음 달에는 더 커진 원금에 이자가 붙습니다 — 원금이 줄어드는 게 아니라 오히려 불어나는 것입니다. 이런 구조는 초기 상환액을 낮게 설정한 일부 옵션 ARM(조정금리 모기지)이나, 변동금리 대출에서 금리는 올랐는데 월 상환액 재산정이 늦어지는 경우에 실제로 발생합니다.</p>
+
+  <h2>2. 숫자로 보는 함정</h2>
+  <p>잔액 2,000만원, 연 5.5%(월이율 약 0.4583%) 대출을 예로 들면, 이번 달 발생 이자는 다음과 같습니다.</p>
+  <div class="box">
+    월 이자 = 20,000,000원 × (5.5% ÷ 12) = <strong>약 91,667원</strong><br>
+    만약 월 상환액을 90,000원으로 설정했다면 → 90,000원 − 91,667원 = <strong>−1,667원</strong> (원금이 줄기는커녕 1,667원 늘어남)
+  </div>
+  <p>이 상태가 반복되면 잔액이 계속 불어나 사실상 "영원히 못 갚는 대출"이 됩니다. 변동금리 대출에서 초기 3%로 시작해 월 상환액 400,000원(잔액 2,000만원 기준 월이자 50,000원, 문제 없음)으로 정했다가, 금리가 8%로 급등해 월이자가 133,333원이 됐는데 상환액을 그대로 두면 같은 함정에 빠집니다.</p>
+
+  <h2>3. 이 사이트 계산기가 실제로 감지하는지 코드로 확인</h2>
+  <p>이건 가정이 아니라 실제로 <a href="../loan-payoff-calculator.html">대출 상환 계산기(Loan Payoff Calculator)</a> 코드를 실행해서 확인한 결과입니다. 계산 로직인 <code>simulate()</code> 함수는 매달 <code>prin = Math.min(pmt - int, b)</code>로 원금 상환분을 구하는데, 만약 이 값이 0 이하이면(즉 월 납입금이 이자보다 작거나 같으면) 함수가 즉시 <code>null</code>을 반환합니다. 이를 호출하는 <code>calc()</code> 함수는 <code>if(!base){alert(t.alertTooLow);return;}</code> 로직으로 "월 납입금이 이자보다 커야 합니다"라는 경고창(alert)을 띄우고 계산을 즉시 중단합니다.</p>
+  <p><strong>즉 이 계산기는 음의 상각이 발생하는 입력값을 실제로 감지해서 막습니다</strong> — 이 점은 hint에서 예상한 대로 맞았습니다. 다만 한 가지 짚어야 할 점이 있습니다: 감지 방식이 "경고 후 계산 자체를 거부"하는 하드 블록이라, 실제 음의 상각이 벌어졌을 때 잔액이 어떻게 불어나는지 그래프나 표로 보여주는 기능은 없습니다. 즉 "이 조합은 계산 불가"라고만 알려줄 뿐, "이대로 두면 몇 년 뒤 잔액이 얼마가 되는지"는 이 계산기로 확인할 수 없습니다.</p>
+
+  <h2>4. 실전 대응: 함정에 빠지지 않으려면</h2>
+  <ul>
+    <li><strong>변동금리 대출은 정기적으로 재계산</strong>: 금리가 오를 때마다 <a href="../loan-payoff-calculator.html">대출 상환 계산기</a>에 현재 잔액·새 금리·현재 납입액을 넣어 "경고가 뜨지 않는지"부터 확인하세요. 경고가 뜬다면 이미 최소 이자도 못 내고 있다는 뜻입니다.</li>
+    <li><strong>최소 필요 납입액 역산</strong>: 최소한 이자만큼은 내야 원금이 줄지 않는 것도 방지할 수 있으니, 월이자 = 잔액 × (연이율 ÷ 12) 공식으로 마지노선을 미리 계산해두세요.</li>
+    <li><strong>추가 납입 여력 확인</strong>: 이자보다 여유 있게 납입해야 원금이 실제로 줄어드는 만큼, <a href="../loan-calculator-en.html">Loan Calculator</a>로 정상적인 상환 스케줄을 미리 비교해보세요.</li>
+  </ul>
+
+  <h2>자주 묻는 질문</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 이 사이트 대출 상환 계산기가 음의 상각을 실제로 경고하나요?</summary><p style="margin-top:8px;">네, 코드로 확인했습니다. 월 납입금이 그 달 이자보다 작거나 같으면 계산 함수가 null을 반환하고, 화면에는 "월 납입금이 이자보다 커야 합니다"라는 경고창(alert)이 뜨며 계산이 중단됩니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 경고가 뜨면 실제 잔액이 얼마나 늘어나는지도 보여주나요?</summary><p style="margin-top:8px;">아니요. 경고 후 계산 자체가 중단되기 때문에, 그 조건을 유지했을 때 잔액이 몇 개월 후 얼마가 되는지는 이 계산기로 확인할 수 없습니다. 경고는 "이 조합은 계산 불가"라는 안내에 그칩니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 음의 상각은 어떤 대출에서 주로 발생하나요?</summary><p style="margin-top:8px;">초기 상환액을 낮게 설정한 옵션 ARM(조정금리 모기지) 같은 특수 상품이나, 변동금리 대출에서 금리가 급등했는데 월 상환액 재산정이 늦어지는 경우에 실제로 발생할 수 있습니다. 표준 원리금균등상환 고정금리 대출에서는 애초에 발생하지 않습니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 최소한 얼마를 내야 원금이 줄어드나요?</summary><p style="margin-top:8px;">그 달 발생 이자(잔액 × 연이율 ÷ 12)보다 많이 내야 합니다. 정확히 이자만큼만 내면 원금은 그대로 유지되고(줄지 않고), 이자보다 조금이라도 더 내야 원금이 실제로 줄어들기 시작합니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../loan-payoff-calculator.html">→ 대출 상환 계산기</a>
+    <a href="../loan-calculator-en.html">→ Loan Calculator</a>
+    <a href="../mortgage-calculator.html">→ 모기지 계산기</a>
+    <a href="../emi-calculator.html">→ EMI 계산기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적이며 실제 대출 조건은 금융기관과 반드시 상담하세요.</footer>
+</main>
+</body>
+</html>
