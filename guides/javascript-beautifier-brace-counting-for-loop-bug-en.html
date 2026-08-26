@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why a Brace-Counting JS Formatter Breaks for Loops | MODOO HUB</title>
+<meta name="description" content="Why lightweight JS formatters use character-by-character brace counting instead of an AST parser, and why that approach breaks for(;;) headers and regex literals — analyzed at the code level.">
+<link rel="canonical" href="https://modoohub.com/guides/javascript-beautifier-brace-counting-for-loop-bug-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/javascript-beautifier-brace-counting-for-loop-bug.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/javascript-beautifier-brace-counting-for-loop-bug-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/javascript-beautifier-brace-counting-for-loop-bug.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Why a Brace-Counting JS Formatter Breaks for Loops","description":"Why lightweight JS formatters use character-by-character brace counting instead of an AST parser, and why that approach breaks for(;;) headers and regex literals — analyzed at the code level.","datePublished":"2026-08-26","dateModified":"2026-08-26","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+code{background:var(--surface2);padding:1px 5px;border-radius:4px;font-family:'DM Mono',monospace;font-size:13px;color:var(--blue);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Why a Brace-Counting JS Formatter Breaks for Loops</h1>
+  <p class="meta">Guide · Last verified Aug 26, 2026</p>
+
+  <p>Most free JS formatters that run instantly in the browser don't actually "understand" code. A real tool like Prettier parses code into a syntax tree (AST) and re-emits from that tree, but a lightweight formatter just scans characters one at a time and decides where to break lines based on a handful of symbols. Here's why that difference exists and where it causes problems, verified against the actual code.</p>
+
+  <h2>1. Why character counting instead of an AST parser</h2>
+  <p>Building a full JS parser from scratch — tokenizing, parsing grammar, handling ASI (automatic semicolon insertion) rules — takes hundreds to thousands of lines. By contrast, the rule "increase indentation when a brace opens, decrease it when one closes" takes just a few lines and satisfies most of what people actually want: turning minified code into something readable. The <a href="../javascript-beautifier.html?lang=en">JavaScript Beautifier</a> takes this same approach — open the actual code and you'll find no parser or tokenizer class inside the <code>jsBeautify()</code> function, just a single loop shaped like <code>for(let i=0;i&lt;code.length;i++)</code>. It's fast and the code is short, but in exchange there's no guarantee whatsoever that it "understands the grammar."</p>
+
+  <h2>2. What exactly determines indentation depth</h2>
+  <p>Looking directly at the code, the depth variable is incremented by 1 only when it hits an opening brace <code>{</code>, and decremented by 1 on a closing brace <code>}</code> — that's the entire rule. Parentheses <code>( )</code> and square brackets <code>[ ]</code> play no part in this counter at all. So even deeply nested parentheses like <code>if(a&&(b||c))</code> leave the indentation depth unchanged. Strings (quoted segments) are the one thing protected by a separate check called <code>inStr()</code>, so a <code>{</code> or <code>;</code> inside a string passes through safely.</p>
+
+  <h2>3. The exact mechanism that breaks for loops</h2>
+  <p>The problem is the semicolon rule. The code has no state tracking "am I inside parentheses or not" — whenever it hits a <code>;</code> character, it unconditionally inserts a line break. But a <code>for(let i=0;i&lt;n;i++){...}</code> header contains exactly 2 semicolons (3 if you count the statement-terminating one that follows). The scanner has no way to tell whether these semicolons are "separators inside a for-loop header" or "the end of a statement," so it inserts a line break every single time. The result: a for-loop header that should be one line gets split into three.</p>
+  <div class="box">
+    <strong>Actual input → output example</strong> (4-space indent, brace-on-same-line option)
+  </div>
+  <table>
+    <tr><th>Stage</th><th>Content</th></tr>
+    <tr><td>Input</td><td><code>for(let i=0;i&lt;10;i++){sum+=i;}</code></td></tr>
+    <tr><td>Expected output (manually cleaned up by a human)</td><td><code>for(let i=0;i&lt;10;i++){&#10;&nbsp;&nbsp;&nbsp;&nbsp;sum+=i;&#10;}</code></td></tr>
+    <tr><td>Actual output (brace-counting approach)</td><td><code>for(let i=0;&#10;i&lt;10;&#10;i++){&#10;&nbsp;&nbsp;&nbsp;&nbsp;sum+=i;&#10;}</code></td></tr>
+  </table>
+  <p>This isn't syntactically wrong (JS allows a line break after a semicolon), but it breaks the readability convention that a for-loop header should stay on one line. The more complex the header — say, a function call mixed into the condition — the worse the readability cost gets.</p>
+
+  <h2>4. Another trap: regex literals</h2>
+  <p>An even more dangerous case is regular expressions. <code>inStr()</code> is only designed to recognize quotes (<code>'</code>, <code>"</code>, backtick), so a slash-delimited regex literal like <code>/\{[0-9]+\}/</code> gets no protection at all. In that case, the <code>{</code> and <code>}</code> inside the regex are mistaken for a code block's opening/closing braces, and the depth counter increments or decrements incorrectly — which can cascade into misindented output for all the real code that follows. This asymmetry — strings are safe, regexes are not — is the tool's biggest limitation.</p>
+
+  <h2>5. So when is it safe to use, and when is it risky?</h2>
+  <p>For quickly skimming short, simple function- or object-heavy code, this approach is plenty practical. But when cleaning up algorithm-heavy code full of for loops, or validation logic mixed with regular expressions, don't trust the result blindly — check it by eye. If you're reversing minification, the <a href="../json-minifier.html?lang=en">JSON Minifier</a> and <a href="../css-beautifier.html?lang=en">CSS Beautifier</a> use a similar character-counting structure, so the same caution applies there. If you want to validate a regex pattern itself ahead of time, we'd recommend testing it separately with the <a href="../regex-generator.html?lang=en">Regex Generator</a>.</p>
+
+  <h2>FAQ</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does this formatter actually execute the code or check for syntax errors?</summary><p style="margin-top:8px;">No. It only scans characters — it never runs the code through a JS engine or parses it — so if you feed it code that already had a syntax error, it won't tell you; it just tries to insert line breaks anyway.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does an array literal like [1,2,3] affect indentation the same way braces do?</summary><p style="margin-top:8px;">No. The depth counter only tracks how many times curly braces { } appear — square brackets aren't counted separately. So commas inside an array often just get a space added with no line break, staying on one line, as long as the current brace depth is 0.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does a tool like Prettier avoid this problem entirely?</summary><p style="margin-top:8px;">Prettier actually parses the code into a real syntax tree and re-emits it from that tree, so it understands context all the way down to for loops, regexes, and template literals. The trade-off is that a lightweight tool meant to run instantly in a browser with no install doesn't carry a full parsing engine like that.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Are ${} expressions inside a template literal affected too?</summary><p style="margin-top:8px;">A string that starts with a backtick is copied through as one whole string until the closing backtick appears, so any braces or semicolons inside its interpolated expressions are left untouched and never get reformatted.</p></details>
+
+  <div class="tool-links">
+    <a href="../javascript-beautifier.html?lang=en">→ JavaScript Beautifier</a>
+    <a href="../css-beautifier.html?lang=en">→ CSS Beautifier</a>
+    <a href="../json-minifier.html?lang=en">→ JSON Minifier</a>
+    <a href="../javascript-minifier.html?lang=en">→ JavaScript Minifier</a>
+    <a href="../regex-generator.html?lang=en">→ Regex Generator</a>
+    <a href="../html-minifier.html?lang=en">→ HTML Minifier</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general informational purposes only. For production code style enforcement, we recommend an AST-based tool such as Prettier.</footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SQL Minifier Truncates Queries When -- Appears Inside a String | MODOO HUB</title>
+<meta name="description" content="If a string literal in a SQL minifier happens to contain --, the query gets silently cut off. We reproduce the processing-order bug at the code level and analyze why it happens.">
+<link rel="canonical" href="https://modoohub.com/guides/sql-minifier-comment-string-collision-bug-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/sql-minifier-comment-string-collision-bug.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/sql-minifier-comment-string-collision-bug-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/sql-minifier-comment-string-collision-bug.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"SQL Minifier Truncates Queries When -- Appears Inside a String","description":"If a string literal in a SQL minifier happens to contain --, the query gets silently cut off. We reproduce the processing-order bug at the code level and analyze why it happens.","datePublished":"2026-08-26","dateModified":"2026-08-26","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+code{background:var(--surface2);padding:2px 5px;border-radius:4px;font-family:'DM Mono',monospace;font-size:13px;color:var(--blue);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>SQL Minifier Truncates Queries When -- Appears Inside a String</h1>
+  <p class="meta">Guide · Last verified Aug 26, 2026</p>
+
+  <p>A tool that compresses SQL into one line looks like a simple job: strip whitespace, line breaks, and comments to shrink the size. But when the "strip comments" step reaches inside a string literal, the result isn't just quietly wrong — the query itself can break. This article reads the actual source of the <a href="../sql-minifier.html?lang=en">SQL Minifier</a>, verifies the bug reproduces, and breaks down the cause.</p>
+
+  <h2>1. The inherent ambiguity of SQL comment syntax</h2>
+  <p>In SQL, <code>--</code> starts a single-line comment that runs to the next line break, and <code>/* ... */</code> is a block comment. The problem is that these same symbols can also appear inside a string literal. Two hyphens landing inside a string value by coincidence — as in <code>WHERE note='A--B'</code> — is not rare in practice: it shows up in URLs (<code>https://a--b.example.com</code>), columns that store code snippets, free-text fields, and more. If a parser strips everything after <code>--</code> using a regex alone, with no notion of "am I currently inside a string," the concept of a string boundary is simply ignored.</p>
+
+  <h2>2. Checking the actual code: it's a processing-order problem</h2>
+  <p>Pulled directly from the tool's <code>minify()</code> function, the core logic looks like this.</p>
+  <div class="box">
+<code>if(rmComments){ sql=sql.replace(/\/\*[\s\S]*?\*\//g,' ').replace(/--[^\n]*/g,' '); }<br>
+// Protect string literals (placeholder substitution) — only runs at this point<br>
+const strings=[]; sql=sql.replace(/'[^']*'/g, m =&gt; { strings.push(m); return '__STR'+(strings.length-1)+'__'; });</code>
+  </div>
+  <p>Whitespace collapsing and keyword uppercasing first swap strings out for placeholders like <code>__STR0__</code>, process the rest, and restore the strings last — so they never touch string values. But the comment-removal code runs <strong>before</strong> that protection logic. In other words, when the regex <code>/--[^\n]*/g</code> scans the raw SQL string, there is nothing in the code that can tell which <code>--</code> is a real comment and which one is sitting inside a string value.</p>
+
+  <h2>3. Reproducing it: the query actually gets cut</h2>
+  <p>Here's what actually happens when you feed the following inputs in with comment removal turned on.</p>
+  <table>
+    <tr><th>Input</th><th>Output</th><th>Result</th></tr>
+    <tr><td><code>WHERE note='A--B' AND x=1</code></td><td><code>WHERE note='A</code></td><td>Unterminated quote; everything after it is lost</td></tr>
+    <tr><td><code>note='a/*b*/c'</code></td><td><code>note='a c'</code></td><td>The quote stays closed so there's no error, but the value is silently altered</td></tr>
+  </table>
+  <p>The first case is serious. Everything after <code>--</code> (<code>B' AND x=1</code>) is treated as a "single-line comment" and stripped, leaving SQL with a syntax error from an unclosed quote. The second case is more dangerous — it looks syntactically fine, but the string value you meant to store (<code>a/*b*/c</code>) has been silently changed to <code>a c</code>, so it runs, but the data is corrupted. Neither case raises a separate error message, so unless you compare the output by eye, it's easy to miss.</p>
+
+  <h2>4. Why this design happened</h2>
+  <p>This ordering isn't really a "design mistake" so much as a trap that's almost unavoidable when you implement minification with regex substitutions instead of actually tokenizing the SQL. Done correctly, you'd have to <strong>identify and protect string literals first</strong>, then strip comments only from what's left. This tool does follow that order for whitespace collapsing and uppercasing (which is why those two features are safe), but the comment-removal step alone is placed ahead of string protection — so safety varies feature by feature within the same file. A tool that actually parses the syntax, like the <a href="../sql-validator.html?lang=en">SQL Validator</a>, wouldn't have this problem in the first place.</p>
+
+  <h2>5. How to use it safely in practice</h2>
+  <ul>
+    <li><strong>If your string values might contain URLs, code, or free text, turn off comment removal.</strong> Whitespace collapsing alone still gives you a meaningful size reduction.</li>
+    <li>If you do turn on comment removal, <strong>always visually compare the minified result before running it.</strong> Just checking that the number of quotes doesn't end up odd will catch most cases of the first failure type.</li>
+    <li>For queries that go into a production database, treat minification as a deployment convenience only — keep the original, unminified SQL under version control separately.</li>
+  </ul>
+
+  <h2>FAQ</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does this bug actually reproduce, or is it just theoretical?</summary><p style="margin-top:8px;">It reproduces. Running the tool's actual <code>minify()</code> function, you can directly confirm that the input <code>WHERE note='A--B' AND x=1</code> gets cut down to <code>WHERE note='A</code> when the comment-removal option is on.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Do whitespace collapsing or keyword uppercasing have the same problem?</summary><p style="margin-top:8px;">No. Both of those features first swap string literals out for placeholders, process the rest, and restore the strings at the end, so they never touch string values. The problem only occurs at the comment-removal step.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. How do I avoid this problem?</summary><p style="margin-top:8px;">If your SQL string values might coincidentally contain <code>--</code> or <code>/*</code>, either turn off comment removal or always visually double-check the minified result.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does the query also get cut when a block-comment marker appears inside a string?</summary><p style="margin-top:8px;">No, it doesn't get cut, but the value gets silently altered. <code>note='a/*b*/c'</code> turns into <code>note='a c'</code> — it still runs, but the stored data no longer matches the original.</p></details>
+
+  <div class="tool-links">
+    <a href="../sql-minifier.html?lang=en">→ SQL Minifier</a>
+    <a href="../sql-validator.html?lang=en">→ SQL Validator</a>
+    <a href="../sql-to-json.html?lang=en">→ SQL to JSON</a>
+    <a href="../json-minifier.html?lang=en">→ JSON Minifier</a>
+    <a href="../regex-generator.html?lang=en">→ Regex Generator</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general informational purposes only. Always verify the output yourself before applying it to a production environment.</footer>
+</main>
+</body>
+</html>

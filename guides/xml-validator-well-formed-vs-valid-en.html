@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why XML Parsers Are Stricter Than HTML (well-formed vs. valid) | MODOO HUB</title>
+<meta name="description" content="Unlike browsers, which gracefully recover from and render broken HTML, XML parsers are required by spec to halt immediately on a syntax error (a well-formed violation). This guide dissects the difference between well-formed and valid, including how DOMParser actually behaves.">
+<link rel="canonical" href="https://modoohub.com/guides/xml-validator-well-formed-vs-valid-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/xml-validator-well-formed-vs-valid.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/xml-validator-well-formed-vs-valid-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/xml-validator-well-formed-vs-valid.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Why XML Parsers Are Stricter Than HTML (well-formed vs. valid)","description":"Unlike browsers, which gracefully recover from broken HTML and render it anyway, XML parsers are required by spec to halt immediately on a syntax error. This guide dissects the difference between well-formed and valid.","datePublished":"2026-08-26","dateModified":"2026-08-26","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Why does the tool only check well-formed and not valid?","acceptedAnswer":{"@type":"Answer","text":"Validating for valid requires referencing a separate schema file (a DTD or XSD), and plenty of documents — like arbitrary user-written config files — don't even have a schema to check against. Checking well-formed, on the other hand, can be judged from the document alone, which makes it usable as a general-purpose check."}},
+{"@type":"Question","name":"How does the tool detect DOMParser's parsererror?","acceptedAnswer":{"@type":"Answer","text":"If parseFromString() fails to parse, a <parsererror> element gets inserted into the returned document. Checking for the presence of that element is the standard way browser-based XML validation tools determine well-formedness."}},
+{"@type":"Question","name":"Why was HTML5 designed to be this lenient?","acceptedAnswer":{"@type":"Answer","text":"By the time HTML5 came along, there was already a massive body of pages with broken markup out in the wild. To avoid breaking them while still getting consistent behavior across browsers, the HTML5 spec standardized an error recovery algorithm. In other words, the leniency itself is a deliberate design choice made for interoperability."}},
+{"@type":"Question","name":"Is JSON as strict as XML?","acceptedAnswer":{"@type":"Answer","text":"Yes — JSON parsers also fail immediately on any syntax error. A single misplaced comma is enough to fail parsing entirely, which shares the same underlying philosophy as XML's well-formed enforcement."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Why XML Parsers Are Stricter Than HTML (well-formed vs. valid)</h1>
+  <p class="meta">Guide · Last verified Aug 26, 2026</p>
+
+  <p>Open an HTML file with an unclosed tag in a browser, and the page usually renders just fine. Make the same mistake in an XML file, and the parser stops right there and throws an error. Both are tag-based markup languages, so why do they react so differently? The answer isn't a matter of taste — it's baked into the specs themselves. This guide breaks down where that difference comes from, and why the two related-but-different concepts of "well-formed" and "valid" get confused so often.</p>
+
+  <h2>1. The HTML Parser's Leniency: Error Recovery Is a Spec-Mandated Feature</h2>
+  <p>The HTML5 parsing spec (the WHATWG HTML Living Standard) spells out in detail exactly how a parser should "recover" when it hits malformed markup. Unclosed tags get implicitly closed, out-of-order tags get repositioned according to tree-construction rules, and unknown tags get silently skipped. This isn't the browser being especially forgiving — it's a reflection of the web's early days, when broken markup was rampant, and "render as much as possible even when it's broken" was locked in as the standard behavior itself.</p>
+
+  <h2>2. The XML Spec's Fatal Error Mandate: Parsers Must Stop on well-formed Violations</h2>
+  <p>The XML 1.0 spec was designed in the opposite direction. If a document violates the well-formed rules (every tag properly opened and closed, attribute values wrapped in quotes, exactly one root element), the spec requires the parser to treat it as a <strong>fatal error</strong> and halt processing right there. Leniently recovering and continuing simply isn't an option the spec allows. Because XML was designed as a data-interchange format, the reasoning was that if parsers recovered ambiguously and kept going, different parsers could produce different results for the same input — and for a data format, that's a fatal flaw.</p>
+  <div class="box">
+    <strong>The takeaway</strong>: The HTML parser's leniency isn't "implementation discretion" — it's standard behavior the spec requires. XML's strictness is exactly the same: standard behavior the spec mandates. The two languages were designed for different purposes from the start (document rendering vs. data interchange), and that difference in purpose is what produced the difference in parsing philosophy.
+  </div>
+
+  <h2>3. well-formed and valid Are Different Levels of the Same Idea</h2>
+  <p>It helps to separate two words that often get conflated here. <strong>well-formed</strong> means the document follows XML's basic grammar rules — tags properly paired, attribute values quoted, a single root element, and so on. This is the bare minimum every XML document must satisfy, no exceptions. <strong>valid</strong> is a level above that: it means the document also satisfies whatever a schema (a DTD or XSD) defines — which elements must appear, and in what order. A document that isn't well-formed can't even be parsed in the first place, but a document can absolutely be well-formed and still not valid (correct syntax, but missing an element the schema requires).</p>
+  <table>
+    <tr><th>Category</th><th>What's checked</th><th>Result on violation</th></tr>
+    <tr><td>well-formed</td><td>XML 1.0 base grammar (tag pairing, quoting, single root)</td><td>Parser halts immediately with a fatal error</td></tr>
+    <tr><td>valid</td><td>Element/attribute/order rules defined by a DTD/XSD</td><td>Schema validation failure (requires a separate validator)</td></tr>
+  </table>
+
+  <h2>4. How Far Does the Actual Tool Check?</h2>
+  <p>This distinction matters in practice because the phrase "XML validation" can mean either a well-formed check alone or something that also covers valid — and a tool's actual scope hinges entirely on which one it does. The <a href="../xml-validator.html?lang=en">XML Validator</a>, for instance, works by calling the browser's built-in <code>DOMParser</code> — <code>parseFromString(xml, 'application/xml')</code> — and checking whether a <code>parsererror</code> element shows up. That only checks well-formedness; it doesn't separately load a DTD or XSD schema to validate element structure. So a document that "passes well-formed but isn't valid" still shows up as "valid XML" in this tool — that's not a limitation of the tool, it's the normal, well-defined scope of a well-formed validator.</p>
+  <div class="box">
+    <strong>Example</strong>: The document below is well-formed (every tag is properly paired), but it's missing the required <code>&lt;loc&gt;</code> element that sitemap.xml's XSD schema requires — so it isn't valid.<br><br>
+    <code>&lt;urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"&gt;&lt;url&gt;&lt;lastmod&gt;2026-08-24&lt;/lastmod&gt;&lt;/url&gt;&lt;/urlset&gt;</code><br><br>
+    A DOMParser-based validator marks this document as "valid" — because it only checks well-formedness. Catching schema violations requires a separate, XSD-aware validator.
+  </div>
+
+  <h2>5. Why XHTML Is Especially Strict</h2>
+  <p>The place this principle bites hardest in practice is XHTML. HTML5 documents are processed by the HTML parser, so they mostly render even with errors — but XHTML documents served as <code>application/xhtml+xml</code> get processed by the browser's XML parser instead. That's why in XHTML, a single unclosed tag can produce the infamous "Yellow Screen of Death," where the whole page goes blank except for an error message. The same markup can get wildly different parser leniency depending purely on which MIME type the server responds with.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Why does the tool only check well-formed and not valid?</summary><p style="margin-top:8px;">A. Validating for <em>valid</em> requires referencing a separate schema file (a DTD or XSD), and plenty of documents — like arbitrary user-written config files — don't even have a schema to check against. Checking <em>well-formed</em>, on the other hand, can be judged from the document alone, which makes it usable as a general-purpose check.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. How does the tool detect DOMParser's parsererror?</summary><p style="margin-top:8px;">A. If <code>parseFromString()</code> fails to parse, a <code>&lt;parsererror&gt;</code> element gets inserted into the returned document. Checking for the presence of that element is the standard way browser-based XML validation tools determine well-formedness.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Why was HTML5 designed to be this lenient?</summary><p style="margin-top:8px;">A. By the time HTML5 came along, there was already a massive body of pages with broken markup out in the wild. To avoid breaking them while still getting consistent behavior across browsers, the HTML5 spec standardized an "error recovery algorithm." In other words, the leniency itself is a deliberate design choice made for interoperability.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Is JSON as strict as XML?</summary><p style="margin-top:8px;">A. Yes — JSON parsers also fail immediately on any syntax error. A single misplaced comma is enough to fail parsing entirely, which shares the same underlying philosophy as XML's well-formed enforcement.</p></details>
+
+  <div class="tool-links">
+    <a href="../xml-validator.html?lang=en">→ XML Validator</a>
+    <a href="../xml-beautifier.html?lang=en">→ XML Beautifier</a>
+    <a href="../json-validator.html?lang=en">→ JSON Validator</a>
+    <a href="../html-decoder.html?lang=en">→ HTML Decoder</a>
+    <a href="../sitemap-generator.html?lang=en">→ Sitemap Generator</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes. For the exact behavior of any specific parser implementation, please refer to the relevant spec documents.</footer>
+</main>
+</body>
+</html>

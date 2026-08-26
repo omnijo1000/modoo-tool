@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How a Character-Level CSS Formatter Tracks Nesting Depth | MODOO HUB</title>
+<meta name="description" content="Why plain CSS is safe to format with simple character-by-character brace counting, and why SCSS preprocessor syntax plus strings/comments can break the structure — analyzed against the actual code.">
+<link rel="canonical" href="https://modoohub.com/guides/css-beautifier-char-by-char-nesting-scss-limit-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/css-beautifier-char-by-char-nesting-scss-limit.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/css-beautifier-char-by-char-nesting-scss-limit-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/css-beautifier-char-by-char-nesting-scss-limit.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"How a Character-Level CSS Formatter Tracks Nesting Depth","description":"Why plain CSS is safe to format with simple character-by-character brace counting, and why SCSS preprocessor syntax plus strings/comments can break the structure — analyzed against the actual code.","datePublished":"2026-08-26","dateModified":"2026-08-26","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+code{background:var(--surface2);padding:1px 5px;border-radius:4px;font-family:'DM Mono',monospace;font-size:13px;color:var(--blue);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>How a Character-Level CSS Formatter Tracks Nesting Depth</h1>
+  <p class="meta">Guide · Last verified Aug 26, 2026</p>
+
+  <p>CSS was originally a language with no nesting at all. One selector, one <code>{ }</code> block, a flat list of declarations inside — so simple counting, where every opening brace increases depth and every closing brace decreases it, always produced correct indentation. But that assumption started to wobble once preprocessors like SCSS and the modern CSS Nesting spec arrived. We opened the actual code of the <a href="../css-beautifier.html?lang=en">CSS Beautifier</a> to see exactly where it's safe and where it breaks down.</p>
+
+  <h2>1. Why character counting alone was enough for plain CSS</h2>
+  <p>Standard CSS syntax is a flat structure: a selector is followed by <code>{</code>, declarations end in semicolons, and <code>}</code> closes the block. Even media queries (<code>@media</code>) and keyframes (<code>@keyframes</code>) follow the exact same rule, just with one or two extra layers of braces. So a single rule — "depth+1 on an opening brace, depth-1 on a closing brace" — was enough to reproduce correct indentation for any CSS file.</p>
+
+  <h2>2. This tool actually recognizes exactly four characters</h2>
+  <p>Looking at the code, the <code>cssBeautify()</code> function walks the input one character at a time and only reacts to four characters: <code>{</code>, <code>}</code>, <code>;</code>, and <code>,</code>. Hitting <code>{</code> does <code>depth++</code> and inserts a line break; hitting <code>}</code> does <code>depth--</code> and inserts a line break; a line break always follows <code>;</code>; and <code>,</code> only breaks the line when the comma option is enabled and depth is 0 (i.e., a top-level selector list). Every other character is simply copied through as-is.</p>
+
+  <h2>3. An additional risk we found: there is no string/comment protection logic at all</h2>
+  <p>The <a href="../javascript-beautifier.html?lang=en">JavaScript Beautifier</a> has an <code>inStr()</code> routine that protects everything inside quotes, but the CSS Beautifier's code has no such protection logic whatsoever. That means a structural character inside quotes — like <code>content:";{}"</code> — or a semicolon/brace inside a comment — like <code>/* a semicolon here; */</code> — triggers a line break or depth change immediately, regardless of the fact that it's sitting inside a string or comment. Values like this are rare in everyday plain-CSS use, so this doesn't surface often, but it's actually a more fundamental limitation than the commonly assumed idea that "only SCSS nesting is a problem."</p>
+
+  <h2>4. What breaks when you feed it SCSS syntax</h2>
+  <p>A nested SCSS selector like <code>&:hover{ }</code> keeps its braces properly paired, so — surprisingly — the depth counting alone leaves its shape mostly intact. The real problem is things like a variable declaration such as <code>$primary-color: #333;</code>, an <code>@if</code>/<code>@else</code> conditional, or string interpolation like <code>#{$var}</code>. These aren't standard CSS structural characters — they're preprocessor-only tokens — and this tool has no way to distinguish them, so it mechanically inserts a line break at every semicolon just like it would for a normal declaration. The result isn't a syntax error, but SCSS's distinctive logical structure (conditional branches, variable scope) visually disappears.</p>
+  <div class="box">
+    <strong>Actual input → output example</strong>
+  </div>
+  <table>
+    <tr><th>Stage</th><th>Content</th></tr>
+    <tr><td>Input (SCSS)</td><td><code>.btn{$c:#333;&:hover{color:$c;}}</code></td></tr>
+    <tr><td>What you'd expect from plain CSS</td><td>Nested structure accurately reflected at depth level 2</td></tr>
+    <tr><td>Actual output</td><td><code>$c:#333;</code> is treated as an ordinary declaration and gets the same line-break rule as any other property, with no notion of it being a variable</td></tr>
+  </table>
+
+  <h2>5. Conclusion: how far can you trust it?</h2>
+  <p>If you're just re-formatting plain CSS output that a server or build tool has already compiled and deployed, this approach is 100% reliable. On the other hand, if you feed it a raw <code>.scss</code>/<code>.less</code> source file, or CSS containing strings/comments with semicolons or braces inside them, don't trust the result without double-checking it. When you first minify CSS, the safest combination is running the output of the <a href="../css-minifier.html?lang=en">CSS Minifier</a> back through this formatter.</p>
+
+  <h2>FAQ</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Are media queries (@media) indented correctly too?</summary><p style="margin-top:8px;">Yes. The opening brace of an @media block increases depth by 1 just like any other brace, so the selectors and properties inside it are automatically indented one level deeper.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Are CSS variables (custom properties) safe?</summary><p style="margin-top:8px;">Yes. <code>--primary-color: #fbbf24;</code> has the same colon-and-semicolon structure as an ordinary declaration, so it gets the same line-break and indentation rules as any other property.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Is it still fine when braces are nested two levels deep, like @keyframes?</summary><p style="margin-top:8px;">Yes. Something like <code>@keyframes spin{ 0%{...} 100%{...} }</code>, with two levels of nesting, still gets the same treatment — depth increases on every opening brace — so the 0% and 100% blocks each show up indented one level further in.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. What exactly is different from a tool like Prettier?</summary><p style="margin-top:8px;">Prettier fully parses CSS syntax and understands the context of strings, comments, and preprocessor syntax. This tool skips that parsing step entirely and just watches for a handful of structural characters, which makes it much simpler and faster, but the result can differ in the edge cases described above.</p></details>
+
+  <div class="tool-links">
+    <a href="../css-beautifier.html?lang=en">→ CSS Beautifier</a>
+    <a href="../css-minifier.html?lang=en">→ CSS Minifier</a>
+    <a href="../javascript-beautifier.html?lang=en">→ JavaScript Beautifier</a>
+    <a href="../css-gradient-generator.html?lang=en">→ CSS Gradient Generator</a>
+    <a href="../tailwind-color-generator.html?lang=en">→ Tailwind Color Generator</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general informational purposes only. For formatting raw SCSS/LESS source files, we recommend a dedicated tool that supports that preprocessor.</footer>
+</main>
+</body>
+</html>

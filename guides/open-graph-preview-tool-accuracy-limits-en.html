@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why OG Preview Tools Can Look Different From Real Facebook and KakaoTalk Cards | MODOO HUB</title>
+<meta name="description" content="Why a browser-based OG preview tool renders differently from the real KakaoTalk, Facebook, and Twitter crawlers, explained through the tool's actual code structure — and why that gap is unavoidable.">
+<link rel="canonical" href="https://modoohub.com/guides/open-graph-preview-tool-accuracy-limits-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/open-graph-preview-tool-accuracy-limits.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/open-graph-preview-tool-accuracy-limits-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/open-graph-preview-tool-accuracy-limits.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Why OG Preview Tools Can Look Different From Real Facebook and KakaoTalk Cards","description":"Why a browser-based OG preview tool renders differently from the real KakaoTalk, Facebook, and Twitter crawlers, explained through the tool's actual code structure.","datePublished":"2026-08-26","dateModified":"2026-08-26","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Why OG Preview Tools Can Look Different From Real Facebook and KakaoTalk Cards</h1>
+  <p class="meta">Guide · Last verified Aug 26, 2026</p>
+
+  <p>If the card you see in an OG preview tool doesn't match what actually shows up when you paste the link into KakaoTalk, Facebook, or Twitter, it's tempting to assume "the tool must be broken." But this isn't a bug — it's a structural difference that exists because a preview tool and a real social platform read a page in completely different ways from the start. Here's where that gap actually comes from, based on the <a href="../open-graph-preview.html?lang=en">OG Preview</a> tool's own code.</p>
+
+  <h2>1. This tool doesn't fetch the URL directly</h2>
+  <p>The first thing to understand is that this tool doesn't send a network request to the URL you type in and scrape the og tags itself. Looking at the actual code, the <code>parseOGFromHtml()</code> function only scans, with a regex, the HTML string you've pasted into the "HTML Source" tab's textarea and extracts &lt;meta&gt; tags from it — there's no <code>fetch()</code> or <code>XMLHttpRequest</code> call anywhere that requests a URL. The "Manual Input" tab works the same way, requiring you to type in og:title/og:description/og:image/og:url values by hand. In other words, this tool isn't "you enter a URL and a server fetches and analyzes that page for you" — it's "you parse HTML (or values) you already have, and it renders a preview."</p>
+  <p>It's built this way because of the browser's <strong>CORS (Cross-Origin Resource Sharing)</strong> restriction. When browser JavaScript sends a <code>fetch()</code> to an arbitrary external site's URL, it can't read the response unless that site's server explicitly allows it via CORS headers. Most ordinary websites don't allow cross-origin fetches like this, so for a free tool that runs entirely in the browser to implement "paste any URL and it auto-fetches and analyzes it," a separate server (a proxy) would need to fetch the page on the tool's behalf. This tool operates purely client-side with no such server component, which is why it's built around you pasting in HTML you've already grabbed yourself — via browser dev tools or "View Page Source."</p>
+
+  <h2>2. Real platforms each fetch the page with their own crawler</h2>
+  <p>This is where the real difference begins. KakaoTalk, Facebook, Twitter (X), Slack, and similar platforms each send their own crawler bot to a URL the moment you paste a link. These crawlers are entirely different beasts from a browser.</p>
+  <ul>
+    <li><strong>Different User-Agent</strong>: Facebook requests with <code>facebookexternalhit</code>; KakaoTalk uses its own UA string. If a server is configured to respond differently by UA (e.g. serving server-rendered static HTML to crawlers but an SPA shell to regular users), the "HTML as seen by a browser" that you paste into the preview tool can differ from the HTML the real crawler actually receives.</li>
+    <li><strong>They check robots.txt and access restrictions</strong>: If a path is blocked, the crawler can't even read the og tags and falls back to a default thumbnail or an empty card. Viewing the source directly in a browser never reveals whether this kind of blocking is happening.</li>
+    <li><strong>They reprocess image size and aspect ratio themselves</strong>: The original image specified by og:image gets fetched again by each platform's own servers and resized, cropped, and cached. If the original aspect ratio doesn't match the recommended 1.91:1, each platform crops from a different position, so the visible image area in the real card can vary slightly by platform.</li>
+    <li><strong>Text-length truncation criteria differ</strong>: This tool truncates by known rough thresholds like an 88-character Facebook title or a 300-character LinkedIn description, but real services add ellipses at the pixel level based on screen width, font, and language (Korean and English character widths differ), so the tool's character-count cutoff and the real service's actual cutoff don't always line up exactly.</li>
+  </ul>
+
+  <div class="box">
+    <strong>Example</strong>: If og:title is "Winter Sale Up to 70% Off – Shop Now | Modoo Store" (52 characters), this tool won't truncate it since it's under 88 characters and will show it in full. But the real KakaoTalk in-app browser calculates its own pixel width for the (in this example, Korean-language) text, and on a narrow-screen device it may truncate it shorter — something like "Winter Sale Up to 70% Off – Shop…". With the same title, a character-count threshold (the tool) and a pixel-width threshold (the real service) can produce different results.
+  </div>
+
+  <h2>3. Pages that require login, or SPAs, may be unreadable to crawlers at all</h2>
+  <p>The biggest trap is when access to the page itself is blocked for a crawler. If a page only shows its content after login, the crawler has no login session, so it only sees the login page's og tags (or empty defaults). If a React/Vue-style SPA is built so that JavaScript injects the og tags into the <code>&lt;head&gt;</code> only after it runs, a crawler that doesn't execute JavaScript and only reads the initial HTML will never find those og tags. Meanwhile, the HTML a human copies from "View Source" after opening that same page in a browser may already reflect the final state after JavaScript has run (or, if copied from the DevTools Elements tab, the rendered DOM) — so it can look perfectly fine when pasted into this tool, while the real crawler paradoxically reads nothing at all.</p>
+  <p>To avoid this, og tags need to be statically present in the initial HTML response (as seen via view-source) without requiring JavaScript execution, and the URL needs to be publicly accessible without login. The most reliable approach is to first draft your og tags with the <a href="../open-graph-generator.html?lang=en">Open Graph Generator</a>, then confirm directly, via "View Page Source" (Ctrl+U), that those tags are actually present in the deployed page's initial HTML.</p>
+
+  <h2>4. So how should this tool actually be used?</h2>
+  <p>To sum up, this preview tool is a <strong>first-pass approximation tool</strong> for quickly checking whether your og tags are syntactically correct, whether all six core tags are present, and roughly what tone the card will have. To confirm exactly how it will look on a real platform, you need to also use each platform's official debugger. And if you've already deployed a page, edited its OG tags, and the KakaoTalk/Facebook preview still hasn't changed — that's a different issue from anything covered here: the platform is caching an old crawl result. That caching problem and how to force a re-crawl are covered separately in the guide on <a href="open-graph-social-cache-not-updating.html">why OG caches don't update</a>.</p>
+
+  <h2>FAQ</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;padding:10px 14px;margin-bottom:8px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. If I just enter a URL, will this tool automatically fetch the og tags?</summary><p style="margin-top:8px;">No. There's no fetch or XHR logic in the code that requests an external URL directly. You have to paste the HTML string into the "HTML Source" tab for it to be parsed with a regex, or type values like og:title into the "Manual Input" tab, before a preview can be generated. That's because browser CORS restrictions make it impossible to fetch an arbitrary URL directly without a server-side proxy.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;padding:10px 14px;margin-bottom:8px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. The preview looks fine in the tool, but the image doesn't show up in KakaoTalk.</summary><p style="margin-top:8px;">It's likely that the KakaoTalk crawler couldn't read the page itself (login required, robots.txt blocked, SPA rendered by JavaScript), that the image URL isn't directly accessible (hotlink protection, authentication required), or that the image's file size or aspect ratio falls outside KakaoTalk's internal reprocessing limits. The tool just displays the og:image value from the HTML you pasted as-is — it doesn't verify whether a real crawler can actually access that image.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;padding:10px 14px;margin-bottom:8px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. So how do I check exactly how it'll render on real Facebook or KakaoTalk?</summary><p style="margin-top:8px;">You need to use each platform's official debugger — Facebook's Sharing Debugger, Twitter/X's Card Validator, and so on. These tools actually send that platform's real crawler to the URL and show you the result it fetched, which makes them far more accurate than an approximate browser-based preview. KakaoTalk doesn't offer a public debugger, so the most reliable method is to paste the link into an actual chat room and see what happens.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;padding:10px 14px;margin-bottom:8px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. How should I add og tags to a site built as an SPA (React, etc.)?</summary><p style="margin-top:8px;">Injecting og tags into &lt;head&gt; only after JavaScript runs (client-side rendering only) carries a real risk that crawlers won't be able to read them. You need server-side rendering (SSR) or static prerendering so the og tags are already baked into the initial HTML response itself — that way, even crawlers that don't execute JavaScript can read them correctly.</p></details>
+
+  <div class="tool-links">
+    <a href="../open-graph-preview.html?lang=en">→ OG Preview</a>
+    <a href="../open-graph-generator.html?lang=en">→ Open Graph Generator</a>
+    <a href="../meta-tag-analyzer.html?lang=en">→ Meta Tag Analyzer</a>
+    <a href="../twitter-card-generator.html?lang=en">→ Twitter Card Generator</a>
+    <a href="../robots-txt-tester.html?lang=en">→ robots.txt Tester</a>
+    <a href="open-graph-social-cache-not-updating.html">→ Guide: Why OG Caches Don't Update</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general informational purposes only; please confirm final platform-specific rendering with each platform's official debugger.</footer>
+</main>
+</body>
+</html>

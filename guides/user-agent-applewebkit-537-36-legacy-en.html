@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why Chrome Still Carries AppleWebKit/537.36 — A Legacy of the UA String | MODOO HUB</title>
+<meta name="description" content="The User-Agent string is a historical artifact, shaped by browsers imitating each other's names during the browser wars. Here's why Mozilla/5.0 and AppleWebKit/537.36 still show up in Chrome, and how a UA parser actually handles these legacy tokens.">
+<link rel="canonical" href="https://modoohub.com/guides/user-agent-applewebkit-537-36-legacy-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/user-agent-applewebkit-537-36-legacy.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/user-agent-applewebkit-537-36-legacy-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/user-agent-applewebkit-537-36-legacy.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Why Chrome Still Carries AppleWebKit/537.36 — A Legacy of the UA String","description":"The User-Agent string is a historical artifact, shaped by browsers imitating each other's names during the browser wars. Here's why Mozilla/5.0 and AppleWebKit/537.36 still show up in Chrome.","datePublished":"2026-08-26","dateModified":"2026-08-26","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Firefox is actually made by Mozilla — is it the one exception where \"Mozilla\" in the UA is genuine?","acceptedAnswer":{"@type":"Answer","text":"Firefox is indeed built by the Mozilla Foundation, but the UA string format itself (\"Mozilla/5.0 (...) Gecko/... Firefox/...\") follows the same compatibility convention as every other browser — it's not there because Firefox is genuinely Netscape-lineage. The version number 5.0 is also a fixed value unrelated to the actual Firefox version."}},
+{"@type":"Question","name":"Is the AppleWebKit version really frozen at 537.36?","acceptedAnswer":{"@type":"Answer","text":"Yes. Chrome, Edge, Opera, and most other Blink/modern-WebKit-based browsers have shipped this value fixed at 537.36 for a long time now. Actual rendering-engine changes aren't reflected in that number at all — you can only see them in a separate token, like Chrome/xxx."}},
+{"@type":"Question","name":"How do bot UAs look different?","acceptedAnswer":{"@type":"Answer","text":"Search-engine crawlers like Googlebot and Bingbot generally don't hide themselves — they identify themselves explicitly in the UA with keywords like bot, crawler, or spider (e.g., Googlebot/2.1). Some malicious bots, however, imitate an ordinary browser UA outright to evade detection."}},
+{"@type":"Question","name":"Does User-Agent Client Hints fully solve this problem?","acceptedAnswer":{"@type":"Answer","text":"Only partially. Because Client Hints explicitly requests just the information you need, it's more reliable than guessing by parsing the UA string — but it hasn't fully replaced UA parsing across every browser and server environment yet, so for now the two approaches coexist during this transition period."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Why Chrome Still Carries AppleWebKit/537.36 — A Legacy of the UA String</h1>
+  <p class="meta">Guide · Last verified Aug 26, 2026</p>
+
+  <p>Log <code>navigator.userAgent</code> in Chrome's dev tools console and you get this: <code>Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36</code>. Strange, isn't it? Chrome is neither Netscape nor Apple, so why does the string carry "Mozilla" and "AppleWebKit" front and back? This isn't a bug — it's more than 20 years of accumulated web compatibility conventions that have simply calcified in place.</p>
+
+  <h2>1. Mozilla/5.0: An Old Impersonation of Netscape</h2>
+  <p>During the browser wars of the 1990s, websites often checked only whether "Mozilla" appeared in the UA string to decide "this is a proper modern browser" and serve it advanced features like frames and JavaScript. To keep Internet Explorer from being penalized on those sites, Microsoft started putting "Mozilla/4.0 (compatible; MSIE ...)" into IE's own UA string. Nearly every browser that came after — Safari, Chrome, even Firefox — has kept "Mozilla/5.0" at the front of its UA string for the same reason. Netscape itself disappeared long ago, but the signal "compatible with Mozilla" survived as a convention.</p>
+
+  <h2>2. AppleWebKit/537.36: Why the Version Number Never Moves</h2>
+  <p>Safari runs on the WebKit engine, and Chrome was WebKit-based early on too, before it split off into Blink (Blink is a fork of WebKit). The trouble is that countless websites wrote code that reasons: "if AppleWebKit shows up in the UA, this browser is WebKit-family, so it's compatible." If Chrome had kept updating the actual rendering engine version in its UA string, all that legacy compatibility code that checks only for "AppleWebKit/537.36" would risk failing to recognize Chrome and breaking. So Chrome (along with most other Blink/WebKit-based browsers) has long kept this token <strong>frozen at 537.36</strong>, never bumping it further. The actual, current engine version lives in a separate token further along in the UA string, like <code>Chrome/128.0.0.0</code>.</p>
+  <div class="box">
+    <strong>The takeaway</strong>: Each token in a UA string isn't a statement of "what this browser actually is right now" — it's a fossil of a compatibility compromise: "at some point in the past, doing this kept sites from breaking." Mozilla/5.0, AppleWebKit/537.36, and (KHTML, like Gecko) are all legacy tokens whose names stuck around even though the browser isn't actually that engine anymore.
+  </div>
+
+  <h2>3. Dissecting a Real UA String</h2>
+  <table>
+    <tr><th>Token</th><th>Actual meaning</th><th>Why it's still there</th></tr>
+    <tr><td>Mozilla/5.0</td><td>Essentially meaningless (not Netscape)</td><td>Leftover from the 1990s "Mozilla = advanced browser" detection convention</td></tr>
+    <tr><td>AppleWebKit/537.36</td><td>Signals WebKit-family lineage (not the actual latest version)</td><td>Value frozen to preserve compatibility with sites that check for 537.36</td></tr>
+    <tr><td>(KHTML, like Gecko)</td><td>Marks WebKit's lineage from KDE's KHTML</td><td>Included to pass compatibility checks aimed at Gecko (Firefox)</td></tr>
+    <tr><td>Chrome/128.0.0.0</td><td>The actual Chromium engine version</td><td>This is the only part actually updated with every release</td></tr>
+    <tr><td>Safari/537.36</td><td>Signals Safari compatibility (not actually Safari)</td><td>Convention kept for sites that check for Safari</td></tr>
+  </table>
+
+  <h2>4. How a UA Parser Filters Out These Legacy Tokens</h2>
+  <p>The actual browser-detection logic in the <a href="../user-agent-parser.html?lang=en">User-Agent Parser</a> tackles this problem head-on. In the code, when it detects the engine, it first sets <code>engine = 'WebKit ' + version</code> if it finds the pattern <code>AppleWebKit/([0-9.]+)</code>, then separately checks whether a <code>Chrome/</code> token also appears in the UA — and if it does, overwrites <code>engine</code> with <code>'Blink'</code>. In other words, the mere presence of "AppleWebKit" alone can't tell you the real engine; you need to also check which other brand token comes along with it to correctly distinguish WebKit from Blink. Browser-name detection works the same way: a priority-ordered array of patterns is checked in sequence — <code>Edg/</code> → <code>OPR/</code> → <code>SamsungBrowser/</code> → … → <code>Chrome/</code> — and whichever matches first wins. Since Edge and Opera are also Chromium-based and carry "Chrome/" in their UA too, the more specific tokens have to be checked first to avoid misidentifying them.</p>
+
+  <h2>5. Why You Shouldn't Trust the UA String</h2>
+  <p>This patchwork of historical baggage alone makes the UA string a poor basis for definitively identifying a client. On top of that, a UA value can be freely altered (spoofed) via dev tools or a browser extension. And since Chrome 107+, the Privacy Sandbox policy (User-Agent Reduction) has frozen out details like minor version numbers and OS sub-versions from the UA string entirely, shifting the platform toward the User-Agent Client Hints API (<code>navigator.userAgentData</code>), where you request only the specific details you need. UA parsing is still useful for things like analytics or UI branching, but this entire structure is exactly why it shouldn't be used for security or access-control decisions.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Firefox is actually made by Mozilla — is it the one exception where "Mozilla" in the UA is genuine?</summary><p style="margin-top:8px;">A. Firefox is indeed built by the Mozilla Foundation, but the UA string format itself ("Mozilla/5.0 (...) Gecko/... Firefox/...") follows the same compatibility convention as every other browser — it's not there because Firefox is "genuinely Netscape-lineage." The version number 5.0 is also a fixed value unrelated to the actual Firefox version.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Is the AppleWebKit version really frozen at 537.36?</summary><p style="margin-top:8px;">A. Yes. Chrome, Edge, Opera, and most other Blink/modern-WebKit-based browsers have shipped this value fixed at 537.36 for a long time now. Actual rendering-engine changes aren't reflected in that number at all — you can only see them in a separate token, like Chrome/xxx.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. How do bot UAs look different?</summary><p style="margin-top:8px;">A. Search-engine crawlers like Googlebot and Bingbot generally don't hide themselves — they identify themselves explicitly in the UA with keywords like bot, crawler, or spider (e.g., Googlebot/2.1). Some malicious bots, however, imitate an ordinary browser UA outright to evade detection.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does User-Agent Client Hints fully solve this problem?</summary><p style="margin-top:8px;">A. Only partially. Client Hints explicitly requests just the information you need, so it's more reliable than guessing by parsing the UA string — but it hasn't fully replaced UA parsing across every browser and server environment yet, so for now the two approaches coexist during this transition period.</p></details>
+
+  <div class="tool-links">
+    <a href="../user-agent-parser.html?lang=en">→ User-Agent Parser</a>
+    <a href="../http-header-checker.html?lang=en">→ HTTP Header Checker</a>
+    <a href="../cors-header-checker.html?lang=en">→ CORS Header Checker</a>
+    <a href="../ip-address-lookup.html?lang=en">→ IP Address Lookup</a>
+    <a href="../curl-generator.html?lang=en">→ cURL Generator</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes. The actual UA format may vary by browser version.</footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,246 @@
+# 가이드 영어(EN) 번역 진행 상황
+
+**마지막 갱신**: 2026-08-26  |  **진행률**: 20/176
+
+## 배경 & 방식
+
+- `guides/` ko 250개 작성 완료 후, zh/ja는 유입 거의 없어 스킵하고 **영어만** 번역 진행.
+- 대상: 8개 기술 카테고리(dev/text/image/security/generator/pdf/ai/data-tools) 176개.
+  한국 세법·노무·부동산 등 finance/health/date-time-tools는 국가특화 콘텐츠라 번역 제외.
+- **URL 분리 방식**: `guides/{slug}.html`(ko, 기존 유지) 옆에 `guides/{slug}-en.html`(신규) 생성.
+  JS 토글 아님 — 완전히 별도 정적 파일.
+- **번역 원칙**: ko 원문이 이미 도구 소스코드로 검증 완료된 내용이므로 재검증 불필요.
+  숫자·사실·결론 그대로 유지, 자연스러운 영어로 번역만.
+
+## 매 항목 작업 시 체크리스트 (에이전트 프롬프트 표준 절차)
+
+1. `guides/{slug}.html` 원문 전체 읽기 (재검증 없이 번역 소스로만 사용)
+2. `guides/{slug}-en.html` 신규 생성:
+   - `<html lang="en">`, title/meta description/h1/본문/FAQ/footer 번역
+   - canonical = 자기 자신(`-en.html`)
+   - hreflang 3줄: `ko`→`{slug}.html`, `en`→`{slug}-en.html`, `x-default`→`{slug}.html` (zh/ja는 없으므로 추가 금지)
+   - JSON-LD Article: headline/description 번역, datePublished/dateModified = 작업일
+   - `.tool-links`의 각 href에 `?lang=en` 쿼리 추가
+3. ko 원본(`guides/{slug}.html`)에도 hreflang 3줄 보강(없으면 추가, ko/x-default만 있으면 en 줄 삽입)
+4. 소스 툴 페이지(`{tool}.html`)에 영어 UI용 백링크 추가 — 3가지 패턴 중 하나로 존재:
+   - **패턴1**: 정적 `.guide-links` div (CSS `html[lang="ko"] .guide-links{display:block}` 게이팅) → 형제 `.guide-links-en` div 추가 + 대응 CSS(`html[lang="en"]`)
+   - **패턴2**: JS `_i18n` 객체의 `en:` 블록 `seoHtml:` 안에 첫 요소로 링크 삽입 (ko/zh/ja는 건드리지 않음)
+   - **패턴3**: 정적 seoDiv에 직접 박힌 케이스 → 패턴1과 유사하게 형제 요소+CSS로 처리
+5. 완료 후: sitemap.xml에 `-en.html` URL 등록(priority 0.6), 이 문서에 체크 표시
+
+**세션이 끊기거나 다른 PC에서 이어갈 때**: 이 문서의 미체크(`[ ]`) 항목부터 10개씩 골라 진행하면 됨.
+따로 참고할 임시 파일 없음 — 이 문서가 유일한 소스.
+
+## 진행 현황 (카테고리별)
+| 카테고리 | 완료/전체 |
+|---|---|
+| 개발자 도구 (developer-tools) | 20/52 |
+| 텍스트 도구 (text-tools) | 0/32 |
+| 이미지 도구 (image-tools) | 0/24 |
+| 생성기 도구 (generator-tools) | 0/21 |
+| 보안 도구 (security-tools) | 0/17 |
+| PDF 도구 (pdf-tools) | 0/13 |
+| AI 도구 (ai-tools) | 0/10 |
+| 데이터 도구 (data-tools) | 0/7 |
+
+---
+
+## 개발자 도구 (developer-tools) — 20/52
+
+- [ ] `api-response-viewer-large-integer-rounding` ← tool: `api-response-viewer`
+- [ ] `api-tester-cors-vs-network-error-typeerror` ← tool: `api-tester`
+- [ ] `canonical-tag-duplicate-google-ignores-both` ← tool: `canonical-tag-checker`
+- [x] `cron-spring-quartz-vs-crontab` ← tool: `cron-generator`
+- [x] `css-beautifier-char-by-char-nesting-scss-limit` ← tool: `css-beautifier`
+- [x] `css-color-shorthand-minification` ← tool: `css-minifier`
+- [ ] `csv-diff-encoding-bom-delimiter-traps` ← tool: `csv-diff-checker`
+- [ ] `curl-generator-shell-escaping-asymmetry` ← tool: `curl-generator`
+- [ ] `curl-parser-d-flag-implicit-post` ← tool: `curl-parser`
+- [ ] `dns-propagation-ttl-explained` ← tool: `dns-lookup`
+- [ ] `graphql-formatter-hash-comment-vs-string` ← tool: `graphql-formatter`
+- [ ] `graphql-query-builder-type-inference-naming` ← tool: `graphql-query-builder`
+- [x] `html-minifier-regex-pre-textarea-bug` ← tool: `html-minifier`
+- [x] `html-to-markdown-structural-loss` ← tool: `html-to-markdown`
+- [ ] `http-request-builder-cors-preflight-3-conditions` ← tool: `http-request-builder`
+- [x] `javascript-beautifier-brace-counting-for-loop-bug` ← tool: `javascript-beautifier`
+- [x] `javascript-minifier-string-boundary-regex-risk` ← tool: `javascript-minifier`
+- [ ] `json-schema-null-array-type-gaps` ← tool: `json-schema-generator`
+- [x] `json-to-xml-array-null-limits` ← tool: `json-to-xml`
+- [ ] `json-to-yaml-auto-quoting-reserved-words` ← tool: `json-to-yaml`
+- [ ] `keyword-cannibalization-string-vs-intent` ← tool: `keyword-cannibalization-checker`
+- [x] `keyword-difficulty-rule-based-no-real-data` ← tool: `keyword-difficulty-estimator`
+- [ ] `keyword-grouping-search-intent-vs-clustering` ← tool: `keyword-grouping-tool`
+- [x] `markdown-xss-commonmark-history` ← tool: `markdown-preview`
+- [ ] `mime-type-sniffing-nosniff-header` ← tool: `mime-type-finder`
+- [ ] `number-converter-twos-complement-negative` ← tool: `number-converter`
+- [x] `open-graph-preview-tool-accuracy-limits` ← tool: `open-graph-preview`
+- [ ] `redirect-checker-301-302-307-308-explained` ← tool: `redirect-checker`
+- [x] `regex-catastrophic-backtracking-redos` ← tool: `regex-tester`
+- [ ] `regex-generator-credit-card-no-luhn-check` ← tool: `regex-generator`
+- [ ] `regex-zero-width-match-count-not-visible` ← tool: `regex-cheatsheet`
+- [ ] `robots-meta-tag-noindex-follow-combinations` ← tool: `meta-tag-analyzer`
+- [ ] `robots-txt-disallow-empty-vs-slash` ← tool: `robots-txt-validator`
+- [ ] `schema-required-vs-recommended-fields` ← tool: `schema-validator`
+- [x] `serp-title-pixel-width-not-char-count` ← tool: `serp-snippet-preview`
+- [ ] `sitemap-changefreq-priority-google-ignores` ← tool: `sitemap-validator`
+- [x] `sitemap-priority-changefreq-ignored` ← tool: `sitemap-extractor`
+- [ ] `slug-generator-nfd-unicode-normalization` ← tool: `slug-generator`
+- [x] `sql-minifier-comment-string-collision-bug` ← tool: `sql-minifier`
+- [ ] `sql-validator-not-a-real-parser` ← tool: `sql-validator`
+- [ ] `tailwind-color-cielab-perceptual-distance` ← tool: `tailwind-color-generator`
+- [ ] `unit-converter-gb-vs-gib-binary-decimal` ← tool: `unit-converter`
+- [x] `user-agent-applewebkit-537-36-legacy` ← tool: `user-agent-parser`
+- [ ] `uuid-extractor-version-variant-regex-detection` ← tool: `uuid-extractor`
+- [x] `uuid-primary-key-performance` ← tool: `uuid-validator`
+- [x] `webhook-signature-github-stripe-slack-differ` ← tool: `webhook-generator`
+- [ ] `webhook-signature-timing-attack-constant-time` ← tool: `webhook-tester`
+- [ ] `whois-rdap-protocol-transition` ← tool: `whois-lookup`
+- [x] `xml-validator-well-formed-vs-valid` ← tool: `xml-validator`
+- [ ] `yaml-diff-regex-comment-false-positive` ← tool: `yaml-diff-checker`
+- [x] `yaml-norway-problem-boolean-parsing` ← tool: `yaml-validator`
+- [ ] `yaml-to-json-kubernetes-multi-document-error` ← tool: `yaml-to-json`
+
+## 텍스트 도구 (text-tools) — 0/32
+
+- [ ] `alphabetizer-localecompare-vs-unicode-sort` ← tool: `alphabetizer`
+- [ ] `anagram-checker-character-frequency-array` ← tool: `anagram-checker`
+- [ ] `ascii-del-127-punch-tape-history` ← tool: `ascii-table`
+- [ ] `ascii-utf8-subset-compatibility` ← tool: `ascii-converter`
+- [ ] `cps-human-click-speed-limit-butterfly` ← tool: `cps-calculator`
+- [ ] `emoji-counter-surrogate-pair-sns-limit` ← tool: `emoji-counter`
+- [ ] `emoji-remover-digit-false-positive` ← tool: `emoji-remover`
+- [ ] `hashtag-count-strategy-3-4-3-ratio` ← tool: `hashtag-generator`
+- [ ] `keyword-extractor-korean-particle-limitation` ← tool: `keyword-extractor`
+- [ ] `ngram-analyzer-cjk-regex-language-bias` ← tool: `ngram-analyzer`
+- [ ] `palindrome-checker-codepoint-vs-grapheme` ← tool: `palindrome-checker`
+- [ ] `reading-level-smog-formula-simplification-error` ← tool: `reading-level-checker`
+- [ ] `reading-time-korean-cjk-char-count` ← tool: `read-time-calculator`
+- [ ] `remove-special-characters-emoji-surrogate-bug` ← tool: `remove-special-characters`
+- [ ] `sentence-boundary-detection-limits` ← tool: `sentence-counter`
+- [ ] `sms-byte-limit-euckr-encoding` ← tool: `character-counter`
+- [ ] `stopword-remover-tfidf-distortion` ← tool: `stopword-remover`
+- [ ] `text-case-camelcase-vs-kebab-case-origin` ← tool: `text-case-detector`
+- [ ] `text-diff-lcs-algorithm-explained` ← tool: `text-diff-checker`
+- [ ] `text-encryptor-caesar-to-aes-history` ← tool: `text-encryptor`
+- [ ] `text-reverser-emoji-surrogate-pair-break` ← tool: `text-reverser`
+- [ ] `text-shuffler-fisher-yates-bias` ← tool: `text-shuffler`
+- [ ] `text-sorter-natural-sort-numeric-order` ← tool: `text-sorter`
+- [ ] `text-statistics-flesch-korean-limitation` ← tool: `text-statistics`
+- [ ] `text-summarizer-korean-limitation` ← tool: `text-summarizer`
+- [ ] `turkish-i-problem-case-conversion` ← tool: `case-converter`
+- [ ] `typing-speed-wpm-5-char-word-standard` ← tool: `typing-speed-test`
+- [ ] `unicode-escape-js-json-python-comparison` ← tool: `unicode-converter`
+- [ ] `unicode-homograph-phishing-domains` ← tool: `unicode-inspector`
+- [ ] `word-counter-lexical-diversity-ttr` ← tool: `word-counter`
+- [ ] `word-frequency-percentage-denominator-basis` ← tool: `word-frequency-counter`
+- [ ] `wpm-korean-typing-vs-english-conversion` ← tool: `wpm-calculator`
+
+## 이미지 도구 (image-tools) — 0/24
+
+- [ ] `avif-to-jpg-transparent-background-black` ← tool: `avif-to-jpg`
+- [ ] `base64-image-33-percent-overhead` ← tool: `base64-image`
+- [ ] `color-blindness-simulator-accuracy` ← tool: `color-blindness-simulator`
+- [ ] `color-converter-srgb-vs-display-p3` ← tool: `color-converter`
+- [ ] `color-palette-complementary-triadic-angles` ← tool: `color-palette`
+- [ ] `exif-gps-dms-rational-format` ← tool: `exif-viewer`
+- [ ] `exif-remover-gps-privacy-sns` ← tool: `exif-remover`
+- [ ] `heic-to-jpg-hevc-codec-license` ← tool: `heic-to-jpg`
+- [ ] `ico-converter-png-inside-ico` ← tool: `ico-converter`
+- [ ] `image-color-extractor-clustering-vs-average` ← tool: `image-color-extractor`
+- [ ] `image-dimension-aspect-ratio-gcd` ← tool: `image-dimension-checker`
+- [ ] `image-dpi-checker-cm-inch-conversion-bug` ← tool: `image-dpi-checker`
+- [ ] `image-rotator-canvas-bounding-box-expand` ← tool: `image-rotator`
+- [ ] `image-upscale-quality-loss` ← tool: `image-resizer`
+- [ ] `image-watermark-webfont-vs-pdf-font` ← tool: `image-watermark`
+- [ ] `jpg-to-heic-codec-license-webp-fallback` ← tool: `jpg-to-heic`
+- [ ] `pixelate-image-low-intensity-recovery-risk` ← tool: `pixelate-image`
+- [ ] `png-to-svg-not-real-vector-tracing` ← tool: `png-to-svg`
+- [ ] `progressive-vs-baseline-jpeg` ← tool: `png-to-jpg`
+- [ ] `svg-animation-to-png-static-frame` ← tool: `svg-to-png`
+- [ ] `svg-cleaner-editor-namespace-bloat` ← tool: `svg-cleaner`
+- [ ] `svg-viewer-script-execution-blocked` ← tool: `svg-viewer`
+- [ ] `transparent-background-color-key-tolerance` ← tool: `transparent-background-maker`
+- [ ] `webp-compatibility-kakaotalk-old-devices` ← tool: `webp-to-jpg`
+
+## 생성기 도구 (generator-tools) — 0/21
+
+- [ ] `apache-htaccess-vs-virtualhost-performance` ← tool: `apache-config-generator`
+- [ ] `google-title-pixel-width-truncation` ← tool: `seo-title-generator`
+- [ ] `hreflang-bidirectional-mistakes` ← tool: `hreflang-generator`
+- [ ] `htaccess-hsts-lockout-risk` ← tool: `htaccess-generator`
+- [ ] `lorem-ipsum-cicero-history` ← tool: `lorem-ipsum-generator`
+- [ ] `meta-description-google-rewrite` ← tool: `meta-description-generator`
+- [ ] `meta-keywords-tag-google-2009-deprecated` ← tool: `meta-tag-generator`
+- [ ] `nginx-event-driven-vs-apache-thread` ← tool: `nginx-config-generator`
+- [ ] `open-graph-social-cache-not-updating` ← tool: `open-graph-generator`
+- [ ] `qr-code-error-correction-logo` ← tool: `qr-code-generator`
+- [ ] `random-string-modulo-bias-rejection-sampling` ← tool: `nanoid-generator`
+- [ ] `robots-txt-allow-disallow-conflict-rule` ← tool: `robots-txt-generator`
+- [ ] `schema-markup-json-ld-rich-snippet-ctr` ← tool: `schema-markup-generator`
+- [ ] `sitemap-generator-50000-url-limit` ← tool: `sitemap-generator`
+- [ ] `twitter-card-og-tag-fallback` ← tool: `twitter-card-generator`
+- [ ] `ulid-crockford-base32-no-ilou` ← tool: `ulid-generator`
+- [ ] `utm-internal-link-tracking-mistake` ← tool: `utm-builder`
+- [ ] `uuid-crypto-randomuuid-collision-probability` ← tool: `uuid-generator`
+- [ ] `uuid-variant-bits-fourth-group` ← tool: `uuid-converter`
+- [ ] `youtube-thumbnail-text-10-char-limit` ← tool: `ai-thumbnail-title-generator`
+- [ ] `youtube-title-thumbnail-redundancy` ← tool: `ai-youtube-title-generator`
+
+## 보안 도구 (security-tools) — 0/17
+
+- [ ] `bcrypt-72-byte-korean-limit` ← tool: `bcrypt-generator`
+- [ ] `bcrypt-validator-salt-embedded-hash` ← tool: `bcrypt-validator`
+- [ ] `cors-preflight-simple-vs-non-simple-request` ← tool: `cors-header-checker`
+- [ ] `csp-report-only-rollout-three-stages` ← tool: `csp-validator`
+- [ ] `csp-unsafe-inline-nonce-alternative` ← tool: `csp-generator`
+- [ ] `csr-key-size-rsa-vs-ec-tradeoff` ← tool: `csr-generator`
+- [ ] `hash-checker-md5-web-crypto-unsupported` ← tool: `hash-checker`
+- [ ] `hmac-length-extension-attack` ← tool: `hmac-generator`
+- [ ] `html-decoder-native-parser-safety` ← tool: `html-decoder`
+- [ ] `http-header-hsts-max-age-zero-trap` ← tool: `http-header-checker`
+- [ ] `md5-sha1-hash-vs-hmac-vs-crc32` ← tool: `hash-generator`
+- [ ] `random-string-crypto-entropy-calculation` ← tool: `random-string`
+- [ ] `rsa-public-exponent-65537-pkcs-formats` ← tool: `rsa-key-generator`
+- [ ] `ssh-key-ed25519-vs-rsa-shell-escape` ← tool: `ssh-key-generator`
+- [ ] `ssl-checker-certificate-transparency-logs` ← tool: `ssl-checker`
+- [ ] `url-decoding-plus-sign-double-decode` ← tool: `url-decoder`
+- [ ] `url-double-encoding-plus-vs-percent20` ← tool: `url-encoder`
+
+## PDF 도구 (pdf-tools) — 0/13
+
+- [ ] `image-to-pdf-recompression-size-increase` ← tool: `image-to-pdf`
+- [ ] `pdf-extract-images-page-rasterize-not-embedded` ← tool: `pdf-extract-images`
+- [ ] `pdf-metadata-privacy-leak` ← tool: `pdf-metadata-viewer`
+- [ ] `pdf-metadata-remove-empty-vs-delete` ← tool: `pdf-metadata-remover`
+- [ ] `pdf-ocr-per-page-text-detection` ← tool: `pdf-ocr`
+- [ ] `pdf-page-count-fixed-layout-vs-reflow` ← tool: `pdf-page-counter`
+- [ ] `pdf-password-remover-generic-error` ← tool: `pdf-password-remover`
+- [ ] `pdf-rotate-metadata-no-quality-loss` ← tool: `pdf-rotate`
+- [ ] `pdf-size-analyzer-shared-resource-limit` ← tool: `pdf-size-analyzer`
+- [ ] `pdf-to-text-table-coordinate-scatter` ← tool: `pdf-to-text`
+- [ ] `pdf-user-vs-owner-password` ← tool: `pdf-password-adder`
+- [ ] `pdf-watermark-korean-font-embedding-limit` ← tool: `pdf-watermark`
+- [ ] `pdf-word-counter-cjk-whitespace-split` ← tool: `pdf-word-counter`
+
+## AI 도구 (ai-tools) — 0/10
+
+- [ ] `ai-model-comparison-free-tier-differences` ← tool: `ai-model-comparison`
+- [ ] `chat-export-silent-failure-role-prefix` ← tool: `markdown-chat-exporter`
+- [ ] `image-prompt-generator-dalle-negative-prompt-bug` ← tool: `image-prompt-generator`
+- [ ] `korean-ai-token-inefficiency` ← tool: `ai-token-counter`
+- [ ] `prompt-cleaner-token-count-approximation` ← tool: `prompt-cleaner`
+- [ ] `prompt-formats-chatml-xml-jsonl` ← tool: `prompt-formatter`
+- [ ] `prompt-optimizer-task-type-rctf-structure` ← tool: `prompt-optimizer`
+- [ ] `prompt-template-chain-of-thought-fixed-steps` ← tool: `prompt-template-generator`
+- [ ] `prompt-variable-extractor-bracket-syntax-limit` ← tool: `prompt-variable-extractor`
+- [ ] `system-prompt-fixed-clauses-roleplay-conflict` ← tool: `system-prompt-generator`
+
+## 데이터 도구 (data-tools) — 0/7
+
+- [ ] `csv-to-json-leading-zero-loss` ← tool: `csv-to-json`
+- [ ] `json-array-diff-index-vs-lcs` ← tool: `json-diff`
+- [ ] `json-flatten-unflatten-array-loss` ← tool: `json-flattener`
+- [ ] `json-large-integer-precision-loss` ← tool: `json-validator`
+- [ ] `jsonpath-syntax-and-slicing-support` ← tool: `json-path-tester`
+- [ ] `sql-insert-to-json-escaped-quote-bug` ← tool: `sql-to-json`
+- [ ] `xml-to-json-mixed-content-whitespace-loss` ← tool: `xml-to-json`
