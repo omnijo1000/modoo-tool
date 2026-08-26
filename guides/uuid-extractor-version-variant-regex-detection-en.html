@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Regex Conditions Needed to Correctly Pick UUIDs Out of Text | MODOO HUB</title>
+<meta name="description" content="A regex that only checks the 8-4-4-4-12 shape will also false-positive on strings that aren't UUIDs. A look at why you need to validate the version digit and the RFC 4122 variant bits too, checked against the UUID extractor's actual code.">
+<link rel="canonical" href="https://modoohub.com/guides/uuid-extractor-version-variant-regex-detection-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/uuid-extractor-version-variant-regex-detection.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/uuid-extractor-version-variant-regex-detection-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/uuid-extractor-version-variant-regex-detection.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"The Regex Conditions Needed to Correctly Pick UUIDs Out of Text","description":"A regex that only checks the 8-4-4-4-12 shape will also false-positive on strings that aren't UUIDs. A look at why you need to validate the version digit and the RFC 4122 variant bits too, checked against the UUID extractor's actual code.","datePublished":"2026-08-26","dateModified":"2026-08-26","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>The Regex Conditions Needed to Correctly Pick UUIDs Out of Text</h1>
+  <p class="meta">Guide · Last verified Aug 26, 2026</p>
+
+  <p>When you use a tool that pulls UUIDs out of a log file or a JSON response, it's tempting to assume that just checking for "a 32-character hex string in the 8-4-4-4-12 shape, hyphen-separated" is enough — but in practice, it isn't. A hyphen-delimited, 32-character hex string can perfectly well come from something that isn't a UUID at all, purely by coincidence. This guide looks at how far a regex actually needs to validate to match UUIDs correctly, and checks how the real tool's code implements that.</p>
+
+  <h2>1. Why a Shape-Only Regex Gives False Positives</h2>
+  <p>A UUID's outward appearance is simple: a 36-character hex string (including 4 hyphens) split into groups of 8, 4, 4, 4, and 12 digits, hyphen-separated. The problem is that this shape by itself isn't unique to UUIDs. An arbitrary hash value chopped up and hyphenated, or a random hex string generated as test data, can easily end up with the exact same digit grouping purely by chance. A regex that only checks the shape (for example, <code>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}</code>) will misidentify all of these as "UUIDs" too.</p>
+
+  <h2>2. Two Hidden Validation Positions Baked Into the UUID Spec</h2>
+  <p>The RFC 4122 standard fixes two specific positions among a UUID's 36 characters to a restricted set of values. The 3rd group's first character (the 13th character overall) is the <strong>version field</strong>, which can only be a digit from 1 to 5. The 4th group's first character (the 19th character overall) is the <strong>variant bits</strong>, which can only be one of 8, 9, a, or b — the marker for the standard variant (the RFC 4122 layout). These two positions are constraints that any algorithm generating a real UUID must obey, so a genuine UUID will always satisfy them. Put the other way around, a string that violates either of these two positions cannot be a real UUID — and a regex that validates these two positions as well can cut its false-positive rate dramatically.</p>
+
+  <h2>3. What UUID Versions 1 Through 5 Actually Mean</h2>
+  <p>The version field isn't just a number for validation purposes — it tells you how the UUID was actually generated. v1 is based on a timestamp plus a MAC address; v3 and v5 are name(namespace)-based hashes (MD5 and SHA-1, respectively); and v4 is fully random generation, which is by far the most widely used method today. v2 is the DCE-security version and is rarely used in practice. If the version-field position holds a value outside the 1–5 range — say 6, 7, or 0 — that's a value no standard UUID-generation algorithm can ever produce, which means that string is very likely not a UUID at all, just some other hex data that happens to share the shape.</p>
+
+  <h2>4. Breaking Down MODOO HUB's UUID Extractor Regex</h2>
+  <p>Checking the actual source code of the <a href="../uuid-extractor.html?lang=en">UUID extractor</a>, it uses the following regex.</p>
+  <div class="box">
+    <strong>Actual regex in use</strong>: <code>/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/gi</code><br>
+    The 3rd group is explicitly constrained to start with <code>[1-5]</code>, and the 4th group is explicitly constrained to start with <code>[89ab]</code> — so this isn't a plain shape match, it's implemented to validate the version and variant positions as well.
+  </div>
+  <p>In other words, this tool is designed to recognize as a UUID only strings that actually satisfy the RFC 4122 spec, rather than any hex string that merely "looks plausible."</p>
+
+  <h2>5. Strings That Share the Shape but Aren't Real UUIDs</h2>
+  <p>The table below shows examples of strings that look like UUIDs at a glance but get filtered out in practice because they fail the version/variant conditions.</p>
+  <table>
+    <tr><th>String</th><th>8-4-4-4-12 shape</th><th>Version position (13th char)</th><th>Variant position (19th char)</th><th>Recognized as UUID</th></tr>
+    <tr><td>550e8400-e29b-41d4-a716-446655440000</td><td>Matches</td><td>4 (valid)</td><td>a (valid)</td><td>Recognized</td></tr>
+    <tr><td>12345678-1234-6789-1234-123456789012</td><td>Matches</td><td>6 (out of range)</td><td>1 (out of range)</td><td>Rejected</td></tr>
+    <tr><td>ffffffff-ffff-ffff-ffff-ffffffffffff</td><td>Matches</td><td>f (out of range)</td><td>f (out of range)</td><td>Rejected</td></tr>
+  </table>
+  <p>The second and third strings have exactly the same hyphen structure and hex digit count as a real UUID, but their version and variant positions fall outside the spec, so they can't actually be UUIDs. A tool that only checks shape would misidentify all three as UUIDs, but a regex that also validates version and variant correctly picks out only the first one. If you're trying to filter true UUIDs out of text mixed with <a href="../md5-generator.html?lang=en">hash values</a> or arbitrary tokens, this difference matters quite a bit in practice.</p>
+
+  <h2>6. How to Test It Yourself</h2>
+  <p>The quickest way to check whether a tool only checks shape or also validates version and variant is to just try it. Paste the second string from the table above (<code>12345678-1234-6789-1234-123456789012</code>) into the <a href="../uuid-extractor.html?lang=en">UUID extractor</a> — if it doesn't show up in the extraction results, that tool's regex includes version/variant validation. If it does get counted as a UUID, that's a sign the regex is loose and only checks shape.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. If the version field isn't 1–5, is it automatically a fake UUID?</summary><p style="margin-top:8px;">It means a standard UUID-generation algorithm (v1 through v5) couldn't have produced that value. That said, an identifier someone manually crafted to "look like a UUID" might violate this condition while still being a valid identifier of some other kind in practice — so the more precise way to put it is "not a standard RFC 4122 UUID."</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does it recognize 32-character UUIDs without hyphens?</summary><p style="margin-top:8px;">MODOO HUB's UUID extractor's current regex only matches the hyphen-separated 8-4-4-4-12 format. A continuous 32-character hex string with the hyphens stripped out is not recognized.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Are newer UUID versions like v6 or v7 recognized too?</summary><p style="margin-top:8px;">The current regex restricts the version position to 1–5, so v6 and v7 UUIDs — formats that are still in the process of being standardized — get rejected at the version-position check and aren't recognized.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Are uppercase UUIDs extracted too?</summary><p style="margin-top:8px;">Yes. The regex applies the case-insensitive (i) flag, so uppercase UUIDs are recognized the same way, and turning on the "normalize to lowercase" option will display the results in lowercase uniformly.</p></details>
+
+  <div class="tool-links">
+    <a href="../uuid-extractor.html?lang=en">→ UUID Extractor</a>
+    <a href="../uuid-bulk-generator.html?lang=en">→ Bulk UUID Generator</a>
+    <a href="../uuid-converter.html?lang=en">→ UUID Converter</a>
+    <a href="../uuid-validator.html?lang=en">→ UUID Validator</a>
+    <a href="../regex-generator.html?lang=en">→ Regex Generator</a>
+    <a href="../md5-generator.html?lang=en">→ MD5 Generator</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general informational purposes only; check each tool's latest code for exact implementation details.</footer>
+</main>
+</body>
+</html>

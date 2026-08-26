@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why the Slug Generator Doesn't Turn café into caf-zrich | MODOO HUB</title>
+<meta name="description" content="Naively stripping non-ASCII characters turns café into cf. See how Unicode NFD normalization separates a base letter from its combining accent mark so only the accent gets removed, verified against the actual tool code.">
+<link rel="canonical" href="https://modoohub.com/guides/slug-generator-nfd-unicode-normalization-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/slug-generator-nfd-unicode-normalization.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/slug-generator-nfd-unicode-normalization-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/slug-generator-nfd-unicode-normalization.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Why the Slug Generator Doesn't Turn café into caf-zrich","description":"Naively stripping non-ASCII characters turns café into cf. See how Unicode NFD normalization separates a base letter from its combining accent mark so only the accent gets removed, verified against the actual tool code.","datePublished":"2026-08-26","dateModified":"2026-08-26","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Why the Slug Generator Doesn't Turn café into caf-zrich</h1>
+  <p class="meta">Guide · Last verified Aug 26, 2026</p>
+
+  <p>Say you're turning the blog title "Café Zürich" into a slug. The simplest possible implementation is a single regex: "strip anything that isn't a letter or digit." Do that, though, and é and ü vanish entirely, leaving the nonsensical result "caf-zrich." The original letters were just deleted — not converted to "e" or "u." The proper way to solve this is Unicode NFD normalization, and the <a href="../slug-generator.html?lang=en">Slug Generator</a> actually uses exactly this approach.</p>
+
+  <h2>1. The root cause: an accented character is a "different" character</h2>
+  <p>A person reads é as "e with an accent on it," but to a computer, é is fundamentally its own, completely separate code point (U+00E9). A regex like <code>[^a-z0-9]</code> filters it out because é doesn't fall in the a-z range — it just gets deleted, not replaced with "e." Strip é out of café and you're left with "caf"; strip ü out of Zürich and you're left with "zrich," producing the unreadable slug "caf-zrich."</p>
+
+  <h2>2. Unicode normalization: splitting one character into two pieces</h2>
+  <p>Unicode has two ways to represent the same letter. One stores é as a single code point (U+00E9, the composed form, NFC). The other stores it as two separate code points: e (U+0065) plus a combining acute accent mark (U+0301) — this is NFD, Normalization Form Decomposition. Both look identical as é on screen, but the underlying data is structured completely differently. JavaScript's <code>String.prototype.normalize('NFD')</code> decomposes a string into that second form: base letter plus combining mark.</p>
+
+  <div class="box">
+    <strong>The core idea</strong>: decompose with NFD and é splits into two separate characters — the base letter "e" and the combining mark U+0301. Once split, you can target just the combining mark with a regex and remove it, leaving the base letter "e" intact.
+  </div>
+
+  <h2>3. A regex that removes only the combining marks</h2>
+  <p>Unicode groups combining diacritical marks together in a dedicated block, code range U+0300 through U+036F. After decomposing with NFD, removing only characters in that range with a regex leaves the original base letters (e, u, n, c, and so on) untouched and strips only the accent marks. The result is the natural conversion people expect: é → e, ü → u, ñ → n. Unlike blindly deleting non-ASCII characters, this approach "strips the decoration" rather than "deleting the letter."</p>
+
+  <table>
+    <tr><th>Step</th><th>café</th><th>Explanation</th></tr>
+    <tr><td>Original</td><td>café</td><td>é is a single code point (U+00E9)</td></tr>
+    <tr><td>NFD normalization</td><td>cafe + ́</td><td>decomposed into e (U+0065) and combining accent (U+0301)</td></tr>
+    <tr><td>Combining mark removed</td><td>cafe</td><td>only characters in U+0300–U+036F are deleted</td></tr>
+    <tr><td>Naive deletion without NFD</td><td>caf</td><td>é is dropped entirely — the wrong result</td></tr>
+  </table>
+
+  <h2>4. What the slug generator's code actually does</h2>
+  <p>Inside this tool's <code>generateSlug()</code> function is the line <code>v.normalize('NFD').replace(/[̀-ͯ]/g,'')</code>. This decomposes the string with NFD, then uses a regex to remove only characters in the U+0300–U+036F range (combining diacritical marks). This step runs before the "remove special characters" option, so text like café or Zürich doesn't lose its letters entirely — it naturally becomes cafe and zurich. After that, if "remove special characters" is enabled, anything besides letters, digits, whitespace, hyphens, and underscores is stripped, and finally consecutive runs of whitespace and separator characters are collapsed into whichever separator you chose. As the codebase confirms, the actual implementation does use <code>.normalize('NFD')</code>.</p>
+
+  <h2>5. Why non-Latin scripts like Korean and Chinese are handled differently</h2>
+  <p>NFD normalization only helps with Latin-family accented characters that have a "base letter + diacritic" structure. Korean (Hangul) and Chinese characters were never built from a separable base-letter-plus-accent structure, so NFD doesn't decompose them at all — they simply fall outside the letter/digit range at the "remove special characters" step and get deleted as-is. So if you need an SEO slug from a Korean title, it's recommended to translate or transliterate it into English first and then run it through this tool. If you also want to polish the title itself before turning it into a slug, the <a href="../seo-title-generator.html?lang=en">SEO Title Generator</a> is a useful companion.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does it matter whether I use NFC or NFD?</summary><p style="margin-top:8px;">A. Yes, order matters. To strip a combining mark, the text has to be decomposed into NFD first. In composed form (NFC), é is already a single code point, so there's no separate combining mark to remove.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does this handle every accented character?</summary><p style="margin-top:8px;">A. Most Latin Extended characters that decompose into a base letter plus a combining mark — é, ü, ñ, à, ç, and similar — are handled correctly. A character like German ß (eszett), which isn't a base letter plus an accent but its own distinct letter, won't decompose under NFD and may be left as-is or removed.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Is a hyphen or underscore better for SEO?</summary><p style="margin-top:8px;">A. Google treats a hyphen (-) as a word separator but reads an underscore (_) as joining two words into one. Hyphens are recommended for search visibility, and this tool defaults to hyphens.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Can I regenerate the slug for an already-published post with this method?</summary><p style="margin-top:8px;">A. If the conversion logic changes and the slug comes out different, you must set up a 301 redirect from the old URL to the new one. Changing the slug without a redirect can break existing backlinks and search rankings.</p></details>
+
+  <div class="tool-links">
+    <a href="../slug-generator.html?lang=en">→ Slug Generator</a>
+    <a href="../url-slug-generator.html?lang=en">→ URL Slug Generator (alt)</a>
+    <a href="../slug-checker.html?lang=en">→ Slug Checker</a>
+    <a href="../seo-title-generator.html?lang=en">→ SEO Title Generator</a>
+    <a href="../meta-description-generator.html?lang=en">→ Meta Description Generator</a>
+    <a href="../url-encoder.html?lang=en">→ URL Encoder</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes.</footer>
+</main>
+</body>
+</html>

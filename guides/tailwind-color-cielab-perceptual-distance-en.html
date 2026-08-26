@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Finding the Closest Tailwind Color — Why CIE Lab Beats Plain RGB | MODOO HUB</title>
+<meta name="description" content="Why simple RGB distance gets it wrong when matching an arbitrary HEX color to the closest Tailwind palette color, and how the CIE Lab color space corrects for it — with a real worked example.">
+<link rel="canonical" href="https://modoohub.com/guides/tailwind-color-cielab-perceptual-distance-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/tailwind-color-cielab-perceptual-distance.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/tailwind-color-cielab-perceptual-distance-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/tailwind-color-cielab-perceptual-distance.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Finding the Closest Tailwind Color — Why CIE Lab Beats Plain RGB","description":"Why simple RGB distance gets it wrong when matching an arbitrary HEX color to the closest Tailwind palette color, and how the CIE Lab color space corrects for it — with a real worked example.","datePublished":"2026-08-26","dateModified":"2026-08-26","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Is Lab distance always more accurate than RGB distance?","acceptedAnswer":{"@type":"Answer","text":"Generally, Lab distance tracks human perception more closely. RGB is a non-linear color space, so its perceptual error varies wildly by region, while Lab was designed with perceptual uniformity in mind. That said, Lab still has small errors in areas like blue and purple, so it isn't perfect either."}},
+{"@type":"Question","name":"What method does this site's Tailwind color generator actually use?","acceptedAnswer":{"@type":"Answer","text":"It removes gamma correction from the sRGB value, converts to XYZ and then to CIE Lab, and computes the Euclidean distance between those Lab coordinates to find the minimum-distance color across the whole palette. It does not compare raw RGB values directly."}},
+{"@type":"Question","name":"Why does the CIE Lab conversion have to go through sRGB → XYZ?","acceptedAnswer":{"@type":"Answer","text":"sRGB values have gamma correction applied for display output, so they aren't proportional to the actual physical amount of light on their own. XYZ is a standard color space without gamma correction, so passing through it first is what makes Lab's perceptual-uniformity math accurate."}},
+{"@type":"Question","name":"Why not use CIEDE2000?","acceptedAnswer":{"@type":"Answer","text":"CIEDE2000 is more accurate than CIE76, but it involves several rotation and correction terms that make the calculation much more complex. For real-time browser use scanning through 62 colors, CIE Lab plus a simple Euclidean distance already gives a substantial improvement over RGB, making it a practical choice."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html?lang=en" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Finding the Closest Tailwind Color — Why CIE Lab Beats Plain RGB</h1>
+  <p class="meta">Guide · Last verified Aug 26, 2026</p>
+
+  <p>In design work, you often need to take an arbitrary HEX color — say, a brand color a designer has specified — and convert it to the nearest Tailwind class. How you calculate "closest color" changes the result completely. The obvious approach is to compare the raw differences between the R, G, and B numbers, but this method frequently disagrees with what the human eye actually perceives as "similar." This guide digs into why that happens, and looks at the code level to see exactly which color space the <a href="../tailwind-color-generator.html?lang=en">Tailwind Color Generator</a> actually uses to compute distance.</p>
+
+  <h2>1. Why RGB Euclidean distance gets it wrong</h2>
+  <p>Treating RGB values as 3D coordinates and computing the Euclidean distance between two colors is simple to implement, which is why it's so widely used. The problem is that the RGB color space doesn't have a linear relationship with human color perception. The same numeric difference is barely noticeable in the green/yellow range, while an equally small numeric difference in the blue/purple range reads as a clearly different color. In other words, a "distance of 10" in RGB space means wildly different things depending on which color region it falls in. As a result, the "closest color" picked by RGB distance can end up looking noticeably different from the original when you actually view it.</p>
+
+  <h2>2. CIE Lab: a color space designed for perceptual uniformity</h2>
+  <p>CIE Lab (formally CIE L*a*b*) is a color space the International Commission on Illumination (CIE) designed in 1976 so that "numeric distance within the color space is roughly proportional to the color difference a human perceives." L represents lightness, a represents the green–red axis, and b represents the blue–yellow axis. Converting an sRGB value to Lab requires a multi-step calculation: first strip out gamma correction to get linear RGB, convert to the XYZ color space under the standard observer, then normalize against the D65 white point to derive the L*a*b* values. Checking the actual source code of the <a href="../tailwind-color-generator.html?lang=en">Tailwind Color Generator</a> confirms it implements exactly this sRGB → linear RGB → XYZ → Lab pipeline, in the order <code>hexToRgb → rgbToLab</code>, and then scans the whole palette using the Euclidean distance between the two colors' Lab coordinates (the <code>labDist</code> function) to find the minimum-distance color. There's no code anywhere that compares RGB values directly.</p>
+
+  <h2>3. A real worked example: checking with a single purple</h2>
+  <p>Theory alone doesn't give much of a feel for this, so let's compare with an actual color. Comparing an arbitrary dark purple, <strong>#442082</strong>, against the 62 colors of the Tailwind palette (9 color families × 11 shade steps, counting only the substantive color families and excluding the 3 grayscale families) gives the following result.</p>
+  <table>
+    <tr><th>Comparison method</th><th>Color chosen</th><th>Distance value</th></tr>
+    <tr><td>RGB Euclidean distance</td><td>violet-900 (#4c1d95)</td><td>≈ 20.8</td></tr>
+    <tr><td>CIE Lab Euclidean distance</td><td>purple-900 (#581c87)</td><td>≈ 7.3</td></tr>
+  </table>
+  <p>The two methods judge completely different colors to be "closest." The RGB method's pick, violet-900, looks close if you only look at the summed difference across the R, G, and B components, but it's actually fairly far from the original color on the lightness and hue axes. The Lab method's pick, purple-900, has a much smaller Lab distance itself (about 7.3 versus 20.8), and its brightness and hue line up much more closely with the original. In other words, in this case the Lab calculation isn't just giving a "different answer" — it's giving a "more accurate answer."</p>
+
+  <h2>4. Lab isn't perfect either</h2>
+  <p>Euclidean distance in CIE Lab (this method is known in color science as the CIE76 delta E) is a much better approximation than RGB, but the Lab space itself still isn't perfectly uniform. It's a well-known limitation in color science that the CIE76 method tends to somewhat overestimate the actual perceived difference, particularly in the blue and purple regions. More refined formulas that correct for this, like CIEDE2000, do exist, but they're considerably more complex to compute. For a practical tool, CIE Lab plus simple Euclidean distance is already a substantial improvement over the RGB approach, which is why most color-matching tools settle for this level of accuracy.</p>
+
+  <h2>5. When this difference actually matters in practice</h2>
+  <p>When approximately mapping a brand color to a Tailwind class, this difference in calculation method changes the actual result whenever the source color isn't exactly in the palette — for example, the midpoint of a custom gradient, or a color extracted from a logo. If you take a color pulled with the <a href="../image-color-extractor.html?lang=en">Image Color Extractor</a> or the <a href="../dominant-color-finder.html?lang=en">Dominant Color Finder</a> and run it through the <a href="../tailwind-color-generator.html?lang=en">Tailwind Color Generator</a>, knowing that the result can differ from a manual RGB calculation helps you trust the output more.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Is Lab distance always more accurate than RGB distance?</summary><p style="margin-top:8px;">Generally, Lab distance tracks human perception more closely. RGB is a non-linear color space, so its perceptual error varies wildly by region, while Lab was designed with perceptual uniformity in mind. That said, Lab still has small errors in areas like blue and purple, so it isn't perfect either.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. What method does this site's Tailwind color generator actually use?</summary><p style="margin-top:8px;">It removes gamma correction from the sRGB value, converts to XYZ and then to CIE Lab, and computes the Euclidean distance between those Lab coordinates to find the minimum-distance color across the whole palette. It does not compare raw RGB values directly.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Why does the CIE Lab conversion have to go through sRGB → XYZ?</summary><p style="margin-top:8px;">sRGB values have gamma correction applied for display output, so they aren't proportional to the actual physical amount of light on their own. XYZ is a standard color space without gamma correction, so passing through it first is what makes Lab's perceptual-uniformity math accurate.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Why not use CIEDE2000?</summary><p style="margin-top:8px;">CIEDE2000 is more accurate than CIE76, but it involves several rotation and correction terms that make the calculation much more complex. For real-time browser use scanning through 62 colors, CIE Lab plus a simple Euclidean distance already gives a substantial improvement over RGB, making it a practical choice.</p></details>
+
+  <div class="tool-links">
+    <a href="../tailwind-color-generator.html?lang=en">→ Tailwind Color Generator</a>
+    <a href="../hex-to-rgb.html?lang=en">→ HEX to RGB Converter</a>
+    <a href="../rgb-to-hex.html?lang=en">→ RGB to HEX Converter</a>
+    <a href="../image-color-extractor.html?lang=en">→ Image Color Extractor</a>
+    <a href="../dominant-color-finder.html?lang=en">→ Dominant Color Finder</a>
+    <a href="../color-contrast-checker.html?lang=en">→ Color Contrast Checker</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes. For exact figures in your own color calculations, please run the tool directly.</footer>
+</main>
+</body>
+</html>

@@ -1,6 +1,6 @@
 # 가이드 영어(EN) 번역 진행 상황
 
-**마지막 갱신**: 2026-08-26  |  **진행률**: 40/176
+**마지막 갱신**: 2026-08-27  |  **진행률**: 50/176
 
 ## 배경 & 방식
 
@@ -34,7 +34,7 @@
 ## 진행 현황 (카테고리별)
 | 카테고리 | 완료/전체 |
 |---|---|
-| 개발자 도구 (developer-tools) | 40/52 |
+| 개발자 도구 (developer-tools) | 50/52 |
 | 텍스트 도구 (text-tools) | 0/32 |
 | 이미지 도구 (image-tools) | 0/24 |
 | 생성기 도구 (generator-tools) | 0/21 |
@@ -45,7 +45,7 @@
 
 ---
 
-## 개발자 도구 (developer-tools) — 40/52
+## 개발자 도구 (developer-tools) — 50/52
 
 - [x] `api-response-viewer-large-integer-rounding` ← tool: `api-response-viewer`
 - [x] `api-tester-cors-vs-network-error-typeerror` ← tool: `api-tester`
@@ -79,22 +79,22 @@
 - [x] `regex-generator-credit-card-no-luhn-check` ← tool: `regex-generator`
 - [x] `regex-zero-width-match-count-not-visible` ← tool: `regex-cheatsheet`
 - [x] `robots-meta-tag-noindex-follow-combinations` ← tool: `meta-tag-analyzer`
-- [ ] `robots-txt-disallow-empty-vs-slash` ← tool: `robots-txt-validator`
-- [ ] `schema-required-vs-recommended-fields` ← tool: `schema-validator`
+- [x] `robots-txt-disallow-empty-vs-slash` ← tool: `robots-txt-validator`
+- [x] `schema-required-vs-recommended-fields` ← tool: `schema-validator`
 - [x] `serp-title-pixel-width-not-char-count` ← tool: `serp-snippet-preview`
-- [ ] `sitemap-changefreq-priority-google-ignores` ← tool: `sitemap-validator`
+- [x] `sitemap-changefreq-priority-google-ignores` ← tool: `sitemap-validator`
 - [x] `sitemap-priority-changefreq-ignored` ← tool: `sitemap-extractor`
-- [ ] `slug-generator-nfd-unicode-normalization` ← tool: `slug-generator`
+- [x] `slug-generator-nfd-unicode-normalization` ← tool: `slug-generator`
 - [x] `sql-minifier-comment-string-collision-bug` ← tool: `sql-minifier`
-- [ ] `sql-validator-not-a-real-parser` ← tool: `sql-validator`
-- [ ] `tailwind-color-cielab-perceptual-distance` ← tool: `tailwind-color-generator`
-- [ ] `unit-converter-gb-vs-gib-binary-decimal` ← tool: `unit-converter`
+- [x] `sql-validator-not-a-real-parser` ← tool: `sql-validator`
+- [x] `tailwind-color-cielab-perceptual-distance` ← tool: `tailwind-color-generator`
+- [x] `unit-converter-gb-vs-gib-binary-decimal` ← tool: `unit-converter`
 - [x] `user-agent-applewebkit-537-36-legacy` ← tool: `user-agent-parser`
-- [ ] `uuid-extractor-version-variant-regex-detection` ← tool: `uuid-extractor`
+- [x] `uuid-extractor-version-variant-regex-detection` ← tool: `uuid-extractor`
 - [x] `uuid-primary-key-performance` ← tool: `uuid-validator`
 - [x] `webhook-signature-github-stripe-slack-differ` ← tool: `webhook-generator`
-- [ ] `webhook-signature-timing-attack-constant-time` ← tool: `webhook-tester`
-- [ ] `whois-rdap-protocol-transition` ← tool: `whois-lookup`
+- [x] `webhook-signature-timing-attack-constant-time` ← tool: `webhook-tester`
+- [x] `whois-rdap-protocol-transition` ← tool: `whois-lookup`
 - [x] `xml-validator-well-formed-vs-valid` ← tool: `xml-validator`
 - [ ] `yaml-diff-regex-comment-false-positive` ← tool: `yaml-diff-checker`
 - [x] `yaml-norway-problem-boolean-parsing` ← tool: `yaml-validator`

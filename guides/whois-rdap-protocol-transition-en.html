@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Is WHOIS Dead? Why RDAP Is Replacing It | MODOO HUB</title>
+<meta name="description" content="Why WHOIS, the old standard for domain lookups, is being replaced by RDAP — the structural differences between the two protocols and how this tool actually works.">
+<link rel="canonical" href="https://modoohub.com/guides/whois-rdap-protocol-transition-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/whois-rdap-protocol-transition.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/whois-rdap-protocol-transition-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/whois-rdap-protocol-transition.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Is WHOIS Dead? Why RDAP Is Replacing It","description":"Why WHOIS, the old standard for domain lookups, is being replaced by RDAP, and what structurally separates the two protocols.","datePublished":"2026-08-26","dateModified":"2026-08-26","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Does this tool actually use the real WHOIS protocol (port 43)?","acceptedAnswer":{"@type":"Answer","text":"No. Per the source code, it only uses RDAP — an HTTPS request to https://rdap.org/domain/{domain}. There is no legacy WHOIS logic connecting over TCP port 43."}},
+{"@type":"Question","name":"Which is more accurate, RDAP or WHOIS?","acceptedAnswer":{"@type":"Answer","text":"Accuracy is identical, since both pull from the same registration data. The difference is how reliably it can be parsed — RDAP's standardized JSON carries a much lower risk of parsing errors."}},
+{"@type":"Question","name":"Is every domain looked up via RDAP?","acceptedAnswer":{"@type":"Answer","text":"Most gTLDs (.com/.net/.org, etc.) support RDAP thanks to the ICANN mandate. Some country-code domains (ccTLDs) don't support RDAP yet and are only reachable via legacy WHOIS."}},
+{"@type":"Question","name":"Why is registrant personal information missing from RDAP responses?","acceptedAnswer":{"@type":"Answer","text":"Since regulations like GDPR took effect, most registrars redact or proxy the registrant's real name, email, and phone number by default. The RDAP protocol itself was designed to support this kind of differentiated disclosure."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--purple);}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;}
+details summary{cursor:pointer;font-weight:600;color:var(--text-muted);}
+details p{margin-top:8px;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html?lang=en" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Is WHOIS Dead? Why RDAP Is Replacing It</h1>
+  <p class="meta">Guide · Last verified Aug 26, 2026</p>
+
+  <p>When people look up domain registration information, they still call it "a WHOIS lookup" — but most modern lookup tools aren't actually speaking WHOIS at all anymore. They're using an entirely different protocol called <strong>RDAP</strong>. The name stuck around, but the internals have already changed generations. This guide explains why that transition happened, and what this tool is actually calling under the hood.</p>
+
+  <h2>1. The limits of classic WHOIS: text with no standard</h2>
+  <p>WHOIS is a very simple protocol, dating back to the 1980s and formalized in RFC 3912. You connect over TCP port 43, send a domain name, and get back human-readable plain text. The problem is that <strong>this plain text has no standardized format</strong>. Field names and line-break conventions differ from registrar to registrar and from registry to registry, which meant that any program trying to parse it automatically had to maintain a separate set of parsing rules for every registrar. Whenever a new registry appeared, or an existing one tweaked its format slightly, parsers would routinely break without warning.</p>
+
+  <h2>2. RDAP: redesigned around structured responses</h2>
+  <p><strong>RDAP (Registration Data Access Protocol)</strong> is the standard that fixed this problem by rethinking it from the ground up. The IETF defined it across several RFCs, and it became widely established around 2021 once ICANN made support mandatory for gTLD (generic top-level domain) registries and registrars. There are three key differences.</p>
+  <table>
+    <tr><th>Aspect</th><th>Classic WHOIS</th><th>RDAP</th></tr>
+    <tr><td>Transport</td><td>TCP port 43, plain text</td><td>HTTPS (encrypted)</td></tr>
+    <tr><td>Response format</td><td>Text that varies by registry</td><td>Standardized JSON</td></tr>
+    <tr><td>Internationalization / access control</td><td>Effectively none</td><td>Unicode support, differentiated responses by requester</td></tr>
+  </table>
+  <p>RDAP looks up domain information via a RESTful HTTPS request, and no matter which registry the response comes from, it follows the <strong>same JSON schema</strong> — which means any program consuming it no longer needs registry-specific exception handling.</p>
+
+  <h2>3. What this tool actually uses</h2>
+  <p>Despite its name, this WHOIS lookup tool doesn't use the legacy WHOIS protocol at all. Looking at the source code, it sends an HTTPS request in the form <code>fetch('https://rdap.org/domain/' + domain)</code> to the RDAP broker service (rdap.org), parses the returned JSON, and displays the registrar, registration date, expiration date, and nameserver information on screen. If you open the "Raw WHOIS / RDAP data" toggle, what you see is the raw JSON — that's the actual RDAP response, not a legacy WHOIS text blob.</p>
+
+  <h2>4. Why RDAP made GDPR compliance easier</h2>
+  <p>Another reason RDAP gained traction is that its rise coincided with the GDPR (EU General Data Protection Regulation) era. Classic WHOIS worked on an all-or-nothing basis — either everything was public or everything was hidden. RDAP, by contrast, was built at the protocol level to return different content depending on the requester's authorization, which makes it much more natural to selectively mask registrant personal information depending on the situation. That's also why registrant personal-information fields in this tool's results are often empty or replaced with proxy information.</p>
+
+  <h2>5. Why the name "WHOIS" still sticks around</h2>
+  <p>From a user's perspective, the act of "looking up domain registration information" has long been called "a WHOIS lookup," so services tend to keep the WHOIS name out of sheer inertia. It's also worth noting that not every domain has fully moved to RDAP — ICANN's mandate applies to gTLD (.com, .net, .org, etc.) registries and registrars, while country-code domains (ccTLDs, e.g. .kr, .jp) vary by registry in whether they support RDAP at all. Some ccTLDs still only support classic WHOIS, so it isn't accurate to say "every domain is looked up via RDAP."</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details><summary>Q. Does this tool actually use the real WHOIS protocol (port 43)?</summary><p>A. No. Per the source code, it only uses RDAP — an HTTPS request to <code>https://rdap.org/domain/{domain}</code>. There is no legacy WHOIS logic connecting over TCP port 43.</p></details>
+  <details><summary>Q. Which is more accurate, RDAP or WHOIS?</summary><p>A. Accuracy is identical, since both pull from the same registration data. The difference is how reliably it can be parsed — RDAP's standardized JSON carries a much lower risk of parsing errors.</p></details>
+  <details><summary>Q. Is every domain looked up via RDAP?</summary><p>A. Most gTLDs (.com/.net/.org, etc.) support RDAP thanks to the ICANN mandate. Some country-code domains (ccTLDs) don't support RDAP yet and are only reachable via legacy WHOIS.</p></details>
+  <details><summary>Q. Why is registrant personal information missing from RDAP responses?</summary><p>A. Since regulations like GDPR took effect, most registrars redact or proxy the registrant's real name, email, and phone number by default. The RDAP protocol itself was designed to support this kind of differentiated disclosure.</p></details>
+
+  <div class="tool-links">
+    <a href="../whois-lookup.html?lang=en">→ WHOIS Lookup</a>
+    <a href="../dns-lookup.html?lang=en">→ DNS Lookup</a>
+    <a href="../ssl-checker.html?lang=en">→ SSL Certificate Checker</a>
+    <a href="dns-propagation-ttl-explained-en.html">→ DNS Propagation &amp; TTL Guide</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes.</footer>
+</main>
+</body>
+</html>
