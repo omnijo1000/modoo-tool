@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Regex Generator's "Credit Card" Pattern Actually Matches Any 13-Digit Number | MODOO HUB</title>
+<meta name="description" content="The regex generator's 'credit card' preset only checks digit count and separators — it can't express the Luhn checksum that actually validates a real card number. Here's why that's impossible, and what the preset regex really lets through.">
+<link rel="canonical" href="https://modoohub.com/guides/regex-generator-credit-card-no-luhn-check-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/regex-generator-credit-card-no-luhn-check.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/regex-generator-credit-card-no-luhn-check-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/regex-generator-credit-card-no-luhn-check.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"The Regex Generator's \"Credit Card\" Pattern Actually Matches Any 13-Digit Number","description":"The regex generator's 'credit card' preset only checks digit count and separators — it can't express the Luhn checksum that actually validates a real card number.","datePublished":"2026-08-26","dateModified":"2026-08-26","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Does the \"credit card\" preset accurately find only real card numbers?","acceptedAnswer":{"@type":"Answer","text":"No. This pattern (\\b(?:\\d[ \\-]?){13,16}\\b) only checks whether there are 13 to 16 digits separated by spaces or hyphens — it performs no Luhn checksum validation and no issuer BIN (leading digit) check at all. Card-unrelated 13-digit numbers will also match this pattern."}},
+{"@type":"Question","name":"Is it really impossible to validate a Luhn checksum with regex alone?","acceptedAnswer":{"@type":"Answer","text":"Yes, within standard regex (regular languages) it's impossible. Multiplying each digit by a different weight and accumulating the sum is an arithmetic operation that falls outside what a regular language can express as pattern matching. Validating it requires ordinary programming code with a loop and arithmetic."}},
+{"@type":"Question","name":"When is this kind of format-check regex actually safe to use?","acceptedAnswer":{"@type":"Answer","text":"It's useful when the context already makes it certain that a field is a card number — such as a card number input field on a payment form — and you just need a quick format check. Using it to detect card numbers in free text produces a lot of false positives and isn't suitable."}},
+{"@type":"Question","name":"Does the JWT pattern have a similar limitation?","acceptedAnswer":{"@type":"Answer","text":"Yes. The JWT preset matches whenever there are three dot-separated segments of 2 or more characters each, so it also matches version strings like \"12.34.56\" or other arbitrary dot-separated text. A real JWT has each segment Base64URL-encoded JSON, but the preset doesn't check that structure. For accurate JWT structure validation, decode and inspect with a JWT inspector."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html?lang=en" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>The Regex Generator's "Credit Card" Pattern Actually Matches Any 13-Digit Number</h1>
+  <p class="meta">Guide · Last verified Aug 26, 2026</p>
+
+  <p>Using the <a href="../regex-generator.html?lang=en">regex generator</a>'s "credit card" preset seems like it would filter out strings that look like card numbers — but in practice, it only checks digit count and separator shape. Determining whether a number is actually a valid card number requires a checksum verification called the Luhn algorithm, and that algorithm is fundamentally outside what regex can express. Here's why regex can't do this, and, at the code level, exactly what the actual preset does and doesn't catch.</p>
+
+  <h2>1. What is the Luhn algorithm?</h2>
+  <p>The Luhn algorithm is a checksum method devised in 1954 by IBM's Hans Peter Luhn, and it's used as a "check digit" on the last position of many identification numbers — credit card numbers, IMEI numbers, business registration numbers, and more. The calculation works by starting from the rightmost digit: odd positions are left as-is, even positions are doubled (and if the result exceeds 9, its digits are added together to reduce it to a single digit), and the number is considered valid only if the sum of all digits is a multiple of 10. This catches a substantial share of simple typos or single-digit forgeries, which is why it's widely used in practice as a first-pass validation step.</p>
+
+  <h2>2. Why regex can't express this calculation</h2>
+  <p>Regex is a language for determining whether a string matches a specific "pattern." Being based on finite automata, it can check the order, repetition, and presence of characters — but <strong>an arithmetic operation that multiplies each digit by a different weight (1x or 2x) and sums all the results to compare against a target value</strong> simply doesn't exist in regex's grammar. This isn't a missing feature of any particular regex engine — it's a fundamental limitation from computability theory: the theoretical category of "regular languages" itself cannot express "accumulated state" like an arithmetic running sum. In the end, checking a credit card number with regex means, by definition, only checking the format — actual validity has to be handled with separate code (a loop plus arithmetic).</p>
+
+  <h2>3. modoohub's regex generator's actual "credit card" preset</h2>
+  <p>Checking the code directly, the credit card preset's regex is <code>\b(?:\d[ \-]?){13,16}\b</code>. In plain terms, it's a pattern that repeats "one digit, optionally followed by a space or hyphen" 13 to 16 times. So it checks exactly two things: ① are there 13 to 16 digits, and ② are the only separators between digits spaces or hyphens? There is no Luhn checksum check, and no issuer BIN check (the leading digits that identify the card network — Visa starts with 4, Mastercard with 51–55, etc.) whatsoever.</p>
+  <div class="box">
+    <strong>Example</strong>: testing an arbitrary 13-digit number completely unrelated to any card, "0212345678901" (made up as if it were a phone number or order number), against this regex <strong>matches</strong>. Conversely, a genuine Visa test card number, "4111 1111 1111 1111" (16 digits, passes the Luhn checksum), also matches — but so does "4111 1111 1111 1112," a deliberately invalid number that fails the Luhn checksum, and it matches <strong>exactly the same way</strong>. At the regex stage, there's no way to tell these two apart.
+  </div>
+
+  <h2>4. So when is the format check actually useful?</h2>
+  <p>If the context already makes it certain that "this field is a card number" — such as the card number input field on a payment form — a first-pass format check (has the user filled in all the digits, is the digit count right) is still useful. The problem arises when you try to use it to "detect" card numbers within free text. Running this regex against log files or chat content to find card numbers will produce a large number of false positives on 13–16 digit numbers that have nothing to do with cards — order numbers, phone numbers, serial numbers, and the like.</p>
+
+  <h2>5. If you actually need to validate the checksum</h2>
+  <p>The Luhn checksum can be implemented in just a few lines with a loop: walk the digits from the right, double every second digit and, if the result exceeds 9, sum its digits, then check whether the total is divisible by 10. Regex can only get you as far as "does this look like the right format" — actually determining "is this a valid number" needs this kind of separate arithmetic logic. Treat a pattern built with the regex generator strictly as a first-pass filter; anywhere payment or validation actually matters, be sure to also use dedicated validation logic or a library that includes the Luhn checksum.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does the "credit card" preset accurately find only real card numbers?</summary><p style="margin-top:8px;">No. This pattern (<code>\b(?:\d[ \-]?){13,16}\b</code>) only checks whether there are 13 to 16 digits separated by spaces or hyphens — it performs no Luhn checksum validation and no issuer BIN (leading digit) check at all. Card-unrelated 13-digit numbers will also match this pattern.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Is it really impossible to validate a Luhn checksum with regex alone?</summary><p style="margin-top:8px;">Yes, within standard regex (regular languages) it's impossible. Multiplying each digit by a different weight and accumulating the sum is an arithmetic operation that falls outside what a regular language can express as pattern matching. Validating it requires ordinary programming code with a loop and arithmetic.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. When is this kind of format-check regex actually safe to use?</summary><p style="margin-top:8px;">It's useful when the context already makes it certain that a field is a card number — such as a card number input field on a payment form — and you just need a quick format check. Using it to detect card numbers in free text produces a lot of false positives and isn't suitable.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does the JWT pattern have a similar limitation?</summary><p style="margin-top:8px;">Yes. The JWT preset matches whenever there are three dot-separated segments of 2 or more characters each, so it also matches version strings like "12.34.56" or other arbitrary dot-separated text. A real JWT has each segment Base64URL-encoded JSON, but the preset doesn't check that structure. For accurate JWT structure validation, decode and inspect with the <a href="../jwt-inspector.html?lang=en">JWT inspector</a>.</p></details>
+
+  <div class="tool-links">
+    <a href="../regex-generator.html?lang=en">→ Regex Generator</a>
+    <a href="../jwt-inspector.html?lang=en">→ JWT Inspector</a>
+    <a href="../curl-generator.html?lang=en">→ cURL Command Generator</a>
+    <a href="../json-validator.html?lang=en">→ JSON Validator</a>
+    <a href="../sql-validator.html?lang=en">→ SQL Validator</a>
+    <a href="../url-encoder.html?lang=en">→ URL Encoder</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general informational purposes. For payment- and security-related validation logic, please use dedicated libraries and have the implementation reviewed by a developer.</footer>
+</main>
+</body>
+</html>

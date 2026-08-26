@@ -1,6 +1,6 @@
 # 가이드 영어(EN) 번역 진행 상황
 
-**마지막 갱신**: 2026-08-26  |  **진행률**: 30/176
+**마지막 갱신**: 2026-08-26  |  **진행률**: 40/176
 
 ## 배경 & 방식
 
@@ -34,7 +34,7 @@
 ## 진행 현황 (카테고리별)
 | 카테고리 | 완료/전체 |
 |---|---|
-| 개발자 도구 (developer-tools) | 30/52 |
+| 개발자 도구 (developer-tools) | 40/52 |
 | 텍스트 도구 (text-tools) | 0/32 |
 | 이미지 도구 (image-tools) | 0/24 |
 | 생성기 도구 (generator-tools) | 0/21 |
@@ -45,7 +45,7 @@
 
 ---
 
-## 개발자 도구 (developer-tools) — 30/52
+## 개발자 도구 (developer-tools) — 40/52
 
 - [x] `api-response-viewer-large-integer-rounding` ← tool: `api-response-viewer`
 - [x] `api-tester-cors-vs-network-error-typeerror` ← tool: `api-tester`
@@ -64,21 +64,21 @@
 - [x] `http-request-builder-cors-preflight-3-conditions` ← tool: `http-request-builder`
 - [x] `javascript-beautifier-brace-counting-for-loop-bug` ← tool: `javascript-beautifier`
 - [x] `javascript-minifier-string-boundary-regex-risk` ← tool: `javascript-minifier`
-- [ ] `json-schema-null-array-type-gaps` ← tool: `json-schema-generator`
+- [x] `json-schema-null-array-type-gaps` ← tool: `json-schema-generator`
 - [x] `json-to-xml-array-null-limits` ← tool: `json-to-xml`
-- [ ] `json-to-yaml-auto-quoting-reserved-words` ← tool: `json-to-yaml`
-- [ ] `keyword-cannibalization-string-vs-intent` ← tool: `keyword-cannibalization-checker`
+- [x] `json-to-yaml-auto-quoting-reserved-words` ← tool: `json-to-yaml`
+- [x] `keyword-cannibalization-string-vs-intent` ← tool: `keyword-cannibalization-checker`
 - [x] `keyword-difficulty-rule-based-no-real-data` ← tool: `keyword-difficulty-estimator`
-- [ ] `keyword-grouping-search-intent-vs-clustering` ← tool: `keyword-grouping-tool`
+- [x] `keyword-grouping-search-intent-vs-clustering` ← tool: `keyword-grouping-tool`
 - [x] `markdown-xss-commonmark-history` ← tool: `markdown-preview`
-- [ ] `mime-type-sniffing-nosniff-header` ← tool: `mime-type-finder`
-- [ ] `number-converter-twos-complement-negative` ← tool: `number-converter`
+- [x] `mime-type-sniffing-nosniff-header` ← tool: `mime-type-finder`
+- [x] `number-converter-twos-complement-negative` ← tool: `number-converter`
 - [x] `open-graph-preview-tool-accuracy-limits` ← tool: `open-graph-preview`
-- [ ] `redirect-checker-301-302-307-308-explained` ← tool: `redirect-checker`
+- [x] `redirect-checker-301-302-307-308-explained` ← tool: `redirect-checker`
 - [x] `regex-catastrophic-backtracking-redos` ← tool: `regex-tester`
-- [ ] `regex-generator-credit-card-no-luhn-check` ← tool: `regex-generator`
-- [ ] `regex-zero-width-match-count-not-visible` ← tool: `regex-cheatsheet`
-- [ ] `robots-meta-tag-noindex-follow-combinations` ← tool: `meta-tag-analyzer`
+- [x] `regex-generator-credit-card-no-luhn-check` ← tool: `regex-generator`
+- [x] `regex-zero-width-match-count-not-visible` ← tool: `regex-cheatsheet`
+- [x] `robots-meta-tag-noindex-follow-combinations` ← tool: `meta-tag-analyzer`
 - [ ] `robots-txt-disallow-empty-vs-slash` ← tool: `robots-txt-validator`
 - [ ] `schema-required-vs-recommended-fields` ← tool: `schema-validator`
 - [x] `serp-title-pixel-width-not-char-count` ← tool: `serp-snippet-preview`

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Match Count Shows Up But No Highlight Appears — Why? | MODOO HUB</title>
+<meta name="description" content="A regex tester reports '3 matches' but nothing on screen is highlighted. This guide analyzes the cause at the code level: zero-width matches and their relationship to word boundaries and lookahead.">
+<link rel="canonical" href="https://modoohub.com/guides/regex-zero-width-match-count-not-visible-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/regex-zero-width-match-count-not-visible.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/regex-zero-width-match-count-not-visible-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/regex-zero-width-match-count-not-visible.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Match Count Shows Up But No Highlight Appears — Why?","description":"A regex tester shows a match count but nothing is highlighted on screen. This guide analyzes the cause through the structure of zero-width matches.","datePublished":"2026-08-26","dateModified":"2026-08-26","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Should a zero-width match really count as a real \"match\"?","acceptedAnswer":{"@type":"Answer","text":"Yes. Under standard regex engine behavior, a match of length zero is a fully valid match success. JavaScript's String.matchAll() and RegExp.exec() both return it as-is. During replace operations, though, engines apply special handling to force the search position forward by one to avoid infinite loops."}},
+{"@type":"Question","name":"If there's no visible highlight, can I just treat it as no match?","acceptedAnswer":{"@type":"Answer","text":"It depends on your purpose. If you only need to check whether a given position satisfies a condition (e.g. finding replacement positions), the match is genuinely valid and useful. If instead you want to visually confirm exactly what text was matched, you need to add a part of the pattern that actually consumes characters."}},
+{"@type":"Question","name":"Is there a way to make a lookahead show up as a highlight?","acceptedAnswer":{"@type":"Answer","text":"Not with the lookahead alone, since it never consumes anything by itself. If you place a consuming portion in front (e.g. cat in cat(?=egory)) and keep the lookahead purely as a trailing condition check, the consumed \"cat\" part will show up highlighted."}},
+{"@type":"Question","name":"Does this behave the same way in other languages like Python or Java?","acceptedAnswer":{"@type":"Answer","text":"Yes. The concept of zero-width matches is common across the standard regex family (the PCRE lineage), so Python's re module, Java's Pattern class, and others all correctly return zero-length matches the same way. How each tool's tester UI chooses to visualize them, however, can differ."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Match Count Shows Up But No Highlight Appears — Why?</h1>
+  <p class="meta">Guide · Last verified Aug 26, 2026</p>
+
+  <p>Sometimes you drop a pattern into a regex tester, run it, and it reports something like "3 matches" — yet no matter how closely you look at the results panel, not a single character is highlighted. It looks like a bug, but it's actually an inevitable outcome of how regex engines and highlight rendering interact. This guide walks through the cause at the code level.</p>
+
+  <h2>1. The symptom: the number and the screen disagree</h2>
+  <p>For example, if you drop the pattern <code>a*</code> into the live tester on the <a href="../regex-cheatsheet.html?lang=en">Regex Cheatsheet</a> and type just "bcd" as the text, the match count shows up as several matches, yet not a single character of the text gets colored. Users naturally wonder, "if there are no matches, why is there a number?" — but in reality, matches do exist; they just exist in a form that can't be rendered on screen.</p>
+
+  <h2>2. What is a zero-width match?</h2>
+  <p>A regex match usually "consumes" a portion of the string. If the pattern <code>abc</code> matches the text "abc", it has consumed 3 characters. But quantifiers that allow "zero or more," like <code>a*</code>, or assertions that are designed from the start not to consume any characters — <code>\b</code> (word boundary), <code>^</code>/<code>$</code> (anchors), <code>(?=...)</code> (lookahead), <code>(?&lt;=...)</code> (lookbehind) — can succeed while producing a match whose start and end positions are identical, i.e. a match of length zero. From the engine's perspective this is still unambiguously a "successful match," so it gets included in the count — but the core of the problem is that there's not a single character left to wrap in a highlight.</p>
+
+  <h2>3. Why highlight rendering can't draw this</h2>
+  <p>Most regex testers render match results by wrapping them as <code>&lt;span class="match-hl"&gt;matched string&lt;/span&gt;</code>. If the matched string is an empty string (""), the result is <code>&lt;span class="match-hl"&gt;&lt;/span&gt;</code> — an empty tag with no content. An empty span has nothing to paint a background color onto, so nothing changes visually — this isn't a rendering failure, it's that there are simply no pixels to color in the first place. Meanwhile, the logic that counts matches just counts the length of the array returned by <code>matchAll()</code>, so a zero-length match gets counted exactly the same as any other. The counting logic and the visualization logic operate on different criteria (existence vs. pixels), and that's where the gap between them comes from.</p>
+
+  <div class="box">
+    <strong>Measured example</strong>: Apply the pattern <code>a*</code> (with the g flag) to the text "bcd." The regex engine recognizes "zero a's" as a match at each of four positions — every character position (0, 1, 2) plus the end of the string (3) — and returns four empty matches in total. The match count display shows "4 matches," but since all four have length zero, not a single one is highlighted.
+  </div>
+
+  <table>
+    <tr><th>Pattern</th><th>Target text</th><th>Match count</th><th>On-screen highlight</th></tr>
+    <tr><td><code>a*</code></td><td>bcd</td><td>4</td><td>None (all length 0)</td></tr>
+    <tr><td><code>\bcat\b</code></td><td>cat category</td><td>1</td><td>"cat" (3 chars) shown</td></tr>
+    <tr><td><code>(?=cat)</code></td><td>cat category</td><td>2</td><td>None (lookahead doesn't consume)</td></tr>
+  </table>
+
+  <h2>4. Why word boundaries and lookahead are especially confusing</h2>
+  <p>Assertions like <code>\b</code> or <code>(?=...)</code> are specified to only check "does the context before/after this position satisfy the condition," and by design they never include any character in the result. So using <code>(?=cat)</code> alone finds "every position right before the letters 'cat'," but the matched string is always an empty string. A common source of confusion for beginners is expecting the lookahead to also highlight the text that follows it — but in reality, the lookahead itself consumes nothing, so unless you chain an actually-consuming pattern like <code>cat</code> after it, nothing appears on screen at all.</p>
+
+  <h2>5. So how do you check for this?</h2>
+  <p>If you run into "a match count shows up but there's no highlight," the first move isn't to suspect a bug — it's to check whether your pattern contains a zero-width element (a quantifier allowing zero occurrences, an anchor, a lookahead/lookbehind). In the live tester on the <a href="../regex-cheatsheet.html?lang=en">Regex Cheatsheet</a>, toggling the g, i, m, s, u, and y flags one at a time while testing your actual pattern lets you see exactly where zero-width matches occur. And if you want to rebuild the pattern into a different form, the <a href="../regex-generator.html?lang=en">Regex Generator</a> is a good place to start over from standard patterns like emails or URLs.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Should a zero-width match really count as a real "match"?</summary><p style="margin-top:8px;">A. Yes. Under standard regex engine behavior, a match of length zero is a fully valid match success. JavaScript's <code>String.matchAll()</code> and <code>RegExp.exec()</code> both return it as-is. During replace operations, though, engines apply special handling to force the search position forward by one to avoid infinite loops.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. If there's no visible highlight, can I just treat it as no match?</summary><p style="margin-top:8px;">A. It depends on your purpose. If you only need to check whether a given position satisfies a condition (e.g. finding replacement positions), the match is genuinely valid and useful. If instead you want to visually confirm exactly what text was matched, you need to add a part of the pattern that actually consumes characters.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Is there a way to make a lookahead show up as a highlight?</summary><p style="margin-top:8px;">A. Not with the lookahead alone, since it never consumes anything by itself. If you place a consuming portion in front (e.g. <code>cat</code> in <code>cat(?=egory)</code>) and keep the lookahead purely as a trailing condition check, the consumed "cat" part will show up highlighted.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does this behave the same way in other languages like Python or Java?</summary><p style="margin-top:8px;">A. Yes. The concept of zero-width matches is common across the standard regex family (the PCRE lineage), so Python's <code>re</code> module, Java's <code>Pattern</code> class, and others all correctly return zero-length matches the same way. How each tool's tester UI chooses to visualize them, however, can differ.</p></details>
+
+  <div class="tool-links">
+    <a href="../regex-cheatsheet.html?lang=en">→ Regex Cheatsheet</a>
+    <a href="../regex-tester.html?lang=en">→ Regex Tester</a>
+    <a href="../regex-generator.html?lang=en">→ Regex Generator</a>
+    <a href="../regex-extractor.html?lang=en">→ Regex Extractor</a>
+    <a href="../regex-replace-tester.html?lang=en">→ Regex Replace Tester</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes. Actual matching behavior may vary in detail depending on the regex implementation of the language or engine you use.</footer>
+</main>
+</body>
+</html>

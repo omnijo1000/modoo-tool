@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>301 vs 302 vs 307 vs 308: How to Stop Mixing Up Redirect Codes | MODOO HUB</title>
+<meta name="description" content="A clear breakdown of 301, 302, 307, and 308 redirect codes along two axes: permanent vs. temporary, and whether the HTTP method is preserved. Includes why a POST request can silently become GET during a redirect.">
+<link rel="canonical" href="https://modoohub.com/guides/redirect-checker-301-302-307-308-explained-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/redirect-checker-301-302-307-308-explained.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/redirect-checker-301-302-307-308-explained-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/redirect-checker-301-302-307-308-explained.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"301 vs 302 vs 307 vs 308: How to Stop Mixing Up Redirect Codes","description":"A clear breakdown of 301, 302, 307, and 308 redirect codes along two axes: permanent vs. temporary, and whether the HTTP method is preserved. Includes why a POST request can silently become GET during a redirect.","datePublished":"2026-08-26","dateModified":"2026-08-26","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Why isn't 303 See Other in the table?","acceptedAnswer":{"@type":"Answer","text":"303 was created for a different purpose — telling the client to fetch the result of a PUT or POST via GET — and it's explicitly specified to always re-request with GET. Unlike 302, the method change with 303 isn't an informal convention but a deliberate, spec-mandated behavior, so it doesn't fit the \"permanent/temporary + method preservation\" framework this guide covers."}},
+{"@type":"Question","name":"Is a long redirect chain bad for SEO?","acceptedAnswer":{"@type":"Answer","text":"Yes. As a chain like A→B→C grows longer, each hop loses a little link authority, and search engine crawlers may give up following a chain beyond 5–10 hops. Use a redirect chain checker to review the full chain and shorten it so it points directly to the final destination."}},
+{"@type":"Question","name":"Do both 301 and 302 pass PageRank?","acceptedAnswer":{"@type":"Answer","text":"Google has officially stated that both 301 and 302 pass PageRank (link authority) today. That said, because 302 implies a \"temporary\" move, search engines tend to keep the original URL indexed rather than fully replacing it, so 301 remains the safer choice for permanent moves."}},
+{"@type":"Question","name":"Which code should I use when migrating to HTTPS?","acceptedAnswer":{"@type":"Answer","text":"An HTTP to HTTPS migration is almost always a GET-based page move, so 301 is the standard choice. The same applies when standardizing on www or non-www."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html?lang=en" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>301 vs 302 vs 307 vs 308: How to Stop Mixing Up Redirect Codes</h1>
+  <p class="meta">Guide · Last verified Aug 26, 2026</p>
+
+  <p>There are only four redirect status codes, yet they're easy to mix up every time. Most people remember "301 is permanent, 302 is temporary," but far fewer know why 307 and 308 exist at all. The truth is that these four codes weren't invented for four separate purposes — they're <strong>the same two properties (permanent vs. temporary, and whether the method is preserved) defined differently at different points in HTTP's history</strong>. Once you see that structure, you don't need to memorize four codes separately; one table does the job.</p>
+
+  <h2>1. Two axes explain everything</h2>
+  <p>The four redirect codes split along exactly two questions. First: is the move permanent or temporary? Second: when the redirect happens, is the original HTTP request method (GET, POST, etc.) and body preserved as-is?</p>
+  <table>
+    <tr><th>Code</th><th>Permanent/Temporary</th><th>Method preserved</th></tr>
+    <tr><td>301</td><td>Permanent</td><td>Not guaranteed (historically ambiguous)</td></tr>
+    <tr><td>302</td><td>Temporary</td><td>Not guaranteed (historically ambiguous)</td></tr>
+    <tr><td>307</td><td>Temporary</td><td>Guaranteed</td></tr>
+    <tr><td>308</td><td>Permanent</td><td>Guaranteed</td></tr>
+  </table>
+  <p>In other words, 307 is "302 that preserves the method," and 308 is "301 that preserves the method." You don't need to memorize all four separately — just remember the relationship: "301/302 are old and ambiguous," "307/308 came later and are explicit."</p>
+
+  <h2>2. Why "the method can change" is a problem with 301/302</h2>
+  <p>301 and 302 were defined in the early 1990s, back in the HTTP/1.0 era, and the spec didn't clearly define how the method should be handled during a redirect. As a result, most early browsers implemented the convention of "whatever the original method was, re-request the redirect target with GET" — and that convention hardened into de facto standard behavior. So if a user submits a form via POST and the server responds with a 301 or 302, the browser may discard the form data and re-request the next URL with GET instead. The problem is that this is a "convention," not a "specification," so actual behavior can differ from browser to browser.</p>
+
+  <h2>3. What 307/308 explicitly fixed</h2>
+  <p>When 307 and 308 were newly defined in the HTTP/1.1 spec (RFC 7231, later RFC 9110), the rule was made explicit: "when following a redirect, the original request's method and body must never be changed." So if a request sent via POST receives a 307 or 308 redirect, the re-request is guaranteed to also be POST, with the original body sent unchanged. For paths where the request body actually matters — API endpoints, payments, login flows — using 307/308 instead of 301/302 prevents data loss or unintended behavior changes.</p>
+  <div class="box">
+    <strong>Example</strong>: a <code>POST /old-api/submit</code> request is redirected to <code>/new-api/submit</code><br>
+    · With 301/302: depending on browser implementation, it may be re-requested as GET /new-api/submit (risking loss of form data)<br>
+    · With 307/308: it is guaranteed to be re-requested as POST /new-api/submit with the original body intact
+  </div>
+
+  <h2>4. From an SEO standpoint, when should you use 301/302 vs. 307/308?</h2>
+  <p>Typical webpage URL moves — HTTPS migration, URL restructuring, domain moves — almost always involve only GET requests, so method preservation isn't a practical concern. In these cases, it's fine to stick with the conventional 301 (permanent) or 302 (temporary), which search engines handle well. 308/307 should be reserved for redirecting paths that carry non-GET requests, such as form submissions or API calls. You can check exactly which codes appear in a real site's redirect chain, and how many hops the chain runs, with a <a href="../redirect-checker.html?lang=en">redirect chain checker</a>.</p>
+
+  <h2>5. A common mistake: using 302 for permanent moves</h2>
+  <p>When server configuration is done in a hurry, it's common to leave 301 and 302 undifferentiated and just use 302 (or a framework's default) regardless. If content has actually moved permanently but the server responds with 302, search engines may treat the move as potentially temporary and hold back from fully transferring the original URL's index status and link authority to the new URL. The end result is that SEO rankings don't fully carry over to the new URL. If a URL has changed permanently, double-check your server configuration to make sure it responds with 301 (or 308 for non-GET requests). When building redirect rules with an <a href="../htaccess-generator.html?lang=en">.htaccess generator</a> or an <a href="../nginx-config-generator.html?lang=en">Nginx config generator</a>, it's safest to explicitly specify the status code.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Why isn't 303 See Other in the table?</summary><p style="margin-top:8px;">303 was created for a different purpose — telling the client to fetch the result of a PUT or POST via GET — and it's explicitly specified to always re-request with GET. Unlike 302, the method change with 303 isn't an informal convention but a deliberate, spec-mandated behavior, so it doesn't fit the "permanent/temporary + method preservation" framework this guide covers.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Is a long redirect chain bad for SEO?</summary><p style="margin-top:8px;">Yes. As a chain like A→B→C grows longer, each hop loses a little link authority, and search engine crawlers may give up following a chain beyond 5–10 hops. Use a redirect chain checker to review the full chain and shorten it so it points directly to the final destination.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Do both 301 and 302 pass PageRank?</summary><p style="margin-top:8px;">Google has officially stated that both 301 and 302 pass PageRank (link authority) today. That said, because 302 implies a "temporary" move, search engines tend to keep the original URL indexed rather than fully replacing it, so 301 remains the safer choice for permanent moves.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Which code should I use when migrating to HTTPS?</summary><p style="margin-top:8px;">An HTTP to HTTPS migration is almost always a GET-based page move, so 301 is the standard choice. The same applies when standardizing on www or non-www.</p></details>
+
+  <div class="tool-links">
+    <a href="../redirect-checker.html?lang=en">→ Redirect Chain Checker</a>
+    <a href="../http-header-checker.html?lang=en">→ HTTP Header Checker</a>
+    <a href="../htaccess-generator.html?lang=en">→ .htaccess Generator</a>
+    <a href="../nginx-config-generator.html?lang=en">→ Nginx Config Generator</a>
+    <a href="../ssl-checker.html?lang=en">→ SSL Certificate Checker</a>
+    <a href="../sitemap-validator.html?lang=en">→ Sitemap Validator</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general informational purposes. For actual server configuration, please also consult the documentation for the specific framework or server you're using.</footer>
+</main>
+</body>
+</html>
