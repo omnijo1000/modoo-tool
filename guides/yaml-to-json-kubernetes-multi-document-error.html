@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YAML→JSON 변환기가 쿠버네티스 매니페스트에서 실패하는 이유 | MODOO HUB</title>
+<meta name="description" content="---로 구분된 쿠버네티스 다중 문서 YAML을 YAML→JSON 변환기에 그대로 붙여넣으면 왜 오류가 나는지, js-yaml load()의 동작 방식과 올바른 변환 방법을 설명합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/yaml-to-json-kubernetes-multi-document-error.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"YAML→JSON 변환기가 쿠버네티스 매니페스트에서 실패하는 이유","description":"---로 구분된 쿠버네티스 다중 문서 YAML을 YAML→JSON 변환기에 그대로 붙여넣으면 왜 오류가 나는지, js-yaml load()의 동작 방식과 올바른 변환 방법을 설명합니다.","datePublished":"2026-08-26","dateModified":"2026-08-26","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>YAML→JSON 변환기가 쿠버네티스 매니페스트에서 실패하는 이유</h1>
+  <p class="meta">가이드 · 2026.08.26 최종 확인</p>
+
+  <p>쿠버네티스(Kubernetes) 매니페스트 파일을 통째로 복사해 YAML→JSON 변환기에 붙여넣었는데 결과 칸이 텅 비고 알 수 없는 오류만 뜬 경험이 있다면, 파일이 잘못된 게 아니라 변환기가 애초에 그런 파일을 처리하도록 설계되지 않았기 때문일 가능성이 큽니다. 이 가이드는 쿠버네티스 YAML의 관례와 표준 YAML 파서의 동작 방식이 왜 충돌하는지, 그리고 <a href="../yaml-to-json.html">YAML to JSON 변환기</a>를 실제로 어떻게 써야 오류 없이 변환할 수 있는지 코드 수준까지 확인해서 정리했습니다.</p>
+
+  <h2>1. 쿠버네티스는 왜 파일 하나에 여러 리소스를 넣는가</h2>
+  <p>쿠버네티스 매니페스트는 Deployment, Service, ConfigMap처럼 서로 다른 리소스를 하나의 YAML 파일에 몰아넣는 경우가 흔합니다. 관련된 리소스를 배포 단위로 묶어 <code>kubectl apply -f</code> 한 번으로 적용하기 위해서인데, 이때 YAML 스펙이 제공하는 <strong>"---"(문서 구분자)</strong>를 사용해 한 파일 안에 독립된 YAML 문서 여러 개를 이어붙입니다. YAML 스펙 관점에서 이런 파일은 "문서 하나"가 아니라 "문서 스트림"입니다. 즉 파일 하나 = 문서 하나라는 직관과 달리, 쿠버네티스 YAML은 파일 하나 안에 문서가 N개 들어있는 구조입니다.</p>
+
+  <h2>2. 대부분의 YAML→JSON 변환기가 가정하는 것</h2>
+  <p>일반적인 YAML→JSON 변환기는 "파일 하나 = 최상위 객체 하나"를 전제로 만들어집니다. 이 사이트의 <a href="../yaml-to-json.html">YAML to JSON 변환기</a>도 내부적으로 자바스크립트 YAML 파서 라이브러리인 <strong>js-yaml</strong>(버전 4.1.0)의 <code>load()</code> 함수를 그대로 사용합니다. js-yaml은 단일 문서를 파싱하는 <code>load()</code>와 다중 문서 전체를 배열로 파싱하는 <code>loadAll()</code> 두 함수를 따로 제공하는데, 이 도구는 이름 그대로 하나의 결과 객체를 JSON으로 보여주는 구조라 <code>load()</code>를 씁니다. 문제는 <code>load()</code>가 다중 문서 스트림을 받으면 "일부만 처리"하는 게 아니라, 아예 <strong>예외를 던지며 변환 자체를 중단</strong>한다는 점입니다.</p>
+  <div class="box">
+    <strong>실제 동작 확인</strong>: 쿠버네티스 매니페스트처럼 "---"로 두 개 이상의 문서를 이어붙인 YAML을 <a href="../yaml-to-json.html">YAML to JSON 변환기</a>에 붙여넣으면, 결과 칸은 비워지고 <code>YAML parse error: expected a single document in the stream, but found more</code> 형태의 오류 메시지만 표시됩니다. 첫 번째 Deployment만 골라서 변환해주는 "부분 처리"는 일어나지 않습니다.
+  </div>
+
+  <h2>3. 그래서 어떻게 변환해야 하는가</h2>
+  <p>해결 방법은 간단하지만 수동입니다. 파일을 "---" 구분선 기준으로 나눠 각 문서를 하나씩 따로 붙여넣어 변환하면 됩니다.</p>
+  <table>
+    <tr><th>상황</th><th>결과</th></tr>
+    <tr><td>Deployment + Service를 "---"로 이어붙인 파일 전체를 붙여넣음</td><td>파싱 오류, 결과 없음</td></tr>
+    <tr><td>Deployment 부분만 잘라서 붙여넣음</td><td>정상 변환</td></tr>
+    <tr><td>Service 부분만 잘라서 붙여넣음</td><td>정상 변환</td></tr>
+  </table>
+  <p>리소스가 여러 개라면 이 과정을 리소스 개수만큼 반복해야 합니다. 번거롭긴 하지만, 반대로 말하면 각 리소스 YAML을 정확히 어디서 잘라야 하는지 명확한 기준("---" 줄)이 있다는 뜻이기도 합니다.</p>
+
+  <h2>4. 앵커(&)와 별칭(*)에도 영향이 있다</h2>
+  <p>YAML은 반복되는 값을 <code>&이름</code>으로 정의하고 <code>*이름</code>으로 재사용하는 앵커/별칭 문법을 지원합니다. 단일 문서 안에서는 이 값들이 실제 데이터로 해소되어 JSON에 그대로 인라인됩니다. 그런데 이 해소 과정도 결국 <code>load()</code>가 문서를 성공적으로 파싱해야 일어나는 일이라, 다중 문서 YAML은 애초에 파싱 단계에서 막히기 때문에 앵커/별칭 해소 여부를 논하기 전에 변환 자체가 실패합니다. 앵커를 쿠버네티스 매니페스트 여러 리소스에 걸쳐 공유하고 있었다면, 문서를 쪼개는 순간 그 공유 관계도 함께 끊어진다는 점을 감안해야 합니다.</p>
+
+  <h2>5. 실무 팁: 애초에 변환이 필요한지부터 확인</h2>
+  <p>쿠버네티스 매니페스트를 JSON으로 바꾸는 이유는 대부분 API 서버에 직접 요청을 보내거나 JSON 기반 도구(jq, 정책 검사기 등)에서 처리하기 위해서입니다. 리소스 하나씩만 다루는 경우가 흔하므로, 애초에 파일을 리소스 단위로 나눠 관리하고 있다면 이런 오류를 아예 겪지 않습니다. 반대로 여러 리소스를 한 파일에 유지해야 한다면, 매번 <a href="../yaml-to-json.html">YAML to JSON 변환기</a>에 붙여넣기 전 "---" 개수부터 세어보는 습관을 들이는 것이 오류 메시지 앞에서 당황하지 않는 방법입니다. 변환 전에 YAML 문법 자체가 올바른지 궁금하다면 <a href="../json-validator.html">JSON 검증기</a>로 변환 후 결과물을 다시 검증하는 것도 좋습니다.</p>
+
+  <h2>자주 묻는 질문</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. "---"로 구분된 다중 문서 YAML을 넣으면 첫 번째 문서만 변환되나요?</summary><p style="margin-top:8px;">아니요. 이 도구가 사용하는 js-yaml의 load() 함수는 다중 문서 YAML을 만나면 오류를 던지며 변환 자체에 실패합니다. 첫 번째 문서만 골라서 처리해주지 않고 결과 칸이 비고 오류 메시지만 표시됩니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 쿠버네티스 매니페스트처럼 여러 리소스가 이어진 파일은 어떻게 변환하나요?</summary><p style="margin-top:8px;">통째로 붙여넣으면 다중 문서 오류가 나므로, "---" 구분선을 기준으로 파일을 문서 단위로 나눈 뒤 각 문서를 하나씩 따로 붙여넣어 변환해야 합니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 왜 첫 번째 문서만이라도 변환해주지 않나요?</summary><p style="margin-top:8px;">이 도구가 쓰는 js-yaml의 load() 함수는 "문서 하나만 있어야 한다"는 전제로 설계되어 있어, 두 번째 "---"를 만나는 순간 그 자체를 오류 조건으로 취급합니다. 첫 문서만 골라 반환하는 loadAll() 계열 함수와는 동작이 다릅니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. YAML 앵커(&)와 별칭(*)은 변환 시 어떻게 되나요?</summary><p style="margin-top:8px;">단일 문서 안에서는 앵커와 별칭이 실제 값으로 해소되어 JSON에 인라인됩니다. 다중 문서 YAML은 파싱 단계에서 이미 실패하므로 이 해소 과정 자체에 도달하지 못합니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../yaml-to-json.html">→ YAML to JSON 변환기</a>
+    <a href="../json-to-yaml.html">→ JSON to YAML 변환기</a>
+    <a href="../json-validator.html">→ JSON 검증기</a>
+    <a href="../xml-to-json.html">→ XML to JSON 변환기</a>
+    <a href="../json-diff.html">→ JSON Diff 비교기</a>
+    <a href="../csv-viewer.html">→ CSV 뷰어</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적이며 실제 파싱 동작은 사용하는 라이브러리 버전에 따라 달라질 수 있으니 중요한 파일은 직접 변환해 확인하시기 바랍니다.</footer>
+</main>
+</body>
+</html>

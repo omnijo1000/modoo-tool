@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>가장 비슷한 Tailwind 색상을 찾는 법 — RGB 대신 CIE Lab을 쓰는 이유 | MODOO HUB</title>
+<meta name="description" content="임의의 HEX 색상과 가장 비슷한 Tailwind 팔레트 색을 찾을 때 단순 RGB 거리 비교가 왜 틀리는지, CIE Lab 색공간이 어떻게 이를 보정하는지 실제 계산 예시로 설명합니다.">
+<link rel="canonical" href="https://modoohub.com/guides/tailwind-color-cielab-perceptual-distance.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"가장 비슷한 Tailwind 색상을 찾는 법 — RGB 대신 CIE Lab을 쓰는 이유","description":"임의의 HEX 색상과 가장 비슷한 Tailwind 팔레트 색을 찾을 때 단순 RGB 거리 비교가 왜 틀리는지, CIE Lab 색공간이 어떻게 이를 보정하는지 실제 계산 예시로 설명합니다.","datePublished":"2026-08-26","dateModified":"2026-08-26","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>가장 비슷한 Tailwind 색상을 찾는 법 — RGB 대신 CIE Lab을 쓰는 이유</h1>
+  <p class="meta">가이드 · 2026.08.26 최종 확인</p>
+
+  <p>디자인에서 임의의 HEX 색상(예: 디자이너가 지정한 브랜드 컬러)을 받아 가장 가까운 Tailwind 클래스로 바꿔야 할 때가 있습니다. 이때 "가장 비슷한 색"을 어떻게 계산하느냐에 따라 결과가 완전히 달라집니다. 흔히 떠올리는 방법은 R, G, B 세 숫자의 차이를 그대로 비교하는 것이지만, 이 방식은 사람 눈이 실제로 느끼는 "비슷함"과 자주 어긋납니다. 이 가이드는 왜 그런 일이 벌어지는지, 그리고 <a href="../tailwind-color-generator.html">Tailwind 색상 생성기</a>가 실제로 어떤 색공간에서 거리를 계산하는지 코드 수준까지 파헤칩니다.</p>
+
+  <h2>1. RGB 유클리드 거리는 왜 틀리는가</h2>
+  <p>RGB 값을 3차원 좌표로 놓고 두 색의 유클리드 거리를 계산하는 방법은 구현이 간단해서 널리 쓰입니다. 문제는 RGB 색공간이 사람의 색 지각과 선형 관계가 아니라는 점입니다. 같은 숫자 차이라도 초록·노랑 계열에서는 사람이 거의 차이를 못 느끼는 반면, 파랑·보라 계열에서는 작은 숫자 차이도 뚜렷하게 다른 색으로 인식됩니다. 즉 RGB 공간에서 "거리 10"이 어느 색 영역에 있느냐에 따라 실제 체감 차이가 완전히 다릅니다. 그 결과 RGB 거리로 고른 "가장 가까운 색"이 실제로 보면 원래 색과 확연히 달라 보이는 경우가 생깁니다.</p>
+
+  <h2>2. CIE Lab: 지각 균등성을 목표로 설계된 색공간</h2>
+  <p>CIE Lab(정확히는 CIE L*a*b*)은 1976년 국제조명위원회(CIE)가 "색공간 안의 수치 거리가 사람이 느끼는 색 차이와 대략 비례하도록" 설계한 색공간입니다. L은 명도, a는 초록-빨강 축, b는 파랑-노랑 축을 나타냅니다. sRGB 값을 Lab으로 바꾸려면 먼저 감마 보정을 제거해 선형 RGB로 만들고, 표준 관측자 기준 XYZ 색공간으로 변환한 뒤, D65 기준 백색점으로 정규화해 L*a*b* 값을 산출하는 다단계 계산이 필요합니다. <a href="../tailwind-color-generator.html">Tailwind 색상 생성기</a>의 실제 소스코드를 확인해 보면 <code>hexToRgb → rgbToLab</code> 순서로 정확히 이 sRGB → 선형 RGB → XYZ → Lab 변환을 그대로 구현하고 있고, 이렇게 얻은 두 색의 Lab 좌표 사이의 유클리드 거리(<code>labDist</code> 함수)로 팔레트 전체를 순회하며 최소 거리 색을 찾습니다. RGB 값을 직접 비교하는 코드는 어디에도 없습니다.</p>
+
+  <h2>3. 실제 계산 예시: 보라색 하나로 확인하기</h2>
+  <p>이론만으로는 체감이 잘 안 되니 실제 색으로 비교해 보겠습니다. 임의의 짙은 보라색 <strong>#442082</strong>를 Tailwind 팔레트 62개 색상(9개 계열 × 11단계 명도, 회색조 3계열 제외 시 실질 컬러 계열 기준)과 비교하면 다음과 같은 결과가 나옵니다.</p>
+  <table>
+    <tr><th>비교 방식</th><th>선택된 색</th><th>거리 값</th></tr>
+    <tr><td>RGB 유클리드 거리</td><td>violet-900 (#4c1d95)</td><td>≈ 20.8</td></tr>
+    <tr><td>CIE Lab 유클리드 거리</td><td>purple-900 (#581c87)</td><td>≈ 7.3</td></tr>
+  </table>
+  <p>두 방식이 아예 다른 색을 "가장 가깝다"고 판정합니다. RGB 방식이 고른 violet-900은 R·G·B 세 성분의 합산 차이만 보면 작아 보이지만, 실제로는 명도·색상 축에서 원래 색과 꽤 벌어져 있습니다. 반면 Lab 방식이 고른 purple-900은 Lab 거리 자체도 훨씬 작아(약 7.3 대 20.8), 밝기와 색조가 원본과 더 가깝게 일치합니다. 즉 이 경우 Lab 계산이 단순히 "다른 답"을 내놓은 게 아니라 "더 정확한 답"을 낸 것입니다.</p>
+
+  <h2>4. Lab도 완벽하지는 않다</h2>
+  <p>CIE Lab의 유클리드 거리(이런 계산 방식을 색채과학에서는 CIE76 델타E라고 부릅니다)는 RGB보다 훨씬 나은 근사치지만, Lab 공간 자체도 완전히 균등하지는 않습니다. 특히 파랑·보라 영역에서는 CIE76 방식이 실제 지각 차이를 다소 과대평가하는 경향이 있다는 것이 색채과학에서 잘 알려진 한계입니다. 이를 보정한 CIEDE2000 같은 더 정교한 공식도 있지만 계산이 훨씬 복잡합니다. 실용적인 도구에서는 CIE Lab + 단순 유클리드 거리 정도면 RGB 방식 대비 이미 충분히 큰 개선이라, 대부분의 색상 매칭 도구가 이 수준에서 타협합니다.</p>
+
+  <h2>5. 언제 이 차이가 실무에 영향을 주는가</h2>
+  <p>브랜드 컬러를 Tailwind 클래스로 근사 매핑할 때, 원색이 팔레트에 정확히 없는 경우(예: 커스텀 그라디언트의 중간색, 로고에서 추출한 색) 이 계산 방식 차이가 실제 선택 결과를 바꿉니다. <a href="../image-color-extractor.html">이미지 색상 추출기</a>나 <a href="../dominant-color-finder.html">주요 색상 찾기</a>로 뽑아낸 색을 그대로 <a href="../tailwind-color-generator.html">Tailwind 색상 생성기</a>에 넣어 확인하면, RGB로 손계산했을 때와 다른 클래스가 나올 수 있다는 점을 알고 있으면 결과를 더 신뢰할 수 있습니다.</p>
+
+  <h2>자주 묻는 질문</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. RGB 거리와 Lab 거리 중 뭐가 항상 더 정확한가요?</summary><p style="margin-top:8px;">일반적으로 Lab 거리가 사람의 지각에 더 가깝습니다. RGB는 색공간 자체가 비선형이라 영역별로 체감 오차가 크지만, Lab은 지각 균등성을 염두에 두고 설계됐기 때문입니다. 다만 Lab도 파랑·보라 영역 등에서 약간의 오차가 있어 완벽하진 않습니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 이 사이트의 Tailwind 색상 생성기는 실제로 어떤 방식을 쓰나요?</summary><p style="margin-top:8px;">sRGB 값을 감마 보정 제거 후 XYZ, 다시 CIE Lab으로 변환하고, 그 Lab 좌표 사이의 유클리드 거리를 계산해 팔레트 전체에서 최소 거리 색을 찾습니다. RGB 값을 직접 비교하는 로직은 사용하지 않습니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. CIE Lab 변환은 왜 sRGB → XYZ를 거쳐야 하나요?</summary><p style="margin-top:8px;">sRGB는 모니터 출력을 위한 감마 보정이 적용된 값이라 그 자체로는 물리적인 빛의 양과 비례하지 않습니다. XYZ는 감마 보정이 없는 표준 색공간이라 여기를 거쳐야 Lab의 지각 균등성 계산이 정확해집니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. CIEDE2000은 왜 안 쓰나요?</summary><p style="margin-top:8px;">CIEDE2000은 CIE76보다 정확하지만 회전·보정 항이 여러 개 들어가 계산이 훨씬 복잡합니다. 브라우저에서 실시간으로 62개 색을 순회하는 용도로는 CIE Lab + 단순 유클리드 거리만으로도 RGB 대비 충분히 큰 개선 효과가 있어 실용적인 선택입니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../tailwind-color-generator.html">→ Tailwind 색상 생성기</a>
+    <a href="../hex-to-rgb.html">→ HEX to RGB 변환기</a>
+    <a href="../rgb-to-hex.html">→ RGB to HEX 변환기</a>
+    <a href="../image-color-extractor.html">→ 이미지 색상 추출기</a>
+    <a href="../dominant-color-finder.html">→ 주요 색상 찾기</a>
+    <a href="../color-contrast-checker.html">→ 색상 대비 검사기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적이며 실제 색채 계산의 정확한 수치는 도구를 직접 실행해 확인하시기 바랍니다.</footer>
+</main>
+</body>
+</html>

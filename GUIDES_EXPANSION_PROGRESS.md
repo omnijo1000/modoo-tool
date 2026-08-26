@@ -68,12 +68,12 @@
 - [x] **savings-calc** (guides/isa-savings-interest-tax-exemption.html, 2026-08-19) — "ISA로 적금 이자세금 얼마나 아끼나" — 순이익 200만원(서민형400만)까지 비과세, 초과분 9.9% 분리과세.
 - [x] **inflation-calculator** (guides/inflation-purchasing-power-decay.html, 2026-08-19) — "월세·연금 실질가치, 인플레이션이 몇 년 만에 갉아먹나" — 월$1,000 연금, 연2% 인플레 시 구매력 약67%로 하락.
 - [x] **currency-converter** (guides/currency-exchange-hidden-spread-cost.html, 2026-08-19) — "환율의 숨은 비용, 스프레드는 얼마나 되나" — USD/KRW 스프레드 20~40원+카드수수료 1.25~2%.
-- [ ] **sip-calculator** — "Step-Up SIP, 매년 늘리면 복리효과가 얼마나 커지나" — 월$100+매년10%증액, 10년뒤 월$240.
+- [x] **sip-calculator** (guides/sip-step-up-compounding-effect.html, 2026-08-26) — "Step-Up SIP, 매년 늘리면 복리효과가 얼마나 커지나" — 월$100+매년10%증액, 10년뒤 월$235.79(코드 실행 검증). **참고**: 이 계산기 자체엔 Step-Up 옵션 없음, FAQ에만 언급.
 - [ ] **emi-calculator** — "인도 EMI 대출한도, FOIR 40%가 정하는 것" — 월소득5만루피·FOIR40%→최대EMI 2만루피.
 - [ ] **loan-calculator-en** — "중도상환수수료, 미국과 한국은 왜 이렇게 다른가" — 미국 대부분 무료 vs 한국 잔여원금 0.5~1.5%.
 - [x] **gst-calculator** (guides/gst-calculator-itc-explained.html, 2026-08-19) — "인도 GST 매입세액공제(ITC), 실제로 얼마나 절세되나" — 원자재매입 ₹18,000 ITC→실제납부 ₹9,000.
 - [ ] **vat-calculator-global** — "전세계 VAT 최고·최저 세율, 영국의 4단계 구조" — 헝가리27% vs 룩셈부르크17%, 영국 20/5/0/면세 4단계.
-- [ ] **mortgage-calculator** — "PMI vs 한국 LTV, 계약금 20%가 갖는 의미" — 미국 LTV80%이하 PMI면제 vs 한국 LTV50~60%규제.
+- [x] **mortgage-calculator** (guides/mortgage-pmi-vs-korea-ltv-20-percent-down.html, 2026-08-26) — "PMI vs 한국 LTV, 계약금 20%가 갖는 의미" — 미국 LTV80%이하 PMI면제 vs 한국 LTV50~60%규제. **참고**: 이 계산기 자체는 PMI 자동계산 미지원(보험료 필드는 수동입력).
 - [x] **roi-calculator** (guides/roi-vs-cagr-different-numbers-same-investment.html, 2026-08-25) — "ROI와 CAGR, 같은 투자인데 숫자가 다른 이유" — 단순누적 vs 연평균복리환산 비교.
 - [x] **apr-calculator** (guides/apr-vs-ear-credit-card-compounding.html, 2026-08-20) — "APR과 EAR, 카드 이자가 표시금리보다 비싸 보이는 이유" — 명목12%월복리→EAR≈12.68%.
 - [ ] **loan-payoff-calculator** — "월 상환액이 이자보다 적으면 벌어지는 일" — 음의 상각(negative amortization) 함정.
@@ -86,10 +86,10 @@
 - [x] **commission-calculator** (guides/commission-tiered-progressive-like-income-tax.html, 2026-08-25) — "구간별 누진 수수료, 소득세처럼 계산되는 원리" — 100만까지3%+나머지5%, 200만매출시 수수료8만(10만 아님, 실제 재현 확인).
 - [x] **discount-calculator** (guides/discount-calculator-stacked-discount-math.html, 2026-08-21) — "중복 할인 30%+10%는 40% 할인이 아니다" — 50%+50%=75%할인(25%남음, 100%아님).
 - [x] **salary-per-hour-calculator** (guides/salary-per-hour-4-day-week-25-percent-jump.html, 2026-08-25) — "주4일제, 같은 연봉인데 시급은 왜 25% 오르나" — 연봉5000만: 주5일24,038원 vs 주4일30,048원(실제 재현 확인).
-- [ ] **freelancer-rate-calculator** — "프리랜서 시급, 비청구 시간을 빼먹으면 생기는 일" — 신규 비청구율40~50%, 목표시급 72,222원 예시.
+- [x] **freelancer-rate-calculator** (guides/freelancer-rate-non-billable-hours-trap.html, 2026-08-26) — "프리랜서 시급, 비청구 시간을 빼먹으면 생기는 일" — 신규 비청구율40~50%, 72,222원 예시는 도구 기본값과 다른 가정임을 구분해 서술.
 - [x] **acquisition-tax** (guides/acquisition-tax-temporary-2house-3year-penalty.html, 2026-08-25) — "임시적 2주택 특례, 3년 안에 못 팔면 생기는 일" — 3년 초과시 중과세율 소급추징. (계산기 자체엔 전용 입력 없음, 1주택 선택으로 수동 모사 필요)
-- [ ] **annual-leave** — "연차 사용촉진제도, 회사가 이 절차 안 지키면 수당 줘야 한다" — 6개월전 고지+10일전 통보 둘 다 이행해야 면제.
-- [ ] **cheongyak-score** — "청약 가점 84점 만점, 이렇게 배분된다 + 당첨 포기의 함정" — 무주택32+부양가족35+통장17. 포기시 재당첨제한 최대10년.
+- [x] **annual-leave** (guides/annual-leave-usage-promotion-6month-10day-notice.html, 2026-08-26) — "연차 사용촉진제도, 회사가 이 절차 안 지키면 수당 줘야 한다" — 6개월전 고지+10일전 통보 둘 다 이행해야 면제.
+- [x] **cheongyak-score** (guides/cheongyak-score-84-points-breakdown-giveup-penalty.html, 2026-08-26) — "청약 가점 84점 만점, 이렇게 배분된다 + 당첨 포기의 함정" — 무주택32+부양가족35+통장17. 포기시 재당첨제한 최대10년.
 - [x] **credit-loan-limit** (guides/credit-loan-overdraft-dsr-full-limit-trap.html, 2026-08-25) — "신용대출 한도, DSR만으로 안 끝나는 이유: 마이너스통장의 함정" — 마이너스통장은 실인출액 아닌 설정한도 전체로 DSR 반영. (계산기 자체엔 전용 로직 없음, 기존대출 월상환액 필드에 수동 환산 입력 필요)
 - [x] **electricity-cost-calculator** (guides/electricity-progressive-tariff-seasonal-relaxation.html, 2026-08-25) — "한국 전기요금 누진제 3단계, 여름·겨울엔 왜 완화되나" — 200/201~400/400초과 3단계. **참고**: 이 계산기 자체는 누진제 구간 로직이 전혀 없는 단순 kWh×단가 계산기(가전제품 비교용).
 - [x] **four-insurance** (guides/four-insurance-employer-burden-structure.html, 2026-08-20) — "사업주가 근로자보다 4대보험을 더 많이 낸다? 숨은 부담 구조" — 산재보험 평균1.47%는 전액 사업주 부담.
@@ -153,10 +153,10 @@ REJECT(4개, 이유 있음): salary(기존 가이드와 중복), salary-negotiat
 - [x] **curl-parser** (guides/curl-parser-d-flag-implicit-post.html, 2026-08-25) — "curl -d만 쓰고 -X 안 써도 POST로 잡히는 이유" — -X없이 -d있으면 자동 POST 판정(실제 재현 확인).
 - [x] **dns-lookup** (guides/dns-propagation-ttl-explained.html, 2026-08-19) — "DNS 전파는 왜 최대 48시간이나 걸리나 — TTL의 원리" — TTL3600초=1시간 캐시.
 - [x] **graphql-formatter** (guides/graphql-formatter-hash-comment-vs-string.html, 2026-08-25) — "GraphQL 포맷터가 문자열 속 #을 주석으로 착각하지 않는 법" — 문자열 placeholder 치환 후 복원(실제 구현 확인).
-- [ ] **graphql-query-builder** — "GraphQL 쿼리 빌더의 타입 자동추론, 이름만 보고 어떻게 아나" — id로 끝나면 ID!, count/limit은 Int!.
-- [ ] **http-request-builder** — "CORS 프리플라이트(OPTIONS)는 언제 발생하나 — 3가지 조건" — 비단순 메서드/Content-Type/커스텀헤더.
+- [x] **graphql-query-builder** (guides/graphql-query-builder-type-inference-naming.html, 2026-08-26) — "GraphQL 쿼리 빌더의 타입 자동추론, 이름만 보고 어떻게 아나" — id로 끝나면 ID!, count/limit은 Int!. **추가발견**: `/id$/`에 `^` 앵커 없어 "paid"/"valid" 등도 ID!로 오탐.
+- [x] **http-request-builder** (guides/http-request-builder-cors-preflight-3-conditions.html, 2026-08-26) — "CORS 프리플라이트(OPTIONS)는 언제 발생하나 — 3가지 조건" — 비단순 메서드/Content-Type/커스텀헤더. (안내문구만, 실시간 검증은 미제공)
 - [x] **json-to-yaml** (guides/json-to-yaml-auto-quoting-reserved-words.html, 2026-08-25) — "JSON→YAML 변환기가 문자열에 멋대로 따옴표를 씌우는 이유" — true/false/null처럼 보이면 자동인용.
-- [ ] **keyword-grouping-tool** — "검색 의도 분류와 키워드 클러스터링은 다른 개념이다" — 4대 검색의도 키워드 사전매칭.
+- [x] **keyword-grouping-tool** (guides/keyword-grouping-search-intent-vs-clustering.html, 2026-08-26) — "검색 의도 분류와 키워드 클러스터링은 다른 개념이다" — 4대 검색의도 키워드 사전매칭(진짜 클러스터링 아님, 순서상 첫 매칭만 적용 확인).
 - [x] **mime-type-finder** (guides/mime-type-sniffing-nosniff-header.html, 2026-08-21) — "MIME 스니핑이 뭐길래 보안 헤더가 필요한가" — X-Content-Type-Options:nosniff로 방지. (이 도구 자체는 매직바이트가 아닌 file.type/확장자 기준 판별)
 - [x] **number-converter** (guides/number-converter-twos-complement-negative.html, 2026-08-21) — "2의 보수, 컴퓨터가 음수를 표현하는 방법" — 0xFFFFFFFF=-1.
 - [x] **redirect-checker** (guides/redirect-checker-301-302-307-308-explained.html, 2026-08-21) — "301 vs 302 vs 307 vs 308, 리다이렉트 코드 헷갈리지 않는 법" — 307/308은 HTTP메서드 보존.
@@ -165,11 +165,13 @@ REJECT(4개, 이유 있음): salary(기존 가이드와 중복), salary-negotiat
 - [x] **sitemap-validator** (guides/sitemap-changefreq-priority-google-ignores.html, 2026-08-25) — "changefreq·priority, 구글은 사실 무시한다" — 사이트맵 1개당 최대5만URL·50MB.
 - [x] **slug-generator** (guides/slug-generator-nfd-unicode-normalization.html, 2026-08-21) — "URL 슬러그 생성기가 café를 caf-zrich로 안 만드는 이유" — NFD 정규화로 결합기호만 제거.
 - [x] **sql-validator** (guides/sql-validator-not-a-real-parser.html, 2026-08-25) — "SQL 유효성 검사기는 사실 파서가 아니다 — 괄호·따옴표·키워드 3가지만 본다" — 순서 뒤죽박죽이어도 통과(실제 재현 확인).
-- [ ] **tailwind-color-generator** — "가장 비슷한 Tailwind 색상을 찾는 법 — RGB 대신 CIE Lab을 쓰는 이유" — 인간 색지각 비례 거리계산.
+- [x] **tailwind-color-generator** (guides/tailwind-color-cielab-perceptual-distance.html, 2026-08-26) — "가장 비슷한 Tailwind 색상을 찾는 법 — RGB 대신 CIE Lab을 쓰는 이유" — 인간 색지각 비례 거리계산(실제 코드 확인).
 - [x] **unit-converter** (guides/unit-converter-gb-vs-gib-binary-decimal.html, 2026-08-21) — "GB와 GiB는 왜 다른가 — 하드디스크 용량이 실제보다 작아 보이는 이유" — 500GB→실제 약465GiB표시. **참고**: 이 도구는 "GB" 단위가 사실상 GiB(2진법)로 계산되고 있음(라벨과 실제 계산 불일치).
 - [x] **webhook-tester** (guides/webhook-signature-timing-attack-constant-time.html, 2026-08-25) — "웹훅 서명 검증, === 대신 XOR로 비교하는 이유 — 타이밍 공격 방어" — 상수시간 비교 로직(실제 구현 확인).
 - [x] **whois-lookup** (guides/whois-rdap-protocol-transition.html, 2026-08-20) — "WHOIS는 죽었다? RDAP가 대체하는 이유" — HTTPS+JSON 구조화 응답.
-- [ ] **yaml-to-json** — "YAML→JSON 변환기가 쿠버네티스 매니페스트에서 실패하는 이유" — 다중문서 YAML(`---`)에서 에러.
+- [x] **yaml-to-json** (guides/yaml-to-json-kubernetes-multi-document-error.html, 2026-08-26) — "YAML→JSON 변환기가 쿠버네티스 매니페스트에서 실패하는 이유" — 다중문서 YAML(`---`)에서 에러(실제 재현 확인).
+
+(developer-tools 52/52 완료)
 
 REJECT(3개): ip-address-lookup(일반 네트워킹 상식 나열뿐), website-speed-estimator(범용 웹퍼포먼스 상식뿐), (json-schema-validator는 이미 클레임되어 제외).
 

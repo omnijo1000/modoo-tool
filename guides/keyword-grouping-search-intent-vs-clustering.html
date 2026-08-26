@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>검색 의도 분류와 키워드 클러스터링은 다른 개념이다 | MODOO HUB</title>
+<meta name="description" content="키워드 그룹화 도구가 실제로 하는 일은 사전 매칭 기반 검색 의도 분류이지 임베딩·SERP 중복도 기반 진짜 키워드 클러스터링이 아닙니다. 코드로 확인한 두 기법의 차이와 오해.">
+<link rel="canonical" href="https://modoohub.com/guides/keyword-grouping-search-intent-vs-clustering.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"검색 의도 분류와 키워드 클러스터링은 다른 개념이다","description":"키워드 그룹화 도구가 실제로 하는 일은 사전 매칭 기반 검색 의도 분류이지 임베딩·SERP 중복도 기반 진짜 키워드 클러스터링이 아닙니다.","datePublished":"2026-08-26","dateModified":"2026-08-26","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← 모두의 툴</a>
+</header>
+<main>
+  <h1>검색 의도 분류와 키워드 클러스터링은 다른 개념이다</h1>
+  <p class="meta">가이드 · 2026.08.26 최종 확인</p>
+
+  <p>"키워드 그룹화(grouping)"라는 이름 때문에 <a href="../keyword-grouping-tool.html">키워드 그룹화 툴</a>을 쓰면 의미가 비슷한 키워드끼리 자동으로 묶여서 콘텐츠 클러스터 기획까지 끝날 것으로 기대하는 경우가 많습니다. 하지만 실제 코드를 열어보면 이 도구가 하는 일은 완전히 다른 작업입니다. 이름은 비슷해도 기법이 다른 두 SEO 개념을 정확히 구분해 보겠습니다.</p>
+
+  <h2>1. 이름이 비슷해서 자주 섞이는 두 기법</h2>
+  <p>SEO 실무에서 "키워드를 묶는다"는 말은 최소 두 가지 완전히 다른 작업을 가리킬 수 있습니다.</p>
+  <table>
+    <tr><th>기법</th><th>목적</th><th>대표 방식</th></tr>
+    <tr><td>검색 의도 분류(Search Intent Classification)</td><td>키워드 하나하나가 "왜" 검색됐는지 목적을 4가지 범주로 태깅</td><td>키워드에 특정 단어("방법","이란","구매","가격" 등)가 포함됐는지 사전과 대조하는 규칙 기반 매칭</td></tr>
+    <tr><td>키워드 클러스터링(Keyword Clustering)</td><td>의미가 비슷한 키워드 여러 개를 하나의 콘텐츠 페이지로 묶기</td><td>임베딩 벡터 간 거리, 또는 실제 구글 SERP 결과의 중복도(같은 페이지가 여러 키워드에서 동시에 상위 노출되는지) 계산</td></tr>
+  </table>
+  <p>전자는 키워드 "개별"의 목적을 분류하는 일이고, 후자는 키워드 "여러 개 사이"의 관계를 계산하는 일입니다. 완전히 다른 입력·출력 구조를 가진 별개의 기법입니다.</p>
+
+  <h2>2. 이 도구가 실제로 하는 일: 사전 매칭 기반 의도 분류</h2>
+  <p><a href="../keyword-grouping-tool.html">키워드 그룹화 툴</a>의 실제 로직을 코드로 확인한 결과, <code>classifyKeyword()</code> 함수는 각 키워드를 소문자로 바꾼 뒤 <code>informational</code>·<code>commercial</code>·<code>transactional</code>·<code>navigational</code> 4개 카테고리에 미리 등록된 한국어·영어 단어 목록과 <strong>부분 문자열 포함 여부(includes)</strong>를 하나씩 대조합니다. 예를 들어 "방법", "이란", "가이드" 등의 단어가 포함되면 informational로, "구매", "가격", "할인" 등이 포함되면 transactional로 분류됩니다. 임베딩 모델도, 벡터 유사도 계산도, 외부 API 호출도 전혀 없는 순수한 <strong>정적 사전 매칭</strong>입니다.</p>
+  <div class="box">
+    <strong>실제 판정 예시</strong> (INTENT 딕셔너리 기준):
+    <table>
+      <tr><th>입력 키워드</th><th>매칭된 단어</th><th>분류 결과</th></tr>
+      <tr><td>SEO 최적화 방법</td><td>"방법" 포함</td><td>informational</td></tr>
+      <tr><td>SEO 도구 추천</td><td>"추천" 포함</td><td>commercial</td></tr>
+      <tr><td>SEO 도구 구매</td><td>"구매" 포함</td><td>transactional</td></tr>
+      <tr><td>모두의 툴 로그인</td><td>"로그인" 포함</td><td>navigational</td></tr>
+      <tr><td>백링크 구축 전략</td><td>사전에 없는 단어 조합</td><td>unknown (미분류)</td></tr>
+    </table>
+  </div>
+
+  <h2>3. 여러 카테고리 단어가 동시에 들어 있으면 어떻게 되나</h2>
+  <p>코드를 보면 카테고리는 <code>informational → commercial → transactional → navigational</code> 순서로 검사하고, <strong>가장 먼저 매치되는 카테고리에서 즉시 멈춥니다.</strong> 즉 한 키워드에 두 카테고리 단어가 동시에 들어 있어도 나중 카테고리로는 절대 분류되지 않습니다. 예를 들어 "SEO 도구 추천 가격 비교"처럼 커머셜 단어("추천")와 트랜잭셔널 단어("가격")가 함께 있으면, informational 사전에 걸리는 단어가 없다고 가정할 때 먼저 검사되는 commercial로 확정되고 transactional 여부는 아예 검사조차 되지 않습니다. 이건 진짜 클러스터링에는 없는, 사전 매칭 특유의 "선착순" 구조입니다.</p>
+
+  <h2>4. 진짜 키워드 클러스터링이 하는 일</h2>
+  <p>반면 진짜 클러스터링은 키워드 하나의 목적을 판정하는 게 아니라, 키워드 집합 안에서 "이 여러 개를 한 페이지에 담아도 되는가"를 계산합니다. 대표적으로 두 방식이 쓰입니다. 첫째는 각 키워드를 임베딩 벡터로 변환해 코사인 유사도가 일정 임계값 이상이면 같은 클러스터로 묶는 방식이고, 둘째는 각 키워드를 실제 구글에 검색했을 때 상위 10위 결과 URL이 서로 얼마나 겹치는지(SERP overlap)를 계산해 겹침이 크면 구글이 이미 두 키워드를 "같은 주제"로 취급한다고 보고 묶는 방식입니다. 두 방식 모두 외부 데이터(임베딩 모델 또는 실시간 SERP)가 필요하며, 이 사이트의 <a href="../keyword-grouping-tool.html">키워드 그룹화 툴</a>과 <a href="../keyword-clustering-tool.html">키워드 클러스터링 툴</a>은 별개의 도구로 존재합니다.</p>
+
+  <h2>5. 실무에서 어떻게 함께 쓰면 좋은가</h2>
+  <p>두 기법은 경쟁 관계가 아니라 순서가 다른 별개 단계입니다. 먼저 검색 의도 분류로 원시 키워드 목록을 4가지 목적별로 크게 나눠 콘텐츠 형식(가이드형/비교형/랜딩페이지형/브랜드형)을 결정하고, 그다음 같은 의도 그룹 안에서 클러스터링으로 세부 주제를 다시 묶어 필러-클러스터 콘텐츠 구조를 설계하는 순서가 일반적입니다. 의도 분류만 하고 클러스터링을 생략하면 같은 주제를 다루는 페이지가 여러 개로 쪼개져 <a href="../keyword-density-checker.html">키워드 밀도 검사기</a>로 개별 페이지를 아무리 최적화해도 사이트 전체의 토픽 권위도는 오르지 않습니다.</p>
+
+  <h2>자주 묻는 질문</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 키워드 그룹화 툴은 AI나 임베딩을 사용하나요?</summary><p style="margin-top:8px;">A. 아니요. 실제 코드는 소문자 변환 후 미리 등록된 한국어·영어 단어 목록과 부분 문자열 포함 여부를 대조하는 정적 사전 매칭만 수행합니다. 임베딩·API 호출은 전혀 없습니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 한 키워드가 여러 의도 단어를 동시에 포함하면 어떻게 되나요?</summary><p style="margin-top:8px;">A. informational → commercial → transactional → navigational 순서로 검사해 가장 먼저 매치되는 카테고리 하나로만 확정됩니다. 이후 카테고리는 검사되지 않습니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 사전에 없는 단어로만 이뤄진 키워드는 어떻게 분류되나요?</summary><p style="margin-top:8px;">A. 4가지 사전 어디에도 걸리지 않으면 "unknown(미분류)"으로 분류됩니다. 사전을 벗어난 표현이나 신조어는 분류되지 않을 수 있습니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 진짜 키워드 클러스터링은 이 사이트에서 어디서 하나요?</summary><p style="margin-top:8px;">A. 검색 의도 분류는 키워드 그룹화 툴, 의미 기반 클러스터링은 별도의 키워드 클러스터링 툴이 담당합니다. 이름이 비슷해 보여도 서로 다른 도구입니다.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. 사전 매칭 방식의 한계는 무엇인가요?</summary><p style="margin-top:8px;">A. 등록된 단어를 문자 그대로 포함하는지만 보므로 동의어·문맥·어순을 이해하지 못합니다. 예를 들어 사전에 없는 신조어나 은어는 무조건 미분류로 빠집니다.</p></details>
+
+  <div class="tool-links">
+    <a href="../keyword-grouping-tool.html">→ 키워드 그룹화 툴</a>
+    <a href="../keyword-clustering-tool.html">→ 키워드 클러스터링 툴</a>
+    <a href="../keyword-density-checker.html">→ 키워드 밀도 검사기</a>
+    <a href="../seo-title-generator.html">→ SEO 타이틀 생성기</a>
+    <a href="../schema-markup-generator.html">→ 스키마 마크업 생성기</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · 본 가이드는 일반 정보 제공 목적이며, 실제 SEO 전략 수립 시 검색 트렌드와 자사 데이터를 함께 확인하시기 바랍니다.</footer>
+</main>
+</body>
+</html>
