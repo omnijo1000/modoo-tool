@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why curl -d Alone (No -X) Still Sends a POST | MODOO HUB</title>
+<meta name="description" content="curl sends a POST request even without -X, as long as -d is present. We break down curl's own implicit rule, and why a parser that fails to reproduce it shows you the wrong result.">
+<link rel="canonical" href="https://modoohub.com/guides/curl-parser-d-flag-implicit-post-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/curl-parser-d-flag-implicit-post.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/curl-parser-d-flag-implicit-post-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/curl-parser-d-flag-implicit-post.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Why curl -d Alone (No -X) Still Sends a POST","description":"curl sends a POST request even without -X, as long as -d is present. We break down curl's own implicit rule, and why a parser that fails to reproduce it shows you the wrong result.","datePublished":"2026-08-26","dateModified":"2026-08-26","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Why curl -d Alone (No -X) Still Sends a POST</h1>
+  <p class="meta">Guide · Last verified Aug 26, 2026</p>
+
+  <p>You've probably seen a command like <code>curl -d '{"key":"value"}' https://example.com</code> in API docs or in a browser dev tool's "Copy as cURL." There's no visible -X POST, yet this request actually goes out as POST, not GET. Most people only know "no -X means the default is GET," so this behavior is confusing the first time you see it. This guide explains why -d alone changes the method, and what goes wrong when a parsing tool fails to reproduce this exact rule.</p>
+
+  <h2>1. curl's Default Method Rule: Conditional GET</h2>
+  <p>curl's official manual reveals that the method behavior isn't as simple as it first appears. Skip the -X/--request option entirely and curl "defaults" to GET — but that default has an exception. If any data-sending option like -d, --data, --data-raw, --data-binary, or --data-urlencode is present, curl automatically switches the method to POST. So the accurate rule isn't "no -X means GET, no matter what" — it's "no -X and no data means GET; data present means POST." This isn't some arbitrary convenience feature curl bolted on — because the HTTP spec generally says a GET request shouldn't carry a body, the mere presence of a body is treated as a strong signal that "this isn't a GET."</p>
+
+  <h2>2. Why This Keeps Causing Confusion: Docs and Tools Don't Agree</h2>
+  <p>This rule gets misunderstood often because the three sources you actually run into in practice each have their own habits.</p>
+  <ul>
+    <li><strong>Official API documentation</strong>: For clarity, docs often make a habit of always spelling out -X POST explicitly. This easily creates the impression that "cURL examples always have -X."</li>
+    <li><strong>Browser DevTools' "Copy as cURL"</strong>: Even when the actual request method was POST, Chrome/Firefox sometimes omit -X and only include -d, leaving it up to curl's own rule regardless of what method was actually sent.</li>
+    <li><strong>Hand-written scripts</strong>: A developer thinks "obviously it's POST since I'm using -d" and omits -X on purpose. This usually works as intended, but in code review it's hard to tell whether -X was left out knowingly or because the author didn't know the rule.</li>
+  </ul>
+  <p>All three cases end up producing the same POST request, but because the command looks different on the surface each time, the same question — "is this valid syntax?" — keeps coming back up.</p>
+
+  <h2>3. What Goes Wrong When a Parsing Tool Misses This Rule</h2>
+  <p>This rule matters especially for tools that analyze a cURL command and break it down into URL, method, headers, and body. If a tool naively implements "whatever comes after -X is the method, otherwise GET," it will show the wrong result for the following very common input.</p>
+  <div class="box">
+    <strong>Example input</strong>: <code>curl -d '{"name":"Alice"}' https://api.example.com/users</code><br>
+    <strong>What curl actually does</strong>: sends an automatic POST request because -d is present<br>
+    <strong>A parser that ignores the rule</strong>: shows GET as the default because -X is absent → gives a result that doesn't match reality, leaving the user confused when comparing it against the API server's logs
+  </div>
+  <table>
+    <tr><th>Input form</th><th>Method curl actually sends</th><th>Wrong answer from a rule-less parser</th></tr>
+    <tr><td>No -X, no -d</td><td>GET</td><td>GET (matches)</td></tr>
+    <tr><td>No -X, -d present</td><td>POST</td><td>GET (mismatch)</td></tr>
+    <tr><td>-X GET, -d present</td><td>GET (kept as explicitly specified)</td><td>GET (matches)</td></tr>
+    <tr><td>-X PUT, -d present</td><td>PUT</td><td>PUT (matches)</td></tr>
+  </table>
+  <p>So the problem only occurs in exactly one combination — no -X, -d present — but the trap is that this happens to be the most common pattern in real-world usage. The <a href="../curl-parser.html?lang=en">cURL Parser</a> is built to correct the default GET to POST specifically when -X is absent and a body is present, so it matches real curl's behavior even for this very common pattern.</p>
+
+  <h2>4. How to Verify This Yourself</h2>
+  <p>If you'd rather see the rule with your own eyes before trusting a tool, run it in verbose mode in a terminal, e.g. <code>curl -v -d 'test=1' https://example.com 2>&1 | grep "&gt; POST"</code>. The -v flag prints the actual outgoing HTTP request line (<code>&gt; POST / HTTP/1.1</code>), letting you verify the curl binary's own behavior directly, without going through any documentation or third-party tool. If you just want to check a command's breakdown online, paste it into the <a href="../curl-parser.html?lang=en">cURL Parser</a> and see how the Method field is displayed.</p>
+
+  <h2>5. Related Mistakes People Often Make Alongside This</h2>
+  <p>Beyond the -d/method rule, there are a few other common points of confusion when working with cURL commands. One is breaking a command by mishandling quoting when attaching multiple headers with -H; another is needing to go the other way — building a fresh cURL command from an already-completed request. For the latter case, the <a href="../curl-generator.html?lang=en">cURL Generator</a> lets you fill in form fields to build a command in reverse, and if you want to inspect the structure of an API response nicely, the <a href="../api-tester.html?lang=en">API Tester</a> or <a href="../json-viewer.html?lang=en">JSON Viewer</a> are handy companions.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. What happens if I use -X GET together with -d?</summary><p style="margin-top:8px;">When you explicitly specify the method with -X, that value is kept as-is. The automatic POST correction only applies when -X is entirely absent, so -X GET -d '...' is an unusual but valid combination that sends a GET request carrying a body (how the server chooses to handle that is a separate question).</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does the same rule apply to --data-raw or --data-binary?</summary><p style="margin-top:8px;">Yes. Not just -d/--data — --data-raw, --data-binary, and --data-urlencode, all options that put data in the body, equally trigger the switch to POST whenever -X is absent.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does -F (multipart form upload) follow the same rule?</summary><p style="margin-top:8px;">Yes — -F/--form also sends a body, so using it without -X triggers the same automatic POST. Uploading a file over GET wouldn't make sense in the first place.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does this rule differ across curl versions?</summary><p style="margin-top:8px;">This has been curl's default behavior for a long time and is consistently maintained across the versions in wide use today. That said, if you want to confirm the exact behavior, checking the latest docs via <code>curl --manual</code> or the official manual page is always the safest bet.</p></details>
+
+  <div class="tool-links">
+    <a href="../curl-parser.html?lang=en">→ cURL Parser</a>
+    <a href="../curl-generator.html?lang=en">→ cURL Generator</a>
+    <a href="../api-tester.html?lang=en">→ API Tester</a>
+    <a href="../http-request-builder.html?lang=en">→ HTTP Request Builder</a>
+    <a href="../json-viewer.html?lang=en">→ JSON Viewer</a>
+    <a href="../webhook-tester.html?lang=en">→ Webhook Tester</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general informational purposes. For the exact behavior of any given option, please refer to the official manual (curl --manual) for the curl version you're using.</footer>
+</main>
+</body>
+</html>

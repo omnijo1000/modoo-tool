@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3 Encoding Traps That Make CSV Diff Flag Every Row as Changed | MODOO HUB</title>
+<meta name="description" content="Three reasons a CSV diff tool marks every row of two identical-content files as changed — EUC-KR/CP949 encoding, UTF-8 BOM, and delimiter mismatch, broken down at the code level with a pre-check routine.">
+<link rel="canonical" href="https://modoohub.com/guides/csv-diff-encoding-bom-delimiter-traps-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/csv-diff-encoding-bom-delimiter-traps.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/csv-diff-encoding-bom-delimiter-traps-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/csv-diff-encoding-bom-delimiter-traps.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"3 Encoding Traps That Make CSV Diff Flag Every Row as Changed","description":"Three reasons a CSV diff tool marks every row of two identical-content files as changed — EUC-KR/CP949 encoding, UTF-8 BOM, and delimiter mismatch, broken down at the code level with a pre-check routine.","datePublished":"2026-08-26","dateModified":"2026-08-26","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>3 Encoding Traps That Make CSV Diff Flag Every Row as Changed</h1>
+  <p class="meta">Guide · Last verified Aug 26, 2026</p>
+
+  <p>"The data is clearly identical, but the CSV diff tool marks every row as 'changed'" — in practice this almost never means the data actually changed. It's a text-encoding mismatch happening before the comparison even starts. MODOO HUB's <a href="../csv-diff-checker.html?lang=en">CSV Diff Checker</a> matches rows by treating the first column as a key, but it does not automatically detect or correct character encoding, BOM, or delimiter problems that exist before parsing even begins. This guide breaks down those three traps by root cause.</p>
+
+  <h2>1. Trap 1: EUC-KR/CP949 vs UTF-8 Encoding Mismatch</h2>
+  <p>CSV files produced in Korea are often saved with EUC-KR or CP949 as the default encoding when exported from Excel as "CSV (Comma delimited)." Paste such a file into an editor or browser that interprets it as UTF-8 and the Korean text turns into garbled characters (mojibake). If one of two CSV files is saved as UTF-8 and the other as EUC-KR, then even though the underlying Korean value is the same, the byte sequences are completely different — so from the diff logic's point of view, the two strings were never the same value to begin with. The result: nearly every cell containing Korean text, such as names or addresses, gets flagged as "changed."</p>
+
+  <h2>2. Trap 2: Presence or Absence of a UTF-8 BOM (Byte Order Mark)</h2>
+  <p>Windows Notepad and some versions of Excel prepend an invisible 3-byte BOM (U+FEFF) to the start of a file when saving as UTF-8. Compare a file that has this BOM against one that doesn't, and the very first cell value (usually the first column name in the header, or the first cell of the first row) ends up with one extra invisible character attached only in one file. Visually, <code>id</code> and <code>id</code> look identical, but the actual strings are <code>"﻿id"</code> and <code>"id"</code> — different from each other. This causes the common bug where the first column, whether it's a header or data, is always treated as "different."</p>
+
+  <h2>3. Trap 3: Delimiter Mismatch</h2>
+  <p>Excel in European and Korean locales sometimes defaults to semicolon (;) as the CSV delimiter, while US-locale Excel uses comma (,). The <a href="../csv-diff-checker.html?lang=en">CSV Diff Checker</a> lets you manually pick comma, tab, or semicolon at the top of the screen — but if the two files were actually saved with different delimiters and you select the same delimiter for both, one file's columns never get split at all, and the entire line is read as a single cell value. Once that happens, matching by the first "column" as a key effectively treats every single row as a distinct, unmatched value.</p>
+
+  <div class="box">
+    <strong>Real-world example</strong>: Take a 3-row member list with completely identical content, save one copy as EUC-KR, no BOM, comma-delimited, and the other as UTF-8, with BOM, semicolon-delimited. All three traps fire at once, and all 3 rows show up as "changed" — even though the data itself was never touched.
+  </div>
+  <table>
+    <tr><th>Cause</th><th>Symptom</th><th>Fix</th></tr>
+    <tr><td>EUC-KR vs UTF-8</td><td>Every Korean-text cell shows as different</td><td>Re-save both files as UTF-8 before comparing</td></tr>
+    <tr><td>Presence of a UTF-8 BOM</td><td>Only the first column always shows as different</td><td>Standardize on UTF-8 without BOM</td></tr>
+    <tr><td>Delimiter mismatch (,/;/tab)</td><td>Nearly every row shows as "changed"</td><td>Check each file's actual delimiter and select the same one in the tool</td></tr>
+  </table>
+
+  <h2>4. A 3-Minute Checklist Before You Compare</h2>
+  <ul>
+    <li>Open both files in Notepad, VS Code, or similar, and match the encoding label shown in the status bar first (UTF-8, UTF-8 with BOM, ANSI/CP949, etc.).</li>
+    <li>Check whether the very first character of the first line starts with an invisible character, and confirm the first header column name matches exactly what you expect.</li>
+    <li>Open the file and visually confirm whether the actual delimiter is a comma, semicolon, or tab, then set the tool's delimiter option to match.</li>
+  </ul>
+  <p>If the values still come out different after fixing all three of these, that's when you're looking at a real data change. Until the encoding is aligned, don't trust the <a href="../csv-diff-checker.html?lang=en">CSV Diff Checker</a>'s output as proof that "the data actually changed."</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does the tool automatically detect encoding or BOM and warn me?</summary><p style="margin-top:8px;">No. Since it works by pasting text, it only receives and compares strings the browser has already decoded — it does not automatically detect or warn about the original file's encoding or BOM. You need to standardize the encoding yourself before comparing.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. If only the first column keeps showing as different, what should I suspect first?</summary><p style="margin-top:8px;">The BOM (Byte Order Mark). If every other column looks fine but the first column keeps showing "changed," there's a very high chance one of the two files has a UTF-8 BOM and the other doesn't.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. What happens if I select the wrong delimiter?</summary><p style="margin-top:8px;">The entire line fails to split and is read as a single value, so the value used as the first column (the key) effectively becomes the whole row's text. As a result, nearly every row fails to match and shows up as added/deleted instead.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. How are values that contain a comma inside a cell handled?</summary><p style="margin-top:8px;">A quoted field (e.g. "value,with,commas") is parsed correctly — the parser ignores delimiters that appear inside quotes. This only works, though, when the delimiter itself has been selected correctly in the first place.</p></details>
+
+  <div class="tool-links">
+    <a href="../csv-diff-checker.html?lang=en">→ CSV Diff Checker</a>
+    <a href="../csv-viewer.html?lang=en">→ CSV Viewer</a>
+    <a href="../csv-to-json.html?lang=en">→ CSV to JSON Converter</a>
+    <a href="../unicode-inspector.html?lang=en">→ Unicode Inspector</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general informational purposes. For important data comparisons, we recommend directly verifying the source files' encoding and delimiter before proceeding.</footer>
+</main>
+</body>
+</html>

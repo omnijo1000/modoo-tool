@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>When the cURL Generator Breaks Silently — Shell Escaping Asymmetry | MODOO HUB</title>
+<meta name="description" content="Why a cURL command generator safely escapes single quotes in the body (-d) but leaves headers, URLs, and tokens untouched — broken down from shell quoting rules, with real code and examples of exactly where it breaks.">
+<link rel="canonical" href="https://modoohub.com/guides/curl-generator-shell-escaping-asymmetry-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/curl-generator-shell-escaping-asymmetry.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/curl-generator-shell-escaping-asymmetry-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/curl-generator-shell-escaping-asymmetry.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"When the cURL Generator Breaks Silently — Shell Escaping Asymmetry","description":"Why a cURL command generator safely escapes single quotes in the body (-d) but leaves headers, URLs, and tokens untouched — broken down from shell quoting rules.","datePublished":"2026-08-26","dateModified":"2026-08-26","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>When the cURL Generator Breaks Silently — Shell Escaping Asymmetry</h1>
+  <p class="meta">Guide · Last verified Aug 26, 2026</p>
+
+  <p>If you've ever typed a header value into the <a href="../curl-generator.html?lang=en">cURL Generator</a>, copied the resulting command, pasted it into a terminal, and gotten a mysterious syntax error — the cause is likely not a bug in the tool but the quoting rules of the shell itself (bash and friends). This guide breaks down, at the code level, why the single quote (') gets special treatment in the shell, and why that structurally forces any tool that auto-generates cURL commands to behave differently depending on which field you're filling in.</p>
+
+  <h2>1. Why Even a Backslash Means Nothing Inside Single Quotes</h2>
+  <p>In bash and other POSIX-style shells, a string wrapped in single quotes is treated as "fully literal." Wrap it in double quotes (") instead, and backslash escapes still work for a handful of characters like <code>\"</code>, <code>\\</code>, and <code>\$</code> — but inside single quotes, there are no exceptions at all. Even a backslash is treated as a plain literal character. As a result, there is no way, within shell syntax itself, to put a single quote inside a single-quoted string — there's no mechanism to "escape and ignore" the very character that started the quoting in the first place.</p>
+
+  <h2>2. Which Is Why the `'...'\''...'` Trick Exists</h2>
+  <p>The only way around this limitation is to split the quoted section into pieces. To safely pass the string <code>It's broken</code> to the shell, you write <code>'It'\''s broken'</code>. This is a concatenation of three pieces: ① <code>'It'</code> — the literal "It" in single quotes, ② <code>\'</code> — a single quote character, escaped with a backslash outside of any quoting, ③ <code>'s broken'</code> — the literal "s broken," again in single quotes. Because the shell joins adjacent tokens with no space between them, the final result is the single word "It's broken." Any tool that programmatically inserts user input into a shell command needs to apply this transformation automatically to be safe.</p>
+
+  <h2>3. The cURL Generator's Actual Code: Body Is Safe, Everything Else Is Not</h2>
+  <p>A direct inspection of modoohub's cURL Generator code shows that this transformation is <strong>not applied consistently</strong>. The part that assembles the request body (-d) correctly applies exactly the three-step trick above, via <code>body.replace(/'/g,"'\\''")</code>. The parts that assemble header values, the Bearer token, and the URL, however, only wrap the value in single quotes as <code>-H 'header-name: header-value'</code> — they never escape single quotes appearing inside that value. In other words, within the very same command, the safety level differs depending on which field you're looking at: an <strong>asymmetric structure</strong>. This isn't unique to this tool — it's a common implementation pattern where only the body gets escaping attention while headers get waved off with "the values are short, it'll probably be fine."</p>
+
+  <h2>4. A Real-World Example: An Apostrophe in a Header Value</h2>
+  <p>Say you enter <code>It's broken</code> as a custom header value. The generator produces the following command.</p>
+  <table>
+    <tr><th>Stage</th><th>Content</th></tr>
+    <tr><td>Header value you entered</td><td>X-Note: It's broken</td></tr>
+    <tr><td>Generated command fragment</td><td><code>-H 'X-Note: It's broken'</code></td></tr>
+    <tr><td>How the shell actually reads it</td><td><code>'X-Note: It'</code> (literal) + <code>s</code> (a word joined with no space) → the argument value is transformed into "X-Note: Its", and then the shell hits the unclosed single quote in <code>broken'</code> and either throws a syntax error or hangs waiting for input</td></tr>
+  </table>
+  <p>In an interactive terminal, the prompt switches to <code>&gt;</code> and waits indefinitely for a closing single quote to appear. Run as a script, it ends with an error like <code>unexpected EOF while looking for matching \`''</code>. A single common apostrophe in a short value is enough to make the entire command behave nothing like what you intended.</p>
+
+  <h2>5. When It's Safe, and When You Need to Fix It Yourself</h2>
+  <ul>
+    <li><strong>Bearer tokens</strong>: JWTs and API keys are usually made up only of alphanumerics plus <code>.</code>, <code>-</code>, and <code>_</code>, so apostrophes rarely show up here. In practice, this field causing problems is rare.</li>
+    <li><strong>Custom header values</strong>: Risk goes up once you're typing human-written, note-style headers (e.g. <code>X-Note</code>, <code>X-Comment</code>) or short English phrases with contractions.</li>
+    <li><strong>URL query parameters</strong>: If you drop free-text search terms directly into a query string, apostrophes can easily sneak in.</li>
+    <li><strong>Workaround</strong>: The safest approach is to visually review the generated command before running it, or to manually apply the <code>'\''</code> trick to any value that might be problematic before pasting it in.</li>
+  </ul>
+
+  <h2>Frequently Asked Questions</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Why is the cURL Generator's body (-d) field safe?</summary><p style="margin-top:8px;">Because the code processes the body value with <code>body.replace(/'/g,"'\\''")</code>, automatically converting every single quote in the value into the three-step form the shell can read safely. This processing is not applied to the header, URL, or Bearer token fields.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Wouldn't wrapping the value in double quotes (") solve this?</summary><p style="margin-top:8px;">It would solve the apostrophe problem, but it introduces new ones: inside double quotes, <code>$</code> (variable expansion), <code>`</code> (command substitution), and <code>\</code> (escaping) all get special treatment. If any of these characters end up in the value, there's a risk they get unintentionally interpreted as a shell command or variable — so it's not a fundamental fix.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does the same problem happen in Windows PowerShell?</summary><p style="margin-top:8px;">PowerShell's quoting rules differ from bash's (it escapes a single quote inside single-quoted text by writing two single quotes in a row). This guide is based on bash/zsh, the default shells on macOS/Linux — pasting a command generated here directly into PowerShell may break in a different way.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. What's the simplest way to avoid this problem?</summary><p style="margin-top:8px;">If there's any chance a header value or URL might contain a single quote, don't run the generator's output as-is — manually fix just that value using the <code>'\''</code> pattern before running it. Alternatively, you can use the <a href="../regex-generator.html?lang=en">Regex Generator</a> to check ahead of time whether a value contains an apostrophe.</p></details>
+
+  <div class="tool-links">
+    <a href="../curl-generator.html?lang=en">→ cURL Command Generator</a>
+    <a href="../http-request-builder.html?lang=en">→ HTTP Request Builder</a>
+    <a href="../api-tester.html?lang=en">→ API Tester</a>
+    <a href="../webhook-tester.html?lang=en">→ Webhook Tester</a>
+    <a href="../json-validator.html?lang=en">→ JSON Validator</a>
+    <a href="../regex-generator.html?lang=en">→ Regex Generator</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general informational purposes. Please review any generated command yourself before using it in a production environment.</footer>
+</main>
+</body>
+</html>

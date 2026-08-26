@@ -1,6 +1,6 @@
 # 가이드 영어(EN) 번역 진행 상황
 
-**마지막 갱신**: 2026-08-26  |  **진행률**: 20/176
+**마지막 갱신**: 2026-08-26  |  **진행률**: 30/176
 
 ## 배경 & 방식
 
@@ -34,7 +34,7 @@
 ## 진행 현황 (카테고리별)
 | 카테고리 | 완료/전체 |
 |---|---|
-| 개발자 도구 (developer-tools) | 20/52 |
+| 개발자 도구 (developer-tools) | 30/52 |
 | 텍스트 도구 (text-tools) | 0/32 |
 | 이미지 도구 (image-tools) | 0/24 |
 | 생성기 도구 (generator-tools) | 0/21 |
@@ -45,23 +45,23 @@
 
 ---
 
-## 개발자 도구 (developer-tools) — 20/52
+## 개발자 도구 (developer-tools) — 30/52
 
-- [ ] `api-response-viewer-large-integer-rounding` ← tool: `api-response-viewer`
-- [ ] `api-tester-cors-vs-network-error-typeerror` ← tool: `api-tester`
-- [ ] `canonical-tag-duplicate-google-ignores-both` ← tool: `canonical-tag-checker`
+- [x] `api-response-viewer-large-integer-rounding` ← tool: `api-response-viewer`
+- [x] `api-tester-cors-vs-network-error-typeerror` ← tool: `api-tester`
+- [x] `canonical-tag-duplicate-google-ignores-both` ← tool: `canonical-tag-checker`
 - [x] `cron-spring-quartz-vs-crontab` ← tool: `cron-generator`
 - [x] `css-beautifier-char-by-char-nesting-scss-limit` ← tool: `css-beautifier`
 - [x] `css-color-shorthand-minification` ← tool: `css-minifier`
-- [ ] `csv-diff-encoding-bom-delimiter-traps` ← tool: `csv-diff-checker`
-- [ ] `curl-generator-shell-escaping-asymmetry` ← tool: `curl-generator`
-- [ ] `curl-parser-d-flag-implicit-post` ← tool: `curl-parser`
-- [ ] `dns-propagation-ttl-explained` ← tool: `dns-lookup`
-- [ ] `graphql-formatter-hash-comment-vs-string` ← tool: `graphql-formatter`
-- [ ] `graphql-query-builder-type-inference-naming` ← tool: `graphql-query-builder`
+- [x] `csv-diff-encoding-bom-delimiter-traps` ← tool: `csv-diff-checker`
+- [x] `curl-generator-shell-escaping-asymmetry` ← tool: `curl-generator`
+- [x] `curl-parser-d-flag-implicit-post` ← tool: `curl-parser`
+- [x] `dns-propagation-ttl-explained` ← tool: `dns-lookup`
+- [x] `graphql-formatter-hash-comment-vs-string` ← tool: `graphql-formatter`
+- [x] `graphql-query-builder-type-inference-naming` ← tool: `graphql-query-builder`
 - [x] `html-minifier-regex-pre-textarea-bug` ← tool: `html-minifier`
 - [x] `html-to-markdown-structural-loss` ← tool: `html-to-markdown`
-- [ ] `http-request-builder-cors-preflight-3-conditions` ← tool: `http-request-builder`
+- [x] `http-request-builder-cors-preflight-3-conditions` ← tool: `http-request-builder`
 - [x] `javascript-beautifier-brace-counting-for-loop-bug` ← tool: `javascript-beautifier`
 - [x] `javascript-minifier-string-boundary-regex-risk` ← tool: `javascript-minifier`
 - [ ] `json-schema-null-array-type-gaps` ← tool: `json-schema-generator`

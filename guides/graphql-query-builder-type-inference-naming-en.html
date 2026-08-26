@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GraphQL Query Builder's Type Inference — How Does It Guess From a Name Alone? | MODOO HUB</title>
+<meta name="description" content="A code-level breakdown of how the GraphQL Query Builder infers variable types from naming patterns alone, with no schema introspection — including the real-world regex misclassifications, like anything ending in \"id\" becoming ID!.">
+<link rel="canonical" href="https://modoohub.com/guides/graphql-query-builder-type-inference-naming-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/graphql-query-builder-type-inference-naming.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/graphql-query-builder-type-inference-naming-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/graphql-query-builder-type-inference-naming.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"GraphQL Query Builder's Type Inference — How Does It Guess From a Name Alone?","description":"A code-level breakdown of how the GraphQL Query Builder infers variable types from naming patterns alone, with no schema introspection, including the real-world regex misclassifications.","datePublished":"2026-08-26","dateModified":"2026-08-26","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>GraphQL Query Builder's Type Inference — How Does It Guess From a Name Alone?</h1>
+  <p class="meta">Guide · Last verified Aug 26, 2026</p>
+
+  <p>When you write a GraphQL query, you have to declare a type for every variable, like <code>$userId: ID!</code>. Yet if you type just <code>$userId</code> into the <a href="../graphql-query-builder.html?lang=en">GraphQL Query Builder</a>, it automatically appends <code>ID!</code> for you. It never queried a server schema — so how did it know the type? The answer is: it didn't. What's actually happening is regex matching that guesses purely from the spelling pattern of the variable name. Here's a code-level breakdown of how that works, and where it breaks.</p>
+
+  <h2>1. Normally, Introspection Is How You'd Know the Type</h2>
+  <p>GraphQL servers typically expose a <strong>schema introspection</strong> feature. Send built-in meta-queries like <code>__schema</code> or <code>__type</code> to the server, and it returns the full definition of every available type, field, and argument as JSON. This is exactly why tools like GraphQL Playground or Apollo Studio can offer autocomplete — they've already fetched that introspection data ahead of time. In principle, a type isn't something you "guess" — it's something you "confirm" by asking the server.</p>
+
+  <h2>2. But This Builder Never Asks the Server</h2>
+  <p>MODOO HUB's GraphQL Query Builder is a static, browser-only tool — it never connects to an actual GraphQL endpoint. With no server and no schema to query, if you type <code>$variableName</code> into an argument value, something still has to fill in the <code>query ($variableName: Type)</code> declaration at the top of the query. The method the tool settled on is: <strong>run the argument name (key) through regex patterns and guess a type from its spelling</strong>. Here's what the actual <code>inferVarType()</code> function does.</p>
+  <table>
+    <tr><th>Check order</th><th>Regex condition</th><th>Inferred type</th></tr>
+    <tr><td>1</td><td><code>/id$/i</code> — name ends in "id"</td><td>ID!</td></tr>
+    <tr><td>2</td><td><code>/^(is|has)[A-Z_]/i</code> or <code>/^(active|enabled|disabled)$/i</code></td><td>Boolean!</td></tr>
+    <tr><td>3</td><td><code>/^(count|limit|offset|page|number|num|amount|qty|quantity|year|month|day|age)$/i</code> (full match)</td><td>Int!</td></tr>
+    <tr><td>4</td><td>None of the above match</td><td>String!</td></tr>
+  </table>
+  <p>The key thing to note: this check runs only on the <strong>argument name (key), not the argument value</strong> — and even then, only when the value is a variable starting with <code>$</code>. If you just type a literal value like <code>"1"</code> or <code>true</code>, this logic never runs at all.</p>
+
+  <h2>3. Exactly Where the Misclassifications Happen</h2>
+  <p>Rule 1's <code>/id$/i</code> doesn't mean "the field name ends in the word id" — it matches <strong>any word whose last two characters happen to be i and d</strong>. So along with "userId," ordinary English words like "paid," "valid," "grid," and "avoid" all pass this condition and get misclassified as <code>ID!</code>. A value that should really be a boolean or a string ends up locked into the wrong type, purely because of a naming-convention pattern.</p>
+  <div class="box">
+    <strong>Real misclassification example</strong> — entering the value "$valid" for the argument key "valid":
+    <table>
+      <tr><th>Variable name</th><th>Why the regex matched</th><th>Actual tool output</th><th>Intended type</th></tr>
+      <tr><td>userId</td><td>Ends in "id" → rule 1</td><td>ID!</td><td>ID! (correct)</td></tr>
+      <tr><td>valid</td><td>Last two letters of "valid" are "id" → rule 1</td><td>ID!</td><td>Boolean! (mismatch)</td></tr>
+      <tr><td>paid</td><td>Last two letters are "id" → rule 1</td><td>ID!</td><td>Boolean! (mismatch)</td></tr>
+      <tr><td>isActive</td><td>"is" + capital letter → rule 2</td><td>Boolean!</td><td>Boolean! (correct)</td></tr>
+      <tr><td>title</td><td>Matches no rule → default</td><td>String!</td><td>String! (correct)</td></tr>
+    </table>
+  </div>
+  <p>Rules 2 and 3 are relatively safe by comparison. The Boolean rule is anchored (<code>^</code>) so the is/has prefix must be immediately followed by a capital letter or underscore, and the Int rule requires a full-string match (<code>^...$</code>), so there's no room for a partial-match false positive. The only rule that anchors just the end (<code>$</code>) without also anchoring the start (<code>^</code>) is rule 1 — and that's the one that misfires.</p>
+
+  <h2>4. What to Do About It in Practice</h2>
+  <p>After using this builder to rough out a query quickly, it's worth developing the habit of eyeballing the variable declarations at the top of the generated query once before you ship it. In particular, if an argument name happens to be a common English word ending in "id" (paid, valid, grid, avoid, solid, etc.), treat the auto-inferred type as unreliable and fix it by hand. If you need the exact type from a real production schema, don't rely on this tool — check the server's introspection result or verify separately with the <a href="../json-schema-validator.html?lang=en">JSON Schema Validator</a> instead. And if you want to clean up the syntax of the generated query itself, pairing it with the <a href="../graphql-formatter.html?lang=en">GraphQL Formatter</a> is a good idea.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does this tool actually query a real GraphQL server's schema?</summary><p style="margin-top:8px;">No. It's a fully static, browser-only tool that never connects to any server. The "type" it shows is just a regex guess based on the spelling of the argument name.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does type inference run on literal values like "1" or true?</summary><p style="margin-top:8px;">No. The inference logic only runs when the argument value is a variable starting with <code>$</code>. Literal values are never subject to inference.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Why do names like "paid" or "valid" get misclassified as ID!?</summary><p style="margin-top:8px;">Because the ID! rule doesn't check "is the name exactly id" — it checks "do the last two characters of the name happen to be i and d." Any English word that coincidentally ends that way triggers it.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Do the Boolean and Int inference rules have the same problem?</summary><p style="margin-top:8px;">Much less so. The Boolean rule only matches when a capital letter or underscore immediately follows the is/has prefix, and the Int rule requires the entire string to match exactly — so the odds of a partial-match false positive are low.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. How do I fix a misinferred type?</summary><p style="margin-top:8px;">The generated query textarea isn't read-only — it's editable output you can copy and modify directly. Just change the type string in the variable declaration to whatever you actually need.</p></details>
+
+  <div class="tool-links">
+    <a href="../graphql-query-builder.html?lang=en">→ GraphQL Query Builder</a>
+    <a href="../graphql-formatter.html?lang=en">→ GraphQL Formatter</a>
+    <a href="../json-schema-validator.html?lang=en">→ JSON Schema Validator</a>
+    <a href="../api-tester.html?lang=en">→ API Tester</a>
+    <a href="../curl-generator.html?lang=en">→ cURL Generator</a>
+    <a href="../regex-generator.html?lang=en">→ Regex Generator</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes. For your actual production schema and type definitions, always verify against server introspection or the official documentation.</footer>
+</main>
+</body>
+</html>

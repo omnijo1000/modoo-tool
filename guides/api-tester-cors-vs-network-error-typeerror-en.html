@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CORS Error vs. Network Error: Why Browsers Won't Tell You Which | MODOO HUB</title>
+<meta name="description" content="fetch() reports both a CORS block and a dead server as the exact same TypeError. This guide covers the security reasoning behind the browser hiding the real cause, and how to actually tell them apart.">
+<link rel="canonical" href="https://modoohub.com/guides/api-tester-cors-vs-network-error-typeerror-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/api-tester-cors-vs-network-error-typeerror.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/api-tester-cors-vs-network-error-typeerror-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/api-tester-cors-vs-network-error-typeerror.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"CORS Error vs. Network Error: Why Browsers Won't Tell You Which","description":"fetch() reports both a CORS block and a dead server as the exact same TypeError. This guide covers the security reasoning behind the browser hiding the real cause, and how to actually tell them apart.","datePublished":"2026-08-26","dateModified":"2026-08-26","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>CORS Error vs. Network Error: Why Browsers Won't Tell You Which</h1>
+  <p class="meta">Guide · Last verified Aug 26, 2026</p>
+
+  <p>You've probably called an API from the browser and gotten nothing but "request failed," with no way to tell what actually went wrong. Was a header missing on the server? Or was the server just down? The code alone can't tell you. This isn't a mistake developers keep making — it's because the browser's <code>fetch()</code> API is deliberately designed to withhold that information. This guide covers why it's designed that way, and what you actually need to look at to figure out the real cause.</p>
+
+  <h2>1. Two very different failures, lumped into one TypeError</h2>
+  <p>When a <code>fetch()</code> request fails to get a response at all, there are broadly two possible causes. One is a CORS policy violation, where the browser blocks the response from ever reaching your JavaScript. The other is a pure network failure — the server is down, DNS resolution failed, the connection never got established in the first place. The causes are completely different, but <code>fetch()</code> throws the exact same exception either way: <code>TypeError: Failed to fetch</code>. No matter how closely you inspect <code>error.message</code> inside your <code>catch</code> block, there's no clue as to which one it was.</p>
+
+  <h2>2. Why the browser deliberately hides the reason</h2>
+  <p>This isn't a bug — it's a security decision. If fetch told your JavaScript the difference between "blocked because CORS headers were missing" and "the server never responded," a malicious script could use that distinction to probe an internal network the user is logged into: does a server actually exist there and respond (but get blocked by CORS), or does it not exist at all (a network error)? To prevent that kind of information leak, the spec itself requires both failure modes to be surfaced as the same opaque error. It's inconvenient for developers, but it's a deliberate tradeoff made to avoid handing attackers useful information.</p>
+
+  <h2>3. The code alone won't answer it — checking DevTools instead</h2>
+  <p>Since the exception object thrown by <code>fetch()</code> carries no distinguishing information, finding the actual cause means opening your browser's developer tools directly. The <strong>Network tab</strong> shows whether the request reached the server at all (whether a response status code shows up) or failed outright while still pending. The <strong>Console tab</strong> is where the browser logs a separate warning on a CORS violation (something like "has been blocked by CORS policy") — a message that JavaScript code can't read programmatically, and that only a human looking at the console can see.</p>
+  <table>
+    <tr><th>Where to check</th><th>If blocked by CORS</th><th>If it's a pure network error</th></tr>
+    <tr><td>Network tab status</td><td>Request reaches the server, response comes back (status code is visible)</td><td>The request itself fails (shown as pending/failed)</td></tr>
+    <tr><td>Console log</td><td>Warning shown: "blocked by CORS policy"</td><td>No CORS-related log</td></tr>
+    <tr><td>What catch(e) sees in JS</td><td>TypeError: Failed to fetch</td><td>TypeError: Failed to fetch (identical)</td></tr>
+  </table>
+
+  <h2>4. How MODOO HUB's API Tester handles this</h2>
+  <p>Looking at the actual request-handling code in the <a href="../api-tester.html?lang=en">API Tester</a>, it's implemented like this:</p>
+  <div class="box">
+    <strong>Actual code logic</strong>: <code>catch(e){ if(e.name==='TypeError'){ /* show a message covering a CORS block or a network error */ } }</code><br>
+    In other words, this tool openly acknowledges the browser's limitation — that <code>e.name</code> alone can't distinguish CORS from a network error — and shows a message covering both possibilities at once: "This may have been blocked by CORS policy, or it could be a typo'd URL, a down server, or a network connection issue." Not committing to a single cause is itself the correct design here.
+  </div>
+
+  <h2>5. A checklist for narrowing down the real cause</h2>
+  <ul>
+    <li><strong>Call the same URL with a different tool</strong>: if a tool like <code>curl</code> or Postman — which aren't subject to the browser's CORS policy — succeeds against the same URL, the problem is very likely CORS. If it fails there too, it's a server-side problem.</li>
+    <li><strong>Look for a CORS warning in the Console</strong>: if the browser's warning log mentions "Access-Control-Allow-Origin," you can confirm it's a CORS issue.</li>
+    <li><strong>Check whether a status code shows up in the Network tab</strong>: if a status code (200, 404, 500, etc.) appears, the request did reach the server — so the issue isn't network connectivity, it's a missing CORS header.</li>
+  </ul>
+
+  <h2>Frequently Asked Questions</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Are there other exception names besides TypeError I might see?</summary><p style="margin-top:8px;">A. Yes. If the URL itself is malformed, a different error can occur right at the fetch call. And if the request reaches the server and gets back a response code (404, 500, etc.), that's not treated as an exception at all — it's a normal response. The TypeError-for-both-CORS-and-network-errors behavior only applies when the request itself fails outright.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Can a CORS problem be fixed from the client side?</summary><p style="margin-top:8px;">A. No. Whether CORS is allowed can only be resolved by the server setting the right response header (Access-Control-Allow-Origin). The only client-side workaround is to route the call through your own server as a proxy, making it a server-to-server request instead.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does calling an HTTP API from an HTTPS page trigger the same error?</summary><p style="margin-top:8px;">A. Yes. A Mixed Content policy violation also gets blocked by the browser outright, and from JavaScript's point of view it looks like the exact same TypeError as a CORS or network error. You can tell it apart by checking whether the Console tab shows a "Mixed Content" warning.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Can the MODOO HUB API Tester confirm for certain whether it's CORS?</summary><p style="margin-top:8px;">A. No. This tool uses the browser's fetch as-is, so it has the same limitation. It only shows both possibilities together — confirming which one it actually is requires checking the Network/Console tabs yourself, or reproducing the request with a tool like curl outside the browser.</p></details>
+
+  <div class="tool-links">
+    <a href="../api-tester.html?lang=en">→ API Tester</a>
+    <a href="../curl-generator.html?lang=en">→ cURL Generator</a>
+    <a href="../curl-parser.html?lang=en">→ cURL Parser</a>
+    <a href="../http-request-builder.html?lang=en">→ HTTP Request Builder</a>
+    <a href="../cors-header-checker.html?lang=en">→ CORS Header Checker</a>
+    <a href="../http-header-checker.html?lang=en">→ HTTP Header Checker</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes. Please diagnose the actual cause using your browser's developer tools directly.</footer>
+</main>
+</body>
+</html>
