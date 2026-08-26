@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JS Minifier's String-Corruption Risk: Warnings Fire in the Wrong Place | MODOO HUB</title>
+<meta name="description" content="A regex-based JS minifier that can't recognize string literals may delete //, /* */, and whitespace inside a string as if it were real code. We dig through the actual per-option source to see what's safe, what's risky, and why the on-screen warning fires in the wrong place.">
+<link rel="canonical" href="https://modoohub.com/guides/javascript-minifier-string-boundary-regex-risk-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/javascript-minifier-string-boundary-regex-risk.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/javascript-minifier-string-boundary-regex-risk-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/javascript-minifier-string-boundary-regex-risk.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"JS Minifier's String-Corruption Risk: Warnings Fire in the Wrong Place","description":"Of the JS minifier's 5 regex-based options, which ones recognize string boundaries and which don't — verified against the actual source with reproducible examples.","datePublished":"2026-08-26","dateModified":"2026-08-26","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>JS Minifier's String-Corruption Risk: Warnings Fire in the Wrong Place</h1>
+  <p class="meta">Guide · Last verified Aug 26, 2026</p>
+
+  <p>A minifier that strips comments and whitespace using regex alone carries the same class of trap as the SQL minifier's <code>--</code> bug or the GraphQL minifier's <code>#</code> bug. If it can't recognize the boundaries of a string literal, it can mistake a pattern that merely looks like a comment — but happens to be sitting inside a string — for real code, and delete it. We read through the actual source of the <a href="../javascript-minifier.html?lang=en">JS Minifier</a>, function by function, to see which options fall into this trap and which don't.</p>
+
+  <h2>1. The Fundamental Problem With Regex-Based Minification</h2>
+  <p>Properly parsing a programming language requires tracking exactly where string literals begin and end. The <code>//</code> inside <code>"http://example.com"</code> isn't a comment — it's just text — but a regex with no concept of string boundaries treats the entire source as flat text and has no way to tell the two apart. A safe minifier typically protects string and template literals first by swapping them out for placeholders, strips comments and whitespace, and only then restores the originals. We read the source directly to check whether this tool actually goes through that kind of protection step.</p>
+
+  <h2>2. Five Options, Five Different Levels of Safety</h2>
+  <p>The short version: only one of the five options recognizes strings — the other four don't.</p>
+  <table>
+    <tr><th>Option</th><th>Implementation</th><th>String-protected?</th></tr>
+    <tr><td>Remove // comments</td><td>Character-by-character scanner (<code>stripLineComments</code>)</td><td>Protected — recognizes escape sequences when it hits a quote and skips over the entire string</td></tr>
+    <tr><td>Remove /* */ comments</td><td>Regex <code>/\/\*[\s\S]*?\*\//g</code> applied directly to the raw text</td><td>Not protected</td></tr>
+    <tr><td>Remove newlines</td><td>Regex <code>/\r?\n/g</code> applied to the raw text</td><td>Not protected</td></tr>
+    <tr><td>Collapse consecutive whitespace</td><td>Regex <code>/\s{2,}/g</code> applied to the raw text</td><td>Not protected</td></tr>
+    <tr><td>Remove space around operators</td><td>Regex stripping whitespace around =, +, -, commas, parens, etc.</td><td>Not protected</td></tr>
+  </table>
+  <p>Only <code>Remove // comments</code> is written as a character-by-character loop that skips an entire string outright whenever it hits a quote character (<code>"</code>, <code>'</code>, <code>`</code>), so a <code>//</code> inside a string literal is genuinely safe there. The other four options, by contrast, all apply a regex to the raw source text as-is — there's no concept of a string boundary at all.</p>
+
+  <h2>3. Reproducing It Directly: An http:// URL Is Surprisingly Safe</h2>
+  <p>We tried the case people worry about most: code like <code>const url = "http://example.com"; // stop here</code>.</p>
+  <div class="box">
+    <strong>Input</strong>: <code>const url = "http://example.com"; // stop here</code><br>
+    <strong>Output</strong>: <code>const url="http://example.com";</code><br>
+    The <code>//</code> inside the URL string is left untouched, and only the real end-of-line comment (<code>// stop here</code>) is removed correctly.
+  </div>
+  <p>That's because <code>stripLineComments</code> passes every character inside a string — including escape sequences — straight through once it hits a quote, and only treats the string as "closed" when it hits the matching closing quote. In other words, the most commonly feared risk scenario is actually already handled correctly by this tool.</p>
+
+  <h2>4. The Genuinely Dangerous Case: The Block-Comment Regex</h2>
+  <p>By contrast, <code>Remove /* */ comments</code> makes no distinction whatsoever between code and string content, so if a string value happens to contain both <code>/*</code> and <code>*/</code>, everything between them is actually deleted.</p>
+  <div class="box">
+    <strong>Input</strong>: <code>const note = "/* this is just a string */";</code><br>
+    <strong>Output</strong>: <code>const note="";</code><br>
+    The string value is wiped out entirely — the program keeps running with no error, silently holding a different value than intended.
+  </div>
+  <p>Removing space around operators, removing newlines, and collapsing consecutive whitespace are all dangerous for the same reason. For example, if a string value is <code>"a = b"</code>, the operator-spacing regex can turn it into <code>"a=b"</code>. Outside of code, that would just be a style difference — but here it changes the actual "value" of the string, which is genuine data corruption.</p>
+
+  <h2>5. Why the On-Screen Warning Fires in the Wrong Place</h2>
+  <p>When <code>optLineComments</code> is enabled, this tool runs a separate check — <code>/["'`].*\/\//.test(j)</code> — to test whether a <code>//</code> appears inside a string, and shows a warning banner if it does. But as shown above, <code>Remove // comments</code> itself already skips strings safely, so every situation that triggers this warning is, in fact, already being handled safely. Meanwhile, the genuinely dangerous regexes — the block-comment removal and the newline/whitespace/operator-spacing removals — have no such check logic at all, so no warning ever appears at the moment a string is actually being corrupted. The warning system and the actual risk are pointing at two different places entirely.</p>
+
+  <h2>6. How You Should Actually Minify in Practice</h2>
+  <p>This tool also has no separate handling for regex literals (<code>/.../</code>), so if a regex pattern contains whitespace or a hyphen — characters that fall inside the operator character class — it can get stripped just like ordinary code. It doesn't support variable-name shortening (mangling) either. It's a fine fit for quickly shrinking a short, simple snippet, but for anything actually shipping to production, an AST-based tool like Terser, esbuild, or webpack — which parses strings, regex literals, and comments correctly using a real parser — is the safer choice. On the other hand, if you're minifying a format like JSON where <code>//</code> or <code>/*</code> almost never shows up inside a string value, the <a href="../json-minifier.html?lang=en">JSON Minifier</a> is more predictable, and for CSS or HTML, the <a href="../css-minifier.html?lang=en">CSS Minifier</a> and <a href="../html-minifier.html?lang=en">HTML Minifier</a> respectively steer clear of these language-specific traps. When you need to reverse minification back to a readable form, see the <a href="../javascript-beautifier.html?lang=en">JS Beautifier</a>.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Is it safe to minify code that contains URL strings?</summary><p style="margin-top:8px;">The Remove // comments option itself is a character-by-character scanner, so URL strings like http:// are preserved safely. That said, if block-comment removal or whitespace removal are also enabled on the same code, those regexes don't distinguish strings, so you need to watch out for them separately.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. If no warning appears on screen, is it safe to assume nothing broke?</summary><p style="margin-top:8px;">No. The warning only checks whether a // appears inside a string — and that specific case is already handled safely. The genuinely riskier block-comment, whitespace, and operator-spacing regexes have no check logic at all. The absence of a warning is no guarantee that a string wasn't corrupted.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. What happens to code that contains regex literals?</summary><p style="margin-top:8px;">This tool doesn't recognize regex literals (/.../) as a distinct case, so if the regex pattern contains whitespace or a hyphen, it gets processed the same as ordinary code — which risks altering the pattern.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. So when is it actually appropriate to use this tool?</summary><p style="margin-top:8px;">It's fine for quickly checking a short, simple snippet where strings are unlikely to contain /*, */, or operator symbols. For code that genuinely can't afford to break — like production deployment code — use an AST-based tool such as Terser or esbuild instead.</p></details>
+
+  <div class="tool-links">
+    <a href="../javascript-minifier.html?lang=en">→ JS Minifier</a>
+    <a href="../javascript-beautifier.html?lang=en">→ JS Beautifier</a>
+    <a href="../css-minifier.html?lang=en">→ CSS Minifier</a>
+    <a href="../html-minifier.html?lang=en">→ HTML Minifier</a>
+    <a href="../json-minifier.html?lang=en">→ JSON Minifier</a>
+    <a href="../sql-minifier.html?lang=en">→ SQL Minifier</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes — always double-check your minification output yourself before shipping to production.</footer>
+</main>
+</body>
+</html>

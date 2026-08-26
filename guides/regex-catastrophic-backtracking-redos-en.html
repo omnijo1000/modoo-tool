@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Greedy vs Lazy Regex Matching and Catastrophic Backtracking (ReDoS) Explained | MODOO HUB</title>
+<meta name="description" content="Why do + and * quantifiers default to greedy matching, and why do nested quantifiers trigger exponentially slow catastrophic backtracking (ReDoS)? A full walkthrough with real examples.">
+<link rel="canonical" href="https://modoohub.com/guides/regex-catastrophic-backtracking-redos-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/regex-catastrophic-backtracking-redos.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/regex-catastrophic-backtracking-redos-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/regex-catastrophic-backtracking-redos.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Greedy vs Lazy Regex Matching and Catastrophic Backtracking (ReDoS) Explained","description":"Why do + and * quantifiers default to greedy matching, and why do nested quantifiers trigger exponentially slow catastrophic backtracking (ReDoS)? A full walkthrough with real examples.","datePublished":"2026-08-26","dateModified":"2026-08-26","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"What exactly is the difference between greedy and lazy matching?","acceptedAnswer":{"@type":"Answer","text":"Quantifiers like +, *, and {n,} default to greedy matching: they first consume the maximum possible length, then give characters back one at a time (backtracking) whenever the rest of the pattern fails, until the whole thing matches. Adding a question mark — +?, *? — makes them lazy instead: they start by trying the minimum length and only consume one more character at a time when the rest of the pattern fails."}},
+{"@type":"Question","name":"Why is a pattern like (a+)+ dangerous?","acceptedAnswer":{"@type":"Answer","text":"Because the outer + and the inner + can split the same characters into groups in many different ways. For example, splitting six a's into 6 groups or into 3 groups both end up matching the whole string 'aaaaaa,' so the number of such combinations explodes to roughly 2^n as the character count grows. When the input ultimately fails to match, the engine has to try every one of those combinations via backtracking, which makes it look like it has simply frozen."}},
+{"@type":"Question","name":"What real damage can ReDoS do to a live service?","acceptedAnswer":{"@type":"Answer","text":"If server code validating user input (email, password, URL, etc.) contains a vulnerable regex, an attacker only needs to send a single carefully crafted long string designed to ultimately fail to match, and the thread or process handling that request pegs its CPU at 100% and hangs. Even a handful of concurrent requests like that can push the whole server into a denial-of-service state where it can't process anyone else's requests."}},
+{"@type":"Question","name":"Is it safe to test dangerous patterns with this site's regex tester?","acceptedAnswer":{"@type":"Answer","text":"regex-tester.html runs whatever pattern you enter directly in the browser's JavaScript engine, with no execution time limit of its own. Combining a catastrophic-backtracking pattern with a long input can make that tab become unresponsive, so when experimenting with dangerous patterns, start with short strings (around 10-20 characters) and increase the length gradually to feel out the effect."}},
+{"@type":"Question","name":"How do I fix a nested quantifier to make it safe?","acceptedAnswer":{"@type":"Answer","text":"The key is not wrapping the same character set in two layers of quantifiers. Check first whether you can collapse (a+)+ into a+, or (a|aa)+ into a+, by removing the outer quantifier and consolidating into a single inner one. If the group structure is genuinely necessary, design the alternatives inside it to be mutually exclusive so they don't match overlapping strings, and if you're still not confident, it's safer to use a regex library that enforces an execution time limit on the engine itself, such as re2 or safe-regex."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+code{font-family:'DM Mono',monospace;background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-size:13px;color:var(--accent);}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+.box code{white-space:pre-wrap;word-break:break-all;}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Greedy vs Lazy Regex Matching and Catastrophic Backtracking (ReDoS) Explained</h1>
+  <p class="meta">Guide · Last verified Aug 26, 2026</p>
+
+  <p>Work with quantifiers like <code>+</code> and <code>*</code> in regex long enough and eventually you'll hit a moment where a browser tab or server process just freezes solid. When that happens in a regex validating user input, it's not just a bug — it becomes an open door for denial-of-service (DoS) attacks. This guide breaks down the greedy and lazy matching behavior behind it, and walks through real examples of why nested quantifiers cause exponentially slow "catastrophic backtracking."</p>
+
+  <h2>1. Greedy matching — the default behavior of quantifiers</h2>
+  <p>Quantifiers like <code>+</code> (one or more), <code>*</code> (zero or more), and <code>{n,}</code> (n or more) are <strong>greedy</strong> by default in regex engines. Greedy means the engine first consumes as many characters as it possibly can. For example, apply <code>&lt;.+&gt;</code> to the string <code>&lt;b&gt;bold&lt;/b&gt;</code>, and <code>.+</code> first swallows everything to the end of the string, then gives characters back one at a time until it finds a position where the following <code>&gt;</code> matches (that giving-back process is <strong>backtracking</strong>). The result is that the whole thing matches from the first <code>&lt;b&gt;</code> all the way through the last <code>&lt;/b&gt;</code>, rather than just the first tag. Quantifiers with a question mark appended — <code>+?</code>, <code>*?</code> — are <strong>lazy</strong> instead: they try the minimum length (0 or 1 characters) first, and only consume one more character when the rest of the pattern fails. Apply <code>&lt;.+?&gt;</code> to the same string and it stops right at the first <code>&lt;b&gt;</code>, matching only that one tag. So the difference between greedy and lazy is really just direction — "eat a lot first, then back off" versus "eat little, then push forward" — both rely on the same underlying mechanism: backtracking.</p>
+
+  <h2>2. Why nested quantifiers are dangerous — an exponential explosion of paths</h2>
+  <p>The real trouble isn't a single quantifier, but a <strong>quantifier nested inside another quantifier</strong> — patterns like <code>(a+)+</code> or <code>(a|aa)+</code>. These patterns can end up producing the same overall match result by splitting the same stretch of the string into groups in many different ways. Matching <code>(a+)+</code> against <code>aaaa</code>, the inner group could swallow all of <code>aaaa</code> in one shot, or split it as <code>aaa</code> + <code>a</code> across two passes, or <code>aa</code> + <code>aa</code>, or <code>a</code> + <code>a</code> + <code>a</code> + <code>a</code> — every possible way of chopping the characters into groups is equally valid. The number of ways to split n a's grows roughly proportional to 2^(n-1). If the input ultimately matches, the engine stops as soon as it finds one valid combination, so there's no real problem. But attach something that can never match — a single <code>!</code> at the end of the string, for instance — and everything changes. To confirm that not a single combination succeeds, the engine has to try every possible way of splitting the string via backtracking, and that's exactly what "catastrophic backtracking" is.</p>
+
+  <div class="box">
+    <strong>Real example</strong>: try the regex <code>/(a+)+$/</code> against a string made of 50 a's in a row followed by an exclamation mark that guarantees the match can never succeed — that is,<br><code>"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa!"</code> — and you'll see "no match" pop up almost instantly at short lengths (10-15 a's), but as the count climbs to 30, 40, then 50, the processing time noticeably doubles each time you add a few more. <code>$</code> only matches at the very end of the string, and the trailing <code>!</code> makes success impossible from the start, so the engine has to try every way of splitting up <code>a+</code> before it can even confirm failure. At 50 a's, that's roughly 2^49 paths to check — on a real server, a single request like this can pin one CPU core essentially forever.
+  </div>
+
+  <h2>3. How to avoid this in practice</h2>
+  <p>The most reliable fix is to simply <strong>never wrap the same character set in two layers of quantifiers</strong>. <code>(a+)+</code> ultimately matches the exact same language as <code>a+</code>, so stripping the outer group and quantifier solves it. You should be equally suspicious of patterns like <code>(a|aa)+</code>, where the alternatives inside the group overlap. Second, use anchors like <code>^</code> and <code>$</code> appropriately to limit how far backtracking can spread in the first place, and favor specific character classes like <code>[0-9]</code> over broad ones like <code>.</code> where possible. Third, since JavaScript's native <code>RegExp</code> doesn't support backtracking-suppression syntax like atomic groups or possessive quantifiers, if a situation lets user input determine the regex itself (search filters, custom validation rules, etc.), placing a hard limit on execution time is the fundamental defense. In Node.js, common approaches include running regex execution in a worker thread with a forced timeout, or swapping in a linear-time engine from the RE2 family. Ultimately, this isn't a minor syntax slip — it's an <strong>algorithmic limitation of backtracking-based NFA engines</strong> — so you need both "write patterns carefully" and "make sure a dangerous pattern can't take the whole process down" working together.</p>
+
+  <h2>4. Summary — a checklist for writing regex</h2>
+  <ul>
+    <li><strong>Check for nested quantifiers</strong>: look first for shapes like <code>(x+)+</code>, <code>(x*)*</code>, or <code>(x|xx)+</code> anywhere in the pattern.</li>
+    <li><strong>Remove overlapping alternatives</strong>: check whether the alternatives inside a group can match the same string, and make them mutually exclusive.</li>
+    <li><strong>Guard against untrusted input</strong>: if user input flows directly into a regex, or users can supply the regex itself, always enforce an execution time limit.</li>
+  </ul>
+
+  <h2>Frequently Asked Questions</h2>
+  <details class="faq-item"><summary>Q. What exactly is the difference between greedy and lazy matching?</summary><p>A. Quantifiers like +, *, and {n,} default to greedy matching: they first consume the maximum possible length, then give characters back one at a time (backtracking) whenever the rest of the pattern fails, until the whole thing matches. Adding a question mark — +?, *? — makes them lazy instead: they start by trying the minimum length and only consume one more character at a time when the rest of the pattern fails.</p></details>
+  <details class="faq-item"><summary>Q. Why is a pattern like (a+)+ dangerous?</summary><p>A. Because the outer + and the inner + can split the same characters into groups in many different ways. For example, splitting six a's into 6 groups or into 3 groups both end up matching the whole string 'aaaaaa,' so the number of such combinations explodes to roughly 2^n as the character count grows. When the input ultimately fails to match, the engine has to try every one of those combinations via backtracking, which makes it look like it has simply frozen.</p></details>
+  <details class="faq-item"><summary>Q. What real damage can ReDoS do to a live service?</summary><p>A. If server code validating user input (email, password, URL, etc.) contains a vulnerable regex, an attacker only needs to send a single carefully crafted long string designed to ultimately fail to match, and the thread or process handling that request pegs its CPU at 100% and hangs. Even a handful of concurrent requests like that can push the whole server into a denial-of-service state where it can't process anyone else's requests.</p></details>
+  <details class="faq-item"><summary>Q. Is it safe to test dangerous patterns with this site's regex tester?</summary><p>A. regex-tester.html runs whatever pattern you enter directly in the browser's JavaScript engine, with no execution time limit of its own. Combining a catastrophic-backtracking pattern with a long input can make that tab become unresponsive, so when experimenting with dangerous patterns, start with short strings (around 10-20 characters) and increase the length gradually to feel out the effect.</p></details>
+  <details class="faq-item"><summary>Q. How do I fix a nested quantifier to make it safe?</summary><p>A. The key is not wrapping the same character set in two layers of quantifiers. Check first whether you can collapse (a+)+ into a+, or (a|aa)+ into a+, by removing the outer quantifier and consolidating into a single inner one. If the group structure is genuinely necessary, design the alternatives inside it to be mutually exclusive so they don't match overlapping strings, and if you're still not confident, it's safer to use a regex library that enforces an execution time limit on the engine itself, such as re2 or safe-regex.</p></details>
+
+  <div class="tool-links">
+    <a href="../regex-tester.html?lang=en">→ Regex Tester</a>
+    <a href="../regex-generator.html?lang=en">→ Regex Generator</a>
+    <a href="../regex-cheatsheet.html?lang=en">→ Regex Cheatsheet</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general informational purposes only.</footer>
+</main>
+</body>
+</html>

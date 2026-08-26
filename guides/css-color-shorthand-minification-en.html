@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSS Minifier Color Shorthand Rules — Why #ffffff Becomes #fff | MODOO HUB</title>
+<meta name="description" content="A breakdown of the exact regex condition the CSS minifier uses to shrink #ffffff to #fff, why a value like #a1b2c3 can't be shortened, and how hex notation differs from rgb()/hsl() when it comes to shorthand.">
+<link rel="canonical" href="https://modoohub.com/guides/css-color-shorthand-minification-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/css-color-shorthand-minification.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/css-color-shorthand-minification-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/css-color-shorthand-minification.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"CSS Minifier's Color Code Shorthand Rule","description":"A breakdown of the exact condition under which the CSS minifier shrinks #ffffff to #fff, and why a value like #a1b2c3 can't be shortened.","datePublished":"2026-08-26","dateModified":"2026-08-26","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>CSS Minifier's Color Code Shorthand Rule</h1>
+  <p class="meta">Guide · Last verified Aug 26, 2026</p>
+
+  <p>If you've used the <a href="../css-minifier.html?lang=en">CSS Minifier</a>, you've probably noticed <code>#ffffff</code> getting shortened to <code>#fff</code> and wondered why some colors shrink while others stay the same length. This shorthand isn't a rough heuristic — it's decided by a single regular expression with a precise, well-defined condition. This guide walks through exactly what that condition is, and why color notations other than hex (rgb, hsl) don't get shortened the same way.</p>
+
+  <h2>1. The Real Condition for Shrinking a 6-Digit Hex to 3 Digits</h2>
+  <p>Per the CSS spec, the 3-digit hex code <code>#rgb</code> is interpreted exactly the same as the 6-digit form <code>#rrggbb</code> with each digit doubled. In other words, <code>#0f0</code> is treated internally by the browser identically to <code>#00ff00</code>. Flip that property around, and you get the rule: a 6-digit code can only be safely folded back into 3 digits when each of its R, G, and B digit-pairs happens to consist of the same character repeated twice. The R pair might be "ff", the G pair "00", the B pair "00" — each pair's two characters must match, and all three pairs must satisfy this at once. If even one pair has two different characters, there's no way to represent that information in 3 digits, so the shorthand simply isn't possible.</p>
+
+  <h2>2. The Actual Matching Logic, in Regex</h2>
+  <p>The regex the <a href="../css-minifier.html?lang=en">CSS Minifier</a> actually uses looks like this.</p>
+  <div class="box">
+    <strong>Actual regex</strong>: <code>/#([0-9a-fA-F])\1([0-9a-fA-F])\2([0-9a-fA-F])\3\b/g</code> → replaced with <code>'#$1$2$3'</code><br>
+    Here <code>\1</code>, <code>\2</code>, and <code>\3</code> are backreferences — they only match if the exact same character captured moments earlier appears again. In other words, the regex itself enforces the "each digit-pair must repeat the same character" rule as a matter of syntax, not just a description.
+  </div>
+  <p>Because of this structure, the test is stricter than eyeballing it would suggest. If even a single digit-pair doesn't match, the regex fails to match at all, and the original 6-digit code is passed through untouched.</p>
+
+  <h2>3. Colors That Shrink vs. Colors That Don't</h2>
+  <table>
+    <tr><th>Input</th><th>Digit pairs</th><th>Result</th><th>Why</th></tr>
+    <tr><td>#ffffff</td><td>ff / ff / ff</td><td>#fff</td><td>All three pairs have matching characters</td></tr>
+    <tr><td>#ff0000</td><td>ff / 00 / 00</td><td>#f00</td><td>All three pairs have matching characters</td></tr>
+    <tr><td>#a1b2c3</td><td>a1 / b2 / c3</td><td>Can't shrink (stays as-is)</td><td>a≠1, b≠2, c≠3 — all three pairs mismatch</td></tr>
+    <tr><td>#3b82f6</td><td>3b / 82 / f6</td><td>Can't shrink (stays as-is)</td><td>3≠b, 8≠2, f≠6 — all three pairs mismatch</td></tr>
+  </table>
+  <p><code>#a1b2c3</code> and <code>#3b82f6</code> in the table above are typical "can't shrink" cases. When the R pair's two characters differ, the backreference condition (<code>\1</code>) in the regex fails, and the same goes for the G and B pairs — so the whole pattern doesn't match. In practice, most brand colors and design-system color values are arbitrary combinations like these, so far more often than not, a 6-digit code stays exactly as it is. One more thing worth noting: the FAQ copy on the <a href="../css-minifier.html?lang=en">CSS Minifier</a> page itself states that "#ff9933 does not get shortened" — but running it through the actual regex shows otherwise. #ff9933's digit pairs (ff, 99, 33) all have matching characters, so it <strong>does</strong> get shortened to #f93. The code's actual behavior and the documentation example disagree here, so when you need to determine whether a color will shorten, trust the matching logic in this guide (the regex itself), not that FAQ line.</p>
+
+  <h2>4. Why rgb() and hsl() Don't Shrink the Same Way</h2>
+  <p>The <a href="../css-minifier.html?lang=en">CSS Minifier</a>'s color-shorthand rule is a regex that applies only to hex notation starting with <code>#</code>. Functional notations like <code>rgb(255,255,255)</code> or <code>hsl(0,0%,100%)</code> were never a target of that regex to begin with, so running them through the minifier only tidies up whitespace around the function name, parentheses, and commas — <code>rgb()</code> is never automatically converted into a shorter hex form like <code>#fff</code>. That's because this tool works purely through regex substitution: it never interprets the meaning of a value (the color itself), only its character pattern. If you actually want the smallest possible byte count, you're better off writing <code>#fff</code> directly instead of <code>rgb(255,255,255)</code> in your source. You can convert between notations with the <a href="../rgb-to-hex.html?lang=en">RGB→HEX Converter</a> or the <a href="../hex-to-rgb.html?lang=en">HEX→RGB Converter</a>, but that's a separate tool's job and has nothing to do with the minifier's own color-shorthand rule.</p>
+
+  <h2>5. Practical Checklist Before You Ship</h2>
+  <ul>
+    <li>If you standardize the hex values in your design tokens (things like <code>--primary-color</code>) to use shortenable forms (each digit-pair repeated) from the start, your compression ratio goes up automatically.</li>
+    <li>To check ahead of time whether a value can shrink, just split the 6-digit value into three pairs and check whether each pair's two characters match — that's the exact same logic described above.</li>
+    <li>For bigger savings, run the <a href="../css-beautifier.html?lang=en">CSS Beautifier</a> first to normalize formatting, then apply minification afterward.</li>
+  </ul>
+
+  <h2>Frequently Asked Questions</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Why doesn't #112233 shrink?</summary><p style="margin-top:8px;">It actually does shrink — the R pair is "11", G pair is "22", B pair is "33", and each pair on its own has two matching characters, so it becomes #123. By contrast, something like #123abc has digit-pairs made of different characters (1 and 2, 3 and a, b and c), so that one doesn't shrink.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does a hex value with mixed case (#FfFfFf) still shrink?</summary><p style="margin-top:8px;">The regex's character class [0-9a-fA-F] recognizes both upper- and lowercase, but the backreference (\1) requires an exact match against the captured character. So if upper- and lowercase are mixed within a pair (e.g. #Ff0000, where F and f are different characters), it won't match and won't shrink.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does an 8-digit hex with an alpha channel (#ffffffff) shrink too?</summary><p style="margin-top:8px;">This tool's regex only targets the 6-digit pattern (#rrggbb), so an 8-digit code with an alpha channel appended never matches and is left exactly as-is.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Do hex values inside SCSS variables get shortened too?</summary><p style="margin-top:8px;">This tool is a regex-based processor for plain CSS syntax only — it doesn't support SCSS directly. Compile your SCSS down to plain CSS first, and the color-shorthand rule will apply normally after that.</p></details>
+
+  <div class="tool-links">
+    <a href="../css-minifier.html?lang=en">→ CSS Minifier</a>
+    <a href="../css-beautifier.html?lang=en">→ CSS Beautifier</a>
+    <a href="../hex-to-rgb.html?lang=en">→ HEX→RGB Converter</a>
+    <a href="../rgb-to-hex.html?lang=en">→ RGB→HEX Converter</a>
+    <a href="../css-gradient-generator.html?lang=en">→ CSS Gradient Generator</a>
+    <a href="../tailwind-color-generator.html?lang=en">→ Tailwind Color Generator</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes; for specific situations we recommend consulting a qualified professional.</footer>
+</main>
+</body>
+</html>

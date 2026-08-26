@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spring/Quartz Cron vs Standard crontab — The Seconds Field Trap | MODOO HUB</title>
+<meta name="description" content="Linux crontab has 5 fields, but Spring @Scheduled and Quartz add an extra seconds field at the front. Learn why copying a crontab expression straight into Spring throws an exception, plus Quartz's day-of-month/day-of-week rule.">
+<link rel="canonical" href="https://modoohub.com/guides/cron-spring-quartz-vs-crontab-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/cron-spring-quartz-vs-crontab.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/cron-spring-quartz-vs-crontab-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/cron-spring-quartz-vs-crontab.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Spring/Quartz Cron vs Standard crontab — The Seconds Field Trap","description":"Linux crontab has 5 fields, but Spring @Scheduled and Quartz add an extra seconds field at the front. Learn why copying a crontab expression straight into Spring throws an exception, plus Quartz's day-of-month/day-of-week rule.","datePublished":"2026-08-26","dateModified":"2026-08-26","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"What happens if I paste crontab's \"0 9 * * MON-FRI\" straight into Spring's @Scheduled?","acceptedAnswer":{"@type":"Answer","text":"You'll get an IllegalArgumentException. Spring's cron parser expects exactly 6 fields (second minute hour day month weekday), so a 5-field standard crontab string is one field short and fails to parse. You need to add a seconds field at the front: \"0 0 9 * * MON-FRI\" runs every weekday at exactly 9:00:00 AM."}},
+{"@type":"Question","name":"Can Quartz cron specify both day-of-month and day-of-week at the same time?","acceptedAnswer":{"@type":"Answer","text":"No. Exactly one of the two fields must be a question mark (?) meaning 'not specified.' For example, \"run on the 15th of every month\" uses ? in the weekday slot: \"0 0 9 15 * ?\". \"Run every Monday\" uses ? in the day slot: \"0 0 9 ? * MON\". Using * (or a concrete value) in both fields at once throws a parser exception."}},
+{"@type":"Question","name":"Can standard Linux crontab use L (last) or W (nearest weekday)?","acceptedAnswer":{"@type":"Answer","text":"No. Special characters like L, W, and #(nth weekday) are extensions defined by Quartz and Spring, and they don't exist in the POSIX crontab spec. Registering \"0 0 L * *\" with crond will be ignored or rejected as an error, so if you need 'run on the last day of the month' in plain crontab, you have to work around it with a separate script that computes the actual last day."}},
+{"@type":"Question","name":"Is the seconds field in the same position for Spring and Quartz?","acceptedAnswer":{"@type":"Answer","text":"Yes, both put seconds as the first field. The order is second, minute, hour, day, month, weekday for both, and Quartz optionally allows one more field — year — at the very end, for up to 7 fields total."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Spring/Quartz Cron vs Standard crontab — The Seconds Field Trap</h1>
+  <p class="meta">Guide · Last verified Aug 26, 2026</p>
+
+  <p>If you've operated servers, you're probably comfortable with 5-field crontab expressions like <code>0 9 * * MON-FRI</code>. But paste <code>@Scheduled(cron="0 9 * * MON-FRI")</code> straight into a Spring Boot project and the app throws an <code>IllegalArgumentException</code> the moment it starts. The expression itself looks perfectly fine, so why does it fail? The answer is the field count — Spring and Quartz add an extra <strong>seconds field</strong> at the front that plain crontab doesn't have.</p>
+
+  <h2>1. The field count differs first: 5 vs 6</h2>
+  <p>Standard Linux crontab uses 5 fields — <code>minute hour day month weekday</code> — with "minute" as the smallest unit. Spring's cron parser, on the other hand, expects exactly 6 fields: <code>second minute hour day month weekday</code>. So to express "every day at 9:00 AM sharp, weekdays only" in Spring, you must add a seconds field of <code>0</code> at the front: <code>0 0 9 * * MON-FRI</code>. With only 5 fields, the parser throws an exception immediately. But if you accidentally shift the fields by one — say, putting a minute value where seconds should go — the app starts up fine and silently runs at a completely different time than intended.</p>
+
+  <table>
+    <tr><th>Type</th><th>Field order</th><th>Field count</th><th>Special chars</th></tr>
+    <tr><td>Standard crontab</td><td>minute hour day month weekday</td><td>5</td><td>* , - /</td></tr>
+    <tr><td>Spring @Scheduled</td><td>second minute hour day month weekday</td><td>6</td><td>* , - /</td></tr>
+    <tr><td>Quartz Scheduler</td><td>second minute hour day month weekday [year]</td><td>6–7</td><td>* , - / L W #</td></tr>
+  </table>
+
+  <h2>2. Quartz-only rule: day-of-month and day-of-week can't both be set</h2>
+  <p>Quartz has one more syntax rule beyond the field count. Between the day-of-month and day-of-week fields, <strong>exactly one must be a question mark (<code>?</code>)</strong> to mean "not specified." In crontab or Spring cron, putting <code>*</code> in both fields is perfectly fine, but Quartz treats that combination as ambiguous and rejects it at parse time. For "the 15th of every month," you use a question mark in the weekday slot: <code>0 0 9 15 * ?</code>. For "every Monday," you use a question mark in the day slot: <code>0 0 9 ? * MON</code>.</p>
+
+  <h2>3. L, W, # — syntax that doesn't exist in crontab</h2>
+  <p>When you want to specify the last day of the month, or the nearest weekday to a given date, Quartz and Spring cron support the <code>L</code> (Last) and <code>W</code> (Weekday) characters. <code>0 0 L * *</code> means midnight on the last day of every month, and <code>0 0 15W * *</code> means the nearest weekday to the 15th of every month. But these are extensions that don't exist in the POSIX standard crontab spec, so registering the same expression in a server's crontab gets it ignored or treated as a syntax error. If you need "the last day of the month" in plain crontab, you'll need to work around it with a shell script that computes the actual last date, e.g. via <code>date -d</code>, and register that script instead.</p>
+
+  <h2>4. Summary</h2>
+  <ul>
+    <li><strong>The field count is different</strong>: crontab has 5, Spring/Quartz add seconds at the front for 6 (Quartz can go up to 7 with a year field).</li>
+    <li><strong>Copying a crontab expression as-is throws an exception</strong>: Spring throws IllegalArgumentException when a field is missing.</li>
+    <li><strong>Quartz forbids specifying day-of-month and day-of-week together</strong>: exactly one of them must be <code>?</code>.</li>
+    <li><strong>L/W/# syntax is Quartz/Spring-only</strong>: it doesn't exist in standard crontab, so server-side registration needs a workaround script.</li>
+  </ul>
+
+  <h2>Frequently Asked Questions</h2>
+  <details class="faq-item"><summary>Q. What happens if I paste crontab's "0 9 * * MON-FRI" straight into Spring's @Scheduled?</summary><p>A. You'll get an IllegalArgumentException. Spring's cron parser expects exactly 6 fields (second minute hour day month weekday), so a 5-field standard crontab string is one field short and fails to parse. You need to add a seconds field at the front: "0 0 9 * * MON-FRI" runs every weekday at exactly 9:00:00 AM.</p></details>
+  <details class="faq-item"><summary>Q. Can Quartz cron specify both day-of-month and day-of-week at the same time?</summary><p>A. No. Exactly one of the two fields must be a question mark (?) meaning "not specified." "Run on the 15th of every month" uses ? in the weekday slot: "0 0 9 15 * ?". "Run every Monday" uses ? in the day slot: "0 0 9 ? * MON". Using * (or a concrete value) in both fields at once throws a parser exception.</p></details>
+  <details class="faq-item"><summary>Q. Can standard Linux crontab use L (last) or W (nearest weekday)?</summary><p>A. No. Special characters like L, W, and #(nth weekday) are extensions defined by Quartz and Spring, and they don't exist in the POSIX crontab spec. Registering "0 0 L * *" with crond will be ignored or rejected as an error, so if you need "run on the last day of the month" in plain crontab, you have to work around it with a separate script that computes the actual last day.</p></details>
+  <details class="faq-item"><summary>Q. Is the seconds field in the same position for Spring and Quartz?</summary><p>A. Yes, both put seconds as the first field. The order is second, minute, hour, day, month, weekday for both, and Quartz optionally allows one more field — year — at the very end, for up to 7 fields total.</p></details>
+  <details class="faq-item"><summary>Q. Can I use an expression like */5 * * * * in Spring as-is?</summary><p>A. The expression itself is valid syntax, but the fields are interpreted differently. In crontab, */5 * * * * means "every 5 minutes." Paste that same string into Spring and, under the 6-field rule, the first field (seconds) is read as */5, so it means "every 5 seconds" instead. For a 5-minute repeat, you need 0 in the seconds field and */5 in the minute field.</p></details>
+  <details class="faq-item"><summary>Q. What happens to a Quartz job if the server is down when it's scheduled to run?</summary><p>A. Quartz lets you configure a misfire policy, so when the server recovers you can choose to immediately fire the missed job once, or simply ignore it. Standard crontab has no concept of replaying missed runs at all — it just waits for the next scheduled time.</p></details>
+  <details class="faq-item"><summary>Q. When would I use Quartz's year field?</summary><p>A. For one-off jobs meant to run only in a specific year. For example, "0 0 9 1 1 ? 2027" runs exactly once, at 9:00 AM on January 1, 2027. Omitting it means the job repeats every year.</p></details>
+  <details class="faq-item"><summary>Q. Can I use an expression built with this site's Cron generator directly in Spring?</summary><p>A. MODOO HUB's Cron Expression Generator works on the standard 5-field crontab basis. To use it in a Spring project, you need to manually add a seconds field (usually 0) at the front of the generated expression.</p></details>
+
+  <div class="tool-links">
+    <a href="../cron-generator.html?lang=en">→ Cron Expression Generator</a>
+    <a href="../cron-parser.html?lang=en">→ Cron Parser</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general informational purposes only.</footer>
+</main>
+</body>
+</html>

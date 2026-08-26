@@ -1,5 +1,7 @@
 # guides/ 확장 진행 체크리스트 (5개 → 15개+)
 
+**2026-08-26 추가 — 영어 번역 진행 (본문 하단 "## 영어(EN) 번역 진행" 섹션 참고)**: ko 250개 완료 후, zh/ja는 유입 거의 없어 스킵하고 **영어만** URL 분리 방식(`guides/{slug}.html`=ko 유지, `guides/{slug}-en.html`=신규)으로 번역 진행 중. 대상은 dev/text/image/security/generator/pdf/ai/data-tools 8개 기술 카테고리 177개(한국 세법·노무·부동산 등 finance/health/date-time 카테고리는 국가특화 콘텐츠라 번역 제외). 번역 시 소스 코드 재검증 불필요(ko 원문이 이미 검증), 숫자·사실 그대로 유지. ko 원본에도 hreflang(ko/en/x-default) 추가, 소스 툴 페이지에도 영어 UI용 백링크 추가.
+
 **배경**: 애드센스 반려 대응 분석(2026-08-18, fable5 크로스체크)에서 "장문 아티클 부족"이 실재하는 갭으로 확인됨 — `guides/` 현재 5개(before-you-quit-checklist, image-format-comparison-2026, jwt-authentication-guide, rental-contract-checklist, salary-take-home-2026), 목표 15~20개.
 
 **2026-08-19 갱신**: 이전 버전은 비금융 18개가 "샘플링"(카테고리당 2~3개)으로만 뽑힌 상태였음. 사용자가 "전체 파일 다 확인해서 쓰라"고 명시 지시 → `related.js` CATEGORY_MAP 기준 전체 319개 파일 중 이미 다룬 것 제외한 **나머지 전부**를 14개 병렬 에이전트로 전수 확인 완료(파일 단위 ACCEPT/REJECT 판정, 스킵 없음). 그 결과 **후보가 총 258개**로 늘어남(목표 15~20 대비 압도적으로 여유) — 아래는 전수 조사 원본 결과이며, 실제 작성은 이 중 우선순위 골라 진행하면 됨. 재조사 불필요.
@@ -428,3 +430,24 @@ LTV 투기과열9억이하40%·초과20%, 조정50%·30%, 비규제70%. DSR 1금
 ### 10. 건강보험료 직장 vs 지역가입자 — `health-insurance.html` 연계
 
 직장 7.19%(각3.595%), 장기요양 건보료의13.14%. 지역가입자 (소득점수+재산점수)×208.4원(2026).
+
+---
+
+## 영어(EN) 번역 진행 (2026-08-26 시작)
+
+**대상**: developer-tools(52)/text-tools(32)/image-tools(24)/security-tools(17)/generator-tools(21)/pdf-tools(13)/ai-tools(10)/data-tools(8) = 177개. finance/health/date-time-tools(한국 특화)는 번역 제외.
+**방식**: `guides/{slug}.html`(ko, 기존) 옆에 `guides/{slug}-en.html` 신규 생성. ko 원본에 hreflang(ko/en/x-default) 3줄 추가. 소스 툴 페이지에도 en UI용 백링크 추가(`.guide-links-en` CSS게이팅 또는 `_i18n.en.seoHtml`).
+**번역 원칙**: 소스 코드 재검증 불필요(ko 원문이 이미 검증 완료), 숫자·사실·결론 그대로 유지, 자연스러운 영어로 번역만.
+
+- [x] cron-spring-quartz-vs-crontab (guides/cron-spring-quartz-vs-crontab-en.html, 2026-08-26) — tool: cron-generator
+- [x] uuid-primary-key-performance (guides/uuid-primary-key-performance-en.html, 2026-08-26) — tool: uuid-validator
+- [x] regex-catastrophic-backtracking-redos (guides/regex-catastrophic-backtracking-redos-en.html, 2026-08-26) — tool: regex-tester
+- [x] markdown-xss-commonmark-history (guides/markdown-xss-commonmark-history-en.html, 2026-08-26) — tool: markdown-preview
+- [x] html-to-markdown-structural-loss (guides/html-to-markdown-structural-loss-en.html, 2026-08-26) — tool: html-to-markdown
+- [x] yaml-norway-problem-boolean-parsing (guides/yaml-norway-problem-boolean-parsing-en.html, 2026-08-26) — tool: yaml-validator
+- [x] json-to-xml-array-null-limits (guides/json-to-xml-array-null-limits-en.html, 2026-08-26) — tool: json-to-xml
+- [x] html-minifier-regex-pre-textarea-bug (guides/html-minifier-regex-pre-textarea-bug-en.html, 2026-08-26) — tool: html-minifier
+- [x] css-color-shorthand-minification (guides/css-color-shorthand-minification-en.html, 2026-08-26) — tool: css-minifier
+- [x] javascript-minifier-string-boundary-regex-risk (guides/javascript-minifier-string-boundary-regex-risk-en.html, 2026-08-26) — tool: javascript-minifier
+
+(10/177 완료 — 나머지 167개는 /tmp/en_candidates.txt에 전체 목록 있었음, 세션 재시작 시 GUIDES_EXPANSION_PROGRESS.md 8개 기술 카테고리에서 위 체크된 것 제외하고 다시 추출할 것)

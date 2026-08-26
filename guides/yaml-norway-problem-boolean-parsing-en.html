@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YAML's Norway Problem — Why an Unquoted NO Becomes false | MODOO HUB</title>
+<meta name="description" content="YAML 1.1 parsers auto-interpret unquoted no/yes/on/off as booleans, which turns the country code NO (Norway) into false. Here's the real difference between YAML 1.1 and 1.2, and which spec this site's tools follow.">
+<link rel="canonical" href="https://modoohub.com/guides/yaml-norway-problem-boolean-parsing-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/yaml-norway-problem-boolean-parsing.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/yaml-norway-problem-boolean-parsing-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/yaml-norway-problem-boolean-parsing.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"YAML's Norway Problem — Why an Unquoted NO Becomes false","description":"YAML 1.1 parsers auto-interpret unquoted no/yes/on/off as booleans, which turns the country code NO (Norway) into false. The real difference between YAML 1.1 and 1.2, and which spec this site's tools follow.","datePublished":"2026-08-26","dateModified":"2026-08-26","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"What exactly is YAML's Norway Problem?","acceptedAnswer":{"@type":"Answer","text":"Under the YAML 1.1 spec, unquoted words like no, yes, on, off, y, and n are automatically interpreted as the booleans true/false. Because of this, writing the ISO 3166 country code NO (Norway) unquoted as country: NO gets parsed not as the string 'NO' but as the boolean false — a well-known bug that came to be called the Norway Problem."}},
+{"@type":"Question","name":"What's the actual difference between YAML 1.1 and 1.2 in boolean handling?","acceptedAnswer":{"@type":"Answer","text":"YAML 1.1 broadly recognizes y, Y, yes, Yes, YES, n, N, no, No, NO, true, True, TRUE, false, False, FALSE, on, On, ON, off, Off, OFF as booleans. The YAML 1.2 core schema, revised in 2009, narrows that down to only true/false (and case variants) — words like no or on are no longer treated as booleans automatically and remain plain strings."}},
+{"@type":"Question","name":"Which spec version does this site's YAML tool follow?","acceptedAnswer":{"@type":"Answer","text":"This site's YAML tools, including yaml-validator.html, use the js-yaml 4.x library, which follows the YAML 1.2 core schema by default. So validating country: NO here parses it correctly as the string 'NO', not false."}},
+{"@type":"Question","name":"Why does this issue still come up in practice?","acceptedAnswer":{"@type":"Answer","text":"Because some widely used parsers, including PyYAML's default loaders (yaml.load, yaml.safe_load), still follow YAML 1.1 rules. Since actual behavior can differ by library, it's a safe habit to always quote values like country codes or on/off strings in YAML regardless of which parser you're using."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+code{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>YAML's Norway Problem — Why an Unquoted NO Becomes false</h1>
+  <p class="meta">Guide · Last verified Aug 26, 2026</p>
+
+  <p>Write <code>debug: yes</code> in a config file and a human reads it as simply "yes." YAML was built with exactly that kind of readability in mind, and it really does auto-convert that line into the boolean true. But that convenience feature trips people up in an unexpected place. A story that's become a running joke in developer communities: someone wrote the unquoted country code <code>NO</code> for Norway into a list of countries, and it got parsed not as a string but as the boolean false — earning the nickname "the Norway Problem." This guide covers why the feature exists, why it eventually became a problem, and which rule this site's own tools actually follow.</p>
+
+  <h2>1. Why YAML treated no/yes/on/off as booleans in the first place</h2>
+  <p>YAML (YAML Ain't Markup Language) was designed to be a more human-friendly data format than JSON. With the goal that even non-programmers should be able to intuitively edit config files, the YAML 1.1 spec didn't limit booleans to just the pair <code>true/false</code> — it went further and accepted words people actually use in conversation. <code>yes/no</code>, <code>on/off</code>, and <code>y/n</code>, along with their case variants, were all defined as recognized booleans. Writing <code>on</code> and <code>off</code> for a toggle setting reads naturally, so at the time this looked like a practical decision.</p>
+
+  <h2>2. Why a convenience feature turned into a bug down the line</h2>
+  <p>The problem is that YAML lets the parser decide, on the writer's behalf, "this looks like a boolean to a human, so I'll change its type, not just its value." That rule works fine when the config author actually meant to write a boolean — but it silently corrupts data whenever a string happens to share spelling with one of the boolean candidate words. The classic case is ISO 3166 country codes. Norway's two-letter code is <code>NO</code>, and writing it unquoted in a YAML file of country codes gets it read by the parser not as a string but as the boolean false. Multiple open-source projects have had real bug reports where country-code handling logic mysteriously skipped or misbehaved specifically for Norway, and as that story spread, the name "Norway Problem" stuck.</p>
+
+  <div class="box">
+    <strong>Comparison example</strong>: read the following unquoted YAML with an older parser following YAML 1.1 rules, and the country value flips from a string to a boolean.<br><br>
+    Input: <code>country: NO</code><br>
+    YAML 1.1 parser result: <code>country → false</code> (boolean)<br>
+    YAML 1.2 parser result: <code>country → "NO"</code> (string, exactly as intended)<br><br>
+    The core of the problem is that the exact same line resolves to a completely different value type depending on the parser version. Quote it as <code>country: "NO"</code> and it's locked in as a string no matter which parser reads it.
+  </div>
+
+  <h2>3. How YAML 1.2 narrowed this down</h2>
+  <p>The YAML 1.2 spec, revised in 2009, tackled this confusion head-on. It narrowed the core schema's range of strings auto-recognized as booleans down to just <code>true/false</code> (and case variants like <code>True/TRUE</code>), and stopped giving <code>yes/no/on/off</code> any special treatment — they're now left as plain strings. In other words, a parser that follows YAML 1.2 parses <code>country: NO</code> as the plain string "NO." But a spec change doesn't mean every implementation immediately caught up. PyYAML's default loaders (<code>yaml.load</code>, <code>yaml.safe_load</code>), widely used in the Python ecosystem, are known to still operate on YAML 1.1 rules — meaning the same file can be interpreted differently depending on which language or library reads it, something worth keeping in mind in practice at all times.</p>
+
+  <h2>4. Which rule does this site's tool follow?</h2>
+  <p>This site's YAML-related tools, including the <a href="../yaml-validator.html">YAML Validator</a>, use the JavaScript library <strong>js-yaml 4.x</strong> as the parsing engine, and this library follows the <strong>YAML 1.2 core schema</strong> by default. So if you enter <code>country: NO</code> into this tool and validate it, you'll see it correctly parsed as the string "NO," not the boolean false. That said, this behavior is specific to this site's tools — if a server backend re-reads the same file with a parser that follows YAML 1.1 rules, like PyYAML's default loader, the result can differ. That's why quoting any string that overlaps with a boolean candidate word — country codes, on/off switch values, and the like — is the safest habit, regardless of which parser you're using.</p>
+
+  <h2>5. Summary — a checklist for writing YAML</h2>
+  <ul>
+    <li><strong>Check for boolean-candidate words</strong>: first check whether any string value (country codes, switch names, etc.) overlaps with no, yes, on, off, y, or n.</li>
+    <li><strong>Always quote anything ambiguous</strong>: wrapping it in quotes, like <code>country: "NO"</code>, locks it in as a string no matter which parser reads it.</li>
+    <li><strong>Check your parser's version</strong>: check the docs for whichever library you're using to see whether it follows YAML 1.1 or 1.2 rules.</li>
+    <li><strong>Verify the actual parsed result with a validation tool</strong>: before deploying, check the actual parsed structure visually with the <a href="../yaml-validator.html">YAML Validator</a>.</li>
+  </ul>
+
+  <h2>Frequently Asked Questions</h2>
+  <details class="faq-item"><summary>Q. What exactly is YAML's Norway Problem?</summary><p>A. Under the YAML 1.1 spec, unquoted words like no, yes, on, off, y, and n are automatically interpreted as the booleans true/false. Because of this, writing the ISO 3166 country code NO (Norway) unquoted as country: NO gets parsed not as the string 'NO' but as the boolean false — a well-known bug that came to be called the Norway Problem.</p></details>
+  <details class="faq-item"><summary>Q. What's the actual difference between YAML 1.1 and 1.2 in boolean handling?</summary><p>A. YAML 1.1 broadly recognizes y, Y, yes, Yes, YES, n, N, no, No, NO, true, True, TRUE, false, False, FALSE, on, On, ON, off, Off, OFF as booleans. The YAML 1.2 core schema, revised in 2009, narrows that down to only true/false (and case variants) — words like no or on are no longer treated as booleans automatically and remain plain strings.</p></details>
+  <details class="faq-item"><summary>Q. Which spec version does this site's YAML tool follow?</summary><p>A. This site's YAML tools, including yaml-validator.html, use the js-yaml 4.x library, which follows the YAML 1.2 core schema by default. So validating country: NO here parses it correctly as the string 'NO', not false.</p></details>
+  <details class="faq-item"><summary>Q. Why does this issue still come up in practice?</summary><p>A. Because some widely used parsers, including PyYAML's default loaders (yaml.load, yaml.safe_load), still follow YAML 1.1 rules. Since actual behavior can differ by library, it's a safe habit to always quote values like country codes or on/off strings in YAML regardless of which parser you're using.</p></details>
+
+  <div class="tool-links">
+    <a href="../yaml-validator.html?lang=en">→ YAML Validator</a>
+    <a href="../yaml-to-json.html?lang=en">→ YAML to JSON Converter</a>
+    <a href="../json-to-yaml.html?lang=en">→ JSON to YAML Converter</a>
+    <a href="../yaml-formatter.html?lang=en">→ YAML Formatter</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes. Actual parsing results may vary depending on the library version in use, so please verify directly.</footer>
+</main>
+</body>
+</html>

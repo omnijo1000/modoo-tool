@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Real Limits of JSON→XML Conversion — Where Arrays, Nulls, and Types Break | MODOO HUB</title>
+<meta name="description" content="Why arrays, null, and numeric types don't survive a JSON-to-XML round trip intact — a look at the structural gaps in XML and how converters paper over them.">
+<link rel="canonical" href="https://modoohub.com/guides/json-to-xml-array-null-limits-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/json-to-xml-array-null-limits.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/json-to-xml-array-null-limits-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/json-to-xml-array-null-limits.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"The Real Limits of JSON→XML Conversion — Where Arrays, Nulls, and Types Break","description":"Why arrays, null, and numeric types don't survive a JSON-to-XML round trip intact — a look at the structural gaps in XML and how converters paper over them.","datePublished":"2026-08-26","dateModified":"2026-08-26","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--purple);}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;}
+details summary{cursor:pointer;font-weight:600;color:var(--text-muted);}
+details p{margin-top:8px;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>The Real Limits of JSON→XML Conversion — Where Arrays, Nulls, and Types Break</h1>
+  <p class="meta">Guide · Last verified Aug 26, 2026</p>
+
+  <p>JSON and XML both represent data as a tree, so it's tempting to assume you can move freely between them. In practice, converting one to the other runs into several spots where it's genuinely unclear how to represent the data. Arrays, null, numeric/boolean types, and the concept of attributes are all things JSON has clear rules for but XML has no standard syntax for — so every JSON→XML converter has to invent its own convention. This guide walks through exactly what those conventions are, and why converting XML back to JSON never fully restores the original information.</p>
+
+  <h2>1. Arrays: a concept XML simply doesn't have</h2>
+  <p>In JSON, <code>["a","b","c"]</code> is a first-class array type. XML has no equivalent concept at all — all it offers is the fact that "a tag with the same name can appear more than once under a parent." So every JSON→XML converter fakes arrays by <strong>repeating a tag with the same name as the parent key</strong>. For example, <code>{"hobbies":["reading","coding"]}</code> becomes <code>&lt;hobbies&gt;reading&lt;/hobbies&gt;&lt;hobbies&gt;coding&lt;/hobbies&gt;</code>. The problem is that looking at the resulting XML alone gives you no certainty that "hobbies was originally an array." XML itself carries no marker distinguishing "this tag just happens to repeat" from "this was an array" — the side converting back has to <strong>infer</strong> it from the rule "if the same tag appears more than once, treat it as an array." If the array had exactly one element, that inference fails outright, and there's no way to tell whether the original was an array or a single value.</p>
+
+  <h2>2. Null: the self-closing empty tag convention</h2>
+  <p>JSON's <code>null</code> is a distinct type meaning "explicitly no value." XML has no standard type for this, so converters typically use one of two conventions. One is a <strong>self-closing empty tag</strong> like <code>&lt;email/&gt;</code>, ended with a closing slash; the other, more sophisticated, is XML Schema's <code>xsi:nil="true"</code> attribute. Most simple browser-based converters go with the former. The catch is that the same <code>&lt;email/&gt;</code> gives you no way to tell, from the XML alone, whether it meant "this was null" or "this was an empty string (<code>""</code>)." In JSON, <code>null</code> and <code>""</code> are clearly distinct values, but once they've been through XML and back, both collapse into the same empty tag, and there's no way to recover which one it originally was.</p>
+  <div class="box">
+    <strong>Example</strong>: Both <code>{"email": null}</code> and <code>{"email": ""}</code> convert to <code>&lt;email/&gt;</code>. Looking at the XML alone, you can never tell whether the original JSON had null or an empty string.
+  </div>
+
+  <h2>3. Numbers and booleans: everything flattens to text</h2>
+  <p>JSON has a type system that clearly distinguishes <code>30</code> (a number), <code>true</code> (a boolean), and <code>"30"</code> (a string). XML has no such type system — everything between tags is just <strong>text</strong>. So both <code>{"age":30}</code> and <code>{"age":"30"}</code> convert to the identical <code>&lt;age&gt;30&lt;/age&gt;</code>. The side converting XML back to JSON has to look at the text "30" and <strong>guess</strong> whether it was originally a number or a string, and that guess can diverge from the original data's intent — for example, if a postal code like "04523" gets misread as a number, the leading zero can end up silently dropped.</p>
+
+  <h2>4. No concept of attributes</h2>
+  <p>XML lets you attach attributes to a tag, as in <code>&lt;person id="1"&gt;</code>, but JSON has no notion of "attributes" to begin with. Because of that, JSON→XML converters mostly skip this feature entirely and take the simpler route of turning every JSON key into a <strong>child element</strong> without exception — id, name, and age all end up as sibling child tags at the same level. That keeps the implementation simple, but it also means none of XML's native expressiveness around attributes (for example, the common practice of choosing element vs. attribute to keep a document more compact) gets used at all.</p>
+
+  <h2>5. How these limits show up in practice</h2>
+  <ul>
+    <li><strong>Integrating with legacy SOAP/XML APIs</strong>: if you convert JSON data to send to a system that expects arrays/null/types to match a specific schema (XSD), a simple converter's output may not match that schema.</li>
+    <li><strong>Expectations around round-tripping</strong>: don't assume JSON→XML→JSON will give you back exactly what you started with. Single-element arrays, null vs. empty string, and number vs. numeric string are the classic places information gets lost.</li>
+    <li><strong>Tag naming rules</strong>: if a JSON key starts with a digit or contains spaces, it violates XML's tag-naming rules (must start with a letter, no spaces, etc.) and can produce invalid XML — it's safer to check your key names before converting.</li>
+  </ul>
+
+  <h2>Frequently Asked Questions</h2>
+  <details><summary>Q. How are JSON arrays represented in XML?</summary><p>A. Since XML has no array syntax, each array element is repeated as a tag with the same name as the parent key. Example: <code>hobbies:["reading","coding"]</code> → <code>&lt;hobbies&gt;reading&lt;/hobbies&gt;&lt;hobbies&gt;coding&lt;/hobbies&gt;</code>.</p></details>
+  <details><summary>Q. How is a null value represented?</summary><p>A. The common convention is a self-closing empty tag ending in a slash (e.g. <code>&lt;email/&gt;</code>). The limitation is that it's indistinguishable from an empty string.</p></details>
+  <details><summary>Q. Can XML be converted back to JSON with perfect accuracy?</summary><p>A. Not perfectly. Whether an array had exactly one element, whether a value was null or an empty string, and whether a value was a number or a numeric-looking string can't be determined for certain from the XML alone — the reverse conversion has to rely on inference.</p></details>
+  <details><summary>Q. Are number and boolean types preserved in XML?</summary><p>A. No. XML treats everything inside a tag as text, so <code>30</code> and <code>"30"</code> come out as identical text. Restoring the original type on the way back requires separate type-inference logic.</p></details>
+  <details><summary>Q. What if the converted XML comes out invalid?</summary><p>A. XML tag names can't start with a digit or contain spaces or certain special characters. If a JSON key breaks that rule (e.g. "1st-item"), it gets used as the tag name without validation, which can produce invalid XML — check your key names before converting.</p></details>
+
+  <div class="tool-links">
+    <a href="../json-to-xml.html?lang=en">→ JSON to XML Converter</a>
+    <a href="../xml-to-json.html?lang=en">→ XML to JSON Converter</a>
+    <a href="../xml-validator.html?lang=en">→ XML Validator</a>
+    <a href="../xml-beautifier.html?lang=en">→ XML Formatter</a>
+    <a href="../json-validator.html?lang=en">→ JSON Validator</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes.</footer>
+</main>
+</body>
+</html>

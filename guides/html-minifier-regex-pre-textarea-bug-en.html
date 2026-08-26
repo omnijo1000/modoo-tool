@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Where Regex-Based HTML Minifiers Break — pre/textarea Whitespace Collapse | MODOO HUB</title>
+<meta name="description" content="Why a regex-driven HTML minifier flattens meaningful whitespace inside pre and textarea tags, and how it differs from a real parser-based minifier.">
+<link rel="canonical" href="https://modoohub.com/guides/html-minifier-regex-pre-textarea-bug-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/html-minifier-regex-pre-textarea-bug.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/html-minifier-regex-pre-textarea-bug-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/html-minifier-regex-pre-textarea-bug.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Where Regex-Based HTML Minifiers Break — pre/textarea Whitespace Collapse","description":"Why a regex-driven HTML minifier flattens meaningful whitespace inside pre and textarea tags, and how it differs from a real parser-based minifier.","datePublished":"2026-08-26","dateModified":"2026-08-26","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--purple);}
+pre{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;overflow-x:auto;font-family:'DM Mono',monospace;font-size:12px;color:#ccc;margin:14px 0;line-height:1.6;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;}
+details summary{cursor:pointer;font-weight:600;color:var(--text-muted);}
+details p{margin-top:8px;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Where Regex-Based HTML Minifiers Break — pre/textarea Whitespace Collapse</h1>
+  <p class="meta">Guide · Last verified Aug 26, 2026</p>
+
+  <p>Minifying HTML ultimately means "strip out whitespace that doesn't matter." The catch is that telling "whitespace that doesn't matter" apart from "whitespace that does" requires understanding the tags around it. This guide explains why a minifier built entirely on regex can't make that distinction, and what that actually breaks on screen.</p>
+
+  <h2>1. A real parser vs. regex substitution</h2>
+  <p>Minifying HTML correctly requires parsing the document and figuring out whether each tag is a "normal element" or a "raw text element" (a tag whose content has to be treated verbatim). This tool doesn't build a DOM tree at all. Instead, it runs a fixed sequence of regexes over the entire input text: strip comments (delete <code>&lt;!--...--&gt;</code> patterns), strip line breaks (turn every newline into a single space), strip whitespace between tags (<code>&gt;   &lt;</code> → <code>&gt;&lt;</code>), and normalize attribute whitespace (collapse runs of 2+ spaces to one). None of these four steps checks "am I currently inside a pre tag?" Regex only sees characters — it has no idea what tag those characters happen to be inside.</p>
+
+  <h2>2. Why this bites you specifically in pre and textarea</h2>
+  <p>The <code>&lt;pre&gt;</code> tag is, by the HTML spec, an instruction to preserve whitespace exactly as written when rendering. That's why indentation and line breaks in a code block stay intact. <code>&lt;textarea&gt;</code> works the same way — its inner text becomes the field's default value verbatim, and line breaks and consecutive spaces are literally part of that value. But this minifier's "strip line breaks" option turns every newline in the whole document into a space, and "normalize attribute whitespace" collapses consecutive spaces to one, and neither one checks whether it's inside a pre/textarea before applying itself uniformly across the entire document. The result: code-block indentation gets flattened onto one line, or the line breaks baked into a textarea's initial value simply vanish.</p>
+  <div class="box">
+    <strong>Example</strong>: <pre>&lt;pre&gt;
+function add(a, b) {
+    return a + b;
+}
+&lt;/pre&gt;</pre>
+    With "strip line breaks" turned on, this code block collapses into <code>function add(a, b) {     return a + b; }</code> on a single line — displayed with no indentation and no line breaks at all. A code snippet a human could read gets mangled beyond recognition in one pass.
+  </div>
+
+  <h2>3. How a real parser-based minifier handles this differently</h2>
+  <p>A production-grade library like html-minifier-terser actually tokenizes and parses the HTML, determines whether each element is a "raw text element" (pre, textarea, script, style, etc.), and skips whitespace-compression logic entirely inside those. On top of that, it hands off script/style content to a minifier that actually understands JS/CSS syntax (terser, cssnano, etc.) so that content gets compressed safely. This site's tool does the opposite — it runs the exact same regex over script/style content as it does over the rest of the HTML, so it isn't a syntax-aware, safe compression. That's exactly why the tool's own FAQ recommends using javascript-minifier for JS and css-minifier for CSS separately instead.</p>
+
+  <h2>4. Another trap: IE conditional comments</h2>
+  <p>It's not just whitespace — comment removal has the same structural blind spot. Something like <code>&lt;!--[if IE]&gt;...&lt;![endif]--&gt;</code> is syntactically an HTML comment, but it actually affects browser behavior. This tool's comment-stripping regex can't tell a regular comment from a conditional one, so if your file contains code like that, you need to turn off the comment-removal option entirely to stay safe.</p>
+
+  <h2>5. Using this tool safely in practice</h2>
+  <ul>
+    <li><strong>Pages with meaningful whitespace in pre/textarea</strong>: don't run the whole document through this tool — pull those blocks out beforehand and splice them back in afterward.</li>
+    <li><strong>Legacy code with IE conditional comments</strong>: turn off comment removal before minifying.</li>
+    <li><strong>Anything that needs to run automatically in a build pipeline</strong>: treat this tool as a one-off spot check only, and use a tag-aware library like html-minifier-terser or webpack's HtmlWebpackPlugin for actual deployment automation.</li>
+  </ul>
+
+  <h2>Frequently Asked Questions</h2>
+  <details><summary>Q. Does this minifier use a real HTML parser?</summary><p>A. No. Instead of building a DOM tree and understanding tag structure, it applies a sequence of regex substitutions to the raw text. That makes it fast, but it can't tell contexts like pre/textarea/conditional comments apart, where context actually matters.</p></details>
+  <details><summary>Q. Why does code inside a pre tag end up all on one line after minifying?</summary><p>A. The "strip line breaks" and "normalize attribute whitespace" options process newlines and consecutive spaces the same way across the entire document, with no tag awareness. Whitespace inside pre is supposed to be preserved, but this tool makes no exception for it.</p></details>
+  <details><summary>Q. Is content inside script/style tags safely minified too?</summary><p>A. No — it doesn't do syntax-aware, safe compression (preserving variable names, auto-inserting semicolons, etc.). It treats the whole HTML document as one block of text and only cleans up line breaks and whitespace, so if you actually need JS/CSS minification, use javascript-minifier or css-minifier separately.</p></details>
+  <details><summary>Q. So when is this tool actually fine to use?</summary><p>A. It's fine for a quick one-off minify of ordinary HTML with no pre/textarea and no special code like conditional comments. For pages with code snippets or automated build pipelines, use a parser-based library instead.</p></details>
+
+  <div class="tool-links">
+    <a href="../html-minifier.html?lang=en">→ HTML Minifier</a>
+    <a href="../css-minifier.html?lang=en">→ CSS Minifier</a>
+    <a href="../javascript-minifier.html?lang=en">→ JavaScript Minifier</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes.</footer>
+</main>
+</body>
+</html>

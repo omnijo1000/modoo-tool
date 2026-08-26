@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why UUID Primary Keys Slow Down Your Database — B-Tree Page Splits and the v7/ULID Fix | MODOO HUB</title>
+<meta name="description" content="Why does using UUID v4 as a relational database primary key (clustered index) hurt insert performance? A look at B-tree page splits and cache locality loss, plus how UUID v7 and ULID solve it.">
+<link rel="canonical" href="https://modoohub.com/guides/uuid-primary-key-performance-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/uuid-primary-key-performance.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/uuid-primary-key-performance-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/uuid-primary-key-performance.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Why UUID Primary Keys Slow Down Your Database — B-Tree Page Splits and the v7/ULID Fix","description":"Why does using UUID v4 as a relational database primary key (clustered index) hurt insert performance? A look at B-tree page splits and cache locality loss, plus how UUID v7 and ULID solve it.","datePublished":"2026-08-26","dateModified":"2026-08-26","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Why does using UUID v4 as a primary key slow things down?","acceptedAnswer":{"@type":"Answer","text":"UUID v4's 122 random bits mean every newly inserted value lands at an unpredictable position in the index's sort order. Since engines like InnoDB use the primary key as the clustered index, this random insertion keeps splitting already-full B-tree leaf pages (a page split), and it also raises the odds that the target page isn't already in the buffer pool, which drives up disk I/O."}},
+{"@type":"Question","name":"How does UUID v7 solve this problem?","acceptedAnswer":{"@type":"Answer","text":"UUID v7 puts a millisecond-precision Unix timestamp in the top 48 of its 128 bits and fills the rest with random data, so the value itself is roughly sorted by creation time. That means new rows mostly get appended sequentially at the rightmost end of the index (the most recent page), which greatly reduces page splits — similar to an auto-increment integer primary key."}},
+{"@type":"Question","name":"How is ULID different from UUID?","acceptedAnswer":{"@type":"Answer","text":"ULID is also a 128-bit identifier, structured as a 48-bit timestamp plus 80 bits of randomness, represented as a 26-character Base32-encoded string. Like UUID v7, it sorts chronologically, which solves the index insert-locality problem, and its defining trait is that string sort order matches creation-time order exactly. Unlike UUID, though, it isn't an IETF standard format — it's maintained as a separate open spec."}},
+{"@type":"Question","name":"So why do people still use UUID as a primary key at all?","acceptedAnswer":{"@type":"Answer","text":"In distributed environments where multiple servers, services, or shards must each generate unique IDs simultaneously without central coordination, you need something like UUID with a near-zero collision probability rather than an auto-increment column that relies on a single sequence counter. UUIDs can also be generated on the application side before the row is ever inserted into the database, and unlike sequential integer IDs, the value itself doesn't leak business information such as signup counts or daily order volume."}},
+{"@type":"Question","name":"How do I improve a table that already uses UUID v4?","acceptedAnswer":{"@type":"Answer","text":"Keeping the column type as-is only offers limited relief, so the fundamental fix is switching new inserts to UUID v7 or ULID generation going forward. If changing the schema right away isn't feasible, a common compromise is to keep a separate auto-increment integer column as the clustered index and demote the UUID to a regular unique-constrained column (a secondary index) to reduce insert load."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Why UUID Primary Keys Slow Down Your Database — B-Tree Page Splits and the v7/ULID Fix</h1>
+  <p class="meta">Guide · Last verified Aug 26, 2026</p>
+
+  <p>"Use a UUID for your primary key, it's safer" is true, but there's a nuance people often miss: the specific UUID version you pick changes the outcome completely. In particular, using the most common variant — <strong>UUID v4 (fully random)</strong> — as the primary key of a relational database like MySQL InnoDB or PostgreSQL frequently causes insert performance to degrade noticeably as the table grows. This guide breaks down why at the level of index internals, why the recently standardized UUID v7 and ULID emerged as alternatives, and when you'd still want plain random UUIDs anyway.</p>
+
+  <h2>1. The clustered index and the assumption of "stacking in sorted order"</h2>
+  <p>InnoDB uses the primary key as a <strong>clustered index</strong>. That means the actual row data is physically stored in B-tree leaf pages in primary-key order. When you use an auto-increment integer as the primary key, every new row's value is always larger than everything stored so far, so it always gets appended to a single page at the far right end of the index (the most recent page). That page was just written to, so it's very likely already sitting in the buffer pool (memory cache), and the insert completes quickly with no disk access. Sequential keys perform well on inserts precisely because they "always touch the same end."</p>
+
+  <h2>2. How random UUIDs break locality — page splits and cache misses</h2>
+  <p>UUID v4's 122 bits are statistically fully random. That means there's no way to predict where a newly inserted value will land in the sort order of already-stored values. As a result, inserts get scattered evenly across the entire key space of the index, and each one has to squeeze into the middle of an already-full leaf page. When a page is full, InnoDB performs a <strong>page split</strong> — splitting it in two to make room for the new page — and this process leaves pages roughly half-full on average (index fragmentation), meaning more pages and more disk space are needed to store the same amount of data. Worse, once the table grows past the buffer pool's size, a randomly located page is increasingly likely to not be in cache, so more and more inserts require reading a page in from disk. Sequential keys keep reusing a single "hot page," while random keys keep touching cold pages across the whole table, which structurally drives up I/O load. On top of that, secondary indexes internally store the primary key value alongside their own data, so a larger primary key (a UUID is 16 bytes, four times a typical integer key) also bloats every secondary index.</p>
+
+  <div class="box">
+    <strong>Bottom line</strong>: the performance hit from random UUID primary keys isn't about "it being a UUID" — it's that the values scatter unpredictably in sort order. The real issue is inserting <em>non-sequential</em> values into a clustered index over and over.
+  </div>
+
+  <h2>3. UUID v7 and ULID — the "sortable uniqueness" compromise</h2>
+  <p><strong>UUID v7</strong>, formally standardized by the IETF as <strong>RFC 9562</strong> in 2024, puts a millisecond-precision Unix timestamp in the top 48 of its 128 bits and fills the remaining bits with random data (plus version/variant bits). Because the high-order bits increase over time, a newly generated UUID is generally sorted after previously generated ones. This creates insert locality almost identical to auto-increment, so new rows mostly append sequentially at the right end of the index, sharply cutting down page splits. <strong>ULID</strong> follows the same idea: it combines a 48-bit timestamp with 80 bits of randomness and encodes the result as a 26-character Base32 string (unlike UUID, though, it isn't an IETF standard — it's a separate open spec). Both solve the problem the same way: "keep guaranteeing uniqueness with randomness, but layer on the regularity of creation-time order to restore index locality."</p>
+
+  <h2>4. So why still use UUID (v4) at all?</h2>
+  <p>That said, a sequential integer primary key isn't always the right answer. In distributed environments — multiple servers, microservices, or database shards that each need to issue IDs simultaneously with no central sequence counter — relying on a single auto-increment column creates bottlenecks and collisions. UUIDs (v4 or v7 alike) have the fundamental advantage of producing effectively collision-free unique values anywhere, with no coordination required. They can also be finalized in application code before the row is ever inserted into the database, which is useful for complex transactions or event-sourcing architectures that need referential integrity ahead of time, and — unlike sequential integer IDs — the value itself doesn't leak business information like signup counts or daily order volume (though note that UUID v7 does expose its timestamp, so it doesn't fully hide creation-order information). Ultimately, the choice is a trade-off between "index performance lost to randomness" versus "coordination-free distributed ID issuance and no leaked information," and the current trend is converging on the middle ground: UUID v7 and ULID.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details class="faq-item"><summary>Q. Why does using UUID v4 as a primary key slow things down?</summary><p>A. UUID v4's 122 random bits mean every newly inserted value lands at an unpredictable position in the index's sort order. Since engines like InnoDB use the primary key as the clustered index, this random insertion keeps splitting already-full B-tree leaf pages (a page split), and it also raises the odds that the target page isn't already in the buffer pool, which drives up disk I/O.</p></details>
+  <details class="faq-item"><summary>Q. How does UUID v7 solve this problem?</summary><p>A. UUID v7 puts a millisecond-precision Unix timestamp in the top 48 of its 128 bits and fills the rest with random data, so the value itself is roughly sorted by creation time. That means new rows mostly get appended sequentially at the rightmost end of the index (the most recent page), which greatly reduces page splits — similar to an auto-increment integer primary key.</p></details>
+  <details class="faq-item"><summary>Q. How is ULID different from UUID?</summary><p>A. ULID is also a 128-bit identifier, structured as a 48-bit timestamp plus 80 bits of randomness, represented as a 26-character Base32-encoded string. Like UUID v7, it sorts chronologically, which solves the index insert-locality problem, and its defining trait is that string sort order matches creation-time order exactly. Unlike UUID, though, it isn't an IETF standard format — it's maintained as a separate open spec.</p></details>
+  <details class="faq-item"><summary>Q. So why do people still use UUID as a primary key at all?</summary><p>A. In distributed environments where multiple servers, services, or shards must each generate unique IDs simultaneously without central coordination, you need something like UUID with a near-zero collision probability rather than an auto-increment column that relies on a single sequence counter. UUIDs can also be generated on the application side before the row is ever inserted into the database, and unlike sequential integer IDs, the value itself doesn't leak business information such as signup counts or daily order volume.</p></details>
+  <details class="faq-item"><summary>Q. How do I improve a table that already uses UUID v4?</summary><p>A. Keeping the column type as-is only offers limited relief, so the fundamental fix is switching new inserts to UUID v7 or ULID generation going forward. If changing the schema right away isn't feasible, a common compromise is to keep a separate auto-increment integer column as the clustered index and demote the UUID to a regular unique-constrained column (a secondary index) to reduce insert load.</p></details>
+
+  <div class="tool-links">
+    <a href="../uuid-validator.html?lang=en">→ UUID Validator</a>
+    <a href="../uuid-generator.html?lang=en">→ UUID Generator</a>
+    <a href="../ulid-generator.html?lang=en">→ ULID Generator</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general informational purposes only; benchmark against your own database engine before applying it in production.</footer>
+</main>
+</body>
+</html>
