@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why ASCII Is Actually a Subset of UTF-8 | MODOO HUB</title>
+<meta name="description" content="Why the ASCII range 0-127 is byte-for-byte identical to UTF-8, and what changes the moment you cross the 128 boundary, confirmed against the actual conversion tool's code.">
+<link rel="canonical" href="https://modoohub.com/guides/ascii-utf8-subset-compatibility-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/ascii-utf8-subset-compatibility.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/ascii-utf8-subset-compatibility-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/ascii-utf8-subset-compatibility.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Why ASCII Is Actually a Subset of UTF-8","description":"Why the ASCII range 0-127 is byte-for-byte identical to UTF-8, and what changes the moment you cross the 128 boundary, confirmed against the actual conversion tool's code.","datePublished":"2026-08-27","dateModified":"2026-08-27","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Why ASCII Is Actually a Subset of UTF-8</h1>
+  <p class="meta">Guide · Last verified Aug 27, 2026</p>
+
+  <p>The horror story of "I saved it as UTF-8 and my old ASCII text file got corrupted" is, in practice, hard to actually produce. If a text file is pure English, reading it as ASCII or as UTF-8 gives you byte-for-byte identical results. That's not luck — it's design. Based on the actual code behind the <a href="../ascii-converter.html?lang=en">ASCII Converter</a>, this guide lays out why the two encodings are literally one and the same across 0–127, and exactly what changes once you cross 128.</p>
+
+  <h2>1. ASCII was 7-bit from the start</h2>
+  <p>ASCII (American Standard Code for Information Interchange) was designed from its 1963 standardization to use only 7 bits — the numbers 0 through 127. Packed into an 8-bit byte, the leading bit is always left as 0. 'A' is 65 (0100_0001), space is 32 (0010_0000), line feed (LF) is 10 (0000_1010) — represent any ASCII character in 8 bits and the top bit is always fixed at 0. That property — "the leading bit is always 0" — later became the central premise behind UTF-8's design.</p>
+
+  <h2>2. UTF-8 inherited this property directly</h2>
+  <p>When Unicode emerged in the 1990s, the world needed a single standard encoding that could hold every character on earth. Ken Thompson and Rob Pike, who designed UTF-8, made not breaking the existing ASCII infrastructure — Unix filesystems, early internet protocols, and vast amounts of text-processing code — the top priority. The result: they built the rule so that whenever the first byte of UTF-8 <strong>starts with 0, that byte alone is already a valid ASCII character</strong>. In other words, code points 0–127 are encoded in UTF-8 as exactly 1 byte, exactly the same value — no separate conversion logic ever enters the picture; the representation is 100% identical at the byte level.</p>
+  <div class="box">
+    <strong>Why it matters</strong>: because of this, every existing piece of ASCII-only data — plain English source code, HTTP headers, JSON keys, URLs — is already a valid UTF-8 file as-is, with no "re-encode to UTF-8" conversion step required. That's exactly why an English text file written in the 1990s opens without corruption in a UTF-8 editor today.
+  </div>
+
+  <h2>3. Past 128, the encoding expands</h2>
+  <p>The story changes completely once you cross 128. UTF-8 is a variable-length encoding: depending on the size of the code point, the upper bits of the first byte signal how many total bytes make up the character.</p>
+  <table>
+    <tr><th>Code point range</th><th>UTF-8 byte length</th><th>First-byte pattern</th><th>Example</th></tr>
+    <tr><td>0 – 127</td><td>1 byte</td><td><code>0xxxxxxx</code></td><td>All of ASCII (A, 0, space, etc.)</td></tr>
+    <tr><td>128 – 2,047</td><td>2 bytes</td><td><code>110xxxxx</code></td><td>Latin extended characters, etc.</td></tr>
+    <tr><td>2,048 – 65,535</td><td>3 bytes</td><td><code>1110xxxx</code></td><td>Most of Korean Hangul (가–힣)</td></tr>
+    <tr><td>65,536 and above</td><td>4 bytes</td><td><code>11110xxx</code></td><td>Most emoji</td></tr>
+  </table>
+  <p>The Korean character "가" is Unicode code point U+AC00 (decimal 44032), well past 128, so it's encoded in 3 bytes. Emoji are typically 65,536 or higher, so they need 4 bytes. Letters, digits, and basic punctuation, on the other hand, are all 127 or below, so they're always 1 byte — identical to ASCII.</p>
+
+  <h2>4. Confirming the 128 boundary in the actual tool code</h2>
+  <p>Open the text-to-ASCII conversion function behind the <a href="../ascii-converter.html?lang=en">ASCII Converter</a> and this exact boundary is baked directly into the code. The core logic filters the character array with the condition <code>c.charCodeAt(0)&lt;=127</code>, converting only characters at 127 or below into ASCII codes and excluding anything 128 or above from the result entirely. In the per-character preview area too, any character whose code exceeds 127 is shown as a dash (–) instead of a converted value. In other words, this tool isn't applying an arbitrary "128 boundary" — it's carrying the ASCII standard's own definition (0–127) directly into code. Enter Korean text or emoji and you'll get no codes at all, just dashes — that's not a bug, it's exactly what the ASCII definition demands. To handle ranges past 128 — Korean, emoji, and the like — use the <a href="../unicode-converter.html?lang=en">Unicode Converter</a> or the <a href="../text-to-unicode.html?lang=en">Text-to-Unicode Converter</a> instead.</p>
+
+  <h2>5. Common misconceptions in practice</h2>
+  <ul>
+    <li><strong>"Extended ASCII" is not a standard</strong>: code pages that use 128–255 (like Windows-1252, or parts of EUC-KR) assign different characters depending on vendor and OS, so the same byte value can mean different characters. This is an entirely different system from UTF-8's multi-byte sequences.</li>
+    <li><strong>"Saving an ASCII file as UTF-8 makes it bigger" is only half true</strong>: if the file contains only English letters, digits, and basic symbols, the byte count doesn't grow at all. Size only increases for the portion made up of Korean, emoji, or other non-ASCII characters.</li>
+    <li><strong>Base64 encoding is a separate concept</strong>: Base64 is an unrelated encoding scheme that represents arbitrary bytes using 64 ASCII characters, and it has nothing to do with UTF-8 backward compatibility. Try it out with the <a href="../base64-encoder.html?lang=en">Base64 Encoder</a>.</li>
+  </ul>
+
+  <h2>Frequently Asked Questions</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. So is every ASCII text file automatically valid UTF-8 too?</summary><p style="margin-top:8px;">Yes. A file that only uses the 0–127 range has byte sequences that are completely identical under ASCII and UTF-8, so it's already a valid UTF-8 file with no conversion needed.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Conversely, can a UTF-8 file always be read as ASCII?</summary><p style="margin-top:8px;">No. As soon as a file includes even one code point at or above 128 — Korean, Chinese characters, emoji, and so on — multi-byte sequences appear, and reading those as ASCII causes each individual byte to be misread as a control character or a garbled symbol.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Why does entering Korean into the ASCII Converter produce nothing?</summary><p style="margin-top:8px;">Korean code points are far past 128, outside the ASCII definition (0–127). This tool is built to convert only characters at 127 or below, so Korean text is excluded from the result and shown as a dash (–) in the preview. Use the Unicode Converter for Korean text instead.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Do other encodings besides UTF-8, like UTF-16, share ASCII's bytes too?</summary><p style="margin-top:8px;">No. UTF-16 represents even ASCII characters with at least 2 bytes, so there's no byte-level compatibility. This backward compatibility is a design feature unique to UTF-8.</p></details>
+
+  <div class="tool-links">
+    <a href="../ascii-converter.html?lang=en">→ ASCII Converter</a>
+    <a href="../unicode-converter.html?lang=en">→ Unicode Converter</a>
+    <a href="../text-to-unicode.html?lang=en">→ Text-to-Unicode Converter</a>
+    <a href="../unicode-to-text.html?lang=en">→ Unicode-to-Text Converter</a>
+    <a href="../base64-encoder.html?lang=en">→ Base64 Encoder</a>
+    <a href="../ascii-table.html?lang=en">→ ASCII Table</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general informational purposes; consult the Unicode Consortium and RFC 3629 for authoritative standards documentation.</footer>
+</main>
+</body>
+</html>

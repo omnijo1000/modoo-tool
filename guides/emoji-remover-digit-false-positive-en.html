@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Are Digits Technically Emoji? — Intl.Segmenter and the Emoji False-Positive Problem | MODOO HUB</title>
+<meta name="description" content="Under the Unicode standard, digits, #, and * officially carry the Emoji property. Learn why emoji-removal tools commonly false-positive on them, and how grapheme cluster processing fixes it.">
+<link rel="canonical" href="https://modoohub.com/guides/emoji-remover-digit-false-positive-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/emoji-remover-digit-false-positive.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/emoji-remover-digit-false-positive-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/emoji-remover-digit-false-positive.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Are Digits Technically Emoji? — Intl.Segmenter and the Emoji False-Positive Problem","description":"Under the Unicode standard, digits, #, and * officially carry the Emoji property. Learn why emoji-removal tools commonly false-positive on them, and how grapheme cluster processing fixes it.","datePublished":"2026-08-27","dateModified":"2026-08-27","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Is there a real-world case where digits carrying the Emoji property actually causes problems?","acceptedAnswer":{"@type":"Answer","text":"Yes. A script that filters text using only the /\\p{Emoji}/u regex can silently strip digits and # from things like prices (\"$1000\"), phone numbers, or rankings (\"#1\") — a real bug, not a theoretical one."}},
+{"@type":"Question","name":"Do ordinary symbols like ★ or ✓ have the same problem?","acceptedAnswer":{"@type":"Answer","text":"No. Symbols like ★ or ✓ never carried the Unicode Emoji property in the first place, so they don't match that regex. The false-positive problem is limited to the specific characters that serve as raw material for keycap emoji: digits 0-9, #, and *."}},
+{"@type":"Question","name":"Can this be solved without Intl.Segmenter?","acceptedAnswer":{"@type":"Answer","text":"Preventing the standalone-digit false positive alone can be done with a simple regex exception. But safely handling ZWJ compound emoji or skin-tone/flag emoji as whole units in practice requires splitting text into grapheme clusters."}},
+{"@type":"Question","name":"What if I actually want to remove keycap emoji themselves?","acceptedAnswer":{"@type":"Answer","text":"A sequence where a variation selector or combining keycap character is actually attached is correctly identified as an emoji and gets removed. Only the standalone digit/#/* characters are excepted — real keycap emoji sequences are still removed as normal."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Are Digits Technically Emoji? — Intl.Segmenter and the Emoji False-Positive Problem</h1>
+  <p class="meta">Guide · Last verified Aug 27, 2026</p>
+
+  <p>"Just strip the emoji" sounds like a simple request, but there's a trap hiding inside the Unicode standard: the digits 0-9, along with # and *, are officially classified as characters that carry the "Emoji" property. An emoji-removal tool built without knowing this will false-positive on ordinary digits and symbols sitting right in the middle of normal text. Here's why that classification exists, and how to process text correctly to avoid the false positives.</p>
+
+  <h2>1. Why digits are classified as "emoji": they're the raw material for keycap emoji</h2>
+  <p>You've probably seen "keycap" emoji like 0️⃣ through 9️⃣, #️⃣, and *️⃣. These aren't actually single characters — each is a composite sequence built from a base character (a digit 0-9, #, or *) followed by a variation selector (U+FE0F) and a combining enclosing keycap character (U+20E3). The Unicode standard gives the Emoji property to the base character itself, since it's the "raw material" that can form this sequence. That means even the plain digit "5" on its own is flagged as Emoji=Yes in the Unicode database.</p>
+
+  <div class="box">
+    <strong>Property comparison</strong>: the character "5" (U+0035) doesn't carry the Emoji_Presentation property, but it does carry the Emoji property itself — Yes. "5️⃣", on the other hand, is a sequence of three combined code points: U+0035 + U+FE0F + U+20E3. A regex like <code>/\p{Emoji}/u</code> matches on the base character "5" alone regardless of whether the other two code points are attached, so naively applying just that regex will misidentify an ordinary "5" sitting in body text as an emoji and delete it.
+  </div>
+
+  <h2>2. Why naive filtering is risky</h2>
+  <p>Many emoji-removal implementations scan text with a single <code>/\p{Emoji}/u</code> regex and delete anything that matches. Even in text with zero actual emoji — pure Korean or English prose — any digits or symbols inside phrases like "in 2024," "item #3," or "#1" are at risk of being wiped out along with everything else. In text where digits and # show up constantly — prices, phone numbers, rankings, hashtags — this false positive quietly corrupts the output, and it's hard to catch because nothing errors out; characters just silently disappear.</p>
+
+  <h2>3. The correct approach: only remove combining characters when they're actually attached</h2>
+  <p>A sequence should only be treated as a real keycap emoji when a variation selector (U+FE0F) or combining keycap (U+20E3) is actually attached after the base character. When the base character appears alone, it should be left as plain text. The <a href="../emoji-remover.html?lang=en">Emoji Remover</a> handles this by first splitting text into human-perceived "character units" (grapheme clusters) using the Intl.Segmenter API, then testing each unit against the Unicode Emoji property regex — while also checking each unit against <code>/^[0-9#*]$/</code> to precisely exclude "standalone digit/#/*" characters from being flagged as emoji. In other words, a digit, #, or * with no combining character attached is excluded from removal from the start, while an actual keycap emoji sequence (with the combining character attached) is recognized as a single grapheme and removed as a whole.</p>
+
+  <table>
+    <tr><th>Input</th><th>What it actually is</th><th>Result</th></tr>
+    <tr><td>"item 3"</td><td>Standalone digit (no combining character)</td><td>Preserved</td></tr>
+    <tr><td>"item 3️⃣"</td><td>Keycap emoji sequence</td><td>3️⃣ is removed entirely</td></tr>
+    <tr><td>"#1 ranking"</td><td>Standalone # (no combining character)</td><td>Preserved</td></tr>
+  </table>
+
+  <h2>4. Another reason grapheme-cluster processing matters</h2>
+  <p>Preventing this false positive is part of a bigger reason text needs to be handled by grapheme cluster rather than one code point at a time. A family emoji like 👨‍👩‍👧 is also, under the hood, a composite string made of three separate emoji (man, woman, girl) joined by a Zero Width Joiner (ZWJ). Processing code point by code point strips only part of it and leaves broken fragments behind. Skin-tone variants (👍🏽) and flag emoji (🇰🇷) are the same story — multiple code points bundled into a single grapheme. Intl.Segmenter groups all of these cases exactly the way a human eye perceives them, which is what makes it possible to solve both the digit false-positive problem and complete removal of compound emoji at the same time.</p>
+
+  <h2>5. Other text-processing tasks with the same underlying problem</h2>
+  <p>Ignoring the difference between code points and graphemes in emoji/special-character handling causes the same kind of issue in other text tools — character counting, string truncation, normalization, and more. If you want to count characters accurately, try the <a href="../text-statistics.html?lang=en">Text Statistics</a> tool; if you just want to verify emoji counts separately, the <a href="../emoji-counter.html?lang=en">Emoji Counter</a> can check that. And if you want to inspect exactly what's happening at the Unicode code-point level, the <a href="../unicode-inspector.html?lang=en">Unicode Inspector</a> is useful for that.</p>
+
+  <h2>FAQ</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Is there a real-world case where digits carrying the Emoji property actually causes problems?</summary><p style="margin-top:8px;">Yes. A script that filters text using only the <code>/\p{Emoji}/u</code> regex can silently strip digits and # from things like prices ("$1000"), phone numbers, or rankings ("#1") — a real bug, not a theoretical one.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Do ordinary symbols like ★ or ✓ have the same problem?</summary><p style="margin-top:8px;">No. Symbols like ★ or ✓ never carried the Unicode Emoji property in the first place, so they don't match that regex. The false-positive problem is limited to the specific characters that serve as raw material for keycap emoji: digits 0-9, #, and *.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Can this be solved without Intl.Segmenter?</summary><p style="margin-top:8px;">Preventing the standalone-digit false positive alone can be done with a simple regex exception. But safely handling ZWJ compound emoji or skin-tone/flag emoji as whole units in practice requires splitting text into grapheme clusters.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. What if I actually want to remove keycap emoji themselves?</summary><p style="margin-top:8px;">A sequence where a variation selector or combining keycap character is actually attached is correctly identified as an emoji and gets removed. Only the standalone digit/#/* characters are excepted — real keycap emoji sequences are still removed as normal.</p></details>
+
+  <div class="tool-links">
+    <a href="../emoji-remover.html?lang=en">→ Emoji Remover</a>
+    <a href="../emoji-counter.html?lang=en">→ Emoji Counter</a>
+    <a href="../unicode-inspector.html?lang=en">→ Unicode Inspector</a>
+    <a href="../unicode-converter.html?lang=en">→ Unicode Converter</a>
+    <a href="../text-statistics.html?lang=en">→ Text Statistics</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes.</footer>
+</main>
+</body>
+</html>

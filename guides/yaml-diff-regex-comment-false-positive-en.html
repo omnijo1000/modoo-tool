@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YAML Diff Checkers Don't Actually Understand YAML | MODOO HUB</title>
+<meta name="description" content="We checked the code to see whether a YAML diff tool really parses YAML syntax, or just compares text line by line with regex. Covers key collisions from ignored indentation, false-positive comment changes, and dropped arrays.">
+<link rel="canonical" href="https://modoohub.com/guides/yaml-diff-regex-comment-false-positive-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/yaml-diff-regex-comment-false-positive.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/yaml-diff-regex-comment-false-positive-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/yaml-diff-regex-comment-false-positive.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"YAML Diff Checkers Don't Actually Understand YAML","description":"We checked the code to see whether a YAML diff tool really parses YAML syntax, or just compares text line by line with regex. Covers key collisions from ignored indentation, false-positive comment changes, and dropped arrays.","datePublished":"2026-08-27","dateModified":"2026-08-27","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>YAML Diff Checkers Don't Actually Understand YAML</h1>
+  <p class="meta">Guide · Last verified Aug 27, 2026</p>
+
+  <p>Most free "YAML Diff" tools on the web don't actually contain a real YAML parser, despite the name. Open up the source and, instead of a parser that understands YAML syntax (indentation-based nesting, anchors and aliases, block scalars, and so on), you'll often find plain text comparison logic that scans line by line with regex, matching nothing more than "key: value" patterns. MODOO HUB's <a href="../yaml-diff-checker.html?lang=en">YAML Diff Checker</a> is no exception. This guide lays out that structure directly and walks through the false positives it produces in real-world use.</p>
+
+  <h2>1. What actually happens: a one-line regex, not a YAML parser</h2>
+  <p>This tool's parser scans the input text line by line with the regex <code>^(\s*)([\w.\-]+)\s*:\s*(.*)$</code>. Group 1 captures the leading whitespace of the line, group 2 the key name, and group 3 the value after the colon. The problem is that group 1 (the indentation) is captured but never used anywhere. As a result, a <code>host:</code> key nested under <code>database:</code> and a top-level <code>host:</code> key are treated as completely identical by the parser, and every key ends up crammed into a single flat object.</p>
+
+  <h2>2. Ignoring indentation causes key collisions</h2>
+  <p>Say the same file has <code>database: host: a.com</code> and <code>cache: host: b.com</code>, each nested by indentation under a different section. To a human these are obviously two distinct values, but since the parser ignores indentation, both <code>host</code> keys collide in the same top-level namespace. Whichever one is parsed later overwrites the earlier one, which means an incident can happen where both values genuinely exist in the file but only one shows up in the comparison result.</p>
+
+  <h2>3. Why "changed" shows up when only a comment was edited</h2>
+  <p>An inline comment after a value (<code>debug: true # temporarily disabled</code>) gets swept entirely into group 3 of the regex — the value capture. In other words, the whole string <code>true # temporarily disabled</code> gets stored as a single value. So even when the actual value (true) hasn't changed, editing only the comment text makes the parser conclude the value itself changed, and the diff marks it "changed." Conversely, a pure comment line with no colon (<code># this section is under review</code>) doesn't match the regex at all and is ignored completely.</p>
+
+  <h2>4. Arrays are dropped from comparison entirely</h2>
+  <p>YAML's block-style lists (items starting with a hyphen, like <code>- item</code>) have no colon, so this regex never matches them in the first place and they're excluded from comparison entirely. Inline arrays (<code>tags: [a, b, c]</code>) do match, but they aren't actually parsed as arrays — they're stored as the literal string <code>"[a, b, c]"</code>. That means changing a single element flags the whole array as "changed," and even just reordering elements can be mistaken for a different value.</p>
+
+  <div class="box">
+    <strong>Real-world example</strong>: if YAML A has <code>debug: true</code> and YAML B has <code>debug: true # temp</code>, the diff shows one "changed" entry: <code>~ debug: true → true # temp</code>. The actual setting is identical, but this is a textbook false positive that can make a reviewer think the value changed.
+  </div>
+  <table>
+    <tr><th>Input</th><th>What a human sees</th><th>What the parser produces</th></tr>
+    <tr><td>database.host / cache.host (same name, different section)</td><td>Two distinct values</td><td>One overwrites the other</td></tr>
+    <tr><td>debug: true → debug: true # comment added</td><td>No value change</td><td>False positive: flagged as diff-chg ("changed")</td></tr>
+    <tr><td>- a\n- b (block array)</td><td>Should be compared</td><td>Never matched, silently ignored</td></tr>
+  </table>
+
+  <h2>5. So when is it safe to use, and when is it risky</h2>
+  <p>For a simple config file where key names don't repeat across the file, indentation is only one level deep, and there are few or no arrays or comments, this kind of line-based diff is perfectly practical. On the other hand, for deeply nested YAML with the same key name repeated across multiple sections — Kubernetes manifests, CI pipeline configs, and the like — don't trust this tool's output on its own; cross-check the original files directly, or first verify the structure with the <a href="../yaml-validator.html?lang=en">YAML Validator</a>. If you need a structurally accurate comparison, you can also work around this by converting the YAML to JSON first and comparing with the <a href="../json-diff.html?lang=en">JSON Diff Checker</a>.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. So is this tool useless?</summary><p style="margin-top:8px;">Not at all. For a simple flat config file, or YAML where key names are unique across the whole file and there are no arrays, it's still a fast, useful way to scan for changes. It's just a poor fit for deeply nested files or files with repeated key names.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. How can I get a structurally accurate comparison?</summary><p style="margin-top:8px;">Convert the YAML to JSON with the <a href="../json-to-yaml.html?lang=en">JSON ↔ YAML Converter</a>, then compare with a JSON diff tool that actually understands object structure — that sidesteps the indentation and nesting problems entirely.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does it support advanced YAML syntax like anchors (&amp;) or aliases (*)?</summary><p style="margin-top:8px;">No. The regex only recognizes a simple one-line "key: value" pattern, so anchors, aliases, and block scalars (|, &gt;) either won't match at all or will be incorrectly absorbed into a value.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Can it handle large YAML files?</summary><p style="margin-top:8px;">All processing happens in the browser via line-by-line regex matching, so very large files can get slow. For any comparison that actually matters, don't trust the result alone — cross-check the original files too.</p></details>
+
+  <div class="tool-links">
+    <a href="../yaml-diff-checker.html?lang=en">→ YAML Diff Checker</a>
+    <a href="../yaml-validator.html?lang=en">→ YAML Validator</a>
+    <a href="../json-diff.html?lang=en">→ JSON Diff Checker</a>
+    <a href="../json-to-yaml.html?lang=en">→ JSON ↔ YAML Converter</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes. For any comparison that matters in production, we recommend cross-checking the original files and using a dedicated parser.</footer>
+</main>
+</body>
+</html>

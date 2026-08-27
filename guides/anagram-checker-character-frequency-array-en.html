@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anagram Detection: Why Character Frequency Beats Sorting | MODOO HUB</title>
+<meta name="description" content="Comparing sort-then-compare with character-frequency comparison for anagram detection: the performance difference, which approach the actual tool code uses, and the Korean-text normalization trap to watch for.">
+<link rel="canonical" href="https://modoohub.com/guides/anagram-checker-character-frequency-array-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/anagram-checker-character-frequency-array.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/anagram-checker-character-frequency-array-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/anagram-checker-character-frequency-array.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Anagram Detection: Why Character Frequency Beats Sorting","description":"Comparing sort-then-compare with character-frequency comparison for anagram detection, which approach the actual tool code uses, and the Korean-text normalization trap to watch for.","datePublished":"2026-08-27","dateModified":"2026-08-27","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Anagram Detection: Why Character Frequency Beats Sorting</h1>
+  <p class="meta">Guide · Last verified Aug 27, 2026</p>
+
+  <p>There are two common ways to check whether two strings are made of exactly the same letters (an anagram): sort each string and compare the sorted results, or count how many times each character appears and compare the two frequency tables. They look equivalent on the surface, but their time complexity and implementation pitfalls differ. Based on the actual code behind the <a href="../anagram-checker.html?lang=en">Anagram Checker</a>, here's which approach it uses — and what to watch for with characters like Korean syllables, whose components can come apart.</p>
+
+  <h2>1. Sort-and-compare: the most intuitive but slowest method</h2>
+  <p>The first approach most people think of is splitting each string into an array, sorting both, and checking whether the sorted results match exactly. For example, sorting "listen" gives "eilnst", and sorting "silent" gives the same "eilnst", so the two are judged anagrams. It's intuitive, but sorting itself costs O(n log n) with a comparison-based sort, and it gets needlessly slow as the string grows (say, when comparing entire documents). It looks simple to implement, but producing that intermediate "sorted order" means copying and rearranging the whole original array.</p>
+
+  <h2>2. Frequency-table comparison: just count and you're done</h2>
+  <p>The second approach walks each string exactly once, accumulating per-character counts into a Map (or array), then compares the two frequency tables. Since no sorting is needed, the traversal itself is O(n), and comparing the two frequency tables costs roughly proportional to the number of distinct characters involved (usually 26 for the alphabet, or at most a few hundred even for Korean), which is effectively linear time overall. Looking at the actual code behind the <a href="../anagram-checker.html?lang=en">Anagram Checker</a>, there's no sort function involved at all — it builds the frequency table with a <code>charFreq</code> function like the one below.</p>
+  <div class="box">
+    <strong>Actual code</strong>: <code>function charFreq(s){const m=new Map();for(const c of s)m.set(c,(m.get(c)||0)+1);return m;}</code> — it walks the string once, accumulating counts into a Map. The verdict first checks lengths with <code>a.length===b.length</code>, then, across the union of every character that appears in either string, flags the pair as not-an-anagram the moment it finds any character where <code>fa.get(c)!==fb.get(c)</code>.
+  </div>
+
+  <h2>3. Where the performance gap actually becomes noticeable</h2>
+  <p>Comparing two or three words, either method feels instant — no perceptible difference. The gap opens up once the input gets long. Comparing two 10,000-character texts, for example, the sorting approach needs roughly 10,000×log₂(10,000)≈133,000 comparison operations per string, while the frequency-table approach only has to walk each string 10,000 times. The table below shows the rough scale of operations by input length.</p>
+  <table>
+    <tr><th>Input length (n)</th><th>Sort compare O(n log n)</th><th>Frequency compare O(n)</th></tr>
+    <tr><td>10 chars</td><td>~33 ops</td><td>10 ops</td></tr>
+    <tr><td>1,000 chars</td><td>~9,966 ops</td><td>1,000 ops</td></tr>
+    <tr><td>10,000 chars</td><td>~132,877 ops</td><td>10,000 ops</td></tr>
+  </table>
+  <p>The gap widens with input length because sorting does logarithmically more work per element comparison. For short word-game anagram checks it barely matters, but for tools handling whole texts or log files, the frequency-table approach is clearly the better choice.</p>
+
+  <h2>4. The real trap with Korean text: jamo decomposition (NFC vs. NFD)</h2>
+  <p>Whichever algorithm you use, the real trap when handling Korean isn't the algorithm — it's "how many actual Unicode code points make up one character." A precomposed Korean syllable like "가" (NFC, Normalization Form C) is a single code point, but the same syllable stored in decomposed form (NFD, Normalization Form D) splits into two code points: the consonant "ㄱ" and the vowel "ㅏ". Both look identical as "가" on screen, but if the internal representation differs, iterating character-by-character produces completely different results. Text pasted in from macOS's filesystem or certain input methods, which can store text as NFD, can trigger exactly this problem.</p>
+  <div class="box">
+    <strong>What we found</strong>: The actual code behind the <a href="../anagram-checker.html?lang=en">Anagram Checker</a> iterates the string code-point by code-point with <code>for(const c of s)</code>, with no <code>.normalize()</code> call. That means if the input is already precomposed (NFC), syllables like "가" and "나" are each counted correctly as one character — but if decomposed (NFD) text enters through any path, the consonant and vowel get tallied as separate characters, so the same word could be judged as having a different character makeup. Ordinary keyboard input and copy-paste is almost always NFC, so this rarely bites in practice, but the code makes no explicit guarantee of normalization.
+  </div>
+
+  <h2>5. Options handled with a single regex: punctuation, spaces, case</h2>
+  <p>Before comparing, this tool normalizes case, spacing, and punctuation based on the selected options. Punctuation removal uses the Unicode property regex <code>/[^\p{L}\p{N}]/gu</code>, where <code>\p{L}</code> means "letter" (covering not just the Latin alphabet but Korean, Chinese characters, and more) and <code>\p{N}</code> means "number." In other words, it's not filtering only English-style punctuation — it's designed to strip out genuine punctuation and symbols regardless of language, so it works correctly on Korean sentences too. If you want to inspect the full structure of special characters in a text separately, tools like the <a href="../duplicate-line-finder.html?lang=en">Duplicate Line Finder</a> or the <a href="../unicode-inspector.html?lang=en">Unicode Inspector</a> can help you check the source text first.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Is it fine to use sorting for short word comparisons?</summary><p style="margin-top:8px;">A. Yes. For words as short as "listen" and "silent," there's essentially no execution-time difference between sorting and frequency tables. The performance gap only becomes noticeable once inputs run into the hundreds or thousands of characters.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does the frequency-table approach always use less memory too?</summary><p style="margin-top:8px;">A. Not necessarily. The sorting approach only needs a single sorted array of length n, while the frequency-table approach creates one Map entry per distinct character. But since the number of distinct characters is usually far smaller than the string length n (26 for the alphabet, and at most a few hundred even for Korean syllables in practical use), the frequency-table approach is effectively lighter in practice.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Are multi-code-point characters like emoji counted accurately?</summary><p style="margin-top:8px;">A. Most Unicode code points are handled correctly, but for things like flag emoji or emoji combined via ZWJ (Zero Width Joiner), where several code points render as a single visual character, the count splits by code point — so the result can differ from what you'd expect. It's fundamentally the same kind of trap as Korean jamo decomposition (NFD).</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Are anagrams and palindromes checked the same way?</summary><p style="margin-top:8px;">A. No. An anagram check compares whether two different strings share the same character makeup, while a palindrome check tests whether a single string reads the same forwards and backwards — the underlying logic is different. You can check for palindromes with the <a href="../palindrome-checker.html?lang=en">Palindrome Checker</a>.</p></details>
+
+  <div class="tool-links">
+    <a href="../anagram-checker.html?lang=en">→ Anagram Checker</a>
+    <a href="../palindrome-checker.html?lang=en">→ Palindrome Checker</a>
+    <a href="../text-similarity-checker.html?lang=en">→ Text Similarity Checker</a>
+    <a href="../word-frequency-counter.html?lang=en">→ Word Frequency Counter</a>
+    <a href="../unicode-inspector.html?lang=en">→ Unicode Inspector</a>
+    <a href="../duplicate-line-finder.html?lang=en">→ Duplicate Line Finder</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general informational purposes.</footer>
+</main>
+</body>
+</html>

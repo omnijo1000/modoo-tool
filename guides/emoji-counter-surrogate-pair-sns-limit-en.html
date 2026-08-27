@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why One Emoji Can Count as 2 to 11 Characters — The SNS Character Limit Trap | MODOO HUB</title>
+<meta name="description" content="Why a single emoji counts as 2, or even 11, characters depending on how you measure. Explained through UTF-16 surrogate pairs and ZWJ joined sequences — the difference between code points, code units, and graphemes, and how to handle SNS character limits in practice.">
+<link rel="canonical" href="https://modoohub.com/guides/emoji-counter-surrogate-pair-sns-limit-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/emoji-counter-surrogate-pair-sns-limit.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/emoji-counter-surrogate-pair-sns-limit-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/emoji-counter-surrogate-pair-sns-limit.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Why One Emoji Can Count as 2 to 11 Characters — The SNS Character Limit Trap","description":"Why a single emoji counts as 2, or even 11, characters depending on how you measure, explained through UTF-16 surrogate pairs and ZWJ joined sequences.","datePublished":"2026-08-27","dateModified":"2026-08-27","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html?lang=en" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Why One Emoji Can Count as 2 to 11 Characters — The SNS Character Limit Trap</h1>
+  <p class="meta">Guide · Last verified Aug 27, 2026</p>
+
+  <p>You've probably noticed this before: a single emoji (😀) looks like exactly one character on screen, but when you run it through a character counter it suddenly registers as 2. It gets worse with something like a family emoji (👨‍👩‍👧‍👦), where several emoji appear stacked into one — depending on the tool, that can register as up to 11 characters. This isn't a bug. It comes from the gap between how Unicode actually stores characters and what you mean by "counting characters" in the first place. Using the actual source code of the <a href="../emoji-counter.html">Emoji Counter</a> as our basis, this guide lays out three different definitions of "character count" and connects them to real SNS character limits like Twitter/X and Instagram.</p>
+
+  <h2>1. Why emoji split into two pieces in UTF-16</h2>
+  <p>Unicode assigns a unique number (a code point) to every character in the world. Most emoji have code points like U+1F600 (😀), which fall outside the range representable in 16 bits (0 to FFFF) — the "supplementary" range. Because JavaScript strings are internally encoded as UTF-16, any character beyond that 16-bit range gets split into 2 sixteen-bit code units using a scheme called a <strong>surrogate pair</strong>. As a result, measuring a single emoji with JavaScript's <code>string.length</code> property (which counts code units) returns 2, not 1. To the human eye it's one character; internally, it's two pieces.</p>
+
+  <h2>2. ZWJ: the invisible glue that joins multiple emoji into one</h2>
+  <p>Compound emoji showing multiple people — families, professions, couples — aren't actually single characters that exist on their own. 👨‍👩‍👧‍👦 is really four independent emoji glued together with three invisible connectors: "man" + ZWJ (Zero-Width Joiner, U+200D, a zero-width joining character) + "woman" + ZWJ + "girl" + ZWJ + "boy". When a font and browser recognize this sequence, they render it as one merged image on screen, but the underlying string data still contains all 7 code points (4 emoji + 3 ZWJ characters). This is also why, on older systems that don't support the sequence, this emoji shows up as 4 separate people standing side by side instead of one merged image.</p>
+
+  <h2>3. What the MODOO HUB Emoji Counter actually counts</h2>
+  <p>Looking at the source code of the <a href="../emoji-counter.html">Emoji Counter</a>, the emoji count (total emoji and unique types) is calculated by first splitting the text into "grapheme clusters" — the unit a human perceives as a single character — using the browser's built-in <code>Intl.Segmenter</code> API, then filtering for clusters that carry emoji properties. Because this approach correctly groups surrogate pairs and ZWJ sequences into single units, a family emoji is accurately counted as "1." The "total characters" figure shown lower on the screen, on the other hand, uses <code>[...text].length</code> — the length of an array produced by spreading the string into code points using the spread operator. That's a third, different standard from the code-unit-based <code>string.length</code>.</p>
+
+  <h2>4. Code points, code units, graphemes — same emoji, three different numbers</h2>
+  <p>Count the family emoji 👨‍👩‍👧‍👦 three different ways, and you get three different results.</p>
+  <table>
+    <tr><th>Measurement method</th><th>What it counts</th><th>Value for 👨‍👩‍👧‍👦</th></tr>
+    <tr><td>Grapheme cluster (Intl.Segmenter)</td><td>The unit a human perceives as one character — how the Emoji Counter's "total emoji" is tallied</td><td>1</td></tr>
+    <tr><td>Code point (<code>[...str].length</code>)</td><td>Number of Unicode character codes — how the Emoji Counter's "total characters" is tallied</td><td>7 (4 emoji + 3 ZWJ)</td></tr>
+    <tr><td>UTF-16 code unit (<code>str.length</code>)</td><td>Plain JavaScript <code>.length</code> — the basis for most SNS character counters</td><td>11 (4 emoji × 2 surrogate units + 3 ZWJ × 1 unit)</td></tr>
+  </table>
+  <div class="box">
+    <strong>A single basic emoji 😀</strong> is grapheme 1, code point 1, but code unit (<code>.length</code>) <strong>2</strong>. The "2 to 11" in the title spans these two extremes — a basic emoji with just a surrogate pair (2) on one end, and a compound emoji joined from several with ZWJ (11 or more) on the other.
+  </div>
+
+  <h2>5. What this means in practice for Twitter/X and Instagram character limits</h2>
+  <p>Most SNS platform character limits use plain <code>.length</code> (code units) or a similarly weighted rule close to it. That means a single emoji that looks like one character on screen actually consumes 2 or more of your character budget, and a compound emoji joined with ZWJ eats up far more. Use multiple emoji in a short caption — especially compound family, couple, or profession emoji — and you can hit the character limit much sooner than the visible character count would suggest. Before you finalize a caption or tweet, checking the actual count in advance with the <a href="../emoji-counter.html">Emoji Counter</a> and <a href="../character-counter.html">Character Counter</a> is the safe move.</p>
+
+  <h2>6. If you want to break an emoji down to the code level</h2>
+  <p>If you want to see exactly how many code points make up a specific emoji, and how many times ZWJ appears, character by character, use the <a href="../unicode-inspector.html">Unicode Inspector</a>. Conversely, if you want to strip all emoji from text and count only the plain characters, filter with the <a href="../emoji-remover.html">Emoji Remover</a> first, then count.</p>
+
+  <h2>FAQ</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Why does even a basic emoji count as 2 characters instead of 1?</summary><p style="margin-top:8px;">Because the emoji's Unicode code point falls outside the range representable in 16 bits. Since JavaScript strings use UTF-16, characters like this are split into a surrogate pair of 2 code units, and <code>.length</code> counts those code units.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Why does the Emoji Counter's "total characters" figure differ from actual SNS character limits?</summary><p style="margin-top:8px;">The Emoji Counter's "total characters" is tallied by code point (<code>[...text].length</code>), while most SNS character limits work closer to UTF-16 code units (<code>.length</code>). Since one code point of a basic emoji expands to 2 code units, the SNS-side count can come out higher.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Do skin-tone emoji (👋🏽) also count as multiple characters?</summary><p style="margin-top:8px;">Yes. A skin-tone variant is formed by attaching a separate modifier code point after the base emoji, so by code point or code unit count it registers as more characters than the base emoji. By the grapheme cluster standard (the unit humans perceive), though, it's still recognized as 1.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Do ZWJ-joined emoji always display as one glyph on every device?</summary><p style="margin-top:8px;">No. If the font or operating system doesn't support that particular ZWJ sequence, the individual emoji can display side by side instead of merged. In the underlying data it's always a sequence of multiple code points — only the rendering changes depending on the environment.</p></details>
+
+  <div class="tool-links">
+    <a href="../emoji-counter.html?lang=en">→ Emoji Counter</a>
+    <a href="../emoji-remover.html?lang=en">→ Emoji Remover</a>
+    <a href="../unicode-inspector.html?lang=en">→ Unicode Inspector</a>
+    <a href="../unicode-converter.html?lang=en">→ Unicode Converter</a>
+    <a href="../character-counter.html?lang=en">→ Character Counter</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is general information intended to explain how the tool works. Actual screens and options may change as the tool is updated.</footer>
+</main>
+</body>
+</html>

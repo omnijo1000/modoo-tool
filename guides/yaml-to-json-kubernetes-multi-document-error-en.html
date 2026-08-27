@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why the YAML→JSON Converter Fails on Kubernetes Manifests | MODOO HUB</title>
+<meta name="description" content="Explains why pasting a Kubernetes multi-document YAML file (separated by ---) straight into a YAML→JSON converter throws an error, how js-yaml's load() actually behaves, and the correct way to convert it.">
+<link rel="canonical" href="https://modoohub.com/guides/yaml-to-json-kubernetes-multi-document-error-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/yaml-to-json-kubernetes-multi-document-error.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/yaml-to-json-kubernetes-multi-document-error-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/yaml-to-json-kubernetes-multi-document-error.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Why the YAML→JSON Converter Fails on Kubernetes Manifests","description":"Explains why pasting a Kubernetes multi-document YAML file (separated by ---) straight into a YAML→JSON converter throws an error, how js-yaml's load() actually behaves, and the correct way to convert it.","datePublished":"2026-08-27","dateModified":"2026-08-27","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Why the YAML→JSON Converter Fails on Kubernetes Manifests</h1>
+  <p class="meta">Guide · Last verified Aug 27, 2026</p>
+
+  <p>If you've ever pasted an entire Kubernetes manifest into a YAML→JSON converter and gotten back an empty result with a cryptic error, the file probably isn't broken — the converter was likely just never designed to handle that kind of file in the first place. This guide walks through why Kubernetes YAML conventions clash with how a standard YAML parser behaves, and exactly how to use the <a href="../yaml-to-json.html?lang=en">YAML to JSON Converter</a> so the conversion succeeds without errors, verified down to the code level.</p>
+
+  <h2>1. Why Kubernetes packs multiple resources into one file</h2>
+  <p>Kubernetes manifests commonly stuff several different resources — a Deployment, a Service, a ConfigMap — into a single YAML file. This is so related resources can be deployed as one unit with a single <code>kubectl apply -f</code> call, using YAML's own <strong>"---" document separator</strong> to chain multiple independent YAML documents together in one file. From the YAML spec's point of view, a file like this isn't "one document" — it's a "document stream." In other words, contrary to the intuitive assumption that one file equals one document, Kubernetes YAML is structured as N documents inside a single file.</p>
+
+  <h2>2. What most YAML→JSON converters assume</h2>
+  <p>A typical YAML→JSON converter is built on the assumption that "one file equals one top-level object." This site's own <a href="../yaml-to-json.html?lang=en">YAML to JSON Converter</a> is no different — internally it uses the <code>load()</code> function from <strong>js-yaml</strong> (version 4.1.0), a JavaScript YAML parsing library. js-yaml separately provides <code>load()</code>, which parses a single document, and <code>loadAll()</code>, which parses an entire multi-document stream into an array. Since this tool is built to show one resulting object as JSON, it uses <code>load()</code>. The problem is that when <code>load()</code> receives a multi-document stream, it doesn't "process just part of it" — it <strong>throws an exception and aborts the conversion entirely</strong>.</p>
+  <div class="box">
+    <strong>What actually happens</strong>: paste a YAML file that chains two or more documents with "---", like a Kubernetes manifest, into the <a href="../yaml-to-json.html?lang=en">YAML to JSON Converter</a>, and the result field stays empty while you get an error along the lines of <code>YAML parse error: expected a single document in the stream, but found more</code>. There's no "partial processing" that picks out just the first Deployment for you.
+  </div>
+
+  <h2>3. So how should you actually convert it</h2>
+  <p>The fix is simple, if manual: split the file at each "---" separator and paste each document in one at a time to convert it.</p>
+  <table>
+    <tr><th>Situation</th><th>Result</th></tr>
+    <tr><td>Pasting the whole file with Deployment + Service joined by "---"</td><td>Parse error, no result</td></tr>
+    <tr><td>Pasting just the Deployment section</td><td>Converts successfully</td></tr>
+    <tr><td>Pasting just the Service section</td><td>Converts successfully</td></tr>
+  </table>
+  <p>If there are more resources, you'll need to repeat this once per resource. It's tedious, but it also means there's a clear, unambiguous rule for exactly where to cut each resource's YAML — right at the "---" line.</p>
+
+  <h2>4. It also affects anchors (&amp;) and aliases (*)</h2>
+  <p>YAML supports anchor/alias syntax, letting you define a repeated value with <code>&amp;name</code> and reuse it with <code>*name</code>. Within a single document, these get resolved into actual data and inlined directly into the resulting JSON. But that resolution only happens once <code>load()</code> has successfully parsed the document — and since multi-document YAML fails at the parsing stage to begin with, the conversion fails before anchor/alias resolution even becomes a question. If you were sharing an anchor across multiple resources in a Kubernetes manifest, keep in mind that splitting the document also breaks that shared relationship.</p>
+
+  <h2>5. Practical tip: check whether you even need to convert</h2>
+  <p>The usual reason to turn a Kubernetes manifest into JSON is to send it directly to the API server, or to process it with a JSON-based tool (jq, a policy checker, and so on). Since it's common to work with one resource at a time, if you're already managing your files split per resource, you'll never run into this error at all. If you do need to keep several resources in one file, it's worth building the habit of counting the "---" separators before pasting into the <a href="../yaml-to-json.html?lang=en">YAML to JSON Converter</a> each time — that way the error message never catches you off guard. If you want to double-check the YAML syntax itself before converting, you can also re-validate the output afterward with the <a href="../json-validator.html?lang=en">JSON Validator</a>.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. If I paste a multi-document YAML separated by "---", does it convert just the first document?</summary><p style="margin-top:8px;">No. The js-yaml <code>load()</code> function this tool uses throws an error the moment it hits multi-document YAML, and the conversion fails entirely. It doesn't pick out the first document for you — the result field stays empty and you just get an error message.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. How do I convert a file with several resources chained together, like a Kubernetes manifest?</summary><p style="margin-top:8px;">Pasting the whole thing in triggers a multi-document error, so you need to split the file at each "---" separator into individual documents and paste them in one at a time.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Why doesn't it at least convert the first document?</summary><p style="margin-top:8px;">The js-yaml <code>load()</code> function this tool uses is designed around the assumption that there's exactly one document, so it treats hitting a second "---" as an error condition in itself. That's different behavior from the <code>loadAll()</code> family of functions, which would return the first document among several.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. What happens to YAML anchors (&amp;) and aliases (*) during conversion?</summary><p style="margin-top:8px;">Within a single document, anchors and aliases get resolved into their actual values and inlined into the JSON. For multi-document YAML, parsing already fails before that resolution step is ever reached.</p></details>
+
+  <div class="tool-links">
+    <a href="../yaml-to-json.html?lang=en">→ YAML to JSON Converter</a>
+    <a href="../json-to-yaml.html?lang=en">→ JSON to YAML Converter</a>
+    <a href="../json-validator.html?lang=en">→ JSON Validator</a>
+    <a href="../xml-to-json.html?lang=en">→ XML to JSON Converter</a>
+    <a href="../json-diff.html?lang=en">→ JSON Diff Checker</a>
+    <a href="../csv-viewer.html?lang=en">→ CSV Viewer</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes; actual parsing behavior can vary by library version, so for any file that matters, run the conversion yourself and verify the result.</footer>
+</main>
+</body>
+</html>

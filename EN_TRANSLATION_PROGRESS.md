@@ -1,6 +1,6 @@
 # 가이드 영어(EN) 번역 진행 상황
 
-**마지막 갱신**: 2026-08-27  |  **진행률**: 50/176
+**마지막 갱신**: 2026-08-27  |  **진행률**: 60/176
 
 ## 배경 & 방식
 
@@ -34,8 +34,8 @@
 ## 진행 현황 (카테고리별)
 | 카테고리 | 완료/전체 |
 |---|---|
-| 개발자 도구 (developer-tools) | 50/52 |
-| 텍스트 도구 (text-tools) | 0/32 |
+| 개발자 도구 (developer-tools) | 52/52 |
+| 텍스트 도구 (text-tools) | 8/32 |
 | 이미지 도구 (image-tools) | 0/24 |
 | 생성기 도구 (generator-tools) | 0/21 |
 | 보안 도구 (security-tools) | 0/17 |
@@ -45,7 +45,7 @@
 
 ---
 
-## 개발자 도구 (developer-tools) — 50/52
+## 개발자 도구 (developer-tools) — 52/52
 
 - [x] `api-response-viewer-large-integer-rounding` ← tool: `api-response-viewer`
 - [x] `api-tester-cors-vs-network-error-typeerror` ← tool: `api-tester`
@@ -96,20 +96,20 @@
 - [x] `webhook-signature-timing-attack-constant-time` ← tool: `webhook-tester`
 - [x] `whois-rdap-protocol-transition` ← tool: `whois-lookup`
 - [x] `xml-validator-well-formed-vs-valid` ← tool: `xml-validator`
-- [ ] `yaml-diff-regex-comment-false-positive` ← tool: `yaml-diff-checker`
+- [x] `yaml-diff-regex-comment-false-positive` ← tool: `yaml-diff-checker`
 - [x] `yaml-norway-problem-boolean-parsing` ← tool: `yaml-validator`
-- [ ] `yaml-to-json-kubernetes-multi-document-error` ← tool: `yaml-to-json`
+- [x] `yaml-to-json-kubernetes-multi-document-error` ← tool: `yaml-to-json`
 
-## 텍스트 도구 (text-tools) — 0/32
+## 텍스트 도구 (text-tools) — 8/32
 
-- [ ] `alphabetizer-localecompare-vs-unicode-sort` ← tool: `alphabetizer`
-- [ ] `anagram-checker-character-frequency-array` ← tool: `anagram-checker`
-- [ ] `ascii-del-127-punch-tape-history` ← tool: `ascii-table`
-- [ ] `ascii-utf8-subset-compatibility` ← tool: `ascii-converter`
-- [ ] `cps-human-click-speed-limit-butterfly` ← tool: `cps-calculator`
-- [ ] `emoji-counter-surrogate-pair-sns-limit` ← tool: `emoji-counter`
-- [ ] `emoji-remover-digit-false-positive` ← tool: `emoji-remover`
-- [ ] `hashtag-count-strategy-3-4-3-ratio` ← tool: `hashtag-generator`
+- [x] `alphabetizer-localecompare-vs-unicode-sort` ← tool: `alphabetizer`
+- [x] `anagram-checker-character-frequency-array` ← tool: `anagram-checker`
+- [x] `ascii-del-127-punch-tape-history` ← tool: `ascii-table`
+- [x] `ascii-utf8-subset-compatibility` ← tool: `ascii-converter`
+- [x] `cps-human-click-speed-limit-butterfly` ← tool: `cps-calculator`
+- [x] `emoji-counter-surrogate-pair-sns-limit` ← tool: `emoji-counter`
+- [x] `emoji-remover-digit-false-positive` ← tool: `emoji-remover`
+- [x] `hashtag-count-strategy-3-4-3-ratio` ← tool: `hashtag-generator`
 - [ ] `keyword-extractor-korean-particle-limitation` ← tool: `keyword-extractor`
 - [ ] `ngram-analyzer-cjk-regex-language-bias` ← tool: `ngram-analyzer`
 - [ ] `palindrome-checker-codepoint-vs-grapheme` ← tool: `palindrome-checker`

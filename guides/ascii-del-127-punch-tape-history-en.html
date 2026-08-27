@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why DEL Landed on 127 — A Punch-Tape-Era Relic | MODOO HUB</title>
+<meta name="description" content="Why the ASCII control character DEL was assigned code 127 (1111111), tracing back to how errors were deleted on punched paper tape. Covers the 7-bit design ceiling, the relationship between control characters 0-31 and DEL, and worked base-conversion examples.">
+<link rel="canonical" href="https://modoohub.com/guides/ascii-del-127-punch-tape-history-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/ascii-del-127-punch-tape-history.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/ascii-del-127-punch-tape-history-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/ascii-del-127-punch-tape-history.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Why the DEL Control Character (127) Landed on 127 — A Punch-Tape-Era Relic","description":"Why the ASCII control character DEL was assigned code 127 (1111111), tracing back to how errors were deleted on punched paper tape.","datePublished":"2026-08-27","dateModified":"2026-08-27","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Why DEL Landed on 127 — A Punch-Tape-Era Relic</h1>
+  <p class="meta">Guide · Last verified Aug 27, 2026</p>
+
+  <p>Scan an ASCII table and one name at slot 127 stands out. It's DEL (Delete). The control characters 0–31 feel like they were assigned in some deliberate order, but DEL sits off on its own, at the very last of the 128 slots — exactly the maximum value, 127. That's no coincidence. It's a physical constraint from the era of punching holes into paper to store data, fossilized directly into a code value that survives to this day.</p>
+
+  <h2>1. Why the ceiling is exactly 127 — the limit a 7-bit design imposes</h2>
+  <p>In the early 1960s, ASCII settled on representing each character with 7 bits. Seven bits can express 2 to the 7th power — 128 combinations, 0 through 127. All of it — uppercase and lowercase letters, digits, punctuation, and even invisible control characters — had to fit inside those 128 slots. The 8th bit was conventionally set aside as a parity bit for detecting transmission errors, so only 7 bits were actually available to distinguish characters. That's also why, in the <a href="../ascii-table.html?lang=en">ASCII Table</a> tool, setting the filter to "All" shows exactly 128 rows, from 0 through 127 — a direct physical ceiling imposed by that 7-bit design.</p>
+
+  <h2>2. Punched tape: once a hole is punched, it can't be undone</h2>
+  <p>Early teletypes and computers stored information by punching holes into paper tape. Each character was assigned seven hole positions (bit positions) across one row, read as 1 where a hole was punched and 0 where it wasn't. The problem was typing mistakes. Ink or paper documents can be erased or corrected, but a hole that's already been physically punched can't be filled back in. Short of discarding the entire tape and starting over, there was no way to undo a mistake.</p>
+
+  <h2>3. The fix: "punch out every remaining hole to invalidate it"</h2>
+  <p>The convention that emerged was deletion by punching more holes. Whatever character had been punched by mistake, punching out every remaining unpunched position in that column left all 7 bits set to 1 — 1111111. Readers were designed, by convention, to treat that value as "this column is invalidated, whatever it originally was." You could never remove a hole, but you could always add more — and that's exactly the trick this convention relied on. That binary value, 1111111, was absorbed directly into the ASCII standard under the name DEL, and it has held slot 127 ever since.</p>
+  <div class="box">
+    <strong>Base-conversion example</strong>: expressed in each base, DEL is binary <code>1111111</code> (all 7 bits set) = decimal <code>127</code> = hexadecimal <code>7F</code> = octal <code>177</code>. The fact that the largest possible binary value in a 7-bit space is exactly DEL's code is itself a direct trace of the punch-tape convention of "fill every bit to invalidate." You can check the decimal, hex, octal, and binary values for any character at once in the <a href="../ascii-table.html?lang=en">ASCII Table</a>.
+  </div>
+
+  <h2>4. DEL isn't part of the control-character (0–31) family</h2>
+  <p>ASCII is often loosely described as "control characters are 0 through 31," but DEL (127) sits outside that range. This structure shows up directly in the actual code behind modoohub's ASCII Table tool: codes 0–31 pull their names from a tidy CTRL name array running from NUL and SOH through STX up to US, while 127 has a completely separate branch that assigns the name 'DEL' only when the code value equals 127. In other words, even in the code's structure, DEL doesn't belong to "the block of 31 standard control characters" — it sits alone at the very end of the 7-bit space, right after the printable range (32–126). It shares the non-printing-character trait of control characters, but where it got its slot from is an entirely different story.</p>
+
+  <h2>5. Not the same story as today's Delete/Backspace keys</h2>
+  <p>Whether pressing Backspace on a keyboard today actually sends code 8 (BS) or code 127 (DEL) depends on the operating system and terminal settings — pure historical convention leaking into modern configuration. Unix-family environments have traditionally mapped 127 to backspace, while other environments use 8. Trace that inconsistency back far enough and it connects directly to the punch-tape-era convention of filling every bit to express invalidation on a medium that couldn't be erased. If you want to see text converted straight into ASCII values, the <a href="../ascii-converter.html?lang=en">ASCII Converter</a> is the quick way, and if you also want to see the Unicode code points alongside them, the <a href="../text-to-unicode.html?lang=en">Text-to-Unicode Converter</a> works well for comparison.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Is DEL (127) really the same as a modern delete key?</summary><p style="margin-top:8px;">The name and historical origin trace back to "delete (invalidate)," but whether today's keyboard Delete/Backspace key actually sends this exact code varies by environment. Unix-family systems have often traditionally treated 127 as backspace, while other environments use code 8 (BS) instead.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Why represent invalidation by "filling every bit with 1"?</summary><p style="margin-top:8px;">Because punched paper tape offered no way to undo a hole once it was punched. You could never remove a hole, but you could always punch more — so punching out every remaining position to mark "this column is invalid" was the only workable way to delete.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does DEL also count as one of the control characters (0–31)?</summary><p style="margin-top:8px;">The standard control-character block runs from 0 to 31, and DEL (127) is a separate slot outside that range. It shares the trait of being a non-printing character, but structurally it's kept apart from the 0–31 control-character array, sitting on its own at the maximum value of the 7-bit space.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does Extended ASCII (128–255) have an invalidation character similar to DEL?</summary><p style="margin-top:8px;">The range above 128 never had a unified standard to begin with — its definition varies by platform and encoding. Standard ASCII's "punch out everything to invalidate" convention doesn't carry over consistently into that territory.</p></details>
+
+  <div class="tool-links">
+    <a href="../ascii-table.html?lang=en">→ ASCII Table</a>
+    <a href="../ascii-converter.html?lang=en">→ ASCII Converter</a>
+    <a href="../text-to-unicode.html?lang=en">→ Text-to-Unicode Converter</a>
+    <a href="../unicode-to-text.html?lang=en">→ Unicode-to-Text Converter</a>
+    <a href="../unicode-converter.html?lang=en">→ Unicode Converter</a>
+    <a href="../unicode-inspector.html?lang=en">→ Unicode Inspector</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general informational purposes; verify implementation-specific details in your own environment.</footer>
+</main>
+</body>
+</html>
