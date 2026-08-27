@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why Upscaling an Image Hurts Quality — The Limits of Interpolation | MODOO HUB</title>
+<meta name="description" content="Resizing a 500×500 image up to 1000×1000 doesn't add any detail. Here's how the browser's Canvas interpolation fills in the gaps between pixels, and why the result can't come out sharper than the original without AI super-resolution.">
+<link rel="canonical" href="https://modoohub.com/guides/image-upscale-quality-loss-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/image-upscale-quality-loss.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/image-upscale-quality-loss-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/image-upscale-quality-loss.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Why Upscaling an Image Hurts Quality — The Limits of Interpolation","description":"Resizing a 500×500 image up to 1000×1000 doesn't add any detail. Here's how the browser's Canvas interpolation fills in the gaps between pixels, and why the result can't come out sharper than the original without AI super-resolution.","datePublished":"2026-08-27","dateModified":"2026-08-27","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"If I make an image 2x bigger, does the quality get 2x better?","acceptedAnswer":{"@type":"Answer","text":"No — it can actually get blurrier. Pixel information that didn't exist in the original has to be created somehow, and typical resize tools fill the gaps by mathematically averaging/interpolating nearby pixel values. Rather than adding new detail, this essentially stretches out existing information, which is why edges get progressively softer and blurrier the more you enlarge an image."}},
+{"@type":"Question","name":"What exactly is interpolation?","acceptedAnswer":{"@type":"Answer","text":"It's the process of mathematically estimating the color value for a newly created pixel position — one that sits between the original image's pixels — using the values of the surrounding original pixels. The browser's Canvas API uses bilinear interpolation or something similar by default, which computes a weighted average of a handful of neighboring pixels. It can't actually generate fine detail (edges, text strokes, texture) that wasn't there to begin with."}},
+{"@type":"Question","name":"Why is AI super-resolution different?","acceptedAnswer":{"@type":"Answer","text":"AI super-resolution models are trained on millions of low-resolution/high-resolution image pairs, and they use probabilistic inference — essentially 'this kind of blurry pattern is usually this kind of fine detail' — to generate plausible detail that wasn't actually present. A browser Canvas-based resizer, by contrast, only performs pure interpolation math with no such inference ability, so the total amount of information never increases as you enlarge — it just gets blurrier."}},
+{"@type":"Question","name":"Is upscaling a completely useless feature, then?","acceptedAnswer":{"@type":"Answer","text":"No. It's useful for matching a display size (e.g., nudging a small icon slightly bigger to fit a layout), or for restoring a file back to its original size when it was shrunk for some other reason but a high-resolution original already exists. But if your goal is to generate detail that was never in a low-resolution original to achieve print-grade quality, ordinary upscaling has real limits."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Why Upscaling an Image Hurts Quality — The Limits of Interpolation</h1>
+  <p class="meta">Guide · Last verified Aug 27, 2026</p>
+
+  <p>What happens when you take a 500×500 pixel photo and use a resize tool to double it to 1000×1000? The pixel count grows exactly 4x (2x width × 2x height), but the actual amount of information contained in the photo doesn't grow at all — you simply can't invent detail that wasn't in the original. So when you zoom into an upscaled image, instead of looking sharper, it ends up looking softly blurred.</p>
+
+  <h2>1. More pixels doesn't mean more information</h2>
+  <p>Every pixel in the original image is a color value that was actually recorded by a camera sensor or drawing tool. When you enlarge an image, new pixel positions appear that didn't exist in the original — and there's no "real" information anywhere to fill them with. So resize algorithms use <strong>interpolation</strong>: mathematically computing values for the surrounding original pixels to fill the gaps. Most web-based resizers, including this site's <a href="../image-resizer.html?lang=en">image resizer</a>, use the browser's Canvas API, which by default fills empty space by taking a weighted average of neighboring pixels. An averaged value is inevitably softer and blurrier at the edges than the original.</p>
+
+  <h2>2. Why shrinking is fine but enlarging gets blurry</h2>
+  <p>Shrinking, by contrast, is a process of combining information from multiple pixels into one. It does discard information, but it isn't inventing anything new, so it compresses naturally within the bounds of what the original actually contains. Enlarging, however, has to fill in information that doesn't exist as if it did — the more you scale beyond the original resolution, the larger the share of "estimation" in the result, and the softer and blurrier it gets. This is exactly why photo-editing advice tends to say "it's better to work by shrinking than by trying to make something bigger than the original."</p>
+
+  <table>
+    <tr><th>Operation</th><th>How information is handled</th><th>Result</th></tr>
+    <tr><td>Downscale (shrink)</td><td>Compresses multiple original pixels into one</td><td>Some information loss, but little distortion</td></tr>
+    <tr><td>Upscale (ordinary interpolation)</td><td>Estimates empty pixels by averaging neighbors</td><td>Blurrier, with no added detail</td></tr>
+    <tr><td>Upscale (AI super-resolution)</td><td>Generates new detail from learned patterns</td><td>Can add plausible new detail</td></tr>
+  </table>
+
+  <h2>3. What makes AI super-resolution different</h2>
+  <p>The recently popular AI upscaling technique known as super-resolution works around this limitation in a different way. A neural network trained on millions of low-resolution/high-resolution image pairs draws in detail that wasn't actually in the original, using probabilistic inference along the lines of "this kind of blurry pattern was usually this kind of fine texture." In other words, unlike pure interpolation, it includes a process of actually "generating" information. That said, this is still a guess based on training data, so it isn't always accurate, and side effects have been reported where areas that demand precision — like faces or text — end up with detail that doesn't match reality. Ordinary browser Canvas-based resizers perform pure mathematical interpolation with no such AI inference, so getting blurrier as you enlarge is expected, normal behavior.</p>
+
+  <h2>4. Summary</h2>
+  <ul>
+    <li><strong>Enlarging doesn't add information</strong>: only the pixel count increases; no real detail is added.</li>
+    <li><strong>Interpolation is averaging</strong>: filling empty pixel positions with a weighted average of nearby values naturally softens the result.</li>
+    <li><strong>AI super-resolution works differently</strong>: it infers and generates new detail from learned patterns.</li>
+    <li><strong>If you need real print-quality resolution</strong>: the answer is to secure a high-resolution original from the start, or use a dedicated AI upscaling tool.</li>
+  </ul>
+
+  <h2>Frequently Asked Questions</h2>
+  <details class="faq-item"><summary>Q. If I make an image 2x bigger, does the quality get 2x better?</summary><p>A. No — it can actually get blurrier. Pixel information that didn't exist in the original has to be created somehow, and typical resize tools fill the gaps by mathematically averaging/interpolating nearby pixel values. Rather than adding new detail, this essentially stretches out existing information, which is why edges get progressively softer and blurrier the more you enlarge an image.</p></details>
+  <details class="faq-item"><summary>Q. What exactly is interpolation?</summary><p>A. It's the process of mathematically estimating the color value for a newly created pixel position — one that sits between the original image's pixels — using the values of the surrounding original pixels. The browser's Canvas API uses bilinear interpolation or something similar by default, computing a weighted average of a handful of neighboring pixels, so it can't actually generate fine detail that wasn't there to begin with.</p></details>
+  <details class="faq-item"><summary>Q. Why is AI super-resolution different?</summary><p>A. AI super-resolution models are trained on millions of low-resolution/high-resolution image pairs, and they use probabilistic inference — essentially "this kind of blurry pattern is usually this kind of fine detail" — to generate plausible detail that wasn't actually present. A browser Canvas-based resizer, by contrast, only performs pure interpolation math with no such inference ability, so the total amount of information never increases as you enlarge — it just gets blurrier.</p></details>
+  <details class="faq-item"><summary>Q. Is upscaling a completely useless feature, then?</summary><p>A. No. It's useful for matching a display size, or for restoring a file back to its original size when it was shrunk for some other reason but a high-resolution original already exists. But if your goal is to generate detail that was never in a low-resolution original to achieve print-grade quality, ordinary upscaling has real limits.</p></details>
+  <details class="faq-item"><summary>Q. Why do printed photos need 300 DPI?</summary><p>A. Print output needs pixels packed far more densely than a screen does to look smooth without visible stepping. Printing an A4 sheet at 300 DPI requires about 2480×3508px; if the original is smaller and you force-upscale it for printing, the blurriness from that enlargement shows up directly in the print.</p></details>
+  <details class="faq-item"><summary>Q. Does setting JPEG quality to 100 eliminate upscale blurriness?</summary><p>A. No. JPEG quality only controls compression loss — it's a separate issue from the interpolation blur that happens during enlargement. Even at maximum quality, the softness produced by interpolation doesn't go away.</p></details>
+  <details class="faq-item"><summary>Q. Is it safe to resize in the browser without uploading the file to a server?</summary><p>A. Yes. This site's image resizer is Canvas API-based, so files are processed entirely inside the browser and never sent to a server — meaning even personal photos can be safely resized in an offline-friendly environment.</p></details>
+  <details class="faq-item"><summary>Q. If I upscale a PNG, does the transparent background stay intact?</summary><p>A. Yes, as long as you choose PNG or WebP as the output format, transparency is preserved. If you output as JPEG, transparency isn't supported by the format itself, so the transparent areas get filled in with white.</p></details>
+
+  <div class="tool-links">
+    <a href="../image-resizer.html?lang=en">→ Image Resizer</a>
+    <a href="../image-dpi-checker.html?lang=en">→ Image DPI Checker</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes.</footer>
+</main>
+</body>
+</html>

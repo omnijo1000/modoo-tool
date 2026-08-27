@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why Image Watermarks Handle Korean Fine But PDF Watermarks Break | MODOO HUB</title>
+<meta name="description" content="Both tools are called 'watermark,' but one renders Korean text perfectly and the other shows empty boxes. We compare Canvas fillText's web-font rendering against the PDF standard's 14 built-in fonts to explain why.">
+<link rel="canonical" href="https://modoohub.com/guides/image-watermark-webfont-vs-pdf-font-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/image-watermark-webfont-vs-pdf-font.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/image-watermark-webfont-vs-pdf-font-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/image-watermark-webfont-vs-pdf-font.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Why Image Watermarks Handle Korean Fine But PDF Watermarks Break","description":"Both tools are called 'watermark,' but one renders Korean text perfectly and the other shows empty boxes. We compare Canvas fillText's web-font rendering against the PDF standard's 14 built-in fonts to explain why.","datePublished":"2026-08-27","dateModified":"2026-08-27","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Why does the image watermark tool support Korean and even emoji?","acceptedAnswer":{"@type":"Answer","text":"Canvas's fillText references the 'Noto Sans KR' web font already loaded by the browser. That font file contains all 11,172 Korean syllable glyphs plus most emoji glyphs, so they display with no extra handling."}},
+{"@type":"Question","name":"Why do the PDF standard's 14 fonts only cover Latin characters?","acceptedAnswer":{"@type":"Answer","text":"When the PDF spec was drafted in the early 1990s, including international CJK character sets in the baseline built-in fonts would have added significant font size and licensing overhead. So the spec guarantees only Latin fonts are built into every viewer, and any other script has to be embedded by the file's author."}},
+{"@type":"Question","name":"How much does embedding a font add to PDF file size?","acceptedAnswer":{"@type":"Answer","text":"Even with subset embedding (only the characters actually used, rather than the whole font file), you can expect tens to hundreds of KB more than a standard font (which adds zero bytes). For something as short as a watermark phrase, subset embedding keeps the overhead small."}},
+{"@type":"Question","name":"Does the same problem happen with Chinese or Japanese watermarks in PDF?","acceptedAnswer":{"@type":"Answer","text":"Yes. The standard 14 fonts have the same limitation across the board for CJK characters — Chinese hanzi and Japanese kana included, not just Korean — so the underlying cause is identical."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html?lang=en" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Why Image Watermarks Handle Korean Fine But PDF Watermarks Break</h1>
+  <p class="meta">Guide · Last verified Aug 27, 2026</p>
+
+  <p>Two tools both named "add watermark," yet the results are opposite. Type "© Copyright Jane Doe" into the <a href="../image-watermark.html?lang=en">Image Watermark</a> tool and the text shows up exactly as typed — including any Korean characters. Type the same phrase into the <a href="../pdf-watermark.html?lang=en">PDF Watermark</a> tool and all you get is a handful of empty boxes (□). Both tools run entirely in the browser, so why the different outcome? The root cause is that the two tools draw text in completely different ways.</p>
+
+  <h2>1. Image watermark: the browser draws a glyph it already knows</h2>
+  <p>The image watermark tool draws text directly onto the image using the Canvas 2D API's <code>fillText()</code> method. In the actual code, the font is set as <code>ctx.font = size + 'px "Noto Sans KR", sans-serif'</code> — and "Noto Sans KR" is a web font already loaded via Google Fonts at the top of the page. That means the browser already has all 11,172 Korean syllable glyphs available in that font file, and fillText simply stamps the glyph at the given coordinates. From the rendering engine's point of view, Korean, English, or emoji — it's all the same operation.</p>
+
+  <h2>2. PDF watermark: the rule is not to embed a font at all</h2>
+  <p>PDF works under an entirely different set of rules. The PDF specification (ISO 32000) defines 14 "Standard Fonts" — Helvetica, Times-Roman, Courier, and so on — and the key feature of these fonts is that <strong>the PDF file doesn't need to contain any font data at all</strong>. The spec itself guarantees that every program that opens a PDF — Acrobat, a browser's built-in viewer, a printer driver — already has these 14 fonts available locally. That's why this tool can call <code>pdfDoc.embedFont(StandardFonts.HelveticaBold)</code> and draw text immediately, with no font file to load.</p>
+
+  <h2>3. The problem: all 14 fonts are Latin-only</h2>
+  <p>The standard 14 fonts use an encoding table based on WinAnsiEncoding, which only covers Western European Latin letters, digits, and symbols. Korean syllables (11,172 of them), Chinese characters, and Japanese kana glyphs simply don't exist inside these 14 fonts. Where the image watermark tool "looks up a glyph in an already-loaded web font and draws it," the PDF watermark tool is effectively "being asked to draw a character that isn't in the file." When a renderer can't find the matching glyph, it substitutes an empty box or a broken-character placeholder — this isn't font corruption, it's simply that there's no way to draw the glyph in the first place.</p>
+
+  <div class="box">
+    <strong>Side-by-side comparison</strong>
+    <table>
+      <tr><th>Item</th><th>Image Watermark</th><th>PDF Watermark</th></tr>
+      <tr><td>Text rendering API</td><td>Canvas 2D fillText()</td><td>pdf-lib drawText()</td></tr>
+      <tr><td>Font used</td><td>Noto Sans KR (web font, already loaded)</td><td>Helvetica Bold (PDF standard 14 font)</td></tr>
+      <tr><td>Korean glyph coverage</td><td>Full (all 11,172 syllables)</td><td>None (Latin only)</td></tr>
+      <tr><td>Result when typing Korean</td><td>Displays normally</td><td>Empty boxes (□)</td></tr>
+      <tr><td>Extra step required?</td><td>No</td><td>Yes (font embedding)</td></tr>
+    </table>
+  </div>
+
+  <h2>4. To make Korean work in PDF: you have to embed the whole font</h2>
+  <p>To actually render Korean in a PDF, you need to embed an entire TTF/OTF font file that contains Korean glyphs — such as Noto Sans KR — inside the PDF. In the pdf-lib ecosystem, that means registering a separate library, <code>@pdf-lib/fontkit</code>, via <code>pdfDoc.registerFontkit(fontkit)</code>, then embedding the full font file bytes with <code>pdfDoc.embedFont(fontBytes)</code>. A PDF built this way becomes self-contained — it carries its own Korean glyphs and renders correctly on any device — but it comes with the tradeoff of more complex code and a larger file size than using a standard font. This site's PDF watermark tool hasn't implemented this embedding step, in order to stay light and fast; the background is covered in more detail in the <a href="../guides/pdf-watermark-korean-font-embedding-limit.html">PDF Watermark Korean Font guide</a>.</p>
+
+  <h2>5. So what should you actually do?</h2>
+  <ul>
+    <li><strong>Adding a copyright notice or attribution to an image:</strong> the image watermark tool handles Korean and emoji without any issues — just use it as-is.</li>
+    <li><strong>You specifically need a Korean watermark on a PDF:</strong> right now, the most reliable option with this tool is to use an English word instead — CONFIDENTIAL, DRAFT, SAMPLE — which the standard fonts render perfectly.</li>
+    <li><strong>Your PDF source is actually an image:</strong> you can work around the limitation by capturing/converting the page to an image first, then adding the Korean watermark with the image watermark tool.</li>
+  </ul>
+
+  <h2>FAQ</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Why does the image watermark tool support Korean and even emoji?</summary><p style="margin-top:8px;">A. Canvas's fillText references the "Noto Sans KR" web font already loaded by the browser. That font file contains all 11,172 Korean syllable glyphs plus most emoji glyphs, so they display with no extra handling.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Why do the PDF standard's 14 fonts only cover Latin characters?</summary><p style="margin-top:8px;">A. When the PDF spec was drafted in the early 1990s, including international CJK character sets in the baseline built-in fonts would have added significant font size and licensing overhead. So the spec guarantees only Latin fonts are built into every viewer, and any other script has to be embedded by the file's author.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. How much does embedding a font add to PDF file size?</summary><p style="margin-top:8px;">A. Even with subset embedding (only the characters actually used, rather than the whole font file), you can expect tens to hundreds of KB more than a standard font (which adds zero bytes). For something as short as a watermark phrase, subset embedding keeps the overhead small.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does the same problem happen with Chinese or Japanese watermarks in PDF?</summary><p style="margin-top:8px;">A. Yes. The standard 14 fonts have the same limitation across the board for CJK characters — Chinese hanzi and Japanese kana included, not just Korean — so the underlying cause is identical.</p></details>
+
+  <div class="tool-links">
+    <a href="../image-watermark.html?lang=en">→ Add Image Watermark</a>
+    <a href="../pdf-watermark.html?lang=en">→ Add PDF Watermark</a>
+    <a href="../pdf-metadata-viewer.html?lang=en">→ PDF Metadata Viewer</a>
+    <a href="../exif-remover.html?lang=en">→ Remove EXIF Data</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes; actual tool behavior may vary by version.</footer>
+</main>
+</body>
+</html>

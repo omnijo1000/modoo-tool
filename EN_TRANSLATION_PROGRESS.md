@@ -1,6 +1,6 @@
 # 가이드 영어(EN) 번역 진행 상황
 
-**마지막 갱신**: 2026-08-27  |  **진행률**: 90/176
+**마지막 갱신**: 2026-08-27  |  **진행률**: 100/176
 
 ## 배경 & 방식
 
@@ -36,7 +36,7 @@
 |---|---|
 | 개발자 도구 (developer-tools) | 52/52 |
 | 텍스트 도구 (text-tools) | 32/32 |
-| 이미지 도구 (image-tools) | 6/24 |
+| 이미지 도구 (image-tools) | 16/24 |
 | 생성기 도구 (generator-tools) | 0/21 |
 | 보안 도구 (security-tools) | 0/17 |
 | PDF 도구 (pdf-tools) | 0/13 |
@@ -135,7 +135,7 @@
 - [x] `word-frequency-percentage-denominator-basis` ← tool: `word-frequency-counter`
 - [x] `wpm-korean-typing-vs-english-conversion` ← tool: `wpm-calculator`
 
-## 이미지 도구 (image-tools) — 6/24
+## 이미지 도구 (image-tools) — 16/24
 
 - [x] `avif-to-jpg-transparent-background-black` ← tool: `avif-to-jpg`
 - [x] `base64-image-33-percent-overhead` ← tool: `base64-image`
@@ -143,16 +143,16 @@
 - [x] `color-converter-srgb-vs-display-p3` ← tool: `color-converter`
 - [x] `color-palette-complementary-triadic-angles` ← tool: `color-palette`
 - [x] `exif-gps-dms-rational-format` ← tool: `exif-viewer`
-- [ ] `exif-remover-gps-privacy-sns` ← tool: `exif-remover`
-- [ ] `heic-to-jpg-hevc-codec-license` ← tool: `heic-to-jpg`
-- [ ] `ico-converter-png-inside-ico` ← tool: `ico-converter`
-- [ ] `image-color-extractor-clustering-vs-average` ← tool: `image-color-extractor`
-- [ ] `image-dimension-aspect-ratio-gcd` ← tool: `image-dimension-checker`
-- [ ] `image-dpi-checker-cm-inch-conversion-bug` ← tool: `image-dpi-checker`
-- [ ] `image-rotator-canvas-bounding-box-expand` ← tool: `image-rotator`
-- [ ] `image-upscale-quality-loss` ← tool: `image-resizer`
-- [ ] `image-watermark-webfont-vs-pdf-font` ← tool: `image-watermark`
-- [ ] `jpg-to-heic-codec-license-webp-fallback` ← tool: `jpg-to-heic`
+- [x] `exif-remover-gps-privacy-sns` ← tool: `exif-remover`
+- [x] `heic-to-jpg-hevc-codec-license` ← tool: `heic-to-jpg`
+- [x] `ico-converter-png-inside-ico` ← tool: `ico-converter`
+- [x] `image-color-extractor-clustering-vs-average` ← tool: `image-color-extractor`
+- [x] `image-dimension-aspect-ratio-gcd` ← tool: `image-dimension-checker`
+- [x] `image-dpi-checker-cm-inch-conversion-bug` ← tool: `image-dpi-checker`
+- [x] `image-rotator-canvas-bounding-box-expand` ← tool: `image-rotator`
+- [x] `image-upscale-quality-loss` ← tool: `image-resizer`
+- [x] `image-watermark-webfont-vs-pdf-font` ← tool: `image-watermark`
+- [x] `jpg-to-heic-codec-license-webp-fallback` ← tool: `jpg-to-heic`
 - [ ] `pixelate-image-low-intensity-recovery-risk` ← tool: `pixelate-image`
 - [ ] `png-to-svg-not-real-vector-tracing` ← tool: `png-to-svg`
 - [ ] `progressive-vs-baseline-jpeg` ← tool: `png-to-jpg`

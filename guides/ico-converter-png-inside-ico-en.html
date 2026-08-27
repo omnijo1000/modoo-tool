@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inside an ICO File, the Icons Are Actually All Stored as PNG</title>
+<meta name="description" content="ICO isn't an image format — it's a container format that bundles multiple resolutions together. Breaks down the difference between the legacy uncompressed BMP approach and the PNG-embedding approach used since Windows Vista, and how the actual converter code implements it.">
+<link rel="canonical" href="https://modoohub.com/guides/ico-converter-png-inside-ico-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/ico-converter-png-inside-ico.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/ico-converter-png-inside-ico-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/ico-converter-png-inside-ico.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Inside an ICO File, the Icons Are Actually All Stored as PNG","description":"ICO isn't an image format — it's a container format that bundles multiple resolutions together. Breaks down the difference between the legacy uncompressed BMP approach and the PNG-embedding approach used since Windows Vista.","datePublished":"2026-08-27","dateModified":"2026-08-27","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--purple);}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;}
+details summary{cursor:pointer;font-weight:600;color:var(--text-muted);}
+details p{margin-top:8px;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Inside an ICO File, the Icons Are Actually All Stored as PNG</h1>
+  <p class="meta">Guide · Last verified Aug 27, 2026</p>
+
+  <p>If you've ever opened an ICO file while making a favicon, you already know it packs several sizes — everything from 16×16 up to 256×256 — into one file. What's less well known is exactly what format the images inside are stored in. The short answer: most ICO files made today store their image data as raw PNG bytes. This guide walks through the ICO format's structure and why PNG became the standard inside it, based on the actual code that runs in the <a href="../ico-converter.html?lang=en">ICO Converter</a>.</p>
+
+  <h2>1. ICO Isn't an Image Format — It's a "Container" Format</h2>
+  <p>PNG and JPG each encode a single image, but ICO was designed for a different purpose entirely. A single ICO file starts with a header called ICONDIR, followed by a series of ICONDIRENTRY records (one per resolution), with the actual image bytes appended in sequence toward the end of the file. In other words, ICO is a container that bundles "a 16×16 image, a 32×32 image, a 256×256 image" and so on into one file, letting the operating system pick whichever size fits the situation. As for how each individual image inside that container is actually encoded, the ICO spec allows two options: uncompressed BMP (DIB) bitmaps, or PNG.</p>
+
+  <h2>2. The Legacy Approach: Uncompressed BMP's File Size Problem</h2>
+  <p>Traditional ICO files stored each resolution's image as BMP (DIB, Device Independent Bitmap). BMP just lists pixel color values one after another with no compression, which made it simple to implement and reliably compatible with older systems — but it comes with a serious downside: file size balloons as the image gets larger. Storing a large icon like the 256×256 size introduced in Windows Vista as BMP alone can push a single entry to several hundred KB, which is wildly inefficient.</p>
+
+  <h2>3. Since Windows Vista: Embedding Raw PNG Bytes</h2>
+  <p>To solve this, starting with Windows Vista (2007), embedding PNG-compressed image bytes directly inside an ICONDIRENTRY — instead of BMP — became the standard. The ICO header structure itself didn't change at all; only what kind of "image data" sits inside it switched from BMP to PNG. When an operating system or browser reads an ICONDIRENTRY, it checks whether the data's first bytes match the PNG signature (<code>\x89PNG</code>) or a BMP header, and decodes it accordingly. The result is a much smaller file at the same visual quality — and the compression advantage is even more pronounced for icons and logos with large flat-color areas.</p>
+
+  <h2>4. How the modoohub ICO Converter Actually Builds the File</h2>
+  <p>Checking the <a href="../ico-converter.html?lang=en">ICO Converter</a>'s code directly confirms that it uses PNG compression for every selected size without exception — including small ones like 16×16. Here's how the conversion works:</p>
+  <ol>
+    <li>If the source image isn't square, the <code>drawSize()</code> function center-crops it into a square using the length of the shorter side.</li>
+    <li>It resizes to each target size and gets the PNG bytes via <code>canvas.toDataURL('image/png')</code>.</li>
+    <li>The <code>buildIco()</code> function assembles the ICONDIR header and each size's ICONDIRENTRY byte-by-byte, then appends the PNG bytes obtained above.</li>
+  </ol>
+  <p>One interesting detail is how the size field is handled. The width/height fields in an ICONDIRENTRY are single-byte fields, so they can only represent values from 0 to 255 — and the ICO spec has a special rule for when the size is 256: store a 0 in that field instead. The code follows this rule exactly, with <code>sz===256?0:sz</code>. Getting even this kind of low-level detail spec-compliant is what keeps the resulting ICO from breaking in either Windows or a browser.</p>
+
+  <h2>5. The Size Difference Between BMP and PNG, in Real Numbers</h2>
+  <p>Even just looking at the 256×256 size alone, the gap between the two approaches is stark. A 32-bit uncompressed BMP stores 4 bytes per pixel with no compression, so the math is simple.</p>
+  <table>
+    <tr><th>Method</th><th>Size for one 256×256 entry (approx.)</th><th>Notes</th></tr>
+    <tr><td>32-bit BMP (uncompressed)</td><td>~264KB (256×256×4 bytes of color + AND mask)</td><td>Size grows directly proportional to pixel count</td></tr>
+    <tr><td>PNG (compressed)</td><td>A few KB to a few dozen KB (varies by image content)</td><td>Gets smaller with more flat-color or transparent area</td></tr>
+  </table>
+  <p>For small icon sizes like 16×16, 32×32, or 48×48, storing as BMP doesn't cost you much — but the moment a larger resolution like 128×128 or 256×256 is included, PNG's size advantage over BMP becomes obvious. Since ICO files are meant to bundle multiple resolutions together, a single large entry can easily dominate the whole file's size.</p>
+
+  <h2>6. Is Compatibility Something to Worry About?</h2>
+  <p>Every operating system released since Windows Vista, and every major browser in current use, reads PNG-compressed ICO entries without issue. For favicon purposes, there's effectively nothing to worry about. If your source is a PNG with an alpha channel (transparent background), that transparency carries through as well, so you can pair this with the <a href="../favicon-generator.html?lang=en">Favicon Generator</a> when turning a logo with a transparent background into a favicon.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details><summary>Q. If everything inside an ICO is PNG, can I just rename the extension to .png?</summary><p>A. No. An ICO file is a container wrapped in an ICONDIR header and several ICONDIRENTRY structures — the PNG bytes are only included as a piece of that whole. Just renaming the extension doesn't turn it into a valid PNG file. If you want to use one of the individual images as a standalone PNG, you'll need to extract it separately or use an <a href="../png-to-svg.html?lang=en">image conversion tool</a>.</p></details>
+  <details><summary>Q. Do all ICO converters use the PNG approach?</summary><p>A. No, it varies by tool. Older utilities or legacy code sometimes still encode using BMP (DIB). modoohub's <a href="../ico-converter.html?lang=en">ICO Converter</a> is implemented to use PNG compression for every selected size, with no exceptions.</p></details>
+  <details><summary>Q. What happens if my source image isn't square?</summary><p>A. The converter's <code>drawSize()</code> function center-crops the image into a square using the shorter side's length, then resizes it to the target size. If your subject isn't centered in the image, part of it can get cut off during that crop — for predictable results, it's safer to crop the image to a square yourself before uploading.</p></details>
+  <details><summary>Q. Do I need to include the 256×256 size?</summary><p>A. For a website favicon, 16×16, 32×32, and 48×48 are usually enough on their own. Include 256×256 when you need a larger icon, like for a Windows shortcut icon — keep in mind each additional size adds to the total file size.</p></details>
+
+  <div class="tool-links">
+    <a href="../ico-converter.html?lang=en">→ ICO Converter</a>
+    <a href="../favicon-generator.html?lang=en">→ Favicon Generator</a>
+    <a href="../favicon-maker.html?lang=en">→ Favicon Maker</a>
+    <a href="../svg-to-png.html?lang=en">→ SVG to PNG</a>
+    <a href="../png-to-svg.html?lang=en">→ PNG to SVG</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes; please also check the official specification for exact technical details.</footer>
+</main>
+</body>
+</html>

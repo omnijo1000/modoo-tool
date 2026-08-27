@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why Rotating an Image by a Non-Right Angle Makes the Canvas Bigger | MODOO HUB</title>
+<meta name="description" content="Rotate an image by 15° or 45° instead of a right angle and the resulting canvas comes out larger than the original. Here's why, broken down with the bounding-box formula and cos/sin math.">
+<link rel="canonical" href="https://modoohub.com/guides/image-rotator-canvas-bounding-box-expand-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/image-rotator-canvas-bounding-box-expand.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/image-rotator-canvas-bounding-box-expand-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/image-rotator-canvas-bounding-box-expand.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Why Rotating an Image by a Non-Right Angle Makes the Canvas Bigger","description":"Rotate an image by 15° or 45° instead of a right angle and the resulting canvas comes out larger than the original. Here's why, broken down with the bounding-box formula and cos/sin math.","datePublished":"2026-08-27","dateModified":"2026-08-27","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Why Rotating an Image by a Non-Right Angle Makes the Canvas Bigger</h1>
+  <p class="meta">Guide · Last verified Aug 27, 2026</p>
+
+  <p>Rotate a photo by exactly 90° and nothing weird happens — width and height simply swap. But rotate a scanned document by a small correction angle like 3°, or spin a photo by 45°, and you'll notice the resulting canvas is noticeably larger than the original. Why does mere rotation change the image's dimensions at all? The answer is that "what actually gets rotated isn't the image — it's the rectangle that contains it."</p>
+
+  <h2>1. Rotation tilts a rectangle</h2>
+  <p>An image is always a width×height rectangle. Rotate that rectangle around its center by an angle θ, and its four corners rotate along with it, ending up as a diamond shape no longer aligned with the original horizontal/vertical axes. But the canvas that gets displayed or saved to a file must always be an axis-aligned rectangle. So to hold the whole tilted diamond without cropping anything, you need a new axis-aligned rectangle that fully encloses it — the <strong>bounding box</strong>. This bounding box is always greater than or equal to the size of the original rectangle — exactly when it grows is the subject of the next section.</p>
+
+  <h2>2. The bounding box size is computed with cos and sin</h2>
+  <p>Let the original image's width be w, height be h, and rotation angle be θ. The new width and height of the bounding box enclosing the rotated rectangle are given by:</p>
+  <div class="box">
+    <strong>New width (nw)</strong> = w·|cos θ| + h·|sin θ|<br>
+    <strong>New height (nh)</strong> = w·|sin θ| + h·|cos θ|
+  </div>
+  <p>This formula expresses, using trigonometry, the maximum width and height occupied when the rotated rectangle's four corners are each projected onto the x-axis and y-axis. The closer the angle is to 0°, the closer sin θ is to 0, so the bounding box stays close to the original size; the closer it gets to 45°, the larger both cos and sin become, and the bounding box swells to its maximum.</p>
+  <p>Checking the actual source code of the <a href="../image-rotator.html?lang=en">image rotator tool</a> confirms this exact formula is implemented. It converts the angle to radians, takes the absolute value of cos and sin, computes the canvas's new width and height as <code>ow*cos+oh*sin</code> and <code>ow*sin+oh*cos</code>, and rebuilds the canvas itself to that size. In other words, instead of "keeping the original size and cropping the corners," it dynamically widens the canvas itself to match the rotation result — eliminating clipping at the source.</p>
+
+  <h2>3. Checking the numbers: rotating an 800×400 image by 30°</h2>
+  <p>Rotate an 800px-wide, 400px-tall rectangular image by 30° and the math works out as follows.</p>
+  <table>
+    <tr><th>Value</th><th>Calculation</th><th>Result</th></tr>
+    <tr><td>cos(30°)</td><td>0.8660</td><td>-</td></tr>
+    <tr><td>sin(30°)</td><td>0.5000</td><td>-</td></tr>
+    <tr><td>New width (nw)</td><td>800×0.8660 + 400×0.5</td><td>≈893px</td></tr>
+    <tr><td>New height (nh)</td><td>800×0.5 + 400×0.8660</td><td>≈746px</td></tr>
+  </table>
+  <p>The original was 800×400 (width twice the height); after rotation it becomes 893×746 — width grows by about 12%, while height grows by nearly double. Height grows so much more because the originally-short vertical dimension now has to absorb the original horizontal component (800×sin30°=400px) as well.</p>
+
+  <h2>4. Why 90°, 180°, and 270° don't grow the canvas</h2>
+  <p>Plug those exact angles into the same formula and the reason is immediately obvious. At 90°, cos(90°)=0 and sin(90°)=1, so nw = w×0 + h×1 = h and nh = w×1 + h×0 = w — width and height simply swap exactly, with no growth. At 180°, cos=-1 and sin=0, so nw=w and nh=h, meaning the canvas stays exactly as the original. Right-angle rotations aren't special in any deep sense — they just happen to be the points where cos and sin land exactly on 0 or 1, so the bounding box coincidentally matches the original. 45°, by contrast, is where cos and sin are both close to their maximum (about 0.707 each), making it the angle where the bounding box swells the most.</p>
+
+  <h2>5. Empty corners and the file-format trap</h2>
+  <p>Since the bounding box is larger than the original, empty space appears in the four corners between the rotated rectangle and the new canvas. This region is left fully transparent (alpha 0) by default when the canvas is initialized, so saving as PNG naturally produces transparent corners. The trap is saving that result as JPG, which doesn't support transparency — the transparent corners can turn black. The mechanics of this exact trap are covered in detail in the guide <a href="avif-to-jpg-transparent-background-black-en.html">Why Transparent Images Turn Black When Converted to JPG</a>. If you need to composite the rotated result onto another background, post-processing it with the <a href="../transparent-background-maker.html?lang=en">transparent background maker</a> tool is another option.</p>
+
+  <h2>6. Practical tip: correcting a tilted document scan</h2>
+  <p>When straightening a scanned document with a small correction rotation, the angle used is usually only around 1-5°, so the bounding-box expansion is small too. Still, it's worth building the habit of trimming the resulting image with the <a href="../image-cropper.html?lang=en">image cropper</a> tool to remove margins, or verifying the final pixel dimensions with the <a href="../image-dimension-checker.html?lang=en">image dimension checker</a> tool — it reduces surprises from unexpected canvas sizes in downstream steps like printing or uploading.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does the canvas get bigger even for a square image?</summary><p style="margin-top:8px;">Yes. Even with w=h (a square), rotating by 45° gives nw=nh=w×(cos45°+sin45°)≈w×1.414 — about 41% larger than the original. Being square is no exception.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Can I keep the canvas fixed at the original size instead of letting it grow?</summary><p style="margin-top:8px;">You can, but then the four corners of the rotated rectangle get pushed outside the canvas and get cropped off. To preserve the whole image without any clipping, expanding the bounding box is required.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does combining rotation with a horizontal/vertical flip change the bounding-box math?</summary><p style="margin-top:8px;">No. A flip is just a simple sign flip like scale(-1,1), which doesn't affect the width/height magnitudes at all. The bounding box size depends purely on the cos/sin of the rotation angle.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does my file get uploaded to a server?</summary><p style="margin-top:8px;">No. The rotation operation runs entirely inside the browser via the Canvas API, so the original image is never transmitted externally.</p></details>
+
+  <div class="tool-links">
+    <a href="../image-rotator.html?lang=en">→ Image Rotator</a>
+    <a href="../image-cropper.html?lang=en">→ Image Cropper</a>
+    <a href="../image-dimension-checker.html?lang=en">→ Image Dimension Checker</a>
+    <a href="../transparent-background-maker.html?lang=en">→ Transparent Background Maker</a>
+    <a href="../svg-to-png.html?lang=en">→ SVG to PNG Converter</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general informational purposes; actual tool behavior may vary depending on browser and image file.</footer>
+</main>
+</body>
+</html>

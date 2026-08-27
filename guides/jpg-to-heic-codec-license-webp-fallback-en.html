@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why "JPG to HEIC" Can't Actually Produce a Real HEIC File | MODOO HUB</title>
+<meta name="description" content="Why a 'JPG to HEIC' converter can't actually produce a true HEIC file, explained through the HEVC patent codec and browser licensing constraints — with code confirming what the tool actually outputs.">
+<link rel="canonical" href="https://modoohub.com/guides/jpg-to-heic-codec-license-webp-fallback-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/jpg-to-heic-codec-license-webp-fallback.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/jpg-to-heic-codec-license-webp-fallback-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/jpg-to-heic-codec-license-webp-fallback.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Why \"JPG to HEIC\" Can't Actually Produce a Real HEIC File","description":"Why a 'JPG to HEIC' converter can't actually produce a true HEIC file, explained through the HEVC patent codec and browser licensing constraints.","datePublished":"2026-08-27","dateModified":"2026-08-27","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Does modoohub.com's JPG to HEIC tool just rename the file extension?","acceptedAnswer":{"@type":"Answer","text":"No. Checking the code shows it uses canvas.toBlob to actually re-encode the pixel data into whichever format you choose — WebP, PNG, or JPG — and attaches the extension that matches that real format. It doesn't fake a .heic extension on unrelated file contents."}},
+{"@type":"Question","name":"Could a server-side implementation produce real HEIC?","acceptedAnswer":{"@type":"Answer","text":"Yes, if a licensed HEVC encoder were purchased and installed on a server. But this site's tools are built on the principle that files are never uploaded to a server and are processed entirely in the browser, so that approach wasn't adopted."}},
+{"@type":"Question","name":"Why can browsers encode AVIF but not HEIC?","acceptedAnswer":{"@type":"Answer","text":"AVIF uses a royalty-free codec built by AOMedia, an alliance that includes Google, Mozilla, Netflix, and others. Because anyone can implement it without paying patent royalties, browsers are free to bundle an AVIF encoder — unlike HEVC."}},
+{"@type":"Question","name":"Will converting to WebP make files unreadable on an iPhone?","acceptedAnswer":{"@type":"Answer","text":"iOS 14 and later, with Safari 14 or later, opens and displays WebP files normally. Compatibility issues are essentially nonexistent unless you're on a very old device."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html?lang=en" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Why "JPG to HEIC" Can't Actually Produce a Real HEIC File</h1>
+  <p class="meta">Guide · Last verified Aug 27, 2026</p>
+
+  <p>If you searched for a "JPG to HEIC converter" and the tool you landed on doesn't actually give you a .heic file, it can feel like you've been misled. But this isn't a flaw in any one specific tool — it's a structural limitation of the browser as a runtime environment. Here's why web browsers can't "encode" HEIC, and what tools with that name actually produce instead, verified at the code level.</p>
+
+  <h2>1. HEIC isn't an image format — it's a "container"</h2>
+  <p>HEIC (High Efficiency Image Container) became widely known when Apple adopted it as the default photo format in iOS 11 (2017). Despite the name, HEIC itself is just a container spec that holds image data — the actual pixel compression is done by the HEVC (H.265) codec packed inside it. In other words, "encoding to HEIC" really means "compressing with HEVC and wrapping the result in an HEIC container," and it's that HEVC compression step where the trouble starts.</p>
+
+  <h2>2. Why HEVC never makes it into browsers</h2>
+  <p>HEVC (H.265) is a royalty-bearing codec spread across several patent pools, including MPEG-LA and Access Advance. Even just "playing back" the codec requires patent-royalty negotiation, and supporting "encoding" (creating files) on top of that requires a separate license for the encoder itself. Open-source-based browsers like Chrome and Firefox don't bundle an HEVC encoder at all, in order to preserve their free, open policies. Even decoding (playback) is only supported in a limited way on some browser/OS combinations — encoding is effectively nonexistent everywhere. In the end, a JavaScript-based web tool producing a "true HEIC file" is fundamentally impossible using standard browser APIs (Canvas, `toBlob`).</p>
+
+  <div class="box">
+    <strong>Comparison</strong>: WebP is an open codec (based on VP8/VP9) that Google created and distributes free of charge, so browsers can bundle an encoder with no licensing concerns. HEIC/HEVC, by contrast, is a commercial codec designed from the start so that no one can use it for free — that's the fundamental difference.
+  </div>
+
+  <h2>3. So what does a "JPG to HEIC" tool actually produce?</h2>
+  <p>When a tool's name doesn't match its actual behavior, there are broadly three patterns: ① genuinely performing HEVC encoding on a server behind the scenes; ② a deceptive shortcut that just renames the extension to .heic while leaving the JPG content untouched; or ③ actually re-encoding into a comparable high-efficiency alternative format (like WebP) while disclosing that fact to the user. Checking the actual code of modoohub.com's <a href="../jpg-to-heic.html?lang=en">JPG to HEIC converter</a> confirms it follows the third pattern: it draws the image onto a `<canvas>`, then calls `canvas.toBlob(callback, outFmt, quality)` to genuinely re-encode the pixel data into whichever format you selected — WebP, PNG, or JPG — and it maps the file extension precisely to the actual output format (`webp`/`png`/`jpg`). In other words, it's not swapping extensions; you get back a real file that's been genuinely re-compressed into a different format, and the page also displays a "browser HEIC encoding limitation" notice upfront, disclosing this before you convert.</p>
+
+  <h2>4. Is WebP actually a downgrade as the alternative?</h2>
+  <p>Looking at the numbers, WebP isn't a loss. At equivalent visual quality, it produces files 25–35% smaller than JPG, supports both lossless and lossy compression, and handles transparency (alpha channel). Meanwhile, a fair number of HEIC's distinctive advantages — multi-frame storage, depth data, and so on — see essentially no use in typical web image scenarios.</p>
+  <table>
+    <tr><th>Format</th><th>Browser encoding</th><th>Typical compression vs. JPG</th><th>Transparency</th></tr>
+    <tr><td>HEIC (HEVC)</td><td>Not possible (licensing)</td><td>~50% smaller (theoretical)</td><td>Supported</td></tr>
+    <tr><td>WebP</td><td>Possible (standard API)</td><td>25–35% smaller</td><td>Supported</td></tr>
+    <tr><td>AVIF</td><td>Partially possible</td><td>~50% smaller</td><td>Supported</td></tr>
+  </table>
+  <p>One thing to watch for is choosing JPG as your output format. JPG doesn't support an alpha channel, so if you convert a PNG with a transparent background to JPG, the tool fills in a white background before conversion — otherwise the canvas's default transparent pixels would render as black. If you need to keep transparency, choose <a href="../jpg-to-webp.html?lang=en">JPG to WebP</a> or PNG output instead.</p>
+
+  <h2>5. If you genuinely need a .heic file</h2>
+  <p>If you have a special need to recreate an actual HEIC file from an iPhone photo — say, testing an iOS app or reproducing an Apple-ecosystem workflow — a browser tool won't get you there. The practical options are opening the file in macOS's Preview app and using "Export" to choose HEIC, or using dedicated desktop software like iMazing. Conversely, if you need to convert an original HEIC file to a universal JPG, the <a href="../heic-to-jpg.html?lang=en">HEIC to JPG Converter</a> works perfectly in the browser, and if you want the newer high-efficiency AVIF format, the <a href="../jpg-to-avif.html?lang=en">JPG to AVIF Converter</a> handles that too (AVIF is a royalty-free AOMedia codec, so it faces far fewer encoding restrictions).</p>
+
+  <h2>FAQ</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does modoohub.com's JPG to HEIC tool just rename the file extension?</summary><p style="margin-top:8px;">No. Checking the code shows it uses canvas.toBlob to actually re-encode the pixel data into whichever format you choose — WebP, PNG, or JPG — and attaches the extension that matches that real format. It doesn't fake a .heic extension on unrelated file contents.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Could a server-side implementation produce real HEIC?</summary><p style="margin-top:8px;">Yes, if a licensed HEVC encoder were purchased and installed on a server. But this site's tools are built on the principle that files are never uploaded to a server and are processed entirely in the browser, so that approach wasn't adopted.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Why can browsers encode AVIF but not HEIC?</summary><p style="margin-top:8px;">AVIF uses a royalty-free codec built by AOMedia, an alliance that includes Google, Mozilla, Netflix, and others. Because anyone can implement it without paying patent royalties, browsers are free to bundle an AVIF encoder — unlike HEVC.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Will converting to WebP make files unreadable on an iPhone?</summary><p style="margin-top:8px;">iOS 14 and later, with Safari 14 or later, opens and displays WebP files normally. Compatibility issues are essentially nonexistent unless you're on a very old device.</p></details>
+
+  <div class="tool-links">
+    <a href="../jpg-to-heic.html?lang=en">→ JPG to HEIC Converter</a>
+    <a href="../heic-to-jpg.html?lang=en">→ HEIC to JPG Converter</a>
+    <a href="../jpg-to-webp.html?lang=en">→ JPG to WebP Converter</a>
+    <a href="../jpg-to-avif.html?lang=en">→ JPG to AVIF Converter</a>
+    <a href="../avif-to-jpg.html?lang=en">→ AVIF to JPG Converter</a>
+    <a href="../webp-to-jpg.html?lang=en">→ WebP to JPG Converter</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes. For codec licensing specifics, please refer to the latest notices from the relevant codec standards bodies and patent pools.</footer>
+</main>
+</body>
+</html>

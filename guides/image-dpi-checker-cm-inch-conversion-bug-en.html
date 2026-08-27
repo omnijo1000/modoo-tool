@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why a Print-Ready 300DPI Photo Shows Up as 118 | MODOO HUB</title>
+<meta name="description" content="Why some cameras and editing software store resolution in centimeters instead of inches, causing a 300DPI image to be misread as 118 — dissected at the EXIF ResolutionUnit tag level.">
+<link rel="canonical" href="https://modoohub.com/guides/image-dpi-checker-cm-inch-conversion-bug-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/image-dpi-checker-cm-inch-conversion-bug.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/image-dpi-checker-cm-inch-conversion-bug-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/image-dpi-checker-cm-inch-conversion-bug.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Why a Print-Ready 300DPI Photo Shows Up as 118","description":"Why a DPI tool that mistakes a resolution value stored in centimeters for one stored in inches ends up reporting 300 as 118 — dissected at the EXIF ResolutionUnit tag level.","datePublished":"2026-08-27","dateModified":"2026-08-27","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Why a Print-Ready 300DPI Photo Shows Up as 118</h1>
+  <p class="meta">Guide · Last verified Aug 27, 2026</p>
+
+  <p>You check the DPI of a photo you're about to send to a print shop, one you're sure was shot at 300 DPI, and an oddly specific number like 118 shows up instead. Before you reshoot or start suspecting your editing software, it's worth knowing that this number is very likely the result of an EXIF metadata misinterpretation, not a real quality problem. The number 118 isn't a coincidence, either — it's remarkably close to 300 divided by 2.54 (about 118.1), which is the tell-tale fingerprint of a unit conversion bug.</p>
+
+  <h2>1. A problem built into the DPI unit itself</h2>
+  <p>DPI (Dots Per Inch) is, as the name says, "the number of dots per inch." But from the perspective of software built in countries that use the metric system, centimeters are a more natural unit for image resolution data than inches. That's why the EXIF standard, separately from the resolution values themselves (XResolution, YResolution), includes a dedicated field called <strong>ResolutionUnit</strong> (tag 0x0128) that specifies what unit those values are actually in. This field can be one of three values: 1 (no unit), 2 (inches), or 3 (centimeters).</p>
+
+  <h2>2. The exact arithmetic behind the number 118</h2>
+  <p>Some cameras and image-editing software genuinely store resolution in centimeters and correctly set ResolutionUnit to 3. The problem happens on the reading side — a viewer or DPI checker that ignores the ResolutionUnit field and displays the raw XResolution number as "dots per inch" regardless. Since 1 inch equals 2.54 centimeters, a resolution correctly stored as 300 dots per centimeter would actually be about 300×2.54 ≈ 762 dots per inch if converted properly — but if the reader gets the division direction backwards, it produces 300÷2.54 ≈ 118.1 instead. In other words, 118 is the classic signature of "a value stored in centimeters being read back as if it were in inches."</p>
+  <div class="box">
+    <strong>Worked example</strong>: Suppose a photo was genuinely created at the print-optimal resolution of 300 DPI (300 dots per inch). Converting and storing that value on a per-centimeter basis gives roughly 118.1 dots per centimeter (300÷2.54). If the editing software saves "118.1" together with ResolutionUnit=3 (centimeters), but the reading software ignores the unit field and just displays 118.1 as "118 DPI," a genuinely print-ready (300+) photo ends up misjudged as low resolution (under 150).
+  </div>
+  <table>
+    <tr><th>ResolutionUnit value</th><th>Meaning</th><th>Correct handling</th></tr>
+    <tr><td>1</td><td>No unit (pixel aspect ratio info only)</td><td>Do not interpret as DPI</td></tr>
+    <tr><td>2</td><td>Inches</td><td>Use the XResolution value directly as DPI</td></tr>
+    <tr><td>3</td><td>Centimeters</td><td>Multiply the XResolution value by 2.54 to convert to DPI</td></tr>
+  </table>
+
+  <h2>3. How this tool actually handles it</h2>
+  <p>Checking the actual code of <code>image-dpi-checker.html</code>, it directly parses the TIFF header inside a JPEG's APP1 marker and reads not just XResolution/YResolution (tags 0x011A/0x011B) but <strong>also ResolutionUnit (tag 0x0128) — and only multiplies by 2.54 to convert to DPI when the value is 3 (centimeters)</strong>. The code determines this with <code>const unitToDpi=resUnit===3?2.54:1;</code> and then computes the final DPI as <code>xRes*unitToDpi</code>. In other words, the "118 bug" described in this guide does not apply to this tool itself — it's specifically built to check the unit field explicitly and avoid exactly this kind of misreading. You can upload a file to the <a href="../image-dpi-checker.html?lang=en">Image DPI Checker</a> yourself to see which way its ResolutionUnit was recorded.</p>
+
+  <h2>4. PNG and WebP have a different problem entirely</h2>
+  <p>Formats without an EXIF structure at all — PNG, WebP, AVIF — are unrelated to the unit-conversion bug described above. These formats mostly carry no resolution metadata whatsoever, so displaying the screen-standard value of 72 or 96 DPI is normal, expected behavior — a default fallback for "no information," not an error. For print files, it's actually more accurate to reverse-calculate DPI by dividing pixel dimensions by the target print size directly — check the pixel dimensions first with the <a href="../image-dimension-checker.html?lang=en">Image Dimension Checker</a> and then divide by the print size in inches.</p>
+
+  <h2>5. A practical checklist</h2>
+  <ul>
+    <li><strong>If the DPI number looks suspiciously low</strong>: check whether it's close to a specific value like 118, 96, or 72. If it's close to a familiar print benchmark divided by 2.54 — 300÷2.54≈118.1, 200÷2.54≈78.7 — that's good grounds to suspect a unit conversion error.</li>
+    <li><strong>Check the original file's EXIF directly</strong>: the <a href="../exif-viewer.html?lang=en">EXIF Viewer</a> shows the raw ResolutionUnit tag value, so you can see exactly how it's recorded in the file itself, not just how one tool interprets it.</li>
+    <li><strong>Before handing a file off to a print shop or design program</strong>: cross-check with multiple DPI tools — if the values diverge significantly (e.g. 118 vs. 300), a unit-interpretation issue is likely the cause.</li>
+  </ul>
+
+  <h2>Frequently Asked Questions</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does this site's Image DPI Checker have the 118 bug too?</summary><p style="margin-top:8px;">No. Checking the actual code confirms it already reads the ResolutionUnit tag and correctly multiplies by 2.54 to convert to DPI when the value is 3 (centimeters). The bug described in this guide is a general trap that can occur in some other viewers and software that ignore this field — not in this tool.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Why would a camera or software store resolution in centimeters in the first place?</summary><p style="margin-top:8px;">Some devices and software built in regions that default to the metric system (SI) set centimeters instead of inches as their default unit. The EXIF standard itself explicitly permits this and is designed for it to be declared via the ResolutionUnit field, so the value can be perfectly standard-compliant and still cause problems if a reader ignores it.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does this bug affect PNG files too?</summary><p style="margin-top:8px;">No. PNG doesn't use an EXIF structure, so it's unrelated to the ResolutionUnit conversion issue described in this guide. A PNG showing a low DPI is almost always because it has no resolution metadata at all, falling back to the screen default (72/96) — not a unit conversion error.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. If a photo shows 118 DPI, will it actually print at low quality?</summary><p style="margin-top:8px;">If the displayed value is due to a unit conversion error, the actual pixel data itself was never damaged, so checking it again with a correct tool may reveal there's no real print-quality problem. But if 118 is genuinely accurate — a truly low resolution rather than a unit error — printing can come out blurry, so it's always safest to cross-check both the ResolutionUnit value and the pixel dimensions together.</p></details>
+
+  <div class="tool-links">
+    <a href="../image-dpi-checker.html?lang=en">→ Image DPI Checker</a>
+    <a href="../exif-viewer.html?lang=en">→ EXIF Viewer</a>
+    <a href="../image-dimension-checker.html?lang=en">→ Image Dimension Checker</a>
+    <a href="../image-metadata-viewer.html?lang=en">→ Image Metadata Viewer</a>
+    <a href="../exif-remover.html?lang=en">→ EXIF Remover</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes; actual EXIF recording behavior can vary by camera and editing software.</footer>
+</main>
+</body>
+</html>
