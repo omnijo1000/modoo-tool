@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>One Emoji, Three Escape Notations: JS vs JSON vs Python | MODOO HUB</title>
+<meta name="description" content="The same emoji is escaped with different syntax in JavaScript, JSON, and Python. We check exactly what notation the Unicode Converter actually generates in its source code, and explain why copy-pasting an escaped string between languages triggers parsing errors.">
+<link rel="canonical" href="https://modoohub.com/guides/unicode-escape-js-json-python-comparison-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/unicode-escape-js-json-python-comparison.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/unicode-escape-js-json-python-comparison-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/unicode-escape-js-json-python-comparison.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"One Emoji, Three Escape Notations: JS vs JSON vs Python","description":"Why the same emoji is escaped with different syntax in JavaScript, JSON, and Python, verified against the actual notation the Unicode Converter tool generates in its source code.","datePublished":"2026-08-27","dateModified":"2026-08-27","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>One Emoji, Three Escape Notations: JS vs JSON vs Python</h1>
+  <p class="meta">Guide · Last verified Aug 27, 2026</p>
+
+  <p>😀 To safely embed the same emoji in a source-code string, you need escape syntax — but that syntax differs across JavaScript, JSON, and Python. That's exactly why copying an escaped string from one language and pasting it into another can throw a parsing error. We checked the actual code behind the <a href="../unicode-converter.html?lang=en">Unicode Converter</a> to see what notation this tool generates, and laid out precisely what each language's rules are.</p>
+
+  <h2>1. Why the notations diverge: the BMP and everything beyond it</h2>
+  <p>Unicode code points range from U+0000 to U+10FFFF, but the classic <code>\uXXXX</code> escape holds exactly 16 bits — 4 hex digits — so it can only represent U+0000 through U+FFFF (the Basic Multilingual Plane, or BMP). Most emoji sit at U+1F300 or higher, well outside that range, so each language had to come up with its own answer to "how do we notate characters outside the BMP?"</p>
+
+  <h2>2. JavaScript: supports two notations</h2>
+  <p>Since ES6, JavaScript has additionally supported a dedicated syntax for characters outside the BMP: <code>\u{code point}</code> (curly braces). At the same time, the older surrogate-pair approach — writing a character like <code>😀</code> as two consecutive 4-digit escapes — remains valid for backward compatibility. So within JS, there are two ways to notate the same character.</p>
+
+  <h2>3. JSON: only surrogate pairs, no curly-brace syntax</h2>
+  <p>The JSON spec (RFC 8259) defines only the 4-digit <code>\uXXXX</code> escape — JS's curly-brace <code>\u{...}</code> syntax doesn't exist in JSON's grammar at all. So characters outside the BMP must be split into a pair of surrogate escapes. Whenever <code>JSON.stringify()</code> encounters an emoji, this is the format it always uses.</p>
+
+  <h2>4. Python: an uppercase U + 8 fixed digits</h2>
+  <p>Python takes yet another approach. Lowercase <code>\u</code> is 4 digits (BMP only) just like in JS, but for characters outside the BMP, Python doesn't use surrogate pairs — it writes the entire code point at once with <strong>an uppercase <code>\U</code> plus 8 hex digits</strong>. Python strings are handled as a sequence of code points rather than UTF-16, so the surrogate-pair concept isn't needed at all.</p>
+
+  <div class="box">
+    <strong>How the same emoji 😀 (U+1F600) is notated across languages</strong>
+    <table style="margin-top:10px;">
+      <tr><th>Language/format</th><th>Notation</th><th>Character count</th><th>Note</th></tr>
+      <tr><td>JavaScript (ES6 curly-brace)</td><td><code>\u{1F600}</code></td><td>1 code point</td><td>Syntax error in JSON</td></tr>
+      <tr><td>JavaScript (surrogate pair, legacy-compatible)</td><td><code>😀</code></td><td>2 code units</td><td>Also valid in JSON</td></tr>
+      <tr><td>JSON</td><td><code>😀</code></td><td>2 code units</td><td>Only this notation supported, no curly braces</td></tr>
+      <tr><td>Python</td><td><code>\U0001F600</code></td><td>1 code point</td><td>Uppercase U, must be 8 digits</td></tr>
+    </table>
+  </div>
+  <p>As the table shows, if you paste JS's <code>\u{1F600}</code> directly into a JSON string, the JSON parser doesn't recognize the syntax and throws a parsing error. Conversely, JS's surrogate-pair notation (<code>😀</code>) remains valid in JSON as-is — but pasting Python's <code>\U0001F600</code> into either of the other two languages will also cause a syntax error. "Same character, different notation" is exactly where copy-pasting code between languages trips people up.</p>
+
+  <h2>5. What notation does the Unicode Converter actually generate?</h2>
+  <p>Checking the actual conversion logic in <code>unicode-converter.html</code> shows that the "JS \uXXXX" output column automatically switches between the two syntaxes depending on the code point value.</p>
+  <div class="box">
+    <strong>Actual code</strong>: <code>const jsArr=chars.map(c=>{const cp=c.codePointAt(0);return cp&lt;=0xFFFF?'\u'+cp.toString(16).padStart(4,'0').toUpperCase():'\u{'+cp.toString(16).toUpperCase()+'}';});</code><br>
+    When the code point is 0xFFFF or below (inside the BMP), it generates the classic 4-digit <code>\uXXXX</code>; when it exceeds 0xFFFF, it generates the ES6 curly-brace form <code>\u{code point}</code>. This tool doesn't offer a separate column for the JSON-style surrogate pair or Python's <code>\U</code> notation — its purpose is specifically to produce "notation usable in a JS string literal."
+  </div>
+  <p>So if you take the <code>\u{1F600}</code> notation the <a href="../unicode-converter.html?lang=en">Unicode Converter</a> generates and paste it directly into a JSON config file or API payload, you'll get a parsing error. If you need a JSON-ready string, run the value through <code>JSON.stringify()</code> once, or use the U+ code point value the tool also provides to compute the surrogate pair yourself. Conversely, if you paste a surrogate pair (<code>😀</code>) into the input box, this tool correctly restores it with <code>String.fromCodePoint()</code> and recognizes it as a single character via code-point-based iteration, decoding it correctly.</p>
+
+  <h2>6. How to avoid errors when copying code between languages</h2>
+  <ul>
+    <li>If the target is a <strong>JSON string or config file</strong>, you must use surrogate-pair notation (<code>😀</code>) only — curly-brace syntax won't work.</li>
+    <li>If the target is <strong>JS source code</strong>, both notations work, but if an ES6+ environment is guaranteed, curly-brace notation reads better.</li>
+    <li>If the target is <strong>Python source code</strong>, you must use uppercase <code>\U</code> plus 8 digits — the lowercase 4-digit <code>\u</code> can't represent characters outside the BMP and will cause a truncation error.</li>
+    <li>When in doubt, the safest approach is to convert manually to the target language's syntax based on the U+ code point (e.g. U+1F600). You can also round-trip verify using the <a href="../text-to-unicode.html?lang=en">Text-to-Unicode Converter</a> and <a href="../unicode-to-text.html?lang=en">Unicode-to-Text Converter</a>.</li>
+  </ul>
+
+  <h2>FAQ</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Can I paste the \u{1F600} notation the Unicode Converter generates directly into JSON?</summary><p style="margin-top:8px;">No. The JSON spec doesn't support curly-brace code point syntax, so it will throw a parsing error. You need to convert it to surrogate-pair notation (😀) instead.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Can I use Python's \U0001F600 in JavaScript?</summary><p style="margin-top:8px;">Not as-is. JS doesn't recognize the uppercase \U 8-digit syntax. To represent the same code point, you'd need to rewrite it as \u{1F600} or 😀.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Are characters within the BMP (e.g. Korean, Latin letters) notated the same way across languages?</summary><p style="margin-top:8px;">Yes. Characters at or below U+FFFF are all notated identically as lowercase 4-digit \uXXXX in JS, JSON, and Python, with no need for surrogate pairs or curly-brace syntax — they're compatible across languages. The mismatches only ever happen with characters outside the BMP.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. If I paste a surrogate pair into the input box, does this tool restore it correctly?</summary><p style="margin-top:8px;">Yes. It uses String.fromCodePoint() to combine the high and low surrogates into a valid character, then recognizes it correctly as a single character via code-point-based iteration.</p></details>
+
+  <div class="tool-links">
+    <a href="../unicode-converter.html?lang=en">→ Unicode Converter</a>
+    <a href="../text-to-unicode.html?lang=en">→ Text-to-Unicode Converter</a>
+    <a href="../unicode-to-text.html?lang=en">→ Unicode-to-Text Converter</a>
+    <a href="../json-validator.html?lang=en">→ JSON Validator</a>
+    <a href="../ascii-converter.html?lang=en">→ ASCII Converter</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes; the actual calculation logic of each tool may be updated at any time.</footer>
+</main>
+</body>
+</html>

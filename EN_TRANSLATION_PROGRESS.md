@@ -1,6 +1,6 @@
 # 가이드 영어(EN) 번역 진행 상황
 
-**마지막 갱신**: 2026-08-27  |  **진행률**: 70/176
+**마지막 갱신**: 2026-08-27  |  **진행률**: 80/176
 
 ## 배경 & 방식
 
@@ -35,7 +35,7 @@
 | 카테고리 | 완료/전체 |
 |---|---|
 | 개발자 도구 (developer-tools) | 52/52 |
-| 텍스트 도구 (text-tools) | 18/32 |
+| 텍스트 도구 (text-tools) | 28/32 |
 | 이미지 도구 (image-tools) | 0/24 |
 | 생성기 도구 (generator-tools) | 0/21 |
 | 보안 도구 (security-tools) | 0/17 |
@@ -100,7 +100,7 @@
 - [x] `yaml-norway-problem-boolean-parsing` ← tool: `yaml-validator`
 - [x] `yaml-to-json-kubernetes-multi-document-error` ← tool: `yaml-to-json`
 
-## 텍스트 도구 (text-tools) — 18/32
+## 텍스트 도구 (text-tools) — 28/32
 
 - [x] `alphabetizer-localecompare-vs-unicode-sort` ← tool: `alphabetizer`
 - [x] `anagram-checker-character-frequency-array` ← tool: `anagram-checker`
@@ -120,16 +120,16 @@
 - [x] `sms-byte-limit-euckr-encoding` ← tool: `character-counter`
 - [x] `stopword-remover-tfidf-distortion` ← tool: `stopword-remover`
 - [x] `text-case-camelcase-vs-kebab-case-origin` ← tool: `text-case-detector`
-- [ ] `text-diff-lcs-algorithm-explained` ← tool: `text-diff-checker`
-- [ ] `text-encryptor-caesar-to-aes-history` ← tool: `text-encryptor`
-- [ ] `text-reverser-emoji-surrogate-pair-break` ← tool: `text-reverser`
-- [ ] `text-shuffler-fisher-yates-bias` ← tool: `text-shuffler`
-- [ ] `text-sorter-natural-sort-numeric-order` ← tool: `text-sorter`
-- [ ] `text-statistics-flesch-korean-limitation` ← tool: `text-statistics`
-- [ ] `text-summarizer-korean-limitation` ← tool: `text-summarizer`
-- [ ] `turkish-i-problem-case-conversion` ← tool: `case-converter`
-- [ ] `typing-speed-wpm-5-char-word-standard` ← tool: `typing-speed-test`
-- [ ] `unicode-escape-js-json-python-comparison` ← tool: `unicode-converter`
+- [x] `text-diff-lcs-algorithm-explained` ← tool: `text-diff-checker`
+- [x] `text-encryptor-caesar-to-aes-history` ← tool: `text-encryptor`
+- [x] `text-reverser-emoji-surrogate-pair-break` ← tool: `text-reverser`
+- [x] `text-shuffler-fisher-yates-bias` ← tool: `text-shuffler`
+- [x] `text-sorter-natural-sort-numeric-order` ← tool: `text-sorter`
+- [x] `text-statistics-flesch-korean-limitation` ← tool: `text-statistics`
+- [x] `text-summarizer-korean-limitation` ← tool: `text-summarizer`
+- [x] `turkish-i-problem-case-conversion` ← tool: `case-converter`
+- [x] `typing-speed-wpm-5-char-word-standard` ← tool: `typing-speed-test`
+- [x] `unicode-escape-js-json-python-comparison` ← tool: `unicode-converter`
 - [ ] `unicode-homograph-phishing-domains` ← tool: `unicode-inspector`
 - [ ] `word-counter-lexical-diversity-ttr` ← tool: `word-counter`
 - [ ] `word-frequency-percentage-denominator-basis` ← tool: `word-frequency-counter`

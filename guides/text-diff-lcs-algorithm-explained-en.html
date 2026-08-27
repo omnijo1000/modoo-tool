@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How Diff Tools Find Changes: The LCS Algorithm Explained | MODOO HUB</title>
+<meta name="description" content="A deep dive into the LCS (Longest Common Subsequence) algorithm that text diff tools use to detect added and removed lines, based on the actual source code. Covers how it differs from Git's Myers algorithm, why moved lines aren't detected, and the reason behind the 3,000-line limit.">
+<link rel="canonical" href="https://modoohub.com/guides/text-diff-lcs-algorithm-explained-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/text-diff-lcs-algorithm-explained.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/text-diff-lcs-algorithm-explained-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/text-diff-lcs-algorithm-explained.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"How Diff Tools Find Changes: The LCS Algorithm Explained","description":"A deep dive into the LCS (Longest Common Subsequence) algorithm that text diff tools use to detect added and removed lines, based on the actual source code.","datePublished":"2026-08-27","dateModified":"2026-08-27","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html?lang=en" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>How Diff Tools Find Changes: The LCS Algorithm Explained</h1>
+  <p class="meta">Guide · Last verified Aug 27, 2026</p>
+
+  <p>Paste two blocks of text into a diff tool and it highlights, as if by magic, exactly which lines were removed and which were added. But underneath, it's running a classic dynamic-programming (DP) problem from any algorithms course: <strong>LCS (Longest Common Subsequence)</strong>. By digging into the actual source code of the <a href="../text-diff-checker.html?lang=en">text diff checker</a>, this guide walks through how diff separates "same" from "changed," and why the tool caps input at 3,000 lines.</p>
+
+  <h2>1. The core problem: you have to find what's the same before you can see what's different</h2>
+  <p>Intuitively, you might think comparing two texts line by line would work, but the moment a single line is inserted or deleted in the middle, every line after it shifts position, and a naive line-number comparison breaks. So diff algorithms flip the approach. They first find the <strong>longest sequence of lines that appear in both texts in the same relative order (the LCS)</strong>, and classify any line not in that LCS as either "added" or "removed." A line that belongs to the LCS still counts as "unchanged" even if its position shifted, as long as the relative order is preserved.</p>
+
+  <h2>2. Reading the actual code: the DP table and backtracking</h2>
+  <p>The <a href="../text-diff-checker.html?lang=en">text diff checker</a>'s <code>lcs(a, b)</code> function takes two line arrays, a and b, and builds a 2D array <code>dp</code> of size (m+1)×(n+1). <code>dp[i][j]</code> represents "the LCS length between the first i lines of a and the first j lines of b." When two lines match, the cell takes the diagonal value plus 1; when they don't, it takes the larger of the value above or to the left. After the table is filled, the algorithm backtracks from the bottom-right corner to the top-left: a diagonal step where the lines match means "unchanged," a move straight up means "removed," and a move straight left means "added." This entire process operates strictly at the <strong>line level</strong> — the text is split into an array via <code>split('\n')</code> and compared element by element, so even if only a few words change within a single line, that entire line is shown as "removed, then added."</p>
+
+  <h2>3. Why the 3,000-line limit exists</h2>
+  <p>The DP table's size is (original line count + 1) × (modified line count + 1). If both texts are 3,000 lines, the table has roughly 9 million cells (3,001 × 3,001). This is a fundamental limitation of the classic LCS implementation, whose time and space complexity are both O(m×n) — memory needs grow quadratically as line count increases. The tool's <code>MAX_LINES = 3000</code> cap, which rejects comparisons beyond that, isn't an arbitrary restriction; it's a direct consequence of keeping a 2D array manageable within a single browser tab's memory.</p>
+  <div class="box">
+    <strong>The numbers</strong>: comparing 1,000 lines against 1,000 lines produces roughly 1 million cells. 3,000 vs 3,000 produces roughly 9 million cells — a 9x increase for only a 3x increase in line count. Push it to 10,000 lines and the cell count exceeds 100 million. That's what "an O(n²) algorithm slows down proportional to the square of the input size" looks like in practice.
+  </div>
+
+  <h2>4. How this differs from Git's Myers algorithm</h2>
+  <p>Git's default <code>git diff</code> also compares at the line level — the common belief that "Git works character by character while this tool works line by line" isn't accurate. The real differences are twofold. First, Git uses the more sophisticated Myers algorithm to find the shortest edit script, and its running time scales with the size of the actual changes (D), making it much faster on large files with few changes. This tool's O(m×n) DP, by contrast, scales with the size of the files themselves regardless of how much actually changed, putting it at a disadvantage for large files. Second, Git can drop down to word- or character-level granularity with flags like <code>--word-diff</code> and <code>--color-words</code>, while this tool only supports line-level comparison with no separate word or character mode. Neither tool detects "moves" (renames/relocations) by default, either — if a line is deleted from one spot and reappears verbatim somewhere else, it's shown as a separate "removed" and "added" rather than a "move."</p>
+
+  <h2>5. A 3-line example showing how matching actually works</h2>
+  <p>Suppose the original and modified texts look like this. The LCS is the 1st and 3rd lines ("apple" and "banana"), and only the 2nd line is replaced.</p>
+  <table>
+    <tr><th>Original</th><th>Modified</th><th>Diff result</th></tr>
+    <tr><td>apple</td><td>apple</td><td>unchanged</td></tr>
+    <tr><td>strawberry</td><td>(none)</td><td>removed (red)</td></tr>
+    <tr><td>(none)</td><td>grape</td><td>added (green)</td></tr>
+    <tr><td>banana</td><td>banana</td><td>unchanged</td></tr>
+  </table>
+  <p>"Strawberry" and "grape" look like a change that happened at the same spot, but from the LCS's perspective they're completely unrelated: one independent removal and one independent addition. This result is also summarized as added/removed/unchanged line counts in the stats bar at the top. If you need a different flavor of diff, purpose-built tools for structured data — like <a href="../json-diff.html?lang=en">JSON diff</a> or the <a href="../csv-diff-checker.html?lang=en">CSV diff checker</a> — will give more accurate results for their respective formats.</p>
+
+  <h2>6. Want to know how similar two documents are overall?</h2>
+  <p>Diff shows you exactly which lines changed, but it can't answer "how similar are these two documents overall?" — that calls for a different metric. For plagiarism checks or translation review, where you need an overall similarity score, the <a href="../text-similarity-checker.html?lang=en">text similarity checker</a> is the better tool to pair with this one.</p>
+
+  <h2>FAQ</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does the LCS algorithm always produce a diff result that "feels" natural to a human?</summary><p style="margin-top:8px;">Not always. LCS mathematically finds only "the longest common subsequence," and when multiple subsequences of the same maximum length exist, the choice between them affects the result. Most of the time this matches human intuition, but text with a lot of repeated lines can produce matches you wouldn't expect.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. If two lines differ only in case, are they shown as "changed"?</summary><p style="margin-top:8px;">By default, yes. Turning on the "Ignore case" option in the <a href="../text-diff-checker.html?lang=en">text diff checker</a> converts both arrays to lowercase right before comparison, so lines that differ only in case are treated as identical.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Can text over 3,000 lines not be compared at all?</summary><p style="margin-top:8px;">Correct — because of the O(m×n) memory limitation, this tool refuses to run the comparison and shows a warning if either the original or the modified text exceeds 3,000 lines. For larger files, it's safer to split the text into sections and compare them separately, or use a dedicated version-control tool like Git.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Can it detect when only a few words change within a single line?</summary><p style="margin-top:8px;">Since this tool only compares at the line level, a partial change within a line is shown as that entire line being "removed and added." To highlight exactly which words changed, you'd need Git or a dedicated code-comparison tool that supports word-diff.</p></details>
+
+  <div class="tool-links">
+    <a href="../text-diff-checker.html?lang=en">→ Text Diff Checker</a>
+    <a href="../text-similarity-checker.html?lang=en">→ Text Similarity Checker</a>
+    <a href="../json-diff.html?lang=en">→ JSON Diff</a>
+    <a href="../csv-diff-checker.html?lang=en">→ CSV Diff Checker</a>
+    <a href="../yaml-diff-checker.html?lang=en">→ YAML Diff Checker</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is general information intended to explain how the tool works internally; the actual interface and options may change as the tool is updated.</footer>
+</main>
+</body>
+</html>

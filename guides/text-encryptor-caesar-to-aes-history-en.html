@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>From Caesar Cipher to AES-256-GCM: A History of Encryption in One Tool | MODOO HUB</title>
+<meta name="description" content="From the Caesar cipher — breakable with a single shift — to AES-256-GCM armed with PBKDF2, salt, and IV: a walkthrough of 2,000 years of cryptography, grounded in the actual source code of a text encryption tool.">
+<link rel="canonical" href="https://modoohub.com/guides/text-encryptor-caesar-to-aes-history-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/text-encryptor-caesar-to-aes-history.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/text-encryptor-caesar-to-aes-history-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/text-encryptor-caesar-to-aes-history.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"From Caesar Cipher to AES-256-GCM: A History of Encryption in One Tool","description":"From the Caesar cipher — breakable with a single shift — to AES-256-GCM armed with PBKDF2, salt, and IV: a walkthrough of 2,000 years of cryptography, grounded in the actual source code of a text encryption tool.","datePublished":"2026-08-27","dateModified":"2026-08-27","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html?lang=en" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>From Caesar Cipher to AES-256-GCM: A History of Encryption in One Tool</h1>
+  <p class="meta">Guide · Last verified Aug 27, 2026</p>
+
+  <p>The <a href="../text-encryptor.html?lang=en">text encryptor</a> lets you try out four methods on the same screen: Caesar cipher, ROT13, Vigenere cipher, and AES-256-GCM. They aren't just four ciphers thrown together at random — that order is literally the 2,000-year path cryptography has walked, from simple shifts in ancient Rome to the modern web encryption standard. This guide uses the tool's actual code to trace why each stage exists to patch a weakness in the one before it.</p>
+
+  <h2>1. Caesar cipher: the limits of a single shift</h2>
+  <p>The Caesar cipher substitutes each letter by shifting the alphabet a fixed number of positions. It's named after Julius Caesar, who reportedly used a shift of 3 for military communications in ancient Rome. In the tool's code, the <code>caesar(s,n)</code> function adds the shift value to each letter's character code and takes the remainder mod 26 — a <code>mod26</code> operation. The problem is that the shift can only be one of 1 through 25. With just 25 possibilities, an attacker who brute-forces all 25 shifts is guaranteed to find the plaintext. It can be cracked by hand, without a computer, in a few minutes.</p>
+
+  <h2>2. ROT13: a special case of Caesar, and therefore weaker still</h2>
+  <p>ROT13 is a Caesar cipher with the shift fixed at exactly 13. Since the alphabet has 26 letters, 13 is exactly half, giving it a symmetric property: applying the same transform twice returns the original text. Because of this, it isn't actually used for security — it's used for "deliberately easy to reverse" purposes like hiding spoilers or masking answers on internet forums. The tool's own help text says as much, describing ROT13 as "a simple text transform, not real encryption."</p>
+
+  <h2>3. Vigenere cipher: introducing a key to defeat frequency analysis</h2>
+  <p>The fundamental weakness of Caesar and ROT13 is that the shift is fixed, so frequency analysis of individual letters (for example, "E" is the most common letter in English) can reverse-engineer the shift. The Vigenere cipher, which emerged in the 16th century, patches this by repeating a keyword so a different shift applies to each letter. The tool's <code>vigenere(s,key)</code> function strips the key down to lowercase letters only, then cycles through the key one character at a time to pull a shift value for each input character. The longer and more random the key, the more secure it is — but classical attacks like the Kasiski examination, which finds the period at which the key repeats, already existed by the 19th century, which is why the tool itself warns that Vigenere "isn't suitable for real security."</p>
+
+  <h2>4. AES-256-GCM: the current standard for symmetric encryption</h2>
+  <p>From here on, we leave hand-solvable substitution ciphers behind for a modern block cipher where brute force is mathematically infeasible. This tool implements AES-256-GCM using the browser's built-in Web Crypto API, and the actual parameters, confirmed directly in the code, are as follows.</p>
+  <table>
+    <tr><th>Component</th><th>Measured value (from code)</th><th>Role</th></tr>
+    <tr><td>Key derivation function</td><td>PBKDF2 (hash: SHA-256)</td><td>Turns a password into a 256-bit encryption key</td></tr>
+    <tr><td>PBKDF2 iterations</td><td>100,000</td><td>Slows down brute-force attacks</td></tr>
+    <tr><td>Salt length</td><td>16 bytes</td><td>Freshly generated every time, defeats rainbow tables</td></tr>
+    <tr><td>IV (initialization vector) length</td><td>12 bytes</td><td>Freshly generated every time, guarantees different ciphertext even with the same key</td></tr>
+    <tr><td>Encryption method</td><td>AES-GCM, 256-bit key</td><td>Provides confidentiality plus tamper detection (authentication tag)</td></tr>
+  </table>
+  <p>In the actual code, the key is derived with <code>crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:100000,hash:'SHA-256'}, ...)</code>, a fresh salt (16 bytes) and IV (12 bytes) are pulled via <code>crypto.getRandomValues()</code> on every run, and the final output is assembled as <code>base64(salt + iv + ciphertext)</code>. During decryption, that string is sliced back apart to extract the salt and IV, and the same key-derivation process runs in reverse.</p>
+
+  <h2>5. Why does PBKDF2 iterate 100,000 times?</h2>
+  <p>You can't use a password directly as an encryption key because human-chosen passwords are far more predictable than a truly random 256-bit key — an attacker can simply try a list of common passwords. PBKDF2 (Password-Based Key Derivation Function 2) deliberately repeats a hash operation tens or hundreds of thousands of times, artificially raising the computational cost of turning one password into a key. A legitimate user only pays that cost once, but an attacker has to pay it again for every one of the millions of candidate passwords they try, so the total brute-force time scales directly with the iteration count. The 100,000 iterations this tool uses is a common baseline in web encryption — a middle ground that adds no perceptible delay in the browser while meaningfully raising the cost of an offline brute-force attack.</p>
+
+  <h2>6. Why generate a fresh salt and IV every time?</h2>
+  <p>Without a salt, every user with the same password — or every message encrypted with the same password — would end up with the identical key. That lets an attacker precompute results for common passwords (a rainbow table) and attack many targets at once with a single table. Drawing the salt fresh and random on every encryption means the same password derives a different key each time, defeating that kind of precomputed attack. The IV (initialization vector) is regenerated for the same reason — reusing the same key and IV twice breaks the security guarantees of GCM mode — so this tool generates a fresh 12-byte IV on every encryption, ensuring the same plaintext and password never produce the same ciphertext twice.</p>
+  <div class="box">
+    <strong>A comparison</strong>: encrypt the plaintext "hello" twice with the password "1234." Caesar and ROT13 produce exactly the same result both times (since the shift and rules are fixed), but AES-256-GCM produces a completely different output string each time, because the salt and IV differ. Yet decrypting either result with the same password correctly returns "hello" both times.
+  </div>
+
+  <h2>FAQ</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Which is weaker, Caesar cipher or ROT13?</summary><p style="margin-top:8px;">ROT13 is a Caesar cipher with the shift fixed at 13, so they're essentially the same strength. That said, ROT13 was never designed for encryption in the first place — it's a text transform — so neither should be used for real security purposes.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Is a higher PBKDF2 iteration count always better?</summary><p style="margin-top:8px;">It improves security, but it also increases the time each key derivation takes. This tool's 100,000 iterations is a middle ground that raises the cost of brute force meaningfully without introducing a perceptible delay in the browser.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Can text encrypted with this tool be decrypted with a different AES tool?</summary><p style="margin-top:8px;">Generally, no. Details like the PBKDF2 iteration count, salt/IV length, and the exact order data is concatenated in vary between tools and aren't stored inside the ciphertext itself, so you must decrypt with the same tool you used to encrypt.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Can I enter a negative shift or one above 26?</summary><p style="margin-top:8px;">Yes. The tool normalizes the remainder to always be non-negative using <code>((x%26)+26)%26</code>, so entering 0, a negative number, or a value of 26 or higher still encrypts and decrypts correctly back to the original text.</p></details>
+
+  <div class="tool-links">
+    <a href="../text-encryptor.html?lang=en">→ Text Encryptor</a>
+    <a href="../text-decryptor.html?lang=en">→ Text Decryptor</a>
+    <a href="../hash-checker.html?lang=en">→ Hash Checker</a>
+    <a href="../bcrypt-generator.html?lang=en">→ Bcrypt Generator</a>
+    <a href="../sha256-generator.html?lang=en">→ SHA-256 Generator</a>
+    <a href="../md5-generator.html?lang=en">→ MD5 Generator</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes. If you need to protect genuinely sensitive data, use a vetted, professional encryption library and have a security expert review your approach.</footer>
+</main>
+</body>
+</html>

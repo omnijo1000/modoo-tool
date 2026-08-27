@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why Reversing Text Breaks Emoji — The Surrogate Pair Trap | MODOO HUB</title>
+<meta name="description" content="Why reversing a string with .length or split('') breaks emoji, explained through UTF-16 surrogate pairs and the difference from code-point-based reversal.">
+<link rel="canonical" href="https://modoohub.com/guides/text-reverser-emoji-surrogate-pair-break-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/text-reverser-emoji-surrogate-pair-break.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/text-reverser-emoji-surrogate-pair-break-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/text-reverser-emoji-surrogate-pair-break.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Why Reversing Text Breaks Emoji — The Surrogate Pair Trap","description":"Why reversing a string with .length or split('') breaks emoji, explained through UTF-16 surrogate pairs and the difference from code-point-based reversal.","datePublished":"2026-08-27","dateModified":"2026-08-27","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--purple);}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;}
+details summary{cursor:pointer;font-weight:600;color:var(--text-muted);}
+details p{margin-top:8px;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html?lang=en" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Why Reversing Text Breaks Emoji — The Surrogate Pair Trap</h1>
+  <p class="meta">Guide · Last verified Aug 27, 2026</p>
+
+  <p>If you've ever reversed "Hi😀!" and gotten a broken box (□) or a question mark instead of the emoji, that wasn't a random bug — it's a predictable trap rooted in how JavaScript strings are stored internally. This guide explains why naively written string-reversal code breaks emoji, and how to fix it.</p>
+
+  <h2>1. The real unit of a JavaScript string: the UTF-16 code unit</h2>
+  <p>JavaScript strings aren't stored in units of "characters" the way people think of them — they're stored in <strong>UTF-16 code units</strong>. Letters, most Hangul, and basic punctuation are each represented by a single code unit, but most emoji and some rare CJK characters have Unicode code points beyond U+FFFF (the Supplementary Plane), which means it takes <strong>two code units paired together</strong> to represent one. This pair is called a <strong>surrogate pair</strong>. Only when a High Surrogate and a Low Surrogate appear stuck together in the correct order does the browser render them as a single emoji.</p>
+
+  <h2>2. Where it breaks: split('') and .length</h2>
+  <p>A lot of string-reversal code is written as <code>str.split('').reverse().join('')</code>. Here, <code>split('')</code> splits the string by "code unit" — not by the "character" a human perceives. If an emoji is made of two code units (a surrogate pair), <code>split('')</code> forcibly splits that pair into two separate array elements. Once <code>.reverse()</code> runs, the high and low surrogates that used to be adjacent end up separated or in the wrong order — either way, the pairing is now invalid. An unpaired surrogate doesn't point to a valid character, so the browser displays it as a broken glyph (a box, a replacement character, etc.).</p>
+  <div class="box">
+    <strong>A conceptual example</strong>: <code>"Hi😀!"</code> splits by code unit into 5 pieces: <code>['H','i', the high surrogate of 😀, the low surrogate of 😀, '!']</code>. Reverse that directly and you get <code>['!', low surrogate, high surrogate, 'i', 'H']</code> — the low surrogate now sits <strong>before</strong> the high surrogate, which is not a valid surrogate sequence, so the emoji breaks.
+  </div>
+
+  <h2>3. The correct fix: reversing by code point</h2>
+  <p>The ECMAScript (JavaScript standard) spec defines the <code>[...str]</code> spread syntax and <code>Array.from(str)</code> to iterate a string by <strong>code point</strong>. That means they automatically recognize surrogate pairs and treat each one as a single unit. Switching to <code>[...str].reverse().join('')</code> moves each surrogate pair as an intact unit, preserving the high/low order and keeping the emoji intact.</p>
+  <table>
+    <tr><th>Method</th><th>Splits by</th><th>Emoji-safe?</th></tr>
+    <tr><td><code>str.split('')</code></td><td>UTF-16 code unit</td><td>❌ Risk of splitting surrogate pairs</td></tr>
+    <tr><td><code>[...str]</code> / <code>Array.from(str)</code></td><td>Unicode code point</td><td>✅ Preserves surrogate pairs</td></tr>
+    <tr><td><code>Intl.Segmenter</code></td><td>Grapheme cluster (what a human sees as "one character")</td><td>✅✅ Preserves ZWJ-composed emoji too</td></tr>
+  </table>
+
+  <h2>4. What code-point reversal still can't fix: grapheme clusters</h2>
+  <p><code>[...str]</code> isn't a silver bullet, though. A flag emoji (🇰🇷) is rendered as a single flag by placing two Regional Indicator code points side by side — but those two are <strong>separate code points</strong>, not a surrogate pair, so a code-point-based reversal still treats them independently. The same goes for family emoji (👨‍👩‍👧‍👦), which combine several emoji into one using a ZWJ (zero-width joiner). To correctly preserve these "true single characters as a human sees them" (grapheme clusters), you need the more modern <code>Intl.Segmenter</code> API, which splits text at a level one step higher than code points.</p>
+
+  <h2>5. How this tool handles it</h2>
+  <p>Modoohub's text reverser tool's actual source code uses <code>[...input].reverse().join('')</code> for reversing the whole text, and <code>[...seg].reverse().join('')</code> for reversing each word individually (word-reverse mode). In other words, it uses the spread operator for code-point-based reversal from the start, rather than <code>split('')</code>, so ordinary emoji (the kind built from surrogate pairs) stay intact. That said, as explained above, grapheme clusters made of multiple code points — like flag emoji or ZWJ-composed emoji — can still end up out of order without <code>Intl.Segmenter</code>. That's a limitation shared by any code-point-based reversal approach, this tool included.</p>
+
+  <h2>FAQ</h2>
+  <details><summary>Q. Why does this problem only show up with emoji?</summary><p>A. Most letters and Hangul characters have Unicode code points at or below U+FFFF, so they're represented by a single UTF-16 code unit. Most emoji, on the other hand, have code points beyond U+FFFF (for example, 😀 is U+1F600), requiring two code units — a surrogate pair. So this problem only surfaces in operations that slice by code unit.</p></details>
+  <details><summary>Q. Why is counting emoji with .length wrong?</summary><p>A. <code>.length</code> returns the number of code units, so a single emoji made of a surrogate pair counts as length 2. "😀".length is 2, not 1. To count actual "characters" accurately, use <code>[...str].length</code> or <code>Intl.Segmenter</code>.</p></details>
+  <details><summary>Q. Does Modoohub's text reverser have this bug?</summary><p>A. No. This tool implements code-point-based reversal with the <code>[...text]</code> spread operator from the ground up, so ordinary emoji stay intact. The only exception is grapheme clusters made of multiple code points, like flag emoji or ZWJ-composed emoji, which can still end up out of order — a limitation shared by any code-point-based reversal approach.</p></details>
+  <details><summary>Q. Does palindrome checking run into the same problem?</summary><p>A. Yes. Palindrome-checking code built on split('') and reverse() can produce incorrect results for strings that contain emoji. It's safer to compare by code point or use a dedicated <a href="../palindrome-checker.html?lang=en">palindrome checker</a>.</p></details>
+
+  <div class="tool-links">
+    <a href="../text-reverser.html?lang=en">→ Text Reverser</a>
+    <a href="../unicode-inspector.html?lang=en">→ Unicode Inspector</a>
+    <a href="../emoji-counter.html?lang=en">→ Emoji Counter</a>
+    <a href="../emoji-remover.html?lang=en">→ Emoji Remover</a>
+    <a href="../palindrome-checker.html?lang=en">→ Palindrome Checker</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes.</footer>
+</main>
+</body>
+</html>

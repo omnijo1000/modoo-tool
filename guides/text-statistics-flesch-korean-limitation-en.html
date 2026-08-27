@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why the Flesch Readability Score Doesn't Work for Korean | MODOO HUB</title>
+<meta name="description" content="Rudolf Flesch's 1948 Flesch Reading Ease formula assumes English syllable structure. Here's how — and why — its vowel-counting approximation breaks down for Korean, verified against the actual tool's code.">
+<link rel="canonical" href="https://modoohub.com/guides/text-statistics-flesch-korean-limitation-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/text-statistics-flesch-korean-limitation.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/text-statistics-flesch-korean-limitation-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/text-statistics-flesch-korean-limitation.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Why the Flesch Readability Score Doesn't Work for Korean","description":"Rudolf Flesch's 1948 Flesch Reading Ease formula assumes English syllable structure. Here's how — and why — its vowel-counting approximation breaks down for Korean, verified against the actual tool's code.","datePublished":"2026-08-27","dateModified":"2026-08-27","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Why the Flesch Readability Score Doesn't Work for Korean</h1>
+  <p class="meta">Guide · Last verified Aug 27, 2026</p>
+
+  <p>If you've used an English-language content analysis tool, you've probably run into a metric that boils readability down to a single number, like "Flesch Reading Ease: 72." Run that same formula on Korean text, though, and the result is often nonsensical — or the score doesn't show up at all, depending on the tool. This guide covers what assumptions the Flesch formula was built on in the first place, why those assumptions collapse for Korean, and how the actual tool handles the situation at the code level.</p>
+
+  <h2>1. What the Flesch Reading Ease formula actually counts</h2>
+  <p>Published by Rudolf Flesch in 1948, the formula is <code>206.835 - 1.015 × (average sentence length) - 84.6 × (average syllables per word)</code>. The longer the sentences and the more syllables per word, the lower the score (harder to read); shorter sentences and simpler syllable counts push the score up toward 90+ ("very easy"). The key input is "syllable count," and rather than looking it up in an actual dictionary, the formula approximates it by counting runs of consecutive vowels (a, e, i, o, u, y) within each word. For example, "beautiful" has three vowel clusters — "eau," "i," "u" — so it's approximated as 3 syllables. It's not a phonetically perfect calculation, but for English words it tracks the real syllable count reasonably well.</p>
+
+  <h2>2. Why this approximation produces a completely different result for Korean</h2>
+  <p>For this formula to hold, it needs the premise "number of vowel letters ≈ number of syllables," which only holds for languages like English, where consonants and vowels are each written out as separate letters in sequence. Korean (Hangul), by contrast, is a syllabic writing system from the start — a single syllable (e.g. "안," "녕") compresses a consonant + vowel (+ final consonant) combination into one character block. On top of that, the Flesch formula's vowel-detection regex is built to recognize only the Roman letters a, e, i, o, u, y, so a Korean word like "안녕하세요" doesn't contain a single character that regex can match. In other words, the syllable-counting logic itself can't read Korean input at all. On top of that, Korean is an agglutinative language where particles and endings keep attaching to the end of words, so a "word" split on whitespace carries a different amount of information than an English word does. For these two reasons, applying the Flesch score directly to Korean text produces a statistically meaningless number.</p>
+
+  <h2>3. How the actual tool handles this — verified in code</h2>
+  <p>Opening the source of the <a href="../text-statistics.html?lang=en">Text Statistics Analyzer</a> and looking at the <code>countSyllables</code> function, it counts vowel clusters with <code>word.toLowerCase().match(/[aeiouy]+/g)</code>, and if there are no matches at all (i.e. the word contains no recognized vowel character), it falls back to counting the word as 1 syllable via <code>||1</code>. The on-screen note tells users that "the Flesch score isn't shown for Korean," but tracing the <code>fleschScore</code> function all the way through shows there's actually no branch that detects the language and skips the calculation. The only condition that controls whether the score box appears is <strong>whether the whitespace-split word (eojeol) count is 10 or more</strong>. That means even for a Korean sentence, the score box does appear once there are 10 or more eojeols — and since every Korean word gets counted as 1 syllable by the logic above, the resulting score has nothing to do with the text's actual readability. This is closer to "a number is shown, but that number is meaningless" than to "the score is hidden" — so this metric is only safe to rely on for English text.</p>
+
+  <div class="box">
+    <strong>Verification example</strong>: Feed in a Korean sentence with 10+ eojeols strung together without particles or periods. Every word gets counted as 1 syllable, and with no punctuation, "sentence count" also gets locked at 1, which simplifies the formula to <code>206.835 - 84.6 - 1.015×(eojeol count)</code>. Once the eojeol count reaches roughly 12, the calculated value exceeds 100 and gets clamped to the ceiling (100, "very easy") — a number that has nothing to do with how difficult the sentence actually is.
+  </div>
+  <table>
+    <tr><th>Language</th><th>Syllable-counting method</th><th>Is the score box shown?</th></tr>
+    <tr><td>English</td><td>Vowel-cluster count approximation (tracks real syllable count reasonably well)</td><td>Shown once 10+ words; the value is meaningful</td></tr>
+    <tr><td>Korean</td><td>No Roman vowels detected → every word locked at 1 syllable</td><td>Shown once 10+ eojeols, but the value itself is meaningless</td></tr>
+  </table>
+
+  <h2>4. So how should you actually gauge difficulty in Korean text?</h2>
+  <p>There's no internationally agreed-upon, standardized readability formula that substitutes for the Flesch score in Korean. In practice, people tend to instead rely on secondary indicators that depend less on language structure — average sentence length (eojeol count), average word length, and the density of conjunctions or technical terms. The <a href="../text-statistics.html?lang=en">Text Statistics Analyzer</a>'s basic stats (character count, word count, sentence count, average word length) are tallied correctly with the same logic regardless of language, so for Korean writing, checking sentence length or volume with these basic metrics is a more reliable approach than relying on the Flesch score.</p>
+
+  <h2>FAQ</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. If the Flesch score comes out low, does that mean the Korean sentence is actually difficult?</summary><p style="margin-top:8px;">No. The Flesch score for Korean input is essentially a byproduct of the syllable-counting logic failing to recognize Hangul characters. Don't use it to judge the actual difficulty of a sentence.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. How is mixed English-and-Korean text handled?</summary><p style="margin-top:8px;">The formula itself doesn't distinguish between languages — it treats the whole text as one unit. English words are counted by vowel count, Korean words are counted as 1 syllable each, and the two get combined into a single total, so the more Korean content there is, the less reliable the score becomes.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Why doesn't the tool just hide the score box entirely for Korean?</summary><p style="margin-top:8px;">Because the current logic decides whether to show the box based solely on the eojeol count (10 or more), with no step that detects the text's language. Hiding the box for Korean input would require adding language detection first — that detection step simply doesn't exist in the current implementation.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does that mean this metric is useless overall?</summary><p style="margin-top:8px;">No — it's still a useful approximation for English text. As a quick check on whether a blog post, email, or document written in English has overly long sentences or too many complex words, it's reliable enough to be worth using.</p></details>
+
+  <div class="tool-links">
+    <a href="../text-statistics.html?lang=en">→ Text Statistics Analyzer</a>
+    <a href="../reading-level-checker.html?lang=en">→ Reading Level Checker</a>
+    <a href="../word-frequency-counter.html?lang=en">→ Word Frequency Analyzer</a>
+    <a href="../wpm-calculator.html?lang=en">→ WPM Calculator</a>
+    <a href="../typing-speed-test.html?lang=en">→ Typing Speed Test</a>
+    <a href="../text-summarizer.html?lang=en">→ Text Summarizer</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes. Actual tool behavior may vary by version, so please verify results yourself before use.</footer>
+</main>
+</body>
+</html>

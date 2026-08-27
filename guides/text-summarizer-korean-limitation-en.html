@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why the Text Summarizer Doesn't Work on Korean — a tokenize() Regex Bug | MODOO HUB</title>
+<meta name="description" content="We opened the actual source code of the MODOO HUB Text Summarizer to see why Korean input never gets summarized properly. Here's how the \w regex inside tokenize() fails to recognize Hangul as word characters, driving every sentence score to zero.">
+<link rel="canonical" href="https://modoohub.com/guides/text-summarizer-korean-limitation-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/text-summarizer-korean-limitation.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/text-summarizer-korean-limitation-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/text-summarizer-korean-limitation.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Why the Text Summarizer Doesn't Work on Korean — a tokenize() Regex Bug","description":"We opened the actual source code of the MODOO HUB Text Summarizer to see why Korean input never gets summarized properly, and how the \\w regex inside tokenize() fails to recognize Hangul as word characters, driving every sentence score to zero.","datePublished":"2026-08-27","dateModified":"2026-08-27","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Why do all Korean sentences get the same score in the summarizer?","acceptedAnswer":{"@type":"Answer","text":"The tokenize() function that counts word frequency replaces non-word characters with spaces using the regex [^\\w\\s]. But JavaScript's \\w only matches ASCII letters, digits, and underscore — it doesn't include Hangul (Korean characters). As a result, feeding it a Korean sentence leaves no recognized word tokens at all, so every sentence's score comes out to exactly 0."}},
+{"@type":"Question","name":"Does switching to position-based mode improve results for Korean?","acceptedAnswer":{"@type":"Answer","text":"No. Position-based mode just multiplies a sentence's base frequency score by a first-sentence/last-sentence weight. Since the base score for Korean sentences is already 0, multiplying it by any factor still leaves 0."}},
+{"@type":"Question","name":"So is this tool completely unusable for Korean text?","acceptedAnswer":{"@type":"Answer","text":"A summary output does appear, but because every score ties at 0, which sentences get picked is essentially down to the coincidence of JavaScript's Array.sort stability rather than any real judgment of importance. In other words, getting a result doesn't mean it actually identified the key sentences. If you need to summarize Korean text, you're better off reading and selecting sentences yourself, or using a dedicated language-model-based summarization service."}},
+{"@type":"Question","name":"Does it work correctly on English text?","acceptedAnswer":{"@type":"Answer","text":"Yes. The \\w regex inside tokenize() correctly recognizes ASCII letters and digits as word characters, so for English text, word frequencies are actually tallied, sentences are scored based on that frequency, and the key sentences get selected as intended."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+.box code{display:block;margin-top:8px;white-space:pre-wrap;word-break:break-all;}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html?lang=en" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Why the Text Summarizer Doesn't Work on Korean</h1>
+  <p class="meta">Guide · Last verified Aug 27, 2026</p>
+
+  <p>Plenty of people have pasted Korean text into a "paste text, get the key sentences back" summarizer and found the results strange. Sentences do get picked, but it's unclear why those particular ones were chosen, and the keyword box is sometimes empty too. This guide opens the actual JavaScript source of the MODOO HUB <a href="../text-summarizer.html?lang=en">Text Summarizer</a> and checks, from the code itself rather than a guess, what actually happens with Korean input.</p>
+
+  <h2>1. Extractive summarization was built on the assumption of "word boundaries"</h2>
+  <p>The method this tool uses isn't generative AI summarization — it's <strong>frequency-based extractive summarization</strong>. It counts how many times each word appears across the whole text, scores sentences higher the more they contain frequently-occurring words, and then pulls out the highest-scoring sentences verbatim. For this to work at all, the code has to be able to cut precisely where a word begins and ends. English has spaces between words and relatively simple inflection, so a single regex can capture that boundary fairly reliably.</p>
+
+  <h2>2. Why the same approach struggles to cut words in Korean</h2>
+  <p>Korean is an agglutinative language: particles keep attaching after a noun, and endings keep attaching after a verb or adjective stem. The same word "회사" (company) keeps changing shape depending on the sentence — "회사는", "회사가", "회사를", "회사에서" — and counting these as a single word requires morphological analysis that strips the particles and endings. Splitting purely on whitespace and punctuation the way English does means "회사는" and "회사가" get treated as different words and their frequency gets scattered — or, as the next section shows, if the regex itself was never designed with Hangul in mind, the words disappear from the count entirely.</p>
+
+  <h2>3. Opening the actual code — the regex inside <code>tokenize()</code></h2>
+  <p>The <code>tokenize()</code> function in text-summarizer.html is defined like this:</p>
+  <div class="box">
+    <strong>Actual source (inside the script tag, the tokenize function)</strong>
+    <code>function tokenize(text){return text.toLowerCase().replace(/[^\w\s]/g,' ').split(/\s+/).filter(w=>w.length>1&&!STOP.has(w));}</code>
+  </div>
+  <p>The key part is <code>replace(/[^\w\s]/g,' ')</code>. This regex replaces every character that is neither a word character (<code>\w</code>) nor whitespace (<code>\s</code>) with a space. But in JavaScript's regex engine, <code>\w</code> means <code>[A-Za-z0-9_]</code> — ASCII letters, digits, and underscore only — and does not include Hangul syllables (가-힣). That means feeding in something like "한국어" (Korean) results in every single character being judged as neither <code>\w</code> nor <code>\s</code>, so it gets replaced with a space. The following <code>split(/\s+/)</code> then splits the string on those spaces, so a purely Korean sentence ends this step with not a single recognizable word token left — effectively an empty array.</p>
+
+  <h2>4. What the actual summary output looks like as a result</h2>
+  <p>Following the <code>summarize()</code> function further, each sentence's score is calculated as <code>words.reduce((acc,w)=&gt;acc+(freqMap[w]||0),0)/Math.max(words.length,1)</code>. For a Korean sentence, <code>words</code> (the tokenize result) is an empty array, so the numerator is 0 and the denominator is <code>Math.max(0,1)=1</code>, making the score exactly <strong>0</strong>. Even if you switch to position-based mode, that mode only multiplies this 0 score by a first-sentence/last-sentence weight — and 0 times anything is still 0. The upshot is that every sentence ties at a score of 0, and which sentences actually get selected as the "summary" comes down to JavaScript's <code>Array.sort</code> tie-breaking behavior (sort stability) rather than any real judgment about which sentences matter in that text. The keyword tag box appearing empty for Korean input has the same root cause — since no Korean word ever makes it into the frequency count (<code>freqMap</code>), there's nothing to surface as a top keyword.</p>
+
+  <h2>5. So what should you do with Korean text?</h2>
+  <p>This doesn't mean the tool is "broken." Feed it English text and <code>\w</code> correctly captures letters and digits, so frequency counting and sentence selection work exactly as designed. But for Korean input, you should know that even though a summary is produced, there's no guarantee those are actually the key sentences. If you need to summarize a Korean document, it's safer — in terms of actual result quality — to mark the key sentences yourself paragraph by paragraph, or to use a separate Korean-specific summarization service built on morphological analysis and language understanding.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details class="faq-item"><summary>Q. Why do all Korean sentences get the same score in the summarizer?</summary><p>A. The tokenize() function that counts word frequency replaces non-word characters with spaces using the regex [^\w\s]. But JavaScript's \w only matches ASCII letters, digits, and underscore — it doesn't include Hangul (Korean characters). As a result, feeding it a Korean sentence leaves no recognized word tokens at all, so every sentence's score comes out to exactly 0.</p></details>
+  <details class="faq-item"><summary>Q. Does switching to position-based mode improve results for Korean?</summary><p>A. No. Position-based mode just multiplies a sentence's base frequency score by a first-sentence/last-sentence weight. Since the base score for Korean sentences is already 0, multiplying it by any factor still leaves 0.</p></details>
+  <details class="faq-item"><summary>Q. So is this tool completely unusable for Korean text?</summary><p>A. A summary output does appear, but because every score ties at 0, which sentences get picked is essentially down to the coincidence of JavaScript's Array.sort stability rather than any real judgment of importance. In other words, getting a result doesn't mean it actually identified the key sentences. If you need to summarize Korean text, you're better off reading and selecting sentences yourself, or using a dedicated language-model-based summarization service.</p></details>
+  <details class="faq-item"><summary>Q. Does it work correctly on English text?</summary><p>A. Yes. The \w regex inside tokenize() correctly recognizes ASCII letters and digits as word characters, so for English text, word frequencies are actually tallied, sentences are scored based on that frequency, and the key sentences get selected as intended.</p></details>
+
+  <div class="tool-links">
+    <a href="../text-summarizer.html?lang=en">→ Text Summarizer</a>
+    <a href="../keyword-extractor.html?lang=en">→ Keyword Extractor</a>
+    <a href="../word-frequency-counter.html?lang=en">→ Word Frequency Counter</a>
+    <a href="../text-statistics.html?lang=en">→ Text Statistics Analyzer</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide was written based on a review of the tool's actual source code, and the tool may continue to be updated over time.</footer>
+</main>
+</body>
+</html>
