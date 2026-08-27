@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Same HEX Code, Different Color on Every Screen — sRGB vs Display P3 | MODOO HUB</title>
+<meta name="description" content="Explains why the same HEX color code can look different on an iPhone or Mac versus a regular monitor, tracing the cause to the sRGB vs Display P3 color space gap. Also checks, straight from the source code, which color space this site's color converter actually calculates in.">
+<link rel="canonical" href="https://modoohub.com/guides/color-converter-srgb-vs-display-p3-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/color-converter-srgb-vs-display-p3.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/color-converter-srgb-vs-display-p3-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/color-converter-srgb-vs-display-p3.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Same HEX Code, Different Color on Every Screen — sRGB vs Display P3","description":"Explains why the same HEX color code can look different on an iPhone or Mac versus a regular monitor, tracing the cause to the sRGB vs Display P3 color space gap.","datePublished":"2026-08-27","dateModified":"2026-08-27","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html?lang=en" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Same HEX Code, Different Color on Every Screen — Here's Why</h1>
+  <p class="meta">Guide · Last verified Aug 27, 2026</p>
+
+  <p>If you've ever typed the same HEX code — say, <strong>#ec4899</strong> — into CSS or a design tool and noticed it looked more saturated on an iPhone or Mac than on a regular monitor, you weren't imagining it. The cause isn't the HEX notation itself, but which color space the browser interprets those numbers against before drawing them on screen. This guide breaks down the difference between two color spaces, sRGB and Display P3, and how an actual color conversion tool handles that difference in its code.</p>
+
+  <h2>1. sRGB: the default assumption behind web color</h2>
+  <p>Developed jointly by HP and Microsoft in 1996, sRGB went on to become the default color space of the web standard. Unless stated otherwise, every HEX, rgb(), and hsl() value in CSS is defined against the sRGB color space. In other words, #ff0000 doesn't mean "the reddest possible red" — it means "the color you get when the R channel hits its maximum value within the sRGB color space." sRGB's gamut — the range of colors it can represent — covers only about 35% of all colors the human eye can perceive; a good portion of highly saturated greens and oranges fall outside the sRGB triangle entirely and simply can't be represented in it.</p>
+
+  <h2>2. Display P3: why screens started getting a wider gamut</h2>
+  <p>Adopted by Apple starting with the 2015 iMac, Display P3 is a variant of the digital cinema standard DCI-P3 with its white point adjusted to match the web standard, D65. It covers roughly 25% more color area than sRGB, with the difference most noticeable in reds and greens. Since then, the latest iPhones, Macs, some flagship Android devices, and premium monitors have progressively adopted P3 panels, to the point that a "P3 display" is no longer an exception — it's a common spec.</p>
+
+  <h2>3. What's really behind "same HEX, different look"</h2>
+  <p>HEX and RGB numbers are always defined against sRGB, and in a color-managed environment like a modern browser, those numbers get automatically converted to match the display's actual gamut, whether that's sRGB or P3. On a properly functioning web browser, #ec4899 is corrected by the system to look like "the same color" whether you're viewing it on an sRGB monitor or a P3 one. The problem arises in pathways that skip this color management step entirely — image files missing color space tags, some game engines or older graphics software, or a design tool that exports a color it internally tagged as P3 as a plain sRGB HEX value instead. In those cases, the same numbers get misinterpreted against the wrong color space, and the saturation or hue ends up looking off.</p>
+
+  <h2>4. A concrete example: sRGB red and its P3 coordinates</h2>
+  <table>
+    <tr><th>Notation</th><th>Value</th><th>Meaning</th></tr>
+    <tr><td>CSS sRGB notation</td><td>#ff0000 / rgb(255,0,0)</td><td>Standard red as defined in the sRGB color space</td></tr>
+    <tr><td>Same color reproduced in P3 coordinates</td><td>color(display-p3 0.9175 0.2003 0.1386)</td><td>The visually identical color, converted to Display P3 coordinates</td></tr>
+    <tr><td>P3-exclusive color (unrepresentable in sRGB)</td><td>color(display-p3 1 0 0)</td><td>A color outside the sRGB triangle — more saturated than standard red</td></tr>
+  </table>
+  <div class="box">
+    <strong>Key point</strong>: Move "a color that looks identical to #ff0000" over to P3 coordinates, and the channel values drop from 1.0 to roughly 0.92 / 0.20 / 0.14. Conversely, pushing the R channel in P3 to its maximum (1) produces a red more vivid than sRGB can represent at all. This is exactly why a "vivid red" picked in a design tool can come out duller than intended when exported as a plain HEX code — it gets clamped down into sRGB's smaller range.
+  </div>
+
+  <h2>5. How does this site's color converter actually work?</h2>
+  <p>Checking the actual code behind modoohub.com's <a href="../color-converter.html?lang=en">Color Converter</a> shows that conversions between HEX, RGB, HSL, and RGBA run through the functions hexToRgb, rgbToHex, and rgbToHsl, which handle pure numeric arithmetic only. There's no logic for the color() function or display-p3 coordinates — every input and output value is always treated within the sRGB 0-255 integer range. In other words, whatever this tool computes is always an "sRGB-based conversion value," and whether that value visually renders as the same color on a P3 display is entirely up to the browser and OS's color management. If you need to work directly with wide-gamut colors, you'll need to write the color(display-p3 ...) syntax into your CSS by hand separately.</p>
+
+  <h2>6. If you actually want to work with wide gamut on the web</h2>
+  <p>The CSS Color 4 spec supports the color(display-p3 r g b) function and the @media (color-gamut: p3) media query. The typical pattern is to use the latter to detect whether a screen supports P3, apply a more saturated color conditionally when it does, and leave a plain sRGB fallback in place for screens that don't. That said, sRGB HEX alone is enough for most practical work — P3 is worth the extra attention only for jobs where accurate color reproduction genuinely matters, like print materials or brand colors. To also check visibility of your background and accent colors, it's worth pairing this with the <a href="../color-contrast-checker.html?lang=en">Color Contrast Checker</a> or the <a href="../accessibility-color-checker.html?lang=en">Accessibility Color Checker</a>. For palette design, see also the <a href="../css-gradient-generator.html?lang=en">CSS Gradient Generator</a> and the <a href="../tailwind-color-generator.html?lang=en">Tailwind Color Generator</a>.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Do all browsers support color management?</summary><p style="margin-top:8px;">Modern Chrome, Safari, and Firefox all support color management, but colors can still look off in exceptional cases — for instance, when OS settings or the content itself is missing a color space tag.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Why does a screenshot look like a different color when I send it to another device?</summary><p style="margin-top:8px;">If an image captured in P3 is opened in a viewer that doesn't do color management (or vice versa), its pixel values get reinterpreted against the wrong color space, which can shift the saturation.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Can this site's color converter give me P3 coordinates?</summary><p style="margin-top:8px;">No. It currently only supports sRGB-based HEX/RGB/HSL/RGBA conversion. If you need P3 values, you'll have to write the CSS color() function yourself.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. When is it fine to only worry about sRGB?</summary><p style="margin-top:8px;">sRGB is plenty for the vast majority of web and app UI and text content. You only need to think about P3 on top of that for work where color reproduction accuracy matters, like photo editing or printed brand materials.</p></details>
+
+  <div class="tool-links">
+    <a href="../color-converter.html?lang=en">→ Color Converter</a>
+    <a href="../hex-to-rgb.html?lang=en">→ HEX to RGB</a>
+    <a href="../rgb-to-hex.html?lang=en">→ RGB to HEX</a>
+    <a href="../color-contrast-checker.html?lang=en">→ Color Contrast Checker</a>
+    <a href="../accessibility-color-checker.html?lang=en">→ Accessibility Color Checker</a>
+    <a href="../css-gradient-generator.html?lang=en">→ CSS Gradient Generator</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes. For work where accurate color reproduction matters (print, brand colors, etc.), we recommend consulting a color management professional or using calibration equipment.</footer>
+</main>
+</body>
+</html>

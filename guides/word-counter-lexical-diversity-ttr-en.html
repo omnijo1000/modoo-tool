@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnosing Lexical Diversity with Type-Token Ratio (TTR) — and Its Length-Bias Trap | MODOO HUB</title>
+<meta name="description" content="How to diagnose lexical diversity with TTR (Type-Token Ratio), why the number gets distorted as text gets longer, and length-corrected measures like MTLD and Guiraud's Index, with worked examples.">
+<link rel="canonical" href="https://modoohub.com/guides/word-counter-lexical-diversity-ttr-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/word-counter-lexical-diversity-ttr.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/word-counter-lexical-diversity-ttr-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/word-counter-lexical-diversity-ttr.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Diagnosing Lexical Diversity with Type-Token Ratio (TTR) — and Its Length-Bias Trap","description":"How to diagnose lexical diversity with TTR (Type-Token Ratio), why the number gets distorted as text gets longer, and length-corrected measures like MTLD and Guiraud's Index, with worked examples.","datePublished":"2026-08-27","dateModified":"2026-08-27","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Diagnosing Lexical Diversity with Type-Token Ratio (TTR) — and Its Length-Bias Trap</h1>
+  <p class="meta">Guide · Last verified Aug 27, 2026</p>
+
+  <p>When judging the quality of a piece of writing, "how much variety is there instead of repeating the same words" is an important measure. TTR (Type-Token Ratio) is the number that quantifies it. The calculation itself is simple, but trusting this single figure for comparisons can lead you to entirely wrong conclusions because of text length. This guide covers what TTR is, why the value mechanically drops as text gets longer, and how linguistics and NLP correct for that problem — all with real worked numbers.</p>
+
+  <h2>1. What is TTR?</h2>
+  <p>TTR is defined as <strong>number of unique words (types) ÷ total number of words (tokens)</strong>. For example, if a text has 100 total word occurrences and 70 of those are distinct words once duplicates are removed, the TTR is 0.70. A value closer to 1 means the writer barely repeated the same word, while a value closer to 0 means a small set of words was repeated heavily. The <a href="../word-counter.html?lang=en">Word Counter</a> tool displays both the total word count and the unique word count on screen, so anyone can compute TTR themselves just by dividing the two.</p>
+
+  <h2>2. Why TTR drops on its own as text gets longer</h2>
+  <p>TTR's biggest trap is that it's <strong>fundamentally sensitive to text length</strong>. A short piece hasn't had much chance yet to repeat words, so TTR comes out high; as the text gets longer, the odds of reusing an already-used word (particles, conjunctions, frequently used nouns, and so on) grow exponentially, and TTR inevitably falls. This happens as a purely mathematical consequence of text length alone, regardless of the writer's actual vocabulary skill.</p>
+  <div class="box">
+    <strong>The bias in numbers</strong>: A 10-word sentence with 8 unique words has a TTR of 8÷10 = 0.80. If you repeat that exact sentence once more to make it a 20-word text (still only 8 unique words), the TTR becomes 8÷20 = 0.40 — <strong>cut in half</strong>. The writer added zero new vocabulary; the number was halved purely because the text was concatenated.
+  </div>
+  <p>So a comparison like "this piece has a TTR of 0.35, that one has 0.55, so that one has richer vocabulary" is only meaningful when both pieces are the same length. Comparing the raw TTR of a short social media post against a 5,000-word blog post is a flawed comparison from the start.</p>
+
+  <h2>3. Measures that correct for length bias</h2>
+  <p>Linguistics and corpus research use several corrected measures to address this problem.</p>
+  <table>
+    <tr><th>Measure</th><th>Calculation</th><th>Notes</th></tr>
+    <tr><td>Guiraud's Index</td><td>unique words ÷ √(total words)</td><td>Dividing by the square root softens the length effect. Simple to compute, so it's commonly used in practice</td></tr>
+    <tr><td>MSTTR (windowed TTR)</td><td>Split the text into fixed-size chunks (e.g. 100 words), compute TTR for each chunk, then average</td><td>Every chunk being the same length means length bias effectively disappears</td></tr>
+    <tr><td>MTLD</td><td>Cut a new segment ("factor") each time the cumulative TTR drops below a threshold (typically 0.72), averaging forward and backward passes</td><td>Proposed by McCarthy & Jarvis (2010); the standard measure in corpus linguistics</td></tr>
+  </table>
+  <p>Applying Guiraud's Index to the example above (10 words, 8 unique) gives 8÷√10 ≈ 2.53. The 20-word version made by repeating the same sentence twice gives 8÷√20 ≈ 1.79 — still lower, but nowhere near the raw TTR's straight halving, because the square root dampens the effect of the added length. MSTTR fixes the chunk length outright, so averaging over 100-word windows lets you compare a 1,000-word text and a 10,000-word text on the same footing.</p>
+
+  <h2>4. Putting it to practical use</h2>
+  <p>Paste your text into the <a href="../word-counter.html?lang=en">Word Counter</a> tool and it immediately shows the total word count and the unique word count. Here's how to put those numbers to use by computing TTR yourself:</p>
+  <ul>
+    <li><strong>Compare segments within the same piece</strong>: Split the whole piece into a few paragraphs, paste each one into the tool separately, and compare TTR across them to spot where word repetition is heaviest (a manual version of MSTTR).</li>
+    <li><strong>Only compare pieces of similar length</strong>: If you want to compare this article's TTR against a previous one, make sure the two have roughly the same total word count, or convert both to Guiraud's Index before comparing.</li>
+    <li><strong>A separate issue from keyword repetition</strong>: Keyword repetition for SEO purposes is intentional, so a low TTR doesn't automatically mean bad writing. Checking whether a specific keyword is repeated excessively is more accurately done with the <a href="../keyword-density-checker.html?lang=en">Keyword Density Checker</a>.</li>
+  </ul>
+  <p>For ordinary natural prose (essays, blog posts), a TTR around 0.5–0.7 for a roughly 500-word piece is generally a reasonable range, and dropping below 0.3 is worth checking for excessive repetition of a specific word — usually a topic term or a particle-like filler word. That said, this range is a reference point, not a hard rule, and it should always be weighed alongside the piece's genre and length.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details><summary>Q. Does a higher TTR always mean better writing?</summary><p>No. TTR only shows the degree of vocabulary repetition and has nothing to do with a piece's logic, readability, or accuracy. An unusually high TTR can even mean the writer kept rephrasing the same concept with different words each time, which can actually make a piece harder to read.</p></details>
+  <details><summary>Q. Is there any way to compare pieces of different lengths?</summary><p>Guiraud's Index (unique words ÷ √total words) or MSTTR (averaged windowed TTR) lets you compare pieces of different lengths fairly reasonably. Academic research uses the more sophisticated MTLD as the standard.</p></details>
+  <details><summary>Q. Is TTR calculation accurate for Korean text?</summary><p>Korean counts "words" as whitespace-separated eojeol units. Because particles attach directly to words, Korean text tends to register a higher unique-word count than a morphologically-analyzed language would (for example, "학교는" and "학교를" get counted as different tokens), so directly comparing Korean and English TTR values is not recommended.</p></details>
+
+  <div class="tool-links">
+    <a href="../word-counter.html?lang=en">→ Word Counter</a>
+    <a href="../text-statistics.html?lang=en">→ Text Statistics Analyzer</a>
+    <a href="../keyword-density-checker.html?lang=en">→ Keyword Density Checker</a>
+    <a href="../keyword-extractor.html?lang=en">→ Keyword Extractor</a>
+    <a href="../word-frequency-counter.html?lang=en">→ Word Frequency Analyzer</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general informational purposes only.</footer>
+</main>
+</body>
+</html>

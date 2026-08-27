@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Hidden Bug in Color Blindness Simulators: Why Pure Red Never Turns Fully Gray | MODOO HUB</title>
+<meta name="description" content="Color blindness simulators are built with color transformation matrices. This guide explains protanopia, tritanopia, and achromatopsia, then walks through an indexing bug — found by reading and verifying the actual source code — that stops pure red from ever converting to true gray.">
+<link rel="canonical" href="https://modoohub.com/guides/color-blindness-simulator-accuracy-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/color-blindness-simulator-accuracy.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/color-blindness-simulator-accuracy-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/color-blindness-simulator-accuracy.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"The Hidden Bug in Color Blindness Simulators: Why Pure Red Never Turns Fully Gray","description":"Explains the structure of color transformation matrices and an indexing bug verified against the tool's actual source code.","datePublished":"2026-08-27","dateModified":"2026-08-27","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Why are color blindness simulators built with color transformation matrices?","acceptedAnswer":{"@type":"Answer","text":"Each vision type differs in how strongly its cone cells respond to particular wavelengths, so you can approximate the shift with a linear transform that maps original R/G/B values to the R/G/B values that type of vision actually perceives. Written out as a table of numbers, that transform is the color transformation matrix — it's simple and fast to compute, which is why it's widely used for real-time image processing."}},
+{"@type":"Question","name":"Why doesn't the achromatopsia simulation produce a truly neutral gray?","acceptedAnswer":{"@type":"Answer","text":"The achromatopsia matrix in color-blindness-simulator.html is defined as 4 values per output channel (3 weights plus 1 offset) across R, G, and B — 12 numbers in a 3-row-by-4-column layout. But the actual compute function, applyMatrix(), mistakes it for a plain 3x3 matrix and reads only the first 9 values (indices 0-8), never touching the remaining 3 (indices 9-11). As a result, the coefficients feeding the G and B channels shift by one slot, so feeding in pure red (255,0,0) produces (76,0,29) instead of the intended (76,76,76) — a pixel that still visibly holds color."}},
+{"@type":"Question","name":"Does this bug only affect achromatopsia?","acceptedAnswer":{"@type":"Answer","text":"No. Every vision type other than normal vision — protanopia, deuteranopia, tritanopia, and the milder anomalous variants — shares the same 12-value matrix layout and passes through the same applyMatrix() function, so all of them are affected by the identical indexing error. Achromatopsia just happens to be where the error is most visible, since its correct answer is a perfectly neutral gray and any leftover color stands out immediately."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html?lang=en" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>The Hidden Bug in Color Blindness Simulators: Why Pure Red Never Turns Fully Gray</h1>
+  <p class="meta">Guide · Last verified Aug 27, 2026</p>
+
+  <p>A color blindness simulator takes the colors in an original image and shows you what a specific type of color vision would actually perceive instead. This conversion is typically implemented with a "color transformation matrix." This guide covers how that works, and then walks through an implementation error found by directly reading — and numerically verifying — the actual source code behind modoohub.com's <a href="../color-blindness-simulator.html?lang=en">Color Blindness Simulator</a>.</p>
+
+  <h2>1. Types of color blindness — which cone cell is at fault</h2>
+  <p>Human color vision is determined by the combined signal from three types of cone cells in the retina (L, M, and S, sensitive to red, green, and blue wavelengths respectively). When one of these is missing or underperforming, the result is color blindness. <strong>Red-green color blindness</strong> is the most common form, split into protanopia (a defect in the L cone, affecting red) and deuteranopia (a defect in the M cone, affecting green). The two have different root causes but share the same practical effect: difficulty telling red and green apart. <strong>Tritanopia</strong> (blue-yellow color blindness, the third type) stems from a defective S cone and causes confusion between blue and yellow tones; it's extremely rare, occurring in about 0.003% of people. Finally, <strong>achromatopsia</strong> — where none of the three cone types function normally — leaves a person unable to distinguish color at all, perceiving only brightness. It's an extremely rare condition, affecting about 0.001% of people.</p>
+
+  <h2>2. Why simulate with a color transformation matrix</h2>
+  <p>Each vision type can be approximated as a linear transform that maps the original RGB values to the RGB values that type of vision actually perceives. Written as a table of numbers, this mapping becomes one equation per output channel — "R weight × original R + G weight × original G + B weight × original B (+ an offset)" — for each of R, G, and B. Three channels means three equations, which standardly takes the form of a 3-row-by-4-column matrix (3 weights plus 1 offset per row). This approach is popular because it only takes a handful of multiplications and additions per pixel, light enough to process an entire image in real time.</p>
+
+  <h2>3. Verifying the actual code — an indexing bug that reads a 3x4 matrix as if it were 3x3</h2>
+  <p>Opening the source of color-blindness-simulator.html directly and checking it shows that each vision type's matrix is in fact defined as 12 numbers (3 rows by 4 columns). The achromatopsia matrix, for example, is <code>[0.299,0.587,0.114,0, 0.299,0.587,0.114,0, 0.299,0.587,0.114,0]</code> — the standard grayscale-luminance formula (brightness = 0.299R + 0.587G + 0.114B) repeated identically across all three output channels, exactly as it should be. But the <code>applyMatrix()</code> function that actually applies this matrix reads only the first 9 values, <code>matrix[0]</code> through <code>matrix[8]</code>, in sequence as if it were a plain 3x3 matrix, and never touches the last 3 values (indices 9-11, the offset for each row).</p>
+  <p>Feeding pure red (255,0,0) through this reveals exactly what that misalignment does. The R output correctly uses <code>matrix[0..2]</code>, (0.299, 0.587, 0.114), giving 255×0.299 ≈ 76, matching the intended value. The problem starts with the G output. It should use the second row, (0.299, 0.587, 0.114), but the code instead reads <code>matrix[3..5]</code>, which is (0, 0.299, 0.587), giving 255×0 = 0. The B output is likewise thrown off, reading <code>matrix[6..8]</code>, (0.114, 0, 0.299), giving 255×0.114 ≈ 29.</p>
+
+  <div class="box">
+    <strong>Verification result</strong>: Feeding pure red (255,0,0) through the achromatopsia filter should produce a perfectly neutral gray — R, G, and B all equal — namely (76,76,76). Reproducing the actual code's math by hand instead gives (76,0,29): a pixel whose channels differ from each other and that still visibly carries color. This indexing error isn't limited to achromatopsia — it applies identically to every other vision type that shares the same 12-value matrix layout, including protanopia, deuteranopia, tritanopia, and the anomalous-trichromacy variants.
+  </div>
+
+  <h2>4. So how reliable is this tool, really?</h2>
+  <p>The short answer: this is a different kind of problem than the usual "matrix-based, so it's a rough approximation" caveat. A normal approximation error stays close to real color-vision experience with only minor deviations. Here, the matrix data itself is misaligned in the code, so specific channels are computed with systematically wrong coefficients mixed in. The broad direction — red tones generally reading as darker — still comes through to some degree, so the tool can still give a rough sense of things. But you shouldn't trust it for precise hue or saturation. For a project where accessibility review actually matters, don't rely on this result alone — cross-check against another verified color blindness simulation tool.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details class="faq-item"><summary>Q. Why are color blindness simulators built with color transformation matrices?</summary><p>A. Each vision type differs in how strongly its cone cells respond to particular wavelengths, so you can approximate the shift with a linear transform that maps original R/G/B values to the R/G/B values that type of vision actually perceives. Written out as a table of numbers, that transform is the color transformation matrix — it's simple and fast to compute, which is why it's widely used for real-time image processing.</p></details>
+  <details class="faq-item"><summary>Q. Why doesn't the achromatopsia simulation produce a truly neutral gray?</summary><p>A. The achromatopsia matrix in color-blindness-simulator.html is defined as 4 values per output channel (3 weights plus 1 offset) across R, G, and B — 12 numbers in a 3-row-by-4-column layout. But the actual compute function, applyMatrix(), mistakes it for a plain 3x3 matrix and reads only the first 9 values (indices 0-8), never touching the remaining 3 (indices 9-11). As a result, the coefficients feeding the G and B channels shift by one slot, so feeding in pure red (255,0,0) produces (76,0,29) instead of the intended (76,76,76) — a pixel that still visibly holds color.</p></details>
+  <details class="faq-item"><summary>Q. Does this bug only affect achromatopsia?</summary><p>A. No. Every vision type other than normal vision — protanopia, deuteranopia, tritanopia, and the milder anomalous variants — shares the same 12-value matrix layout and passes through the same applyMatrix() function, so all of them are affected by the identical indexing error. Achromatopsia just happens to be where the error is most visible, since its correct answer is a perfectly neutral gray and any leftover color stands out immediately.</p></details>
+  <details class="faq-item"><summary>Q. Is it still worth using for design review purposes?</summary><p>A. The broad direction — red tones generally reading darker — still comes through to some degree, but you shouldn't trust it for precise hue or saturation. For a project where accessibility review actually matters, don't rely on this result alone; cross-check with another verified tool as well.</p></details>
+  <details class="faq-item"><summary>Q. What's the actual difference between red-green, blue-yellow, and total color blindness?</summary><p>A. Red-green color blindness (protanopia/deuteranopia) comes from a defect in the cone cell that detects red or green. Tritanopia comes from a defect in the cone that detects blue, causing confusion between blue and yellow tones, and is extremely rare (about 0.003% of people). Achromatopsia means none of the three cone types function normally, so color itself can't be distinguished at all — only brightness — and it's extremely rare, at about 0.001% of people.</p></details>
+
+  <div class="tool-links">
+    <a href="../color-blindness-simulator.html?lang=en">→ Color Blindness Simulator</a>
+    <a href="../color-contrast-checker.html?lang=en">→ Color Contrast Checker</a>
+    <a href="../color-picker.html?lang=en">→ Color Picker</a>
+    <a href="../color-palette.html?lang=en">→ Color Palette Generator</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide was written based on verification against the actual source code; the tool itself has not been modified.</footer>
+</main>
+</body>
+</html>

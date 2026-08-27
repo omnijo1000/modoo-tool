@@ -1,6 +1,6 @@
 # 가이드 영어(EN) 번역 진행 상황
 
-**마지막 갱신**: 2026-08-27  |  **진행률**: 80/176
+**마지막 갱신**: 2026-08-27  |  **진행률**: 90/176
 
 ## 배경 & 방식
 
@@ -35,8 +35,8 @@
 | 카테고리 | 완료/전체 |
 |---|---|
 | 개발자 도구 (developer-tools) | 52/52 |
-| 텍스트 도구 (text-tools) | 28/32 |
-| 이미지 도구 (image-tools) | 0/24 |
+| 텍스트 도구 (text-tools) | 32/32 |
+| 이미지 도구 (image-tools) | 6/24 |
 | 생성기 도구 (generator-tools) | 0/21 |
 | 보안 도구 (security-tools) | 0/17 |
 | PDF 도구 (pdf-tools) | 0/13 |
@@ -100,7 +100,7 @@
 - [x] `yaml-norway-problem-boolean-parsing` ← tool: `yaml-validator`
 - [x] `yaml-to-json-kubernetes-multi-document-error` ← tool: `yaml-to-json`
 
-## 텍스트 도구 (text-tools) — 28/32
+## 텍스트 도구 (text-tools) — 32/32
 
 - [x] `alphabetizer-localecompare-vs-unicode-sort` ← tool: `alphabetizer`
 - [x] `anagram-checker-character-frequency-array` ← tool: `anagram-checker`
@@ -130,19 +130,19 @@
 - [x] `turkish-i-problem-case-conversion` ← tool: `case-converter`
 - [x] `typing-speed-wpm-5-char-word-standard` ← tool: `typing-speed-test`
 - [x] `unicode-escape-js-json-python-comparison` ← tool: `unicode-converter`
-- [ ] `unicode-homograph-phishing-domains` ← tool: `unicode-inspector`
-- [ ] `word-counter-lexical-diversity-ttr` ← tool: `word-counter`
-- [ ] `word-frequency-percentage-denominator-basis` ← tool: `word-frequency-counter`
-- [ ] `wpm-korean-typing-vs-english-conversion` ← tool: `wpm-calculator`
+- [x] `unicode-homograph-phishing-domains` ← tool: `unicode-inspector`
+- [x] `word-counter-lexical-diversity-ttr` ← tool: `word-counter`
+- [x] `word-frequency-percentage-denominator-basis` ← tool: `word-frequency-counter`
+- [x] `wpm-korean-typing-vs-english-conversion` ← tool: `wpm-calculator`
 
-## 이미지 도구 (image-tools) — 0/24
+## 이미지 도구 (image-tools) — 6/24
 
-- [ ] `avif-to-jpg-transparent-background-black` ← tool: `avif-to-jpg`
-- [ ] `base64-image-33-percent-overhead` ← tool: `base64-image`
-- [ ] `color-blindness-simulator-accuracy` ← tool: `color-blindness-simulator`
-- [ ] `color-converter-srgb-vs-display-p3` ← tool: `color-converter`
-- [ ] `color-palette-complementary-triadic-angles` ← tool: `color-palette`
-- [ ] `exif-gps-dms-rational-format` ← tool: `exif-viewer`
+- [x] `avif-to-jpg-transparent-background-black` ← tool: `avif-to-jpg`
+- [x] `base64-image-33-percent-overhead` ← tool: `base64-image`
+- [x] `color-blindness-simulator-accuracy` ← tool: `color-blindness-simulator`
+- [x] `color-converter-srgb-vs-display-p3` ← tool: `color-converter`
+- [x] `color-palette-complementary-triadic-angles` ← tool: `color-palette`
+- [x] `exif-gps-dms-rational-format` ← tool: `exif-viewer`
 - [ ] `exif-remover-gps-privacy-sns` ← tool: `exif-remover`
 - [ ] `heic-to-jpg-hevc-codec-license` ← tool: `heic-to-jpg`
 - [ ] `ico-converter-png-inside-ico` ← tool: `ico-converter`

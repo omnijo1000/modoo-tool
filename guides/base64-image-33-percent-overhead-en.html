@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Base64 Images: Why They're Exactly 33% Larger Than the Original | MODOO HUB</title>
+<meta name="description" content="The mathematical reason Base64 encoding increases image size by exactly 4/3, plus a practical breakdown of when the overhead is worth accepting and when it definitely isn't.">
+<link rel="canonical" href="https://modoohub.com/guides/base64-image-33-percent-overhead-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/base64-image-33-percent-overhead.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/base64-image-33-percent-overhead-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/base64-image-33-percent-overhead.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Base64 Images: Why They're Exactly 33% Larger Than the Original","description":"The mathematical reason Base64 encoding increases image size by exactly 4/3, plus a practical breakdown of when the overhead is worth accepting and when it definitely isn't.","datePublished":"2026-08-19","dateModified":"2026-08-27","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Base64 Images: Why They're Exactly 33% Larger Than the Original</h1>
+  <p class="meta">Guide · Last verified Aug 19, 2026</p>
+
+  <p>When you Base64-encode an image, it doesn't get "roughly" bigger — it gets <strong>exactly 4/3 as large (about 33.3% larger)</strong>. This isn't an approximation; it's a mathematically fixed value that falls directly out of how the encoding works. This guide covers why it's specifically 33%, and then draws the line between situations where that overhead is worth accepting and situations where you should never use it.</p>
+
+  <h2>1. Why exactly 33%: the gap between 6 bits and 8 bits</h2>
+  <p>A raw binary file represents 8 bits per byte — 256 possible values. But Base64 has to represent its output using only 64 ASCII characters (A-Z, a-z, 0-9, +, /) that can be read as text and transmitted safely. Distinguishing 64 possible values only requires log2(64) = 6 bits. So instead of slicing the source into 8-bit chunks, Base64 slices it into <strong>6-bit chunks</strong>, and each 6-bit chunk gets packed into a single ASCII character (which itself takes up 8 bits as stored text).</p>
+  <p>That means every 3 bytes (24 bits) of source data splits exactly into four 6-bit chunks, and those four chunks each become one text character (8 bits), for a total of 4 bytes of text. <strong>3 bytes → 4 bytes</strong> — that ratio is exactly 4/3 = 1.3333..., and that's the origin of the 33.3% increase. In exchange for packing 8 bits of information into 6-bit slots, you lose 25% of your "storage density" (only 6 of the 8 available bits per byte are used), and that loss shows up as a 33% increase in the final output size.</p>
+
+  <h2>2. The exact formula, and a real example</h2>
+  <p>If the source isn't an exact multiple of 3 bytes, 1-2 padding characters (<code>=</code>) get appended at the end to round the length up to a multiple of 4. The formula is as follows:</p>
+  <div class="box">
+    <strong>Base64 output size (bytes) = ceil(source bytes / 3) × 4</strong><br>
+    Example: a 1,000,000-byte (~1MB) image → ceil(1,000,000/3) × 4 = 333,334 × 4 = <strong>1,333,336 bytes (~1.27MiB)</strong>
+  </div>
+  <p>If you're using it as a Data URL, a prefix like <code>data:image/png;base64,</code> (roughly 20-30 bytes) gets tacked on as well. That's negligible and barely affects the overall overhead, but the fact that it's now stored and transmitted as text data makes it a fundamentally different kind of object than the original binary.</p>
+
+  <h2>3. When it's actually worth using Base64 despite the cost</h2>
+  <p>There are situations where accepting the 33% penalty and inlining as Base64 still comes out ahead.</p>
+  <ul>
+    <li><strong>Small icons and sprites</strong>: If the file itself is only 1-2KB, a 33% increase amounts to a few hundred bytes at most. A separate file, on the other hand, means one more HTTP request — and especially under HTTP/1.1, the per-request latency cost tends to be felt more than the extra size.</li>
+    <li><strong>Single-file HTML distribution</strong>: For email templates, offline reports, or any document meant to be shared as one self-contained file with nothing to install, an external image file simply can't exist — Base64 is the only option available.</li>
+    <li><strong>Inline background images in critical CSS</strong>: For a very small background image that needs to render immediately without blocking, eliminating a separate request entirely is the better trade-off.</li>
+  </ul>
+
+  <h2>4. When you should never use it: losing caching is the real cost</h2>
+  <p>Inlining a large image, like a photograph, as Base64 comes with a loss that's far more damaging than the 33% size increase — you <strong>lose browser caching</strong>. A separate image file (.jpg, .png, etc.) can be stored by the browser according to its HTTP cache headers and skipped on a repeat visit instead of being re-downloaded. A Data URL, however, is embedded as text directly inside an HTML or CSS document, so it isn't cached on its own — instead, <strong>the entire embedded image gets re-downloaded every time the parent document (HTML/CSS) itself gets cached or updated</strong>. In other words, every visit — or every time you change even a single character in a CSS file — re-downloads every image baked into it.</p>
+  <p>Large Base64 strings also bloat the overall document size that the HTML/CSS parser has to process, causing parsing and rendering delays, and gzip/brotli compression is often less effective on them than on the original binary image's own compression (JPEG/PNG's native compression).</p>
+
+  <h2>5. A practical rule of thumb: where's the line for "small"</h2>
+  <p>Here's a rough guideline commonly used in the industry. It's not an absolute rule, but it's a reasonable baseline for making the call.</p>
+  <table>
+    <tr><th>Source size</th><th>Recommendation</th><th>Reason</th></tr>
+    <tr><td>~2KB or less</td><td>Base64 inlining is fine</td><td>Request-savings benefit &gt; 33% overhead + lost caching</td></tr>
+    <tr><td>2KB-10KB</td><td>Depends on the situation</td><td>Depends on how often the image is reused/displayed</td></tr>
+    <tr><td>10KB or more</td><td>Use a separate file</td><td>Lost-caching cost outweighs the request-savings benefit</td></tr>
+  </table>
+  <p>As HTTP/2 and HTTP/3 have become standard, the old pressure to "minimize the number of requests" has eased considerably. Multiplexing has made handling multiple parallel requests much cheaper, so absent a specific reason otherwise, keeping photos and larger images as separate files to take advantage of caching is now generally the better default.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Is the 33% figure always exactly 33% no matter the image?</summary><p style="margin-top:8px;">Yes — because the encoding itself is structurally converting every 3 source bytes into 4 text bytes, this holds regardless of file format (PNG/JPEG/WebP), and is always exactly 4/3. There's a tiny additional bump (up to 2 bytes) from padding (=) when the source length doesn't divide evenly by 3.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Can gzip compression offset the 33% loss?</summary><p style="margin-top:8px;">Only partially. Base64 text does have more repeating patterns than the original binary image (which already has JPEG/PNG's own compression applied), but gzip doesn't manage to re-compress the underlying image data effectively. It won't eliminate the overhead entirely.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Is there a size difference between a Data URL and a raw Base64 string?</summary><p style="margin-top:8px;">A Data URL adds a prefix like <code>data:image/png;base64,</code> (indicating the MIME type), roughly 20-30 extra bytes. That's negligible relative to the total size, but for a very small icon the proportional impact might not be entirely ignorable.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does Base64-encoding an SVG also make it 33% bigger?</summary><p style="margin-top:8px;">Yes, the same math applies. That said, since SVG is a text-based format, embedding it via URL encoding (<code>data:image/svg+xml,...</code>) instead of Base64 can often reduce the overhead.</p></details>
+
+  <div class="tool-links">
+    <a href="../base64-image.html?lang=en">→ Base64 Image Converter</a>
+    <a href="../image-base64-encoder.html?lang=en">→ Image Base64 Encoder</a>
+    <a href="../image-base64-decoder.html?lang=en">→ Image Base64 Decoder</a>
+    <a href="../base64-encoder.html?lang=en">→ Base64 Encoder</a>
+    <a href="../base64-decoder.html?lang=en">→ Base64 Decoder</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes.</footer>
+</main>
+</body>
+</html>

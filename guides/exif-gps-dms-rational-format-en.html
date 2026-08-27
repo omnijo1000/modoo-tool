@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why GPS Coordinates in EXIF Are Three Numbers, Not One — The DMS Rational Format</title>
+<meta name="description" content="Why EXIF GPS coordinates are stored as three degrees-minutes-seconds RATIONAL values instead of a single number, plus the formula for converting to decimal coordinates — explained against the actual EXIF viewer code.">
+<link rel="canonical" href="https://modoohub.com/guides/exif-gps-dms-rational-format-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/exif-gps-dms-rational-format.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/exif-gps-dms-rational-format-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/exif-gps-dms-rational-format.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Why GPS Coordinates in EXIF Are Three Numbers, Not One — The DMS Rational Format","description":"Why EXIF GPS coordinates are stored as three degrees-minutes-seconds RATIONAL values, and the formula for converting them to decimal coordinates.","datePublished":"2026-08-27","dateModified":"2026-08-27","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--purple);}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;}
+details summary{cursor:pointer;font-weight:600;color:var(--text-muted);}
+details p{margin-top:8px;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Why GPS Coordinates in EXIF Are Three Numbers, Not One — The DMS Rational Format</h1>
+  <p class="meta">Guide · Last verified Aug 27, 2026</p>
+
+  <p>Check the GPS location in a photo's EXIF data and the latitude (GPSLatitude) doesn't come out as a single number like <code>37</code> — it comes out as three chunks, like <code>37/1 (37), 33/1 (33), 125/10 (12.5)</code>. It looks like a typo or a bug, but this is actually the official way the EXIF spec stores GPS coordinates. This guide explains why the structure looks this way, and how to actually calculate real-world coordinates from it.</p>
+
+  <h2>1. The real structure of an EXIF GPS field: three degrees-minutes-seconds rationals</h2>
+  <p>In the EXIF spec, GPSLatitude and GPSLongitude are each stored as <strong>three RATIONAL values</strong>. RATIONAL is an EXIF-native data type: a fraction made of two 32-bit unsigned integers (numerator/denominator). These three RATIONAL values represent, in order, <strong>degrees, minutes, and seconds</strong>, and a separate one-character tag — GPSLatitudeRef (N/S) or GPSLongitudeRef (E/W) — attaches to indicate north/south or east/west. The degree/minute/second values themselves are always stored unsigned (positive), with direction handled entirely by the Ref field.</p>
+
+  <h2>2. Why split it into three degrees-minutes-seconds (DMS) values at all</h2>
+  <p>This isn't something GPS or EXIF invented — it's simply following the traditional coordinate notation (DMS, Degrees-Minutes-Seconds) that navigation, surveying, and cartography had already been using long before GPS existed. Writing latitude and longitude purely in decimal degrees produces long strings of decimal places that are unwieldy by hand, so subdividing degrees using a base-60 system (1 degree = 60 minutes, 1 minute = 60 seconds) became the standard. On top of that, EXIF's core design principle for handling decimal values is to avoid floating-point rounding error by storing most numeric fields as "numerator/denominator" rationals — and GPS coordinates are no exception.</p>
+
+  <h2>3. The formula for converting to decimal coordinates</h2>
+  <p>What map apps and most software actually want isn't degrees-minutes-seconds — it's a single <strong>decimal degree</strong> value. The conversion formula is:</p>
+  <div class="box">
+    decimal coordinate = degrees + minutes/60 + seconds/3600<br>
+    (if Ref is S or W, apply a negative sign to the result)
+  </div>
+  <p><strong>Example</strong>: if GPSLatitude is 37/1, 33/1, and 12.5 (=125/10), and GPSLatitudeRef is N,<br>
+  37 + 33/60 + 12.5/3600 = 37 + 0.55 + 0.003472... ≈ <strong>37.553472</strong><br>
+  Since Ref is N, it stays positive — the final coordinate is 37.553472° N. If Ref had been S, it would be -37.553472.</p>
+
+  <h2>4. What this EXIF viewer actually shows</h2>
+  <p>modoohub.com's EXIF viewer (exif-viewer.html) displays GPSLatitude and GPSLongitude by <strong>showing the three raw rational values, comma-separated</strong> (e.g., <code>37/1 (37), 33/1 (33), 125/10 (12.5)</code>) — it does not automatically convert them to the decimal coordinate described above. The tool's own FAQ explicitly notes that "reading only the first value (degrees) can make the coordinate look far off from the actual location — parsing all three values matters." In other words, to plot the location on a map, you need to run the conversion formula above yourself.</p>
+
+  <h2>5. Why GPS data is a privacy concern</h2>
+  <p>Combine the three DMS values and you get a location accurate to within meters. Blurring the photo or covering someone's face does nothing to the EXIF metadata itself — GPS coordinates aren't pixel data, they're separate binary tag data embedded inside the file. To strip location data before posting a photo on social media, you need to remove the metadata itself with an <a href="../exif-remover.html?lang=en">EXIF remover tool</a>.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details><summary>Q. Why does latitude/longitude come out as three numbers (degrees, minutes, seconds) instead of one?</summary><p>A. Because the EXIF spec defines GPSLatitude and GPSLongitude to be stored as three RATIONAL values following degrees-minutes-seconds (DMS) notation. Reading only the first value produces a coordinate that's significantly off from the real location.</p></details>
+  <details><summary>Q. How do I convert degrees-minutes-seconds to a decimal coordinate?</summary><p>A. Use the formula decimal coordinate = degrees + minutes/60 + seconds/3600, and apply a negative sign to the result if GPSLatitudeRef/GPSLongitudeRef is S or W.</p></details>
+  <details><summary>Q. Does this EXIF viewer automatically convert coordinates to decimal?</summary><p>A. No. It currently shows the three raw degree/minute/second rational values, comma-separated. To enter the location directly into a map, you need to convert it yourself using the formula above.</p></details>
+  <details><summary>Q. If I blur a photo, does the GPS data disappear too?</summary><p>A. No. GPS coordinates are a separate metadata tag unrelated to the image pixels, so no amount of editing the photo's visual content removes them. You need a dedicated EXIF removal tool to strip them completely.</p></details>
+
+  <div class="tool-links">
+    <a href="../exif-viewer.html?lang=en">→ EXIF Viewer</a>
+    <a href="../exif-remover.html?lang=en">→ EXIF Remover</a>
+    <a href="../image-metadata-viewer.html?lang=en">→ Image Metadata Viewer</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes.</footer>
+</main>
+</body>
+</html>

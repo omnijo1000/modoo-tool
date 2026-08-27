@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why Transparent Images Turn Black When Converted to JPG | MODOO HUB</title>
+<meta name="description" content="Why converting a transparent PNG or AVIF to JPG (which has no alpha channel) turns the background black — explained through Canvas alpha compositing, with a look at the actual code that prevents it.">
+<link rel="canonical" href="https://modoohub.com/guides/avif-to-jpg-transparent-background-black-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/avif-to-jpg-transparent-background-black.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/avif-to-jpg-transparent-background-black-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/avif-to-jpg-transparent-background-black.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Why Transparent Images Turn Black When Converted to JPG","description":"Why converting a transparent PNG or AVIF to JPG (which has no alpha channel) turns the background black — explained through Canvas alpha compositing, with a look at the actual code that prevents it.","datePublished":"2026-08-21","dateModified":"2026-08-27","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Why Transparent Images Turn Black When Converted to JPG</h1>
+  <p class="meta">Guide · Last verified Aug 21, 2026</p>
+
+  <p>If you've ever converted a logo or icon with a transparent PNG or AVIF background into a JPG and watched the previously-transparent area come out solid black, you're not alone. It looks like a bug, but it's actually a trap that any image converter can fall into — the result of a fundamental limitation baked into the JPG format itself, combined with a default behavior of the Canvas API.</p>
+
+  <h2>1. JPG has no concept of transparency to begin with</h2>
+  <p>PNG, WebP, and AVIF can all store an alpha (A, transparency) value per pixel in addition to the RGB (red, green, blue) values. JPG (JPEG), on the other hand, was designed in the 1990s specifically for compressing photographs, so it simply has no slot for an alpha channel. That means the moment you save a source image with transparent pixels as a JPG, the alpha information has to be discarded somewhere, and a real, concrete color has to be chosen to take its place. The problem arises when the converter doesn't explicitly decide "what color should fill in instead."</p>
+
+  <h2>2. Why specifically black: Canvas's default value</h2>
+  <p>Browser-based image format converters typically work by drawing the source image onto a &lt;canvas&gt; element, then re-encoding that canvas into the target format. When a new canvas is created, every pixel on it is initialized by default to RGBA(0,0,0,0) — in other words, <strong>fully transparent black</strong>. If you draw a transparent PNG straight onto this canvas, the transparent areas stay at alpha 0, and if you then encode straight to JPG, the encoder drops the alpha value and leaves only RGB(0,0,0) — pure black. The key point isn't "it's invisible because it's transparent" — it's that "the default background color behind that transparency was black all along."</p>
+
+  <h2>3. The alpha compositing formula behind it</h2>
+  <p>The final color rendered on screen follows the alpha compositing formula: "source color × alpha + background color × (1 − alpha)." Comparing how a semi-transparent pixel looks differently depending on whether the background is black (0,0,0) or white (255,255,255) makes this concrete:</p>
+  <table>
+    <tr><th>Original pixel (RGBA)</th><th>Composited over black background</th><th>Composited over white background</th></tr>
+    <tr><td>Red, 50% alpha (255,0,0,0.5)</td><td>(128,0,0) dark red</td><td>(255,128,128) light pink</td></tr>
+    <tr><td>Fully transparent (0,0,0,0)</td><td>(0,0,0) black</td><td>(255,255,255) white</td></tr>
+  </table>
+  <p>The second row of that table is the heart of the problem. A fully transparent pixel technically means "there is no color there," but once the alpha is dropped, what it becomes — black or white — depends entirely on what background it was composited over. If you leave a canvas unfilled, the result is identical to compositing over a black background.</p>
+
+  <h2>4. How this tool actually prevents it</h2>
+  <p>Checking the source code of the <a href="../avif-to-jpg.html?lang=en">AVIF to JPG Converter</a> directly, there's logic that fills the entire canvas white with <code>ctx.fillStyle='#ffffff'</code> before drawing the source image, but only when the target format is JPG. That way, previously-transparent areas end up filled with white instead of black, which produces a natural-looking result for images like logos or icons that are typically used on a white background. Conversely, when saving to a format that supports an alpha channel — PNG or WebP — this white-fill step is skipped and transparency is preserved as-is. Branching on the target format is the key piece of logic here.</p>
+
+  <h2>5. Not every converter handles this the same way</h2>
+  <p>This white-fill step is not standard behavior — it's an exception a converter has to explicitly implement. Converters or image-editing software that lack this logic, or their default export options, can save transparent areas as black instead, so when using a different tool it's worth getting into the habit of checking the background color in the preview first. If your source is a PNG, it's also worth confirming that the same principle applies in the <a href="../png-to-jpg.html?lang=en">PNG to JPG Converter</a>.</p>
+
+  <h2>6. If you need a background color other than white</h2>
+  <p>For situations like product detail pages where the background needs to match a specific brand color, the automatic white fill can actually get in the way. In that case, it's better to first composite the color you actually want using the <a href="../transparent-background-maker.html?lang=en">Transparent Background Maker</a> and then convert to JPG, or to keep working in a format that preserves transparency — PNG or WebP via the <a href="../webp-to-jpg.html?lang=en">WebP to JPG Converter</a> flow — finish compositing against whatever background you need, and only export to JPG as the very last step.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does the same problem happen when converting PNG to JPG too?</summary><p style="margin-top:8px;">Yes. Whether the source is AVIF, PNG, or WebP, if the source has an alpha channel and the target format is JPG, the same underlying mechanism can produce a black background. This happens with any "alpha-capable source → alpha-less target format" combination, regardless of the specific formats involved.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Can a file that already came out black be recovered afterward?</summary><p style="margin-top:8px;">No. Once a file has been saved as JPG, the alpha information itself is already gone, so recovery is impossible. You have to re-convert starting from a source that still has its alpha channel intact — PNG, WebP, or AVIF.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Why fill with white and not black?</summary><p style="margin-top:8px;">Because most transparent-background images in real use — logos, icons, scanned documents — end up placed on a white background, white is simply the safest default choice. If you need a different color, you have to composite it yourself before converting.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does my file get uploaded to a server?</summary><p style="margin-top:8px;">No. The entire process — decoding via an img tag, drawing onto a Canvas, and re-encoding — runs inside your browser, so the original file is never sent anywhere externally.</p></details>
+
+  <div class="tool-links">
+    <a href="../avif-to-jpg.html?lang=en">→ AVIF to JPG Converter</a>
+    <a href="../png-to-jpg.html?lang=en">→ PNG to JPG Converter</a>
+    <a href="../webp-to-jpg.html?lang=en">→ WebP to JPG Converter</a>
+    <a href="../jpg-to-avif.html?lang=en">→ JPG to AVIF Converter</a>
+    <a href="../transparent-background-maker.html?lang=en">→ Transparent Background Maker</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes; actual tool behavior may vary depending on browser and image file.</footer>
+</main>
+</body>
+</html>
