@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Regex Character Class Trap: Why Only Half an Emoji Gets Removed | MODOO HUB</title>
+<meta name="description" content="Without the u (unicode) flag, a JS regex character class doesn't treat surrogate-pair emoji as a single character. We run the special character remover's actual regex to verify exactly what goes wrong.">
+<link rel="canonical" href="https://modoohub.com/guides/remove-special-characters-emoji-surrogate-bug-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/remove-special-characters-emoji-surrogate-bug.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/remove-special-characters-emoji-surrogate-bug-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/remove-special-characters-emoji-surrogate-bug.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"The Regex Character Class Trap: Why Only Half an Emoji Gets Removed","description":"How a regex character class without the u flag mishandles surrogate-pair emoji, verified by running the special character remover's actual code.","datePublished":"2026-08-27","dateModified":"2026-08-27","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Does the special character remover's regex really lack the u flag?","acceptedAnswer":{"@type":"Answer","text":"Yes. Checking the new RegExp('['+re+']','g') call in the remove-special-characters.html source, the only flag argument is 'g' — u is never passed."}},
+{"@type":"Question","name":"So can an emoji entered in the extra-removal field never be removed at all?","acceptedAnswer":{"@type":"Answer","text":"The specified emoji itself is usually removed completely, since both its high and low surrogates get matched individually and removed. The real problem is that a different emoji in the text sharing the same high surrogate gets only half-removed, leaving a broken character behind."}},
+{"@type":"Question","name":"Does this issue also happen with the predefined checkboxes (punctuation, special symbols, etc.)?","acceptedAnswer":{"@type":"Answer","text":"No. All characters offered by the checkboxes are single-code-unit characters within the BMP, so they're unaffected by the surrogate pair issue. This only happens when a user directly enters a non-BMP character, like an emoji, in the extra-removal field."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html?lang=en" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>The Regex Character Class Trap: Why Only Half an Emoji Gets Removed</h1>
+  <p class="meta">Guide · Last verified Aug 27, 2026</p>
+
+  <p>Tools that "remove specific characters" almost always use a regex character class <code>[...]</code> internally. But when that character class is built without the <code>u</code> (unicode) flag, characters represented by two UTF-16 code units — like most emoji — can produce unexpected results. We ran the actual code behind the <a href="../remove-special-characters.html?lang=en">Special Character Remover</a> in Node.js to verify exactly what form this problem takes.</p>
+
+  <h2>1. What is a surrogate pair</h2>
+  <p>Unicode defines over a million characters, from U+0000 to U+10FFFF, but UTF-16 — the internal encoding of JavaScript strings — can only directly represent U+0000 through U+FFFF with a single code unit (16 bits). This range is called the Basic Multilingual Plane (BMP), and most emoji (U+1F300 and above) fall outside it. Characters beyond the BMP are represented using a "surrogate pair": a high surrogate and a low surrogate code unit joined together to form one character. For example, 😀 (U+1F600) is internally two code units in sequence: <code>\ud83d</code> followed by <code>\ude00</code>.</p>
+
+  <h2>2. How a regex without the u flag handles surrogates</h2>
+  <p>The problem is that when the JS regex engine runs without the <code>u</code> flag, it reads a string as a sequence of UTF-16 code units, not Unicode code points. That means building a character class <code>[😀]</code> without the <code>u</code> flag doesn't make it match "the single character 😀" — instead it's interpreted as two separate elements meaning "either the code unit <code>\ud83d</code> or the code unit <code>\ude00</code>." Looking at the actual source of the <a href="../remove-special-characters.html?lang=en">Special Character Remover</a> (<code>remove-special-characters.html</code>), this is exactly how it builds its character class.</p>
+  <div class="box">
+    <strong>The actual code</strong>: <code>if(re)txt=txt.replace(new RegExp('['+re+']','g'),'');</code><br>
+    No <code>u</code> flag is passed to the <code>RegExp</code> constructor. When a user types an emoji into the extra-removal field, that emoji's two surrogate code units go straight into the character class string as-is.
+  </div>
+
+  <h2>3. What actually happens when you run it</h2>
+  <p>We reproduced this tool's regex directly in Node.js and tested two cases. First, the user enters the emoji they want removed, 😀 (U+1F600), in the extra-removal field, and the same 😀 also appears in the body text.</p>
+  <table>
+    <tr><th>Test</th><th>Regex</th><th>Target text</th><th>Result</th></tr>
+    <tr><td>Remove the same emoji</td><td><code>/[😀]/g</code> (no u flag)</td><td>"hello 😀 world"</td><td>"hello  world" — 😀 is removed cleanly</td></tr>
+    <tr><td>A different emoji sharing a surrogate</td><td><code>/[😀]/g</code> (no u flag)</td><td>"hello 😁 world" (😁 = U+1F601, shares the same high surrogate as 😀)</td><td>"hello \ude01 world" — only the high surrogate is removed, leaving the low surrogate orphaned and displayed as a broken character</td></tr>
+  </table>
+  <p>Here's the interesting part: the emoji you actually meant to remove happens to get removed "completely." Since both its high and low surrogate code units are individual elements in the class, <code>replace()</code> matches twice and the whole thing disappears. The real problem shows up <strong>elsewhere</strong>. If the body text contains a different emoji that shares the same high surrogate (<code>\ud83d</code>) — which covers the U+1F300–U+1F5FF and U+1F600–U+1F64F ranges, meaning a huge number of common emoji like 😁, 😂, 🙂, and more — only that emoji's high surrogate gets individually matched and removed, leaving its low surrogate stranded alone. Since a lone, invalid surrogate can't be rendered, the browser displays a replacement character (□, U+FFFD, etc.) instead. In short: the emoji you removed disappears cleanly, but other emoji you never intended to touch get corrupted.</p>
+
+  <h2>4. Why adding the u flag fixes it</h2>
+  <p>A regex with the <code>u</code> flag interprets a string as a sequence of Unicode code points, not code units. With the same <code>[😀]</code> character class but the <code>u</code> flag added, it only matches "the entire surrogate pair as a single code point, 😀" — it no longer treats the high and low surrogates as separate elements. So even if a different emoji happens to share half of that surrogate pair, it can no longer be mismatched. If you need Unicode-aware character handling, an alternative is iterating by code point using <code>codePointAt()</code> or the spread operator (<code>[...text]</code>), as the <a href="../unicode-converter.html?lang=en">Unicode Converter</a> does.</p>
+
+  <h2>5. How to use this safely in practice</h2>
+  <ul>
+    <li>Instead of specifying a single emoji in the extra-removal field, use the predefined categories offered as checkboxes (punctuation, symbols, etc.) first. That path never touches characters with a surrogate-pair issue.</li>
+    <li>If you want to strip out emoji entirely, a purpose-built tool like the <a href="../emoji-remover.html?lang=en">Emoji Remover</a> is safer than the special character remover.</li>
+    <li>If you're writing your own regex, the surest habit is to add the <code>u</code> flag as soon as a non-ASCII character enters a character class.</li>
+  </ul>
+
+  <h2>Frequently Asked Questions</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does the special character remover's regex really lack the u flag?</summary><p style="margin-top:8px;">A. Yes. Checking the <code>new RegExp('['+re+']','g')</code> call in the <code>remove-special-characters.html</code> source, the only flag argument is <code>'g'</code> — <code>u</code> is never passed.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. So can an emoji entered in the extra-removal field never be removed at all?</summary><p style="margin-top:8px;">A. The specified emoji itself is usually removed completely (since both its high and low surrogates get matched individually and removed). The real problem is that a different emoji in the text sharing the same high surrogate gets only half-removed, leaving a broken character behind.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does this issue also happen with the predefined checkboxes (punctuation, special symbols, etc.)?</summary><p style="margin-top:8px;">A. No. All characters offered by the checkboxes are single-code-unit characters within the BMP, so they're unaffected by the surrogate pair issue. This only happens when a user directly enters a non-BMP character, like an emoji, in the extra-removal field.</p></details>
+
+  <div class="tool-links">
+    <a href="../remove-special-characters.html?lang=en">→ Special Character Remover</a>
+    <a href="../emoji-remover.html?lang=en">→ Emoji Remover</a>
+    <a href="../emoji-counter.html?lang=en">→ Emoji Counter</a>
+    <a href="../unicode-converter.html?lang=en">→ Unicode Converter</a>
+    <a href="../text-statistics.html?lang=en">→ Text Statistics</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general informational purposes; each tool's actual calculation logic may be updated at any time.</footer>
+</main>
+</body>
+</html>

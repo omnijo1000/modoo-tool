@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Readability Score Trap: Why This Tool's SMOG Index Differs From the Standard Formula | MODOO HUB</title>
+<meta name="description" content="The standard SMOG formula uses a coefficient of 1.0430 and a correction constant of 3.1291 — a simplified browser implementation that drops both can inflate the result well above the real value. We compare against the actual code.">
+<link rel="canonical" href="https://modoohub.com/guides/reading-level-smog-formula-simplification-error-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/reading-level-smog-formula-simplification-error.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/reading-level-smog-formula-simplification-error-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/reading-level-smog-formula-simplification-error.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"The Readability Score Trap: Why This Tool's SMOG Index Differs From the Standard Formula","description":"We compare the standard SMOG formula against this tool's actual code and measure exactly how inflated the result gets.","datePublished":"2026-08-27","dateModified":"2026-08-27","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Why is only the SMOG index different from the standard formula?","acceptedAnswer":{"@type":"Answer","text":"The actual code simplifies the standard formula's coefficient of 1.0430 down to 3, and drops the +3.1291 correction constant entirely. The Flesch, FK, and Gunning Fog indices all use the standard published coefficients, so they don't have this discrepancy."}},
+{"@type":"Question","name":"How large is the discrepancy in practice?","acceptedAnswer":{"@type":"Answer","text":"On the tool's built-in sample text, this tool outputs 13.4 while the standard formula gives 7.8. Converted to grade level, that's roughly the gap between a college student and a middle-schooler."}},
+{"@type":"Question","name":"Should I just distrust this tool's SMOG value entirely?","acceptedAnswer":{"@type":"Answer","text":"It's safer to use it as a relative measure for comparing texts within the tool rather than trusting the absolute value. Saying \"Text A scores higher than Text B\" is valid, but reading \"SMOG 13.4 = college level\" literally is not, since it doesn't match the standard formula."}},
+{"@type":"Question","name":"Can I paste in Korean text?","acceptedAnswer":{"@type":"Answer","text":"You can, but you won't get a meaningful result. The syllable-counting logic only recognizes the alphabet a-z, so Korean words are counted as having zero syllables and the text is reported as very easy regardless of its actual difficulty."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+code{font-family:'DM Mono',monospace;font-size:13px;background:var(--surface2);padding:1px 5px;border-radius:4px;color:var(--text-muted);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>The Readability Score Trap: Why This Tool's SMOG Index Differs From the Standard Formula</h1>
+  <p class="meta">Guide · Last verified Aug 27, 2026</p>
+
+  <p>A readability score arrives as a single number, which makes it tempting to treat as an absolute, trustworthy metric on its own. But indices with the same name don't always share the exact same formula across implementations — and that's especially true for a free tool that has to compute everything instantly in the browser. This guide dissects the actual code behind the <a href="../reading-level-checker.html?lang=en">Reading Level Checker</a> and lays out, with concrete numbers, which indices match the published standard formula exactly and which one doesn't — and by how much.</p>
+
+  <h2>1. How readability indices are calculated: the shared ingredients</h2>
+  <p>Flesch Reading Ease, Flesch-Kincaid (FK) Grade, Gunning Fog, and SMOG are all built from the same raw ingredients combined in different ways: total word count, total sentence count, and the number of "complex words" (words of three or more syllables). Dividing word count by sentence count gives you average sentence length, and the ratio of complex words gives a rough proxy for vocabulary difficulty. What differentiates the four indices is purely which coefficients and constants they use to combine those ingredients.</p>
+
+  <h2>2. Flesch, FK, and Gunning Fog match the standard formula exactly</h2>
+  <p>Starting with the good news: the <a href="../reading-level-checker.html?lang=en">Reading Level Checker</a>'s Flesch Reading Ease, FK Grade, and Gunning Fog indices implement the academically published standard formulas down to every coefficient. Flesch Reading Ease uses <code>206.835 − 1.015 × average sentence length − 84.6 × average syllables per word</code> exactly as written in the code, and those coefficients (206.835, 1.015, 84.6) match the original published paper precisely. Checking the code against these three formulas turns up zero discrepancy.</p>
+
+  <h2>3. The problem: SMOG, standard formula vs. actual code</h2>
+  <p>The standard formula for the SMOG (Simple Measure of Gobbledygook) index is:</p>
+  <div class="box">
+    <strong>Standard SMOG formula</strong>: <code>1.0430 × √(polysyllabic word count × 30 / sentence count) + 3.1291</code>
+  </div>
+  <p>But the tool's actual calculation code looks different.</p>
+  <div class="box">
+    <strong>This tool's actual code</strong> (branching on whether the sample has 30+ sentences or fewer): <code>sentences.length&gt;=30 ? 3*Math.sqrt(complexCount) : 3*Math.sqrt(complexCount*(30/sCount))</code>
+  </div>
+  <p>The standard formula's coefficient of 1.0430 has simply been replaced with 3, and the +3.1291 correction constant is absent entirely. The gap between 1.0430 and 3 might look small at a glance, but since that value multiplies the entire square root — and the 3.1291 constant is missing on top of it — the final result drifts substantially. The correction that scales sentence count to a 30-sentence basis when the sample has fewer than 30 sentences (<code>× 30/sentence count</code>) is itself the same logic used in the original standard SMOG formula, so that part isn't a simplification — the issue is purely the two dropped pieces: the 1.0430 coefficient and the 3.1291 constant.</p>
+
+  <h2>4. The error in real numbers: this tool's built-in sample text</h2>
+  <p>Running the tool's built-in English sample text (the opening of George Orwell's <em>1984</em>, among others) through the calculation, this tool outputs a SMOG index of 13.4, while the same text run through the standard SMOG formula gives 7.8.</p>
+  <table>
+    <tr><th></th><th>SMOG Index</th><th>Interpreted grade level</th></tr>
+    <tr><td>This tool's result</td><td>13.4</td><td>College level (13+ years)</td></tr>
+    <tr><td>Standard formula result</td><td>7.8</td><td>Middle school level (7th–8th grade)</td></tr>
+  </table>
+  <p>For the exact same text, the grade-level verdict swings by roughly the gap between a college student and a middle-schooler — so judging "this text is too hard, it's college-level" purely from the SMOG index alone can lead you to the wrong conclusion. By contrast, Flesch Reading Ease and FK Grade match the standard formula exactly on the same text with zero error, so when using this tool, it's safer to lean on those three indices over SMOG.</p>
+
+  <h2>5. Another pitfall in syllable counting: non-English text</h2>
+  <p>Separate from the SMOG coefficient issue, the <code>countSyllables()</code> function that counts syllables works by first stripping every character that isn't a-z from the input word, then counting the number of vowel clusters left in the remaining string. Because of this, a word made up entirely of non-Latin characters — like Korean — is always counted as having zero syllables. As a result, no matter how difficult a Korean sentence actually is, the syllable-related penalty that Flesch Reading Ease relies on never kicks in, and the score comes out close to 100 ("very easy"). Since this tool was designed with English-text analysis in mind from the start, if you want to check the real difficulty of a Korean sentence, it's worth pairing it with a language-neutral metric like the <a href="../text-statistics.html?lang=en">Text Statistics tool</a> or the <a href="../word-frequency-counter.html?lang=en">Word Frequency Counter</a>.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Why is only the SMOG index different from the standard formula?</summary><p style="margin-top:8px;">A. The actual code simplifies the standard formula's coefficient of 1.0430 down to 3, and drops the +3.1291 correction constant entirely. The Flesch, FK, and Gunning Fog indices all use the standard published coefficients, so they don't have this discrepancy.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. How large is the discrepancy in practice?</summary><p style="margin-top:8px;">A. On the tool's built-in sample text, this tool outputs 13.4 while the standard formula gives 7.8. Converted to grade level, that's roughly the gap between a college student and a middle-schooler.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Should I just distrust this tool's SMOG value entirely?</summary><p style="margin-top:8px;">A. It's safer to use it as a relative measure for comparing texts within the tool rather than trusting the absolute value. Saying "Text A scores higher than Text B" is valid, but reading "SMOG 13.4 = college level" literally is not, since it doesn't match the standard formula.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Can I paste in Korean text?</summary><p style="margin-top:8px;">A. You can, but you won't get a meaningful result. The syllable-counting logic only recognizes the alphabet a-z, so Korean words are counted as having zero syllables and the text is reported as very easy regardless of its actual difficulty.</p></details>
+
+  <div class="tool-links">
+    <a href="../reading-level-checker.html?lang=en">→ Reading Level Checker</a>
+    <a href="../text-statistics.html?lang=en">→ Text Statistics Tool</a>
+    <a href="../word-frequency-counter.html?lang=en">→ Word Frequency Counter</a>
+    <a href="../text-summarizer.html?lang=en">→ Text Summarizer</a>
+    <a href="../keyword-density-checker.html?lang=en">→ Keyword Density Checker</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general informational purposes. For academic or publishing-grade readability analysis, please also use professionally validated tools.</footer>
+</main>
+</body>
+</html>

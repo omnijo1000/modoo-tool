@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why You Should Strip Stopwords Before Running TF-IDF | MODOO HUB</title>
+<meta name="description" content="Stopwords like the, a, is skew TF-IDF and keyword extraction results. Here's how the term-frequency (TF) math causes it, and why stopword removal is a required statistical preprocessing step.">
+<link rel="canonical" href="https://modoohub.com/guides/stopword-remover-tfidf-distortion-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/stopword-remover-tfidf-distortion.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/stopword-remover-tfidf-distortion-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/stopword-remover-tfidf-distortion.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Why You Should Strip Stopwords Before Running TF-IDF","description":"Stopwords like the, a, is skew TF-IDF and keyword extraction results. Here's how the term-frequency (TF) math causes it, and why stopword removal is a required preprocessing step.","datePublished":"2026-08-27","dateModified":"2026-08-27","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"What happens if I run TF-IDF without removing stopwords first?","acceptedAnswer":{"@type":"Answer","text":"IDF weighting does dampen high-frequency words somewhat, but words like the, a, and is still start with such large raw TF values that they can dominate the top results in short documents or simple frequency-based analysis. Removing stopwords cuts off this source of noise before the calculation even starts."}},
+{"@type":"Question","name":"Exactly how many words are in MODOO HUB's stopword remover's default list?","acceptedAnswer":{"@type":"Answer","text":"The tool's own description says 'about 70,' but counting the actual default list (BASE_STOP) in the source code gives 95 words, covering articles, prepositions, conjunctions, personal pronouns, possessives, and question words."}},
+{"@type":"Question","name":"Can this tool remove Korean particles (은/는/이/가) too?","acceptedAnswer":{"@type":"Answer","text":"The built-in default list is English-only, so Korean particles and conjunctions aren't filtered automatically. You can add any Korean words you want removed via the custom stopword field, comma-separated, and they'll be treated the same as the built-in list."}},
+{"@type":"Question","name":"Does removing stopwords also strip punctuation?","acceptedAnswer":{"@type":"Answer","text":"No. The tool only ignores punctuation temporarily while matching a word against the stopword list — periods, commas, and other punctuation remain in their original positions in the final output."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html?lang=en" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Why You Should Strip Stopwords Before Running TF-IDF</h1>
+  <p class="meta">Guide · Last verified Aug 27, 2026</p>
+
+  <p>If you've ever tried to pull the key terms out of a piece of text, you've probably been surprised to see "the," "and," and "is" sitting at the top of your results. That's not a broken algorithm — it's a completely predictable statistical outcome. This guide walks through, at the level of the actual math, why stopword removal has to come before statistical techniques like keyword extraction and document similarity analysis, not after.</p>
+
+  <h2>1. TF (term frequency) starts from the assumption that "appears often" means "important"</h2>
+  <p>The first step in text analysis techniques like TF-IDF is TF: counting how many times a given word appears in a document. The higher that count, the more the technique assumes the word represents the document's topic. The problem is that this assumption completely breaks down for grammatically mandatory words — articles, prepositions, be-verbs, and the like. "The" and "is" show up at high frequency in nearly any piece of writing regardless of topic, yet carry no meaning on their own. TF doesn't know that, though — it just sees "appeared a lot" and assigns a high score.</p>
+
+  <h2>2. The mechanics of the distortion: high-frequency, meaningless words pollute the ranking</h2>
+  <p>IDF (inverse document frequency) is designed to correct for some of this by down-weighting words that appear evenly across many documents. But stopwords already start with such an outsized raw TF value that, in short documents or in simple frequency-based keyword extraction, IDF correction alone often isn't enough to filter them out completely. The end result is that words that actually represent the topic (domain-specific terms like "climate" or "algorithm") get pushed down the ranking because of their comparatively lower frequency, while words that are purely grammatical glue end up at the top. Removing stopwords cuts this source of pollution out before it ever enters the statistical calculation.</p>
+  <div class="box">
+    <strong>A numeric example</strong>: In the 6-word sentence "The cat sat on the mat," "the" appears twice — 33% of all words. Meanwhile the words that actually carry the sentence's meaning — "cat," "sat," "mat" — appear only once each, just 16.7%. If you rank this sentence by raw TF without removing stopwords, "the" comes out as the #1 keyword. If you run a short sentence like this through MODOO HUB's <a href="../stopword-remover.html?lang=en">stopword remover</a> and check its result stats (input / output / words removed), you'll immediately see how disproportionately large a share stopwords take up in shorter text.
+  </div>
+
+  <h2>3. The tool's built-in stopword list: how many words is it, really?</h2>
+  <p>MODOO HUB's <a href="../stopword-remover.html?lang=en">stopword remover</a> describes itself as shipping with "roughly 70 English stopwords," but counting the actual default list (BASE_STOP) in the source code gives 95 words. It covers not just articles, prepositions, and conjunctions (a, an, the, and, or, but, in, on...) but also personal pronouns (i, you, he, she, it...), possessives (my, your, his, its...), and question words (what, who, which, how...) — so real coverage is more generous than the description suggests. Any word missing from the list — a brand name, a recurring greeting, whatever — can be added via the custom stopword field, comma-separated, and it merges right into the default list.</p>
+
+  <h2>4. Case handling and which characters get compared: an easy detail to miss</h2>
+  <p>The "ignore case" option is on by default, so the tool lowercases each word before comparing it against the list. Turn that option off, and only words matching the exact same case get filtered — meaning a capitalized "The" at the start of a sentence might slip through uncaught. Also, during comparison, the tool temporarily strips down to letters (plus a few extended Latin characters) and ignores punctuation like periods and commas — but the actual output keeps that punctuation exactly where it was. Matching logic and output logic are separate, in other words, so the common assumption that "punctuation gets stripped too" is actually wrong.</p>
+
+  <h2>5. Where it's used: from word clouds to embedding preprocessing</h2>
+  <p>Stopword removal isn't just for visually obvious tasks like word clouds or keyword frequency analysis — it's also a standard preprocessing step when preparing training data for TF-IDF vectorization or word embeddings. Filtering out statistically meaningless high-frequency words upfront lets a model or analysis algorithm spend its computation on the words that actually distinguish one topic from another. If you want to check the actual frequency of terms in the cleaned-up text afterward, the <a href="../word-frequency-counter.html?lang=en">word frequency counter</a> is the natural next step, and if you want to compare similarity across documents, the <a href="../text-similarity-checker.html?lang=en">text similarity checker</a> follows from there.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. What happens if I run TF-IDF without removing stopwords first?</summary><p style="margin-top:8px;">IDF weighting does dampen high-frequency words somewhat, but words like the, a, and is still start with such large raw TF values that they can dominate the top results in short documents or simple frequency-based analysis. Removing stopwords cuts off this source of noise before the calculation even starts.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Exactly how many words are in MODOO HUB's stopword remover's default list?</summary><p style="margin-top:8px;">The tool's own description says "about 70," but counting the actual default list in the source code gives 95 words — covering articles, prepositions, and conjunctions as well as personal pronouns, possessives, and question words.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Can this tool remove Korean particles (은/는/이/가) too?</summary><p style="margin-top:8px;">The built-in default list is English-only, so Korean particles and conjunctions aren't filtered automatically. You can add any Korean words you want removed via the custom stopword field, comma-separated, and they'll be treated the same as the built-in list.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does removing stopwords also strip punctuation?</summary><p style="margin-top:8px;">No. The tool only ignores punctuation temporarily while matching a word against the stopword list — periods, commas, and other punctuation remain in their original positions in the final output.</p></details>
+
+  <div class="tool-links">
+    <a href="../stopword-remover.html?lang=en">→ Stopword Remover</a>
+    <a href="../word-frequency-counter.html?lang=en">→ Word Frequency Counter</a>
+    <a href="../keyword-extractor.html?lang=en">→ Keyword Extractor</a>
+    <a href="../ngram-analyzer.html?lang=en">→ N-gram Analyzer</a>
+    <a href="../text-similarity-checker.html?lang=en">→ Text Similarity Checker</a>
+    <a href="../text-statistics.html?lang=en">→ Text Statistics</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes. Please evaluate any production analysis pipeline design separately based on your own use case.</footer>
+</main>
+</body>
+</html>

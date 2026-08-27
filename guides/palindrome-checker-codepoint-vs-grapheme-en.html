@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>When It Looks Like a Palindrome to You But Not to the Algorithm — The Code Point vs. Grapheme Trap | MODOO HUB</title>
+<meta name="description" content="A code-level breakdown of why a palindrome checker's result can flip depending on whether it reverses a string by code point or by grapheme (the unit a human actually sees) — and why flag emoji and ZWJ-joined emoji are where this shows up.">
+<link rel="canonical" href="https://modoohub.com/guides/palindrome-checker-codepoint-vs-grapheme-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/palindrome-checker-codepoint-vs-grapheme.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/palindrome-checker-codepoint-vs-grapheme-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/palindrome-checker-codepoint-vs-grapheme.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"When It Looks Like a Palindrome to You But Not to the Algorithm — The Code Point vs. Grapheme Trap","description":"A code-level breakdown of why a palindrome checker's result can diverge on emoji and flag strings depending on whether it reverses a string by code point or by grapheme cluster.","datePublished":"2026-08-27","dateModified":"2026-08-27","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html?lang=en" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>When It Looks Like a Palindrome to You But Not to the Algorithm — The Code Point vs. Grapheme Trap</h1>
+  <p class="meta">Guide · Last verified Aug 27, 2026</p>
+
+  <p>For a string made only of letters, like "racecar," every tool agrees on whether it's a palindrome. The trouble starts when emoji get mixed in — especially flags or emoji composed from multiple parts, like skin-tone variants. A string that's clearly symmetric to your eye can come back "not a palindrome," or the reverse: something that looks asymmetric can come back "is a palindrome." The root cause is that there are two different definitions of "how many characters" a string has.</p>
+
+  <h2>1. Three units for splitting a Unicode string</h2>
+  <p>Splitting a Unicode string can be done at roughly three different levels. The shallowest is the <strong>UTF-16 code unit</strong> (what JavaScript's old <code>.length</code> and <code>[i]</code> indexing operate on). Above that is the <strong>code point</strong> (the unit that JavaScript's <code>[...str]</code> spread or a <code>for...of</code> loop iterates over). And the one closest to how a human actually perceives text is the <strong>grapheme cluster</strong> (the unit <code>Intl.Segmenter</code> produces — what shows up on screen as "one character"). For common characters like the Latin alphabet or precomposed Hangul, all three units line up exactly. But for flag emoji or emoji joined with a ZWJ (Zero Width Joiner), multiple code points combine into a single grapheme.</p>
+
+  <h2>2. How a flag emoji is actually constructed</h2>
+  <p>🇰🇷 (the South Korean flag) isn't really a single character — it's a combination of two Regional Indicator Symbol code points, U+1F1F0 (🇰) and U+1F1F7 (🇷). To a human eye it's one flag image, but counted by code point it's two. 👨‍👩‍👧 (the family emoji) is even more extreme: it's three separate emoji — man, woman, girl — joined by two ZWJ characters (U+200D), making it five or more code points. <code>[...str]</code> has no knowledge of these joining rules, so it treats each code point as an independent "character" and reverses their order individually.</p>
+
+  <h2>3. How code-point-level reversal produces the wrong verdict</h2>
+  <p>The core of a palindrome check is "reverse the normalized string and compare it to the original." The <a href="../palindrome-checker.html?lang=en">Palindrome Checker</a> reverses with <code>[...n].reverse().join('')</code>, which is a code-point-level reversal. If a single flag is made of two code points (in order A, B), this reversal logic doesn't move the flag as a whole to the back — it reverses the order of A and B individually. Reverse a string that concatenates two different flags (say, 🇰🇷🇯🇵) and the four Regional Indicator code points get shuffled together, which can produce flag combinations that don't actually exist, or cause an array of flags that was visually symmetric to be judged asymmetric at the code-point level.</p>
+  <div class="box">
+    <strong>Example</strong>: Reverse "🇰🇷🇰🇷" (the same flag repeated twice — 2 graphemes, 4 code points) at the code-point level, and only the code-point order gets flipped, leaving the resulting string identical to the original (it's a symmetric arrangement, so the problem happens to stay hidden). But reverse the two different flags "🇰🇷🇯🇵," and the four code points get rearranged into the order [🇯, 🇵, 🇰, 🇷] — when the rendering engine re-pairs these into adjacent Regional Indicator pairs, it can display combinations that never existed in the original (an arbitrary pairing like "🇯🇰" + "🇵🇷"). If the reversal were done at the grapheme level (via <code>Intl.Segmenter</code>) instead, only [🇯🇵, 🇰🇷] would flip order, and this recombination problem wouldn't occur.
+  </div>
+
+  <h2>4. Which approach does this tool actually use?</h2>
+  <p>Checking the actual <code>palindrome-checker.html</code> code confirms it <strong>operates at the code-point level (<code>[...str]</code>) and does not use <code>Intl.Segmenter</code></strong>. The tool's own FAQ and SEO description already state that "compound emoji made of multiple code points may produce unexpected results," so this limitation was acknowledged from the design stage. For plain text — Hangul, Latin letters, digits, and punctuation — code-point-level and grapheme-level results are identical, so this is a non-issue for most real-world use. But if you want to check the exact composition of a string mixing flags or ZWJ emoji, the <a href="../unicode-inspector.html?lang=en">Unicode Inspector</a> gives a more precise, code-point-by-code-point breakdown.</p>
+
+  <h2>5. Where this shows up in practice</h2>
+  <p>The same trap shows up when counting the character count of text that includes emoji. The <a href="../emoji-counter.html?lang=en">Emoji Counter</a> and the <a href="../text-statistics.html?lang=en">Text Statistics</a> tool can likewise disagree — "this sentence has 3 emoji" vs. "5 emoji" — depending on whether they count by code point or by grapheme. For tasks where an accurate count actually matters, like a social media character limit, it's worth checking which unit a tool uses before relying on it.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does this problem also show up when checking Korean- or English-only text?</summary><p style="margin-top:8px;">A. No. For precomposed Hangul, Latin letters, digits, and ordinary punctuation, one code point maps exactly to one grapheme, so a code-point-level reversal and a grapheme-level reversal produce identical results. The problem only occurs when multiple code points render as a single character — flags, ZWJ-joined emoji, or emoji with skin-tone modifiers.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does using Intl.Segmenter get rid of this problem completely?</summary><p style="margin-top:8px;">A. It resolves it in most cases. Intl.Segmenter's grapheme-level splitting follows the Unicode text segmentation standard (UAX #29), so it groups ZWJ combinations and Regional Indicator pairs into the same units a human perceives. However, it's a relatively recent browser API, so it may not be supported in older browsers.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Is it okay to use this tool for real work, like automated text processing?</summary><p style="margin-top:8px;">A. For most use cases involving plain text — Hangul, Latin letters, digits, symbols — it's accurate with no issues. But for an automation pipeline handling user-generated content that's heavy on emoji (social media posts, for example), it's worth adding your own verification logic to account for the code-point-level limitation described above.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Are the case/whitespace/punctuation-ignoring options related to this problem?</summary><p style="margin-top:8px;">A. No, they're a separate feature. Handling case, whitespace, and punctuation happens during the normalization step, via <code>toLowerCase()</code> and Unicode-property regexes. The code point vs. grapheme problem occurs in the following step — the reversal (<code>reverse()</code>) itself. The two steps operate independently of each other.</p></details>
+
+  <div class="tool-links">
+    <a href="../palindrome-checker.html?lang=en">→ Palindrome Checker</a>
+    <a href="../unicode-inspector.html?lang=en">→ Unicode Inspector</a>
+    <a href="../unicode-converter.html?lang=en">→ Unicode Converter</a>
+    <a href="../emoji-counter.html?lang=en">→ Emoji Counter</a>
+    <a href="../text-statistics.html?lang=en">→ Text Statistics</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes — actual tool behavior may vary by browser and version.</footer>
+</main>
+</body>
+</html>

@@ -1,6 +1,6 @@
 # 가이드 영어(EN) 번역 진행 상황
 
-**마지막 갱신**: 2026-08-27  |  **진행률**: 60/176
+**마지막 갱신**: 2026-08-27  |  **진행률**: 70/176
 
 ## 배경 & 방식
 
@@ -35,7 +35,7 @@
 | 카테고리 | 완료/전체 |
 |---|---|
 | 개발자 도구 (developer-tools) | 52/52 |
-| 텍스트 도구 (text-tools) | 8/32 |
+| 텍스트 도구 (text-tools) | 18/32 |
 | 이미지 도구 (image-tools) | 0/24 |
 | 생성기 도구 (generator-tools) | 0/21 |
 | 보안 도구 (security-tools) | 0/17 |
@@ -100,7 +100,7 @@
 - [x] `yaml-norway-problem-boolean-parsing` ← tool: `yaml-validator`
 - [x] `yaml-to-json-kubernetes-multi-document-error` ← tool: `yaml-to-json`
 
-## 텍스트 도구 (text-tools) — 8/32
+## 텍스트 도구 (text-tools) — 18/32
 
 - [x] `alphabetizer-localecompare-vs-unicode-sort` ← tool: `alphabetizer`
 - [x] `anagram-checker-character-frequency-array` ← tool: `anagram-checker`
@@ -110,16 +110,16 @@
 - [x] `emoji-counter-surrogate-pair-sns-limit` ← tool: `emoji-counter`
 - [x] `emoji-remover-digit-false-positive` ← tool: `emoji-remover`
 - [x] `hashtag-count-strategy-3-4-3-ratio` ← tool: `hashtag-generator`
-- [ ] `keyword-extractor-korean-particle-limitation` ← tool: `keyword-extractor`
-- [ ] `ngram-analyzer-cjk-regex-language-bias` ← tool: `ngram-analyzer`
-- [ ] `palindrome-checker-codepoint-vs-grapheme` ← tool: `palindrome-checker`
-- [ ] `reading-level-smog-formula-simplification-error` ← tool: `reading-level-checker`
-- [ ] `reading-time-korean-cjk-char-count` ← tool: `read-time-calculator`
-- [ ] `remove-special-characters-emoji-surrogate-bug` ← tool: `remove-special-characters`
-- [ ] `sentence-boundary-detection-limits` ← tool: `sentence-counter`
-- [ ] `sms-byte-limit-euckr-encoding` ← tool: `character-counter`
-- [ ] `stopword-remover-tfidf-distortion` ← tool: `stopword-remover`
-- [ ] `text-case-camelcase-vs-kebab-case-origin` ← tool: `text-case-detector`
+- [x] `keyword-extractor-korean-particle-limitation` ← tool: `keyword-extractor`
+- [x] `ngram-analyzer-cjk-regex-language-bias` ← tool: `ngram-analyzer`
+- [x] `palindrome-checker-codepoint-vs-grapheme` ← tool: `palindrome-checker`
+- [x] `reading-level-smog-formula-simplification-error` ← tool: `reading-level-checker`
+- [x] `reading-time-korean-cjk-char-count` ← tool: `read-time-calculator`
+- [x] `remove-special-characters-emoji-surrogate-bug` ← tool: `remove-special-characters`
+- [x] `sentence-boundary-detection-limits` ← tool: `sentence-counter`
+- [x] `sms-byte-limit-euckr-encoding` ← tool: `character-counter`
+- [x] `stopword-remover-tfidf-distortion` ← tool: `stopword-remover`
+- [x] `text-case-camelcase-vs-kebab-case-origin` ← tool: `text-case-detector`
 - [ ] `text-diff-lcs-algorithm-explained` ← tool: `text-diff-checker`
 - [ ] `text-encryptor-caesar-to-aes-history` ← tool: `text-encryptor`
 - [ ] `text-reverser-emoji-surrogate-pair-break` ← tool: `text-reverser`

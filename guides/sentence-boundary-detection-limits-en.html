@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Where Does a Sentence End? — The Limits of Rule-Based Sentence Splitting | MODOO HUB</title>
+<meta name="description" content="Why a regex-based sentence counter can miscount around abbreviations like 'Dr. Kim' or decimal points, and how it handles sentences with no terminal punctuation at all.">
+<link rel="canonical" href="https://modoohub.com/guides/sentence-boundary-detection-limits-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/sentence-boundary-detection-limits.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/sentence-boundary-detection-limits-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/sentence-boundary-detection-limits.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Where Does a Sentence End? — The Limits of Rule-Based Sentence Splitting","description":"Why a regex-based sentence counter can miscount around abbreviations or decimal points, and how it handles sentences with no terminal punctuation.","datePublished":"2026-08-27","dateModified":"2026-08-27","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:14px;color:#ccc;line-height:1.8;margin:0;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--blue);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html?lang=en" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Where Does a Sentence End? — The Limits of Rule-Based Sentence Splitting</h1>
+  <p class="meta">Guide · Last verified Aug 27, 2026</p>
+
+  <p>Counting sentences feels obvious to a human, but it's a trickier problem for a computer than it looks. Deciding whether a period ends a sentence first requires figuring out whether that period is actually a sentence terminator, or just part of an abbreviation, a decimal point, or an ellipsis. This problem is called <strong>Sentence Boundary Detection (SBD)</strong>, and in natural language processing (NLP) it's still considered an area that isn't fully solved. This guide breaks down where and why a lightweight, regex-based sentence splitter gets it wrong — and separates the cases where that actually matters from the cases where it doesn't.</p>
+
+  <h2>1. The abbreviation trap: why "Dr. Kim" gets cut into two sentences</h2>
+  <p>The most common SBD failure in English text is abbreviations. Split the single sentence "Dr. Kim went to the U.S. yesterday." using a regex that breaks on periods, and the periods after "Dr." and "U.S." can be mistaken for sentence endings too, splitting it into as many as 3 sentences. A human instantly knows from context that "Dr." is short for "Doctor," but a simple rule like "does a capital letter follow the period" can't distinguish an abbreviation like "Mr.", "Ms.", "vs.", or "etc." from an actual sentence ending. Sophisticated SBD engines pre-register dictionaries of hundreds of abbreviations to handle these as exceptions, but they can still fail on abbreviations not in the dictionary — new coinages or proper-noun abbreviations like "Inc." or "Ph.D."</p>
+
+  <h2>2. Decimals and ellipses: when a period is used for a number or an emotional pause</h2>
+  <p>Decimal notation like "3.14," and ellipses used for trailing-off speech, are also traps for regex-based splitters. Without special handling for whether a digit follows the period, or whether three periods appear in a row, a sentence like "3.14 is pi." can get split into "3" and "14 is pi." This is especially a problem with report or news text full of figures and statistics — feed that kind of text into a splitter and these mis-splits accumulate, producing a sentence count far higher than the real one.</p>
+
+  <h2>3. Korean sentence punctuation and how this tool actually handles it</h2>
+  <p>Here's how the splitting logic in MODOO HUB's <a href="../sentence-counter.html?lang=en">Sentence Counter</a> tool actually works. It first normalizes all whitespace and line breaks into single spaces, then cuts the text using the regex <code>/[^.!?。！？]+[.!?。！？]+/g</code>, which breaks on periods (.), exclamation points (!), question marks (?), and their full-width equivalents (。！？). In other words, it looks at zero surrounding context around the terminal punctuation and cuts purely on the character itself. There's no abbreviation dictionary or decimal-point exception handling built in, so feeding it the "Dr. Kim" or "3.14" examples above genuinely does produce over-splitting. Conversely, Korean often ends a clause with a sentence-final ending (like "-다," "-요," "-까") without any period at all, so a punctuation-based splitter can actually undercount (count too few sentences) on conversational Korean text.</p>
+
+  <h2>4. Why a trailing fragment with no terminal punctuation isn't just discarded</h2>
+  <p>After the regex matching finishes, this tool's split function (<code>splitSentences</code>) checks for any leftover text (<code>rest</code>) and, even if it has no terminal punctuation, appends it as the final sentence. This design exists to prevent losing the last sentence entirely in a draft where the writer forgot the final period, in conversational text, or in something like an SNS post where dropping the terminal punctuation is common. That said, it also means a fragment that's literally just one leftover word can get counted as a "sentence" — worth keeping in mind when reading derived statistics like average words per sentence.</p>
+
+  <div class="box">
+    <strong>Example</strong>: Feed the single sentence "Dr. Kim likes 3.14." into this tool, and since a period appears 3 times (after "Dr.", the decimal point in 3.14, and the sentence end), the regex can split it into multiple fragments. To a human it's obviously one sentence, but this is a structural limitation of a pure punctuation-based splitter with no abbreviation or decimal-point exception handling.
+  </div>
+
+  <h2>5. How do dedicated NLP libraries do it differently?</h2>
+  <p>English NLP libraries like spaCy and NLTK combine rules with statistical models, factoring in abbreviation dictionaries, surrounding capitalization, and part-of-speech information to judge sentence boundaries. For Korean, tools built around <code>kss</code> (Korean Sentence Splitter) or linked to <code>KoNLPy</code> use morphological analysis results to distinguish sentence-final endings, quotation marks, and sentences inside parentheses, splitting far more precisely. These libraries are heavy, since they carry trained models or thousands of built-in rule exceptions, which makes them a real burden to run in real time in a browser. A lightweight regex-based splitter like this tool, by contrast, trades some accuracy on edge cases like abbreviations and decimal points for instant response. That's plenty for everyday writing analysis and draft review, but if you need a precise sentence count on text dense with abbreviations and numbers — like an academic paper or legal document — you should keep this limitation in mind.</p>
+
+  <h2>FAQ</h2>
+  <details class="faq-item"><summary>Q. Why does an abbreviation like "Dr. Kim" inflate the sentence count?</summary><p>A. This tool splits sentences with a regex that only looks at the period, exclamation point, or question mark character itself, so it can't distinguish a period after an abbreviation from a period that truly ends a sentence. The more abbreviations an English text has, the more the count can run above the true number of sentences.</p></details>
+  <details class="faq-item"><summary>Q. What happens if I enter a number with a decimal point?</summary><p>A. A period used as a decimal point, as in "3.14," can also be mistaken for a sentence ending and cause a split. For text dense with statistics or figures, it's safer to treat the result as a rough reference rather than trusting it outright.</p></details>
+  <details class="faq-item"><summary>Q. How is a sentence with no terminal punctuation handled?</summary><p>A. Even a trailing fragment with no terminal punctuation is recognized as one sentence and included in the stats and sentence list. This is by design, to keep the last sentence from being dropped in a draft that forgot the final period or in conversational text.</p></details>
+  <details class="faq-item"><summary>Q. What tool should I use if I need more accurate sentence splitting?</summary><p>A. For precise analysis of text dense with abbreviations and numbers — academic papers, legal documents — a tool built on a dedicated NLP library like spaCy or NLTK (for English) or kss/KoNLPy (for Korean) will be more accurate. This tool is best suited for quick draft checks and getting a feel for writing rhythm.</p></details>
+
+  <div class="tool-links">
+    <a href="../sentence-counter.html?lang=en">→ Sentence Counter</a>
+    <a href="../word-counter.html?lang=en">→ Word Counter</a>
+    <a href="../character-counter.html?lang=en">→ Character Counter</a>
+    <a href="../text-statistics.html?lang=en">→ Text Statistics</a>
+    <a href="../reading-level-checker.html?lang=en">→ Reading Level Checker</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general informational purposes only.</footer>
+</main>
+</body>
+</html>
