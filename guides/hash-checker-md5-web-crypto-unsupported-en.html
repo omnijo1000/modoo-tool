@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why the Browser's Standard Hash API Doesn't Support MD5 | MODOO HUB</title>
+<meta name="description" content="The browser's built-in Web Crypto API (crypto.subtle.digest) supports only SHA-1/256/384/512 and excludes MD5 from the spec entirely. An analysis of why, grounded in MD5's history of being broken and actual code behavior.">
+<link rel="canonical" href="https://modoohub.com/guides/hash-checker-md5-web-crypto-unsupported-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/hash-checker-md5-web-crypto-unsupported.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/hash-checker-md5-web-crypto-unsupported-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/hash-checker-md5-web-crypto-unsupported.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Why the Browser's Standard Hash API Doesn't Support MD5","description":"The browser's built-in Web Crypto API supports only the SHA family and excludes MD5 entirely. An analysis grounded in MD5's history of being broken and actual code behavior.","datePublished":"2026-08-28","dateModified":"2026-08-28","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"What exact error does crypto.subtle.digest('MD5', data) throw?","acceptedAnswer":{"@type":"Answer","text":"Wording varies by browser, but it generally throws a NotSupportedError-class exception, often along the lines of \"Algorithm: Unrecognized name.\" This happens because you're passing an algorithm name that isn't defined in the spec."}},
+{"@type":"Question","name":"Can Node.js compute MD5?","acceptedAnswer":{"@type":"Answer","text":"Yes. Node.js's crypto module is built on OpenSSL, so independent of the browser standard (SubtleCrypto), it supports a much wider range of algorithms including MD5. The browser limitation comes specifically from the SubtleCrypto web spec itself."}},
+{"@type":"Question","name":"Will SHA-1 eventually get dropped from the spec too?","acceptedAnswer":{"@type":"Answer","text":"It's possible. SHA-1 is already not recommended for security purposes, but it remains in the current spec for legacy compatibility. Full exclusion like MD5 could still take a while."}},
+{"@type":"Question","name":"Which tool on this site should I use if I need an MD5 hash?","acceptedAnswer":{"@type":"Answer","text":"The Hash Generator provides a pure-JS MD5 implementation alongside the SHA family. The Hash Checker, by contrast, only uses the Web Crypto API, so it does not support MD5."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Why the Browser's Standard Hash API Doesn't Support MD5</h1>
+  <p class="meta">Guide · Last verified Aug 28, 2026</p>
+
+  <p>Try calling <code>crypto.subtle.digest('MD5', ...)</code> directly in a browser console and you'll get an immediate <code>NotSupportedError</code>. SHA-256 and SHA-1 work fine, but MD5 alone fails — not because of an implementation bug, but because the browser standard itself deliberately excludes MD5 from its supported list. Here's why that choice was made, and how sites actually handle situations where an MD5 hash is genuinely needed.</p>
+
+  <h2>1. The root reason MD5 was excluded from the standard: it was already dead</h2>
+  <p>MD5 is a hash function published in 1992. Early vulnerabilities were pointed out academically starting in 1996, and by 2004-2005, research by Wang Xiaoyun and others succeeded in deliberately engineering collisions — two different inputs producing the same hash value. Since then, MD5 has effectively been treated as a retired algorithm for security integrity checks or digital signatures. The Web Crypto API was standardized by the W3C between roughly 2013 and 2017 — by which point MD5 had already been conclusively judged untrustworthy, so it was never included in the new standard to begin with.</p>
+
+  <h2>2. The algorithms the SubtleCrypto spec actually defines</h2>
+  <p>The W3C specification for <code>crypto.subtle.digest()</code> defines exactly four digest algorithms: <code>SHA-1</code>, <code>SHA-256</code>, <code>SHA-384</code>, and <code>SHA-512</code>. Even SHA-1 has had collision attacks demonstrated in practice (Google's 2017 SHAttered research) and isn't recommended for security purposes, but it remains in the spec for backward compatibility. MD5 was broken earlier and more severely than SHA-1, so it was never even up for discussion.</p>
+
+  <div class="box">
+    <strong>Verified in practice</strong>: this site's own <a href="../hash-checker.html?lang=en">Hash Checker</a> internally computes every hash with a single line, <code>await crypto.subtle.digest(algo, data)</code>. Pass 'SHA-256' as the algo value and it works fine; pass 'MD5' and the browser throws immediately — which is why this tool excludes MD5 from its supported algorithm list entirely and only offers SHA-1/256/384/512.
+  </div>
+
+  <h2>3. So what do you do when you actually need MD5: a pure-JS implementation</h2>
+  <p>Just because the Web Crypto API can't compute it doesn't mean MD5 is impossible to compute in a browser at all — you can implement the algorithm directly in JavaScript. In fact, this site's own <a href="../hash-generator.html?lang=en">Hash Generator</a> uses <code>crypto.subtle.digest</code> for the SHA family, but for MD5 specifically, it implements the algorithm directly in pure JS via internal functions like <code>md5cmn</code>, <code>md5ff</code>, and <code>md5gg</code>. This is a classic pattern of filling a gap the browser's standard API leaves open with an application-level library implementation.</p>
+
+  <h2>4. Standard API vs. pure-JS implementation, side by side</h2>
+  <table>
+    <tr><th></th><th>Web Crypto API</th><th>Pure-JS implementation</th></tr>
+    <tr><td>Supported algorithms</td><td>SHA-1/256/384/512 only</td><td>MD5 and virtually any algorithm</td></tr>
+    <tr><td>Execution speed</td><td>Native browser code, fast</td><td>JS interpreter, relatively slower</td></tr>
+    <tr><td>Implementation reliability</td><td>Verified by browser vendors</td><td>Depends on library code quality</td></tr>
+    <tr><td>Example on this site</td><td>hash-checker.html (SHA only)</td><td>hash-generator.html (includes self-implemented MD5)</td></tr>
+  </table>
+
+  <h2>5. When MD5 is still fine to use, and when it isn't</h2>
+  <ul>
+    <li><strong>Still fine</strong>: file duplicate detection, cache-invalidation keys, non-security checksums — situations that don't assume a deliberate forgery attack.</li>
+    <li><strong>Not fine</strong>: password storage, digital signatures, file-integrity guarantees — any security use case where an attacker deliberately crafting different data with the same hash (a collision attack) is itself the threat you're defending against.</li>
+  </ul>
+  <p>Where security matters, use the <a href="../sha256-generator.html?lang=en">SHA-256 Generator</a>; for password storage, use a dedicated key-stretching algorithm like the <a href="../bcrypt-generator.html?lang=en">bcrypt Generator</a> instead of a plain hash.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details class="faq-item"><summary>Q. What exact error does crypto.subtle.digest('MD5', data) throw?</summary><p>A. Wording varies by browser, but it generally throws a NotSupportedError-class exception, often along the lines of "Algorithm: Unrecognized name." This happens because you're passing an algorithm name that isn't defined in the spec.</p></details>
+  <details class="faq-item"><summary>Q. Can Node.js compute MD5?</summary><p>A. Yes. Node.js's crypto module is built on OpenSSL, so independent of the browser standard (SubtleCrypto), it supports a much wider range of algorithms including MD5. The browser limitation comes specifically from the SubtleCrypto web spec itself.</p></details>
+  <details class="faq-item"><summary>Q. Will SHA-1 eventually get dropped from the spec too?</summary><p>A. It's possible. SHA-1 is already not recommended for security purposes, but it remains in the current spec for legacy compatibility. Full exclusion like MD5 could still take a while.</p></details>
+  <details class="faq-item"><summary>Q. Which tool on this site should I use if I need an MD5 hash?</summary><p>A. The <a href="../hash-generator.html?lang=en">Hash Generator</a> provides a pure-JS MD5 implementation alongside the SHA family. The <a href="../hash-checker.html?lang=en">Hash Checker</a>, by contrast, only uses the Web Crypto API, so it does not support MD5.</p></details>
+
+  <div class="tool-links">
+    <a href="../hash-checker.html?lang=en">→ Hash Checker</a>
+    <a href="../hash-generator.html?lang=en">→ Hash Generator</a>
+    <a href="../sha256-generator.html?lang=en">→ SHA-256 Generator</a>
+    <a href="../bcrypt-validator.html?lang=en">→ bcrypt Validator</a>
+    <a href="../bcrypt-generator.html?lang=en">→ bcrypt Generator</a>
+    <a href="../hmac-generator.html?lang=en">→ HMAC Generator</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general information only. For security-critical systems, please verify current cryptographic standard recommendations separately.</footer>
+</main>
+</body>
+</html>

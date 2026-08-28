@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why MD5/SHA-1 Are Still Used but Not for Security — Hash vs HMAC vs CRC32 | MODOO HUB</title>
+<meta name="description" content="What it actually means for MD5/SHA-1 to be 'broken,' with real collision cases, plus the difference in purpose between hash functions, HMAC, and CRC32.">
+<link rel="canonical" href="https://modoohub.com/guides/md5-sha1-hash-vs-hmac-vs-crc32-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/md5-sha1-hash-vs-hmac-vs-crc32.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/md5-sha1-hash-vs-hmac-vs-crc32-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/md5-sha1-hash-vs-hmac-vs-crc32.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Why MD5/SHA-1 Are Still Used but Not for Security — Hash vs HMAC vs CRC32","description":"What it actually means for MD5/SHA-1 to be 'broken,' with real collision cases, plus the difference in purpose between hash functions, HMAC, and CRC32.","datePublished":"2026-08-28","dateModified":"2026-08-28","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--purple);}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;}
+details summary{cursor:pointer;font-weight:600;color:var(--text-muted);}
+details p{margin-top:8px;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Why MD5/SHA-1 Are Still Used but Not for Security — Hash vs HMAC vs CRC32</h1>
+  <p class="meta">Guide · Last verified Aug 28, 2026</p>
+
+  <p>It's confusing to hear "MD5 is broken" and then still see MD5 checksums posted on download pages. If it's broken, why is it still used? The answer hinges on what "broken" actually means here — MD5 and SHA-1 have been defeated against exactly one specific kind of attack, and for uses where that attack doesn't matter, they're still used without issue.</p>
+
+  <h2>1. What a "collision attack" actually breaks</h2>
+  <p>One of the core security requirements of a hash function is <strong>collision resistance</strong> — it should be practically impossible to find two different inputs that produce the same hash value. Research by Wang Xiaoyun and others in 2004–2005 proved MD5's collision resistance broken at a practical level, and in 2008 that break was put to real use: researchers published a rogue certificate authority (CA) certificate built by exploiting an MD5 collision, which sent shockwaves through the field. SHA-1 held out longer, but the situation changed in 2017 when Google and CWI Amsterdam disclosed the <strong>"SHAttered"</strong> attack — the first publicly demonstrated SHA-1 collision in the world, producing two different PDF files with identical SHA-1 hash values. Following that disclosure, major browsers and certificate authorities stopped issuing SHA-1-based certificates, and systems like Git, which still use SHA-1 for commit identification, have progressively added collision-detection logic or moved toward transitioning to SHA-256.</p>
+
+  <h2>2. So why is it still used: where "broken" doesn't apply</h2>
+  <p>A collision attack is only a threat <strong>when an attacker is deliberately trying to craft two inputs that share the same hash</strong>. For uses that are fine as long as "nobody is maliciously tampering with it" — download checksums, accidental-corruption detection, cache key generation, duplicate file detection — MD5 and SHA-1 are still practically safe enough today. In other words, "broken" doesn't mean "unusable for everything," it means "unusable for security purposes under adversarial conditions." Conversely, anywhere an attacker has an incentive to deliberately manipulate a value — password storage, digital signatures, TLS certificates — SHA-256 or stronger is mandatory.</p>
+
+  <h2>3. A hash and an HMAC are different things</h2>
+  <p>A plain hash function (MD5, SHA-1, SHA-256, etc.) has no secret key. Anyone can compute the same value from the same input, so no matter how perfect its collision resistance is, it can't by itself prove <strong>authentication</strong> — that "this message really did come from this specific sender." <strong>HMAC (Hash-based Message Authentication Code)</strong> combines a hash function with a secret key, so only someone who knows that key can produce a correct value. Simply concatenating "secret key + message" and hashing it is vulnerable to a <strong>length extension attack</strong>, so HMAC uses a nested double-hashing structure with the ipad and opad constants specifically to close off that weakness. In short: a hash guarantees integrity; HMAC guarantees integrity plus authentication.</p>
+
+  <h2>4. CRC32 was never a cryptographic hash to begin with</h2>
+  <p>CRC32 (cyclic redundancy check) is widely used in Ethernet frames, ZIP files, and PNG chunks, but it was never designed with cryptographic security as a goal. Its sole purpose is <strong>detecting accidental transmission or storage errors</strong>, and because of its short 32-bit output and its linear mathematical structure, deliberately crafting data with a chosen CRC32 value is practically easy. Using CRC32 anywhere even minimal security is required is a use case outside its original design entirely.</p>
+
+  <div class="box">
+    <strong>Summary table</strong>
+    <table>
+      <tr><th>Type</th><th>Security collision resistance</th><th>Appropriate use</th></tr>
+      <tr><td>MD5 / SHA-1</td><td>Broken (deliberate collisions possible)</td><td>Accidental-corruption detection, cache keys, non-security checksums</td></tr>
+      <tr><td>SHA-256 / SHA-512</td><td>Currently secure</td><td>Digital signatures, certificates, security-critical integrity checks</td></tr>
+      <tr><td>HMAC (-SHA256, etc.)</td><td>Hash + secret-key authentication</td><td>API signing, webhook verification, message authentication</td></tr>
+      <tr><td>CRC32</td><td>Not cryptographically designed</td><td>Accidental error detection in network/file formats only</td></tr>
+    </table>
+  </div>
+
+  <h2>Frequently Asked Questions</h2>
+  <details><summary>Q. Is it okay to store passwords with MD5?</summary><p>A. No. Password storage has requirements more important than collision resistance — resistance to rainbow tables and brute-force attacks — that make MD5 and SHA-1, and even unsalted SHA-256, all inadequate. You need a purpose-built, deliberately slow algorithm like bcrypt, scrypt, or Argon2.</p></details>
+  <details><summary>Q. Is MD5 fine to use as a download-file checksum?</summary><p>A. If the distributor provides the checksum over a trusted channel (their official site over HTTPS, for example) and the purpose is "confirm no accidental corruption in transit," MD5 is practically fine. But if you need a cryptographic guarantee that "this file has not been tampered with," you need SHA-256 plus a digital signature.</p></details>
+  <details><summary>Q. Why does Git still use SHA-1?</summary><p>A. Git still uses SHA-1 for commit hashes, but since SHAttered it has added collision-detection logic to defend against the attack, and work toward migrating to SHA-256 repositories is ongoing long-term. The odds of an everyday user's routine commit work leading to an actual attack are very low.</p></details>
+  <details><summary>Q. Can HMAC use any hash algorithm?</summary><p>A. In theory yes — HMAC-MD5 and HMAC-SHA1 exist — but in practice, HMAC-SHA256 or stronger is recommended. The HMAC construction itself blocks length extension attacks, but it doesn't fully cancel out other weaknesses (like collisions) in the underlying hash function.</p></details>
+
+  <div class="tool-links">
+    <a href="../hash-generator.html?lang=en">→ Hash Generator</a>
+    <a href="../hash-checker.html?lang=en">→ Hash Checker</a>
+    <a href="../hmac-generator.html?lang=en">→ HMAC Generator</a>
+    <a href="../sha256-generator.html?lang=en">→ SHA256 Generator</a>
+    <a href="../md5-generator.html?lang=en">→ MD5 Generator</a>
+    <a href="hmac-length-extension-attack-en.html">→ Guide: How HMAC Defends Against Length Extension Attacks</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes.</footer>
+</main>
+</body>
+</html>

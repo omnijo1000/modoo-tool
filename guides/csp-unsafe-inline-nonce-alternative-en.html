@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why 'unsafe-inline' Defeats CSP — and the Nonce/Hash Alternative | MODOO HUB</title>
+<meta name="description" content="Adding 'unsafe-inline' to script-src effectively disables CSP's core defense. A breakdown of how nonce- and hash-based allowlisting solve this, and why frame-ancestors doesn't work in a meta tag.">
+<link rel="canonical" href="https://modoohub.com/guides/csp-unsafe-inline-nonce-alternative-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/csp-unsafe-inline-nonce-alternative.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/csp-unsafe-inline-nonce-alternative-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/csp-unsafe-inline-nonce-alternative.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Why 'unsafe-inline' Defeats CSP — and the Nonce/Hash Alternative","description":"Adding 'unsafe-inline' to script-src effectively disables CSP's core defense. How nonce- and hash-based allowlisting work, and why frame-ancestors doesn't work in a meta tag.","datePublished":"2026-08-28","dateModified":"2026-08-28","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Does adding 'unsafe-inline' make CSP completely pointless?","acceptedAnswer":{"@type":"Answer","text":"Not entirely. Other directives like img-src and connect-src still restrict resource origins. But 'unsafe-inline' on script-src defeats CSP's core purpose of blocking XSS, so from a security standpoint that specific defense is effectively off."}},
+{"@type":"Question","name":"Which is safer, nonce or hash?","acceptedAnswer":{"@type":"Answer","text":"Roughly equivalent security, but different use cases. Nonce is easier to manage when the server can generate a fresh value per request. Hash works without any server logic for fixed, static inline scripts."}},
+{"@type":"Question","name":"Does setting frame-ancestors in a meta-tag CSP throw an error?","acceptedAnswer":{"@type":"Answer","text":"No error is shown — the browser just silently ignores that directive. This is a classic trap where you think it's configured but it isn't. If you need clickjacking protection, deliver CSP via an HTTP response header instead."}},
+{"@type":"Question","name":"Can I use external scripts like Google Analytics without 'unsafe-inline'?","acceptedAnswer":{"@type":"Answer","text":"Yes. Whitelist the external domain (e.g. googletagmanager.com) in script-src, and allow only your page's inline initialization code separately via nonce or hash — no 'unsafe-inline' required."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Why 'unsafe-inline' Defeats CSP — and the Nonce/Hash Alternative</h1>
+  <p class="meta">Guide · Last verified Aug 28, 2026</p>
+
+  <p>One of the most common mistakes when first rolling out a Content-Security-Policy (CSP) header is habitually tacking 'unsafe-inline' onto something like <code>script-src 'self' 'unsafe-inline'</code>. It's tempting to move on once the page works with no console errors, but this single keyword erases the very reason CSP exists in the first place. This guide walks through why, how the <a href="../csp-generator.html?lang=en">CSP Generator</a> actually handles this issue, and the spec-level limits of the meta-tag approach.</p>
+
+  <h2>1. What CSP is actually defending against</h2>
+  <p>CSP's core purpose is defending against XSS (cross-site scripting). Say an attacker injects code like <code>&lt;script&gt;alert(document.cookie)&lt;/script&gt;</code> through a comment field or URL parameter — without CSP, that script runs as-is and could leak session cookies. CSP is a header that whitelists the origins a browser is allowed to execute scripts from. Any script from an origin not listed in script-src is simply refused execution by the browser.</p>
+
+  <h2>2. Why 'unsafe-inline' switches this defense off entirely</h2>
+  <p>The catch is that CSP, by default, <strong>blocks all inline scripts</strong> — &lt;script&gt; tags written directly in the HTML, event attributes like onclick — regardless of origin. Adding the 'unsafe-inline' keyword to script-src lifts that inline-blocking rule entirely. The problem is that most attacker-injected scripts are inline too, precisely because it's easier: no need to host a new file anywhere, just inject text. So the moment you add 'unsafe-inline', you disable the very inline-blocking mechanism that was CSP's reason for existing — "restrict origins to a whitelist" — and the browser can no longer distinguish a legitimately loaded script from an attacker-injected one. No matter how tightly you configure other directives (img-src, font-src, etc.), leaving 'unsafe-inline' in script-src makes CSP functionally equivalent to not having XSS protection at all.</p>
+
+  <h2>3. The nonce approach: "a password valid for this request only"</h2>
+  <p>Banning inline scripts outright is often impractical in real applications (e.g. server-rendered pages that need to embed dynamic values immediately). That's where <strong>nonce (number used once)</strong> comes in. The server generates a random string on every request and places it in two spots simultaneously: the <code>nonce="random-value"</code> attribute on the script tag, and <code>'nonce-random-value'</code> in the CSP header. The browser only allows execution of an inline script whose nonce attribute exactly matches. Even if an attacker injects a script into the page, they have no way to know the nonce issued for that specific request — it changes every time and is unpredictable unless the HTML response itself is intercepted — so the injected script is blocked due to a nonce mismatch.</p>
+
+  <h2>4. The hash approach: "the content itself is the pass"</h2>
+  <p>For static sites where the server can't inject a fresh random value per request, the hash approach works instead. You compute a hash (e.g. SHA-256) of the exact content of the inline script you want to allow, and register it in CSP as <code>'sha256-hash-value'</code>. The browser computes the hash of any inline script it's about to run and compares it against the registered value. Change even a single character and the hash changes, so injected code can never match. The tradeoff is that any time the script's content changes, you must recompute the hash and update the CSP — making this best suited to static inline code that rarely changes.</p>
+  <div class="box">
+    <strong>Comparison example</strong>: here's what happens to the same inline script under three different CSP configurations.
+    <table style="margin-top:10px;">
+      <tr><th>CSP script-src setting</th><th>Legitimate inline script</th><th>Attacker-injected script</th></tr>
+      <tr><td>'unsafe-inline'</td><td>Executes</td><td style="color:var(--red);">Executes (not blocked)</td></tr>
+      <tr><td>'nonce-a1b2c3...'</td><td>Executes if nonce matches</td><td style="color:var(--green);">Blocked — no nonce</td></tr>
+      <tr><td>'sha256-Xy8f...'</td><td>Executes if hash matches</td><td style="color:var(--green);">Blocked — hash mismatch</td></tr>
+    </table>
+  </div>
+
+  <h2>5. Spec-level limits when using CSP via a meta tag</h2>
+  <p>Many people try to apply CSP purely with <code>&lt;meta http-equiv="Content-Security-Policy" content="..."&gt;</code>, without touching server config — but there are hard spec limits here. <strong>frame-ancestors, report-uri, report-to, and sandbox simply don't work in a meta tag</strong> — they're only honored when delivered as an HTTP response header. frame-ancestors in particular is used for clickjacking protection, which means you can never turn that defense on via a meta tag, period. If you check the <a href="../csp-generator.html?lang=en">CSP Generator</a>'s code, you'll find these four directives explicitly listed in a <code>META_UNSUPPORTED</code> array, and the tool automatically excludes them when generating output meant for an HTML meta tag. In other words, the tool already accounts for this constraint at the code level, so users don't get confused wondering why frame-ancestors "isn't working" after adding it to the meta tag output. In production, delivering CSP as an HTTP header directly from the server (Nginx/Apache config or application code) is recommended over the meta-tag approach.</p>
+
+  <h2>6. Configuration isn't done until it's validated</h2>
+  <p>CSP has syntax quirks where the browser silently ignores a malformed part rather than raising an error, so it's easy to miss a broken directive just by eyeballing it. After generating your header value with the <a href="../csp-generator.html?lang=en">CSP Generator</a>, it's safer to run it back through the <a href="../csp-validator.html?lang=en">CSP Validator</a> to confirm the syntax is valid and no risky leftovers remain (like a stray '*' or 'unsafe-inline' in script-src).</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details class="faq-item"><summary>Q. Does adding 'unsafe-inline' make CSP completely pointless?</summary><p>A. Not entirely. Other directives like img-src and connect-src still restrict resource origins. But 'unsafe-inline' on script-src defeats CSP's core purpose of blocking XSS, so from a security standpoint that specific defense is effectively off.</p></details>
+  <details class="faq-item"><summary>Q. Which is safer, nonce or hash?</summary><p>A. Roughly equivalent security, but different use cases. Nonce is easier to manage when the server can generate a fresh value per request. Hash works without any server logic for fixed, static inline scripts.</p></details>
+  <details class="faq-item"><summary>Q. Does setting frame-ancestors in a meta-tag CSP throw an error?</summary><p>A. No error is shown — the browser just silently ignores that directive. This is a classic trap where you think it's configured but it isn't. If you need clickjacking protection, deliver CSP via an HTTP response header instead.</p></details>
+  <details class="faq-item"><summary>Q. Can I use external scripts like Google Analytics without 'unsafe-inline'?</summary><p>A. Yes. Whitelist the external domain (e.g. googletagmanager.com) in script-src, and allow only your page's inline initialization code separately via nonce or hash — no 'unsafe-inline' required.</p></details>
+
+  <div class="tool-links">
+    <a href="../csp-generator.html?lang=en">→ CSP Generator</a>
+    <a href="../csp-validator.html?lang=en">→ CSP Validator</a>
+    <a href="../cors-header-checker.html?lang=en">→ CORS Header Checker</a>
+    <a href="../http-header-checker.html?lang=en">→ HTTP Header Checker</a>
+    <a href="../nginx-config-generator.html?lang=en">→ Nginx Config Generator</a>
+    <a href="../ssl-checker.html?lang=en">→ SSL Certificate Checker</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general information only. Please have your specific security policy reviewed by a professional against your actual production environment.</footer>
+</main>
+</body>
+</html>

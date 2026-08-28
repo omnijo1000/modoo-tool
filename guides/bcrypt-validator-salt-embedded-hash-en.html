@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How Does bcrypt Verify a Password Without a Separate Salt Column? — Inside compare() | MODOO HUB</title>
+<meta name="description" content="A bcrypt hash string already encodes the version, cost, and salt, so there's no need for a separate salt column in your database. We break down the exact character structure and how compare() verifies it, at the code level.">
+<link rel="canonical" href="https://modoohub.com/guides/bcrypt-validator-salt-embedded-hash-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/bcrypt-validator-salt-embedded-hash.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/bcrypt-validator-salt-embedded-hash-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/bcrypt-validator-salt-embedded-hash.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"How Does bcrypt Verify a Password Without a Separate Salt Column? — Inside compare()","description":"A bcrypt hash string already encodes the version, cost, and salt, so there's no need for a separate salt column in your database. We break down the exact character structure and how compare() verifies it, at the code level.","datePublished":"2026-08-28","dateModified":"2026-08-28","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>How Does bcrypt Verify a Password Without a Separate Salt Column? — Inside compare()</h1>
+  <p class="meta">Guide · Last verified Aug 28, 2026</p>
+
+  <p>When you first learn about password hashing, you're taught that "a salt should be randomly generated and stored separately from the password, to defend against rainbow table attacks." But if you look at actual code that uses bcrypt, there's no separate salt column at all. The database has only a single <code>password_hash</code> column, yet verification at login still works correctly. The trick becomes obvious the moment you dissect the structure of a bcrypt hash string itself.</p>
+
+  <h2>1. The exact structure of a bcrypt hash string</h2>
+  <p>What <code>bcrypt.hash()</code> produces looks like a single string, but it's actually four segments concatenated together.</p>
+  <table>
+    <tr><th>Segment</th><th>Length</th><th>Example</th><th>Meaning</th></tr>
+    <tr><td>Version prefix</td><td>variable (usually 4 chars)</td><td><code>$2b$</code></td><td>Algorithm version (2, 2a, 2b, 2x, 2y)</td></tr>
+    <tr><td>Cost factor</td><td>2 chars + surrounding <code>$</code></td><td><code>10$</code></td><td>Number of 2^cost iterations (e.g. 10 → 2^10 rounds)</td></tr>
+    <tr><td>Salt</td><td>22 chars</td><td><code>N9qo8uLOickgx2ZMRZoMye</code></td><td>Random value, base64-like encoding</td></tr>
+    <tr><td>Hash result</td><td>31 chars</td><td><code>IjZAgcfl7p92ldGxad68LJZdL17lhWy</code></td><td>Actual output of the hashing operation</td></tr>
+  </table>
+  <p>Concatenate these four pieces and you get a 60-character string like <code>$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy</code>. The key point is that <strong>the salt is already sitting inside this string in plain form (unencrypted)</strong>. There's no need to hide or encrypt it separately — the salt's job isn't to stay secret, it's to make sure the same password produces a different hash every single time.</p>
+
+  <h2>2. Confirming the character counts in the actual code</h2>
+  <p>The <a href="../bcrypt-validator.html?lang=en">Bcrypt Validator</a>'s verification logic relies on exactly this structure. The code that slices the salt out of the hash string is <code>hash.slice(7, 29)</code>. Indices 0 through 6 (<code>$2b$10$</code>, 7 characters) are the version+cost prefix, and indices 7 through 28 (22 characters) are the salt. Everything from index 29 to the end (31 characters) is the hash result — and the prefix's 7 characters plus the salt's 22 characters together form the <strong>first 29 characters</strong>, which is the chunk that carries "version + cost + salt" as a whole.</p>
+  <div class="box">
+    <strong>Where the number 29 comes from</strong>: 7 (version+cost prefix) + 22 (salt) = 29. bcrypt documentation and FAQs often say something like "the first 29 characters of the hash are reused as the salt" — more precisely, that's the combined length of the 7-character prefix and the 22-character salt. The remaining 31 characters (60 − 29) are the actual hash result.
+  </div>
+
+  <h2>3. What compare() actually does</h2>
+  <p>This is where the answer to "how can verification work without a salt column" becomes clear. Here's what <code>bcrypt.compare(inputPassword, storedHash)</code> does internally.</p>
+  <ol>
+    <li>It reads the first 29 characters (version+cost+salt) straight from the stored hash string.</li>
+    <li>It <strong>reuses those 29 characters as-is</strong> to re-hash the submitted plaintext password with the same cost and the same salt.</li>
+    <li>It compares the newly computed hash result (corresponding to the trailing 31 characters) against the trailing 31 characters of the stored hash, as strings.</li>
+    <li>If they match exactly, it's a match; if even a single character differs, it's a mismatch.</li>
+  </ol>
+  <p>In other words, this isn't "comparing plaintext passwords" — it's "comparing two hash results that were computed under identical conditions." There's no need to fetch the salt from a separate store, because the salt required for verification is already embedded in the very hash string being compared.</p>
+
+  <h2>4. The $2y$ prefix and a pitfall you'll frequently run into in practice</h2>
+  <p>The version prefix slot can hold one of five values: <code>$2</code>, <code>$2a$</code>, <code>$2b$</code>, <code>$2x$</code>, and <code>$2y$</code>. Of these, <code>$2y$</code> is what PHP's <code>password_hash()</code> function generates by default, so it comes up often when you try to verify a hash pulled from a PHP-based service like Laravel or WordPress using a different language's stack. The <a href="../bcrypt-validator.html?lang=en">Bcrypt Validator</a>'s regex (<code>/^\$2[abxy]?\$\d{2}\$/</code>) is written to accept all five prefixes as valid, so pasting in a <code>$2y$</code> hash from PHP verifies just fine without a format error.</p>
+  <p>Once you understand the structure, debugging "why did verification fail" gets a lot faster too. If even a single character out of the 60 gets dropped or reordered during a copy-paste, the salt reconstruction itself goes wrong and you get an unconditional mismatch — so the first thing to check on a failure isn't the password, it's <strong>whether the hash string is exactly 60 characters long</strong>.</p>
+
+  <h2>5. How the cost factor relates to computational cost</h2>
+  <p>The number in the cost slot (e.g. <code>10</code>) is an internal instruction to repeat the Blowfish-based key schedule 2^cost times. Every time cost goes up by 1, the amount of computation exactly doubles — so verification that took about 100ms at cost 10 grows to roughly 4x (about 400ms) at cost 12. Because this value is also stored inside the hash string itself, even if you raise the cost setting in your database later, existing hashes that were already stored continue to verify correctly against the exact cost they were created with — which is why you can gradually roll out a higher cost for new signups without needing a full migration.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Isn't it a security problem that the salt isn't stored separately in the database?</summary><p style="margin-top:8px;">No, it isn't. The salt's purpose is not to stay secret — it's to prevent the same password from always producing the same hash, which is what defeats rainbow table attacks. Even though the salt is exposed in plain view inside the hash string, the salt itself is random, so an attacker can't build a precomputed table that's reusable across multiple accounts.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. If I hash the same password twice, will the result be different each time?</summary><p style="margin-top:8px;">Yes. A fresh random salt is generated every time, so the output of hash() is different every time. That means you can't tell whether two hash strings came from "the same password" by comparing them directly — you must always verify using the compare() function.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. What's the exact length of a bcrypt hash string?</summary><p style="margin-top:8px;">A standard bcrypt hash is 60 characters long (7-character prefix + 22-character salt + 31-character hash result). A common cause of bugs is defining the database column as CHAR(60) or shorter without enough headroom — truncation during storage will make verification fail every single time.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. If I want to raise the cost factor later, do I have to regenerate every existing hash?</summary><p style="margin-top:8px;">Not immediately. Existing hashes keep verifying correctly against the cost they were stored with, so the usual approach is a gradual migration: regenerate and re-store a hash at the new cost only for a given user, at the moment they successfully log in.</p></details>
+
+  <div class="tool-links">
+    <a href="../bcrypt-validator.html?lang=en">→ Bcrypt Validator</a>
+    <a href="../bcrypt-generator.html?lang=en">→ Bcrypt Generator</a>
+    <a href="../hmac-generator.html?lang=en">→ HMAC Generator</a>
+    <a href="../sha256-generator.html?lang=en">→ SHA-256 Generator</a>
+    <a href="../hash-checker.html?lang=en">→ Hash Checker</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes. For real authentication systems, please also consult the official bcrypt library documentation for the language and framework you're using.</footer>
+</main>
+</body>
+</html>

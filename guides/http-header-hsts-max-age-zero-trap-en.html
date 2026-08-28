@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The HSTS max-age=0 Trap — When a Security Header Is Present But Not Really | MODOO HUB</title>
+<meta name="description" content="A breakdown of the RFC 6797 trap where a Strict-Transport-Security header can exist in the response yet be functionally disabled if max-age=0. Why checking for header presence alone isn't enough, with real examples.">
+<link rel="canonical" href="https://modoohub.com/guides/http-header-hsts-max-age-zero-trap-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/http-header-hsts-max-age-zero-trap.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/http-header-hsts-max-age-zero-trap-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/http-header-hsts-max-age-zero-trap.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"The HSTS max-age=0 Trap — When a Security Header Is Present But Not Really","description":"A breakdown of the RFC 6797 trap where a Strict-Transport-Security header can exist in the response yet be functionally disabled if max-age=0.","datePublished":"2026-08-28","dateModified":"2026-08-28","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>The HSTS max-age=0 Trap — When a Security Header Exists But Provides No Protection</h1>
+  <p class="meta">Guide · Last verified Aug 28, 2026</p>
+
+  <p>The most common mistake when auditing security headers is stopping at "does the header exist?" For most headers, presence alone is enough. <code>Strict-Transport-Security</code> (HSTS) is the exception — its value can flip its meaning entirely, making it a textbook case where "it's there, so it's safe" turns out to be wrong. This guide covers why that happens and what an automated check needs to look at to catch it.</p>
+
+  <h2>1. What the HSTS header actually does</h2>
+  <p>HSTS is a response header like <code>Strict-Transport-Security: max-age=31536000; includeSubDomains</code> that tells the browser: "for the next max-age seconds, only ever connect to this domain over HTTPS." If a user accidentally types http://, the browser rewrites it to https:// on its own before the request ever leaves the machine, which shuts down man-in-the-middle downgrade attacks at the source. The max-age value is in seconds, and one year equals 31536000 seconds.</p>
+
+  <h2>2. What max-age=0 actually means</h2>
+  <p>This is where the trap begins. The HSTS spec, <strong>RFC 6797</strong>, defines <code>max-age=0</code> not as "a short validity period" but as an <strong>explicit signal to immediately disable the HSTS policy</strong>. If a server sends <code>Strict-Transport-Security: max-age=0</code>, the browser stops treating that domain as HTTPS-only from that moment on. The header itself is clearly present in the response, but its actual protective effect is zero. In practice, this value isn't a typo — it's officially defined for cases where you deliberately want to turn HSTS off (for example, when one subdomain hasn't gotten its HTTPS certificate ready yet).</p>
+
+  <h2>3. Why "the header is there" is a dangerous assumption</h2>
+  <p>If a security scanning script or checklist only greps for the <em>presence</em> of the header, a response with max-age=0 gets misread as "HSTS applied: pass." In reality, that site has zero HTTPS-enforcement protection. This kind of false positive turns into a real incident in situations like these:</p>
+  <ul>
+    <li><strong>Leftover config from a certificate incident</strong>: HSTS gets temporarily lowered to max-age=0 to allow an HTTP fallback while dealing with an expired or failed certificate renewal, and nobody remembers to revert it once the issue is fixed.</li>
+    <li><strong>Mid-migration on a subdomain</strong>: a parent domain using includeSubDomains gets dropped to max-age=0 because one subdomain isn't HTTPS-ready yet, and the change is left in place indefinitely.</li>
+    <li><strong>False negatives in automated scanners</strong>: any scanner that judges purely on "header present = pass" will keep missing this state entirely.</li>
+  </ul>
+
+  <h2>4. How to actually check the value</h2>
+  <p>The <a href="../http-header-checker.html?lang=en">HTTP Header Checker</a> avoids this problem by parsing HSTS down to its max-age value instead of just checking presence. It extracts the number after <code>max-age=</code> with a regex, and only marks it "Present" if that number is greater than 0 — if max-age=0 or the max-age directive is missing entirely, it's classified as "Missing" regardless of whether the header line technically exists. Other security headers (CSP, X-Frame-Options, etc.) pass purely on presence regardless of their value's specifics; HSTS is the one exception that gets this special-cased logic.</p>
+  <div class="box">
+    <strong>Example</strong>: the same "header present" state can be judged completely differently depending on the value.
+  </div>
+  <table>
+    <tr><th>Actual response header</th><th>Header present?</th><th>Real protection</th><th>Correct verdict</th></tr>
+    <tr><td>Strict-Transport-Security: max-age=31536000</td><td>Yes</td><td>HTTPS enforced for 1 year</td><td>Applied</td></tr>
+    <tr><td>Strict-Transport-Security: max-age=0</td><td>Yes</td><td>None (disabled immediately)</td><td>Same as missing</td></tr>
+    <tr><td>(no header at all)</td><td>No</td><td>None</td><td>Missing</td></tr>
+  </table>
+
+  <h2>5. Audit checklist</h2>
+  <ol>
+    <li>Check the Strict-Transport-Security value directly with <code>curl -I</code> or your browser's DevTools, and make sure to actually read the number after max-age.</li>
+    <li>For production, max-age should be at least 6 months (15768000), ideally 1 year (31536000).</li>
+    <li>Once whatever forced you to temporarily lower HSTS is resolved, add a step to your deployment checklist that restores the original max-age value.</li>
+    <li>If the header is hardcoded in an Apache/Nginx config, regenerate the standard value (1 year) with the <a href="../apache-config-generator.html?lang=en">Apache Config Generator</a> or <a href="../nginx-config-generator.html?lang=en">Nginx Config Generator</a> and diff it against what's live.</li>
+    <li>Cross-check other security headers you might also be missing, such as CSP, with the <a href="../csp-generator.html?lang=en">CSP Generator</a>.</li>
+  </ol>
+
+  <h2>Frequently Asked Questions</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Is there ever a legitimate reason to use max-age=0 on purpose?</summary><p style="margin-top:8px;">Yes. It's the officially defined way in RFC 6797 to unwind an HTTPS migration or temporarily allow HTTP access while a subdomain's certificate issue gets sorted out. It should only ever be a temporary measure, though — once the underlying cause is fixed, the original value should be restored immediately.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. What about when the header exists but has no max-age value at all?</summary><p style="margin-top:8px;">A Strict-Transport-Security header without a max-age directive is invalid per spec, and browsers ignore it. That case is functionally identical to HSTS not being applied at all.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Do other security headers need value-level checking too?</summary><p style="margin-top:8px;">For most headers like X-Frame-Options or X-Content-Type-Options, presence itself is essentially equivalent to protection. HSTS is unusual in that a single number, max-age, can flip it fully "on" or "off," which is why it specifically needs a separate value check.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. What should I watch out for when enabling HSTS for the first time?</summary><p style="margin-top:8px;">If you turn on includeSubDomains, every subdomain needs to be HTTPS-ready. Any subdomain that isn't can become completely unreachable. It's safer to start with a short max-age for testing and gradually increase it.</p></details>
+
+  <div class="tool-links">
+    <a href="../http-header-checker.html?lang=en">→ HTTP Header Checker</a>
+    <a href="../ssl-checker.html?lang=en">→ SSL Checker</a>
+    <a href="../csp-generator.html?lang=en">→ CSP Generator</a>
+    <a href="../apache-config-generator.html?lang=en">→ Apache Config Generator</a>
+    <a href="../nginx-config-generator.html?lang=en">→ Nginx Config Generator</a>
+    <a href="../cors-header-checker.html?lang=en">→ CORS Header Checker</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes. Always verify any security configuration change in a staging environment before applying it to production.</footer>
+</main>
+</body>
+</html>

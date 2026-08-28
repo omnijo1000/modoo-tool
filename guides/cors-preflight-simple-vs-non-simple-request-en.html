@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Requests That Trigger a Preflight vs. Ones That Don't — the Real Cause of CORS Errors | MODOO HUB</title>
+<meta name="description" content="Not every cross-origin request triggers an OPTIONS preflight. We walk through the conditions that separate simple requests from non-simple ones, and confirm in code why a JSON POST always triggers a preflight.">
+<link rel="canonical" href="https://modoohub.com/guides/cors-preflight-simple-vs-non-simple-request-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/cors-preflight-simple-vs-non-simple-request.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/cors-preflight-simple-vs-non-simple-request-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/cors-preflight-simple-vs-non-simple-request.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Requests That Trigger a Preflight vs. Ones That Don't — the Real Cause of CORS Errors","description":"Not every cross-origin request triggers an OPTIONS preflight. This guide lays out the conditions that separate simple requests from non-simple ones.","datePublished":"2026-08-28","dateModified":"2026-08-28","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Requests That Trigger a Preflight vs. Ones That Don't — the Real Cause of CORS Errors</h1>
+  <p class="meta">Guide · Last verified Aug 28, 2026</p>
+
+  <p>A surprising number of "I got a CORS error even though the server headers were clearly set correctly" situations start with a misunderstanding of why — or why not — a preflight request fires in the first place. An OPTIONS preflight is not automatically attached to every cross-origin request. The browser sends requests that satisfy a specific set of conditions known as a "simple request" straight through, with no preflight at all — and the moment a request steps outside those conditions, a preflight is sent first, no exceptions. If you don't know where that line sits, you can tweak your headers all day and never find the actual cause.</p>
+
+  <h2>1. The three conditions for a simple request</h2>
+  <p>For the browser to treat a request as a "simple request" — one where the preflight gets skipped — it has to satisfy all three of the following conditions at once. First, the method must be one of GET, HEAD, or POST. Second, any header a developer adds on top of what the browser attaches automatically must fall within a restricted list — Accept, Accept-Language, Content-Language, Content-Type, and a few others (adding an Authorization header immediately breaks this condition). Third, the Content-Type must be one of <code>application/x-www-form-urlencoded</code>, <code>multipart/form-data</code>, or <code>text/plain</code>. Only when all three conditions hold does the request go out directly, without a preflight.</p>
+
+  <h2>2. Why sending JSON always triggers a preflight</h2>
+  <p>The most common API call pattern in web development — <code>fetch(url, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data)})</code> — passes condition 1 because the method is POST, but breaks condition 3 because the Content-Type is <code>application/json</code>. As a result it's unconditionally classified as a non-simple request, and the browser fires an OPTIONS preflight before it ever sends the actual POST. If the server doesn't respond to that OPTIONS request with the correct <code>Access-Control-Allow-Methods</code> and <code>Access-Control-Allow-Headers</code> values, the browser blocks the actual POST request before it even reaches the server. That's exactly where the familiar symptom "there's no POST request in the server logs, but the console shows a CORS error" comes from.</p>
+
+  <div class="box">
+    <strong>Example</strong>: <code>fetch('/api/users', {method:'GET'})</code> → a simple request, sent directly with no preflight. <code>fetch('/api/users', {method:'POST', headers:{'Content-Type':'application/json'}, body:'{}'})</code> → a non-simple request; an OPTIONS preflight is sent first, and the actual POST only goes out once the Allow-Methods/Allow-Headers response passes.
+  </div>
+
+  <table>
+    <tr><th>Request characteristics</th><th>Preflight?</th><th>Notes</th></tr>
+    <tr><td>GET (default headers only)</td><td>No</td><td>The most common simple request</td></tr>
+    <tr><td>POST, Content-Type: application/x-www-form-urlencoded</td><td>No</td><td>The traditional form-submission method</td></tr>
+    <tr><td>POST, Content-Type: application/json</td><td>Yes</td><td>Most REST API calls</td></tr>
+    <tr><td>PUT / DELETE / PATCH</td><td>Yes</td><td>The method itself violates condition 1</td></tr>
+    <tr><td>Custom headers included (e.g. Authorization)</td><td>Yes</td><td>Violates condition 2 regardless of method</td></tr>
+  </table>
+
+  <h2>3. How MODOO HUB's CORS Header Checker decides this distinction</h2>
+  <p>If you open up the actual code, the <a href="../cors-header-checker.html?lang=en">CORS Header Checker</a>'s <code>analyzeCors()</code> function decides it with <code>const needsPreflight = ['PUT', 'DELETE', 'PATCH'].includes(method);</code>. In other words, choosing PUT, DELETE, or PATCH in the method dropdown makes the tool treat a preflight as required and check the <code>Access-Control-Allow-Methods</code> value; choosing GET, POST, or OPTIONS makes it treat the request as simple, and it judges success purely by <code>Access-Control-Allow-Origin</code> (and whether there's a credentials conflict), regardless of the Allow-Methods value. The code comments even state the principle explicitly: "for a simple request, Allow-Methods has zero effect on the browser's final verdict." That said, this tool uses a simplified model that splits simple/non-simple purely by method — unlike the real spec, it has no separate Content-Type input field, so it doesn't automatically account for the "POST + application/json" case that requires a preflight in real browsers. To simulate that case, you'd need the workaround of switching the method to something like PUT to force the preflight condition.</p>
+
+  <h2>4. What actually gets checked in the preflight response</h2>
+  <p>The browser checks a preflight (OPTIONS) response and the actual request's response against different criteria. During the preflight step, it checks Access-Control-Allow-Methods (does it include the requested method), Access-Control-Allow-Headers (are all the custom headers on the request allowed), and Access-Control-Allow-Origin. Only once all three of these pass does the browser send out the actual request. A simple request, by contrast, never has a preflight step in the first place, so the browser only checks the actual response's Access-Control-Allow-Origin (and Allow-Credentials, if credentials were requested). If you want to paste in raw header values and diagnose exactly which item passes or fails under which criteria, it helps to pair this with the <a href="../http-header-checker.html?lang=en">HTTP Header Checker</a>.</p>
+
+  <h2>5. A frequently missed trap: Allow-Origin: * and Credentials</h2>
+  <p>Separately from preflight behavior, there's one more mistake that trips people up often. <code>Access-Control-Allow-Origin: *</code> and <code>Access-Control-Allow-Credentials: true</code> can never be used together. For a request that includes credentials such as cookies or an Authorization header (<code>credentials: 'include'</code>), the server must specify an explicit origin — a wildcard is unconditionally rejected by the browser. This rule applies regardless of whether the request is simple or non-simple, so if you've resolved every preflight issue and requests are still being blocked, this combination is the first thing to suspect. If you want to hit the API server directly with curl to check its headers, the <a href="../curl-generator.html?lang=en">curl Command Generator</a> is handy for that.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does a GET request ever trigger a preflight?</summary><p style="margin-top:8px;">By default, no. But if you add a custom header outside the simple-request allowlist — an Authorization header, for instance — even a GET will trigger a preflight. You need to check the header configuration, not just the method.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. If it's a POST and I don't set a Content-Type at all, does the preflight get skipped?</summary><p style="margin-top:8px;">If you don't specify a Content-Type at all, it defaults to <code>text/plain</code>, which can satisfy the simple-request condition. Conversely, explicitly specifying <code>application/json</code> takes you outside that condition and triggers a preflight.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does a preflight get sent again on every single request?</summary><p style="margin-top:8px;">No. If the server specifies a cache duration via the <code>Access-Control-Max-Age</code> header, the browser caches and reuses the preflight result for the same combination of origin, method, and headers for that duration.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does MODOO HUB's CORS Header Checker also factor in Content-Type?</summary><p style="margin-top:8px;">No. Based on the actual code, this tool decides whether a preflight is required purely from the request method (whether it's PUT/DELETE/PATCH) and does not separately account for Content-Type. To simulate a case like POST + JSON, where Content-Type is what triggers the preflight, you'd need the workaround of testing with the method switched to something like PUT.</p></details>
+
+  <div class="tool-links">
+    <a href="../cors-header-checker.html?lang=en">→ CORS Header Checker</a>
+    <a href="../http-header-checker.html?lang=en">→ HTTP Header Checker</a>
+    <a href="../curl-generator.html?lang=en">→ curl Command Generator</a>
+    <a href="../api-tester.html?lang=en">→ API Tester</a>
+    <a href="../webhook-tester.html?lang=en">→ Webhook Tester</a>
+    <a href="../dns-lookup.html?lang=en">→ DNS Lookup</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes; actual CORS handling can vary in detail between browser implementations.</footer>
+</main>
+</body>
+</html>

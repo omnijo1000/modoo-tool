@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why an HTML Entity Decoder Should Use the Browser's Parser, Not Regex | MODOO HUB</title>
+<meta name="description" content="How to decode over 2,000 HTML entities accurately without regex. An explanation of how a textarea's RAWTEXT content model safely does this job for you.">
+<link rel="canonical" href="https://modoohub.com/guides/html-decoder-native-parser-safety-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/html-decoder-native-parser-safety.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/html-decoder-native-parser-safety-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/html-decoder-native-parser-safety.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Why an HTML Entity Decoder Should Use the Browser's Parser, Not Regex","description":"How to decode over 2,000 HTML entities accurately without regex. An explanation of how a textarea's RAWTEXT content model safely does this job for you.","datePublished":"2026-08-28","dateModified":"2026-08-28","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--purple);}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;}
+details summary{cursor:pointer;font-weight:600;color:var(--text-muted);}
+details p{margin-top:8px;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html?lang=en" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Why an HTML Entity Decoder Should Use the Browser's Parser, Not Regex</h1>
+  <p class="meta">Guide · Last verified Aug 28, 2026</p>
+
+  <p>Turning <code>&amp;amp;</code> into <code>&amp;</code> and <code>&amp;lt;</code> into <code>&lt;</code> sounds like a job for a few lines of regex <code>replace</code> calls — but the HTML5 standard defines over 2,000 named entities, things like <code>&amp;copy;</code>, <code>&amp;hearts;</code>, and <code>&amp;alpha;</code>. There's a way to decode all of these correctly without hardcoding every one of them: borrow the browser's own HTML parser and let it do the work. This guide explains how that trick works, and why it specifically uses <code>&lt;textarea&gt;</code> instead of <code>&lt;div&gt;</code>.</p>
+
+  <h2>1. Why regex alone isn't enough</h2>
+  <p>HTML entities fall into three broad categories: <strong>named entities</strong> like <code>&amp;lt;</code>, <strong>decimal numeric entities</strong> like <code>&amp;#169;</code>, and <strong>hexadecimal numeric entities</strong> like <code>&amp;#x00A9;</code>. Numeric entities are straightforward for regex — you just compute the code point directly — but named entities can only be converted correctly if you know the full list defined by the WHATWG HTML5 standard (2,231 names, more still if you count case-sensitive variants). A decoder that hand-maps only a handful of entities like <code>&amp;amp;</code>, <code>&amp;lt;</code>, <code>&amp;gt;</code>, and <code>&amp;quot;</code> will either leave the remaining thousands of entities — <code>&amp;copy;</code> (©), <code>&amp;trade;</code> (™), <code>&amp;euro;</code> (€), <code>&amp;alpha;</code> (α), and so on — untouched, or get them wrong.</p>
+
+  <h2>2. The trick: borrow the browser's own HTML parser</h2>
+  <p>The way around this problem, instead of building your own mapping table, is to hand the job to the HTML parser the browser has already implemented perfectly. Assign the string you want to decode to a DOM element's <code>innerHTML</code>, then read that element's text content back out — and you get a result with the browser's complete, standard entity table already applied. The browser already knows every named entity, numeric entity, and hexadecimal entity defined in the spec, so there's no separate mapping data to maintain.</p>
+
+  <h2>3. Why <code>&lt;textarea&gt;</code> and not <code>&lt;div&gt;</code></h2>
+  <p>There's one important choice here. Applying the same trick to a <code>&lt;div&gt;</code> would decode entities just as well. The problem is safety. The HTML5 parsing spec defines a different "content model" for each element type: <code>&lt;div&gt;</code> follows the normal content model, so if the string assigned to its <code>innerHTML</code> contains an actual tag like <code>&lt;script&gt;</code> or <code>&lt;img onerror=...&gt;</code>, the browser parses it as a real child DOM element — and if that result is later rendered back onto the page, it opens an XSS path where the script could actually execute. A <code>&lt;textarea&gt;</code>, by contrast, is classified under the HTML5 spec as having the <strong>RAWTEXT content model</strong>. A RAWTEXT element treats everything inside it as pure text until it hits its closing tag, and never parses strings like <code>&lt;script&gt;</code> inside it into separate, live DOM elements. In other words, the entities get decoded correctly, but the safeguard against a tag-like string in the result turning into an executable element is built into the structure itself.</p>
+  <div class="box">
+    <strong>How this site actually implements it</strong>: <code>html-decoder.html</code> uses exactly this approach. <code>const ta = document.createElement('textarea'); ta.innerHTML = text; const decoded = ta.value;</code> — it creates a temporary textarea, assigns the original text to its innerHTML, and reads the decoded plain text back out via <code>.value</code>. This temporary element is never attached to the DOM and never rendered on screen, so there are zero side effects.
+  </div>
+
+  <h2>4. What's often missed in practice: what happens after decoding matters more</h2>
+  <p>One thing worth stressing here: "entity decoding itself" is completely safe with the approach above. The risk comes from what you do with the decoded <em>result</em> afterward. If you display the decoded text on screen using <code>textContent</code>, it's always safe — but if you insert that same result back into <code>innerHTML</code>, then any tags in it really can get parsed and executed this time. In short, remember that "the decoding function" being safe and "where you put the decoded value" are two entirely separate security decisions.</p>
+
+  <h2>5. A few edge cases with numeric entities</h2>
+  <p>The HTML5 parsing spec doesn't let every numeric reference pass through unchanged. For example, a reference to the null code point like <code>&amp;#0;</code>, or a value in the surrogate range (U+D800–U+DFFF), is treated as a parse error and replaced with the Unicode replacement character (U+FFFD, �). Edge cases like these are handled automatically per spec when you leave the job to the browser's parser — but if you write your own regex-based numeric entity decoder, you have to account for these exceptions yourself.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details><summary>Q. Why not just hardcode all the named entities?</summary><p>A. You could, but then you'd have to maintain over 2,000 standard entities (more still counting case-sensitive variants), and revisit that list every time the HTML5 standard is updated. Borrowing the browser's parser removes this maintenance burden entirely.</p></details>
+  <details><summary>Q. Is using textarea instead of div really free of execution risk?</summary><p>A. Yes. Under the HTML5 spec, textarea has the RAWTEXT content model, so nothing inside content assigned to its innerHTML ever gets parsed into an actual child DOM node. Even if a script tag string ends up inside it, it never executes — it's simply treated as text.</p></details>
+  <details><summary>Q. Is it okay to insert the decoded result back into innerHTML?</summary><p>A. Not recommended. Decoding itself is safe, but if the resulting string happens to contain a tag, inserting it via innerHTML will parse it into a real DOM element that can execute. If your goal is just to display it as text on screen, always use textContent instead.</p></details>
+  <details><summary>Q. How does this handle double-encoded strings?</summary><p>A. This approach only strips one layer of encoding per pass. If the original text was encoded twice (for example, <code>&amp;lt;</code> encoded again into <code>&amp;amp;lt;</code>), you need to run the decoder twice in a row to fully recover the original text.</p></details>
+
+  <div class="tool-links">
+    <a href="../html-decoder.html?lang=en">→ HTML Entity Decoder</a>
+    <a href="../html-encoder.html?lang=en">→ HTML Entity Encoder</a>
+    <a href="../url-decoder.html?lang=en">→ URL Decoder</a>
+    <a href="../url-encoder.html?lang=en">→ URL Encoder</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes only.</footer>
+</main>
+</body>
+</html>

@@ -1,6 +1,6 @@
 # 가이드 영어(EN) 번역 진행 상황
 
-**마지막 갱신**: 2026-08-28  |  **진행률**: 130/176
+**마지막 갱신**: 2026-08-28  |  **진행률**: 140/176
 
 ## 배경 & 방식
 
@@ -38,7 +38,7 @@
 | 텍스트 도구 (text-tools) | 32/32 |
 | 이미지 도구 (image-tools) | 24/24 |
 | 생성기 도구 (generator-tools) | 21/21 |
-| 보안 도구 (security-tools) | 1/17 |
+| 보안 도구 (security-tools) | 11/17 |
 | PDF 도구 (pdf-tools) | 0/13 |
 | AI 도구 (ai-tools) | 0/10 |
 | 데이터 도구 (data-tools) | 0/7 |
@@ -186,19 +186,19 @@
 - [x] `youtube-thumbnail-text-10-char-limit` ← tool: `ai-thumbnail-title-generator`
 - [x] `youtube-title-thumbnail-redundancy` ← tool: `ai-youtube-title-generator`
 
-## 보안 도구 (security-tools) — 1/17
+## 보안 도구 (security-tools) — 11/17
 
 - [x] `bcrypt-72-byte-korean-limit` ← tool: `bcrypt-generator`
-- [ ] `bcrypt-validator-salt-embedded-hash` ← tool: `bcrypt-validator`
-- [ ] `cors-preflight-simple-vs-non-simple-request` ← tool: `cors-header-checker`
-- [ ] `csp-report-only-rollout-three-stages` ← tool: `csp-validator`
-- [ ] `csp-unsafe-inline-nonce-alternative` ← tool: `csp-generator`
-- [ ] `csr-key-size-rsa-vs-ec-tradeoff` ← tool: `csr-generator`
-- [ ] `hash-checker-md5-web-crypto-unsupported` ← tool: `hash-checker`
-- [ ] `hmac-length-extension-attack` ← tool: `hmac-generator`
-- [ ] `html-decoder-native-parser-safety` ← tool: `html-decoder`
-- [ ] `http-header-hsts-max-age-zero-trap` ← tool: `http-header-checker`
-- [ ] `md5-sha1-hash-vs-hmac-vs-crc32` ← tool: `hash-generator`
+- [x] `bcrypt-validator-salt-embedded-hash` ← tool: `bcrypt-validator`
+- [x] `cors-preflight-simple-vs-non-simple-request` ← tool: `cors-header-checker`
+- [x] `csp-report-only-rollout-three-stages` ← tool: `csp-validator`
+- [x] `csp-unsafe-inline-nonce-alternative` ← tool: `csp-generator`
+- [x] `csr-key-size-rsa-vs-ec-tradeoff` ← tool: `csr-generator`
+- [x] `hash-checker-md5-web-crypto-unsupported` ← tool: `hash-checker`
+- [x] `hmac-length-extension-attack` ← tool: `hmac-generator`
+- [x] `html-decoder-native-parser-safety` ← tool: `html-decoder`
+- [x] `http-header-hsts-max-age-zero-trap` ← tool: `http-header-checker`
+- [x] `md5-sha1-hash-vs-hmac-vs-crc32` ← tool: `hash-generator`
 - [ ] `random-string-crypto-entropy-calculation` ← tool: `random-string`
 - [ ] `rsa-public-exponent-65537-pkcs-formats` ← tool: `rsa-key-generator`
 - [ ] `ssh-key-ed25519-vs-rsa-shell-escape` ← tool: `ssh-key-generator`
