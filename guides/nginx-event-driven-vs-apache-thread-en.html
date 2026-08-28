@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why Nginx Handles Massive Concurrency So Well — Event Loop vs Thread Model | MODOO HUB</title>
+<meta name="description" content="A breakdown of why Nginx's event-driven asynchronous I/O and Apache's thread/process model perform so differently under heavy concurrent load, with worker_connections math included.">
+<link rel="canonical" href="https://modoohub.com/guides/nginx-event-driven-vs-apache-thread-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/nginx-event-driven-vs-apache-thread.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/nginx-event-driven-vs-apache-thread-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/nginx-event-driven-vs-apache-thread.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Why Nginx Handles Massive Concurrency So Well","description":"A breakdown of why Nginx's event-driven asynchronous I/O and Apache's thread/process model perform so differently under heavy concurrent load.","datePublished":"2026-08-28","dateModified":"2026-08-28","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Is Nginx always faster than Apache?","acceptedAnswer":{"@type":"Answer","text":"No. Raw single-request processing speed is often about the same, or varies by content type. Where Nginx clearly wins is how little memory and CPU it burns while holding up under a large number of concurrent connections."}},
+{"@type":"Question","name":"Is it always better to set worker_processes as high as possible?","acceptedAnswer":{"@type":"Answer","text":"No. More workers than you have CPU cores just adds context-switching overhead. The official recommendation is auto (matching your core count) — going beyond your core count doesn't scale performance proportionally."}},
+{"@type":"Question","name":"Does the Nginx config generator's output include event-model settings?","acceptedAnswer":{"@type":"Answer","text":"No. The generator only assembles per-domain server blocks (SSL, proxy, gzip, headers, caching). worker_processes and worker_connections belong to the server-wide main/events context at the top of nginx.conf, so they need to be edited separately by hand."}},
+{"@type":"Question","name":"What are epoll and kqueue?","acceptedAnswer":{"@type":"Answer","text":"Both are OS kernel I/O event notification mechanisms. epoll is used on Linux, kqueue on BSD-family systems (including macOS), and Nginx uses them to monitor thousands of sockets for state changes with very low overhead."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Why Nginx Handles Massive Concurrency So Well</h1>
+  <p class="meta">Guide · Last verified Aug 28, 2026</p>
+
+  <p>You've probably heard "Nginx is faster than Apache" a hundred times, but few people can explain exactly where and by how much. The accurate statement isn't "always faster" — it's "overwhelmingly better under heavy concurrency." That gap doesn't come from raw CPU power; it comes from a fundamentally different way each server handles a single connection. This guide puts numbers behind that architectural difference.</p>
+
+  <h2>1. Apache's traditional model: one execution unit per connection</h2>
+  <p>Apache's default MPM (Multi-Processing Module) options — prefork and worker — assign a process or thread to every incoming client connection. Even while a connection sits idle waiting, that process or thread stays alive, holding onto memory. If 10,000 concurrent connections come in, in theory 10,000 execution units have to exist at once, which means 10,000 candidates for context switching. With each process typically using a few MB of memory, server memory drains linearly as concurrency climbs.</p>
+
+  <h2>2. Nginx's event loop: it processes events, not connections</h2>
+  <p>Nginx takes the opposite approach. A small number of worker processes (usually matching the CPU core count) each run a single event loop, using non-blocking OS kernel I/O notification mechanisms like epoll (Linux) or kqueue (BSD) to watch thousands of connections simultaneously. Instead of assigning a thread to each connection, it only handles work when an event fires — "this socket has data to read" — and immediately moves to the next event. Idle connections are effectively monitored by the kernel itself, costing the worker process almost no memory or CPU. The result: on identical hardware, Nginx can sustain far more concurrent connections on far less memory than Apache prefork. This architectural difference is the core reason Nginx is so widely used as a reverse proxy, static file server, and load balancer.</p>
+
+  <div class="box">
+    <strong>The memory difference, conceptually</strong>: assume Apache prefork averages 8MB per process — handling 10,000 concurrent connections then works out to roughly 80GB of memory. Nginx handles the same connections with just 4 worker processes (on a 4-core CPU) running event loops, with per-connection memory overhead in the low kilobytes, so the same load fits into a few hundred MB. Real-world numbers vary with content type and Keep-Alive settings, but this is the order-of-magnitude gap between the two models' "fixed cost per connection."
+  </div>
+
+  <h2>3. worker_processes and worker_connections: the real levers of the event model</h2>
+  <p>The two directives that actually control Nginx's event model are <code>worker_processes</code>, set at the top of nginx.conf (the main context), and <code>worker_connections</code>, inside the <code>events {}</code> block. Setting <code>worker_processes auto;</code> spins up one worker per CPU core, and <code>worker_connections</code> sets the maximum number of connections a single worker can hold open at once (default: 1024). So the theoretical maximum concurrent connections this server can handle is <strong>worker_processes × worker_connections</strong>. With 4 cores and worker_connections at 4096, that's a theoretical ceiling of 16,384 simultaneous connections (though you also need to raise the OS's file descriptor limit — ulimit — to actually open that many).</p>
+  <p>These two directives live in the <strong>main/events context</strong>, which applies to the server as a whole — so they're not part of the server-block output produced by the <a href="../nginx-config-generator.html?lang=en">Nginx config generator</a>, which assembles per-domain SSL, reverse proxy, and gzip settings. To tune the event model itself, you have to edit the top of nginx.conf directly, separate from any generated server block. It's common to look for worker_connections inside a server block and come up empty, not realizing this distinction.</p>
+
+  <h2>4. So why is Apache still used at all?</h2>
+  <p>Nginx wins on raw concurrency handling, but Apache's exact tradeoff — a dedicated process or thread per request — is precisely what makes per-directory dynamic configuration via <code>.htaccess</code> and in-process module extensions like mod_php so flexible. In practice, the common combination is Nginx in front for static files and reverse proxying, with Apache handling legacy PHP applications or shared hosting environments. You can compare the configuration syntax for both directly with the <a href="../apache-config-generator.html?lang=en">Apache config generator</a> and the <a href="../htaccess-generator.html?lang=en">.htaccess generator</a>.</p>
+
+  <h2>5. A practical check: is your server actually benefiting from the event model?</h2>
+  <p>Putting Nginx in front of your stack doesn't automatically make it fast. If worker_connections is left at its default (1024), if your Keep-Alive timeout is too long and idle connections hog resources, or if gzip and static caching are turned off, you're not getting the full benefit of the event loop. The <a href="../http-header-checker.html?lang=en">HTTP header checker</a> is the quickest way to confirm your response headers and cache policy are actually being applied, and the <a href="../website-speed-estimator.html?lang=en">website speed estimator</a> is the quickest way to check overall response speed.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Is Nginx always faster than Apache?</summary><p style="margin-top:8px;">A. No. Raw single-request processing speed is often about the same, or varies by content type. Where Nginx clearly wins is how little memory and CPU it burns while holding up under a large number of concurrent connections.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Is it always better to set worker_processes as high as possible?</summary><p style="margin-top:8px;">A. No. More workers than you have CPU cores just adds context-switching overhead. The official recommendation is auto (matching your core count) — going beyond your core count doesn't scale performance proportionally.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does the Nginx config generator's output include event-model settings?</summary><p style="margin-top:8px;">A. No. The generator only assembles per-domain server blocks (SSL, proxy, gzip, headers, caching). worker_processes and worker_connections belong to the server-wide main/events context at the top of nginx.conf, so they need to be edited separately by hand.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. What are epoll and kqueue?</summary><p style="margin-top:8px;">A. Both are OS kernel I/O event notification mechanisms. epoll is used on Linux, kqueue on BSD-family systems (including macOS), and Nginx uses them to monitor thousands of sockets for state changes with very low overhead.</p></details>
+
+  <div class="tool-links">
+    <a href="../nginx-config-generator.html?lang=en">→ Nginx Config Generator</a>
+    <a href="../apache-config-generator.html?lang=en">→ Apache Config Generator</a>
+    <a href="../htaccess-generator.html?lang=en">→ .htaccess Generator</a>
+    <a href="../csp-generator.html?lang=en">→ CSP Generator</a>
+    <a href="../http-header-checker.html?lang=en">→ HTTP Header Checker</a>
+    <a href="../website-speed-estimator.html?lang=en">→ Website Speed Estimator</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general informational purposes only; run your own performance tests to validate configuration choices against your actual traffic patterns.</footer>
+</main>
+</body>
+</html>

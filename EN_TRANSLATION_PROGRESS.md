@@ -1,6 +1,6 @@
 # 가이드 영어(EN) 번역 진행 상황
 
-**마지막 갱신**: 2026-08-28  |  **진행률**: 110/176
+**마지막 갱신**: 2026-08-28  |  **진행률**: 120/176
 
 ## 배경 & 방식
 
@@ -37,7 +37,7 @@
 | 개발자 도구 (developer-tools) | 52/52 |
 | 텍스트 도구 (text-tools) | 32/32 |
 | 이미지 도구 (image-tools) | 24/24 |
-| 생성기 도구 (generator-tools) | 2/21 |
+| 생성기 도구 (generator-tools) | 12/21 |
 | 보안 도구 (security-tools) | 0/17 |
 | PDF 도구 (pdf-tools) | 0/13 |
 | AI 도구 (ai-tools) | 0/10 |
@@ -162,20 +162,20 @@
 - [x] `transparent-background-color-key-tolerance` ← tool: `transparent-background-maker`
 - [x] `webp-compatibility-kakaotalk-old-devices` ← tool: `webp-to-jpg`
 
-## 생성기 도구 (generator-tools) — 2/21
+## 생성기 도구 (generator-tools) — 12/21
 
 - [x] `apache-htaccess-vs-virtualhost-performance` ← tool: `apache-config-generator`
 - [x] `google-title-pixel-width-truncation` ← tool: `seo-title-generator`
-- [ ] `hreflang-bidirectional-mistakes` ← tool: `hreflang-generator`
-- [ ] `htaccess-hsts-lockout-risk` ← tool: `htaccess-generator`
-- [ ] `lorem-ipsum-cicero-history` ← tool: `lorem-ipsum-generator`
-- [ ] `meta-description-google-rewrite` ← tool: `meta-description-generator`
-- [ ] `meta-keywords-tag-google-2009-deprecated` ← tool: `meta-tag-generator`
-- [ ] `nginx-event-driven-vs-apache-thread` ← tool: `nginx-config-generator`
-- [ ] `open-graph-social-cache-not-updating` ← tool: `open-graph-generator`
-- [ ] `qr-code-error-correction-logo` ← tool: `qr-code-generator`
-- [ ] `random-string-modulo-bias-rejection-sampling` ← tool: `nanoid-generator`
-- [ ] `robots-txt-allow-disallow-conflict-rule` ← tool: `robots-txt-generator`
+- [x] `hreflang-bidirectional-mistakes` ← tool: `hreflang-generator`
+- [x] `htaccess-hsts-lockout-risk` ← tool: `htaccess-generator`
+- [x] `lorem-ipsum-cicero-history` ← tool: `lorem-ipsum-generator`
+- [x] `meta-description-google-rewrite` ← tool: `meta-description-generator`
+- [x] `meta-keywords-tag-google-2009-deprecated` ← tool: `meta-tag-generator`
+- [x] `nginx-event-driven-vs-apache-thread` ← tool: `nginx-config-generator`
+- [x] `open-graph-social-cache-not-updating` ← tool: `open-graph-generator`
+- [x] `qr-code-error-correction-logo` ← tool: `qr-code-generator`
+- [x] `random-string-modulo-bias-rejection-sampling` ← tool: `nanoid-generator`
+- [x] `robots-txt-allow-disallow-conflict-rule` ← tool: `robots-txt-generator`
 - [ ] `schema-markup-json-ld-rich-snippet-ctr` ← tool: `schema-markup-generator`
 - [ ] `sitemap-generator-50000-url-limit` ← tool: `sitemap-generator`
 - [ ] `twitter-card-og-tag-fallback` ← tool: `twitter-card-generator`

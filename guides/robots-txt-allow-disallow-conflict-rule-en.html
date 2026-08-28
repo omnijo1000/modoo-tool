@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>robots.txt: When Allow and Disallow Conflict, Which One Wins? | MODOO HUB</title>
+<meta name="description" content="When Allow and Disallow rules in robots.txt point at the same path, which one does Google actually follow? Explained with the path-length priority rule and a real example.">
+<link rel="canonical" href="https://modoohub.com/guides/robots-txt-allow-disallow-conflict-rule-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/robots-txt-allow-disallow-conflict-rule.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/robots-txt-allow-disallow-conflict-rule-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/robots-txt-allow-disallow-conflict-rule.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"robots.txt: When Allow and Disallow Conflict, Which One Wins?","description":"When Allow and Disallow rules in robots.txt point at the same path, which one does Google actually follow? Explained with the path-length priority rule and a real example.","datePublished":"2026-08-28","dateModified":"2026-08-28","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--purple);}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;}
+details summary{cursor:pointer;font-weight:600;color:var(--text-muted);}
+details p{margin-top:8px;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>robots.txt: When Allow and Disallow Conflict, Which One Wins?</h1>
+  <p class="meta">Guide · Last verified Aug 28, 2026</p>
+
+  <p>Sometimes you want to block an entire admin folder with <code>Disallow: /wp-admin/</code>, but carve out one specific file underneath it with an <code>Allow</code> exception. When two rules give opposite instructions for the same path, which one does a crawler follow? The order they appear in the file doesn't matter — there's a fixed rule that decides it.</p>
+
+  <h2>1. The core rule: the longer (more specific) path wins</h2>
+  <p>Google and other major crawlers resolve Allow/Disallow conflicts in robots.txt based on <strong>path string length</strong>. Within the same User-agent block, if multiple rules match a given URL, the rule whose matched path pattern is <strong>longer — i.e., more specific — wins</strong>. It doesn't matter whether Allow or Disallow appears first in the file; order has no effect on the outcome.</p>
+
+  <div class="box">
+    <strong>Example</strong> (a combination commonly used on WordPress sites):
+    <pre style="margin-top:8px;font-family:'DM Mono',monospace;font-size:13px;color:#ccc;white-space:pre-wrap;">Disallow: /wp-admin/
+Allow: /wp-admin/admin-ajax.php</pre>
+    <code>/wp-admin/</code> is 7 characters, while <code>/wp-admin/admin-ajax.php</code> is 23 characters. Since the Allow rule matches a longer path, it wins: everything under <code>/wp-admin/</code> is blocked, except <code>admin-ajax.php</code>, which remains crawlable. This mechanism is exactly why WordPress recommends this combination by default — admin-ajax.php is a public endpoint that handles front-end AJAX requests, and some pages only work correctly if search engines can reach it.
+  </div>
+
+  <h2>2. What happens when the lengths are equal: Allow wins</h2>
+  <p>In the rare case where both rules match paths of exactly the same length, Google's documentation explicitly states that <strong>the less restrictive rule (Allow) takes priority</strong>. In other words, ties are designed to favor "opening up" over "blocking."</p>
+
+  <h2>3. Why length, not order</h2>
+  <p>robots.txt existed for decades as an informal convention with no official standard, until the IETF formally standardized it as <strong>RFC 9309</strong> in 2022. Before standardization, different crawlers resolved conflicts inconsistently — some followed "first rule wins," others "last rule wins." Google documented its own "longer path (more specific) wins" policy early on, and that approach was effectively adopted into RFC 9309, cementing it as the de facto industry standard. That said, there's no guarantee every crawler implements the RFC identically, so for any exception rule that really matters, it's safer to verify the actual behavior of each crawler individually.</p>
+
+  <h2>4. Practical tips</h2>
+  <ul>
+    <li><strong>Make exceptions clearly longer</strong>: if you want to open up just one sub-path, make sure the Allow rule's path is unambiguously longer and more specific — in character count — than the Disallow rule.</li>
+    <li><strong>Don't rely on file order</strong>: the assumption that "writing this rule later makes it win" is wrong. Order has no bearing on the outcome.</li>
+    <li><strong>Verify actual behavior with tools</strong>: the most reliable approach is to directly test whether your intended path is actually allowed or blocked, using the robots.txt report or URL Inspection tool in Google Search Console.</li>
+  </ul>
+
+  <h2>Frequently Asked Questions</h2>
+  <details><summary>Q. Does Allow or Disallow always win?</summary><p>A. Neither one always wins outright — whichever rule matches a longer (more specific) path takes priority. If Allow's matched path is longer, Allow wins; if Disallow's is longer, Disallow wins.</p></details>
+  <details><summary>Q. Does changing the order of the rules change the outcome?</summary><p>A. No. Google and other major crawlers resolve conflicts based on path length, so the order the rules appear in the file has no effect on the outcome.</p></details>
+  <details><summary>Q. Do all search engine crawlers follow this rule identically?</summary><p>A. Since RFC 9309 was standardized in 2022, most major crawlers follow a similar approach, but because robots.txt operated as an informal convention for so long, implementation details can still vary between crawlers. Verify important rules with an actual testing tool.</p></details>
+  <details><summary>Q. What if the paths in Disallow: /wp-admin/ and Allow: /wp-admin/ are exactly identical?</summary><p>A. Since the lengths are equal, the tie-breaking rule applies, and the less restrictive Allow rule takes priority.</p></details>
+
+  <div class="tool-links">
+    <a href="../robots-txt-generator.html?lang=en">→ robots.txt Generator</a>
+    <a href="../robots-txt-validator.html?lang=en">→ robots.txt Validator</a>
+    <a href="../robots-txt-tester.html?lang=en">→ robots.txt Tester</a>
+    <a href="../sitemap-generator.html?lang=en">→ Sitemap Generator</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes.</footer>
+</main>
+</body>
+</html>

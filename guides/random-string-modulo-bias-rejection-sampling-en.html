@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why Random String Generators Secretly Skew — Modulo Bias and Rejection Sampling | MODOO HUB</title>
+<meta name="description" content="Just dividing a random byte by the alphabet length and taking the remainder makes some characters come up more often — modulo bias. Here's why it happens, and how rejection sampling removes it entirely, explained with real code.">
+<link rel="canonical" href="https://modoohub.com/guides/random-string-modulo-bias-rejection-sampling-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/random-string-modulo-bias-rejection-sampling.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/random-string-modulo-bias-rejection-sampling-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/random-string-modulo-bias-rejection-sampling.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Why Random String Generators Secretly Skew — Modulo Bias and Rejection Sampling","description":"Just dividing a random byte by the alphabet length and taking the remainder makes some characters come up more often — modulo bias. Here's why it happens, and how rejection sampling removes it entirely, explained with real code.","datePublished":"2026-08-28","dateModified":"2026-08-28","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--purple);}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;}
+details summary{cursor:pointer;font-weight:600;color:var(--text-muted);}
+details p{margin-top:8px;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Why Random String Generators Secretly Skew — Modulo Bias and Rejection Sampling</h1>
+  <p class="meta">Guide · Last verified Aug 28, 2026</p>
+
+  <p>Most random ID generators work the same way: draw a random byte, take it modulo the alphabet length, and use the remainder to pick a character. It looks perfectly safe — but if the alphabet length isn't a divisor of 256, that simple modulo operation quietly makes some characters come up slightly more often than others. This is called <strong>modulo bias</strong>. This guide walks through why the bias happens, and how <strong>rejection sampling</strong> eliminates it completely, with the actual math and the real code behind it.</p>
+
+  <h2>1. Why modulo bias happens</h2>
+  <p>When you draw a single byte from a cryptographically secure random source (<code>crypto.getRandomValues()</code>), you get a perfectly uniform value between 0 and 255 — 256 possible outcomes, each equally likely. The problem shows up in the next step: converting that byte into an alphabet character. If you pick the index with <code>byte % N</code> for an alphabet of length N, every character gets mapped exactly the same number of times only when 256 is evenly divisible by N. When N doesn't divide 256 cleanly, the "leftover" byte values — however many are left over from 256 mod N — wrap around and get mapped onto the earlier characters one extra time each, producing an uneven distribution.</p>
+
+  <div class="box">
+    <strong>A concrete example</strong>: take a 62-character alphabet (a-zA-Z0-9). Since 256 = 4×62 + 8, byte values 248 through 255 (8 of them) wrap back around to indices 0 through 7. That means the first 8 characters of the alphabet each come up with probability 5/256, while the remaining 54 characters come up with probability 4/256. Each individual skew is small (about a 25% relative deviation), but across large-scale generation it becomes a statistically measurable bias.
+  </div>
+
+  <h2>2. Why this matters for security</h2>
+  <p>A biased character selection makes the actual entropy slightly lower than the theoretical maximum for an alphabet of size N (log2(N) bits per character). You won't notice it looking at any single ID, but in high-security, high-volume contexts where large batches of IDs feed into statistical attacks or collision-probability calculations, that small bias eats into the theoretical safety margin. This is exactly why well-built random string libraries — including the real nanoid npm package — bake in bias-elimination logic from the start.</p>
+
+  <h2>3. The fix: Rejection Sampling</h2>
+  <p>Rejection sampling only accepts byte values that fall within the largest range that's an exact multiple of N — that is, values below <code>Math.floor(256/N)*N</code> — and simply discards and re-draws anything above that. Since the accepted range is always an exact multiple of N, the <code>% N</code> operation becomes perfectly uniform. The only cost is occasionally throwing away a byte and drawing another one; the statistical bias disappears entirely.</p>
+
+  <h2>4. How this site's NanoID generator actually does it</h2>
+  <p>The actual generation function in <code>nanoid-generator.html</code> implements exactly this approach:</p>
+  <div class="box">
+    <code>if(buf[i]&lt;Math.floor(256/alpha.length)*alpha.length) id+=alpha[idx];</code>
+  </div>
+  <p>A byte is only used to append a character when its value is below <code>Math.floor(256/alphabet length)*alphabet length</code>; anything at or above that is silently skipped (rejected). If the target length isn't reached yet, a while loop keeps drawing more bytes to make up the difference. This is a faithful implementation of the rejection sampling described above, and it guarantees every character comes out with exactly equal probability even for alphabets like 62 or 26 characters that don't evenly divide 256.</p>
+
+  <h2>5. The trap of alphabets longer than 256 characters</h2>
+  <p>Rejection sampling has one precondition: the alphabet length must be 256 or fewer. If the alphabet exceeds 256 characters, it goes beyond what a single byte (0–255) can represent, so the rejection filter can never let a single byte through — generation would stall indefinitely. That's why a safe implementation must always cap the alphabet length at 256 characters.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details><summary>Q. Is modulo bias actually a noticeable security risk?</summary><p>A. For the security of any single string, it barely matters. But in high-security contexts where large-scale generation, statistical analysis, or collision-probability calculations matter, that slight drop in theoretical entropy is treated as a real flaw. That's why trustworthy libraries are designed from the ground up to eliminate the bias.</p></details>
+  <details><summary>Q. If the alphabet length is a divisor of 256 (like 64 or 16 characters), is rejection sampling even needed?</summary><p>A. Correct — if 256 divides evenly by the alphabet length, a plain modulo operation is already perfectly uniform. The problem only shows up with lengths like 62 or 26 that don't divide evenly.</p></details>
+  <details><summary>Q. Does rejection sampling slow down generation?</summary><p>A. It can slow things down very slightly, since a byte occasionally gets discarded and redrawn. But that cost is effectively negligible, and it's almost always worth paying for a truly uniform distribution.</p></details>
+  <details><summary>Q. What happens if a custom alphabet has duplicate characters?</summary><p>A. Duplicates are automatically collapsed down to one instance. Leaving duplicates in would artificially make that character come up more often — reintroducing the very bias that rejection sampling was designed to remove.</p></details>
+
+  <div class="tool-links">
+    <a href="../nanoid-generator.html?lang=en">→ NanoID Generator</a>
+    <a href="../random-string.html?lang=en">→ Random String Generator</a>
+    <a href="../uuid-generator.html?lang=en">→ UUID Generator</a>
+    <a href="../ulid-generator.html?lang=en">→ ULID Generator</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes.</footer>
+</main>
+</body>
+</html>
