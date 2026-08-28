@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PNG to SVG Isn't Real Vector Tracing — It's One rect Per Pixel | MODOO HUB</title>
+<meta name="description" content="Why a PNG-to-SVG converter tool isn't doing real vector tracing at all, but stamping out a 1×1 rect for every single pixel instead — explained with the actual code, its principle, and its limits.">
+<link rel="canonical" href="https://modoohub.com/guides/png-to-svg-not-real-vector-tracing-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/png-to-svg-not-real-vector-tracing.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/png-to-svg-not-real-vector-tracing-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/png-to-svg-not-real-vector-tracing.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"PNG to SVG Isn't Real Vector Tracing — It's One rect Per Pixel","description":"Why a PNG-to-SVG converter tool isn't doing real vector tracing at all, but stamping out a 1×1 rect for every single pixel instead — explained with the actual code, its principle, and its limits.","datePublished":"2026-08-27","dateModified":"2026-08-27","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--purple);}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;}
+details summary{cursor:pointer;font-weight:600;color:var(--text-muted);}
+details p{margin-top:8px;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html?lang=en" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>PNG to SVG Isn't Real Vector Tracing — It's One rect Per Pixel</h1>
+  <p class="meta">Guide · Last verified Aug 27, 2026</p>
+
+  <p>If you've ever used one of those "convert PNG to SVG" tools online, you've probably run into something odd. You upload a logo, and the resulting SVG file is much larger than the original PNG — and zooming in still shows the same staircase-like jagged edges. SVG is a vector format, so it's supposed to stay smooth no matter how far you zoom in. Why doesn't it? The answer is simple: most of these tools aren't doing "vector tracing" at all — they're stamping every single pixel back out as its own SVG shape. This guide walks through that difference using the actual code.</p>
+
+  <h2>1. What real vector tracing actually does</h2>
+  <p>Genuine vector tracing tools — potrace, Adobe Illustrator's Image Trace, Inkscape's Trace Bitmap — do something closer to computer vision. They first simplify colors down to a handful of representative colors (color quantization), find the boundaries between regions of the same color, extract outlines from those boundaries, and then approximate those outlines with bezier curves. In other words, they compute a mathematical path that says "the edge of this region is roughly this curve." For simple graphics like logos and icons, the result is often a much smaller file than the original, and it stays smooth at any zoom level.</p>
+
+  <h2>2. What this tool actually does: one pixel = one rect</h2>
+  <p>Looking directly at this site's PNG-to-SVG converter source code shows a completely different approach — there's no curve-approximation step at all. It draws the image onto a canvas, reads the pixel data, walks every pixel darker than a brightness threshold one by one, and for each one adds exactly one <code>&lt;rect x="x" y="y" width="1" height="1"/&gt;</code> line at that pixel's position.</p>
+  <div class="box">
+    <strong>The actual logic</strong>: <code>for(y) for(x) { if(dark pixel) rects += '&lt;rect x=... y=... width="1" height="1"/&gt;' }</code><br>
+    There's no step anywhere in the code that simplifies outlines into curves. It generates exactly as many XML elements as there are foreground pixels.
+  </div>
+  <p>Despite the name "tracing," this approach is closer to simply re-encoding the original raster grid in SVG syntax. That's why zooming into the output still shows the exact same pixel staircase as the original PNG, and why — unless the source is a very simple icon — the file size often ends up much larger than the original PNG (one tag per pixel makes that outcome inevitable).</p>
+
+  <h2>3. The hidden trap: it never reads the alpha channel</h2>
+  <p>There's a more practical problem too. When this tool decides what counts as foreground versus background, it <strong>never reads the pixel's transparency (alpha channel) value — it judges purely by RGB brightness</strong>. But it's common for transparent PNGs to still store RGB values under fully transparent pixels, and those stored values are often black (0,0,0) — a common encoding convention for transparent pixels. Feed in a PNG like that, and what should be a transparent background gets misjudged as "dark foreground," which can produce an unexpected black rectangle behind your logo.</p>
+
+  <h2>4. Large originals get automatically shrunk</h2>
+  <p>Another thing worth knowing: if the original PNG's width or height exceeds 400px, it's automatically downscaled to 400px or less before conversion. Since the structure generates one rect element per pixel, converting a large image without downscaling first would likely produce an unmanageable number of elements. The upshot is that a large image gets converted based on the downscaled resolution, not its original one.</p>
+
+  <h2>5. So when should you actually use this</h2>
+  <ul>
+    <li><strong>This tool is a good fit when</strong>: you just need a file with a .svg extension, or you want to quickly wrap a very simple, small icon inside an SVG container.</li>
+    <li><strong>This tool is not a good fit when</strong>: you need a logo to stay smooth at any zoom level, you need editable curve paths, or you're converting an image with a transparent background — in those cases, use a tool that performs real outline tracing, such as potrace, Adobe Illustrator's Image Trace, or Inkscape's Trace Bitmap.</li>
+  </ul>
+
+  <h2>Frequently asked questions</h2>
+  <details><summary>Q. Is the SVG this tool produces actually made of curved paths?</summary><p>A. No. It's built by stamping out one 1×1 &lt;rect&gt; tag for every pixel darker than the threshold. There's no step that simplifies anything into curves, so zooming in shows the exact same jagged pixel boundaries as the original.</p></details>
+  <details><summary>Q. If I feed in a PNG with a transparent background, is the background handled correctly?</summary><p>A. Not guaranteed. Since it judges foreground versus background purely by RGB brightness without reading the alpha (transparency) value, if the RGB stored under a transparent pixel happens to be black, it can be misclassified as black foreground instead of background.</p></details>
+  <details><summary>Q. Can the SVG file end up larger than the original PNG?</summary><p>A. Yes, and it's common. Since one &lt;rect&gt; element is generated per foreground pixel, the file size often exceeds the original PNG's unless the source is a very simple icon.</p></details>
+  <details><summary>Q. If I upload a large image, is it converted at its full original resolution?</summary><p>A. No. If the width or height exceeds 400px, it's automatically downscaled to 400px or less before conversion.</p></details>
+  <details><summary>Q. What tool should I use if I actually need real vector tracing?</summary><p>A. Use a dedicated tracing tool that approximates color-region boundaries with bezier curves, such as potrace, Adobe Illustrator's Image Trace, or Inkscape's Trace Bitmap. These tools genuinely simplify outlines to produce smooth, editable paths.</p></details>
+
+  <div class="tool-links">
+    <a href="../png-to-svg.html?lang=en">→ PNG to SVG Converter</a>
+    <a href="../svg-to-png.html?lang=en">→ SVG to PNG Converter</a>
+    <a href="../svg-cleaner.html?lang=en">→ SVG Cleaner</a>
+    <a href="../svg-optimizer.html?lang=en">→ SVG Optimizer</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general informational purposes.</footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Progressive vs. Baseline JPEG: Why Browser Converters Can't Make One | MODOO HUB</title>
+<meta name="description" content="Why a JPEG built with the Canvas API is always Baseline, how Progressive JPEG's internal structure actually differs, and how to actually produce one if you need it.">
+<link rel="canonical" href="https://modoohub.com/guides/progressive-vs-baseline-jpeg-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/progressive-vs-baseline-jpeg.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/progressive-vs-baseline-jpeg-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/progressive-vs-baseline-jpeg.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Progressive vs. Baseline JPEG: Why Browser Converters Can't Make One","description":"Why a JPEG built with the Canvas API is always Baseline, how Progressive JPEG's internal structure actually differs, and how to actually produce one if you need it.","datePublished":"2026-08-27","dateModified":"2026-08-27","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+code{background:var(--surface2);padding:1px 5px;border-radius:4px;font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html?lang=en" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Progressive vs. Baseline JPEG: Why Browser Converters Can't Make One</h1>
+  <p class="meta">Guide · Last verified Aug 27, 2026</p>
+
+  <p>When converting PNG to JPG, most people only think about quality and file size — but JPEG has another, less visible choice baked in: <strong>Baseline</strong> versus <strong>Progressive</strong> encoding. At the same quality and the same file size, the way the image appears on screen can be completely different. This guide covers how the two differ internally, and why a JPEG built with a browser's Canvas API always comes out Baseline.</p>
+
+  <h2>1. How the two differ on screen</h2>
+  <p><strong>Baseline JPEG</strong> loads by completing the image top to bottom, one 8×8 pixel block at a time, in order. On a slow connection, you can end up staring at a sharp top half with nothing at all below it for a while. <strong>Progressive JPEG</strong> does the opposite: it shows a blurry, low-resolution version of the entire image right away, then sharpens the whole thing gradually as more data arrives. Because it creates the impression that "something is appearing quickly," web performance guidance commonly recommends Progressive encoding.</p>
+
+  <h2>2. Under the hood: one scan, or several?</h2>
+  <p>JPEG divides the image into 8×8 blocks and applies a DCT (discrete cosine transform) to decompose each block into low-frequency coefficients (overall brightness/tone) and high-frequency coefficients (fine detail). The difference between the two modes comes down to <strong>how many scans</strong> those coefficients get split across when written to the file.</p>
+  <ul>
+    <li><strong>Baseline</strong>: writes every coefficient (low- and high-frequency) for each block all at once, block by block, in order (top-left to bottom-right). Just one scan.</li>
+    <li><strong>Progressive</strong>: first sweeps through every block writing only the low-frequency coefficients (scan 1), then adds high-frequency coefficients incrementally in later scans — typically 3 to 10 or more scans in total. That's why the first scan alone is already enough to sketch the image's overall shape.</li>
+  </ul>
+  <p>In other words, Progressive JPEG improves perceived load speed by "rearranging the same information in a different order" — it isn't a separate compression algorithm. As a side effect of its more elaborate encoding structure, compression efficiency itself is often slightly better (typically a few percent) than Baseline.</p>
+
+  <h2>3. Why the Canvas API always produces Baseline only</h2>
+  <p>When you generate a JPEG in a browser with <code>canvas.toBlob(..., 'image/jpeg', quality)</code>, the result is always Baseline — regardless of which browser you use. That's because the HTML Canvas 2D Context web standard itself only defines a quality option for JPEG encoding; there's no option at all to specify the scan mode (i.e., whether it's progressive). This isn't a limitation of any particular browser — it's simply outside the standard's designed scope. That means this site's <a href="../png-to-jpg.html?lang=en">PNG → JPG converter</a>, along with every other browser-based image conversion tool built on the Canvas API, has no way to offer a progressive option.</p>
+  <div class="box">
+    <strong>If you actually need Progressive JPEG</strong>: you need a server-side or desktop encoder rather than a browser tool. Options that explicitly support progressive encoding include <code>jpegtran -progressive</code> (a libjpeg-family CLI tool), MozJPEG (<code>cjpeg -progressive</code>), and ImageMagick (<code>convert -interlace Plane</code>).
+  </div>
+
+  <h2>4. Which should you actually pick?</h2>
+  <p>If you care about site performance (like LCP under Core Web Vitals), Progressive is often the better choice for large photographic images. For tiny thumbnails or icons that load almost instantly either way, the perceived difference between the two modes is negligible — and Progressive's more elaborate structure can even make the file slightly larger. For quick one-off format conversions like the one on this site, Baseline is perfectly sufficient; for images going into a large-scale web service, we'd recommend re-encoding as Progressive through a dedicated image optimization pipeline (e.g., MozJPEG).</p>
+
+  <h2>Frequently asked questions</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does Progressive JPEG also mean better image quality?</summary><p style="margin-top:8px;">At the same quality setting, the actual image quality is identical. However, because the encoding structure is more elaborate, the file size at a given quality level is often slightly smaller (typically a few percent) than Baseline.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Can this site's converter produce a Progressive JPEG?</summary><p style="margin-top:8px;">No. Since the browser's standard Canvas API itself doesn't offer a progressive encoding option, no browser-based conversion tool can produce one. You'd need a separate program like jpegtran or MozJPEG.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does support vary by image viewer?</summary><p style="margin-top:8px;">Every major browser and most image viewers display Progressive JPEG correctly. That said, very old image-processing libraries or certain specialized embedded environments may have limited support, so Baseline is the safer choice if universal compatibility is the top priority.</p></details>
+
+  <div class="tool-links">
+    <a href="../png-to-jpg.html?lang=en">→ PNG → JPG Converter</a>
+    <a href="../jpg-to-webp.html?lang=en">→ JPG → WebP Converter</a>
+    <a href="../image-resizer.html?lang=en">→ Image Resizer</a>
+    <a href="image-format-comparison-2026.html">→ Image Format Selection Guide</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general informational purposes.</footer>
+</main>
+</body>
+</html>

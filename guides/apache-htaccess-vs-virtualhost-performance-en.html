@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>.htaccess vs VirtualHost: Why the Performance Gap Is Real | MODOO HUB</title>
+<meta name="description" content="Why .htaccess and VirtualHost/httpd.conf configs perform differently, explained from how Apache actually handles a request internally. Includes directory-lookup cost and real-world numbers.">
+<link rel="canonical" href="https://modoohub.com/guides/apache-htaccess-vs-virtualhost-performance-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/apache-htaccess-vs-virtualhost-performance.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/apache-htaccess-vs-virtualhost-performance-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/apache-htaccess-vs-virtualhost-performance.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":".htaccess vs VirtualHost: Why the Performance Gap Is Real","description":"Why .htaccess and VirtualHost/httpd.conf configs perform differently, explained from how Apache actually handles a request internally.","datePublished":"2026-08-27","dateModified":"2026-08-27","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html?lang=en" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>.htaccess vs VirtualHost: Why the Performance Gap Is Real</h1>
+  <p class="meta">Guide · Last verified Aug 27, 2026</p>
+
+  <p>Anyone who has worked with Apache has probably heard the advice "use VirtualHost instead of .htaccess for performance" at some point. But ask them to explain why, and most people only get as far as "I just heard it's better." This guide breaks down what actually happens on disk when Apache handles a single request, so it's clear why the performance gap between the two isn't a theory — it's a measurable number.</p>
+
+  <h2>1. .htaccess lookups happen on every single request</h2>
+  <p>When a request comes into a directory where AllowOverride is enabled, Apache checks — <strong>on every single request</strong>, before it even processes that request — whether a .htaccess file exists, walking up from that directory all the way to the DocumentRoot. For example, for a request to <code>/var/www/html/blog/2026/post</code>, Apache asks the filesystem whether a .htaccess file exists in each of the four directories — post, 2026, blog, html — and if one is found, opens and parses it. None of this is cached; it repeats on the very next request. At hundreds of requests per second, this disk I/O and parsing cost multiplies right along with it.</p>
+
+  <h2>2. Why VirtualHost/httpd.conf is different</h2>
+  <p>By contrast, settings written in a VirtualHost block inside httpd.conf or sites-available/ are read <strong>exactly once, when the Apache process starts</strong>, and kept in memory in already-parsed form. Every request after that just references the config already sitting in memory — it never touches disk again. So the same RewriteRule or Header directive ends up with a completely different cost structure depending on whether it lives in .htaccess ("disk I/O per request") or VirtualHost ("one I/O at startup"). This difference is easy to feel firsthand by generating a VirtualHost block with the <a href="../apache-config-generator.html?lang=en">Apache Config Generator</a> — the output this tool produces is itself a VirtualHost config, not a .htaccess file.</p>
+
+  <h2>3. Lookup cost scales with directory depth</h2>
+  <p>The lookup cost grows in proportion to how deep the directory hierarchy is. A shallow structure barely registers, but as routing gets deeper — as is common with CMSes or frameworks (for example, a product detail page URL nested three or four levels deep, like category/subcategory/product-id) — the number of directories to check per request grows, and so does the number of stat() system calls. The table below shows roughly how the stat() call volume scales with directory depth and request rate.</p>
+  <table>
+    <tr><th>Condition</th><th>stat() calls per request</th><th>Total calls at 100 req/s</th></tr>
+    <tr><td>Shallow structure (2 levels), using .htaccess</td><td>~2</td><td>~200/s</td></tr>
+    <tr><td>Deep structure (5 levels), using .htaccess</td><td>~5</td><td>~500/s</td></tr>
+    <tr><td>Same config moved to VirtualHost</td><td>0 (fixed 1 call at startup)</td><td>0/s (ongoing)</td></tr>
+  </table>
+  <p>The exact numbers depend on the server environment and caching policy, but the core structural difference is this: only the .htaccess approach keeps scaling its cost with traffic.</p>
+
+  <h2>4. When .htaccess still makes sense</h2>
+  <p>This difference doesn't make .htaccess a bad choice in every case. On shared hosting, where you have no direct access to httpd.conf or VirtualHost files, .htaccess is effectively the only configuration option available. It's also useful in workflows where different directories are managed by different admins who change frequently, or where changes need to take effect immediately without a server restart — .htaccess's "instant effect" property is genuinely an advantage there. On the other hand, for settings that apply site-wide and rarely change — security headers, compression, caching policy — moving them to VirtualHost is clearly the better call. You can check which headers are actually being applied with the <a href="../http-header-checker.html?lang=en">HTTP Header Checker</a>, and measure response speed itself with the <a href="../website-speed-estimator.html?lang=en">Website Speed Estimator</a>.</p>
+
+  <h2>5. Migration checklist</h2>
+  <ul>
+    <li><strong>Narrow the AllowOverride scope</strong>: If setting it to None everywhere feels risky, narrowing it to only the directories that actually need .htaccess (and None elsewhere) still cuts lookup cost.</li>
+    <li><strong>Move RewriteRules first</strong>: mod_rewrite rules are both the most common thing found in .htaccess and the item where moving to VirtualHost gives the biggest noticeable improvement.</li>
+    <li><strong>Test the config syntax</strong>: After moving to VirtualHost, always run <code>apache2ctl configtest</code> (or <code>httpd -t</code> on RHEL-based systems) to check for syntax errors before restarting. Unlike .htaccess, a typo in a VirtualHost config can prevent the entire server from starting.</li>
+    <li><strong>Consider switching to Nginx</strong>: Moving to Nginx, which doesn't have the concept of .htaccess at all, is another option. Nginx loads its entire configuration once at startup by design, so this trade-off simply doesn't exist there. You can draft an equivalent config with the <a href="../nginx-config-generator.html?lang=en">Nginx Config Generator</a>.</li>
+  </ul>
+
+  <h2>Frequently Asked Questions</h2>
+  <details class="faq-item"><summary>Q. What happens to my existing .htaccess file after I switch AllowOverride to None?</summary><p>A. The file itself isn't deleted, but since Apache no longer reads it, none of the rules inside it take effect anymore. Make sure to move that content into a VirtualHost block before switching to None, or the site will break.</p></details>
+  <details class="faq-item"><summary>Q. Is the .htaccess lookup cost actually noticeable in practice?</summary><p>A. On a low-traffic personal site, you'll barely notice it. But on sites with high request volume or deep directory structures (e-commerce, large communities, etc.), the accumulated stat() calls can add to response latency.</p></details>
+  <details class="faq-item"><summary>Q. Where do I apply the output from the Apache Config Generator?</summary><p>A. The code the <a href="../apache-config-generator.html?lang=en">Apache Config Generator</a> produces is in VirtualHost block format. It should be pasted into a per-domain config file under /etc/apache2/sites-available/ and enabled with a2ensite — not into a .htaccess file.</p></details>
+  <details class="faq-item"><summary>Q. Do I have any choice on shared hosting?</summary><p>A. Most shared hosting doesn't grant access to httpd.conf, so .htaccess is your only configuration option. In that case, the realistic trade-off is to keep the file as small as possible by only including the directives you actually need, rather than chasing performance.</p></details>
+
+  <div class="tool-links">
+    <a href="../apache-config-generator.html?lang=en">→ Apache Config Generator</a>
+    <a href="../htaccess-generator.html?lang=en">→ htaccess Generator</a>
+    <a href="../nginx-config-generator.html?lang=en">→ Nginx Config Generator</a>
+    <a href="../http-header-checker.html?lang=en">→ HTTP Header Checker</a>
+    <a href="../website-speed-estimator.html?lang=en">→ Website Speed Estimator</a>
+    <a href="../redirect-checker.html?lang=en">→ Redirect Checker</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes. Always test in a staging environment before changing production server configuration.</footer>
+</main>
+</body>
+</html>

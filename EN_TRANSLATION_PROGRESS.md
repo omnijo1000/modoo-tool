@@ -1,6 +1,6 @@
 # 가이드 영어(EN) 번역 진행 상황
 
-**마지막 갱신**: 2026-08-27  |  **진행률**: 100/176
+**마지막 갱신**: 2026-08-28  |  **진행률**: 110/176
 
 ## 배경 & 방식
 
@@ -36,8 +36,8 @@
 |---|---|
 | 개발자 도구 (developer-tools) | 52/52 |
 | 텍스트 도구 (text-tools) | 32/32 |
-| 이미지 도구 (image-tools) | 16/24 |
-| 생성기 도구 (generator-tools) | 0/21 |
+| 이미지 도구 (image-tools) | 24/24 |
+| 생성기 도구 (generator-tools) | 2/21 |
 | 보안 도구 (security-tools) | 0/17 |
 | PDF 도구 (pdf-tools) | 0/13 |
 | AI 도구 (ai-tools) | 0/10 |
@@ -135,7 +135,7 @@
 - [x] `word-frequency-percentage-denominator-basis` ← tool: `word-frequency-counter`
 - [x] `wpm-korean-typing-vs-english-conversion` ← tool: `wpm-calculator`
 
-## 이미지 도구 (image-tools) — 16/24
+## 이미지 도구 (image-tools) — 24/24
 
 - [x] `avif-to-jpg-transparent-background-black` ← tool: `avif-to-jpg`
 - [x] `base64-image-33-percent-overhead` ← tool: `base64-image`
@@ -153,19 +153,19 @@
 - [x] `image-upscale-quality-loss` ← tool: `image-resizer`
 - [x] `image-watermark-webfont-vs-pdf-font` ← tool: `image-watermark`
 - [x] `jpg-to-heic-codec-license-webp-fallback` ← tool: `jpg-to-heic`
-- [ ] `pixelate-image-low-intensity-recovery-risk` ← tool: `pixelate-image`
-- [ ] `png-to-svg-not-real-vector-tracing` ← tool: `png-to-svg`
-- [ ] `progressive-vs-baseline-jpeg` ← tool: `png-to-jpg`
-- [ ] `svg-animation-to-png-static-frame` ← tool: `svg-to-png`
-- [ ] `svg-cleaner-editor-namespace-bloat` ← tool: `svg-cleaner`
-- [ ] `svg-viewer-script-execution-blocked` ← tool: `svg-viewer`
-- [ ] `transparent-background-color-key-tolerance` ← tool: `transparent-background-maker`
-- [ ] `webp-compatibility-kakaotalk-old-devices` ← tool: `webp-to-jpg`
+- [x] `pixelate-image-low-intensity-recovery-risk` ← tool: `pixelate-image`
+- [x] `png-to-svg-not-real-vector-tracing` ← tool: `png-to-svg`
+- [x] `progressive-vs-baseline-jpeg` ← tool: `png-to-jpg`
+- [x] `svg-animation-to-png-static-frame` ← tool: `svg-to-png`
+- [x] `svg-cleaner-editor-namespace-bloat` ← tool: `svg-cleaner`
+- [x] `svg-viewer-script-execution-blocked` ← tool: `svg-viewer`
+- [x] `transparent-background-color-key-tolerance` ← tool: `transparent-background-maker`
+- [x] `webp-compatibility-kakaotalk-old-devices` ← tool: `webp-to-jpg`
 
-## 생성기 도구 (generator-tools) — 0/21
+## 생성기 도구 (generator-tools) — 2/21
 
-- [ ] `apache-htaccess-vs-virtualhost-performance` ← tool: `apache-config-generator`
-- [ ] `google-title-pixel-width-truncation` ← tool: `seo-title-generator`
+- [x] `apache-htaccess-vs-virtualhost-performance` ← tool: `apache-config-generator`
+- [x] `google-title-pixel-width-truncation` ← tool: `seo-title-generator`
 - [ ] `hreflang-bidirectional-mistakes` ← tool: `hreflang-generator`
 - [ ] `htaccess-hsts-lockout-risk` ← tool: `htaccess-generator`
 - [ ] `lorem-ipsum-cicero-history` ← tool: `lorem-ipsum-generator`

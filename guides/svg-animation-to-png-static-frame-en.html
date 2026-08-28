@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why SVG-to-PNG Conversion Always Freezes on a Static Frame | MODOO HUB</title>
+<meta name="description" content="Converting an animated SVG to PNG makes the animation vanish, leaving just one static frame. Here's why, explained through how Canvas rendering takes a snapshot, plus GIF/APNG/WebM alternatives.">
+<link rel="canonical" href="https://modoohub.com/guides/svg-animation-to-png-static-frame-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/svg-animation-to-png-static-frame.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/svg-animation-to-png-static-frame-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/svg-animation-to-png-static-frame.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Why SVG-to-PNG Conversion Always Freezes on a Static Frame","description":"Converting an animated SVG to PNG makes the animation vanish, leaving just one static frame. Here's why, explained through how Canvas rendering takes a snapshot, plus GIF/APNG/WebM alternatives.","datePublished":"2026-08-27","dateModified":"2026-08-27","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Why doesn't an animated SVG move anymore after converting it to PNG?","acceptedAnswer":{"@type":"Answer","text":"PNG is a static image format that only stores a color value for each pixel, so it has no concept of time at all. During conversion, Canvas captures only the rendering result at that single instant as pixels, so even if the original SVG has animation, only one frame survives in the output."}},
+{"@type":"Question","name":"Why is it specifically the pre-animation state that gets captured?","acceptedAnswer":{"@type":"Answer","text":"The browser loads the SVG as an Image object, and drawImage() on the Canvas runs right when the initial decode finishes — which is usually the 0-second mark, before the animation timer has really gotten going. The Canvas API has no awareness of how far an animation has progressed; it simply draws whatever is rendered at that moment, which is why the initial state is what gets captured."}},
+{"@type":"Question","name":"How can I keep a moving SVG as an actual moving image file?","acceptedAnswer":{"@type":"Answer","text":"You need a format that can store multiple frames in sequence, not PNG. Capture the animation repeatedly at set intervals and bundle it into a GIF or APNG, or screen-record it into a WebM or MP4 video — either way the animation plays back as intended."}},
+{"@type":"Question","name":"How is animation inside an SVG actually implemented?","acceptedAnswer":{"@type":"Answer","text":"SVG is an XML-based vector format that describes shapes with coordinates and formulas, and on top of that you can layer SMIL-style <animate>/<animateTransform> tags or CSS animations/transitions to change coordinates, color, opacity, and more over time. That time-based change is exactly the kind of information a static format like PNG cannot represent."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Why SVG-to-PNG Conversion Always Freezes on a Static Frame</h1>
+  <p class="meta">Guide · Last verified Aug 27, 2026</p>
+
+  <p>Ever converted a moving logo or icon SVG to PNG, only to find the entire animation gone and just the opening frame left behind? That's not a bug in the conversion tool — it's a structural limit baked into how SVG-to-PNG conversion works in the first place. This guide walks through why SVG can hold animation at all, what actually happens inside the browser when it turns SVG into PNG, and what alternatives exist if you want to keep an animated SVG moving in an image file.</p>
+
+  <h2>1. Why SVG can be animated in the first place</h2>
+  <p>Unlike raster formats such as JPG and PNG that list out pixel values, SVG (Scalable Vector Graphics) is an XML-based vector format that describes shapes using coordinates and formulas. Because elements like circles, rectangles, and paths are stored as text instructions — "draw a circle at this coordinate with this radius" — it's a natural extension to add a time axis to those instructions. SVG can change attribute values over time using SMIL-style <code>&lt;animate&gt;</code>/<code>&lt;animateTransform&gt;</code> tags, or by applying ordinary CSS <code>@keyframes</code>/<code>transition</code> rules to animate color, position, size, and opacity. In other words, a single SVG file can contain both "a static picture" and "rules for how that picture changes over time." PNG, by contrast, is just a single snapshot filling a grid of pixels with color values — there's no room for a time axis to begin with.</p>
+
+  <h2>2. Why Canvas rendering only ever captures "that instant"</h2>
+  <p>The most common way browsers convert SVG to PNG is to load the SVG file as an <code>&lt;img&gt;</code> tag or Image object, then use the <code>&lt;canvas&gt;</code> element's <code>drawImage()</code> method to draw that image onto the canvas and extract the pixel data. In this process, the Image object fires a "load complete" event once it has parsed the SVG document and finished its first render — and <code>drawImage()</code> draws exactly whatever was rendered at that moment onto the canvas. The problem is that this load-complete moment is typically the 0-second mark, when the animation timer either hasn't started yet or has only just begun. The Canvas API has no idea what animation is running inside the SVG or how far along it is; it only transfers "whatever is rendered on screen right now" into pixels. As a result, no matter how sophisticated the time-based animation in the original SVG — rotation, movement, color changes — the PNG ends up locking in a single frame of the initial, pre-animation state. This isn't a quirk of any particular conversion tool; it's the overlap of two separate facts: PNG, as a static image format, fundamentally cannot represent animation, and the Canvas rendering API only ever takes a snapshot of the current moment with no awareness of animation timing.</p>
+
+  <div class="box">
+    <strong>In short</strong>: SVG (has a time axis) → loaded as an Image object (rendering state locked in at load-complete) → drawn to Canvas via drawImage(), baking only that state into pixels → PNG (no time axis, one frozen frame). Animation information never survives past the "load complete" step — it's simply discarded.
+  </div>
+
+  <h2>3. If you need a moving image — GIF, APNG, or WebM</h2>
+  <p>To keep an animated SVG as an actual moving image file rather than a single PNG, you need to pick a format that can store multiple frames in sequence from the start. The most widely used approach is to capture the SVG animation repeatedly at fixed time intervals and bundle those captures into a <strong>GIF</strong>. GIF stores multiple frames along with each frame's display duration, so it's universally compatible, but its limited color palette (256 colors) can cause banding on SVGs with lots of gradients. If you need higher fidelity, <strong>APNG (Animated PNG)</strong> is an alternative — it can store multiple frames while preserving PNG's true-color and transparency support. If the animation is long or smooth motion matters, screen-recording it into a <strong>WebM or MP4</strong> video file is another option; since you're recording the SVG actually animating on screen, the motion is preserved exactly as-is. On the flip side, if all you need is a single static image (say, for an icon or thumbnail), PNG conversion is precisely the right result — in that case, converting a non-animated static SVG, or capturing a specific frame at the moment you want, is the better approach.</p>
+
+  <h2>4. Summary — what to check before converting</h2>
+  <ul>
+    <li><strong>Decide whether you need a still image or a moving one first</strong>: if you need a static image — like an app icon or thumbnail — PNG conversion is the right choice.</li>
+    <li><strong>If you need a moving result, switch formats, not settings</strong>: no amount of re-converting a PNG will bring the animation back, so you need to go with GIF/APNG/video formats instead.</li>
+    <li><strong>Check how the original SVG's animation is implemented</strong>: whether it uses SMIL tags or CSS animation can affect how a capture tool extracts frames.</li>
+  </ul>
+
+  <h2>Frequently Asked Questions</h2>
+  <details class="faq-item"><summary>Q. Why doesn't an animated SVG move anymore after converting it to PNG?</summary><p>A. PNG is a static image format that only stores a color value for each pixel, so it has no concept of time at all. During conversion, Canvas captures only the rendering result at that single instant as pixels, so even if the original SVG has animation, only one frame survives in the output.</p></details>
+  <details class="faq-item"><summary>Q. Why is it specifically the pre-animation state that gets captured?</summary><p>A. The browser loads the SVG as an Image object, and drawImage() on the Canvas runs right when the initial decode finishes — which is usually the 0-second mark, before the animation timer has really gotten going. The Canvas API has no awareness of how far an animation has progressed; it simply draws whatever is rendered at that moment, which is why the initial state is what gets captured.</p></details>
+  <details class="faq-item"><summary>Q. How can I keep a moving SVG as an actual moving image file?</summary><p>A. You need a format that can store multiple frames in sequence, not PNG. Capture the animation repeatedly at set intervals and bundle it into a GIF or APNG, or screen-record it into a WebM or MP4 video — either way the animation plays back as intended.</p></details>
+  <details class="faq-item"><summary>Q. How is animation inside an SVG actually implemented?</summary><p>A. SVG is an XML-based vector format that describes shapes with coordinates and formulas, and on top of that you can layer SMIL-style &lt;animate&gt;/&lt;animateTransform&gt; tags or CSS animations/transitions to change coordinates, color, opacity, and more over time. That time-based change is exactly the kind of information a static format like PNG cannot represent.</p></details>
+
+  <div class="tool-links">
+    <a href="../svg-to-png.html?lang=en">→ SVG to PNG Converter</a>
+    <a href="../svg-viewer.html?lang=en">→ SVG Viewer</a>
+    <a href="../png-to-svg.html?lang=en">→ PNG to SVG Converter</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes.</footer>
+</main>
+</body>
+</html>

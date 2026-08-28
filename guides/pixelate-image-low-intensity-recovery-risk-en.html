@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pixelated Photos Can Be Partially Reversed at Low Intensity | MODOO HUB</title>
+<meta name="description" content="Pixelation (mosaic blur) doesn't erase information — it's just lossy compression. Here's why a small block size leaves enough low-frequency data behind for super-resolution techniques to partially reconstruct the original, explained through the actual algorithm.">
+<link rel="canonical" href="https://modoohub.com/guides/pixelate-image-low-intensity-recovery-risk-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/pixelate-image-low-intensity-recovery-risk.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/pixelate-image-low-intensity-recovery-risk-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/pixelate-image-low-intensity-recovery-risk.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Pixelated Photos Can Be Partially Reversed at Low Intensity","description":"Pixelation (mosaic blur) doesn't erase information — it's just lossy compression. Here's why a small block size leaves enough low-frequency data behind for super-resolution techniques to partially reconstruct the original, explained through the actual algorithm.","datePublished":"2026-08-27","dateModified":"2026-08-27","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html?lang=en" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Pixelated Photos Can Be Partially Reversed at Low Intensity</h1>
+  <p class="meta">Guide · Last verified Aug 27, 2026</p>
+
+  <p>Slap a mosaic over a face or license plate and it's tempting to assume "now it's unrecognizable." But <a href="../pixelate-image.html?lang=en">pixelation</a> doesn't delete the original information — it's lossy compression that blurs it down to a lower resolution. The smaller (weaker) you set the block size, the more clues about the original shape survive. Let's look at why, starting with the algorithm the tool actually runs.</p>
+
+  <h2>1. Pixelation is "downsampling," not "deletion"</h2>
+  <p>This tool's pixelation code works in two stages: it shrinks the original image onto a small canvas, then draws that result back up to the original size. In the actual code, a <code>numBlocks(dim, px)</code> function computes the shrunken canvas's row and column count as <code>Math.round(dim/px)</code>, and <code>imageSmoothingEnabled = false</code> scales it back up with no smoothing, keeping the blocky edges sharp. In other words, the larger the "block size (px)," the fewer cells the shrunken canvas has and the more information gets destroyed — the smaller it is, the more cells survive and the closer the result stays to the original resolution.</p>
+
+  <h2>2. Block size vs. how much information survives</h2>
+  <p>The key variable is how fine a grid the image was shrunk to. Take a 640×480 face photo: applying different pixel sizes changes the shrunken canvas's cell count — which is also the number of color samples that ultimately survive — like this.</p>
+  <div class="box">
+    <table>
+      <tr><th>Pixel size (px)</th><th>Shrunken canvas size</th><th>Surviving blocks</th><th>Information density vs. original</th></tr>
+      <tr><td>4px (weak pixelation)</td><td>160×120</td><td>19,200</td><td>High — outlines and shading are largely preserved</td></tr>
+      <tr><td>30px (medium)</td><td>21×16</td><td>336</td><td>Low — only rough shapes can be guessed</td></tr>
+      <tr><td>80px (strong pixelation)</td><td>8×6</td><td>48</td><td>Very low — individual features are essentially indistinguishable</td></tr>
+    </table>
+  </div>
+  <p>At 4px, the 19,200 surviving blocks amount to roughly 6.25% of the original 640×480 = 307,200-pixel image's color samples kept intact — enough that the human eye can already guess at the rough layout of facial features.</p>
+
+  <h2>3. Why low intensity opens the door to reconstruction</h2>
+  <p>From an image-processing standpoint, pixelation is a form of low-pass filter. When the block size is small, a good deal of the original's low-frequency information (overall brightness distribution, edge positions, color gradients) survives. Deep-learning super-resolution models work by taking exactly this low-frequency information as a clue and "filling in" plausible high-frequency detail on top of it. Multiple security research papers have reported reconstructing subjects' likenesses to a significant degree from low-intensity mosaics or low-resolution thumbnails using deep learning. Conversely, when the block size is large enough that little information survives to begin with (e.g., only 48 blocks), a reconstruction model simply doesn't have enough to work with, making a plausible guess much harder.</p>
+
+  <h2>4. How does this compare to Gaussian blur — which is safer?</h2>
+  <p><a href="../blur-image.html?lang=en">Image blur</a>, which serves a similar purpose, softens edges instead, and at low intensity the underlying shape can likewise be partially inferred — similar to pixelation in that respect. However, strong Gaussian blur mixes pixels over a wider area (convolution), which tends to destroy information more thoroughly, and many assessments consider it more resistant to reconstruction at an equivalent perceived "strength." If your goal is to reliably obscure something, it's safer to combine a sufficiently large pixelation block size with strong blur, or to just cover the area with an opaque rectangle.</p>
+
+  <h2>5. Practical recommendations</h2>
+  <ul>
+    <li><strong>Sensitive personal information (faces, license plates)</strong>: Set the pixel size to 30px or larger. This tool supports up to 80px.</li>
+    <li><strong>Purely cosmetic or retro effects</strong>: A low intensity of around 4–12px gives a natural pixel-art look. Only use this range where there's no reconstruction risk.</li>
+    <li><strong>Double-check before publishing</strong>: It's good practice to zoom into the downloaded image yourself and visually verify that the shape isn't guessable before posting it. Also consider running it through <a href="../exif-remover.html?lang=en">EXIF removal</a> to strip location and device metadata before you publish.</li>
+  </ul>
+
+  <h2>Frequently asked questions</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. What's this tool's pixel size range?</summary><p style="margin-top:8px;">A. The slider runs from 2px (weak) to 80px (strong), with a default of 12px. When masking sensitive information, we recommend going well above the default — 30px or higher.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Have there been real cases of pixelated images being reconstructed?</summary><p style="margin-top:8px;">A. Academic research has reported cases of reconstructing subjects closely resembling the original from low-intensity mosaic or low-resolution images using super-resolution deep-learning models. The lower the intensity (the smaller the blocks), the higher the reconstruction success rate tends to be.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Is covering the area with a solid black rectangle safer than pixelating it?</summary><p style="margin-top:8px;">A. Yes. An opaque solid-color rectangle replaces the original information entirely, so there's theoretically no reconstruction risk at all. If certainty is your top priority, this is the safest method.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Is the image I process with this tool sent to a server?</summary><p style="margin-top:8px;">A. No. The entire shrink-and-rescale rendering process runs inside the browser's Canvas API only — the original file is never sent anywhere.</p></details>
+
+  <div class="tool-links">
+    <a href="../pixelate-image.html?lang=en">→ Pixelate Image</a>
+    <a href="../blur-image.html?lang=en">→ Image Blur</a>
+    <a href="../exif-remover.html?lang=en">→ EXIF Remover</a>
+    <a href="../image-dimension-checker.html?lang=en">→ Image Dimension Checker</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general informational purposes. If protecting sensitive personal information is the goal, we recommend combining several layers of safeguards rather than relying on pixelation alone.</footer>
+</main>
+</body>
+</html>

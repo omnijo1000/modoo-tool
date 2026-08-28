@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why Script Tags Don't Execute in SVG Preview — The img+Blob Safety Trick | MODOO HUB</title>
+<meta name="description" content="SVG is XML, so it can contain script tags — so why doesn't a browser-based SVG viewer ever run them? Explained through the img+Blob rendering technique.">
+<link rel="canonical" href="https://modoohub.com/guides/svg-viewer-script-execution-blocked-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/svg-viewer-script-execution-blocked.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/svg-viewer-script-execution-blocked-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/svg-viewer-script-execution-blocked.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Why Script Tags Don't Execute in SVG Preview — The img+Blob Safety Trick","description":"SVG is XML, so it can contain script tags — so why doesn't a browser-based SVG viewer ever run them? Explained through the img+Blob rendering technique.","datePublished":"2026-08-27","dateModified":"2026-08-27","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--purple);}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;}
+details summary{cursor:pointer;font-weight:600;color:var(--text-muted);}
+details p{margin-top:8px;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Why Script Tags Don't Execute in SVG Preview — The img+Blob Safety Trick</h1>
+  <p class="meta">Guide · Last verified Aug 27, 2026</p>
+
+  <p>SVG is both an image format and an XML document at the same time. And inside an XML document, you can put a <code>&lt;script&gt;</code> tag, along with event-handler attributes like <code>onload</code> and <code>onclick</code>. In other words, a single SVG file can effectively behave like a tiny web page — which is exactly why it's a well-known XSS (cross-site scripting) attack vector when you carelessly open an SVG from an untrusted source. And yet, this site's SVG Viewer — like most safe SVG preview tools — does nothing at all when you paste in an SVG containing a script. Why is that?</p>
+
+  <h2>1. SVG is, by design, a format that can execute scripts</h2>
+  <p>If you open an SVG file directly in the browser's address bar, or embed one in an HTML document using an <code>&lt;object&gt;</code>, <code>&lt;iframe&gt;</code>, or <code>&lt;embed&gt;</code> tag, that SVG is treated as a full, independent document context. In that case, any <code>&lt;script&gt;</code> tags and event handlers inside it run as normal. The same is true if you insert SVG markup as a string directly into the DOM via <code>innerHTML</code> — the script executes there too. Any tool that renders user-pasted SVG code through one of these paths is directly exposed to XSS.</p>
+
+  <h2>2. The defense this tool uses: img + Blob</h2>
+  <p>This site's SVG Viewer first parses the submitted code with <code>DOMParser</code> to check for syntax errors (a <code>&lt;parsererror&gt;</code> element). If parsing succeeds, it wraps the original code string, unchanged, in a <strong><code>Blob</code></strong> (MIME type <code>image/svg+xml</code>), creates a temporary URL with <code>URL.createObjectURL()</code>, and sets that as the <code>src</code> of an <code>&lt;img&gt;</code> tag to display it. That's the key move — the browser spec treats <strong>a resource loaded via an <code>&lt;img&gt;</code> tag as a "static image context,"</strong> and in that context, even if the image happens to be SVG (XML), any scripts or event handlers inside it never execute. This isn't accidental behavior — it's a security boundary that browser vendors deliberately built in.</p>
+  <div class="box">
+    <strong>Why it's safe</strong>: an SVG loaded via <code>&lt;img src="blob:..."&gt;</code> is only ever rendered (its shape gets drawn) — the document context in which its code would "run" is never even created. Loading SVG through an <code>&lt;img&gt;</code> tag gets exactly the same security treatment as loading a raster image like a PNG or JPG.
+  </div>
+
+  <h2>3. The dangerous ways to render it, by contrast</h2>
+  <table>
+    <tr><th>Rendering method</th><th>Does the script execute?</th></tr>
+    <tr><td><code>&lt;img src="..."&gt;</code> (Blob URL / data URI)</td><td>❌ No — safe</td></tr>
+    <tr><td><code>element.innerHTML = svgCode</code></td><td>✅ Yes — dangerous</td></tr>
+    <tr><td><code>&lt;object data="..." type="image/svg+xml"&gt;</code></td><td>✅ Yes — dangerous</td></tr>
+    <tr><td><code>&lt;iframe src="..."&gt;</code></td><td>✅ Yes — dangerous (though cross-origin isolation does apply)</td></tr>
+    <tr><td>CSS <code>background-image: url(...)</code></td><td>❌ No — safe</td></tr>
+  </table>
+  <p><code>&lt;object&gt;</code> and <code>&lt;iframe&gt;</code> treat SVG as a fully independent document, so scripts inside it come alive. <code>&lt;img&gt;</code> and CSS <code>background-image</code>, on the other hand, treat SVG as a pure picture and nothing more. If you're building a web service that needs to preview SVGs a user has uploaded or pasted in, you should always use the <code>&lt;img&gt;</code> approach.</p>
+
+  <h2>4. Bonus: why zoom doesn't lose any quality</h2>
+  <p>This tool's zoom feature doesn't re-render the image — it scales the already-displayed element up or down using CSS <code>transform:scale()</code>. Since SVG is a vector format defined by mathematical paths rather than pixels, it stays crisp even zoomed in up to 4x, without the pixelation you'd see with a raster image.</p>
+
+  <h2>5. What if you actually need inline SVG?</h2>
+  <p>Sometimes you genuinely need to insert SVG inline — for interactive animation or CSS styling that has to target individual elements inside the SVG. In that case, rather than giving up the <code>&lt;img&gt;</code> approach, the standard alternative is to strip out dangerous elements — <code>&lt;script&gt;</code>, event handlers, <code>&lt;foreignObject&gt;</code>, and the like — with a library like DOMPurify using its SVG profile (<code>USE_PROFILES: {svg: true}</code>) before inserting it.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details><summary>Q. If an SVG has a script tag inside it, does it run?</summary><p>A. Not with this tool. Code that parses successfully is wrapped in a Blob and displayed as the src of an &lt;img&gt; tag — and browsers fundamentally block scripts and event handlers on any SVG loaded as an image.</p></details>
+  <details><summary>Q. Do SVGs with CSS animation or SMIL animation still play?</summary><p>A. Yes. An SVG shown via an img tag only blocks scripts — CSS animation and SMIL animation (like &lt;animate&gt;) are part of the image's own rendering behavior, so they play back normally.</p></details>
+  <details><summary>Q. So is this approach 100% safe?</summary><p>A. From the standpoint of script execution, yes, it's safe. That said, while the img+Blob approach blocks XSS, an SVG that references an external resource (such as &lt;image xlink:href="external URL"&gt;) can still trigger that resource request — so an extremely security-sensitive service might want additional content validation on top of this.</p></details>
+  <details><summary>Q. Is any tool that uses innerHTML to insert SVG dangerous?</summary><p>A. It's dangerous if it inserts user-supplied SVG directly via innerHTML without validating or sanitizing it first. But if a service is inserting SVG it generated itself — with no user input mixed in — there's no risk. The danger comes specifically from putting "untrusted input" into a context where it can execute.</p></details>
+
+  <div class="tool-links">
+    <a href="../svg-viewer.html?lang=en">→ SVG Viewer</a>
+    <a href="../svg-to-png.html?lang=en">→ SVG to PNG Converter</a>
+    <a href="../svg-minifier.html?lang=en">→ SVG Minifier</a>
+    <a href="../svg-cleaner.html?lang=en">→ SVG Cleaner</a>
+    <a href="../svg-optimizer.html?lang=en">→ SVG Optimizer</a>
+    <a href="../png-to-svg.html?lang=en">→ PNG to SVG Converter</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes.</footer>
+</main>
+</body>
+</html>

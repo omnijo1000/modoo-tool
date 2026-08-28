@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How the Color-Key Background Removal Algorithm Actually Calculates Tolerance | MODOO HUB</title>
+<meta name="description" content="How solid-color (color-key) background removal uses RGB Euclidean distance and a tolerance value to make pixels transparent — verified in code, with linear feathering instead of a hard cutoff.">
+<link rel="canonical" href="https://modoohub.com/guides/transparent-background-color-key-tolerance-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/transparent-background-color-key-tolerance.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/transparent-background-color-key-tolerance-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/transparent-background-color-key-tolerance.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"How the Color-Key Background Removal Algorithm Actually Calculates Tolerance","description":"How solid-color (color-key) background removal uses RGB Euclidean distance and a tolerance value to make pixels transparent — verified in code, with linear feathering instead of a hard cutoff.","datePublished":"2026-08-27","dateModified":"2026-08-27","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html?lang=en" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>How the Color-Key Background Removal Algorithm Actually Calculates Tolerance</h1>
+  <p class="meta">Guide · Last verified Aug 27, 2026</p>
+
+  <p>If you've used a "color key" background removal tool to strip a solid background from a product photo and produce a transparent PNG, you've probably noticed that a single "tolerance" slider can change the result dramatically. We dug into the actual code to find out exactly what that slider computes, and why nudging it up even slightly softens the edges of the result.</p>
+
+  <h2>1. The basic idea behind color-key removal</h2>
+  <p>Color-key removal compares every pixel in the image against a reference color chosen by the user (usually picked from the background with an eyedropper), computing a distance that expresses "how similar is this pixel to the reference color?" A short distance (similar color) is treated as likely background and made transparent; a long distance (different color) is treated as the subject and left alone. The real question is how "distance" gets defined, and where the line between "close" and "far" is drawn.</p>
+
+  <h2>2. Distance is plain RGB Euclidean distance; tolerance is a simple multiplier</h2>
+  <p>Looking at the actual code behind <a href="../transparent-background-maker.html?lang=en">Transparent Background Maker</a>, the distance between two colors is computed as the standard Euclidean distance over the squared differences of each channel (R, G, B): <code>Math.sqrt((dr)²+(dg)²+(db)²)</code>. There's no per-channel weighting or gamma correction — all three channels are treated equally in a pure distance formula. The tolerance slider (0–100) doesn't multiply this distance by a weight directly; instead, it scales it into a threshold: <strong>actual decision threshold = slider value × 2.2</strong>. In other words, the 2.2 factor isn't a gamma correction involved in the color-distance calculation itself — it's simply a mapping constant that stretches the user's 0–100 input to match the real RGB distance scale (whose maximum is roughly 441).</p>
+
+  <h2>3. It's linear feathering, not a hard cutoff</h2>
+  <p>Pixels that fall within the threshold aren't all instantly made fully transparent, either. The code works out how close a pixel's distance is to the threshold, as a ratio, and reduces the alpha value <strong>linearly</strong> based on that ratio — a pixel that exactly matches the reference color (distance 0) has its alpha cut by the full 255 and becomes completely transparent, while a pixel right at the threshold boundary barely loses any alpha and keeps most of its original color. The result is that the boundary between background and subject isn't a hard, stair-step edge — it flows into a natural gradient.</p>
+  <div class="box">
+    <strong>Worked example</strong>: with the reference color set to white (255,255,255) and tolerance set to 30, the threshold = 30×2.2 = 66.
+  </div>
+  <table>
+    <tr><th>Pixel RGB</th><th>Euclidean distance</th><th>Within threshold (66)?</th><th>Resulting alpha</th></tr>
+    <tr><td>(250,250,250) near-white</td><td>~8.7</td><td>Yes</td><td>~31 (nearly transparent)</td></tr>
+    <tr><td>(230,230,230) light gray</td><td>~43.3</td><td>Yes</td><td>~90 (semi-transparent)</td></tr>
+    <tr><td>(200,200,200) mid gray</td><td>~95.3</td><td>No</td><td>255 (fully opaque, unchanged)</td></tr>
+  </table>
+  <p>As the table shows, the closer the distance is to 0, the more sharply alpha is cut, and the moment distance edges past the threshold, nothing is touched at all. Raising the tolerance widens the threshold itself, which is why higher settings start eating into grays as well.</p>
+
+  <h2>4. Edge Smooth: a separate second pass, independent of color distance</h2>
+  <p>The "Edge Smooth" slider is a completely separate post-processing step, unrelated to the color-distance calculation. After color-key removal is finished, it takes just the alpha channel and applies a <strong>box blur</strong> at the radius you specify. It uses a prefix-sum technique — one horizontal pass, then one vertical pass — to quickly average the alpha values around each pixel, smoothing out the jagged pixel edges that color-threshold removal alone leaves behind. In short, this tool applies two layers of edge treatment in sequence: (1) linear feathering based on color distance, and (2) a box blur on the alpha channel.</p>
+
+  <h2>5. Why the preview and the download differ in resolution</h2>
+  <p>The preview canvas shown live on screen runs all of this math at a size shrunk down to at most 360px, for responsiveness. But the moment you click "Download PNG," a fresh canvas is created at the original image's true dimensions (naturalWidth × naturalHeight), and the same color-removal and edge-smoothing math is recalculated from scratch at full resolution. So the preview looking small doesn't mean the final output resolution is lower.</p>
+
+  <h2>6. Practical tips: when it works well, and when it doesn't</h2>
+  <p>This method is most accurate when the background is a perfectly uniform solid color. For photos where shadows or reflected light cause subtle background color variation, you'll need to raise the tolerance somewhat — but push it too far and you risk erasing parts of the subject that share a similar color with the background (a white shirt, light skin tones, and so on). The stronger the color contrast between background and subject, the cleaner the result even at low tolerance. If you want to double-check the color composition of your source image first, tools like <a href="../image-color-extractor.html?lang=en">Image Color Extractor</a> or <a href="../dominant-color-finder.html?lang=en">Dominant Color Finder</a> can help you preview the background and subject color distribution before you start.</p>
+
+  <h2>FAQ</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does setting tolerance to 100 remove the entire background?</summary><p style="margin-top:8px;">At 100, the threshold grows to 220 (=100×2.2), but since the theoretical maximum RGB distance is about 441 (black-vs-white contrast), even 100 won't erase pixels with an extremely large color difference. That said, for most real-world photos, 100 is wide enough to also erase areas that have nothing to do with the actual background.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Is the 2.2 multiplier related to gamma correction?</summary><p style="margin-top:8px;">No. This tool's code contains no gamma-correction operation. The 2.2 is simply a mapping constant that stretches the 0–100 slider value to match the real RGB distance scale — it does not apply any nonlinear correction to the color channels themselves.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Can I remove a background made of multiple colors in one pass?</summary><p style="margin-top:8px;">No. This tool only lets you specify one reference color at a time. If the background mixes multiple colors, you'll need to re-upload the resulting PNG and process it again with a different color, or raise the tolerance.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Are files uploaded to a server?</summary><p style="margin-top:8px;">No. Both the color-distance calculation and the blur processing run entirely in the browser via the Canvas API.</p></details>
+
+  <div class="tool-links">
+    <a href="../transparent-background-maker.html?lang=en">→ Transparent Background Maker</a>
+    <a href="../image-color-extractor.html?lang=en">→ Image Color Extractor</a>
+    <a href="../dominant-color-finder.html?lang=en">→ Dominant Color Finder</a>
+    <a href="../blur-image.html?lang=en">→ Image Blur Tool</a>
+    <a href="../png-to-jpg.html?lang=en">→ PNG to JPG Converter</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes; actual tool behavior may vary depending on your browser and image file.</footer>
+</main>
+</body>
+</html>

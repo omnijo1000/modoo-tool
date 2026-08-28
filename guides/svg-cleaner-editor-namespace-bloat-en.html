@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Hidden Culprit Behind Bloated SVG File Size: Editor Namespaces | MODOO HUB</title>
+<meta name="description" content="Why SVGs exported from Inkscape, Illustrator, and Figma end up larger than they need to be, which namespaces and metadata are to blame, and measured before/after byte counts.">
+<link rel="canonical" href="https://modoohub.com/guides/svg-cleaner-editor-namespace-bloat-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/svg-cleaner-editor-namespace-bloat.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/svg-cleaner-editor-namespace-bloat-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/svg-cleaner-editor-namespace-bloat.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"The Hidden Culprit Behind Bloated SVG File Size: Editor Namespaces","description":"Why SVGs exported from Inkscape, Illustrator, and Figma end up larger than they need to be, which namespaces and metadata are to blame, with measured examples.","datePublished":"2026-08-27","dateModified":"2026-08-27","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>The Hidden Culprit Behind Bloated SVG File Size: Editor Namespaces</h1>
+  <p class="meta">Guide · Last verified Aug 27, 2026</p>
+
+  <p>You've probably had the experience of saving a single icon and getting an SVG file that's far bigger than it has any right to be — the vector path data itself might be a few hundred bytes, yet the file weighs in at several kilobytes. The culprit is usually not the artwork at all, but the "editor-only metadata" that programs like Illustrator, Inkscape, and Figma quietly tuck into the file when they save. This guide explains exactly what that metadata is, why it's not needed on the web, and why it's safe to strip — backed by the tool's actual code and measured examples.</p>
+
+  <h2>1. Why SVG bloats up like this in the first place</h2>
+  <p>SVG is an XML-based text format, which means it can hold not just vector paths but literally any information you package as tags and attributes. That flexibility is exactly the problem. To restore the exact editing state when a file is reopened, programs like Illustrator, Inkscape, Figma, and Sketch save editor-internal details — layer names, lock states, zoom position, grid settings — directly inside the XML. None of that affects the rendered output, but every bit of it adds to the file size.</p>
+
+  <h2>2. What is a namespace?</h2>
+  <p>An XML namespace is a prefix system that lets a specific editor insert its own custom tags and attributes without colliding with the standard SVG spec. Inkscape uses the <code>sodipodi:</code> and <code>inkscape:</code> prefixes, Illustrator uses <code>i:</code> and <code>serif:</code>, Figma uses <code>figma:</code> and <code>data-figma-</code>, and Sketch uses <code>sketch:</code>. These exist purely so each program can mark a file as its own and store editing state — browsers and viewers that render SVGs simply ignore these prefixes entirely.</p>
+
+  <h2>3. What actually ends up inside the file</h2>
+  <p>Open a simple single-circle SVG saved from Inkscape and you'll typically find a <code>&lt;sodipodi:namedview&gt;</code> element (storing zoom, grid, and guide positions), a <code>&lt;metadata&gt;</code> block (license and author info), XML comments, and sometimes even a DOCTYPE declaration. On top of that, you'll commonly find empty <code>&lt;g&gt;</code> groups left over from edits that were later removed, and attributes with empty values like <code>class=""</code>. None of these elements draw anything visually — they just take up space.</p>
+
+  <h2>4. Measured example: a Figma export, before and after cleanup</h2>
+  <p>We ran a sample SVG in the typical shape Figma exports it (containing empty <code>&lt;g&gt;</code> groups, XML comments, <code>figma:</code> attributes, and empty class/style attributes) through <a href="../svg-cleaner.html?lang=en">SVG Cleaner</a>'s cleanup logic and measured the byte counts.</p>
+  <table>
+    <tr><th>Stage</th><th>Bytes</th></tr>
+    <tr><td>Before cleanup</td><td>767</td></tr>
+    <tr><td>After cleanup (Illustrator/Figma namespaces, empty-group/comment options applied)</td><td>587</td></tr>
+    <tr><td><strong>Savings</strong></td><td><strong>180 bytes (about 23.5%)</strong></td></tr>
+  </table>
+  <p>This example is on the short side, which caps the savings around 23%, but files with more layers and a longer editing history in Inkscape — where metadata makes up a bigger share of the file — commonly see 10–40% reductions.</p>
+
+  <h2>5. What this site's SVG Cleaner actually removes</h2>
+  <p>Looking at <a href="../svg-cleaner.html?lang=en">SVG Cleaner</a>'s code, the cleanup options are split by editor: Illustrator (<code>i:</code>, <code>serif:</code> namespaces and their related tags/attributes), Inkscape (<code>sodipodi:</code>, <code>inkscape:</code> namespaces), Figma (<code>figma:</code>, <code>data-figma-</code> attributes), and Sketch (<code>sketch:</code> namespace) can each be toggled independently. It also cleans up empty <code>&lt;g&gt;</code> groups (including nested empty groups, processed repeatedly), DOCTYPE declarations, XML comments, and empty attributes. The important detail is how the "remove unused namespaces" option behaves — it doesn't strip blindly. It first checks whether a given prefix is actually referenced anywhere in the document body, and only removes <code>xmlns:</code> declarations that turn out to be genuinely unused, leaving essential declarations like a still-used <code>xmlns:xlink</code> intact.</p>
+
+  <h2>6. Why cleanup is safe, and what to watch for</h2>
+  <p>Elements that affect rendering — paths, fills, gradients, filters, viewBox, and so on — belong to the standard SVG namespace, so they're left untouched regardless of editor-namespace removal. That said, elements marked <code>visibility:hidden</code> are deliberately excluded from removal, since CSS or JS might reveal them later. When you turn on several cleanup options at once, it's a good habit to actually render the result and eyeball it once before shipping. If you're converting the icon to PNG for distribution afterward, check out <a href="../svg-to-png.html?lang=en">SVG to PNG</a>, and for favicon use, <a href="../favicon-maker.html?lang=en">Favicon Maker</a>.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. If I strip the namespaces, will it cause problems reopening the file in Illustrator or Inkscape?</summary><p style="margin-top:8px;">Editing state (layer locks, zoom position, etc.) will be lost, but the artwork itself stays intact. It's a good idea to keep the cleaned-up copy for web deployment separate from your original source file.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does it remove namespaces that are actually in use, like xmlns:xlink?</summary><p style="margin-top:8px;">No. The "remove unused namespaces" option checks actual usage in the document body first, so if a prefix like xlink: is referenced anywhere, its xmlns declaration is preserved.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. How much smaller does the file get after cleanup?</summary><p style="margin-top:8px;">It varies by editor and file complexity, but in measured tests even a short file shrank by over 20%, and Inkscape files with heavy metadata commonly saw 10–40% reductions.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Is "cleaning" different from "optimization"?</summary><p style="margin-top:8px;">Yes. Cleaning focuses on removing editor metadata that has nothing to do with rendering, while optimization includes more aggressive compression like reducing the decimal precision of path coordinates. SVG Cleaner combines both functions in one tool.</p></details>
+
+  <div class="tool-links">
+    <a href="../svg-cleaner.html?lang=en">→ SVG Cleaner</a>
+    <a href="../svg-minifier.html?lang=en">→ SVG Minifier</a>
+    <a href="../svg-viewer.html?lang=en">→ SVG Viewer</a>
+    <a href="../svg-to-png.html?lang=en">→ SVG to PNG</a>
+    <a href="../png-to-svg.html?lang=en">→ PNG to SVG</a>
+    <a href="../favicon-maker.html?lang=en">→ Favicon Maker</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes; actual results vary with file complexity, so we recommend checking the rendered output before deployment.</footer>
+</main>
+</body>
+</html>
