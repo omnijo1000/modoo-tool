@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why ULID's Alphabet Skips I, L, O, U | MODOO HUB</title>
+<meta name="description" content="ULID's Crockford's Base32 encoding uses a different alphabet than standard Base32. We dissect at the code level why I, L, O, and U were dropped, and how a 48-bit timestamp can represent dates up to the year 10889.">
+<link rel="canonical" href="https://modoohub.com/guides/ulid-crockford-base32-no-ilou-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/ulid-crockford-base32-no-ilou.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/ulid-crockford-base32-no-ilou-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/ulid-crockford-base32-no-ilou.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Why ULID's Alphabet Skips I, L, O, U","description":"We dissect why ULID's Crockford's Base32 encoding drops I, L, O, and U, and how a 48-bit timestamp can represent dates up to the year 10889.","datePublished":"2026-08-28","dateModified":"2026-08-28","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Why ULID's Alphabet Skips I, L, O, U</h1>
+  <p class="meta">Guide · Last verified Aug 28, 2026</p>
+
+  <p>Generate a few ULIDs (Universally Unique Lexicographically Sortable Identifiers) and you'll notice the letters <code>I</code>, <code>L</code>, <code>O</code>, and <code>U</code> never appear. That's not chance — it's because the encoding ULID uses, <strong>Crockford's Base32</strong>, was designed from the start to exclude those four letters from its alphabet. Let's walk through why exactly these four were dropped, and how that design choice connects to the claim that "the timestamp can represent dates up to the year 10889."</p>
+
+  <h2>1. What Base32 is: 5 bits per character</h2>
+  <p>Base32 is one of several encodings that turn binary data into a string that's easier for humans to handle. Since 32 is 2 to the 5th power, the bit stream is chopped into 5-bit chunks, and each chunk maps to one of 32 characters. That means you need 32 distinct characters, typically filled with the 10 digits (0–9) plus 22 of the 26 uppercase letters. Which 22 letters get picked is exactly where encodings diverge. Standard Base32 (RFC 4648) uses all 26 letters A–Z and reserves digits mostly for padding, while the <strong>Crockford's Base32</strong> that ULID adopted redesigned the alphabet from scratch with a specific goal: "a human should be able to transcribe this by hand without confusion."</p>
+
+  <h2>2. Confirmed in the actual tool code: the standard Crockford alphabet</h2>
+  <p>Open the encoding table in the <a href="../ulid-generator.html?lang=en">ULID Generator</a> and you'll find it defined exactly like this.</p>
+  <div class="box">
+    <strong>ENCODING</strong> = <code>0123456789ABCDEFGHJKMNPQRSTVWXYZ</code>
+  </div>
+  <p>That's 32 characters total. Of the 26 letters A through Z, four — <code>I</code>, <code>L</code>, <code>O</code>, and <code>U</code> — are missing, and their slots are filled by the digits 0–9 to bring the count back to exactly 32. This reflects the same kind of pragmatism Douglas Crockford applied when he defined JSON in the early 2000s: a convention repeatedly validated across various systems since before 1988 (phone codes, postal codes, and the like) for "codes people actually have to transcribe by hand or read off a screen," codified here into an encoding standard.</p>
+
+  <h2>3. Why I, L, O were dropped: the hand-transcription trap</h2>
+  <p>Three of the four letters were dropped because each is easily confused with a distinct digit. Uppercase <code>I</code> and lowercase <code>l</code> are nearly indistinguishable from the digit <code>1</code> in many fonts, and uppercase <code>O</code> looks identical to the digit <code>0</code> in plenty of fonts too. When someone manually copies an ID from a log, reads it aloud over the phone, or retypes it from a screenshot, these three letters are the usual culprits for mistakes. Crockford Base32 removes them from the alphabet entirely, which eliminates the underlying confusion of "there are multiple characters that look like 1" at the source. Decoding, however, is typically lenient: the ULID spec commonly treats <code>I</code> and <code>L</code> as <code>1</code>, and <code>O</code> as <code>0</code>, when reading input (note that this site's decoder only accepts the exact standard alphabet as valid).</p>
+
+  <h2>4. Why U was also dropped: not legibility, but semantics</h2>
+  <p>Unlike the first three, <code>U</code> isn't visually confused with any other character. It was dropped for a purely different reason: <strong>to prevent accidentally generating strings that spell out profanity or offensive words</strong>. When large volumes of random character combinations are generated, as in Base32, including U raises the odds that an unpleasant word pattern shows up in English. Removing U from the alphabet altogether makes such combinations impossible from the outset. If I, L, and O were dropped for "legibility," U is the one letter dropped for a purely social reason — preventing accidental bad meaning.</p>
+
+  <h2>5. The timestamp portion: why up to the year 10889</h2>
+  <p>A ULID's 26 characters split into the first 10 (timestamp) and last 16 (random). Looking at the actual generation code, <code>encodeBase32(ts, 10)</code> encodes the millisecond-precision Unix timestamp into 10 characters. 10 characters × 5 bits = 50 bits of space, but the ULID spec only actually uses 48 of those bits, leaving the top 2 bits permanently zero as headroom. The maximum millisecond value representable in 48 bits is 2⁴⁸−1, which converts to a year as follows.</p>
+  <table>
+    <tr><th>Item</th><th>Value</th></tr>
+    <tr><td>Timestamp bit width</td><td>48 bits</td></tr>
+    <tr><td>Maximum representable milliseconds</td><td>2⁴⁸ − 1 = 281,474,976,710,655 ms</td></tr>
+    <tr><td>Converted to years (÷1000÷60÷60÷24÷365.25)</td><td>≈ 8,919 years</td></tr>
+    <tr><td>Maximum representable year from the Unix epoch (1970)</td><td>≈ year 10889 CE</td></tr>
+    <tr><td>Random-part bits / characters</td><td>80 bits (10 bytes) / 16 chars (two 40-bit groups → 8 chars each)</td></tr>
+  </table>
+  <p>In other words, thanks to encoding 48 bits into 10 characters (50 bits of space) and leaving 2 bits of headroom, ULIDs remain millisecond-precision sortable practically forever, for all realistic purposes. For reference, the random part reflects 80 bits of genuine randomness straight from <code>crypto.getRandomValues()</code>, so the chance of a collision within the same millisecond is on the order of 1 in 2⁸⁰ — negligible.</p>
+
+  <h2>6. So when do you use ULID, and when UUID</h2>
+  <p>If you don't need sortability and just need global uniqueness, the familiar <a href="../uuid-generator.html?lang=en">UUID Generator</a> is enough. But when insertion order needs to match string sort order — as with a database primary key, where that reduces index fragmentation — ULID has the edge. If you need to generate a batch of random string IDs with a custom alphabet or length, a tool like the <a href="../nanoid-generator.html?lang=en">NanoID Generator</a> is also worth considering.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Can I mix standard Base32 (RFC 4648) and Crockford Base32?</summary><p style="margin-top:8px;">No. The alphabet mappings are different, so decoders aren't interoperable. Feeding an RFC 4648 Base32 string into a Crockford decoder produces a different value or an error. Always decode with the same scheme that was used to encode.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Is a lowercase ULID still valid?</summary><p style="margin-top:8px;">Crockford Base32 is designed to decode case-insensitively, so implementations that normalize lowercase input to uppercase before interpreting it are common. That said, uppercase output is the standard convention when generating.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Can I recover the generation time from just the timestamp portion of a ULID?</summary><p style="margin-top:8px;">Yes. Base32-decoding the first 10 characters recovers the exact millisecond-precision Unix timestamp. This is why, unlike UUID, ULID lets you reverse-engineer the approximate creation time just from the string — worth keeping in mind from a security standpoint.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Doesn't dropping I, L, O, U reduce the available character space?</summary><p style="margin-top:8px;">Base-32 itself only needs exactly 32 distinct symbols, not specifically 26 letters, so combining 10 digits with 22 letters still fills all 32 slots. If anything, the core of this design is that dropping confusable characters actually increases real-world reliability.</p></details>
+
+  <div class="tool-links">
+    <a href="../ulid-generator.html?lang=en">→ ULID Generator</a>
+    <a href="../uuid-generator.html?lang=en">→ UUID Generator</a>
+    <a href="../uuid-converter.html?lang=en">→ UUID Converter</a>
+    <a href="../uuid-validator.html?lang=en">→ UUID Validator</a>
+    <a href="../nanoid-generator.html?lang=en">→ NanoID Generator</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes. For actual system design, we recommend also consulting the relevant library and standards-spec documentation.</footer>
+</main>
+</body>
+</html>

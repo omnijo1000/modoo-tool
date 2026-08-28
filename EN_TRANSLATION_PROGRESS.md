@@ -1,6 +1,6 @@
 # 가이드 영어(EN) 번역 진행 상황
 
-**마지막 갱신**: 2026-08-28  |  **진행률**: 120/176
+**마지막 갱신**: 2026-08-28  |  **진행률**: 130/176
 
 ## 배경 & 방식
 
@@ -37,8 +37,8 @@
 | 개발자 도구 (developer-tools) | 52/52 |
 | 텍스트 도구 (text-tools) | 32/32 |
 | 이미지 도구 (image-tools) | 24/24 |
-| 생성기 도구 (generator-tools) | 12/21 |
-| 보안 도구 (security-tools) | 0/17 |
+| 생성기 도구 (generator-tools) | 21/21 |
+| 보안 도구 (security-tools) | 1/17 |
 | PDF 도구 (pdf-tools) | 0/13 |
 | AI 도구 (ai-tools) | 0/10 |
 | 데이터 도구 (data-tools) | 0/7 |
@@ -162,7 +162,7 @@
 - [x] `transparent-background-color-key-tolerance` ← tool: `transparent-background-maker`
 - [x] `webp-compatibility-kakaotalk-old-devices` ← tool: `webp-to-jpg`
 
-## 생성기 도구 (generator-tools) — 12/21
+## 생성기 도구 (generator-tools) — 21/21
 
 - [x] `apache-htaccess-vs-virtualhost-performance` ← tool: `apache-config-generator`
 - [x] `google-title-pixel-width-truncation` ← tool: `seo-title-generator`
@@ -176,19 +176,19 @@
 - [x] `qr-code-error-correction-logo` ← tool: `qr-code-generator`
 - [x] `random-string-modulo-bias-rejection-sampling` ← tool: `nanoid-generator`
 - [x] `robots-txt-allow-disallow-conflict-rule` ← tool: `robots-txt-generator`
-- [ ] `schema-markup-json-ld-rich-snippet-ctr` ← tool: `schema-markup-generator`
-- [ ] `sitemap-generator-50000-url-limit` ← tool: `sitemap-generator`
-- [ ] `twitter-card-og-tag-fallback` ← tool: `twitter-card-generator`
-- [ ] `ulid-crockford-base32-no-ilou` ← tool: `ulid-generator`
-- [ ] `utm-internal-link-tracking-mistake` ← tool: `utm-builder`
-- [ ] `uuid-crypto-randomuuid-collision-probability` ← tool: `uuid-generator`
-- [ ] `uuid-variant-bits-fourth-group` ← tool: `uuid-converter`
-- [ ] `youtube-thumbnail-text-10-char-limit` ← tool: `ai-thumbnail-title-generator`
-- [ ] `youtube-title-thumbnail-redundancy` ← tool: `ai-youtube-title-generator`
+- [x] `schema-markup-json-ld-rich-snippet-ctr` ← tool: `schema-markup-generator`
+- [x] `sitemap-generator-50000-url-limit` ← tool: `sitemap-generator`
+- [x] `twitter-card-og-tag-fallback` ← tool: `twitter-card-generator`
+- [x] `ulid-crockford-base32-no-ilou` ← tool: `ulid-generator`
+- [x] `utm-internal-link-tracking-mistake` ← tool: `utm-builder`
+- [x] `uuid-crypto-randomuuid-collision-probability` ← tool: `uuid-generator`
+- [x] `uuid-variant-bits-fourth-group` ← tool: `uuid-converter`
+- [x] `youtube-thumbnail-text-10-char-limit` ← tool: `ai-thumbnail-title-generator`
+- [x] `youtube-title-thumbnail-redundancy` ← tool: `ai-youtube-title-generator`
 
-## 보안 도구 (security-tools) — 0/17
+## 보안 도구 (security-tools) — 1/17
 
-- [ ] `bcrypt-72-byte-korean-limit` ← tool: `bcrypt-generator`
+- [x] `bcrypt-72-byte-korean-limit` ← tool: `bcrypt-generator`
 - [ ] `bcrypt-validator-salt-embedded-hash` ← tool: `bcrypt-validator`
 - [ ] `cors-preflight-simple-vs-non-simple-request` ← tool: `cors-header-checker`
 - [ ] `csp-report-only-rollout-three-stages` ← tool: `csp-validator`

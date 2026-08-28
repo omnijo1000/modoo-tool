@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bcrypt's 72-Byte Limit — Why Korean Passwords Get Cut at 24 Characters | MODOO HUB</title>
+<meta name="description" content="Why bcrypt only hashes the first 72 bytes of a password, why Korean passwords get truncated far shorter than English ones, explained with the UTF-8 encoding structure, real calculation examples, and how to work around the limit in practice.">
+<link rel="canonical" href="https://modoohub.com/guides/bcrypt-72-byte-korean-limit-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/bcrypt-72-byte-korean-limit.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/bcrypt-72-byte-korean-limit-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/bcrypt-72-byte-korean-limit.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Bcrypt's 72-Byte Limit — Why Korean Passwords Get Cut at 24 Characters","description":"Why bcrypt only hashes the first 72 bytes of a password, and why Korean passwords get truncated far shorter than English ones, explained through UTF-8 encoding structure and real calculation examples.","datePublished":"2026-08-28","dateModified":"2026-08-28","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Why does bcrypt only use the first 72 bytes for hashing?","acceptedAnswer":{"@type":"Answer","text":"bcrypt's internal algorithm, a modified Blowfish key schedule, was fixed from its original design to accept an input key of at most 72 bytes. This isn't a bug in any particular library — it's a limitation of the bcrypt algorithm specification itself. Anything past 72 bytes is silently truncated and never factored into the hash calculation at all, with no error or warning."}},
+{"@type":"Question","name":"Why do Korean passwords get cut off so much shorter than English ones?","acceptedAnswer":{"@type":"Answer","text":"English letters and digits each take up 1 byte per character in UTF-8, so they use nearly all 72 characters. Korean characters, however, take up 3 bytes per character in UTF-8, so once you divide 72 bytes by 3 bytes you get 24 characters — anything past the 24th character is ignored entirely."}},
+{"@type":"Question","name":"Do two Korean passwords that differ only after the 24th character really produce the same hash?","acceptedAnswer":{"@type":"Answer","text":"Yes. If the first 24 characters (72 bytes) are identical and the two passwords only differ from the 25th character onward, the bytes that actually go into the bcrypt calculation are identical, so the resulting hash is identical too. This was confirmed directly by reproducing it with the bcryptjs library on modoohub.com's bcrypt-generator.html."}},
+{"@type":"Question","name":"How do you work around this 72-byte limit in practice?","acceptedAnswer":{"@type":"Answer","text":"The most common workaround is to not feed the original password into bcrypt directly, but to first hash it with SHA-256 — which always produces a fixed 32-byte value — and feed that result into bcrypt instead. That way, no matter how long the original password is, the number of bytes going into bcrypt is always fixed at 32, comfortably within the 72-byte limit."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html?lang=en" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Bcrypt's 72-Byte Limit — Why Korean Passwords Get Cut at 24 Characters</h1>
+  <p class="meta">Guide · Last verified Aug 28, 2026</p>
+
+  <p>When hashing passwords with bcrypt, you'll commonly see it described as supporting "up to 72 characters" — but the limit is actually <strong>72 bytes</strong>, which is a completely different thing from "72 characters." In English, this distinction barely shows up in practice. But the moment you use a Korean password, that difference turns into a real security problem. This guide explains why bcrypt is capped at exactly 72 bytes, why Korean is especially vulnerable to this issue, and how to work around it in practice — starting from the underlying calculation.</p>
+
+  <h2>1. Why is bcrypt limited to 72 bytes?</h2>
+  <p>bcrypt is a password-hashing algorithm designed in 1999 by Niels Provos and David Mazières. Internally, it works by repeatedly transforming the <strong>key schedule of the Blowfish cipher</strong> to drive up computational cost. Blowfish's key schedule function was originally designed to accept an input key of at most 448 bits, i.e. 56 bytes, and when bcrypt extended this, the way it handles the salt fixed the practical limit at <strong>72 bytes of UTF-8-encoded password bytes</strong> actually used in the hashing computation. This isn't a bug or an implementation mistake in any particular library — it's a fundamental limitation of the algorithm specification itself, and anything past 72 bytes is <strong>silently ignored</strong>, without any error or notice that truncation happened. In other words, from the 73rd byte onward, no matter what you change, it has zero effect on the resulting hash.</p>
+
+  <h2>2. Why Korean is especially vulnerable — the UTF-8 encoding structure</h2>
+  <p>The 72-byte limit itself applies equally to every password, but how many "characters" actually get reflected in the hash varies enormously depending on the encoding. In UTF-8, English letters, digits, and some symbols each take up 1 byte per character, so the 72-byte limit is practically almost the same as a 72-character limit. Korean syllable characters (가~힣), on the other hand, take up <strong>3 bytes per character</strong> in UTF-8. So dividing 72 bytes by 3 bytes gives <strong>72 ÷ 3 = 24 characters</strong> as the actual limit reflected in the hash — anything from the 25th character onward is ignored entirely, no matter how long the input is.</p>
+
+  <div class="box">
+    <strong>Byte comparison table</strong>
+    <table>
+      <tr><th>Character type</th><th>UTF-8 bytes/character</th><th>Characters representable in 72 bytes</th></tr>
+      <tr><td>English/digits (ASCII)</td><td>1 byte</td><td>72 characters</td></tr>
+      <tr><td>Korean syllables</td><td>3 bytes</td><td>24 characters</td></tr>
+    </table>
+    <p style="margin-top:10px;margin-bottom:0">For example, take two passwords that share the same first 24 Korean characters — say "가나다라마바사아자차카타파하규모두의툴생성XXXX" (24 characters + 4 more) — and only differ in the last 4 characters, one ending in "XXXX" and the other in "YYYY." Since the first 72 bytes are completely identical, <strong>the resulting bcrypt hashes are identical</strong> too. A user who types a Korean password longer than 24 characters, without realizing it, ends up with the effective strength of a 24-character password.</p>
+  </div>
+
+  <h2>3. How modoohub.com's bcrypt-generator.html handles this</h2>
+  <p>Rather than silently truncating input, this site's <a href="../bcrypt-generator.html?lang=en">bcrypt generator</a> handles the problem with a <strong>real-time warning</strong>. Every time you type into the password field, it calculates the UTF-8 byte length using <code>TextEncoder</code>, and the moment it exceeds 72 bytes, it immediately displays a warning: "⚠️ Currently N bytes — bcrypt ignores anything past 72 bytes." The actual hashing itself is delegated entirely to the bcryptjs library (running in-browser, served via cdn.jsdelivr.net), and the input is never pre-truncated or substituted — in other words, it's a "warn only, don't truncate" design. The intent is for the user to notice the problem and either adjust their password themselves, or apply the pre-hashing workaround described below.</p>
+
+  <h2>4. How to work around the 72-byte limit in practice</h2>
+  <p>If you're implementing a server-side authentication system yourself, the most common workaround is to not feed the original password into bcrypt directly, but to <strong>first hash it with SHA-256</strong> and use that result (always a fixed 32-byte length) as bcrypt's input. Since SHA-256 always produces a 256-bit (32-byte) output regardless of input length, no matter how many Korean characters or how many thousands of English characters the original password has, the number of bytes going into bcrypt stays fixed at 32 bytes — comfortably within the 72-byte limit. When using this approach, though, you need to be consistent across the entire project about whether you feed in the SHA-256 output as a base64 or hex string, or as raw bytes — and if you already have hashes stored where the original password was fed straight into bcrypt, switching to this approach requires a full rehash (a migration that happens on the user's next login). Switching entirely to a modern algorithm without the 72-byte limit, such as Argon2, is also a viable fundamental alternative.</p>
+
+  <h2>5. Summary — the order of checks to run</h2>
+  <ul>
+    <li><strong>Check your password's byte count</strong>: first verify you're not exceeding 24 Korean characters or 72 English characters.</li>
+    <li><strong>Audit your existing system</strong>: if your server feeds the original password straight into bcrypt, check whether anything past 72 bytes is being silently ignored.</li>
+    <li><strong>Consider adopting pre-hashing</strong>: if you have long passwords or many multilingual users, consider SHA-256 pre-hashing or switching to Argon2.</li>
+  </ul>
+
+  <h2>Frequently Asked Questions</h2>
+  <details class="faq-item"><summary>Q. Why does bcrypt only use the first 72 bytes for hashing?</summary><p>A. bcrypt's internal algorithm, a modified Blowfish key schedule, was fixed from its original design to accept an input key of at most 72 bytes. This isn't a bug in any particular library — it's a limitation of the bcrypt algorithm specification itself. Anything past 72 bytes is silently truncated and never factored into the hash calculation at all, with no error or warning.</p></details>
+  <details class="faq-item"><summary>Q. Why do Korean passwords get cut off so much shorter than English ones?</summary><p>A. English letters and digits each take up 1 byte per character in UTF-8, so they use nearly all 72 characters. Korean characters, however, take up 3 bytes per character in UTF-8, so once you divide 72 bytes by 3 bytes you get 24 characters — anything past the 24th character is ignored entirely.</p></details>
+  <details class="faq-item"><summary>Q. Do two Korean passwords that differ only after the 24th character really produce the same hash?</summary><p>A. Yes. If the first 24 characters (72 bytes) are identical and the two passwords only differ from the 25th character onward, the bytes that actually go into the bcrypt calculation are identical, so the resulting hash is identical too. This was confirmed directly by reproducing it with the bcryptjs library on modoohub.com's bcrypt-generator.html.</p></details>
+  <details class="faq-item"><summary>Q. How do you work around this 72-byte limit in practice?</summary><p>A. The most common workaround is to not feed the original password into bcrypt directly, but to first hash it with SHA-256 — which always produces a fixed 32-byte value — and feed that result into bcrypt instead. That way, no matter how long the original password is, the number of bytes going into bcrypt is always fixed at 32, comfortably within the 72-byte limit.</p></details>
+
+  <div class="tool-links">
+    <a href="../bcrypt-generator.html?lang=en">→ Bcrypt Generator</a>
+    <a href="../bcrypt-validator.html?lang=en">→ Bcrypt Validator</a>
+    <a href="../hash-generator.html?lang=en">→ Hash Generator</a>
+    <a href="../hmac-generator.html?lang=en">→ HMAC Generator</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general informational purposes only. Please consult the latest security recommendations when designing an actual authentication system.</footer>
+</main>
+</body>
+</html>
