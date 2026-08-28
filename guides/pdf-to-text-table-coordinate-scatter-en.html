@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why Tables Copied From a PDF Come Out Scrambled — the Coordinate Storage Structure | MODOO HUB</title>
+<meta name="description" content="Why copying a table out of a PDF scrambles rows and columns, dissected through how PDF scatters text as coordinate values and how PDF.js extracts it.">
+<link rel="canonical" href="https://modoohub.com/guides/pdf-to-text-table-coordinate-scatter-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/pdf-to-text-table-coordinate-scatter.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/pdf-to-text-table-coordinate-scatter-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/pdf-to-text-table-coordinate-scatter.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Why Tables Copied From a PDF Come Out Scrambled — the Coordinate Storage Structure","description":"Why copying a table out of a PDF scrambles rows and columns, dissected through how PDF scatters text as coordinate values.","datePublished":"2026-08-28","dateModified":"2026-08-28","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Is a scrambled table a bug in the tool?","acceptedAnswer":{"@type":"Answer","text":"No. The PDF format has no logical concept of a table, and text is stored only as coordinate-based drawing instructions, so it's a structural limitation. Most free extraction tools that use PDF.js have the same limit."}},
+{"@type":"Question","name":"Can I fully reconstruct a table using the (x, y) coordinates?","acceptedAnswer":{"@type":"Answer","text":"You can improve it substantially but not perfectly. Merged cells, cells with line breaks, and tables mixing font sizes often make row/column boundaries ambiguous from coordinates alone, so manual correction may still be needed."}},
+{"@type":"Question","name":"Why can't a scanned paper table be extracted at all?","acceptedAnswer":{"@type":"Answer","text":"A scanned PDF is a photo of paper stored as an image only — there's no \"character\" information, just pixels. That's a stage before the coordinate-order problem: you have to run OCR to generate character data before extraction is possible."}},
+{"@type":"Question","name":"Is there a way to make a PDF so tables don't break?","acceptedAnswer":{"@type":"Answer","text":"You can't fully prevent it, but exporting to PDF directly from a program that explicitly understands table structure — Word, Excel, a word processor — generally draws in row order, producing relatively tidy extraction. Avoid wrapping a printed web page or an image capture into a PDF."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 5px;font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html?lang=en" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Why Tables Copied From a PDF Come Out Scrambled — the Coordinate Storage Structure</h1>
+  <p class="meta">Guide · Last verified Aug 20, 2026</p>
+
+  <p>Save a spreadsheet table as a PDF, then pull it back out as text, and you've probably seen columns collapse into one line or numbers land out of order. This isn't because the extraction tool is flimsy — it's a structural phenomenon that arises because the PDF format itself doesn't know what a "table" is. This guide starts from how text is actually stored inside a PDF and works through why tables in particular break.</p>
+
+  <h2>1. A PDF isn't a "document," it's a "drawing spec on a coordinate plane"</h2>
+  <p>A Word file stores logical structure — paragraphs, tables, cells — as-is. But PDF is a format aimed at reproducing the printed output exactly, so what gets stored is a sequence of instructions: "stamp this glyph at this coordinate (x, y) in this font and size." The concepts of paragraph and table don't exist inside a PDF, and what looks like a table on screen is merely the visual result of number and letter fragments laid out in a grid pattern. To the human eye it's a table, but there's not a single byte of "table" information in the file.</p>
+
+  <h2>2. In what order does PDF.js pull out text</h2>
+  <p>PDF.js, the standard library that parses PDFs directly in the browser, returns a list of text fragments (items) for a page via <code>getTextContent()</code>. The order of this list is not a "reading order" re-sorted by coordinate — it's <strong>exactly the order</strong> in which the instructions to draw those characters were recorded inside the PDF file. That order depends on what order the program that made the PDF emitted its drawing instructions: some PDFs draw a table left-to-right, top-to-bottom in order; others draw a whole column first before moving to the next. MODOO HUB's <a href="../pdf-to-text.html?lang=en">PDF → TXT converter</a> follows this principle directly — it doesn't rearrange fragments by coordinate, it concatenates them in the order <code>getTextContent()</code> returns them, adding a newline only when there's a line-break signal (<code>hasEOL</code>). That means there's no coordinate-sorting logic at all, so the more a PDF's drawing order differs from the visual reading order, the more the extraction result diverges.</p>
+
+  <h2>3. Why tables break especially badly</h2>
+  <p>Ordinary body paragraphs are mostly drawn top-to-bottom, left-to-right in order, so drawing order and reading order nearly match. That's why body text extracts without much awkwardness. Tables are different. Depending on the PDF generation engine, a table might be drawn <strong>row-first</strong> (all of row 1 → all of row 2), or <strong>column-first</strong> (all of column 1 → all of column 2), and it's common to skip empty space at separate coordinates to implement in-cell alignment (center, right). When that order is scrambled, the extracted text ends up looking like "row 1 col 1, row 2 col 1, row 3 col 1, row 1 col 2..." — columns reading like rows — or several rows' values concatenated onto one line. The coordinate information itself remains inside <code>item.transform</code>, but without separate logic to read those coordinates and reconstruct a row/column grid, the original table structure can't be recovered.</p>
+
+  <div class="box">
+    <strong>Example</strong>: for a 2×2 table (top-left reading "Name / Score / John / 90"), if the PDF stored it <strong>column-first</strong>, text extracted as-is with no coordinate sorting scrambles like this:
+    <table>
+      <tr><th>Original table (as seen)</th><th>Result extracted in coordinate order</th></tr>
+      <tr><td>Name | Score<br>John | 90</td><td>Name John Score 90</td></tr>
+    </table>
+    The information that "Name" and "John" were one column, and that "Name" and "Score" were one row, is all gone — only the drawing order remains.
+  </div>
+
+  <h2>4. So how should you deal with it</h2>
+  <p>If you need to extract data accurately from a PDF containing tables, this priority order is realistic. First, if the original was Excel or Word, pulling the data directly from the original file before converting to PDF is the surest. Second, if there's no original, you need a dedicated table-extraction tool with coordinate-based reconstruction logic (an algorithm that groups rows by each fragment's y-coordinate and sorts columns by x-coordinate). Third, if it's a scanned PDF with no text at all, there's no character information before the coordinate problem even applies, so you have to run character recognition first with a <a href="../pdf-ocr.html?lang=en">PDF OCR</a> tool. If you only need plain body text rather than tables, the <a href="../pdf-to-text.html?lang=en">PDF → TXT converter</a> gives a perfectly usable result, and to just check page count or rough volume a <a href="../pdf-page-counter.html?lang=en">PDF page counter</a> is faster.</p>
+
+  <h2>5. The result varies by how the PDF was made</h2>
+  <p>Even with the same table data, extraction quality varies greatly by which program made the PDF. Word's or a word processor's "Save as PDF" usually draws tables row by row in order and breaks relatively little, but a PDF made by printing a web page, or a reporting tool with a complex layout engine (BI tools, accounting software), often reorders drawing arbitrarily for rendering optimization and scrambles much worse. PDFs from the same tool tend to follow consistent rules, so if you repeatedly extract the same table format, figuring out the breakage pattern from a few samples first can cut down manual cleanup time.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details class="faq-item"><summary>Q. Is a scrambled table a bug in the tool?</summary><p>A. No. The PDF format has no logical concept of a table, and text is stored only as coordinate-based drawing instructions, so it's a structural limitation. Most free extraction tools that use PDF.js have the same limit.</p></details>
+  <details class="faq-item"><summary>Q. Can I fully reconstruct a table using the (x, y) coordinates?</summary><p>A. You can improve it substantially but not perfectly. Merged cells, cells with line breaks, and tables mixing font sizes often make row/column boundaries ambiguous from coordinates alone, so manual correction may still be needed.</p></details>
+  <details class="faq-item"><summary>Q. Why can't a scanned paper table be extracted at all?</summary><p>A. A scanned PDF is a photo of paper stored as an image only — there's no "character" information, just pixels. That's a stage before the coordinate-order problem: you have to run OCR to generate character data before extraction is possible.</p></details>
+  <details class="faq-item"><summary>Q. Is there a way to make a PDF so tables don't break?</summary><p>A. You can't fully prevent it, but exporting to PDF directly from a program that explicitly understands table structure — Word, Excel, a word processor — generally draws in row order, producing relatively tidy extraction. Avoid wrapping a printed web page or an image capture into a PDF.</p></details>
+
+  <div class="tool-links">
+    <a href="../pdf-to-text.html?lang=en">→ PDF → TXT Converter</a>
+    <a href="../pdf-ocr.html?lang=en">→ PDF OCR</a>
+    <a href="../pdf-page-counter.html?lang=en">→ PDF Page Counter</a>
+    <a href="../pdf-extract-text.html?lang=en">→ PDF Text Extraction</a>
+    <a href="../pdf-word-counter.html?lang=en">→ PDF Word Counter</a>
+    <a href="../pdf-metadata-viewer.html?lang=en">→ PDF Metadata Viewer</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general information; document handling can vary by the PDF generation program.</footer>
+</main>
+</body>
+</html>

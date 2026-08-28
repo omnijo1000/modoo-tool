@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why PDF OCR Behaves Differently on Every Page | MODOO HUB</title>
+<meta name="description" content="Why a good PDF OCR tool doesn't judge the whole document at once but checks each page independently for a text layer — and the exact criterion (getTextContent item count) it uses, dissected at the code level.">
+<link rel="canonical" href="https://modoohub.com/guides/pdf-ocr-per-page-text-detection-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/pdf-ocr-per-page-text-detection.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/pdf-ocr-per-page-text-detection-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/pdf-ocr-per-page-text-detection.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Why PDF OCR Behaves Differently on Every Page","description":"Why a good PDF OCR tool checks each page independently for a text layer instead of judging the whole document at once, and the exact criterion it uses.","datePublished":"2026-08-28","dateModified":"2026-08-28","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"What happens on a page that mixes text and images?","acceptedAnswer":{"@type":"Answer","text":"If that page's getTextContent() returns more than 5 items, it's treated as having a text layer and extracted directly. In that case, characters that live inside an image on the page (a caption baked into a picture, for example) are not sent through OCR and may not be extracted."}},
+{"@type":"Question","name":"Is there a way to know in advance whether the whole document is a scan?","acceptedAnswer":{"@type":"Answer","text":"There's no dedicated check, but if you open the file in a PDF viewer and try to drag-select text, you can get a rough idea. If nothing selects at all, it's very likely a scan."}},
+{"@type":"Question","name":"Can the user change the 5-item threshold?","acceptedAnswer":{"@type":"Answer","text":"It's currently a fixed value with no UI option to adjust it. Just be aware that a cover page with very little text can get routed to OCR."}},
+{"@type":"Question","name":"How do I make processing faster?","acceptedAnswer":{"@type":"Answer","text":"Narrow the page range to the scanned section so the tool doesn't waste time walking through text pages, and reduce the number of pages that actually need OCR — that's the most effective lever."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 5px;font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html?lang=en" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Why PDF OCR Behaves Differently on Every Page</h1>
+  <p class="meta">Guide · Last verified Aug 28, 2026</p>
+
+  <p>Within a single PDF, some pages produce extracted text instantly while others make you wait. If you've ever thought "why is this OCR tool so inconsistent?", that's not a bug — it's the design. A PDF document can be built differently page by page, and a good OCR tool detects that difference at the page level, spending the expensive computation only on the pages that need it. This article looks at exactly what criterion that decision uses, and at what point it's made, at the code level.</p>
+
+  <h2>1. PDFs are often "digital cover, scanned body"</h2>
+  <p>Contracts, official filings, and academic papers very frequently pair a word-processed cover page and signature block with a body that came in from a fax or scanner. If a tool looks at just the first page of a file like this and decides "this PDF is a text PDF" or "this PDF is a scan" for the whole document at once, you get errors: it needlessly OCRs the entire file even though text is already present, or it "extracts text" from a scanned body and returns an empty string. That's why the <a href="../pdf-ocr.html?lang=en">PDF OCR text extractor</a> is built to make its decision <strong>per page</strong>, not per document.</p>
+
+  <h2>2. The criterion: a threshold of "more than 5 text items"</h2>
+  <p>PDF.js, the library that reads PDFs in the browser, returns an array of embedded text fragments (character- and word-level items) when you call <code>getTextContent()</code> on a page object. A normal PDF with a text layer produces dozens of items from even a single sentence, but a pure scanned-image PDF has no text layer at all, so this array comes back empty or with just a tiny number of fragments (a watermark, a page number, some incidentally embedded text). The tool judges a page to "have a text layer" based on whether the length of this array is <strong>greater than 5</strong>.</p>
+  <div class="box">
+    <strong>The actual code flow</strong> (pdf-ocr.html): it walks the page array and branches on each page with <code>const tc = await pg.getTextContent(); if (tc.items.length &gt; 5)</code>. If true, it joins the text immediately with <code>tc.items.map(item =&gt; item.str).join(' ')</code>; if false, it renders that page alone to a canvas at 2x scale and hands it to Tesseract.js for OCR. This test-and-branch repeats independently for every page.
+  </div>
+
+  <h2>3. Why "5" — what the threshold does</h2>
+  <p>Set the threshold to 0 (treat a page as a text PDF if it has even one text item) and an image-only page can be misjudged as "has text" because of a page-number stamp inserted by the scanner or one or two fragments of a hidden text layer that OCR software automatically laid down. The margin of 5 is a safety device that filters out this kind of noise text and only flags pages that contain real paragraphs and sentences as "has a text layer." Because the value is fixed, though, a cover page holding just one short title line may not clear 5 items and can get routed to OCR — a natural limitation that falls out of this structure.</p>
+
+  <h2>4. Mixed-document processing example</h2>
+  <p>Suppose a 10-page document where page 1 is a word-processed cover, pages 2–8 are a scanned body, and pages 9–10 are a digitally authored appendix. The processing flow looks like this:</p>
+  <table>
+    <tr><th>Page</th><th>getTextContent item count</th><th>Verdict</th><th>Processing</th></tr>
+    <tr><td>1 (cover)</td><td>42</td><td>Has text</td><td>Immediate text extraction</td></tr>
+    <tr><td>2–8 (scanned body)</td><td>0–2</td><td>No text</td><td>2x render + Tesseract OCR</td></tr>
+    <tr><td>9–10 (appendix)</td><td>30+</td><td>Has text</td><td>Immediate text extraction</td></tr>
+  </table>
+  <p>Here actual OCR computation happens only on the 7 pages 2–8; the other 3 are processed instantly. That's why processing time isn't proportional to the total page count but only to the "number of scanned pages."</p>
+
+  <h2>5. What to remember as a user</h2>
+  <ul>
+    <li><strong>Uneven processing speed is normal</strong>: text-page stretches fly by, and the progress bar only crawls through the scanned section.</li>
+    <li><strong>You can save time with a page range</strong>: if you know where the scanned pages are, narrow the range to cut out the unnecessary full walk.</li>
+    <li><strong>To check the page count and structure first</strong>, use the <a href="../pdf-page-counter.html?lang=en">PDF page counter</a> to get the total, then set your OCR range.</li>
+    <li><strong>If you're sure a text layer already exists</strong>, using a <a href="../pdf-to-text.html?lang=en">PDF to text extractor</a> directly instead of OCR is faster.</li>
+  </ul>
+
+  <h2>Frequently Asked Questions</h2>
+  <details class="faq-item"><summary>Q. What happens on a page that mixes text and images?</summary><p>A. If that page's getTextContent() returns more than 5 items, it's treated as having a text layer and extracted directly. In that case, characters that live inside an image on the page (a caption baked into a picture, for example) are not sent through OCR and may not be extracted.</p></details>
+  <details class="faq-item"><summary>Q. Is there a way to know in advance whether the whole document is a scan?</summary><p>A. There's no dedicated check, but if you open the file in a PDF viewer and try to drag-select text, you can get a rough idea. If nothing selects at all, it's very likely a scan.</p></details>
+  <details class="faq-item"><summary>Q. Can the user change the 5-item threshold?</summary><p>A. It's currently a fixed value with no UI option to adjust it. Just be aware that a cover page with very little text can get routed to OCR.</p></details>
+  <details class="faq-item"><summary>Q. How do I make processing faster?</summary><p>A. Narrow the page range to the scanned section so the tool doesn't waste time walking through text pages, and reduce the number of pages that actually need OCR — that's the most effective lever.</p></details>
+
+  <div class="tool-links">
+    <a href="../pdf-ocr.html?lang=en">→ PDF OCR Text Extractor</a>
+    <a href="../pdf-to-text.html?lang=en">→ PDF to Text</a>
+    <a href="../pdf-extract-text.html?lang=en">→ PDF Text Extraction</a>
+    <a href="../pdf-page-counter.html?lang=en">→ PDF Page Counter</a>
+    <a href="../pdf-unlock.html?lang=en">→ PDF Unlock</a>
+    <a href="../pdf-word-counter.html?lang=en">→ PDF Word Counter</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general information; the tool's actual behavior depends on the file structure.</footer>
+</main>
+</body>
+</html>

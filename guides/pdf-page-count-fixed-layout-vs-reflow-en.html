@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why a PDF's Page Count Differs From the Word Document — Fixed Layout Explained | MODOO HUB</title>
+<meta name="description" content="Why the same document reports a different page count as a PDF versus in Word, explained through the difference between fixed-layout and reflowable formats — and how a PDF's page count is actually stored and read.">
+<link rel="canonical" href="https://modoohub.com/guides/pdf-page-count-fixed-layout-vs-reflow-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/pdf-page-count-fixed-layout-vs-reflow.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/pdf-page-count-fixed-layout-vs-reflow-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/pdf-page-count-fixed-layout-vs-reflow.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Why a PDF's Page Count Differs From the Word Document — Fixed Layout Explained","description":"Why the same document reports a different page count as a PDF versus in Word, explained through fixed-layout versus reflowable formats.","datePublished":"2026-08-28","dateModified":"2026-08-28","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"The same .docx file shows a different page count on my work and home computers. Is the file corrupted?","acceptedAnswer":{"@type":"Answer","text":"No. Word is a reflowable format, so every time it opens it recalculates the page count to match the installed fonts, printer driver, and margin settings. This is normal behavior, not corruption. If you need the page count fixed, save as PDF."}},
+{"@type":"Question","name":"How can a PDF's page count be known so fast, without rendering?","acceptedAnswer":{"@type":"Answer","text":"Because the total page count (the Count value) is already stored structurally in the Pages tree object inside the PDF file. It's read directly rather than counted by drawing each page, so even a several-hundred-page file is processed instantly."}},
+{"@type":"Question","name":"For a submission with a page limit, which format is safe?","acceptedAnswer":{"@type":"Answer","text":"PDF. A .docx submission can show a different page count depending on the viewer's environment, but a PDF delivers exactly the page count the author verified, so there's no risk of breaking the limit."}},
+{"@type":"Question","name":"Can I check the page count of a password-protected PDF?","acceptedAnswer":{"@type":"Answer","text":"Usually yes. pdf-lib's ignoreEncryption option lets it read just the page count without a password. Some files with very strong encryption such as AES-256 may be restricted."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 5px;font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html?lang=en" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Why a PDF's Page Count Differs From the Word Document — Fixed Layout Explained</h1>
+  <p class="meta">Guide · Last verified Aug 19, 2026</p>
+
+  <p>Saving the same report as a .docx and as a PDF and getting a different page count is a common experience. Sometimes the same .docx file even shows a different page count when opened on another computer. This isn't a bug — it's a structural difference that arises because the two formats treat the very concept of a "page" in completely different ways. This guide explains, at the file-structure level, why a PDF always shows the same page count and why Word doesn't.</p>
+
+  <h2>1. PDF is a "fixed-layout" format</h2>
+  <p>PDF (Portable Document Format) was designed, as the name says, to "look the same wherever you open it." To achieve that, PDF nails down the content and position of each page in coordinate units and embeds it directly in the file. The overall document structure is managed by a <strong>Pages object</strong> in the file, in tree form, and the top node of this tree (the root Pages object) holds a <strong>Kids array</strong> pointing to the child page objects and a <strong>Count value</strong> meaning the number of pages in that array. In other words, "how many pages is this PDF" is not a value you find out by rendering — it's a <strong>structural fact</strong> that's settled the moment you open the file, by reading that single Count value. That's why the page count never changes no matter which PDF viewer, OS, printer, or screen size you open it with.</p>
+
+  <h2>2. Word is a "reflowable" format</h2>
+  <p>.docx takes the opposite approach. The file stores only text, paragraph, and formatting information — the value "an N-page document" is never stored in fixed form at all. How many pages it splits into on screen is <strong>computed in real time</strong> by the word processor (or viewer) at the moment the document opens. The variables that feed into the calculation include paper size, margins, font family and size, line spacing — and even <strong>subtle font-metric differences in the installed printer driver</strong>. So the same .docx really can be 12 pages on the office computer and 13 pages at home. This isn't a flaw in Word; it's the result of the design itself — "reflow the content to fit the screen and paper size."</p>
+
+  <div class="box">
+    <strong>The key difference</strong>: a PDF's page count is a "stored value" inside the file; Word's page count is a "computed value" every time it opens. The former is immutable, the latter varies with the environment.
+  </div>
+
+  <h2>3. What Word→PDF conversion does: it "freezes" the reflow</h2>
+  <p>The moment you export a Word document to PDF, the layout computed once with that point-in-time combination of paper settings, fonts, and margins is fixed as coordinate values and embedded in the PDF. From then on, opening that PDF on a device on the other side of the world, in a different font environment, reproduces the page count and even the position of every line identically. That's why "freeze" or "set in stone" describes it better than "convert." Conversely, if you want to adjust the page count before exporting to PDF, you have to change the margins or font size in the original .docx to hit the target page count and then export in that state. Once it's saved as PDF, changing the page count itself means <a href="../pdf-reorder-pages.html?lang=en">merging and rearranging pages</a> or re-editing the content.</p>
+
+  <h2>4. Why it matters in practice: constraints like "within 5 pages"</h2>
+  <p>The "within N pages" rule commonly attached to resumes, papers, contracts, and submission forms means something entirely different depending on the file format. Submit a live .docx and there's a risk the page count grows and breaks the rule when the reviewer opens it with a different printer or Word version. Submit a PDF and the page count the author saw on their screen matches, 100%, the page count the recipient gets. Documents with a page limit should as a rule be converted to PDF and then verified with a <a href="../pdf-page-counter.html?lang=en">PDF page counter</a>.</p>
+
+  <h2>5. How this counter finds the page count</h2>
+  <p>The MODOO HUB PDF page counter loads the file with the pdf-lib library and calls <code>getPageCount()</code>. That function doesn't draw and tally the PDF page by page — it parses the Pages tree structure described above and reads the Count value directly. So even a several-hundred-page PDF returns a result instantly with no rendering, and since the file is never sent to a server and is processed entirely in the browser, confidential documents can be checked safely. Password-protected PDFs can mostly have just their page count read without a password, thanks to the <code>ignoreEncryption</code> option.</p>
+
+  <h2>6. Scanned PDF vs. text PDF: same page count, different weight</h2>
+  <p>The page count itself is computed identically whether it's a scan or text-based. But a scanned PDF stores each page as a whole image (raster), so the file size per page is far larger, while a text-based PDF is vector data and much lighter. When dealing with large PDFs, checking the per-page size (KB/page) alongside the page count lets you quickly judge which files need compression. Large PDFs are worth running through a <a href="../pdf-compressor.html?lang=en">PDF compressor</a>, and the actual text volume relative to page count through a <a href="../pdf-word-counter.html?lang=en">PDF word counter</a>.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details class="faq-item"><summary>Q. The same .docx file shows a different page count on my work and home computers. Is the file corrupted?</summary><p>A. No. Word is a reflowable format, so every time it opens it recalculates the page count to match the installed fonts, printer driver, and margin settings. This is normal behavior, not corruption. If you need the page count fixed, save as PDF.</p></details>
+  <details class="faq-item"><summary>Q. How can a PDF's page count be known so fast, without rendering?</summary><p>A. Because the total page count (the Count value) is already stored structurally in the Pages tree object inside the PDF file. It's read directly rather than counted by drawing each page, so even a several-hundred-page file is processed instantly.</p></details>
+  <details class="faq-item"><summary>Q. For a submission with a page limit, which format is safe?</summary><p>A. PDF. A .docx submission can show a different page count depending on the viewer's environment, but a PDF delivers exactly the page count the author verified, so there's no risk of breaking the limit.</p></details>
+  <details class="faq-item"><summary>Q. Can I check the page count of a password-protected PDF?</summary><p>A. Usually yes. pdf-lib's ignoreEncryption option lets it read just the page count without a password. Some files with very strong encryption such as AES-256 may be restricted.</p></details>
+
+  <div class="tool-links">
+    <a href="../pdf-page-counter.html?lang=en">→ PDF Page Counter</a>
+    <a href="../pdf-word-counter.html?lang=en">→ PDF Word Counter</a>
+    <a href="../pdf-size-analyzer.html?lang=en">→ PDF Size Analyzer</a>
+    <a href="../pdf-metadata-viewer.html?lang=en">→ PDF Metadata Viewer</a>
+    <a href="../pdf-compressor.html?lang=en">→ PDF Compressor</a>
+    <a href="../pdf-merge.html?lang=en">→ PDF Merge</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general informational purposes.</footer>
+</main>
+</body>
+</html>

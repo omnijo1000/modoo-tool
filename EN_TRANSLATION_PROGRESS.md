@@ -1,6 +1,6 @@
 # 가이드 영어(EN) 번역 진행 상황
 
-**마지막 갱신**: 2026-08-28  |  **진행률**: 140/176
+**마지막 갱신**: 2026-08-28  |  **진행률**: 159/176
 
 ## 배경 & 방식
 
@@ -38,8 +38,8 @@
 | 텍스트 도구 (text-tools) | 32/32 |
 | 이미지 도구 (image-tools) | 24/24 |
 | 생성기 도구 (generator-tools) | 21/21 |
-| 보안 도구 (security-tools) | 11/17 |
-| PDF 도구 (pdf-tools) | 0/13 |
+| 보안 도구 (security-tools) | 17/17 |
+| PDF 도구 (pdf-tools) | 13/13 |
 | AI 도구 (ai-tools) | 0/10 |
 | 데이터 도구 (data-tools) | 0/7 |
 
@@ -186,7 +186,7 @@
 - [x] `youtube-thumbnail-text-10-char-limit` ← tool: `ai-thumbnail-title-generator`
 - [x] `youtube-title-thumbnail-redundancy` ← tool: `ai-youtube-title-generator`
 
-## 보안 도구 (security-tools) — 11/17
+## 보안 도구 (security-tools) — 17/17
 
 - [x] `bcrypt-72-byte-korean-limit` ← tool: `bcrypt-generator`
 - [x] `bcrypt-validator-salt-embedded-hash` ← tool: `bcrypt-validator`
@@ -199,28 +199,28 @@
 - [x] `html-decoder-native-parser-safety` ← tool: `html-decoder`
 - [x] `http-header-hsts-max-age-zero-trap` ← tool: `http-header-checker`
 - [x] `md5-sha1-hash-vs-hmac-vs-crc32` ← tool: `hash-generator`
-- [ ] `random-string-crypto-entropy-calculation` ← tool: `random-string`
-- [ ] `rsa-public-exponent-65537-pkcs-formats` ← tool: `rsa-key-generator`
-- [ ] `ssh-key-ed25519-vs-rsa-shell-escape` ← tool: `ssh-key-generator`
-- [ ] `ssl-checker-certificate-transparency-logs` ← tool: `ssl-checker`
-- [ ] `url-decoding-plus-sign-double-decode` ← tool: `url-decoder`
-- [ ] `url-double-encoding-plus-vs-percent20` ← tool: `url-encoder`
+- [x] `random-string-crypto-entropy-calculation` ← tool: `random-string`
+- [x] `rsa-public-exponent-65537-pkcs-formats` ← tool: `rsa-key-generator`
+- [x] `ssh-key-ed25519-vs-rsa-shell-escape` ← tool: `ssh-key-generator`
+- [x] `ssl-checker-certificate-transparency-logs` ← tool: `ssl-checker`
+- [x] `url-decoding-plus-sign-double-decode` ← tool: `url-decoder`
+- [x] `url-double-encoding-plus-vs-percent20` ← tool: `url-encoder`
 
-## PDF 도구 (pdf-tools) — 0/13
+## PDF 도구 (pdf-tools) — 13/13
 
-- [ ] `image-to-pdf-recompression-size-increase` ← tool: `image-to-pdf`
-- [ ] `pdf-extract-images-page-rasterize-not-embedded` ← tool: `pdf-extract-images`
-- [ ] `pdf-metadata-privacy-leak` ← tool: `pdf-metadata-viewer`
-- [ ] `pdf-metadata-remove-empty-vs-delete` ← tool: `pdf-metadata-remover`
-- [ ] `pdf-ocr-per-page-text-detection` ← tool: `pdf-ocr`
-- [ ] `pdf-page-count-fixed-layout-vs-reflow` ← tool: `pdf-page-counter`
-- [ ] `pdf-password-remover-generic-error` ← tool: `pdf-password-remover`
-- [ ] `pdf-rotate-metadata-no-quality-loss` ← tool: `pdf-rotate`
-- [ ] `pdf-size-analyzer-shared-resource-limit` ← tool: `pdf-size-analyzer`
-- [ ] `pdf-to-text-table-coordinate-scatter` ← tool: `pdf-to-text`
-- [ ] `pdf-user-vs-owner-password` ← tool: `pdf-password-adder`
-- [ ] `pdf-watermark-korean-font-embedding-limit` ← tool: `pdf-watermark`
-- [ ] `pdf-word-counter-cjk-whitespace-split` ← tool: `pdf-word-counter`
+- [x] `image-to-pdf-recompression-size-increase` ← tool: `image-to-pdf`
+- [x] `pdf-extract-images-page-rasterize-not-embedded` ← tool: `pdf-extract-images`
+- [x] `pdf-metadata-privacy-leak` ← tool: `pdf-metadata-viewer`
+- [x] `pdf-metadata-remove-empty-vs-delete` ← tool: `pdf-metadata-remover`
+- [x] `pdf-ocr-per-page-text-detection` ← tool: `pdf-ocr`
+- [x] `pdf-page-count-fixed-layout-vs-reflow` ← tool: `pdf-page-counter`
+- [x] `pdf-password-remover-generic-error` ← tool: `pdf-password-remover`
+- [x] `pdf-rotate-metadata-no-quality-loss` ← tool: `pdf-rotate`
+- [x] `pdf-size-analyzer-shared-resource-limit` ← tool: `pdf-size-analyzer`
+- [x] `pdf-to-text-table-coordinate-scatter` ← tool: `pdf-to-text`
+- [x] `pdf-user-vs-owner-password` ← tool: `pdf-password-adder`
+- [x] `pdf-watermark-korean-font-embedding-limit` ← tool: `pdf-watermark`
+- [x] `pdf-word-counter-cjk-whitespace-split` ← tool: `pdf-word-counter`
 
 ## AI 도구 (ai-tools) — 0/10
 

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why Double Encoding (%2520) Happens — encodeURIComponent and the '+' Trap | MODOO HUB</title>
+<meta name="description" content="Encoding an already-encoded URL turns %20 into %2520. A look at the difference between form data's '+' and API's '%20' for representing spaces, plus practical checkpoints to prevent double encoding.">
+<link rel="canonical" href="https://modoohub.com/guides/url-double-encoding-plus-vs-percent20-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/url-double-encoding-plus-vs-percent20.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/url-double-encoding-plus-vs-percent20-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/url-double-encoding-plus-vs-percent20.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Why Double Encoding (%2520) Happens — encodeURIComponent and the '+' Trap","description":"Encoding an already-encoded URL turns %20 into %2520. A look at the difference between form data's '+' and API's '%20' for representing spaces, plus practical checkpoints to prevent double encoding.","datePublished":"2026-08-28","dateModified":"2026-08-28","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Why does %2520 happen?","acceptedAnswer":{"@type":"Answer","text":"It happens when a string that's already percent-encoded gets encoded a second time. A single space first becomes %20 during the first encoding pass. If that string is then encoded again without checking whether it's already encoded, the % character in %20 itself gets re-encoded to %25, leaving %2520 as the final result. If the server decodes this value only once, what's left isn't a space but the literal string '%20'."}},
+{"@type":"Question","name":"Do HTML forms and REST APIs encode spaces differently?","acceptedAnswer":{"@type":"Answer","text":"Yes. An HTML form with method=GET follows the application/x-www-form-urlencoded spec and encodes a space as +. A REST API request built with the commonly used encodeURIComponent(), on the other hand, encodes a space as %20. Both are valid representations, but depending on which spec the server parses against, a + may be misread as a literal '+' character instead of a space."}},
+{"@type":"Question","name":"Should I use encodeURIComponent or encodeURI to avoid double encoding?","acceptedAnswer":{"@type":"Answer","text":"Neither function prevents double encoding on its own. What matters is clearly distinguishing what you're encoding. Encode individual query parameter values with encodeURIComponent, and encode an already-assembled full URL with encodeURI — the key to avoiding double encoding is never re-encoding a value with another function after it's already been encoded."}},
+{"@type":"Question","name":"How can I tell if a value has been double encoded?","acceptedAnswer":{"@type":"Answer","text":"If a string contains %25 (the encoding of the percent sign itself) or a repeating %2X pattern like %2520, suspect double encoding. The most reliable check is to decode the input once (decodeURIComponent) before encoding it, to confirm whether it's already encoded, and apply encoding only to genuinely raw, unencoded text."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Why Double Encoding (%2520) Happens — encodeURIComponent and the '+' Trap</h1>
+  <p class="meta">Guide · Last verified Aug 28, 2026</p>
+
+  <p>If you've worked with URL parameters, you've probably run into a strange value with a doubled-up percent sign, like <code>%2520</code>. That's not a typo — it's a classic bug that happens when you <strong>encode an already-encoded string</strong>. It's especially common in URLs that pass through multiple layers — encoded once on the frontend, then again in a backend proxy or library.</p>
+
+  <h2>1. How %20 turns into %2520</h2>
+  <p>Encode a single space with <code>encodeURIComponent</code> and you get <code>%20</code>. Since the <code>%</code> character itself also carries special meaning in a URL, if you encode this <code>%20</code> string again without checking, the <code>%</code> gets converted to its own percent-encoded form, <code>%25</code>, leaving <code>%2520</code> as the end result. If the server decodes this value only once, what's left isn't a space but the literal string <code>%20</code> — you need to decode it twice to get back to the original space. In this state, search terms or filenames can end up stored or retrieved in ways that don't match what was originally intended.</p>
+
+  <table>
+    <tr><th>Step</th><th>Value</th><th>Explanation</th></tr>
+    <tr><td>Original</td><td>hello world</td><td>Raw text with a space</td></tr>
+    <tr><td>1st encoding</td><td>hello%20world</td><td>Space correctly converted to %20</td></tr>
+    <tr><td>2nd encoding (mistake)</td><td>hello%2520world</td><td>% gets re-encoded to %25, producing double encoding</td></tr>
+    <tr><td>Only 1 decode applied</td><td>hello%20world</td><td>The literal string %20 remains instead of a space</td></tr>
+  </table>
+
+  <h2>2. Two different notations for a space: form data's '+' vs. API's '%20'</h2>
+  <p>Separate from double encoding, there's another source of confusion: there are actually two different ways to represent a space in the first place. When an HTML form is submitted with <code>method="GET"</code>, it follows the <code>application/x-www-form-urlencoded</code> spec and represents a space as a <code>+</code> sign. <code>encodeURIComponent()</code>, commonly used when building REST API requests, represents a space as <code>%20</code> instead. Both notations are valid by spec, but a <code>+</code> outside a form-data context can be interpreted as a literal plus sign — so if you feed a query string built from a form directly into a REST API parser, that <code>+</code> can end up misread as an actual '+' character instead of a space.</p>
+
+  <h2>3. How to prevent double encoding in practice</h2>
+  <p>As this site's <a href="../url-encoder.html">URL Encoder</a> explains, <code>encodeURIComponent</code> is designed for encoding a "single" query parameter value, while <code>encodeURI</code> is designed for encoding an "entire," already-assembled URL. Double encoding usually happens when that distinction gets blurred — typically in defensive code that re-encodes a value "just in case" it wasn't already encoded. The most reliable safeguard is to first try decoding a value with <code>decodeURIComponent</code> before encoding it, to check whether it's already encoded. If a string shows <code>%25</code> or a repeating <code>%2X</code> pattern, suspect double encoding and go back to check the original state.</p>
+
+  <h2>4. Summary</h2>
+  <ul>
+    <li><strong>Double encoding happens when a % gets encoded again</strong>: %20 → %2520.</li>
+    <li><strong>Form's + and API's %20 are different notations</strong>: mixing up the contexts causes parsing errors.</li>
+    <li><strong>Check by decoding before encoding</strong>: getting in the habit of checking whether a value is already encoded is the most reliable prevention.</li>
+    <li><strong>encodeURIComponent for a single value, encodeURI for a whole URL</strong>: keeping the use cases separate avoids most double-encoding issues.</li>
+  </ul>
+
+  <h2>FAQ</h2>
+  <details class="faq-item"><summary>Q. Why does %2520 happen?</summary><p>A. It happens when a string that's already percent-encoded gets encoded a second time. A single space first becomes %20 during the first encoding pass. If that string is then encoded again without checking whether it's already encoded, the % character in %20 itself gets re-encoded to %25, leaving %2520 as the final result. If the server decodes this value only once, what's left isn't a space but the literal string '%20'.</p></details>
+  <details class="faq-item"><summary>Q. Do HTML forms and REST APIs encode spaces differently?</summary><p>A. Yes. An HTML form with method=GET follows the application/x-www-form-urlencoded spec and encodes a space as +. A REST API request built with the commonly used encodeURIComponent(), on the other hand, encodes a space as %20. Both are valid representations, but depending on which spec the server parses against, a + may be misread as a literal '+' character instead of a space.</p></details>
+  <details class="faq-item"><summary>Q. Should I use encodeURIComponent or encodeURI to avoid double encoding?</summary><p>A. Neither function prevents double encoding on its own. What matters is clearly distinguishing what you're encoding. Encode individual query parameter values with encodeURIComponent, and encode an already-assembled full URL with encodeURI — the key to avoiding double encoding is never re-encoding a value with another function after it's already been encoded.</p></details>
+  <details class="faq-item"><summary>Q. How can I tell if a value has been double encoded?</summary><p>A. If a string contains %25 (the encoding of the percent sign itself) or a repeating %2X pattern like %2520, suspect double encoding. The most reliable check is to decode the input once (decodeURIComponent) before encoding it, to confirm whether it's already encoded, and apply encoding only to genuinely raw, unencoded text.</p></details>
+  <details class="faq-item"><summary>Q. Do URLs with Korean (or other non-Latin) characters also suffer from double encoding?</summary><p>A. Yes. Encoding the Korean character '안' produces %EC%95%88. Encode that value again, and each % becomes %25, producing a much longer, messier string like %25EC%2595%2588. URLs with non-Latin characters actually make double encoding more noticeable, since the string grows dramatically longer — which makes it easier to catch.</p></details>
+  <details class="faq-item"><summary>Q. Can a URL typed directly into the browser's address bar also get double encoded?</summary><p>A. The browser itself only encodes an address-bar input once before sending the request. Double encoding is mainly a problem that arises in application code, as a URL passes through multiple stages — frontend, backend, external API, and so on.</p></details>
+  <details class="faq-item"><summary>Q. What happens if I run decodeURIComponent on a string that's already decoded?</summary><p>A. Applying decodeURIComponent to plain, unencoded text (with no percent signs) just returns the original string unchanged — no error. However, if there's a malformed sequence where % isn't followed by two valid hex digits, it can still throw a URIError.</p></details>
+  <details class="faq-item"><summary>Q. Why do & and = need to be encoded in a query string?</summary><p>A. & and = are reserved characters that delimit parameters in a query string. If they appear literally inside a parameter value, the URL structure itself breaks, and the server misreads where one parameter ends and another begins — so they must always be encoded with encodeURIComponent.</p></details>
+
+  <div class="tool-links">
+    <a href="../url-encoder.html?lang=en">→ URL Encoder</a>
+    <a href="../url-decoder.html?lang=en">→ URL Decoder</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes.</footer>
+</main>
+</body>
+</html>

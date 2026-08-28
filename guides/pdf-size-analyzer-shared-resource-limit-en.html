@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A PDF Size Analyzer's "Per-Page Size" Isn't Actually File Size | MODOO HUB</title>
+<meta name="description" content="The 'per-page size' a PDF size analyzer shows is a physical paper dimension, not data size (KB). Why PDF's shared-resource structure makes it impossible to split bytes cleanly per page, explained at the code level.">
+<link rel="canonical" href="https://modoohub.com/guides/pdf-size-analyzer-shared-resource-limit-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/pdf-size-analyzer-shared-resource-limit.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/pdf-size-analyzer-shared-resource-limit-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/pdf-size-analyzer-shared-resource-limit.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"A PDF Size Analyzer's \"Per-Page Size\" Isn't Actually File Size","description":"Why PDF's shared-resource structure makes it impossible to split bytes cleanly per page, and what the per-page bar chart actually shows.","datePublished":"2026-08-28","dateModified":"2026-08-28","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Isn't the name \"per-page size\" itself misleading, then?","acceptedAnswer":{"@type":"Answer","text":"Somewhat. The word \"size\" gets used for both data size and physical dimensions. In this tool it means the paper size (A4, Letter, etc.), and the on-screen FAQ and description state this."}},
+{"@type":"Question","name":"Do other PDF tools show per-page byte size?","acceptedAnswer":{"@type":"Answer","text":"Desktop editors like Adobe Acrobat sometimes provide a report that internally re-lays-out and computes resources per page during an optimization (rewrite) pass. But even there, how shared resources get attributed to pages depends on each tool's internal algorithm, so it's not an absolute answer."}},
+{"@type":"Question","name":"If I can't find the cause of a large file per page, how do I shrink it?","acceptedAnswer":{"@type":"Answer","text":"You can reduce the whole file without per-page analysis by lowering image compression quality or removing unnecessary embedded fonts. A PDF compressor re-encodes the whole document's resources in bulk with no per-page attribution, so it works regardless of this problem."}},
+{"@type":"Question","name":"Is the creation/modification date showing as a strange string the same issue?","acceptedAnswer":{"@type":"Answer","text":"That's a separate issue. The PDF standard stores dates in a format like D:20240115093000+09'00', and this tool just displays the raw string from pdf.js with no code to convert it into a human-readable form. Different cause from the page-size issue."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 5px;font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html?lang=en" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>A PDF Size Analyzer's "Per-Page Size" Isn't Actually File Size</h1>
+  <p class="meta">Guide · Last verified Aug 21, 2026</p>
+
+  <p>"I want to know which page of this PDF takes up the most space" seems like a natural request. But it's not widely known that answering that question with a precise number is fundamentally hard because of the structure of the PDF file format itself. Let's look at what the <a href="../pdf-size-analyzer.html?lang=en">PDF size analyzer</a> actually shows in its "per-page size" item, and the structural reason it can't show byte-level size.</p>
+
+  <h2>1. A PDF page isn't an independent file fragment</h2>
+  <p>If each page were a completely independent image file like a JPG or PNG, "how many KB is this page" would have a simple answer. But PDF isn't designed that way. Inside a PDF, "resource objects" like fonts, images, and color profiles are stored separately, and each page is built by "referencing" those resources. If the whole document uses the same font, that font data is stored exactly once in the file and every page points to the same object. So even with 100 pages, the font size is counted only once.</p>
+
+  <h2>2. Where the "attribution problem" arises</h2>
+  <p>Because of this shared structure, the very question "how many bytes is page 5" becomes ambiguous. Say a font file shared by the whole document is 500KB — should that 500KB be attributed to page 5, or only to the page that first uses the font, or split evenly across every page that uses it? There's no basis to call any of these "correct." The same goes for a single image inserted repeatedly across multiple pages. That's why a library like pdf.js doesn't provide a "per-page byte size" value at all.</p>
+  <div class="box">
+    <strong>Actual code behavior</strong>: this tool loads each page with <code>pdf.getPage(i)</code>, then reads only the viewport's <code>width</code> and <code>height</code> (in points) via <code>pg.getViewport({scale:1})</code>. It converts these to mm and matches them against standard paper names (A4, Letter, etc.) within a ±5mm tolerance, and the bar chart is a relative comparison of this width (point) value across pages. Byte-level size is never computed anywhere.
+  </div>
+
+  <h2>3. What the "per-page size" bar chart actually shows</h2>
+  <p>The bar chart on screen just draws a relative length based on each page's paper width. A wider page (a landscape page, for example) gets a longer bar, but that doesn't mean the page has lots of images or is large in file size. A text-only A4 page and an A4 page full of high-resolution photos have the same physical dimensions, so this tool displays them with the same bar length.</p>
+  <table>
+    <tr><th>Item</th><th>What's actually computed</th><th>What isn't</th></tr>
+    <tr><td>Per-page size</td><td>Physical dimensions (points→mm, matched to standard paper name)</td><td>Byte-level data size</td></tr>
+    <tr><td>Bar chart length</td><td>Relative comparison of page width (points)</td><td>That page's image/font usage</td></tr>
+  </table>
+
+  <h2>4. A misunderstanding by example</h2>
+  <p>Suppose a 10-page PDF where only 3 pages hold 5 high-resolution photos each and the rest are pure text — the actual data size is very likely overwhelmingly concentrated in those 3 pages. But if every page is the same A4, this tool's "per-page size" bar chart shows all 10 pages at the same length. In other words, judging "which page is heavy" from this screen alone can lead you to the exact opposite conclusion.</p>
+
+  <h2>5. If you need real per-page size</h2>
+  <p>This tool processes the file entirely in the browser without uploading it to a server, and in exchange it only handles information pdf.js provides reliably (dimensions). If you want to know the actual per-page byte size, the most accurate approach right now is to use the "PDF optimization" report of a professional editor like Acrobat, or split the pages into individual files with a <a href="../pdf-page-extractor.html?lang=en">PDF page extractor</a> and directly compare each file's size. If your goal is just to reduce the overall file size, using a <a href="../pdf-compressor.html?lang=en">PDF compressor</a> directly is faster.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details class="faq-item"><summary>Q. Isn't the name "per-page size" itself misleading, then?</summary><p>A. Somewhat. The word "size" gets used for both data size and physical dimensions. In this tool it means the paper size (A4, Letter, etc.), and the on-screen FAQ and description state this.</p></details>
+  <details class="faq-item"><summary>Q. Do other PDF tools show per-page byte size?</summary><p>A. Desktop editors like Adobe Acrobat sometimes provide a report that internally re-lays-out and computes resources per page during an optimization (rewrite) pass. But even there, how shared resources get attributed to pages depends on each tool's internal algorithm, so it's not an absolute answer.</p></details>
+  <details class="faq-item"><summary>Q. If I can't find the cause of a large file per page, how do I shrink it?</summary><p>A. You can reduce the whole file without per-page analysis by lowering image compression quality or removing unnecessary embedded fonts. A PDF compressor re-encodes the whole document's resources in bulk with no per-page attribution, so it works regardless of this problem.</p></details>
+  <details class="faq-item"><summary>Q. Is the creation/modification date showing as a strange string the same issue?</summary><p>A. That's a separate issue. The PDF standard stores dates in a format like D:20240115093000+09'00', and this tool just displays the raw string from pdf.js with no code to convert it into a human-readable form. Different cause from the page-size issue.</p></details>
+
+  <div class="tool-links">
+    <a href="../pdf-size-analyzer.html?lang=en">→ PDF Size Analyzer</a>
+    <a href="../pdf-compressor.html?lang=en">→ PDF Compressor</a>
+    <a href="../pdf-page-extractor.html?lang=en">→ PDF Page Extractor</a>
+    <a href="../pdf-page-counter.html?lang=en">→ PDF Page Counter</a>
+    <a href="../pdf-metadata-viewer.html?lang=en">→ PDF Metadata Viewer</a>
+    <a href="../pdf-word-counter.html?lang=en">→ PDF Word Counter</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general information; for precise file-structure analysis, use professional editing software alongside it.</footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why Your SSL Checker Never Actually Connects to the Server — How Certificate Transparency Logs Work | MODOO HUB</title>
+<meta name="description" content="Why a browser-based SSL checker queries the crt.sh Certificate Transparency log instead of performing a real TLS handshake, and what that approach can and can't tell you.">
+<link rel="canonical" href="https://modoohub.com/guides/ssl-checker-certificate-transparency-logs-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/ssl-checker-certificate-transparency-logs.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/ssl-checker-certificate-transparency-logs-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/ssl-checker-certificate-transparency-logs.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Why Your SSL Checker Never Actually Connects to the Server — How Certificate Transparency Logs Work","description":"Why a browser-based SSL checker queries the crt.sh Certificate Transparency log instead of performing a real TLS handshake, and what that approach can and can't tell you.","datePublished":"2026-08-28","dateModified":"2026-08-28","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--purple);}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;}
+details summary{cursor:pointer;font-weight:600;color:var(--text-muted);}
+details p{margin-top:8px;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Why Your SSL Checker Never Actually Connects to the Server — How Certificate Transparency Logs Work</h1>
+  <p class="meta">Guide · Last verified Aug 28, 2026</p>
+
+  <p>If you've ever used a browser-based tool to check "when does this domain's SSL certificate expire?", you may have wondered: can browser JavaScript really connect to an arbitrary third-party server and inspect its certificate? The answer is no. This guide explains how browser-based SSL checkers actually work, and the fundamental limitation baked into that approach.</p>
+
+  <h2>1. A browser can't open a TLS handshake to an arbitrary server</h2>
+  <p>Run <code>openssl s_client -connect example.com:443</code> or <code>curl -vI https://example.com</code> from a server terminal, and you'll perform a real TLS handshake with the target server and pull its certificate on the spot. But JavaScript running in a browser has no low-level TCP socket API to do this at all. That's not a bug — it's a deliberate security design. If a web page could open raw sockets to arbitrary servers on arbitrary ports, it would open the door to serious abuse (internal network scanning, protocol smuggling, and more). So any "SSL checker" tool that runs in the browser has to get certificate data some other way.</p>
+
+  <h2>2. The alternative: querying Certificate Transparency (CT) logs</h2>
+  <p><strong>Certificate Transparency (CT)</strong>, a scheme Google began pushing around 2013, requires every certificate issued by a public Certificate Authority (CA) to be submitted to a public, verifiable, append-only log. Today, essentially every major browser refuses to trust a certificate that isn't registered in a CT log, which makes the requirement effectively mandatory. <code>crt.sh</code> (operated by Sectigo) indexes the entire CT log and makes it searchable. Enter a domain name, and you can pull up every certificate ever issued for that domain — without ever connecting to the target server itself.</p>
+
+  <h2>3. What this tool actually does</h2>
+  <p>Looking at the source code, the SSL checker calls crt.sh's JSON API in the form <code>fetch('https://crt.sh/?q=DOMAIN&output=json')</code>. Instead of performing a live handshake with the server, it pulls the most recent certificate record from the CT log — expiry date, issuer, and list of SAN domains. Worth noting: the date strings crt.sh returns carry no timezone suffix, but they're actually UTC, so the tool explicitly converts them to UTC rather than letting the browser misinterpret them as local time.</p>
+  <div class="box">
+    <strong>In short</strong>: a CT log lookup answers "what certificates has this domain ever had issued?" A live handshake answers "what certificate is the server actually presenting right now?" These are fundamentally different questions.
+  </div>
+
+  <h2>4. The limits of a CT-log-based check</h2>
+  <p>A CT log only shows issuance history — it makes no guarantee that it matches what the server is <strong>currently</strong> presenting. For example, if a server misconfiguration means it's still serving an old, expired certificate, or it's loading the wrong one out of several available, a CT log lookup alone can't tell you. Likewise, everything a live handshake would reveal — which TLS protocol versions are supported, the cipher suite actually negotiated, chain-validation results from the client's point of view, or whether the certificate has been revoked (via OCSP/CRL) — is completely invisible to a CT log query. The two methods are complementary, not interchangeable.</p>
+
+  <h2>5. Which to use, and when</h2>
+  <ul>
+    <li><strong>Issuance history and auditing</strong> (has a suspicious certificate ever been issued for this domain? did a private CA misissue something?) is exactly what CT-log-based lookups are good for. Security researchers actually use CT logs this way in practice.</li>
+    <li>To verify that <strong>the server's current configuration is correct right now</strong>, you need a tool that performs a real handshake (e.g. SSL Labs' server test, which runs server-side).</li>
+    <li>This isn't a flaw specific to this one tool — it's a <strong>structural limitation</strong> of what's achievable with browser JavaScript alone.</li>
+  </ul>
+
+  <h2>FAQ</h2>
+  <details><summary>Q. Why doesn't this tool connect to the server directly?</summary><p>A. Browser JavaScript has no API for opening a raw TCP socket to an arbitrary server and performing a TLS handshake. This is deliberately disallowed by the web security model.</p></details>
+  <details><summary>Q. What is crt.sh?</summary><p>A. A free public service run by Sectigo that indexes the Certificate Transparency logs every public CA is required to submit to, and makes them searchable.</p></details>
+  <details><summary>Q. Can the CT log lookup result differ from the server's actual state?</summary><p>A. Yes. A CT log only shows the history of certificates that have been issued — it doesn't guarantee the server is currently presenting that certificate. For real-time verification, use a separate server-side handshake tool.</p></details>
+  <details><summary>Q. Why does the crt.sh query sometimes fail or run slowly?</summary><p>A. crt.sh is a free public service, so its JSON responses can be delayed or occasionally fail for high-traffic domains. Retrying after a moment usually resolves it.</p></details>
+
+  <div class="tool-links">
+    <a href="../ssl-checker.html?lang=en">→ SSL Checker</a>
+    <a href="../ssl-decoder.html?lang=en">→ SSL Certificate Decoder</a>
+    <a href="../csr-generator.html?lang=en">→ CSR Generator</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes.</footer>
+</main>
+</body>
+</html>

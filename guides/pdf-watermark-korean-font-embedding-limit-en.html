@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why Non-Latin Text Breaks in PDF Watermarks — the Limits of Built-in Fonts | MODOO HUB</title>
+<meta name="description" content="Why typing Korean, Chinese, or Japanese into a PDF watermark tool produces empty boxes, explained through the PDF standard's 14 base fonts and how font embedding works.">
+<link rel="canonical" href="https://modoohub.com/guides/pdf-watermark-korean-font-embedding-limit-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/pdf-watermark-korean-font-embedding-limit.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/pdf-watermark-korean-font-embedding-limit-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/pdf-watermark-korean-font-embedding-limit.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Why Non-Latin Text Breaks in PDF Watermarks — the Limits of Built-in Fonts","description":"Why typing Korean, Chinese, or Japanese into a PDF watermark tool produces empty boxes, explained through the PDF standard's 14 base fonts and font embedding.","datePublished":"2026-08-28","dateModified":"2026-08-28","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Can I put Korean (or other CJK) text into this watermark tool?","acceptedAnswer":{"@type":"Answer","text":"No. It uses only the PDF standard built-in font (Helvetica-Bold), which has no CJK glyphs, so those characters show as empty boxes or broken characters. Use a Latin word instead."}},
+{"@type":"Question","name":"Why didn't the tool include a CJK font from the start?","acceptedAnswer":{"@type":"Answer","text":"Embedding a font file is a trade-off that increases code complexity and file size. Using only the standard 14 fonts means the tool runs light and fast with no extra file loading, at the cost of supporting Latin characters only."}},
+{"@type":"Question","name":"Other PDF tools handle Korean — why the difference?","acceptedAnswer":{"@type":"Answer","text":"Those tools implement the extra step of embedding a CJK font file into the PDF using a library like fontkit. It's not a feature every PDF generation tool supports by default — it has to be implemented separately."}},
+{"@type":"Question","name":"Can the characters disappear entirely instead of showing an empty box?","acceptedAnswer":{"@type":"Answer","text":"It depends on the library and configuration. When it hits an unsupported glyph, an implementation may throw an encoding error, silently skip it, or substitute an empty box — each does it differently."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--purple);}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html?lang=en" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Why Non-Latin Text Breaks in PDF Watermarks — the Limits of Built-in Fonts</h1>
+  <p class="meta">Guide · Last verified Aug 19, 2026</p>
+
+  <p>Typing a Korean word like "대외비" (confidential) into a PDF watermark tool and getting a few empty boxes (□) in the output is not rare. It's a structural limitation many tools that draw text onto PDFs on the fly in the browser run into, and the cause is in the PDF specification itself.</p>
+
+  <h2>1. What the PDF standard's 14 base fonts are</h2>
+  <p>The PDF specification (ISO 32000) defines 14 "Standard 14 Fonts" — <strong>Helvetica, Helvetica-Bold, Times-Roman, Courier</strong>, and so on. What's special about these fonts is that a PDF file doesn't have to carry their font data at all — the spec itself guarantees that every viewer that opens a PDF (Acrobat, browser built-in viewers, printer drivers) carries these 14 fonts natively. That keeps file size small and means no worry about the font breaking wherever it's opened.</p>
+
+  <h2>2. The problem: these 14 fonts are all Latin-only</h2>
+  <p>The standard 14 fonts are based on encoding tables called WinAnsiEncoding and MacRomanEncoding, and the glyphs (actual drawable character shapes) in those tables are entirely Western European Latin letters, digits, and symbols. Hangul (11,172 Korean syllables), Han characters, and Kana glyphs simply don't exist inside these 14 fonts. So when you put non-Latin text into watermark text, the renderer ends up in a "there's no glyph for this code" state and displays empty boxes or broken characters — the font isn't damaged, there's just no way to draw it.</p>
+
+  <h2>3. The code this tool actually uses</h2>
+  <p>This site's PDF watermark tool draws text directly onto each page with the pdf-lib library, and the actual source code uses only a standard font, like this:</p>
+  <div class="box">
+    <code>const font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);</code><br>
+    With no code to load a separate font file, it uses only Helvetica-Bold, built into the PDF standard. The tool's own FAQ also states that "Korean watermarks are not supported."
+  </div>
+
+  <h2>4. The fix: custom font embedding</h2>
+  <p>To actually render non-Latin text, you have to embed a whole TTF/OTF font file containing those glyphs — Noto Sans KR, NanumGothic, and the like — into the PDF. In the pdf-lib ecosystem this requires the separate <code>@pdf-lib/fontkit</code> library: register it with <code>pdfDoc.registerFontkit(fontkit)</code>, then embed the actual font file (bytes) with <code>pdfDoc.embedFont(fontBytes)</code>, and only then does the PDF become a self-contained file that carries the glyphs itself and opens correctly on any device. This has a trade-off — more code and more file size than using a standard font.</p>
+
+  <h2>5. Practical approach</h2>
+  <ul>
+    <li><strong>When using this tool</strong>: use a Latin word for the watermark — CONFIDENTIAL, DRAFT, SAMPLE — which displays perfectly with the standard font.</li>
+    <li><strong>If you must have a non-Latin watermark</strong>: find a tool that explicitly states it supports font embedding for that script, or use a desktop PDF editor (Acrobat, etc.).</li>
+    <li><strong>Other scripts (Chinese, Japanese) follow the same principle</strong>: the standard 14 fonts have the same limitation for CJK characters generally.</li>
+  </ul>
+
+  <h2>Frequently Asked Questions</h2>
+  <details class="faq-item"><summary>Q. Can I put Korean (or other CJK) text into this watermark tool?</summary><p>A. No. It uses only the PDF standard built-in font (Helvetica-Bold), which has no CJK glyphs, so those characters show as empty boxes or broken characters. Use a Latin word instead.</p></details>
+  <details class="faq-item"><summary>Q. Why didn't the tool include a CJK font from the start?</summary><p>A. Embedding a font file is a trade-off that increases code complexity and file size. Using only the standard 14 fonts means the tool runs light and fast with no extra file loading, at the cost of supporting Latin characters only.</p></details>
+  <details class="faq-item"><summary>Q. Other PDF tools handle Korean — why the difference?</summary><p>A. Those tools implement the extra step of embedding a CJK font file into the PDF using a library like fontkit. It's not a feature every PDF generation tool supports by default — it has to be implemented separately.</p></details>
+  <details class="faq-item"><summary>Q. Can the characters disappear entirely instead of showing an empty box?</summary><p>A. It depends on the library and configuration. When it hits an unsupported glyph, an implementation may throw an encoding error, silently skip it, or substitute an empty box — each does it differently.</p></details>
+
+  <div class="tool-links">
+    <a href="../pdf-watermark.html?lang=en">→ PDF Watermark</a>
+    <a href="../pdf-rotate.html?lang=en">→ PDF Rotate</a>
+    <a href="../pdf-metadata-viewer.html?lang=en">→ PDF Metadata Viewer</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general informational purposes.</footer>
+</main>
+</body>
+</html>

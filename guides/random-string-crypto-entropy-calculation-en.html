@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Math.random() vs crypto.getRandomValues() — How to Calculate Password Entropy | MODOO HUB</title>
+<meta name="description" content="Why random string generators should use crypto.getRandomValues() instead of Math.random(), and exactly how many characters you need for 128-bit entropy, worked out with real math.">
+<link rel="canonical" href="https://modoohub.com/guides/random-string-crypto-entropy-calculation-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/random-string-crypto-entropy-calculation.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/random-string-crypto-entropy-calculation-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/random-string-crypto-entropy-calculation.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Math.random() vs crypto.getRandomValues() — How to Calculate Password Entropy","description":"Why random string generators should use crypto.getRandomValues() instead of Math.random(), and exactly how many characters you need for 128-bit entropy, worked out with real math.","datePublished":"2026-08-28","dateModified":"2026-08-28","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--purple);}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;}
+details summary{cursor:pointer;font-weight:600;color:var(--text-muted);}
+details p{margin-top:8px;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Math.random() vs crypto.getRandomValues() — How to Calculate Password Entropy</h1>
+  <p class="meta">Guide · Last verified Aug 28, 2026</p>
+
+  <p>There are two ways to generate a "random string" in a browser: <code>Math.random()</code> and <code>crypto.getRandomValues()</code>. Both look like they produce the same kind of unpredictable output, but for anything security-sensitive — passwords, API keys — the difference between them matters a great deal.</p>
+
+  <h2>1. The fundamental difference between the two APIs</h2>
+  <p><code>Math.random()</code> uses the JS engine's internal pseudorandom number generator (PRNG). It's fast, and it's perfectly fine for game shuffles, UI animation, or random sampling. But this PRNG <strong>was never designed to be unpredictable</strong> — several security studies have shown that if you know (or can reconstruct) its internal state, or you observe enough of its output, you can in theory work backward to predict future values. That's why official documentation, including MDN, explicitly warns against using Math.random() anywhere security matters.</p>
+  <p><code>crypto.getRandomValues()</code>, on the other hand, is part of the Web Crypto API and draws from the operating system's <strong>cryptographically secure pseudorandom number generator (CSPRNG)</strong>. Because it's seeded from real hardware entropy sources (mouse movement, timing jitter, dedicated random-number hardware, and the like), it's designed so that no amount of observed output lets you predict the next value. This is the one you must use when generating tokens, passwords, or encryption keys.</p>
+
+  <div class="box">
+    <strong>How this tool actually implements it</strong>: checking the source code of the <a href="../random-string.html?lang=en">Random String Generator</a> confirms it uses <code>crypto.getRandomValues(arr)</code>. It's built the correct (secure) way rather than with Math.random(), so strings it generates are safe to use as passwords or API keys.
+  </div>
+
+  <h2>2. What entropy is, and how to calculate it</h2>
+  <p>A password's "strength" is commonly expressed as a value called entropy. The formula is simple.</p>
+  <div class="box">
+    <strong>Entropy (bits) = log₂(charset size) × string length</strong>
+  </div>
+  <p>For example, with uppercase + lowercase letters + digits (62 characters: 26 a-z + 26 A-Z + 10 0-9), each character carries log₂(62) ≈ 5.95 bits of entropy. To hit the widely used practical security benchmark of "128-bit entropy" (considered comfortably resistant to brute-force attacks for the foreseeable future), you'd need:</p>
+  <div class="box">
+    128 ÷ 5.95 ≈ 21.5 → <strong>at least 22 characters</strong>.
+  </div>
+
+  <h2>3. Charset size changes how many characters you need</h2>
+  <table>
+    <tr><th>Charset</th><th>Size</th><th>Entropy per character</th><th>Length needed for 128 bits</th></tr>
+    <tr><td>Lowercase only (a-z)</td><td>26</td><td>≈4.7 bits</td><td>≈28 chars</td></tr>
+    <tr><td>Upper + lower + digits</td><td>62</td><td>≈5.95 bits</td><td>≈22 chars</td></tr>
+    <tr><td>Upper + lower + digits + symbols</td><td>≈94</td><td>≈6.55 bits</td><td>≈20 chars</td></tr>
+  </table>
+  <p>Adding special characters enlarges the charset, which raises the entropy per character, so you can hit the same security level with a shorter string. Conversely, sticking to lowercase-only means you need a much longer string to reach the same 128 bits.</p>
+
+  <h2>4. Practical guidance</h2>
+  <ul>
+    <li><strong>Passwords</strong>: at least 16 characters, ideally combining all four types (uppercase, lowercase, digits, symbols).</li>
+    <li><strong>API keys / tokens</strong>: 32+ characters is common in practice; 22 characters is the theoretical minimum for 128-bit entropy.</li>
+    <li><strong>If you're building your own random generator</strong>: always use <code>crypto.getRandomValues()</code>, and keep Math.random() strictly for games and UI purposes.</li>
+  </ul>
+
+  <h2>Frequently Asked Questions</h2>
+  <details><summary>Q. Has Math.random() actually been broken in practice?</summary><p>A. Yes. Multiple security studies have reconstructed the internal state of specific JS engines' Math.random() from enough observed output samples and predicted subsequent outputs. The real-world difficulty of such an attack varies by situation, but since the API was never designed to guarantee unpredictability in the first place, it isn't recommended for security purposes.</p></details>
+  <details><summary>Q. Does crypto.getRandomValues() work in every browser?</summary><p>A. Yes — the Web Crypto API is a standard supported by every modern browser (Chrome, Firefox, Safari, Edge). It's available over HTTPS (or on localhost).</p></details>
+  <details><summary>Q. Are there cases where you'd want more than 128 bits of entropy?</summary><p>A. Long-lived master keys or highly sensitive encryption keys sometimes call for 256 bits. But for ordinary passwords, session tokens, and API keys, 128 bits is widely accepted as a practically sufficient standard.</p></details>
+  <details><summary>Q. What's the actual entropy of the 32-character strings this tool generates?</summary><p>A. With the 62-character upper+lower+digit set at 32 characters, that's 32 × 5.95 ≈ 190 bits — comfortably above the 128-bit benchmark.</p></details>
+
+  <div class="tool-links">
+    <a href="../random-string.html?lang=en">→ Random String Generator</a>
+    <a href="../password-generator.html?lang=en">→ Password Generator</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes.</footer>
+</main>
+</body>
+</html>

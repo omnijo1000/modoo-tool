@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDF Metadata Removal: "Fully Erased" vs. "Emptied" Aren't the Same | MODOO HUB</title>
+<meta name="description" content="What a PDF metadata removal tool actually does varies field by field. We dissect the asymmetry at the pdf-lib code level: 6 of 8 fields get overwritten with an empty string, and 2 get their key deleted outright.">
+<link rel="canonical" href="https://modoohub.com/guides/pdf-metadata-remove-empty-vs-delete-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/pdf-metadata-remove-empty-vs-delete.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/pdf-metadata-remove-empty-vs-delete-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/pdf-metadata-remove-empty-vs-delete.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"PDF Metadata Removal: \"Fully Erased\" vs. \"Emptied\" Aren't the Same","description":"What a PDF metadata removal tool actually does varies field by field. We dissect the asymmetry at the pdf-lib code level: 6 of 8 fields get overwritten with an empty string, and 2 get their key deleted outright.","datePublished":"2026-08-28","dateModified":"2026-08-28","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html?lang=en" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>PDF Metadata Removal: "Fully Erased" vs. "Emptied" Aren't the Same</h1>
+  <p class="meta">Guide · Last verified Aug 28, 2026</p>
+
+  <p>Reading the phrase "metadata removed" makes it easy to assume the information vanishes from the file entirely. But look at how a PDF is actually structured internally, and how the libraries that manipulate it behave, and "removed" turns out to mean something different depending on the field. For some fields the value simply becomes an empty string while the field itself stays in the file; for others the key itself disappears from the file's structure. Based on the actual code behind the <a href="../pdf-metadata-remover.html?lang=en">PDF metadata remover</a>, here's why that asymmetry exists and why it matters in practice.</p>
+
+  <h2>1. Where PDF metadata is stored</h2>
+  <p>A PDF document's information lives in a key-value dictionary in the file structure called the "Info Dictionary." It holds 8 standard fields: Title, Author, Subject, Keywords, Creator (the authoring application), Producer (the PDF generator), CreationDate, and ModDate. This is the same dictionary any PDF viewer exposes through a "Document Properties" menu, and it's also the dictionary you manipulate directly when working with a PDF in the browser using a library like pdf-lib.</p>
+
+  <h2>2. Why "deleting" behaves differently field by field</h2>
+  <p>For six fields — Title, Author, Subject, Keywords, Creator, and Producer — pdf-lib only provides "setter" functions like <code>setTitle()</code> and <code>setAuthor()</code>. These functions are designed to write a new value, so a "delete" request actually gets handled as "rewrite it as an empty string." The two date fields, CreationDate and ModDate, don't have dedicated setters at all — instead, you can delete the key directly from the Info Dictionary itself using <code>getInfoDict().delete()</code>. In other words, the shape of the API the library exposes is different for each field, so pressing a single "remove" button actually triggers two different operations under the hood.</p>
+  <div class="box">
+    <strong>What the code actually does</strong>: <code>doc.setTitle('')</code> · <code>doc.setAuthor('')</code> · <code>doc.setSubject('')</code> · <code>doc.setKeywords([''])</code> · <code>doc.setCreator('')</code> · <code>doc.setProducer('')</code> — 6 fields get overwritten with an empty value. <code>infoDict.delete(PDFName.of('CreationDate'))</code> · <code>infoDict.delete(PDFName.of('ModDate'))</code> — 2 fields get their key deleted entirely.
+  </div>
+
+  <h2>3. What's actually left in the resulting file</h2>
+  <p>Check the boxes, run the removal, and open the resulting PDF in a different viewer: fields like title and author may show up as "empty string" rather than "no value." Some PDF viewers and file-property inspection tools distinguish between the two, so a user expecting the field to be completely gone may instead find it recognized as still existing, just blank. The creation and modification dates, on the other hand, end up with the field genuinely absent — meaning the same tool, the same button, can produce different inspection results depending on which field you're checking.</p>
+  <table>
+    <tr><th>Field</th><th>How it's processed</th><th>State in the resulting file</th></tr>
+    <tr><td>Title / Author / Subject / Keywords / Creator / Producer (6 fields)</td><td>Overwritten with an empty string</td><td>Key exists, value is blank</td></tr>
+    <tr><td>CreationDate / ModDate (2 fields)</td><td>Key deleted from the Info Dictionary</td><td>Key doesn't exist at all</td></tr>
+  </table>
+
+  <h2>4. Why this difference matters in practice</h2>
+  <p>The point of clearing metadata before distributing a company document externally is usually to hide "which computer, which program, and when" produced the file. Whether a value is an empty string or the key is simply gone, the result looks the same to a human opening the "Document Properties" window — either way, the information isn't exposed. But if a file is inspected programmatically — say, by an automated script that only checks whether a specific key exists — "the key exists but is empty" and "the key doesn't exist" can be detected differently. If you're working under strict verification requirements, it's worth knowing about this asymmetry.</p>
+
+  <h2>5. How to verify the result afterward</h2>
+  <p>Regardless of which method cleared a field, the most reliable way to confirm it worked as intended is to re-upload the resulting PDF to the same tool and check the "current metadata" table. This tool only enables the checkbox for fields that have a value, so if all 8 fields come back empty or unlisted on re-upload, the removal worked correctly. To cross-check other structural details of the PDF file itself, you can also use a <a href="../pdf-metadata-viewer.html?lang=en">PDF metadata viewer</a> or a <a href="../pdf-size-analyzer.html?lang=en">PDF size analyzer</a>.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does "overwrite with an empty string" vs. "delete the key" make any difference to the resulting file size?</summary><p style="margin-top:8px;">The difference is negligible. Both methods replace the original value with something far shorter, so file size actually goes down slightly either way. There's no size difference you'd notice with the naked eye between the two approaches.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Why not just delete all 8 fields' keys instead of mixing methods?</summary><p style="margin-top:8px;">Because the pdf-lib library only provides setter functions for the 6 fields like Title and Author — it doesn't expose a function to delete those keys directly. It would be possible by manipulating the Info Dictionary at a low level, but this tool sticks to the library's standard API as provided.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. Does this also remove XMP metadata?</summary><p style="margin-top:8px;">This tool only handles the Info Dictionary. PDFs can separately carry XML-based metadata called XMP (Extensible Metadata Platform), and clearing the Info Dictionary doesn't touch that — the same information may still be sitting in the XMP stream. If you're worried sensitive information might also be in XMP, you'll need to check separately with another file-properties tool.</p></details>
+  <details style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;"><summary style="cursor:pointer;font-weight:600;color:var(--text-muted);">Q. What happens to fields I don't check?</summary><p style="margin-top:8px;">They stay exactly as they were. The save logic rewrites unchecked fields with their original value, so anything you didn't select is unchanged before and after removal.</p></details>
+
+  <div class="tool-links">
+    <a href="../pdf-metadata-remover.html?lang=en">→ PDF Metadata Remover</a>
+    <a href="../pdf-metadata-viewer.html?lang=en">→ PDF Metadata Viewer</a>
+    <a href="../pdf-size-analyzer.html?lang=en">→ PDF Size Analyzer</a>
+    <a href="../pdf-unlock.html?lang=en">→ PDF Unlock</a>
+    <a href="../pdf-password-remover.html?lang=en">→ PDF Password Remover</a>
+    <a href="../pdf-compressor.html?lang=en">→ PDF Compressor</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general informational purposes; for files with sensitive content, we recommend separate verification with a professional.</footer>
+</main>
+</body>
+</html>

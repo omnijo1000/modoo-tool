@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why Does Converting Images to PDF Increase File Size? The Canvas Re-encoding Trap | MODOO HUB</title>
+<meta name="description" content="Converting an image to PDF can make the file bigger, not smaller. JPEG gets embedded as-is, but PNG/GIF get routed through a canvas and re-encoded as lossless PNG — here's why that inflates file size.">
+<link rel="canonical" href="https://modoohub.com/guides/image-to-pdf-recompression-size-increase-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/image-to-pdf-recompression-size-increase.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/image-to-pdf-recompression-size-increase-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/image-to-pdf-recompression-size-increase.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Why Does Converting Images to PDF Increase File Size? The Canvas Re-encoding Trap","description":"Converting an image to PDF can make the file bigger, not smaller. JPEG gets embedded as-is, but PNG/GIF get routed through a canvas and re-encoded as lossless PNG — here's why that inflates file size.","datePublished":"2026-08-28","dateModified":"2026-08-28","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--purple);}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;padding:10px 14px;}
+details summary{cursor:pointer;font-weight:600;color:var(--text-muted);}
+details p{margin-top:8px;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Why Does Converting Images to PDF Increase File Size? The Canvas Re-encoding Trap</h1>
+  <p class="meta">Guide · Last verified Aug 28, 2026</p>
+
+  <p>If you've converted a single photo to PDF and been surprised that the file ended up bigger than the original, the tool isn't broken. The word "convert" makes you expect compression, but wrapping a file in PDF is not, by itself, a compression step. Depending on the image format, there's a hidden stage that fully re-encodes the original — and that's exactly where the size can balloon.</p>
+
+  <h2>1. PDF conversion is "packaging," not compression</h2>
+  <p>PDF isn't a format that compresses images — it's a container format that wraps image data inside its own structure of page objects, coordinates, and resource dictionaries. Whether the original image data is embedded as-is or re-encoded first, PDF's own structural overhead (xref table, page tree, stream headers, etc.) always gets added on top. In other words, the "image → PDF" conversion step itself has no logic built in to shrink the file. The final size depends entirely on how the image data gets inserted into the PDF.</p>
+
+  <h2>2. Completely different insertion paths depending on format</h2>
+  <p>Looking at the actual source code of this site's image-to-PDF converter, the insertion path splits completely depending on the file type.</p>
+  <div class="box">
+    <strong>JPEG (image/jpeg)</strong>: The raw bytes read from the file are passed directly to <code>pdf.embedJpg()</code> and inserted into the PDF. There's no separate re-encoding or recompression step, so both quality and file size stay almost identical to the original.
+  </div>
+  <div class="box">
+    <strong>PNG · GIF · WebP · BMP</strong>: The image is first loaded via an <code>&lt;img&gt;</code> tag, drawn onto an HTML5 canvas, and then <code>canvas.toBlob(..., 'image/png')</code> generates a <strong>brand-new, freshly-encoded lossless PNG</strong>, which is what actually gets inserted with <code>pdf.embedPng()</code>. In other words, it's not the original file but a PNG the browser just encoded on the spot that ends up in the final PDF.
+  </div>
+
+  <h2>3. Why the size inflates at exactly this step</h2>
+  <p>The problem is that the browser Canvas API's PNG encoder doesn't optimize compression as aggressively as dedicated tools (pngcrush, oxipng, ImageOptim, etc.). Canvas is faithful about storing pixel data losslessly, but it often skips post-processing optimizations like filter selection or zlib compression-level tuning. On top of that, if the original GIF or WebP file was already fairly small thanks to lossy compression (WebP) or a limited color palette (GIF, max 256 colors), unpacking it into a truecolor lossless PNG can noticeably inflate the size. GIF in particular is palette-based and compresses well by nature — and that advantage commonly disappears entirely once it's re-encoded as PNG.</p>
+
+  <h2>4. What you'll actually notice: which combinations are risky</h2>
+  <table>
+    <tr><th>Original format</th><th>PDF insertion method</th><th>Size-increase risk</th></tr>
+    <tr><td>JPEG</td><td>Raw bytes embedded as-is (embedJpg)</td><td>Low — nearly identical to original</td></tr>
+    <tr><td>PNG</td><td>Via canvas → re-encoded PNG (embedPng)</td><td>Medium — depends on original PNG's compression level</td></tr>
+    <tr><td>GIF</td><td>Via canvas → converted to truecolor PNG</td><td>High — loses palette-compression advantage</td></tr>
+    <tr><td>WebP</td><td>Via canvas → converted to lossless PNG</td><td>High — loses lossy-compression advantage</td></tr>
+  </table>
+  <p>Also, since PDF has no concept of animation, an animated GIF only gets its <strong>first frame</strong> inserted, no matter how many frames it originally had. And if you're combining multiple images into one PDF, keep in mind the size increase from the table above compounds across every image.</p>
+
+  <h2>5. If file size matters, do this</h2>
+  <ul>
+    <li><strong>Convert to JPEG before converting to PDF when possible</strong>: If you're starting from a PNG, GIF, or WebP that's a photographic image (gradients, photos), saving it as JPEG first before converting to PDF avoids the re-encoding overhead.</li>
+    <li><strong>Compress after creating the PDF</strong>: If you've already made the PDF and it's too big, running it through a separate PDF compression tool afterward is another option.</li>
+    <li><strong>For simple document archiving</strong>: If some quality loss is acceptable for documents or scans, preparing JPEG-family originals instead of PNG works better for keeping the final PDF size under control.</li>
+  </ul>
+
+  <h2>Frequently Asked Questions</h2>
+  <details><summary>Q. Why does JPEG barely change in size?</summary><p>A. Because JPEG isn't redrawn and re-encoded — the original compressed bytes are inserted directly into the PDF as-is. Since there's no recompression or re-encoding step at all, both quality loss and size increase are minimized.</p></details>
+  <details><summary>Q. It's just PNG to PNG — why does the size change at all?</summary><p>A. It's not a literal "PNG to PNG" copy. The pixels are redrawn onto a canvas and the browser's PNG encoder compresses them from scratch. If the original PNG was already well compressed, the re-encoded result can actually end up larger.</p></details>
+  <details><summary>Q. Does an animated GIF become an animated PDF?</summary><p>A. No. PDF is a static document format with no concept of animation, so only the first of the multiple frames gets inserted as a still image.</p></details>
+  <details><summary>Q. What's the best order of operations to keep file size down?</summary><p>A. For photographic images, saving as JPEG first and then converting to PDF is the most reliable approach. If you've already created a large PDF, running it through a separate PDF compression tool afterward is another option.</p></details>
+
+  <div class="tool-links">
+    <a href="../image-to-pdf.html?lang=en">→ Image to PDF Converter</a>
+    <a href="../pdf-compressor.html?lang=en">→ PDF Compressor</a>
+    <a href="../pdf-size-analyzer.html?lang=en">→ PDF Size Analyzer</a>
+    <a href="../image-resizer.html?lang=en">→ Image Resizer</a>
+    <a href="../jpg-to-webp.html?lang=en">→ JPG to WebP Converter</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is provided for general informational purposes only.</footer>
+</main>
+</body>
+</html>

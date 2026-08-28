@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why PDF Word Counts Are Inaccurate for Chinese and Japanese | MODOO HUB</title>
+<meta name="description" content="Why whitespace-based word counting diverges wildly from the real word count on Chinese and Japanese PDFs, analyzed from how PDF.js text extraction works.">
+<link rel="canonical" href="https://modoohub.com/guides/pdf-word-counter-cjk-whitespace-split-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/pdf-word-counter-cjk-whitespace-split.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/pdf-word-counter-cjk-whitespace-split-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/pdf-word-counter-cjk-whitespace-split.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Why PDF Word Counts Are Inaccurate for Chinese and Japanese","description":"Why whitespace-based word counting diverges wildly from the real word count on Chinese and Japanese PDFs, from how PDF.js extraction works.","datePublished":"2026-08-28","dateModified":"2026-08-28","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Should I not trust the word count of a Chinese or Japanese PDF at all?","acceptedAnswer":{"@type":"Answer","text":"Treat it as a rough reference only. It's not an accurate value — it depends on how many fragments PDF.js split the text into, so the same content can give very different numbers depending on the PDF generation program."}},
+{"@type":"Question","name":"Is Korean accurate?","acceptedAnswer":{"@type":"Answer","text":"Closer to the real word (eojeol) count than English or Chinese/Japanese, because Korean has spacing between eojeol. But an eojeol with an attached particle can't be treated identically to the English notion of a \"word,\" so it's not a perfect match."}},
+{"@type":"Question","name":"What should I use to check the volume of a Chinese or Japanese document?","acceptedAnswer":{"@type":"Answer","text":"Checking by character count (excluding spaces) is far more reliable than word count. This tool also provides per-page character-count statistics."}},
+{"@type":"Question","name":"Why not use a morphological analyzer?","acceptedAnswer":{"@type":"Answer","text":"A morphological analyzer is heavy processing that needs per-language dictionaries and models, which doesn't fit a lightweight free tool that runs instantly in the browser. For accurate morpheme-level analysis, use a dedicated language-processing library or service separately."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 5px;font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html?lang=en" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Why PDF Word Counts Are Inaccurate for Chinese and Japanese</h1>
+  <p class="meta">Guide · Last verified Aug 20, 2026</p>
+
+  <p>A tool that had no trouble counting words in an English contract can suddenly return an absurdly low number when you feed it a Chinese or Japanese PDF. That's not because the tool is broken — it's because the very concept of "word count" is defined differently for different languages. This guide checks, at the code level, what algorithm the PDF word counter actually uses, and explains why it goes wrong specifically for Chinese and Japanese.</p>
+
+  <h2>1. "Word" is defined differently by language</h2>
+  <p>English always puts a space between words, as in "I love you." Korean also has spacing at the eojeol level, as in "나는 너를 사랑해." But Chinese ("我爱你") and Japanese ("私はあなたを愛しています") write whole sentences with no spacing. Word boundaries are a matter of context and dictionary knowledge rather than visual whitespace, so genuinely accurate "word segmentation" needs a separate language-processing engine like a morphological analyzer. Most web-based free tools run on pure text processing without such a heavy engine, so there's simply no way for them to count words accurately in a language that has no spaces to begin with.</p>
+
+  <h2>2. This tool's actual logic: join with spaces → split on spaces</h2>
+  <p>MODOO HUB's <a href="../pdf-word-counter.html?lang=en">PDF word counter</a> gets the list of text fragments (items) from each page via PDF.js's <code>getTextContent()</code>, then joins all fragments into one string with a single space between each via <code>tc.items.map(x=&gt;x.str).join(' ')</code>. Then it counts words with <code>txt.trim().split(/\s+/).filter(w=&gt;w.length&gt;0).length</code>, splitting that string on whitespace. So the entire algorithm is the simple structure "concatenate each text fragment PDF.js handed us with spaces, then split back on spaces." In languages where words (eojeol) are originally separated by spaces, like English and Korean, this nearly matches real word boundaries — but in Chinese and Japanese, which have no spaces in the language itself, the basis for counting shifts entirely from "actual words" to "how many fragments did PDF.js return the text in, due to font, style, and position changes."</p>
+
+  <div class="box">
+    <strong>Example</strong>: the Japanese sentence "私は毎日日本語を勉強しています" ("I study Japanese every day") is actually one sentence (a human count is roughly 6–7 morphemes at the noun/particle/verb level), but if this PDF stored it as a single text fragment (item), the <code>split(/\s+/)</code> result counts it as <strong>"1 word."</strong> Conversely, if the PDF generation program split the sentence into several fragments to adjust font size or letter spacing (e.g. "私は" / "毎日" / "日本語を" / "勉強しています", 4 fragments), a space is forced between each fragment and it counts as <strong>"4 words."</strong> Both are different from the actual word count (~6–7 by morpheme), and the result even swings depending on how the PDF was made, for the same sentence.
+  </div>
+
+  <h2>3. Which way does it lean: generally an undercount</h2>
+  <p>As the tool's own description also notes, the "word count" of a Chinese or Japanese PDF tends to come out <strong>much lower</strong> than the actual number of words. In word-processor output, where a whole sentence is often stored as one text fragment, an entire sentence gets caught as "1 word." Conversely, in a PDF with lots of tables or formatting, or a design document with fine per-character letter spacing, the text fragments are chopped fine and it can even count many more "words" than real. In short, for Chinese and Japanese this number can't be trusted in either direction.</p>
+
+  <h2>4. So what should you look at: character count is safer</h2>
+  <p>For languages without spaces, using <strong>character count (excluding spaces)</strong> as the volume metric instead of "word count" is far more reliable. Character count just measures the length of the entire extracted string, regardless of how many fragments PDF.js split the text into, so it's not affected by the fragmentation method. This tool actually provides, per page, <code>chars</code> (character count including spaces) and <code>charsNoSp</code> (excluding spaces) separately alongside the word count. When comparing the volume of Chinese/Japanese documents or estimating translation/typesetting rates, using this character-count column rather than word count is the practically correct choice. Note that Korean, with its eojeol-level spacing, makes this tool's method somewhat valid, but as an agglutinative language where multiple morphemes combine into one eojeol, it doesn't perfectly match the English notion of a "word" either.</p>
+
+  <h2>5. Use it alongside other document-volume metrics</h2>
+  <p>When document volume is tied directly to money — translation quotes, manuscript fees, print run estimates — it's safer to cross-check several metrics rather than rely on word count alone. To first gauge rough scale by page count, a <a href="../pdf-page-counter.html?lang=en">PDF page counter</a> is fast, and if you want to pull the whole source text and re-verify with another program (e.g. a word processor's own character/word count), you can extract the source with <a href="../pdf-to-text.html?lang=en">PDF → TXT conversion</a> and paste the output into a separate tool to cross-check.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details class="faq-item"><summary>Q. Should I not trust the word count of a Chinese or Japanese PDF at all?</summary><p>A. Treat it as a rough reference only. It's not an accurate value — it depends on how many fragments PDF.js split the text into, so the same content can give very different numbers depending on the PDF generation program.</p></details>
+  <details class="faq-item"><summary>Q. Is Korean accurate?</summary><p>A. Closer to the real word (eojeol) count than English or Chinese/Japanese, because Korean has spacing between eojeol. But an eojeol with an attached particle can't be treated identically to the English notion of a "word," so it's not a perfect match.</p></details>
+  <details class="faq-item"><summary>Q. What should I use to check the volume of a Chinese or Japanese document?</summary><p>A. Checking by character count (excluding spaces) is far more reliable than word count. This tool also provides per-page character-count statistics.</p></details>
+  <details class="faq-item"><summary>Q. Why not use a morphological analyzer?</summary><p>A. A morphological analyzer is heavy processing that needs per-language dictionaries and models, which doesn't fit a lightweight free tool that runs instantly in the browser. For accurate morpheme-level analysis, use a dedicated language-processing library or service separately.</p></details>
+
+  <div class="tool-links">
+    <a href="../pdf-word-counter.html?lang=en">→ PDF Word Counter</a>
+    <a href="../pdf-to-text.html?lang=en">→ PDF → TXT Converter</a>
+    <a href="../pdf-page-counter.html?lang=en">→ PDF Page Counter</a>
+    <a href="../word-to-minute-converter.html?lang=en">→ Word Count to Minutes Converter</a>
+    <a href="../pdf-extract-text.html?lang=en">→ PDF Text Extraction</a>
+    <a href="../reading-level-checker.html?lang=en">→ Reading Level Checker</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general information; for contracts or settlements needing precise document-volume estimation, confirm with a professional translation/typesetting provider.</footer>
+</main>
+</body>
+</html>
