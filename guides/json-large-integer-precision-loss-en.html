@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why JSON Numbers Break: the IEEE 754 and 2^53 Trap | MODOO HUB</title>
+<meta name="description" content="Why the last few digits of a large integer change when sent through JSON, why the boundary is 2^53 (IEEE 754 double precision), and how to safely handle large ID values in practice — with worked examples.">
+<link rel="canonical" href="https://modoohub.com/guides/json-large-integer-precision-loss-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/json-large-integer-precision-loss.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/json-large-integer-precision-loss-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/json-large-integer-precision-loss.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Why JSON Numbers Break: the IEEE 754 and 2^53 Trap","description":"Why the last few digits of a large integer change when sent through JSON, and how to handle large IDs safely.","datePublished":"2026-08-28","dateModified":"2026-08-28","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Why do JSON numbers change value for large integers?","acceptedAnswer":{"@type":"Answer","text":"The JSON standard (RFC 8259) doesn't specify number-type precision. Most JSON implementations including JavaScript store every number as an IEEE 754 double-precision float, which can represent integers exactly only up to 2^53. Read a larger integer with JSON.parse() and it's rounded to the nearest representable value, differing from the original."}},
+{"@type":"Question","name":"Where does the number 2^53 come from?","acceptedAnswer":{"@type":"Answer","text":"An IEEE 754 double uses the 52 bits remaining after 1 sign bit and 11 exponent bits from its 64 bits as the fraction. A normalized number always has an implicit leading 1 bit, so it effectively has 53 bits of precision and can represent every integer from 0 to 2^53 exactly. Past 2^53 the gap between representable values grows larger than 1 and consecutive integers can't be distinguished."}},
+{"@type":"Question","name":"How do I safely send large integers through JSON?","acceptedAnswer":{"@type":"Answer","text":"The most common way is to wrap the number as a string rather than a JSON number type. For example, {\"id\":\"9007199254740993\"} instead of {\"id\":9007199254740993} — the parser treats it as a string so it's preserved with no precision loss. This is a common convention when putting a server/DB 64-bit ID or a Snowflake ID in an API response."}},
+{"@type":"Question","name":"Does using BigInt instead of JSON.parse solve it?","acceptedAnswer":{"@type":"Answer","text":"BigInt itself can represent integers past 2^53 exactly, but standard JSON.parse() always converts number literals to double, so precision is already lost at parse time. To handle it with BigInt you have to receive the value as a string in the original JSON and convert it with BigInt() yourself, or use a custom parser library like json-bigint. JSON.stringify() also can't serialize a BigInt value directly and throws a TypeError."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--purple);}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html?lang=en" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Why JSON Numbers Break: the IEEE 754 and 2^53 Trap</h1>
+  <p class="meta">Guide · Last verified Aug 19, 2026</p>
+
+  <p>If you've seen a large integer ID from an API response print with its last few digits different from the original, that's most likely not a bug in the tool or the server. JavaScript (and most JSON parsers built on it) stores every number in one format: IEEE 754 double-precision float. This format can represent integers exactly only <strong>up to 2^53 (9,007,199,254,740,992, about 9 quadrillion)</strong>. This guide explains why that boundary is 2^53 specifically, and how to work around this limit in practice, starting from the computation structure.</p>
+
+  <h2>1. Why a float can't represent integers exactly without limit</h2>
+  <p>An IEEE 754 double splits its 64 bits into three parts: 1 sign bit, 11 exponent bits, and 52 fraction (mantissa) bits. A number is stored as "sign × 1.fraction × 2^exponent", and the "1." is always implicit because a normalized binary number always has a leading bit of 1. The problem is that JavaScript has no dedicated integer type. 1, 3.14, and 9007199254740993 are all crammed into the same 64-bit double format, and the number of significant digits the fraction can hold is fixed by this one format. Whether decimal or integer, the precision available is exactly 52 bits (53 with the implicit bit).</p>
+
+  <h2>2. Why 2^53 is that boundary specifically</h2>
+  <p>Adding the implicit leading 1 bit to the 52 explicit fraction bits gives 53 bits of precision total. Every integer from 0 to 2^53 can be represented exactly within those 53 bits, no error. But the moment you exceed 2^53, the exponent steps up one level and the gap between representable values widens from 1 to 2. That is, 2^53 is represented exactly but the next integer, 2^53+1, doesn't exist on the representable grid, so it's rounded to the nearest even number, 2^53. This boundary value is exactly JavaScript's <code>Number.MAX_SAFE_INTEGER</code> (= 2^53−1 = 9,007,199,254,740,991), and this value and its neighbors (±1) are safely distinguished, but beyond that different integers can collapse into the same value.</p>
+
+  <div class="box">
+    <strong>Worked example</strong>: 2^53 is exactly 9,007,199,254,740,992. Try handling 9,007,199,254,740,993, one larger, in JavaScript and <code>9007199254740993 === 9007199254740992</code> returns <code>true</code>. Even though the two are different integers in code, they collapse into the same bit pattern the moment they're stored as double. In fact, running <code>JSON.parse('{"id":9007199254740993}')</code> gives a result object whose id value is 9007199254740992 — a different number from the original.
+  </div>
+
+  <h2>3. How to work around large integers in JSON in practice</h2>
+  <p>This isn't a bug in a specific library or tool — it's a fundamental limitation of the JSON standard itself. RFC 8259 doesn't specify number-type precision and leaves it to each implementation, and this phenomenon arises because most languages chose double for convenience. In practice, database 64-bit auto-increment IDs, Snowflake IDs, and large integer fields in some payment/finance APIs commonly cross this boundary. The most widely used workaround is to pass values that could be problematic <strong>wrapped as a string</strong> rather than a JSON number type. Wrapping in double quotes — <code>{"id":"9007199254740993"}</code> instead of <code>{"id":9007199254740993}</code> — makes the parser treat it as a string so the original digits are preserved. JavaScript's BigInt type can represent integers past this range exactly, but standard <code>JSON.parse()</code> already converts number literals to double at parse time, so you have to convert the original string to BigInt yourself or use a separate parser like json-bigint.</p>
+
+  <h2>4. Summary — the order to check when handling large integers</h2>
+  <ul>
+    <li><strong>Check the value's magnitude first</strong>: determine whether the integer you're handling exceeds 9,007,199,254,740,991 (2^53−1). DB bigint primary keys and Snowflake IDs are the typical cases.</li>
+    <li><strong>Stringify when designing an API</strong>: if you're designing the API yourself, emitting large integer fields as JSON strings from the start blocks precision loss at the source.</li>
+    <li><strong>When consuming an external API</strong>: if a large ID comes down as a number rather than a string, precision may already have been lost on the server side, so request a string field with the original value alongside it if possible.</li>
+  </ul>
+
+  <h2>Frequently Asked Questions</h2>
+  <details class="faq-item"><summary>Q. Why do JSON numbers change value for large integers?</summary><p>A. The JSON standard (RFC 8259) doesn't specify number-type precision. Most JSON implementations including JavaScript store every number as an IEEE 754 double-precision float, which can represent integers exactly only up to 2^53. Read a larger integer with JSON.parse() and it's rounded to the nearest representable value, differing from the original.</p></details>
+  <details class="faq-item"><summary>Q. Where does the number 2^53 come from?</summary><p>A. An IEEE 754 double uses the 52 bits remaining after 1 sign bit and 11 exponent bits from its 64 bits as the fraction. A normalized number always has an implicit leading 1 bit, so it effectively has 53 bits of precision and can represent every integer from 0 to 2^53 exactly. Past 2^53 the gap between representable values grows larger than 1 and consecutive integers can't be distinguished.</p></details>
+  <details class="faq-item"><summary>Q. How do I safely send large integers through JSON?</summary><p>A. The most common way is to wrap the number as a string rather than a JSON number type. For example, {"id":"9007199254740993"} instead of {"id":9007199254740993} — the parser treats it as a string so it's preserved with no precision loss. This is a common convention when putting a server/DB 64-bit ID or a Snowflake ID in an API response.</p></details>
+  <details class="faq-item"><summary>Q. Does using BigInt instead of JSON.parse solve it?</summary><p>A. BigInt itself can represent integers past 2^53 exactly, but standard JSON.parse() always converts number literals to double, so precision is already lost at parse time. To handle it with BigInt you have to receive the value as a string in the original JSON and convert it with BigInt() yourself, or use a custom parser library like json-bigint. JSON.stringify() also can't serialize a BigInt value directly and throws a TypeError.</p></details>
+
+  <div class="tool-links">
+    <a href="../json-validator.html?lang=en">→ JSON Validator</a>
+    <a href="../json-formatter.html?lang=en">→ JSON Formatter</a>
+    <a href="../api-response-viewer.html?lang=en">→ API Response Viewer</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general informational purposes.</footer>
+</main>
+</body>
+</html>

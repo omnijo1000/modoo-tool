@@ -1,6 +1,6 @@
 # 가이드 영어(EN) 번역 진행 상황
 
-**마지막 갱신**: 2026-08-28  |  **진행률**: 169/176
+**마지막 갱신**: 2026-08-28  |  **진행률**: 176/176 (완료)
 
 ## 배경 & 방식
 
@@ -41,7 +41,7 @@
 | 보안 도구 (security-tools) | 17/17 |
 | PDF 도구 (pdf-tools) | 13/13 |
 | AI 도구 (ai-tools) | 10/10 |
-| 데이터 도구 (data-tools) | 0/7 |
+| 데이터 도구 (data-tools) | 7/7 |
 
 ---
 
@@ -235,12 +235,12 @@
 - [x] `prompt-variable-extractor-bracket-syntax-limit` ← tool: `prompt-variable-extractor`
 - [x] `system-prompt-fixed-clauses-roleplay-conflict` ← tool: `system-prompt-generator`
 
-## 데이터 도구 (data-tools) — 0/7
+## 데이터 도구 (data-tools) — 7/7
 
-- [ ] `csv-to-json-leading-zero-loss` ← tool: `csv-to-json`
-- [ ] `json-array-diff-index-vs-lcs` ← tool: `json-diff`
-- [ ] `json-flatten-unflatten-array-loss` ← tool: `json-flattener`
-- [ ] `json-large-integer-precision-loss` ← tool: `json-validator`
-- [ ] `jsonpath-syntax-and-slicing-support` ← tool: `json-path-tester`
-- [ ] `sql-insert-to-json-escaped-quote-bug` ← tool: `sql-to-json`
-- [ ] `xml-to-json-mixed-content-whitespace-loss` ← tool: `xml-to-json`
+- [x] `csv-to-json-leading-zero-loss` ← tool: `csv-to-json`
+- [x] `json-array-diff-index-vs-lcs` ← tool: `json-diff`
+- [x] `json-flatten-unflatten-array-loss` ← tool: `json-flattener`
+- [x] `json-large-integer-precision-loss` ← tool: `json-validator`
+- [x] `jsonpath-syntax-and-slicing-support` ← tool: `json-path-tester`
+- [x] `sql-insert-to-json-escaped-quote-bug` ← tool: `sql-to-json`
+- [x] `xml-to-json-mixed-content-whitespace-loss` ← tool: `xml-to-json`

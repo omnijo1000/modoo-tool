@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SQL INSERT to JSON — Why Escaped Quotes Disappear | MODOO HUB</title>
+<meta name="description" content="Why a SQL INSERT to JSON parser wholesale deletes an escaped single quote like in 'O''Brien', dissected from the actual code.">
+<link rel="canonical" href="https://modoohub.com/guides/sql-insert-to-json-escaped-quote-bug-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/sql-insert-to-json-escaped-quote-bug.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/sql-insert-to-json-escaped-quote-bug-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/sql-insert-to-json-escaped-quote-bug.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"SQL INSERT to JSON — Why Escaped Quotes Disappear","description":"Why a SQL INSERT to JSON parser wholesale deletes an escaped single quote, dissected from the actual code.","datePublished":"2026-08-28","dateModified":"2026-08-28","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Why does this bug happen silently, with no error?","acceptedAnswer":{"@type":"Answer","text":"Because the parser doesn't throw an exception — it just produces a different (shorter) string. \"OBrien\" is a perfectly valid JSON string value, so to the tool it looks like a successful conversion with no problem."}},
+{"@type":"Question","name":"Is a value wrapped in double quotes (\") a problem the same way?","acceptedAnswer":{"@type":"Answer","text":"Yes. The inQ flag doesn't distinguish single from double quotes and shares one flag, so quote characters disappear the same way. And if both kinds of quote are mixed in one value, the flag can flip off at the wrong time and a comma can be mistaken for a field separator."}},
+{"@type":"Question","name":"What actually distinguishes numbers from strings?","acceptedAnswer":{"@type":"Answer","text":"It was meant to be distinguished by whether quotes were present, but that logic is dead, so in practice values are split only by whether they match the number regex (-?\\d+(\\.\\d+)?). If it's not NULL and not a number pattern, it stays a string whether or not it originally had quotes."}},
+{"@type":"Question","name":"Is NULL handling correct?","acceptedAnswer":{"@type":"Answer","text":"Yes. NULL written without quotes (case-insensitive) is checked separately by regex and converted correctly to JSON null. This part is unaffected by the quote scanner."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--purple);}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html?lang=en" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>SQL INSERT to JSON — Why Escaped Quotes Disappear</h1>
+  <p class="meta">Guide · Last verified Aug 19, 2026</p>
+
+  <p>Feed a value with doubled single quotes like <code>'O''Brien'</code> into a tool that converts SQL INSERT statements to JSON, and the result comes out as <code>"OBrien"</code>. A whole apostrophe has vanished. This isn't an accidental error — it's a scheduled result of the value-splitting parser's design itself. This guide explains why this happens, based on the actual source code, and how far the fallout spreads.</p>
+
+  <h2>1. Why SQL uses doubled quotes</h2>
+  <p>In the SQL standard, to put a real apostrophe character inside a string literal wrapped in single quotes, you write that character twice in a row. So <code>'O''Brien'</code> is valid SQL and actually means the single 7-character string <code>O'Brien</code>. This is a SQL-specific rule, different from backslash escaping (<code>\'</code>) like in JS or Python.</p>
+
+  <h2>2. The actual code: dissecting the <code>splitCSVLine</code> function</h2>
+  <p>The core function this tool uses to split values works like this (quoting the actual source):</p>
+  <div class="box">
+    <code>for(const c of line){if(c===','&&!inQ){res.push(cur);cur='';}else if(c==="'"||c==='"'){inQ=!inQ;}else cur+=c;}</code>
+  </div>
+  <p>Scanning one character at a time, when it hits a quote character (<code>'</code> or <code>"</code>), it just flips the <code>inQ</code> flag indicating "am I currently inside a quote," and it <strong>never adds that quote character itself</strong> to the result string (<code>cur</code>). So in any value, quotes never survive in the result — they disappear.</p>
+
+  <h2>3. Following <code>'O''Brien'</code> character by character</h2>
+  <p>Watching this function process the input <code>'O''Brien'</code> in order:</p>
+  <table>
+    <tr><th>Character</th><th>Action</th><th>inQ</th><th>cur</th></tr>
+    <tr><td><code>'</code></td><td>flip flag</td><td>true</td><td>""</td></tr>
+    <tr><td><code>O</code></td><td>append to cur</td><td>true</td><td>"O"</td></tr>
+    <tr><td><code>'</code></td><td>flip flag</td><td>false</td><td>"O"</td></tr>
+    <tr><td><code>'</code></td><td>flip flag</td><td>true</td><td>"O"</td></tr>
+    <tr><td><code>B r i e n</code></td><td>append to cur</td><td>true</td><td>"OBrien"</td></tr>
+    <tr><td><code>'</code></td><td>flip flag</td><td>false</td><td>"OBrien"</td></tr>
+  </table>
+  <p>With all 4 quotes dropped from the result, the character that should have represented the apostrophe evaporates with them, producing <strong>"OBrien"</strong> — a 6-character string that doesn't actually exist. Silently producing a wrong value with no error is what makes this bug especially dangerous.</p>
+
+  <h2>4. The dead "wrapped in quotes" check code</h2>
+  <p>After this parser there's one more regex that checks whether a value was wrapped in quotes:</p>
+  <div class="box">
+    <code>if(/^'.*'$/.test(val))val=val.slice(1,-1).replace(/''/g,"'");</code>
+  </div>
+  <p>This code turns <code>''</code> back into <code>'</code> — logic that would fix exactly this bug. But by the time this check runs, <code>splitCSVLine</code> has already stripped every quote, so <code>val</code> can't have any quotes left to begin with. As a result the <code>/^'.*'$/</code> condition can never be true — it's <strong>dead code</strong>. A case where fixable logic already exists but is rendered useless by execution order.</p>
+
+  <h2>5. Why this kind of bug is common</h2>
+  <p>Perfectly parsing SQL string literals with a single regex or simple loop is harder than it looks. To handle it truly correctly you have to explicitly track the state "I'm currently inside a quote AND the character I just saw might be the first quote of an escape" — a state machine that's awkward to express with a single regex match. That's why this kind of escape-handling bug shows up repeatedly in lightweight "convert SQL to X" tools.</p>
+
+  <h2>6. Practical approaches</h2>
+  <ul>
+    <li>For data with fields that can contain apostrophes (O'Brien, D'Angelo, etc.) — names, addresses — always re-check the result visually after conversion.</li>
+    <li>Don't use this tool's conversion output directly for a production data migration — use it only in a staging step for verification.</li>
+    <li>If accurate conversion is essential, replace it with a script that uses a real SQL parser library (e.g. node-sql-parser).</li>
+  </ul>
+
+  <h2>Frequently Asked Questions</h2>
+  <details class="faq-item"><summary>Q. Why does this bug happen silently, with no error?</summary><p>A. Because the parser doesn't throw an exception — it just produces a different (shorter) string. "OBrien" is a perfectly valid JSON string value, so to the tool it looks like a successful conversion with no problem.</p></details>
+  <details class="faq-item"><summary>Q. Is a value wrapped in double quotes (") a problem the same way?</summary><p>A. Yes. The inQ flag doesn't distinguish single from double quotes and shares one flag, so quote characters disappear the same way. And if both kinds of quote are mixed in one value, the flag can flip off at the wrong time and a comma can be mistaken for a field separator.</p></details>
+  <details class="faq-item"><summary>Q. What actually distinguishes numbers from strings?</summary><p>A. It was meant to be distinguished by whether quotes were present, but that logic is dead, so in practice values are split only by whether they match the number regex (-?\d+(\.\d+)?). If it's not NULL and not a number pattern, it stays a string whether or not it originally had quotes.</p></details>
+  <details class="faq-item"><summary>Q. Is NULL handling correct?</summary><p>A. Yes. NULL written without quotes (case-insensitive) is checked separately by regex and converted correctly to JSON null. This part is unaffected by the quote scanner.</p></details>
+
+  <div class="tool-links">
+    <a href="../sql-to-json.html?lang=en">→ SQL to JSON Converter</a>
+    <a href="../sql-validator.html?lang=en">→ SQL Validator</a>
+    <a href="../sql-minifier.html?lang=en">→ SQL Minifier</a>
+    <a href="../json-validator.html?lang=en">→ JSON Validator</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general informational purposes.</footer>
+</main>
+</body>
+</html>

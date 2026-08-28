@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JSONPath Explained — Why This Tool Doesn't Support [0:2] Slicing | MODOO HUB</title>
+<meta name="description" content="JSONPath from basic syntax through slicing and filter expressions, plus what syntax this tool actually supports and why a slice like [0:2] is silently misread as index 0.">
+<link rel="canonical" href="https://modoohub.com/guides/jsonpath-syntax-and-slicing-support-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/jsonpath-syntax-and-slicing-support.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/jsonpath-syntax-and-slicing-support-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/jsonpath-syntax-and-slicing-support.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"JSONPath Explained — Why This Tool Doesn't Support [0:2] Slicing","description":"JSONPath from basic syntax through filter expressions, plus what this tool actually supports and why a slice is silently misread.","datePublished":"2026-08-28","dateModified":"2026-08-28","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Does entering [0:2] produce an error?","acceptedAnswer":{"@type":"Answer","text":"No. It silently returns just the single element at index 0, with no error. If you tried a slice and got only one result, this misinterpretation is the likely cause."}},
+{"@type":"Question","name":"Do filter expressions support string comparison?","acceptedAnswer":{"@type":"Answer","text":"The regex parser captures the val part of @.key op val as (.+) as-is and then compares, so you can put in either a number or a string. But quote handling and logical operator (&&, ||) combination aren't supported."}},
+{"@type":"Question","name":"Does it fully comply with the RFC 9535 standard?","acceptedAnswer":{"@type":"Answer","text":"No. This tool is a lightweight custom parser and doesn't support advanced features RFC 9535 defines, such as slicing, multi-selectors, and function extensions. It supports only basic child/recursive/wildcard/index/filter."}},
+{"@type":"Question","name":"Are JSONPath and JMESPath the same thing?","acceptedAnswer":{"@type":"Answer","text":"No. JSONPath follows XPath-style path notation and is widely used but was standardized late; JMESPath is a stricter-spec query language adopted by the AWS CLI. The syntaxes are not compatible with each other."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--purple);}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html?lang=en" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>JSONPath Explained — Why This Tool Doesn't Support [0:2] Slicing</h1>
+  <p class="meta">Guide · Last verified Aug 19, 2026</p>
+
+  <p>JSONPath is a query language for JSON, the equivalent of XML's XPath. First proposed by Stefan Goessner in 2007, it long lived as a "loose standard" implemented slightly differently across languages, and was only formally standardized as RFC 9535 in 2024. Because of that looseness, supported scope varies by implementation. This guide covers the full standard syntax while pinning down exactly how far this tool goes, based on its actual source code.</p>
+
+  <h2>1. Basic syntax: what works everywhere</h2>
+  <table>
+    <tr><th>Notation</th><th>Meaning</th></tr>
+    <tr><td><code>$</code></td><td>Root (top-level) object</td></tr>
+    <tr><td><code>.key</code> or <code>['key']</code></td><td>Child field access</td></tr>
+    <tr><td><code>..key</code></td><td>Recursive descent — find key at any depth</td></tr>
+    <tr><td><code>*</code></td><td>Wildcard — all child elements</td></tr>
+    <tr><td><code>[n]</code></td><td>The n-th element of an array (negative counts from the end)</td></tr>
+  </table>
+  <p>These five are effectively the minimum common denominator supported by every JSONPath implementation.</p>
+
+  <h2>2. What syntax this tool actually supports (source-checked)</h2>
+  <p>This tool uses its own parser that walks the path string character by character to build tokens. Looking at the actual logic, it supports: <code>$</code> (root), <code>.</code> (child), <code>..</code> (recursive descent, detecting two consecutive dots to make a <code>recursive</code> token), <code>*</code> (wildcard), <code>[n]</code> (integer index, negatives supported), and filter expressions of the form <code>[?(@.key op val)]</code> (supporting <code>==</code>, <code>!=</code>, <code>&gt;</code>, <code>&gt;=</code>, <code>&lt;</code>, <code>&lt;=</code>, parsed with the regex <code>/\?\(@\.(\w+)\s*(==|!=|&gt;|&gt;=|&lt;|&lt;=)\s*(.+)\)/</code>). Even this much lets common queries like <code>$.store.books[*].title</code>, <code>$..price</code>, and <code>[?(@.price &gt; 10)]</code> work fine.</p>
+
+  <h2>3. Slicing ([0:2]) — not simply unsupported, but silently misread</h2>
+  <p>Some standard JSONPath implementations (Python's jsonpath-ng, JS's jsonpath-plus, etc.) support <code>[start:end]</code> or <code>[start:end:step]</code> range slicing borrowed from Python slice syntax. Looking at this tool's bracket-handling logic, if the bracket contents are neither <code>*</code> nor starting with <code>?(</code>, it tries to treat them as an integer index with <code>parseInt(inner)</code>.</p>
+  <div class="box">
+    <strong>What actually happens</strong>: <code>parseInt("0:2")</code> in JavaScript stops parsing the moment it hits the colon and returns <code>0</code>. <code>isNaN(0)</code> is false, so this code silently misreads <code>[0:2]</code> not as a "slice range" but as plain <strong>index 0</strong> and returns just the first element. No error, not an empty result — a result different from what the user intended, with no warning. That's the crux of this bug.
+  </div>
+  <p>So the tool's FAQ statement "slicing is not supported" is accurate, but the actual behavior isn't simply "doesn't work" — it's "misread as something else and produces a plausible value," which requires special care. A user trying to pull several items with <code>[0:2]</code> who doesn't check the result count can be fooled into thinking slicing worked despite getting just one element.</p>
+
+  <h2>4. Other advanced syntax not supported in this tool</h2>
+  <ul>
+    <li><strong>Slicing</strong> <code>[start:end:step]</code> — misread as index 0, as explained above.</li>
+    <li><strong>Multi-index</strong> selecting several comma-separated indexes at once like <code>[0,2,4]</code> — the parser treats the comma as a number-parse failure and returns an empty result.</li>
+    <li><strong>Script expressions</strong> evaluating a JS expression like <code>[(@.length-1)]</code> — not supported.</li>
+  </ul>
+
+  <h2>5. Practical guide: how to use this tool safely</h2>
+  <p>The syntax you can definitely trust in this tool is six things: <code>$</code>, <code>.</code>/<code>[]</code> child access, <code>..</code> recursive descent, <code>*</code> wildcard, single integer index (positive/negative), and the <code>[?(@.key op val)]</code> filter. If you need slicing, multi-index, or complex expressions, it's safer to use a full library like <code>jsonpath-plus</code> (JS) in real code instead of this tool. In particular, never enter a bracket expression containing a colon (<code>:</code>) into this tool — if you need it, split the query into individual indexes and look them up multiple times.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details class="faq-item"><summary>Q. Does entering [0:2] produce an error?</summary><p>A. No. It silently returns just the single element at index 0, with no error. If you tried a slice and got only one result, this misinterpretation is the likely cause.</p></details>
+  <details class="faq-item"><summary>Q. Do filter expressions support string comparison?</summary><p>A. The regex parser captures the val part of @.key op val as (.+) as-is and then compares, so you can put in either a number or a string. But quote handling and logical operator (&&, ||) combination aren't supported.</p></details>
+  <details class="faq-item"><summary>Q. Does it fully comply with the RFC 9535 standard?</summary><p>A. No. This tool is a lightweight custom parser and doesn't support advanced features RFC 9535 defines, such as slicing, multi-selectors, and function extensions. It supports only basic child/recursive/wildcard/index/filter.</p></details>
+  <details class="faq-item"><summary>Q. Are JSONPath and JMESPath the same thing?</summary><p>A. No. JSONPath follows XPath-style path notation and is widely used but was standardized late; JMESPath is a stricter-spec query language adopted by the AWS CLI. The syntaxes are not compatible with each other.</p></details>
+
+  <div class="tool-links">
+    <a href="../json-path-tester.html?lang=en">→ JSONPath Tester</a>
+    <a href="../json-validator.html?lang=en">→ JSON Validator</a>
+    <a href="../json-flattener.html?lang=en">→ JSON Flattener</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general informational purposes.</footer>
+</main>
+</body>
+</html>

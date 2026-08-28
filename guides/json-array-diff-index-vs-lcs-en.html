@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The JSON Array Comparison Trap — Why Index Diff Breaks on Mid-Array Insertion | MODOO HUB</title>
+<meta name="description" content="Why a JSON diff tool marks everything after a single mid-array insertion as 'changed', explained through the difference between index comparison and LCS alignment.">
+<link rel="canonical" href="https://modoohub.com/guides/json-array-diff-index-vs-lcs-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/json-array-diff-index-vs-lcs.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/json-array-diff-index-vs-lcs-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/json-array-diff-index-vs-lcs.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"The JSON Array Comparison Trap — Why Index Diff Breaks on Mid-Array Insertion","description":"Why a JSON diff tool marks everything after a single mid-array insertion as changed, explained through index comparison versus LCS alignment.","datePublished":"2026-08-28","dateModified":"2026-08-28","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Do object comparisons have this problem?","acceptedAnswer":{"@type":"Answer","text":"No. Objects are matched by key name, so even if the order changes (JSON object key order has no inherent meaning), the exact same keys are compared against each other. Only arrays depend on order."}},
+{"@type":"Question","name":"Is adding/removing at the end of an array also a problem?","acceptedAnswer":{"@type":"Answer","text":"No. Additions and removals at the very end of an array have no index shift, so even an index comparator marks them correctly as 'added'/'removed'. The problem only occurs with mid-array insertion or deletion."}},
+{"@type":"Question","name":"Why doesn't git diff have this problem?","acceptedAnswer":{"@type":"Answer","text":"git diff views a file as a line-by-line sequence and compares with the Myers diff (LCS-based) algorithm, so when one line is inserted in the middle, only that line is marked 'added' and the rest are recognized as 'unchanged'. Simple JSON array comparators often match indexes directly with no such alignment step."}},
+{"@type":"Question","name":"Are there tools that support LCS-based array diff?","acceptedAnswer":{"@type":"Answer","text":"Yes. JS libraries like jsondiffpatch compute a hash per array element and distinguish move/insert/delete in an LCS manner. But such libraries have higher compute cost and more complex implementation, so not every online JSON diff tool adopts them."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--purple);}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html?lang=en" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>The JSON Array Comparison Trap — Why Index Diff Breaks on Mid-Array Insertion</h1>
+  <p class="meta">Guide · Last verified Aug 19, 2026</p>
+
+  <p>If you've compared two JSON documents, added just one item at the front of an array, and seen the diff show "changed" on dozens of lines, that's not the tool being broken — it's a scheduled side effect of the <strong>index-based comparison</strong> design. This guide explains, at the algorithm level, why JSON array diff works this way and why tools like git diff don't hit the same problem.</p>
+
+  <h2>1. What index correspondence means</h2>
+  <p>Comparing objects is simple because you match by key name. Compare <code>{"name":"Alice"}</code> and <code>{"name":"Bob"}</code> and you find the same key "name" and conclude only the value differs — done. But arrays have no names. What do you use to identify each element of <code>["a","b","c"]</code>? The simplest solution is to treat the array index (0, 1, 2...) like an object key. That is, compare <code>arr1[0]</code> with <code>arr2[0]</code>, <code>arr1[1]</code> with <code>arr2[1]</code>, matching values <strong>only at the same position</strong>. It's simple to implement, fast, and has the advantage that even with nested objects or arrays it can recurse in at that position as-is.</p>
+
+  <h2>2. Where it blows up: mid-array insertion</h2>
+  <p>The fundamental weakness of index correspondence is that it can't distinguish "insertion" from "change." Adding an element at the very end of an array is displayed correctly as "added" with no problem. But when one element gets inserted in the <strong>middle</strong> of an array, every element after it shifts by one index. The index comparator doesn't understand this shift and, seeing that the value originally at index 1 is now at index 2, misinterprets it as "that value was changed to a different value."</p>
+  <div class="box">
+    <strong>Example</strong>: <code>["a","b","c"]</code> → <code>["x","a","b","c"]</code> (insert one "x" at the front)<br>
+    To a person it's "one x was added at the front; a, b, c are unchanged." But the index comparator says:<br>
+    <code>[0]: "a" → "x"</code> (changed), <code>[1]: "b" → "a"</code> (changed), <code>[2]: "c" → "b"</code> (changed), <code>[3]: added "c"</code> — it's really 1 insertion, but it's inflated into 3 changes + 1 addition, 4 diffs total.
+  </div>
+
+  <h2>3. How real diff tools avoid this: LCS</h2>
+  <p>The algorithm Unix's <code>diff</code> command and git use for file comparison doesn't match indexes directly. Instead it first finds the <strong>Longest Common Subsequence (LCS)</strong>. LCS is an algorithm that finds the longest part common to two sequences while preserving order (not necessarily contiguous). In the example above, <code>["a","b","c"]</code> is the LCS as-is, so this algorithm produces the minimal, semantically correct diff: "a, b, c are commonly present as-is, and one x was inserted before them." The <strong>Myers diff algorithm</strong> git actually uses is a variant optimized to compute this LCS idea in O(ND) time. Pure LCS generally takes O(n×m) time, so compute cost grows noticeably as arrays get large.</p>
+
+  <h2>4. Why JSON array diff tools don't use LCS</h2>
+  <p>A lightweight browser-based JSON comparison tool has practical reasons for skipping LCS alignment. First, LCS fits strings and simple value arrays well, but when arrays contain objects it's ambiguous how to define "two objects are equal" (must they be fully identical, or equal on just certain fields?). Second, a large share of JSON arrays handled in practice are object arrays with a unique key like <code>id</code>, so the order often doesn't change much to begin with. Third, in the trade-off between compute complexity and implementation simplicity, a general-purpose JSON comparator often picks index comparison, which is "correct enough in most cases."</p>
+
+  <h2>5. How to avoid this trap in practice</h2>
+  <ul>
+    <li><strong>If array elements are objects with a unique ID</strong>: pre-sort both arrays into the same ID order before running the diff and the index-shift problem disappears.</li>
+    <li><strong>If order itself doesn't matter for the array</strong>: sort both sides before comparing to eliminate order differences.</li>
+    <li><strong>If the array has frequent mid-insertions/deletions</strong>: a lot of "changed" in an index-based diff result is a normal signal, so rather than trusting the result as-is, eyeball once more which values actually changed.</li>
+  </ul>
+
+  <h2>Frequently Asked Questions</h2>
+  <details class="faq-item"><summary>Q. Do object comparisons have this problem?</summary><p>A. No. Objects are matched by key name, so even if the order changes (JSON object key order has no inherent meaning), the exact same keys are compared against each other. Only arrays depend on order.</p></details>
+  <details class="faq-item"><summary>Q. Is adding/removing at the end of an array also a problem?</summary><p>A. No. Additions and removals at the very end of an array have no index shift, so even an index comparator marks them correctly as "added"/"removed". The problem only occurs with mid-array insertion or deletion.</p></details>
+  <details class="faq-item"><summary>Q. Why doesn't git diff have this problem?</summary><p>A. git diff views a file as a line-by-line sequence and compares with the Myers diff (LCS-based) algorithm, so when one line is inserted in the middle, only that line is marked "added" and the rest are recognized as "unchanged". Simple JSON array comparators often match indexes directly with no such alignment step.</p></details>
+  <details class="faq-item"><summary>Q. Are there tools that support LCS-based array diff?</summary><p>A. Yes. JS libraries like jsondiffpatch compute a hash per array element and distinguish move/insert/delete in an LCS manner. But such libraries have higher compute cost and more complex implementation, so not every online JSON diff tool adopts them.</p></details>
+
+  <div class="tool-links">
+    <a href="../json-diff.html?lang=en">→ JSON Diff</a>
+    <a href="../yaml-diff-checker.html?lang=en">→ YAML Diff Checker</a>
+    <a href="../csv-diff-checker.html?lang=en">→ CSV Diff Checker</a>
+    <a href="../json-validator.html?lang=en">→ JSON Validator</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general informational purposes.</footer>
+</main>
+</body>
+</html>
