@@ -9,7 +9,12 @@
   function getLang() {
     var u = new URLSearchParams(location.search).get('lang');
     if (u && { ko: 1, en: 1, zh: 1, ja: 1 }[u]) return u;
-    var s = localStorage.getItem('modoo_lang');
+    // 페이지 자체 i18n 스크립트가 이미 세팅해 둔 document.documentElement.lang을
+    // localStorage보다 우선 신뢰한다 — 페이지마다 저장 키가 'modoo_lang'/'lang'로
+    // 갈려 있어 localStorage만 보면 실제 표시 언어와 어긋날 수 있기 때문.
+    var docLang = document.documentElement.lang;
+    if (docLang && { ko: 1, en: 1, zh: 1, ja: 1 }[docLang]) return docLang;
+    var s = localStorage.getItem('modoo_lang') || localStorage.getItem('lang');
     if (s && { ko: 1, en: 1, zh: 1, ja: 1 }[s]) return s;
     var n = (navigator.language || '').slice(0, 2);
     return n === 'zh' ? 'zh' : n === 'ko' ? 'ko' : n === 'ja' ? 'ja' : 'en';
@@ -920,7 +925,7 @@
   if (pageCat && !document.getElementById('rt-hdr-style')) {
     var hs = document.createElement('style');
     hs.id = 'rt-hdr-style';
-    hs.textContent = '.rt-hdr-cat{margin-left:auto;font-size:11px;color:var(--text-dim,#444);font-family:"DM Mono",monospace;text-decoration:none;padding:3px 8px;border:1px solid var(--glass-border,var(--border,#252525));border-radius:4px;transition:color .15s,border-color .15s;white-space:nowrap;}.rt-hdr-cat:hover{color:var(--cyan,var(--accent,#fbbf24));border-color:var(--cyan,var(--accent,#fbbf24));}';
+    hs.textContent = '.rt-hdr-cat{margin-left:8px;font-size:11px;color:var(--text-dim,#444);font-family:"DM Mono",monospace;text-decoration:none;padding:3px 8px;border:1px solid var(--glass-border,var(--border,#252525));border-radius:4px;transition:color .15s,border-color .15s;white-space:nowrap;}.rt-hdr-cat:hover{color:var(--cyan,var(--accent,#fbbf24));border-color:var(--cyan,var(--accent,#fbbf24));}';
     document.head.appendChild(hs);
   }
   function renderHeaderChip() {
