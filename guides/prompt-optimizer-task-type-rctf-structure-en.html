@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why One Prompt Doesn't Cut It: Structure Differs by Task Type | MODOO HUB</title>
+<meta name="description" content="Why the same prompt tricks don't work equally for creative writing, coding, and summarizing — broken down through the RCTF (Role, Context, Task, Format) structure, with a code-level look at how a prompt optimizer assembles a different template per task type.">
+<link rel="canonical" href="https://modoohub.com/guides/prompt-optimizer-task-type-rctf-structure-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/prompt-optimizer-task-type-rctf-structure.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/prompt-optimizer-task-type-rctf-structure-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/prompt-optimizer-task-type-rctf-structure.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Why One Prompt Doesn't Cut It: Structure Differs by Task Type","description":"Why the same prompt tricks don't work equally across task types, broken down through the RCTF structure.","datePublished":"2026-08-28","dateModified":"2026-08-28","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Is RCTF the same as the prompt the optimizer produces?","acceptedAnswer":{"@type":"Answer","text":"Yes. The sentence the optimizer assembles follows the RCTF structure — Role, Context (target/constraint), Task, Format (requirements list) — and replaces the effort of filling those four elements by hand with a single task-type selection."}},
+{"@type":"Question","name":"What if my task doesn't fit any of the 8 types exactly?","acceptedAnswer":{"@type":"Answer","text":"Pick the closest type and then edit the generated prompt directly. For example, a \"presentation script\" can use the education type for its skeleton with only the format requirements adjusted."}},
+{"@type":"Question","name":"Can I use the prompt this tool makes with any AI?","acceptedAnswer":{"@type":"Answer","text":"Yes. This tool doesn't call an AI — it's a pure template generator that only assembles prompt text in the browser, so you can paste the finished prompt into ChatGPT, Claude, Gemini, or any service."}},
+{"@type":"Question","name":"Does chain-of-thought help every task type?","acceptedAnswer":{"@type":"Answer","text":"It has a large effect on tasks needing multi-step reasoning like analysis and coding, and a small perceived effect on tasks where a single output is enough, like creative writing or translation. Add it selectively based on task complexity."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 5px;font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html?lang=en" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Why One Prompt Doesn't Cut It: Structure Differs by Task Type</h1>
+  <p class="meta">Guide · Last verified Aug 20, 2026</p>
+
+  <p>No matter how many "how to write good prompts" articles you read, results are often uneven in practice. The reason is simple — the elements a creative-writing prompt needs and the elements a coding prompt needs are fundamentally different. Copy-paste one universal template into every task and you get the best result for none of them. This guide explains why and how prompt structure should change per task type, based on the actual assembly logic of the <a href="../prompt-optimizer.html?lang=en">prompt optimizer</a>.</p>
+
+  <h2>1. Prompts have "genres" too</h2>
+  <p>Just as a novel and a report use different grammar, a prompt sent to an AI needs a completely different composition depending on its purpose. Creative writing produces good results when constraints are minimized, but coding is the opposite — the more you spell out constraints (error handling, testability, clean-code principles) the higher the quality. Summarizing needs numeric directives like a compression ratio; translation, conversely, hinges on a prohibition directive: "don't explain, output only the translation." Ignore this difference and throw a one-liner "do it well," and the AI arbitrarily sets its own format regardless of task type, and result quality varies every time.</p>
+
+  <h2>2. RCTF: the four elements — Role, Context, Task, Format</h2>
+  <p>A skeleton often mentioned in prompt engineering is <strong>RCTF</strong> — the initials of Role, Context, Task, and Format. The more explicitly you fill in these four, the more consistently the AI responds. "Role" specifies what kind of expert the AI should act as; "Format" nails down what structure the output should take (bullets, code blocks, tables). The problem is that filling these four by hand every time is tedious — and filling in the right RCTF combination for a task type once you just pick the task type is what the prompt optimizer does.</p>
+
+  <h2>3. Verify in the actual code: 8 types, 8 different templates</h2>
+  <p>Open the source of the <a href="../prompt-optimizer.html?lang=en">prompt optimizer</a> and inside the <code>templates</code> object you'll find a completely independent template function defined for each of 8 task types: creative writing, analysis, coding, summarizing, translation, Q&amp;A, email, education. Each function, even given the same input (task content, target, constraints), assembles a different role statement and a different requirements list. For example, the coding template inserts the role "You are a senior software engineer" and a coding-specific checklist like "include error handling," "testable structure," while the creative-writing template puts the opposite-direction requirements in the same slot — "present an original and interesting perspective," "include emotional resonance." So this tool isn't a method of swapping values into one template — it hardcodes a completely different RCTF combination per type.</p>
+
+  <div class="box">
+    <strong>Comparison example</strong>: with the task content identically entered as "new product launch announcement" —<br>
+    · Email type: 3 items are automatically attached — "include a clear subject line," "a clear CTA (call to action)," "appropriate greeting and closing."<br>
+    · Creative type: the same input gets an entirely different requirement like "use expression that sparks the reader's imagination."<br>
+    Even with the same input value, the moment you change the type the prompt's skeleton itself is reconstructed — you can verify this directly in the code.
+  </div>
+
+  <h2>4. Why a summarizing prompt demands numbers</h2>
+  <p>Of the 8 types, the summarizing template unusually hardcodes a specific number: "retain 80% of the core content while cutting length by 70%." That's because nailing the compression ratio down as a number reduces the variance in the AI's output length, versus a vague instruction like "just summarize it." By the same principle, the translation template contains an explicit prohibition directive, "output only the translation and omit explanation" — remove it and the AI often adds filler like "here is the translation" before and after. Each of these details baked into the per-type templates can be seen as the product of repeated trial and error in practice.</p>
+
+  <h2>5. Why target and constraint are optional inputs</h2>
+  <p>The tool's target and constraint input fields are implemented so that leaving them blank omits that line entirely from the prompt. This is designed to prevent an unnecessary blank line remaining in the prompt and the AI actually referencing a meaningless phrase like "Target: (none)." Conversely, this means the more you fill in target and constraint, the more concrete the Context in RCTF becomes and the higher the result quality — so filling them in, even briefly, beats leaving them blank.</p>
+
+  <h2>6. If you want to layer on chain-of-thought or few-shot</h2>
+  <p>After you've set the skeleton with RCTF, you can layer on two more techniques as needed. Chain-of-thought adds one sentence, "think step by step," to make the AI go through a reasoning process rather than jumping straight to a conclusion. Few-shot includes 1–5 examples of the desired output format directly in the prompt to teach the pattern. Neither is assembled automatically by this tool, so appending them yourself after the RCTF prompt the optimizer produced can push accuracy one level higher on complex tasks (multi-step analysis, formatted code output).</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details class="faq-item"><summary>Q. Is RCTF the same as the prompt the optimizer produces?</summary><p>A. Yes. The sentence the optimizer assembles follows the RCTF structure — Role, Context (target/constraint), Task, Format (requirements list) — and replaces the effort of filling those four elements by hand with a single task-type selection.</p></details>
+  <details class="faq-item"><summary>Q. What if my task doesn't fit any of the 8 types exactly?</summary><p>A. Pick the closest type and then edit the generated prompt directly. For example, a "presentation script" can use the education type for its skeleton with only the format requirements adjusted.</p></details>
+  <details class="faq-item"><summary>Q. Can I use the prompt this tool makes with any AI?</summary><p>A. Yes. This tool doesn't call an AI — it's a pure template generator that only assembles prompt text in the browser, so you can paste the finished prompt into ChatGPT, Claude, Gemini, or any service.</p></details>
+  <details class="faq-item"><summary>Q. Does chain-of-thought help every task type?</summary><p>A. It has a large effect on tasks needing multi-step reasoning like analysis and coding, and a small perceived effect on tasks where a single output is enough, like creative writing or translation. Add it selectively based on task complexity.</p></details>
+
+  <div class="tool-links">
+    <a href="../prompt-optimizer.html?lang=en">→ Prompt Optimizer</a>
+    <a href="../prompt-improver.html?lang=en">→ Prompt Improver</a>
+    <a href="../system-prompt-generator.html?lang=en">→ System Prompt Generator</a>
+    <a href="../prompt-template-generator.html?lang=en">→ Prompt Template Generator</a>
+    <a href="../ai-model-comparison.html?lang=en">→ AI Model Comparison</a>
+    <a href="../prompt-token-estimator.html?lang=en">→ Prompt Token Estimator</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general information; actual results depend on the AI model used and the input values.</footer>
+</main>
+</body>
+</html>

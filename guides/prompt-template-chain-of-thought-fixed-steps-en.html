@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why the "3 Steps" in a Chain-of-Thought Template Is Just a Placeholder | MODOO HUB</title>
+<meta name="description" content="Why a prompt template generator's Chain-of-Thought template is fixed at 'Step 1 - Step 2 - Step 3', analyzed from the actual code — its structure, how to edit it, and its relationship to reasoning models.">
+<link rel="canonical" href="https://modoohub.com/guides/prompt-template-chain-of-thought-fixed-steps-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/prompt-template-chain-of-thought-fixed-steps.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/prompt-template-chain-of-thought-fixed-steps-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/prompt-template-chain-of-thought-fixed-steps.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Why the \"3 Steps\" in a Chain-of-Thought Template Is Just a Placeholder","description":"Why a prompt template generator's Chain-of-Thought template is fixed at 3 steps, analyzed from the actual code.","datePublished":"2026-08-28","dateModified":"2026-08-28","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Does the template break if I use fewer than 3 steps?","acceptedAnswer":{"@type":"Answer","text":"No. This tool is a static template that just shows text, with no validation logic for the number of items. You can freely edit it down to 2 steps or up to 6."}},
+{"@type":"Question","name":"Are the 3 examples in the Few-Shot template fixed for the same reason?","acceptedAnswer":{"@type":"Answer","text":"Yes. Like the step count in Chain-of-Thought, the 3 examples in Few-Shot are just a sample filled in for convenience — reduce to 2 or expand past 5 depending on pattern complexity."}},
+{"@type":"Question","name":"Should I remove the Chain-of-Thought template entirely when using a reasoning model?","acceptedAnswer":{"@type":"Answer","text":"You don't have to remove it, but if the model already reasons step by step internally, the effect may be small. If the response gets unnecessarily long, try without the template first and compare."}},
+{"@type":"Question","name":"Is it a problem to split into too many steps?","acceptedAnswer":{"@type":"Answer","text":"Yes. Forcing steps that aren't needed for the actual logic makes the response verbose and blurs the point. The step count should follow the actual structure of the problem."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 5px;font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html?lang=en" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>Why the "3 Steps" in a Chain-of-Thought Template Is Just a Placeholder</h1>
+  <p class="meta">Guide · Last verified Aug 20, 2026</p>
+
+  <p>Pick the Chain-of-Thought (step-by-step reasoning) template in a prompt template generator and it outputs the text "Step 1: [...] Step 2: [...] Step 3: [...]" as-is. Many people see this and assume "so the standard number of steps this tool decided on is 3" — but it's really just static text filled in as an example. This guide covers why it's 3 specifically, how to handle that number, and whether the template is even still needed for modern AI models, along with the code structure.</p>
+
+  <h2>1. What the template generator actually does: pasting text</h2>
+  <p>The <a href="../prompt-template-generator.html?lang=en">prompt template generator</a> is not an AI. It's a static tool that displays a pre-written string on screen when the user clicks a card. The output from pressing the Chain-of-Thought card is the fixed string "Let's think step by step: Step 1: [...] Step 2: [...] Step 3: [...] Therefore, the final answer is:" — there's no logic at all that analyzes the type or difficulty of the problem to compute the step count dynamically. So the number "3" isn't a value the tool computed and gave you — it's a value the template author arbitrarily set as an example.</p>
+
+  <h2>2. The original meaning of the Chain-of-Thought concept</h2>
+  <p>Chain-of-Thought prompting started from the technique of appending the instruction "Let's think step by step" to make the AI explicitly output its intermediate reasoning process. The core of this technique isn't "split into exactly 3 steps" but "don't jump straight to a conclusion — reveal the intermediate logic." The step count itself should be a value determined naturally by the structure of the problem, not one the prompt author has to nail down in advance. An arithmetic problem might end in 2 steps; a complex policy judgment might need 6–7.</p>
+
+  <h2>3. So why is "3" baked in?</h2>
+  <p>From the template author's point of view, an open-ended form like "Step 1, Step 2, ... Step N" makes it hard for the user to intuitively grasp what to do. So they chose to fill in a conventional count commonly used in practice (3) as an example to show "here's how you write it." The Few-Shot template containing exactly 3 examples is for the same reason — not a tool-level rule, but a pre-filled sample meant to be edited.</p>
+  <div class="box">
+    <strong>How to verify</strong>: in the template generator, select the Chain-of-Thought card, then delete the "Step 3" item or add a "Step 4" in the output box — the text stays as-is with no error. There's no validation logic the tool forces.
+  </div>
+
+  <h2>4. Adjusting step count by problem complexity</h2>
+  <table>
+    <tr><th>Problem type</th><th>Appropriate step count</th><th>Why</th></tr>
+    <tr><td>Simple arithmetic/fact check</td><td>1–2 steps</td><td>Calculation → conclusion is enough; unnecessary steps only make the answer verbose</td></tr>
+    <tr><td>General comparison/analysis question</td><td>3 steps</td><td>The typical case matching the template default</td></tr>
+    <tr><td>Multi-factor decision (multiple constraints at once)</td><td>5+ steps</td><td>Review steps grow with the number of constraints</td></tr>
+  </table>
+  <p>Forcibly splitting or merging just to hit 3 steps makes the logic flow unnatural. The right order of work is to analyze the actual problem first, then increase or decrease the number of step items in the template to match that analysis.</p>
+
+  <h2>5. Is it still needed for modern reasoning models?</h2>
+  <p>Reasoning-specialized models that have appeared recently are designed to internally expand their thought process into multiple steps even without the phrase "let's think step by step" in the prompt. Applying the Chain-of-Thought template as-is to such a model duplicates the internal reasoning the model already performs with the prompt's explicit instruction, so the effect can be minimal or can just make the answer unnecessarily long. Conversely, for a general model without built-in reasoning, this template is still an effective device for raising answer quality. So a more important criterion than the number "3" is "is the model I'm using a reasoning-specialized model or not."</p>
+
+  <h2>6. Using it together with variable filling</h2>
+  <p>After editing the step items of the Chain-of-Thought template to match your actual problem, you can also turn the values that recur inside it (topic, target audience, etc.) into <code>{{variable}}</code> form to make a reusable template. Paste a template made this way into the <a href="../prompt-variable-extractor.html?lang=en">prompt variable extractor</a> and an input form is generated automatically, letting you reuse it across many problems without hand-editing the text each time.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details class="faq-item"><summary>Q. Does the template break if I use fewer than 3 steps?</summary><p>A. No. This tool is a static template that just shows text, with no validation logic for the number of items. You can freely edit it down to 2 steps or up to 6.</p></details>
+  <details class="faq-item"><summary>Q. Are the 3 examples in the Few-Shot template fixed for the same reason?</summary><p>A. Yes. Like the step count in Chain-of-Thought, the 3 examples in Few-Shot are just a sample filled in for convenience — reduce to 2 or expand past 5 depending on pattern complexity.</p></details>
+  <details class="faq-item"><summary>Q. Should I remove the Chain-of-Thought template entirely when using a reasoning model?</summary><p>A. You don't have to remove it, but if the model already reasons step by step internally, the effect may be small. If the response gets unnecessarily long, try without the template first and compare.</p></details>
+  <details class="faq-item"><summary>Q. Is it a problem to split into too many steps?</summary><p>A. Yes. Forcing steps that aren't needed for the actual logic makes the response verbose and blurs the point. The step count should follow the actual structure of the problem.</p></details>
+
+  <div class="tool-links">
+    <a href="../prompt-template-generator.html?lang=en">→ Prompt Template Generator</a>
+    <a href="../prompt-variable-extractor.html?lang=en">→ Prompt Variable Extractor</a>
+    <a href="../prompt-cleaner.html?lang=en">→ Prompt Cleaner</a>
+    <a href="../prompt-optimizer.html?lang=en">→ Prompt Optimizer</a>
+    <a href="../system-prompt-generator.html?lang=en">→ System Prompt Generator</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general information; actual prompt results depend on the AI model and version used.</footer>
+</main>
+</body>
+</html>

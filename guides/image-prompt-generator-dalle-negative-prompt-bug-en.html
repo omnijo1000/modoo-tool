@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Hidden Bug That Only Affects the DALL-E Mode of an Image Prompt Generator | MODOO HUB</title>
+<meta name="description" content="A source-level dissection of the real code bugs in the DALL-E mode of an image prompt generator: doubled spaces, and negative prompts that are silently discarded.">
+<link rel="canonical" href="https://modoohub.com/guides/image-prompt-generator-dalle-negative-prompt-bug-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/image-prompt-generator-dalle-negative-prompt-bug.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/image-prompt-generator-dalle-negative-prompt-bug-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/image-prompt-generator-dalle-negative-prompt-bug.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"The Hidden Bug That Only Affects the DALL-E Mode of an Image Prompt Generator","description":"A source-level dissection of doubled-space and silently-discarded negative-prompt bugs in an image prompt generator's DALL-E mode.","datePublished":"2026-08-28","dateModified":"2026-08-28","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Is the doubled-space bug actually reproducible?","acceptedAnswer":{"@type":"Answer","text":"Yes. Run the real code as-is and with style/mood unselected you get 3 spaces between \"A\" and the subject; with them selected you get 2 spaces between every word."}},
+{"@type":"Question","name":"I entered a negative prompt, so why isn't it reflected in the DALL-E result?","acceptedAnswer":{"@type":"Answer","text":"Because the DALL-E branch of the code has no line referencing the negative variable at all. Only the Midjourney and Stable Diffusion branches have the code to apply it; the DALL-E branch ignores the input value entirely."}},
+{"@type":"Question","name":"Do the Midjourney and Stable Diffusion modes have the same space problem?","acceptedAnswer":{"@type":"Answer","text":"No. Both modes join the array with parts.join(', '), so exactly one comma goes between each value no matter how many there are, and they're unaffected by this bug. The problem is only in the DALL-E branch's template-literal assembly."}},
+{"@type":"Question","name":"Doesn't DALL-E just not support negative prompts?","acceptedAnswer":{"@type":"Answer","text":"Correct. The DALL-E API itself doesn't officially support this concept. But the fact that this tool keeps the negative-prompt input field enabled in DALL-E mode is a UX flaw separate from the API constraint."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--purple);}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html?lang=en" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>The Hidden Bug That Only Affects the DALL-E Mode of an Image Prompt Generator</h1>
+  <p class="meta">Guide · Last verified Aug 19, 2026</p>
+
+  <p>If a tool automatically builds prompts for three models — Midjourney, DALL-E, Stable Diffusion — it's easy to assume all three assemble their values the same way. But dig into the actual source and <strong>only DALL-E mode uses a completely different assembly method</strong>, and because of that difference there's both a visible spacing bug and a more dangerous, invisible negative-prompt-loss bug. This guide quotes the tool's actual JS code to explain exactly where and why the two bugs arise.</p>
+
+  <h2>1. Assembly differs by model</h2>
+  <p>The tool collects the values the user picked — style, mood, lighting, camera, quality tags — into an array called <code>parts</code>. The problem is that the way this array becomes the final prompt string differs by model. Midjourney and Stable Diffusion modes join the array directly, like this:</p>
+  <div class="box">
+    <code>prompt = parts.join(', ');</code><br>
+    Just one comma+space goes between each element, so no problem arises no matter how many values there are, or if some are empty.
+  </div>
+  <p>DALL-E mode, by contrast, doesn't use the array — it inserts values <strong>directly into a sentence template literal</strong>.</p>
+  <div class="box">
+    <code>prompt = `A ${mood?mood+' ':''} ${style?style+' image of ':''} ${subject}`;</code>
+  </div>
+
+  <h2>2. Doubled-space bug: ternary operator vs. template's fixed spaces</h2>
+  <p>Look closely at the code above and the problem is doubled up. First, the <code>mood?mood+' ':''</code> part already appends one space (<code>+' '</code>) directly after the mood value when it exists. Second, the template literal itself still has fixed spaces between the <code>${...}</code> slots. So when a value exists, "the space the value appended" and "the space the template already had" overlap, putting <strong>two spaces between words</strong>.</p>
+  <p>The more noticeable problem is when a value is <strong>absent</strong>. Don't select mood or style and the ternary returns only an empty string (<code>''</code>), but the template's fixed spaces around that slot stay regardless of the ternary. As a result, selecting no style or mood and entering only the subject "a cat" produces this actual output:</p>
+  <div class="box">
+    <strong>Actual output</strong>: <code>"A&nbsp;&nbsp;&nbsp;a cat"</code> — 3 spaces between "A" and "a cat".<br>
+    With both style and mood selected: <code>"A dramatic&nbsp;&nbsp;photorealistic image of&nbsp;&nbsp;a cat"</code> — 2 spaces between words every time.
+  </div>
+
+  <h2>3. The bug where the negative prompt silently disappears</h2>
+  <p>The more serious problem is the negative prompt (elements you want to exclude). The tool always shows a negative-prompt input field regardless of model selection and accepts input normally. But the code that actually applies that value to the final prompt splits completely by model.</p>
+  <table>
+    <tr><th>Model</th><th>Negative prompt handling code</th></tr>
+    <tr><td>Midjourney</td><td><code>if(negative)prompt+=` --no ${negative}`;</code> — applied correctly</td></tr>
+    <tr><td>Stable Diffusion</td><td><code>if(negative)prompt+=`\nNegative prompt: ${negative}`;</code> — applied correctly</td></tr>
+    <tr><td><strong>DALL-E</strong></td><td><strong>Not a single line</strong> in the entire branch references the <code>negative</code> variable</td></tr>
+  </table>
+  <p>So even if the user enters a negative prompt like "blurry, low quality, text" in DALL-E mode, that value is used nowhere when they hit the generate button and is silently discarded. No error, no warning — since the input field stays active, the user easily believes their input was applied.</p>
+
+  <h2>4. Is this a bug, or a DALL-E limitation?</h2>
+  <p>There's an important distinction to make here. It's true that the official DALL-E API itself doesn't support a "negative prompt" concept like Midjourney's <code>--no</code> parameter or Stable Diffusion's negative prompt. That's not unique to this tool — it's an actual design characteristic of the OpenAI DALL-E API. But separately from that fact, <strong>the tool leaving the negative-prompt input field enabled in DALL-E mode with no note or explanation</strong> is purely a UX/implementation bug. If the API doesn't support it, the tool should at least tell the user that — and it doesn't.</p>
+
+  <h2>5. Practical approach: what to use instead of a negative prompt in DALL-E</h2>
+  <p>When building a prompt for DALL-E, know that you can't use an "exclusion" concept at all, and work around it by <strong>turning unwanted elements into positive statements woven into the body</strong>. For example, instead of an exclusion directive "no text," describe it positively in the body prompt itself, like "a clean image with no visible text or lettering." This isn't perfect, but it actually affects the result — unlike sending a value down a channel that doesn't even exist in the DALL-E API.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <details class="faq-item"><summary>Q. Is the doubled-space bug actually reproducible?</summary><p>A. Yes. Run the real code (<code>prompt=`A ${mood?mood+' ':''} ${style?style+' image of ':''} ${subject}`</code>) as-is and with style/mood unselected you get 3 spaces between "A" and the subject; with them selected you get 2 spaces between every word.</p></details>
+  <details class="faq-item"><summary>Q. I entered a negative prompt, so why isn't it reflected in the DALL-E result?</summary><p>A. Because the DALL-E branch of the code has no line referencing the negative variable at all. Only the Midjourney and Stable Diffusion branches have the code to apply it; the DALL-E branch ignores the input value entirely.</p></details>
+  <details class="faq-item"><summary>Q. Do the Midjourney and Stable Diffusion modes have the same space problem?</summary><p>A. No. Both modes join the array with parts.join(', '), so exactly one comma goes between each value no matter how many there are, and they're unaffected by this bug. The problem is only in the DALL-E branch's template-literal assembly.</p></details>
+  <details class="faq-item"><summary>Q. Doesn't DALL-E just not support negative prompts?</summary><p>A. Correct. The DALL-E API itself doesn't officially support this concept. But the fact that this tool keeps showing an active negative-prompt input field in DALL-E mode is a UX flaw separate from the API constraint.</p></details>
+
+  <div class="tool-links">
+    <a href="../image-prompt-generator.html?lang=en">→ Image Prompt Generator</a>
+    <a href="../prompt-optimizer.html?lang=en">→ Prompt Optimizer</a>
+    <a href="../prompt-cleaner.html?lang=en">→ Prompt Cleaner</a>
+    <a href="../ai-model-comparison.html?lang=en">→ AI Model Comparison</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general informational purposes.</footer>
+</main>
+</body>
+</html>

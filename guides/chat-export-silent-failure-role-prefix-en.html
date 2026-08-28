@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>When AI Chat Export Fails Silently — the Role-Prefix Parsing Trap | MODOO HUB</title>
+<meta name="description" content="If you paste text into a chat export tool and nothing changes, the cause is a failure to detect role prefixes. Here's the structural reason it fails silently, with no error.">
+<link rel="canonical" href="https://modoohub.com/guides/chat-export-silent-failure-role-prefix-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/chat-export-silent-failure-role-prefix.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/chat-export-silent-failure-role-prefix-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/chat-export-silent-failure-role-prefix.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"When AI Chat Export Fails Silently — the Role-Prefix Parsing Trap","description":"Why a chat export tool that reads pasted text fails silently with no error when it can't recognize role prefixes.","datePublished":"2026-08-28","dateModified":"2026-08-28","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"I pasted and parsed, but nothing changed on screen.","acceptedAnswer":{"@type":"Answer","text":"The parser only recognizes lines that start with a defined role prefix (User:, Assistant:, System: and their Korean/Chinese/Japanese translations). Use an expression not in that list and the matched message count becomes 0, the existing message builder screen stays as-is, and there's no error shown."}},
+{"@type":"Question","name":"Does it parse Q:/A: style conversations?","acceptedAnswer":{"@type":"Answer","text":"No. Only user/assistant/system-family words are recognized, so prefixes like Q: and A: aren't detected as roles and the parse result comes out empty."}},
+{"@type":"Question","name":"What happens to a title or date line before the first role prefix?","acceptedAnswer":{"@type":"Answer","text":"It's completely discarded. For example, if a title line \"January 2024 conversation log\" is followed by \"User: hi\", the title line is not included in the output at all."}},
+{"@type":"Question","name":"Which prefixes are recognized?","acceptedAnswer":{"@type":"Answer","text":"user/사용자/ユーザー/用户/you/human map to user; assistant/어시스턴트/アシスタント/助手/ai/chatgpt/claude/gemini map to assistant; system/시스템/システム/系统 map to system. It's case-insensitive, but must start at the beginning of the line with a colon immediately after."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;font-size:13px;color:var(--purple);}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html?lang=en" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>When AI Chat Export Fails Silently — the Role-Prefix Parsing Trap</h1>
+  <p class="meta">Guide · Last verified Aug 19, 2026</p>
+
+  <p>If you've ever copied a conversation with ChatGPT or Claude, pasted it into a chat export tool, hit "Parse," and had nothing happen, that's not the tool freezing — it's a signal that <strong>it couldn't recognize the roles in the text</strong>. The problem is that no error message appears at that point. This guide explains, structurally, why this kind of text-parsing tool fails "silently," and what input it actually recognizes.</p>
+
+  <h2>1. What the paste parser actually does</h2>
+  <p>This kind of tool isn't connected to the real ChatGPT or Claude API. It only sees a single block of plain text the user copied and pasted from the screen, and it has to infer the structure — "from this line on it's the user speaking, from this line on it's the AI" — by itself. Distinguishing speakers purely from <strong>the string pattern at the start of each line</strong>, with no structured data at all, is the fundamental way such a parser works.</p>
+
+  <h2>2. Exactly what pattern does it look for</h2>
+  <p>The tool recognizes the start of a new message only when the beginning of a line starts with one of the patterns below and is immediately followed by a colon (<code>:</code> or <code>：</code>).</p>
+  <table>
+    <tr><th>Role</th><th>Recognized prefixes</th></tr>
+    <tr><td>user</td><td>user, 사용자, ユーザー, 用户, you, human</td></tr>
+    <tr><td>assistant</td><td>assistant, 어시스턴트, アシスタント, 助手, ai, chatgpt, claude, gemini</td></tr>
+    <tr><td>system</td><td>system, 시스템, システム, 系统</td></tr>
+  </table>
+  <p>It's case-insensitive, but it must come at the <strong>very start</strong> of the line with a <strong>colon immediately attached</strong>. An expression not in this list (e.g. "Q:", "A:", "Question:", "Answer:") is not recognized at all, no matter how conversation-like it looks.</p>
+
+  <h2>3. What actually happens on recognition failure</h2>
+  <p>The core behavior of the parse function is this: it scans the text line by line, finds lines matching a pattern, and stacks them into a message list (<code>msgs</code>). But at the end there's a single condition, <code>if(msgs.length)</code>, so if <strong>not a single line</strong> matched, this list stays empty and the existing message builder screen <strong>is not updated at all</strong>. It doesn't throw an error or pop a warning. To the user it just looks like "paste → click Parse → nothing changes on screen," and this isn't a bug — it's exactly the intended (but unforgiving) behavior.</p>
+  <div class="box">
+    <strong>Why silent failure is worse than a noisy error</strong>: if an error message appeared, the user would immediately know "the format is wrong" and could fix it. But with no reaction, it's easy to misdiagnose the cause — "did the tool freeze?", "did I click the wrong button?" — and especially with long text, people often just give up without retrying.
+  </div>
+
+  <h2>4. Recognized input vs. unrecognized input</h2>
+  <p>Below are contrasting examples of formats that actually parse successfully and formats that look similar but fail.</p>
+  <table>
+    <tr><th>Input example</th><th>Result</th></tr>
+    <tr><td><code>User: hello<br>Assistant: hi there</code></td><td>✅ Recognized (user/assistant prefix + colon)</td></tr>
+    <tr><td><code>사용자: a question<br>어시스턴트: an answer</code></td><td>✅ Recognized (Korean prefixes supported too)</td></tr>
+    <tr><td><code>Q: a question<br>A: an answer</code></td><td>❌ Not recognized (Q/A aren't in the list)</td></tr>
+    <tr><td><code>Me: hey<br>Bot: yes</code></td><td>❌ Not recognized ("Me", "Bot" aren't specified words)</td></tr>
+  </table>
+  <p>One more thing to know: everything <strong>before</strong> the first recognized prefix line (e.g. a conversation title or a date note) is discarded entirely from the parse result.</p>
+
+  <h2>5. Practical tips</h2>
+  <ul>
+    <li>If you hit Parse and the screen is unchanged, nine times out of ten it's a prefix-format issue — check first whether your source text exactly matches the supported list in the table above.</li>
+    <li>Even when a result comes out, build the habit of eyeballing "did every turn actually split correctly," even briefly. Paste a long conversation whole and never re-read the result, and you won't notice when the structure is wrong.</li>
+    <li>If the text you copied from ChatGPT or Claude uses labels different from what the tool expects, it's faster to add labels like "User:"/"Assistant:" yourself before pasting.</li>
+  </ul>
+
+  <h2>Frequently Asked Questions</h2>
+  <details class="faq-item"><summary>Q. I pasted and parsed, but nothing changed on screen.</summary><p>A. The parser only recognizes lines that start with a defined role prefix (User:, Assistant:, System: and their Korean/Chinese/Japanese translations). Use an expression not in that list and the matched message count becomes 0, the existing message builder screen stays as-is, and there's no error shown.</p></details>
+  <details class="faq-item"><summary>Q. Does it parse Q:/A: style conversations?</summary><p>A. No. Only user/assistant/system-family words are recognized, so prefixes like Q: and A: aren't detected as roles and the parse result comes out empty.</p></details>
+  <details class="faq-item"><summary>Q. What happens to a title or date line before the first role prefix?</summary><p>A. It's completely discarded. For example, if a title line "January 2024 conversation log" is followed by "User: hi", the title line is not included in the output at all.</p></details>
+  <details class="faq-item"><summary>Q. Which prefixes are recognized?</summary><p>A. user/사용자/ユーザー/用户/you/human map to user; assistant/어시스턴트/アシスタント/助手/ai/chatgpt/claude/gemini map to assistant; system/시스템/システム/系统 map to system. It's case-insensitive, but must start at the beginning of the line with a colon immediately after.</p></details>
+
+  <div class="tool-links">
+    <a href="../markdown-chat-exporter.html?lang=en">→ AI Chat Exporter</a>
+    <a href="../markdown-to-html.html?lang=en">→ Markdown to HTML</a>
+    <a href="../markdown-preview.html?lang=en">→ Markdown Preview</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general informational purposes.</footer>
+</main>
+</body>
+</html>

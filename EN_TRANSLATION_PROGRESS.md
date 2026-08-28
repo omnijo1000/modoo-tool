@@ -1,6 +1,6 @@
 # 가이드 영어(EN) 번역 진행 상황
 
-**마지막 갱신**: 2026-08-28  |  **진행률**: 159/176
+**마지막 갱신**: 2026-08-28  |  **진행률**: 169/176
 
 ## 배경 & 방식
 
@@ -40,7 +40,7 @@
 | 생성기 도구 (generator-tools) | 21/21 |
 | 보안 도구 (security-tools) | 17/17 |
 | PDF 도구 (pdf-tools) | 13/13 |
-| AI 도구 (ai-tools) | 0/10 |
+| AI 도구 (ai-tools) | 10/10 |
 | 데이터 도구 (data-tools) | 0/7 |
 
 ---
@@ -222,18 +222,18 @@
 - [x] `pdf-watermark-korean-font-embedding-limit` ← tool: `pdf-watermark`
 - [x] `pdf-word-counter-cjk-whitespace-split` ← tool: `pdf-word-counter`
 
-## AI 도구 (ai-tools) — 0/10
+## AI 도구 (ai-tools) — 10/10
 
-- [ ] `ai-model-comparison-free-tier-differences` ← tool: `ai-model-comparison`
-- [ ] `chat-export-silent-failure-role-prefix` ← tool: `markdown-chat-exporter`
-- [ ] `image-prompt-generator-dalle-negative-prompt-bug` ← tool: `image-prompt-generator`
-- [ ] `korean-ai-token-inefficiency` ← tool: `ai-token-counter`
-- [ ] `prompt-cleaner-token-count-approximation` ← tool: `prompt-cleaner`
-- [ ] `prompt-formats-chatml-xml-jsonl` ← tool: `prompt-formatter`
-- [ ] `prompt-optimizer-task-type-rctf-structure` ← tool: `prompt-optimizer`
-- [ ] `prompt-template-chain-of-thought-fixed-steps` ← tool: `prompt-template-generator`
-- [ ] `prompt-variable-extractor-bracket-syntax-limit` ← tool: `prompt-variable-extractor`
-- [ ] `system-prompt-fixed-clauses-roleplay-conflict` ← tool: `system-prompt-generator`
+- [x] `ai-model-comparison-free-tier-differences` ← tool: `ai-model-comparison`
+- [x] `chat-export-silent-failure-role-prefix` ← tool: `markdown-chat-exporter`
+- [x] `image-prompt-generator-dalle-negative-prompt-bug` ← tool: `image-prompt-generator`
+- [x] `korean-ai-token-inefficiency` ← tool: `ai-token-counter`
+- [x] `prompt-cleaner-token-count-approximation` ← tool: `prompt-cleaner`
+- [x] `prompt-formats-chatml-xml-jsonl` ← tool: `prompt-formatter`
+- [x] `prompt-optimizer-task-type-rctf-structure` ← tool: `prompt-optimizer`
+- [x] `prompt-template-chain-of-thought-fixed-steps` ← tool: `prompt-template-generator`
+- [x] `prompt-variable-extractor-bracket-syntax-limit` ← tool: `prompt-variable-extractor`
+- [x] `system-prompt-fixed-clauses-roleplay-conflict` ← tool: `system-prompt-generator`
 
 ## 데이터 도구 (data-tools) — 0/7
 

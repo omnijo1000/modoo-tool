@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{variable}} Works but [variable] Doesn't — Prompt Variable Syntax Dissected | MODOO HUB</title>
+<meta name="description" content="Why a prompt variable extractor recognizes {{variable}} and {variable} but not [variable] (square brackets), analyzed through its regex structure and the clash with markdown link and footnote syntax.">
+<link rel="canonical" href="https://modoohub.com/guides/prompt-variable-extractor-bracket-syntax-limit-en.html">
+<link rel="alternate" hreflang="ko" href="https://modoohub.com/guides/prompt-variable-extractor-bracket-syntax-limit.html">
+<link rel="alternate" hreflang="en" href="https://modoohub.com/guides/prompt-variable-extractor-bracket-syntax-limit-en.html">
+<link rel="alternate" hreflang="x-default" href="https://modoohub.com/guides/prompt-variable-extractor-bracket-syntax-limit.html">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"{{variable}} Works but [variable] Doesn't — Prompt Variable Syntax Dissected","description":"Why a prompt variable extractor recognizes curly-brace variables but not square-bracket ones, from its regex structure.","datePublished":"2026-08-28","dateModified":"2026-08-28","author":{"@type":"Organization","name":"MODOO HUB"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"What if I really have to use [variable]?","acceptedAnswer":{"@type":"Answer","text":"The simplest way is to replace [variable] with {{variable}} or {variable} before pasting. If you're building a template from scratch, use curly-brace syntax from the start."}},
+{"@type":"Question","name":"Can I mix {{variable}} and {variable} in one template?","acceptedAnswer":{"@type":"Answer","text":"Yes. The two regexes operate independently and results are merged into a Set, so mixing them still extracts everything correctly. For readability, though, standardize on one syntax within a project."}},
+{"@type":"Question","name":"Are syntaxes like $variable or {% %} supported?","acceptedAnswer":{"@type":"Answer","text":"No. This tool's extraction logic uses only the two regexes for {{variable}} and {variable} — dollar signs and Jinja2 control constructs (loops, conditionals) aren't checked at all. Templates written in other syntax must first be converted to curly-brace form."}},
+{"@type":"Question","name":"If the same variable appears multiple times, do I get multiple input fields?","acceptedAnswer":{"@type":"Answer","text":"No. Duplicates are removed via a Set, so the input field is generated only once, and entering a value applies it to every position in the template simultaneously."}}
+]}
+</script>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1a1a1a;--border:#252525;--accent:#fbbf24;--accent2:#f59e0b;--text:#f5f5f5;--text-muted:#888;--text-dim:#444;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;line-height:1.8;}
+header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+.logo{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.1em;}
+.back-link{margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;}
+.back-link:hover{color:var(--text-muted);}
+main{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:clamp(24px,4vw,34px);font-weight:700;margin-bottom:10px;line-height:1.3;}
+.meta{font-size:13px;color:var(--text-dim);margin-bottom:36px;}
+h2{font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);border-left:3px solid var(--accent);padding-left:12px;}
+h3{font-size:16px;font-weight:700;margin:22px 0 10px;color:var(--text-muted);}
+p{font-size:15px;color:#ccc;margin-bottom:14px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+th{background:var(--surface);color:var(--text-muted);font-weight:700;}
+td{color:#ccc;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
+.box strong{color:var(--accent);}
+ul,ol{margin:10px 0 14px 22px;color:#ccc;font-size:15px;}
+li{margin-bottom:6px;}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 5px;font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);}
+.tool-links{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0;}
+.tool-links a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-muted);}
+.tool-links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-size:12px;color:var(--text-dim);}
+details.faq-item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;}
+details.faq-item summary{padding:10px 14px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-muted);list-style:none;}
+details.faq-item summary::-webkit-details-marker{display:none;}
+details.faq-item[open] summary{border-bottom:1px solid var(--border);}
+details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:0;}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">MODOO HUB</span>
+  <a href="../index.html?lang=en" class="back-link">← All Tools</a>
+</header>
+<main>
+  <h1>{{variable}} Works but [variable] Doesn't</h1>
+  <p class="meta">Guide · Last verified Aug 21, 2026</p>
+
+  <p>Grab prompt templates from all over and you learn that variable notation is different in every tool. Some use <code>{{variable}}</code>, some <code>{variable}</code>, and some docs mark it <code>[variable]</code>. Feed a square-bracket template into the <a href="../prompt-variable-extractor.html?lang=en">prompt variable extractor</a> and nothing gets extracted — and that's not a bug, it's intended design. Here's why square brackets specifically were left out, dissecting the actual regex structure.</p>
+
+  <h2>1. Why variable syntax differs by tool</h2>
+  <p>Prompt variable notation has never had a standard. Each ecosystem just brought over its own language's string-substitution syntax. <code>{{variable}}</code> (double curly braces) is the standard in LangChain's PromptTemplate, Jinja2, and Handlebars.js; <code>{variable}</code> (single curly brace) is common in Python's <code>str.format()</code> and f-string family; <code>$variable</code> is used in Python's <code>string.Template</code> and shell script pipelines; percent constructs like <code>{% for %}</code> are used in advanced Jinja2 templates needing loops and conditionals. So "which syntax you use" is also a trace of which framework the prompt passed through.</p>
+
+  <h2>2. Verifying the supported range from the actual regex</h2>
+  <p>The tool's variable-finding logic is just these two regexes.</p>
+  <div class="box">
+    <strong>Actual code</strong><br>
+    <code>/\{\{(\w+)\}\}/g</code> — captures double curly braces<br>
+    <code>/\{(\w+)\}/g</code> — captures single curly braces
+  </div>
+  <p>The regex itself has no pattern for handling square brackets <code>[ ]</code> at all. So "low recognition rate" is wrong — "not a target of the check in the first place" is the accurate description. Interestingly, the two regexes overlap. The string <code>{{role}}</code> matches the double-brace regex, but the single-brace regex also separately matches the inner <code>{role}</code> part. The reason results aren't duplicated is that the extracted values go into a <strong>Set (deduplicating collection)</strong>, not an array. Even when the two regexes overlap, only one "role" remains in the final result.</p>
+
+  <h2>3. The real reason square brackets are left out: clash with markdown</h2>
+  <p>The reason square-bracket syntax <code>[variable]</code> wasn't included isn't that it's technically impossible — it's that supporting it dramatically raises the risk of misbehavior. Square brackets are already used in two common text syntaxes.</p>
+  <ul>
+    <li><strong>Markdown links</strong>: in the <code>[text](URL)</code> format, the bracket contents are the link's display text.</li>
+    <li><strong>Footnote notation</strong>: <code>[1]</code>, <code>[^1]</code> denote reference/annotation numbers.</li>
+  </ul>
+  <p>If <code>[variable]</code> were supported as variable syntax, perfectly fine text like <code>[source](https://example.com)</code> or <code>[1]</code> in a prompt pasted straight from a GPT answer would all be misrecognized as "variables." An input field asking for a value would appear that the user didn't want, and in the worst case the link's display text would be wholesale replaced with something else. So the lack of square-bracket support isn't a performance limitation — it's a deliberate choice to avoid wrongly touching actual text.</p>
+
+  <h2>4. A misbehavior scenario in numbers</h2>
+  <p>Below is an example of a frequently used meeting-notice prompt. Here's what goes wrong assuming square brackets were also recognized as variables.</p>
+  <table>
+    <tr><th>Source</th><th>Current (no square-bracket support)</th><th>If square brackets were supported</th></tr>
+    <tr><td>Dear <code>{{name}}</code>, meeting notice</td><td>1 variable: name</td><td>1 variable: name (same)</td></tr>
+    <tr><td>For details see <code>[minutes](https://x.com/notes)</code></td><td>No change, link kept as-is</td><td>Misrecognized as variable → "minutes" input field created, entering a value breaks the link text</td></tr>
+    <tr><td>Check <code>[1]</code> for references</td><td>No change, footnote number kept</td><td>Misrecognized as variable "1" → if not filled in, the source stays as-is and confuses the user</td></tr>
+  </table>
+  <p>As the table shows, there's only 1 real variable, but recognizing square brackets adds 2 more false positives. The false-positive rate in a single prompt spikes to 66% (2 of 3), so not supporting it is the reasonable default.</p>
+
+  <h2>5. How to name variables safely</h2>
+  <p>The capture group is <code>\w+</code>, and in JavaScript regex <code>\w</code> means <code>[A-Za-z0-9_]</code> — that is, <strong>only ASCII letters, digits, and underscore</strong>. Non-ASCII letters, spaces, and hyphens (<code>-</code>) aren't included. So a name with a space like <code>{{user name}}</code> breaks the regex at that point and fails to be recognized whole, and a variable name made purely of non-ASCII characters isn't extracted because <code>\w</code> doesn't match those characters. To use it safely, name variables with a combination of ASCII letters, digits, and underscore like <code>{{role}}</code>, <code>{{user_name}}</code>, or if you must use non-ASCII, add an ASCII prefix like <code>{{role1}}</code>.</p>
+  <div class="box"><strong>How to verify</strong>: run <code>[..."{{role}}".matchAll(/\{\{(\w+)\}\}/g)]</code> in the browser console and it correctly captures "role"; running it against a non-ASCII-only name returns an empty array <code>[]</code>.</div>
+
+  <h2>Frequently Asked Questions</h2>
+  <details class="faq-item"><summary>Q. What if I really have to use [variable]?</summary><p>A. The simplest way is to replace [variable] with {{variable}} or {variable} before pasting. If you're building a template from scratch, use curly-brace syntax from the start.</p></details>
+  <details class="faq-item"><summary>Q. Can I mix {{variable}} and {variable} in one template?</summary><p>A. Yes. The two regexes operate independently and results are merged into a Set, so mixing them still extracts everything correctly. For readability, though, standardize on one syntax within a project.</p></details>
+  <details class="faq-item"><summary>Q. Are syntaxes like $variable or {% %} supported?</summary><p>A. No. This tool's extraction logic uses only the two regexes for {{variable}} and {variable} — dollar signs and Jinja2 control constructs (loops, conditionals) aren't checked at all. Templates written in other syntax must first be converted to curly-brace form.</p></details>
+  <details class="faq-item"><summary>Q. If the same variable appears multiple times, do I get multiple input fields?</summary><p>A. No. Duplicates are removed via a Set, so the input field is generated only once, and entering a value applies it to every position in the template simultaneously.</p></details>
+
+  <div class="tool-links">
+    <a href="../prompt-variable-extractor.html?lang=en">→ Prompt Variable Extractor</a>
+    <a href="../prompt-template-generator.html?lang=en">→ Prompt Template Generator</a>
+    <a href="../prompt-cleaner.html?lang=en">→ Prompt Cleaner</a>
+    <a href="../regex-generator.html?lang=en">→ Regex Generator</a>
+    <a href="../markdown-to-html.html?lang=en">→ Markdown to HTML</a>
+  </div>
+
+  <footer>© 2026 MODOO HUB · This guide is for general information; also consult your framework's documentation for the actual prompt management process.</footer>
+</main>
+</body>
+</html>
