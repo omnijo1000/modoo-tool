@@ -51,10 +51,27 @@
     requestAnimationFrame(step);
   };
 
+  function injectThemeColor(){
+    if(document.querySelector('meta[name="theme-color"]')) return;
+    var m=document.createElement('meta');
+    m.name='theme-color';
+    m.content='#080B14'; /* matches --bg */
+    document.head.appendChild(m);
+  }
+
+  function applyInputMode(){
+    document.querySelectorAll('input[type=number]:not([inputmode])').forEach(function(el){
+      var step=(el.getAttribute('step')||'').toLowerCase();
+      var decimal = step==='any' || step.indexOf('.')!==-1;
+      el.setAttribute('inputmode', decimal ? 'decimal' : 'numeric');
+    });
+  }
+
   function injectSkipLink(){
     var main = document.querySelector('main');
     if(!main) return;
     if(!main.id) main.id = 'main';
+    if(!main.hasAttribute('tabindex')) main.setAttribute('tabindex','-1'); /* skip-link target actually receives focus */
     if(document.querySelector('.skip-link')) return;
     var labels = {ko:'본문 바로가기', en:'Skip to content', zh:'跳至主要内容', ja:'メインコンテンツへスキップ'};
     var lang = (document.documentElement.lang || 'ko').slice(0,2);
@@ -65,9 +82,12 @@
     document.body.insertBefore(a, document.body.firstChild);
   }
 
+  injectThemeColor(); /* before first paint where possible */
+
   document.addEventListener('DOMContentLoaded', function(){
     injectMesh();
     initTooltips();
     injectSkipLink();
+    applyInputMode();
   });
 })();

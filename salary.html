@@ -163,6 +163,8 @@
     </div>
   </div>
 
+  <p id="a11yStatus" role="status" aria-live="polite" aria-atomic="true" style="position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;"></p>
+
   <div class="annual-grid" id="annualGrid">
     <div class="cal-card">
       <div class="field-label">연 실수령액</div>
@@ -886,6 +888,15 @@ function getIncomeTax(taxableMonthly, dependents) {
   return 0;
 }
 
+let _a11yTimer;
+function announceResult(text) {
+  clearTimeout(_a11yTimer);
+  _a11yTimer = setTimeout(() => {
+    const s = document.getElementById('a11yStatus');
+    if (s) s.textContent = text;
+  }, 700);
+}
+
 function calc() {
   const salary = parseFloat(document.getElementById('salary').value);
   const nontax = parseFloat(document.getElementById('nontax').value) || 0;
@@ -893,7 +904,7 @@ function calc() {
   const resultEl = document.getElementById('result');
   const annualEl = document.getElementById('annualGrid');
 
-  if (!salary || salary <= 0) { resultEl.classList.remove('show'); annualEl.classList.remove('show'); return; }
+  if (!salary || salary <= 0) { resultEl.classList.remove('show'); annualEl.classList.remove('show'); clearTimeout(_a11yTimer); const s = document.getElementById('a11yStatus'); if (s) s.textContent = ''; return; }
 
   const monthly = Math.floor(salary / 12);
   // 4대보험은 비과세 제외한 과세 월급 기준
@@ -927,6 +938,9 @@ function calc() {
   document.getElementById('annualNet').textContent    = fmtShort(netMonthly * 12);
   document.getElementById('annualDeduct').textContent = fmtShort(totalDeduct * 12);
   document.getElementById('effectiveRate').textContent= (totalDeduct / monthly * 100).toFixed(1) + '%';
+
+  // 입력이 잠시 멈춘 뒤 결과 요약만 1회 낭독 (매 키 입력마다 반복 낭독 방지)
+  announceResult('월 실수령액 ' + fmt(netMonthly) + ', 총 공제액 ' + fmt(totalDeduct) + ', 실효세율 ' + (totalDeduct / monthly * 100).toFixed(1) + '%');
 }
 </script>
 <script src="theme-instrument.js"></script>
