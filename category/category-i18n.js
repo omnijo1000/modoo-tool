@@ -457,7 +457,7 @@
       var iconEl = card.querySelector('.cat-icon');
       var iconTxt = iconEl ? iconEl.outerHTML : '';
       if (base === 'index') {
-        card.innerHTML = iconTxt + UI.allToolsCard[lang].replace('{n}', '136');
+        card.innerHTML = iconTxt + UI.allToolsCard[lang].replace('{n}', '317');
       } else if (CAT_NAMES[base]) {
         card.innerHTML = iconTxt + getLabel(CAT_NAMES[base], lang);
       }

@@ -60,7 +60,9 @@ main { max-width:760px; }
 .search-input { width:100%; background:var(--glass); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border:1px solid var(--glass-border); border-radius:12px; padding:12px 16px; color:var(--text); font-size:14px; font-family:var(--sans); outline:none; transition:border-color .15s; }
 .search-input:focus { border-color:var(--cyan); }
 .search-input::placeholder { color:var(--text-dim); }
-.no-results { text-align:center; font-size:13px; color:var(--text-dim); padding:32px 0; display:none; }
+.no-results { text-align:center; font-size:13px; color:var(--text-muted); padding:32px 0; display:none; }
+.result-count { font-size:12px; color:var(--text-muted); margin:8px 2px 0; min-height:1em; font-family:var(--mono); }
+.result-count:empty { display:none; }
 .filter-wrap { display:flex; align-items:center; gap:8px; margin:0 0 28px; }
 .filter-bar { display:flex; flex:1; flex-wrap:nowrap; gap:8px; overflow-x:auto; overflow-y:hidden; padding:2px 0 6px; scrollbar-width:none; -webkit-overflow-scrolling:touch; overscroll-behavior-x:contain; touch-action:pan-x; }
 .filter-bar::-webkit-scrollbar { display:none; }
@@ -70,11 +72,12 @@ main { max-width:760px; }
 .filter-chip { flex:0 0 auto; border:1px solid var(--glass-border); background:rgba(255,255,255,0.02); color:var(--text-muted); border-radius:999px; padding:8px 14px; font-size:12px; font-family:var(--mono); cursor:pointer; transition:all 0.15s; white-space:nowrap; }
 .filter-chip:hover { border-color:rgba(255,255,255,.3); color:var(--text); }
 .filter-chip.active { background:linear-gradient(135deg,var(--violet),var(--cyan)); border-color:transparent; color:#0B0E13; font-weight:700; }
+.filter-nav:focus-visible, .filter-chip:focus-visible, .search-input:focus-visible, .tool-card:focus-visible { outline:2px solid var(--cyan); outline-offset:2px; }
 .section { margin-bottom:32px; }
-.category-label { font-size:11px; color:var(--text-dim); letter-spacing:0.12em; text-transform:uppercase; font-family:var(--mono); margin-bottom:10px; }
+.category-label { font-size:11px; color:var(--text-muted); letter-spacing:0.12em; text-transform:uppercase; font-family:var(--mono); margin-bottom:10px; }
 .tools { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
 @media(max-width:500px) { .tools { grid-template-columns:1fr; } }
-@media(max-width:500px) { .filter-wrap { margin-bottom:22px; } .filter-nav { width:28px; height:28px; } }
+@media(max-width:500px) { .filter-wrap { margin-bottom:22px; } .filter-nav { display:none; } }
 .tool-card { background:var(--glass); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); border:1px solid var(--glass-border); border-radius:14px; padding:16px 18px; text-decoration:none; color:var(--text); display:flex; align-items:center; gap:14px; transition:all 0.2s; position:relative; overflow:hidden; }
 .tool-card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--card-color); opacity:0; transition:opacity 0.2s; }
 .tool-card:hover { border-color:var(--card-color); transform:translateX(3px); }
@@ -109,6 +112,7 @@ gtag('config', 'G-NR6VJF0534');
 </script>
 </head>
 <body>
+<a href="#main" class="skip-link" data-i18n="skipLink">본문 바로가기</a>
 <header>
   <div class="dots">
     <div class="dot d1"></div><div class="dot d2"></div><div class="dot d3"></div><div class="dot d4"></div><div class="dot d5"></div><div class="dot d6"></div>
@@ -117,14 +121,15 @@ gtag('config', 'G-NR6VJF0534');
   <a href="guides/index.html" class="header-guides-link" data-i18n="guidesLink" id="guidesLink">📚 가이드</a>
   <div class="lang-toggle" onclick="cycleLang()" id="langBtn">🌐 EN</div>
 </header>
-<main>
+<main id="main">
   <div class="hero">
     <h1><span data-i18n="heroTitle">모두의 툴</span></h1>
     <p data-i18n="heroSub">직장인, 알바생, 프리랜서, 개발자<br>누구나 쓸 수 있는 무료 온라인 도구 모음</p>
   </div>
 
   <div class="search-wrap">
-    <input type="text" class="search-input" id="searchInput" data-i18n-ph="searchPh" placeholder="도구 검색..." oninput="applySearch(this.value)">
+    <input type="text" class="search-input" id="searchInput" data-i18n-ph="searchPh" placeholder="도구 검색..." autocomplete="off" oninput="applySearch(this.value)" onkeydown="searchKey(event)" aria-describedby="resultCount">
+    <p class="result-count" id="resultCount" role="status" aria-live="polite"></p>
   </div>
 
   <div class="filter-wrap">
@@ -150,20 +155,20 @@ gtag('config', 'G-NR6VJF0534');
   <div class="section ko-only" id="secWork" data-cat="work">
     <div class="category-label">근로 · 급여</div>
     <div class="tools">
-      <a href="salary.html" class="tool-card c1"><div class="tool-icon">💰</div><div class="tool-info"><div class="tool-name">연봉 실수령액 계산기</div><div class="tool-desc">4대보험·소득세 공제 후 세후 월급</div></div><div class="tool-arrow">→</div></a>
-      <a href="minimum-wage.html" class="tool-card c2"><div class="tool-icon">📌</div><div class="tool-info"><div class="tool-name">최저임금 계산기</div><div class="tool-desc">2026년 최저임금 기준 월급 계산</div></div><div class="tool-arrow">→</div></a>
-      <a href="weekly-holiday.html" class="tool-card c1"><div class="tool-icon">📅</div><div class="tool-info"><div class="tool-name">주휴수당 계산기</div><div class="tool-desc">시급·근무시간으로 주휴수당 계산</div></div><div class="tool-arrow">→</div></a>
-      <a href="overtime-pay.html" class="tool-card c2"><div class="tool-icon">⏰</div><div class="tool-info"><div class="tool-name">초과근무수당 계산기</div><div class="tool-desc">연장·야간·휴일 근무수당 계산</div></div><div class="tool-arrow">→</div></a>
-      <a href="annual-leave.html" class="tool-card c1"><div class="tool-icon">🌴</div><div class="tool-info"><div class="tool-name">연차 계산기</div><div class="tool-desc">법정 연차일수·연차수당 계산</div></div><div class="tool-arrow">→</div></a>
-      <a href="parental-leave.html" class="tool-card c2"><div class="tool-icon">👶</div><div class="tool-info"><div class="tool-name">육아휴직 급여 계산기</div><div class="tool-desc">육아휴직 급여·기간 계산</div></div><div class="tool-arrow">→</div></a>
+      <a href="salary.html" class="tool-card c1" data-kw="월급 실수령 세후 net take-home 실수령액"><div class="tool-icon">💰</div><div class="tool-info"><div class="tool-name">연봉 실수령액 계산기</div><div class="tool-desc">4대보험·소득세 공제 후 세후 월급</div></div><div class="tool-arrow">→</div></a>
+      <a href="minimum-wage.html" class="tool-card c2" data-kw="최저시급 시급 2026 알바"><div class="tool-icon">📌</div><div class="tool-info"><div class="tool-name">최저임금 계산기</div><div class="tool-desc">2026년 최저임금 기준 월급 계산</div></div><div class="tool-arrow">→</div></a>
+      <a href="weekly-holiday.html" class="tool-card c1" data-kw="주휴 알바 아르바이트 주휴수당"><div class="tool-icon">📅</div><div class="tool-info"><div class="tool-name">주휴수당 계산기</div><div class="tool-desc">시급·근무시간으로 주휴수당 계산</div></div><div class="tool-arrow">→</div></a>
+      <a href="overtime-pay.html" class="tool-card c2" data-kw="야근수당 잔업 연장근로 특근 초과근무"><div class="tool-icon">⏰</div><div class="tool-info"><div class="tool-name">초과근무수당 계산기</div><div class="tool-desc">연장·야간·휴일 근무수당 계산</div></div><div class="tool-arrow">→</div></a>
+      <a href="annual-leave.html" class="tool-card c1" data-kw="연차수당 유급휴가 휴가 연차"><div class="tool-icon">🌴</div><div class="tool-info"><div class="tool-name">연차 계산기</div><div class="tool-desc">법정 연차일수·연차수당 계산</div></div><div class="tool-arrow">→</div></a>
+      <a href="parental-leave.html" class="tool-card c2" data-kw="육아휴직 출산휴가 육휴"><div class="tool-icon">👶</div><div class="tool-info"><div class="tool-name">육아휴직 급여 계산기</div><div class="tool-desc">육아휴직 급여·기간 계산</div></div><div class="tool-arrow">→</div></a>
       <a href="working-days-calc.html" class="tool-card c1"><div class="tool-icon">🗓️</div><div class="tool-info"><div class="tool-name">근무일수 계산기</div><div class="tool-desc">기간 내 실제 근무일수 계산</div></div><div class="tool-arrow">→</div></a>
-      <a href="payslip-calc.html" class="tool-card c2"><div class="tool-icon">🧾</div><div class="tool-info"><div class="tool-name">급여명세서 계산기</div><div class="tool-desc">공제 항목별 상세 급여 계산</div></div><div class="tool-arrow">→</div></a>
+      <a href="payslip-calc.html" class="tool-card c2" data-kw="명세서 급여명세 월급명세"><div class="tool-icon">🧾</div><div class="tool-info"><div class="tool-name">급여명세서 계산기</div><div class="tool-desc">공제 항목별 상세 급여 계산</div></div><div class="tool-arrow">→</div></a>
       <a href="salary-negotiation.html" class="tool-card c1"><div class="tool-icon">🤝</div><div class="tool-info"><div class="tool-name">연봉 협상 계산기</div><div class="tool-desc">인상률·협상 전략 계산</div></div><div class="tool-arrow">→</div></a>
       <a href="salary-reverse.html" class="tool-card c2"><div class="tool-icon">🔁</div><div class="tool-info"><div class="tool-name">연봉 실수령액 역산기</div><div class="tool-desc">원하는 월급으로 필요 세전 연봉 역산</div></div><div class="tool-arrow">→</div></a>
       <a href="salary-raise.html" class="tool-card c1"><div class="tool-icon">📈</div><div class="tool-info"><div class="tool-name">연봉 인상률 계산기</div><div class="tool-desc">인상 후 연봉·실수령 변화 계산</div></div><div class="tool-arrow">→</div></a>
-      <a href="severance.html" class="tool-card c2"><div class="tool-icon">📋</div><div class="tool-info"><div class="tool-name">퇴직금 계산기</div><div class="tool-desc">법정 퇴직급여 자동 계산</div></div><div class="tool-arrow">→</div></a>
+      <a href="severance.html" class="tool-card c2" data-kw="퇴직급여 퇴직 퇴사 퇴직금"><div class="tool-icon">📋</div><div class="tool-info"><div class="tool-name">퇴직금 계산기</div><div class="tool-desc">법정 퇴직급여 자동 계산</div></div><div class="tool-arrow">→</div></a>
       <a href="retirement-calc.html" class="tool-card c1"><div class="tool-icon">🏖️</div><div class="tool-info"><div class="tool-name">노후 자금 계산기</div><div class="tool-desc">은퇴 후 필요 자금 시뮬레이션</div></div><div class="tool-arrow">→</div></a>
-      <a href="unemployment.html" class="tool-card c2"><div class="tool-icon">🛡️</div><div class="tool-info"><div class="tool-name">실업급여 계산기</div><div class="tool-desc">수급자격·일수·금액 자동 계산</div></div><div class="tool-arrow">→</div></a>
+      <a href="unemployment.html" class="tool-card c2" data-kw="실업급여 구직급여 실업 이직"><div class="tool-icon">🛡️</div><div class="tool-info"><div class="tool-name">실업급여 계산기</div><div class="tool-desc">수급자격·일수·금액 자동 계산</div></div><div class="tool-arrow">→</div></a>
     </div>
   </div>
 
@@ -171,17 +176,17 @@ gtag('config', 'G-NR6VJF0534');
   <div class="section ko-only" id="secTax" data-cat="tax">
     <div class="category-label">4대보험 · 세금</div>
     <div class="tools">
-      <a href="four-insurance.html" class="tool-card c3"><div class="tool-icon">🏥</div><div class="tool-info"><div class="tool-name">4대보험 계산기</div><div class="tool-desc">국민연금·건강보험·고용·산재 계산</div></div><div class="tool-arrow">→</div></a>
-      <a href="national-pension.html" class="tool-card c9"><div class="tool-icon">🏛️</div><div class="tool-info"><div class="tool-name">국민연금 계산기</div><div class="tool-desc">국민연금 납부액·예상 수령액</div></div><div class="tool-arrow">→</div></a>
-      <a href="health-insurance.html" class="tool-card c3"><div class="tool-icon">💊</div><div class="tool-info"><div class="tool-name">건강보험 계산기</div><div class="tool-desc">건강보험료·장기요양보험료 계산</div></div><div class="tool-arrow">→</div></a>
-      <a href="freelancer-tax.html" class="tool-card c3"><div class="tool-icon">🧾</div><div class="tool-info"><div class="tool-name">프리랜서 세금 계산기</div><div class="tool-desc">3.3% 원천징수 실수령액 계산</div></div><div class="tool-arrow">→</div></a>
-      <a href="income-tax.html" class="tool-card c9"><div class="tool-icon">📊</div><div class="tool-info"><div class="tool-name">종합소득세 계산기</div><div class="tool-desc">2026 누진세율 종합소득세 계산</div></div><div class="tool-arrow">→</div></a>
-      <a href="vat-calc.html" class="tool-card c3"><div class="tool-icon">🧮</div><div class="tool-info"><div class="tool-name">부가세 계산기</div><div class="tool-desc">공급가액↔부가세 포함가 계산</div></div><div class="tool-arrow">→</div></a>
+      <a href="four-insurance.html" class="tool-card c3" data-kw="국민연금 건강보험 고용보험 산재 사대보험"><div class="tool-icon">🏥</div><div class="tool-info"><div class="tool-name">4대보험 계산기</div><div class="tool-desc">국민연금·건강보험·고용·산재 계산</div></div><div class="tool-arrow">→</div></a>
+      <a href="national-pension.html" class="tool-card c9" data-kw="노령연금 연금 수령액 국민연금"><div class="tool-icon">🏛️</div><div class="tool-info"><div class="tool-name">국민연금 계산기</div><div class="tool-desc">국민연금 납부액·예상 수령액</div></div><div class="tool-arrow">→</div></a>
+      <a href="health-insurance.html" class="tool-card c3" data-kw="건보료 건강보험료 지역가입자 직장가입자"><div class="tool-icon">💊</div><div class="tool-info"><div class="tool-name">건강보험 계산기</div><div class="tool-desc">건강보험료·장기요양보험료 계산</div></div><div class="tool-arrow">→</div></a>
+      <a href="freelancer-tax.html" class="tool-card c3" data-kw="3.3 원천징수 프리랜서 사업소득 프리랜서세금"><div class="tool-icon">🧾</div><div class="tool-info"><div class="tool-name">프리랜서 세금 계산기</div><div class="tool-desc">3.3% 원천징수 실수령액 계산</div></div><div class="tool-arrow">→</div></a>
+      <a href="income-tax.html" class="tool-card c9" data-kw="소득세 종소세 종합소득 종합소득세"><div class="tool-icon">📊</div><div class="tool-info"><div class="tool-name">종합소득세 계산기</div><div class="tool-desc">2026 누진세율 종합소득세 계산</div></div><div class="tool-arrow">→</div></a>
+      <a href="vat-calc.html" class="tool-card c3" data-kw="부가가치세 vat 세금계산서 부가세"><div class="tool-icon">🧮</div><div class="tool-info"><div class="tool-name">부가세 계산기</div><div class="tool-desc">공급가액↔부가세 포함가 계산</div></div><div class="tool-arrow">→</div></a>
       <a href="severance-tax.html" class="tool-card c9"><div class="tool-icon">💸</div><div class="tool-info"><div class="tool-name">퇴직소득세 계산기</div><div class="tool-desc">퇴직금 원천징수 세액 계산</div></div><div class="tool-arrow">→</div></a>
-      <a href="capital-gains-tax.html" class="tool-card c3"><div class="tool-icon">🏘️</div><div class="tool-info"><div class="tool-name">양도소득세 계산기</div><div class="tool-desc">1세대1주택 비과세·장기보유공제</div></div><div class="tool-arrow">→</div></a>
-      <a href="gift-tax.html" class="tool-card c9"><div class="tool-icon">🎁</div><div class="tool-info"><div class="tool-name">증여세 계산기</div><div class="tool-desc">관계별 공제·자진신고공제 계산</div></div><div class="tool-arrow">→</div></a>
-      <a href="inheritance-tax.html" class="tool-card c3"><div class="tool-icon">📜</div><div class="tool-info"><div class="tool-name">상속세 계산기</div><div class="tool-desc">상속재산·공제액별 세액 계산</div></div><div class="tool-arrow">→</div></a>
-      <a href="property-tax.html" class="tool-card c9"><div class="tool-icon">🏠</div><div class="tool-info"><div class="tool-name">재산세 계산기</div><div class="tool-desc">주택·토지 재산세 자동 계산</div></div><div class="tool-arrow">→</div></a>
+      <a href="capital-gains-tax.html" class="tool-card c3" data-kw="양도세 부동산 주택 양도소득세"><div class="tool-icon">🏘️</div><div class="tool-info"><div class="tool-name">양도소득세 계산기</div><div class="tool-desc">1세대1주택 비과세·장기보유공제</div></div><div class="tool-arrow">→</div></a>
+      <a href="gift-tax.html" class="tool-card c9" data-kw="증여 증여세"><div class="tool-icon">🎁</div><div class="tool-info"><div class="tool-name">증여세 계산기</div><div class="tool-desc">관계별 공제·자진신고공제 계산</div></div><div class="tool-arrow">→</div></a>
+      <a href="inheritance-tax.html" class="tool-card c3" data-kw="상속 유산 상속세"><div class="tool-icon">📜</div><div class="tool-info"><div class="tool-name">상속세 계산기</div><div class="tool-desc">상속재산·공제액별 세액 계산</div></div><div class="tool-arrow">→</div></a>
+      <a href="property-tax.html" class="tool-card c9" data-kw="재산세 종부세 종합부동산세"><div class="tool-icon">🏠</div><div class="tool-info"><div class="tool-name">재산세 계산기</div><div class="tool-desc">주택·토지 재산세 자동 계산</div></div><div class="tool-arrow">→</div></a>
       <a href="stock-tax.html" class="tool-card c3"><div class="tool-icon">📈</div><div class="tool-info"><div class="tool-name">주식 세금 계산기</div><div class="tool-desc">주식 양도·배당소득세 계산</div></div><div class="tool-arrow">→</div></a>
     </div>
   </div>
@@ -190,15 +195,15 @@ gtag('config', 'G-NR6VJF0534');
   <div class="section ko-only" id="secReal" data-cat="real">
     <div class="category-label">부동산 · 대출</div>
     <div class="tools">
-      <a href="loan-calc.html" class="tool-card c4"><div class="tool-icon">🏦</div><div class="tool-info"><div class="tool-name">대출이자 계산기</div><div class="tool-desc">원리금균등·원금균등 월 납입금 계산</div></div><div class="tool-arrow">→</div></a>
-      <a href="realestate-fee.html" class="tool-card c10"><div class="tool-icon">🔑</div><div class="tool-info"><div class="tool-name">중개수수료 계산기</div><div class="tool-desc">매매·전세·월세 복비 계산</div></div><div class="tool-arrow">→</div></a>
-      <a href="acquisition-tax.html" class="tool-card c4"><div class="tool-icon">📑</div><div class="tool-info"><div class="tool-name">취득세 계산기</div><div class="tool-desc">주택 수별 취득세 자동 계산</div></div><div class="tool-arrow">→</div></a>
-      <a href="rent-convert.html" class="tool-card c10"><div class="tool-icon">🔄</div><div class="tool-info"><div class="tool-name">전월세 전환 계산기</div><div class="tool-desc">전세↔월세 전환금액 계산</div></div><div class="tool-arrow">→</div></a>
-      <a href="dsr-calc.html" class="tool-card c4"><div class="tool-icon">📉</div><div class="tool-info"><div class="tool-name">DSR 계산기</div><div class="tool-desc">총부채원리금상환비율 한도 계산</div></div><div class="tool-arrow">→</div></a>
-      <a href="ltv-calculator.html" class="tool-card c10"><div class="tool-icon">🏷️</div><div class="tool-info"><div class="tool-name">LTV 계산기</div><div class="tool-desc">주택담보대출비율·최대 대출 한도 계산</div></div><div class="tool-arrow">→</div></a>
-      <a href="cheongyak-score.html" class="tool-card c4"><div class="tool-icon">🏆</div><div class="tool-info"><div class="tool-name">청약 가점 계산기</div><div class="tool-desc">무주택·부양가족·통장 가입기간 84점 계산</div></div><div class="tool-arrow">→</div></a>
-      <a href="prepayment-fee.html" class="tool-card c10"><div class="tool-icon">💸</div><div class="tool-info"><div class="tool-name">중도상환수수료 계산기</div><div class="tool-desc">조기상환 수수료·면제 여부 계산</div></div><div class="tool-arrow">→</div></a>
-      <a href="credit-loan-limit.html" class="tool-card c4"><div class="tool-icon">💳</div><div class="tool-info"><div class="tool-name">신용대출 한도 계산기</div><div class="tool-desc">DSR 기준 최대 신용대출 가능 금액</div></div><div class="tool-arrow">→</div></a>
+      <a href="loan-calc.html" class="tool-card c4" data-kw="이자 원리금 대출 월상환 상환금 대출이자"><div class="tool-icon">🏦</div><div class="tool-info"><div class="tool-name">대출이자 계산기</div><div class="tool-desc">원리금균등·원금균등 월 납입금 계산</div></div><div class="tool-arrow">→</div></a>
+      <a href="realestate-fee.html" class="tool-card c10" data-kw="복비 중개보수 부동산수수료 중개수수료"><div class="tool-icon">🔑</div><div class="tool-info"><div class="tool-name">중개수수료 계산기</div><div class="tool-desc">매매·전세·월세 복비 계산</div></div><div class="tool-arrow">→</div></a>
+      <a href="acquisition-tax.html" class="tool-card c4" data-kw="취득세 등록세 부동산"><div class="tool-icon">📑</div><div class="tool-info"><div class="tool-name">취득세 계산기</div><div class="tool-desc">주택 수별 취득세 자동 계산</div></div><div class="tool-arrow">→</div></a>
+      <a href="rent-convert.html" class="tool-card c10" data-kw="전세 월세 전환율 전월세"><div class="tool-icon">🔄</div><div class="tool-info"><div class="tool-name">전월세 전환 계산기</div><div class="tool-desc">전세↔월세 전환금액 계산</div></div><div class="tool-arrow">→</div></a>
+      <a href="dsr-calc.html" class="tool-card c4" data-kw="dsr 총부채 상환비율 대출한도"><div class="tool-icon">📉</div><div class="tool-info"><div class="tool-name">DSR 계산기</div><div class="tool-desc">총부채원리금상환비율 한도 계산</div></div><div class="tool-arrow">→</div></a>
+      <a href="ltv-calculator.html" class="tool-card c10" data-kw="ltv 주담대 담보대출 대출한도 주택담보"><div class="tool-icon">🏷️</div><div class="tool-info"><div class="tool-name">LTV 계산기</div><div class="tool-desc">주택담보대출비율·최대 대출 한도 계산</div></div><div class="tool-arrow">→</div></a>
+      <a href="cheongyak-score.html" class="tool-card c4" data-kw="청약가점 아파트 청약통장 무주택 청약"><div class="tool-icon">🏆</div><div class="tool-info"><div class="tool-name">청약 가점 계산기</div><div class="tool-desc">무주택·부양가족·통장 가입기간 84점 계산</div></div><div class="tool-arrow">→</div></a>
+      <a href="prepayment-fee.html" class="tool-card c10" data-kw="중도상환 조기상환 수수료"><div class="tool-icon">💸</div><div class="tool-info"><div class="tool-name">중도상환수수료 계산기</div><div class="tool-desc">조기상환 수수료·면제 여부 계산</div></div><div class="tool-arrow">→</div></a>
+      <a href="credit-loan-limit.html" class="tool-card c4" data-kw="신용대출 마이너스통장 한도"><div class="tool-icon">💳</div><div class="tool-info"><div class="tool-name">신용대출 한도 계산기</div><div class="tool-desc">DSR 기준 최대 신용대출 가능 금액</div></div><div class="tool-arrow">→</div></a>
       <a href="retirement-pension.html" class="tool-card c10"><div class="tool-icon">🏦</div><div class="tool-info"><div class="tool-name">퇴직연금 계산기</div><div class="tool-desc">DB형·DC형 퇴직연금 예상 수령액</div></div><div class="tool-arrow">→</div></a>
     </div>
   </div>
@@ -207,8 +212,8 @@ gtag('config', 'G-NR6VJF0534');
   <div class="section ko-only" id="secLifeKo" data-cat="life-ko">
     <div class="category-label">일상 · 날짜 (한국)</div>
     <div class="tools">
-      <a href="korean-age.html" class="tool-card c5"><div class="tool-icon">🎂</div><div class="tool-info"><div class="tool-name">만나이 계산기</div><div class="tool-desc">만나이·한국나이·생일 카운트다운</div></div><div class="tool-arrow">→</div></a>
-      <a href="dday.html" class="tool-card c5"><div class="tool-icon">⏳</div><div class="tool-info"><div class="tool-name">디데이 계산기</div><div class="tool-desc">D-day·날짜 기간 계산</div></div><div class="tool-arrow">→</div></a>
+      <a href="korean-age.html" class="tool-card c5" data-kw="만나이 나이계산 세는나이 연나이 만 나이"><div class="tool-icon">🎂</div><div class="tool-info"><div class="tool-name">만나이 계산기</div><div class="tool-desc">만나이·한국나이·생일 카운트다운</div></div><div class="tool-arrow">→</div></a>
+      <a href="dday.html" class="tool-card c5" data-kw="디데이 디-데이 날짜계산 기념일 d-day"><div class="tool-icon">⏳</div><div class="tool-info"><div class="tool-name">디데이 계산기</div><div class="tool-desc">D-day·날짜 기간 계산</div></div><div class="tool-arrow">→</div></a>
     </div>
   </div>
 
@@ -216,10 +221,10 @@ gtag('config', 'G-NR6VJF0534');
   <div class="section" id="secFinance" data-cat="finance">
     <div class="category-label" data-i18n="labelFinance">금융 · 재테크</div>
     <div class="tools">
-      <a href="compound-interest.html" class="tool-card c5"><div class="tool-icon">📈</div><div class="tool-info"><div class="tool-name" data-i18n="toolCompoundName">복리 계산기</div><div class="tool-desc" data-i18n="toolCompoundDesc">원금·이율로 복리 수익 계산</div></div><div class="tool-arrow">→</div></a>
-      <a href="savings-calc.html" class="tool-card c7"><div class="tool-icon">🏧</div><div class="tool-info"><div class="tool-name" data-i18n="toolSavingsName">적금 계산기</div><div class="tool-desc" data-i18n="toolSavingsDesc">월 납입금·만기수령액 계산</div></div><div class="tool-arrow">→</div></a>
+      <a href="compound-interest.html" class="tool-card c5" data-kw="복리 이자 복리계산 눈덩이 재테크"><div class="tool-icon">📈</div><div class="tool-info"><div class="tool-name" data-i18n="toolCompoundName">복리 계산기</div><div class="tool-desc" data-i18n="toolCompoundDesc">원금·이율로 복리 수익 계산</div></div><div class="tool-arrow">→</div></a>
+      <a href="savings-calc.html" class="tool-card c7" data-kw="적금 예금 만기 적금이자"><div class="tool-icon">🏧</div><div class="tool-info"><div class="tool-name" data-i18n="toolSavingsName">적금 계산기</div><div class="tool-desc" data-i18n="toolSavingsDesc">월 납입금·만기수령액 계산</div></div><div class="tool-arrow">→</div></a>
       <a href="inflation-calculator.html" class="tool-card c5"><div class="tool-icon">💹</div><div class="tool-info"><div class="tool-name" data-i18n="toolInflationName">물가상승률 계산기</div><div class="tool-desc" data-i18n="toolInflationDesc">인플레이션 실질 가치 계산</div></div><div class="tool-arrow">→</div></a>
-      <a href="currency-converter.html" class="tool-card c7"><div class="tool-icon">💱</div><div class="tool-info"><div class="tool-name" data-i18n="toolCurrencyName">환율 계산기</div><div class="tool-desc" data-i18n="toolCurrencyDesc">실시간 환율 변환</div></div><div class="tool-arrow">→</div></a>
+      <a href="currency-converter.html" class="tool-card c7" data-kw="환율 달러 엔화 유로 원화"><div class="tool-icon">💱</div><div class="tool-info"><div class="tool-name" data-i18n="toolCurrencyName">환율 계산기</div><div class="tool-desc" data-i18n="toolCurrencyDesc">실시간 환율 변환</div></div><div class="tool-arrow">→</div></a>
       <a href="sip-calculator.html" class="tool-card c5"><div class="tool-icon">📊</div><div class="tool-info"><div class="tool-name" data-i18n="toolSipName">SIP 계산기</div><div class="tool-desc" data-i18n="toolSipDesc">월 적립식 투자 수익 계산</div></div><div class="tool-arrow">→</div></a>
       <a href="emi-calculator.html" class="tool-card c7"><div class="tool-icon">🏦</div><div class="tool-info"><div class="tool-name" data-i18n="toolEmiName">EMI 계산기</div><div class="tool-desc" data-i18n="toolEmiDesc">월 대출 상환금 계산</div></div><div class="tool-arrow">→</div></a>
       <a href="loan-calculator-en.html" class="tool-card c5"><div class="tool-icon">💳</div><div class="tool-info"><div class="tool-name" data-i18n="toolLoanEnName">대출 계산기 (EN)</div><div class="tool-desc" data-i18n="toolLoanEnDesc">영문 대출이자 계산기</div></div><div class="tool-arrow">→</div></a>
@@ -243,9 +248,9 @@ gtag('config', 'G-NR6VJF0534');
   <div class="section" id="secHealth" data-cat="health">
     <div class="category-label" data-i18n="labelHealth">건강 · 체력</div>
     <div class="tools">
-      <a href="bmi-calc.html" class="tool-card c2"><div class="tool-icon">🏋️</div><div class="tool-info"><div class="tool-name" data-i18n="toolBmiName">BMI 계산기 (Pro)</div><div class="tool-desc" data-i18n="toolBmiDesc">BMI + 기초대사량(BMR) + TDEE</div></div><div class="tool-arrow">→</div></a>
-      <a href="body-fat-calculator.html" class="tool-card c10"><div class="tool-icon">🩻</div><div class="tool-info"><div class="tool-name" data-i18n="toolBodyFatName">체지방률 계산기</div><div class="tool-desc" data-i18n="toolBodyFatDesc">체지방률·근육량 계산</div></div><div class="tool-arrow">→</div></a>
-      <a href="calorie-calculator.html" class="tool-card c1"><div class="tool-icon">🔥</div><div class="tool-info"><div class="tool-name" data-i18n="toolCalorieName">칼로리 계산기</div><div class="tool-desc" data-i18n="toolCalorieDesc">하루 필요 칼로리·TDEE 계산</div></div><div class="tool-arrow">→</div></a>
+      <a href="bmi-calc.html" class="tool-card c2" data-kw="bmi 비만도 체질량 bmr tdee 기초대사량"><div class="tool-icon">🏋️</div><div class="tool-info"><div class="tool-name" data-i18n="toolBmiName">BMI 계산기 (Pro)</div><div class="tool-desc" data-i18n="toolBmiDesc">BMI + 기초대사량(BMR) + TDEE</div></div><div class="tool-arrow">→</div></a>
+      <a href="body-fat-calculator.html" class="tool-card c10" data-kw="체지방 인바디 근육량 체지방률"><div class="tool-icon">🩻</div><div class="tool-info"><div class="tool-name" data-i18n="toolBodyFatName">체지방률 계산기</div><div class="tool-desc" data-i18n="toolBodyFatDesc">체지방률·근육량 계산</div></div><div class="tool-arrow">→</div></a>
+      <a href="calorie-calculator.html" class="tool-card c1" data-kw="칼로리 tdee 다이어트 기초대사량 열량"><div class="tool-icon">🔥</div><div class="tool-info"><div class="tool-name" data-i18n="toolCalorieName">칼로리 계산기</div><div class="tool-desc" data-i18n="toolCalorieDesc">하루 필요 칼로리·TDEE 계산</div></div><div class="tool-arrow">→</div></a>
       <a href="pace-calculator.html" class="tool-card c2"><div class="tool-icon">🏃</div><div class="tool-info"><div class="tool-name" data-i18n="toolPaceName">페이스 계산기</div><div class="tool-desc" data-i18n="toolPaceDesc">러닝 페이스·속도·완주 시간 계산</div></div><div class="tool-arrow">→</div></a>
       <a href="water-intake.html" class="tool-card c10"><div class="tool-icon">💧</div><div class="tool-info"><div class="tool-name" data-i18n="toolWaterName">물 섭취량 계산기</div><div class="tool-desc" data-i18n="toolWaterDesc">하루 권장 수분 섭취량 계산</div></div><div class="tool-arrow">→</div></a>
       <a href="pregnancy-due-date.html" class="tool-card c2"><div class="tool-icon">🤰</div><div class="tool-info"><div class="tool-name" data-i18n="toolPregName">임신 출산예정일 계산기</div><div class="tool-desc" data-i18n="toolPregDesc">LMP·수정일·IVF로 출산예정일 계산</div></div><div class="tool-arrow">→</div></a>
@@ -257,12 +262,12 @@ gtag('config', 'G-NR6VJF0534');
   <div class="section" id="secLife" data-cat="life">
     <div class="category-label" data-i18n="labelLife">일상 생활</div>
     <div class="tools">
-      <a href="age-calculator.html" class="tool-card c6"><div class="tool-icon">🎂</div><div class="tool-info"><div class="tool-name" data-i18n="toolAgeCalcName">나이 계산기</div><div class="tool-desc" data-i18n="toolAgeCalcDesc">만나이 자동 계산</div></div><div class="tool-arrow">→</div></a>
-      <a href="date-calc.html" class="tool-card c1"><div class="tool-icon">📆</div><div class="tool-info"><div class="tool-name" data-i18n="toolDateGName">날짜 계산기</div><div class="tool-desc" data-i18n="toolDateGDesc">날짜 더하기·빼기·영업일 계산</div></div><div class="tool-arrow">→</div></a>
+      <a href="age-calculator.html" class="tool-card c6" data-kw="나이 만나이 생일"><div class="tool-icon">🎂</div><div class="tool-info"><div class="tool-name" data-i18n="toolAgeCalcName">나이 계산기</div><div class="tool-desc" data-i18n="toolAgeCalcDesc">만나이 자동 계산</div></div><div class="tool-arrow">→</div></a>
+      <a href="date-calc.html" class="tool-card c1" data-kw="날짜계산 날짜차이 며칠 날짜 더하기"><div class="tool-icon">📆</div><div class="tool-info"><div class="tool-name" data-i18n="toolDateGName">날짜 계산기</div><div class="tool-desc" data-i18n="toolDateGDesc">날짜 더하기·빼기·영업일 계산</div></div><div class="tool-arrow">→</div></a>
       <a href="time-calculator.html" class="tool-card c6"><div class="tool-icon">🕐</div><div class="tool-info"><div class="tool-name" data-i18n="toolTimeCalcName">시간 계산기</div><div class="tool-desc" data-i18n="toolTimeCalcDesc">시간 더하기·빼기 계산</div></div><div class="tool-arrow">→</div></a>
-      <a href="percent-calc.html" class="tool-card c7"><div class="tool-icon">%</div><div class="tool-info"><div class="tool-name" data-i18n="toolPctGName">퍼센트 계산기</div><div class="tool-desc" data-i18n="toolPctGDesc">할인율·증감률·비율 계산</div></div><div class="tool-arrow">→</div></a>
-      <a href="split-calculator.html" class="tool-card c6"><div class="tool-icon">🍽️</div><div class="tool-info"><div class="tool-name" data-i18n="toolSplitName">더치페이 계산기</div><div class="tool-desc" data-i18n="toolSplitDesc">인원수별 금액 분할 계산</div></div><div class="tool-arrow">→</div></a>
-      <a href="tip-calculator.html" class="tool-card c7"><div class="tool-icon">💡</div><div class="tool-info"><div class="tool-name" data-i18n="toolTipName">팁 계산기</div><div class="tool-desc" data-i18n="toolTipDesc">팁 금액·1인 부담 계산</div></div><div class="tool-arrow">→</div></a>
+      <a href="percent-calc.html" class="tool-card c7" data-kw="퍼센트 비율 증감률 할인율 퍼센테지"><div class="tool-icon">%</div><div class="tool-info"><div class="tool-name" data-i18n="toolPctGName">퍼센트 계산기</div><div class="tool-desc" data-i18n="toolPctGDesc">할인율·증감률·비율 계산</div></div><div class="tool-arrow">→</div></a>
+      <a href="split-calculator.html" class="tool-card c6" data-kw="더치페이 n빵 나누기 정산 1인당"><div class="tool-icon">🍽️</div><div class="tool-info"><div class="tool-name" data-i18n="toolSplitName">더치페이 계산기</div><div class="tool-desc" data-i18n="toolSplitDesc">인원수별 금액 분할 계산</div></div><div class="tool-arrow">→</div></a>
+      <a href="tip-calculator.html" class="tool-card c7" data-kw="팁 봉사료 gratuity"><div class="tool-icon">💡</div><div class="tool-info"><div class="tool-name" data-i18n="toolTipName">팁 계산기</div><div class="tool-desc" data-i18n="toolTipDesc">팁 금액·1인 부담 계산</div></div><div class="tool-arrow">→</div></a>
       <a href="fuel-cost-calculator.html" class="tool-card c6"><div class="tool-icon">⛽</div><div class="tool-info"><div class="tool-name" data-i18n="toolFuelName">연료비 계산기</div><div class="tool-desc" data-i18n="toolFuelDesc">주행 거리·연비·유가로 연료비 계산</div></div><div class="tool-arrow">→</div></a>
       <a href="sleep-calculator.html" class="tool-card c7"><div class="tool-icon">😴</div><div class="tool-info"><div class="tool-name" data-i18n="toolSleepName">수면 계산기</div><div class="tool-desc" data-i18n="toolSleepDesc">최적 기상·취침 시간 계산</div></div><div class="tool-arrow">→</div></a>
       <a href="business-days-calculator.html" class="tool-card c6"><div class="tool-icon">📅</div><div class="tool-info"><div class="tool-name" data-i18n="toolBizDaysName">영업일 계산기</div><div class="tool-desc" data-i18n="toolBizDaysDesc">두 날짜 사이 영업일·평일 계산</div></div><div class="tool-arrow">→</div></a>
@@ -273,7 +278,7 @@ gtag('config', 'G-NR6VJF0534');
       <a href="salary-per-hour-calculator.html" class="tool-card c5"><div class="tool-icon">💰</div><div class="tool-info"><div class="tool-name" data-i18n="toolSalaryPerHourName">시간당 급여 계산기</div><div class="tool-desc" data-i18n="toolSalaryPerHourDesc">연봉·월급을 시급으로 변환</div></div><div class="tool-arrow">→</div></a>
       <a href="freelancer-rate-calculator.html" class="tool-card c6"><div class="tool-icon">🧮</div><div class="tool-info"><div class="tool-name" data-i18n="toolFreelancerRateName">프리랜서 요율 계산기</div><div class="tool-desc" data-i18n="toolFreelancerRateDesc">목표 수입·비용으로 적정 시급 산출</div></div><div class="tool-arrow">→</div></a>
       <a href="time-zone-meeting-planner.html" class="tool-card c9"><div class="tool-icon">🌍</div><div class="tool-info"><div class="tool-name" data-i18n="toolTzMeetingName">시간대 회의 플래너</div><div class="tool-desc" data-i18n="toolTzMeetingDesc">글로벌 팀 최적 회의 시간 찾기</div></div><div class="tool-arrow">→</div></a>
-      <a href="qr-code-generator.html" class="tool-card c1"><div class="tool-icon">📲</div><div class="tool-info"><div class="tool-name" data-i18n="toolQrGenName">QR코드 생성기</div><div class="tool-desc" data-i18n="toolQrGenDesc">URL·텍스트·Wi-Fi를 QR코드로 즉시 변환</div></div><div class="tool-arrow">→</div></a>
+      <a href="qr-code-generator.html" class="tool-card c1" data-kw="qr 큐알 코드 wifi qr코드"><div class="tool-icon">📲</div><div class="tool-info"><div class="tool-name" data-i18n="toolQrGenName">QR코드 생성기</div><div class="tool-desc" data-i18n="toolQrGenDesc">URL·텍스트·Wi-Fi를 QR코드로 즉시 변환</div></div><div class="tool-arrow">→</div></a>
     </div>
   </div>
 
@@ -282,7 +287,7 @@ gtag('config', 'G-NR6VJF0534');
     <div class="category-label" data-i18n="labelDev">개발자 도구</div>
     <div class="tools">
       <!-- 포맷터 -->
-      <a href="json-formatter.html" class="tool-card c7"><div class="tool-icon">{ }</div><div class="tool-info"><div class="tool-name" data-i18n="toolJsonName">JSON 포맷터</div><div class="tool-desc" data-i18n="toolJsonDesc">JSON 정렬·압축·검증</div></div><div class="tool-arrow">→</div></a>
+      <a href="json-formatter.html" class="tool-card c7" data-kw="json 정렬 포맷 예쁘게 beautify prettier"><div class="tool-icon">{ }</div><div class="tool-info"><div class="tool-name" data-i18n="toolJsonName">JSON 포맷터</div><div class="tool-desc" data-i18n="toolJsonDesc">JSON 정렬·압축·검증</div></div><div class="tool-arrow">→</div></a>
       <a href="json-validator.html" class="tool-card c7"><div class="tool-icon">✓</div><div class="tool-info"><div class="tool-name" data-i18n="toolJsonValidatorName">JSON 검증기</div><div class="tool-desc" data-i18n="toolJsonValidatorDesc">JSON 문법 오류 검출·라인/컬럼 위치 표시</div></div><div class="tool-arrow">→</div></a>
       <a href="json-viewer.html" class="tool-card c6"><div class="tool-icon">🌲</div><div class="tool-info"><div class="tool-name" data-i18n="toolJsonViewerName">JSON 뷰어</div><div class="tool-desc" data-i18n="toolJsonViewerDesc">JSON 트리 시각화·접기/펼치기</div></div><div class="tool-arrow">→</div></a>
       <a href="json-minifier.html" class="tool-card c9"><div class="tool-icon">{}</div><div class="tool-info"><div class="tool-name" data-i18n="toolJsonMinifierName">JSON 압축기</div><div class="tool-desc" data-i18n="toolJsonMinifierDesc">JSON 공백 제거·크기 최소화</div></div><div class="tool-arrow">→</div></a>
@@ -291,21 +296,21 @@ gtag('config', 'G-NR6VJF0534');
       <a href="sql-formatter.html" class="tool-card c3"><div class="tool-icon">🗃️</div><div class="tool-info"><div class="tool-name" data-i18n="toolSqlFmtName">SQL 포맷터</div><div class="tool-desc" data-i18n="toolSqlFmtDesc">SQL 자동 정렬·들여쓰기·키워드 강조</div></div><div class="tool-arrow">→</div></a>
       <a href="markdown-preview.html" class="tool-card c7"><div class="tool-icon">📄</div><div class="tool-info"><div class="tool-name" data-i18n="toolMarkdownName">마크다운 미리보기</div><div class="tool-desc" data-i18n="toolMarkdownDesc">마크다운 실시간 렌더링</div></div><div class="tool-arrow">→</div></a>
       <a href="html-to-markdown.html" class="tool-card c9"><div class="tool-icon">⬇</div><div class="tool-info"><div class="tool-name" data-i18n="toolHtmlToMdName">HTML → Markdown</div><div class="tool-desc" data-i18n="toolHtmlToMdDesc">HTML을 Markdown으로 변환</div></div><div class="tool-arrow">→</div></a>
-      <!-- 인코딩/해시 -->      <a href="base64-encoder.html" class="tool-card c3"><div class="tool-icon">🔡</div><div class="tool-info"><div class="tool-name" data-i18n="toolBase64EncoderName">Base64 인코더</div><div class="tool-desc" data-i18n="toolBase64EncoderDesc">텍스트·파일을 Base64로 인코딩</div></div><div class="tool-arrow">→</div></a>
-      <a href="base64-decoder.html" class="tool-card c4"><div class="tool-icon">🔓</div><div class="tool-info"><div class="tool-name" data-i18n="toolBase64DecoderName">Base64 디코더</div><div class="tool-desc" data-i18n="toolBase64DecoderDesc">Base64를 텍스트·파일로 디코딩</div></div><div class="tool-arrow">→</div></a>
+      <!-- 인코딩/해시 -->      <a href="base64-encoder.html" class="tool-card c3" data-kw="base64 인코딩 encode"><div class="tool-icon">🔡</div><div class="tool-info"><div class="tool-name" data-i18n="toolBase64EncoderName">Base64 인코더</div><div class="tool-desc" data-i18n="toolBase64EncoderDesc">텍스트·파일을 Base64로 인코딩</div></div><div class="tool-arrow">→</div></a>
+      <a href="base64-decoder.html" class="tool-card c4" data-kw="base64 디코딩 decode"><div class="tool-icon">🔓</div><div class="tool-info"><div class="tool-name" data-i18n="toolBase64DecoderName">Base64 디코더</div><div class="tool-desc" data-i18n="toolBase64DecoderDesc">Base64를 텍스트·파일로 디코딩</div></div><div class="tool-arrow">→</div></a>
       <a href="url-encoder.html" class="tool-card c9"><div class="tool-icon">%2B</div><div class="tool-info"><div class="tool-name" data-i18n="toolUrlEncoderName">URL 인코더</div><div class="tool-desc" data-i18n="toolUrlEncoderDesc">텍스트·URL 퍼센트 인코딩</div></div><div class="tool-arrow">→</div></a>
       <a href="url-decoder.html" class="tool-card c3"><div class="tool-icon">%</div><div class="tool-info"><div class="tool-name" data-i18n="toolUrlDecoderName">URL 디코더</div><div class="tool-desc" data-i18n="toolUrlDecoderDesc">퍼센트 인코딩된 URL 디코딩</div></div><div class="tool-arrow">→</div></a>
       <a href="html-decoder.html" class="tool-card c4"><div class="tool-icon">&amp;</div><div class="tool-info"><div class="tool-name" data-i18n="toolHtmlDecoderName">HTML 엔티티 디코더</div><div class="tool-desc" data-i18n="toolHtmlDecoderDesc">HTML 엔티티를 원래 텍스트로 변환</div></div><div class="tool-arrow">→</div></a>
       <a href="html-encoder.html" class="tool-card c7"><div class="tool-icon">&lt;/&gt;</div><div class="tool-info"><div class="tool-name" data-i18n="toolHtmlEncName">HTML 인코더/디코더</div><div class="tool-desc" data-i18n="toolHtmlEncDesc">HTML 엔티티 인코딩·디코딩</div></div><div class="tool-arrow">→</div></a>
       <a href="base64-image.html" class="tool-card c9"><div class="tool-icon">🖼️</div><div class="tool-info"><div class="tool-name" data-i18n="toolB64ImgName">Base64 이미지 변환</div><div class="tool-desc" data-i18n="toolB64ImgDesc">이미지 ↔ Base64 Data URL 변환</div></div><div class="tool-arrow">→</div></a>
-      <a href="hash-generator.html" class="tool-card c9"><div class="tool-icon">#</div><div class="tool-info"><div class="tool-name" data-i18n="toolHashName">Hash 생성기</div><div class="tool-desc" data-i18n="toolHashDesc">MD5·SHA256·SHA512 해시 생성</div></div><div class="tool-arrow">→</div></a>      <!-- 개발 유틸 -->
-      <a href="cron-generator.html" class="tool-card c9"><div class="tool-icon">⏱️</div><div class="tool-info"><div class="tool-name" data-i18n="toolCronName">Cron 표현식 생성기</div><div class="tool-desc" data-i18n="toolCronDesc">cron 생성·검증·다음 실행시간</div></div><div class="tool-arrow">→</div></a>
+      <a href="hash-generator.html" class="tool-card c9" data-kw="md5 sha256 sha512 해시 체크섬 hash"><div class="tool-icon">#</div><div class="tool-info"><div class="tool-name" data-i18n="toolHashName">Hash 생성기</div><div class="tool-desc" data-i18n="toolHashDesc">MD5·SHA256·SHA512 해시 생성</div></div><div class="tool-arrow">→</div></a>      <!-- 개발 유틸 -->
+      <a href="cron-generator.html" class="tool-card c9" data-kw="크론 crontab 스케줄 cron"><div class="tool-icon">⏱️</div><div class="tool-info"><div class="tool-name" data-i18n="toolCronName">Cron 표현식 생성기</div><div class="tool-desc" data-i18n="toolCronDesc">cron 생성·검증·다음 실행시간</div></div><div class="tool-arrow">→</div></a>
       <a href="cron-parser.html" class="tool-card c6"><div class="tool-icon">📋</div><div class="tool-info"><div class="tool-name" data-i18n="toolCronParserName">Cron 파서</div><div class="tool-desc" data-i18n="toolCronParserDesc">Cron 표현식을 사람이 읽기 쉽게 설명</div></div><div class="tool-arrow">→</div></a>
       <a href="uuid-validator.html" class="tool-card c3"><div class="tool-icon">🆔</div><div class="tool-info"><div class="tool-name" data-i18n="toolUuidValidatorName">UUID 검증기</div><div class="tool-desc" data-i18n="toolUuidValidatorDesc">UUID 유효성 검사·버전 감지</div></div><div class="tool-arrow">→</div></a>
-      <a href="regex-tester.html" class="tool-card c3"><div class="tool-icon">.*</div><div class="tool-info"><div class="tool-name" data-i18n="toolRegexName">정규식 테스터</div><div class="tool-desc" data-i18n="toolRegexDesc">Regex 실시간 테스트·하이라이트</div></div><div class="tool-arrow">→</div></a>
-      <a href="timestamp.html" class="tool-card c9"><div class="tool-icon">🕑</div><div class="tool-info"><div class="tool-name" data-i18n="toolTsName">Timestamp 변환기</div><div class="tool-desc" data-i18n="toolTsDesc">Unix Timestamp ↔ 날짜 변환</div></div><div class="tool-arrow">→</div></a>
+      <a href="regex-tester.html" class="tool-card c3" data-kw="정규식 regex regexp 패턴 정규표현식"><div class="tool-icon">.*</div><div class="tool-info"><div class="tool-name" data-i18n="toolRegexName">정규식 테스터</div><div class="tool-desc" data-i18n="toolRegexDesc">Regex 실시간 테스트·하이라이트</div></div><div class="tool-arrow">→</div></a>
+      <a href="timestamp.html" class="tool-card c9" data-kw="유닉스 타임스탬프 epoch unix 타임스탬프"><div class="tool-icon">🕑</div><div class="tool-info"><div class="tool-name" data-i18n="toolTsName">Timestamp 변환기</div><div class="tool-desc" data-i18n="toolTsDesc">Unix Timestamp ↔ 날짜 변환</div></div><div class="tool-arrow">→</div></a>
       <a href="uuid-generator.html" class="tool-card c6"><div class="tool-icon">🆔</div><div class="tool-info"><div class="tool-name" data-i18n="toolUuidName">UUID 생성기</div><div class="tool-desc" data-i18n="toolUuidDesc">UUID v4 랜덤 생성 · 대량 생성</div></div><div class="tool-arrow">→</div></a>
-      <a href="jwt-decoder.html" class="tool-card c3"><div class="tool-icon">🔑</div><div class="tool-info"><div class="tool-name" data-i18n="toolJwtName">JWT 디코더</div><div class="tool-desc" data-i18n="toolJwtDesc">JWT 토큰 분석·만료시간 확인</div></div><div class="tool-arrow">→</div></a>
+      <a href="jwt-decoder.html" class="tool-card c3" data-kw="jwt 토큰 access token 디코드"><div class="tool-icon">🔑</div><div class="tool-info"><div class="tool-name" data-i18n="toolJwtName">JWT 디코더</div><div class="tool-desc" data-i18n="toolJwtDesc">JWT 토큰 분석·만료시간 확인</div></div><div class="tool-arrow">→</div></a>
       <a href="jwt-generator.html" class="tool-card c9"><div class="tool-icon">🔏</div><div class="tool-info"><div class="tool-name" data-i18n="toolJwtGenName">JWT 생성기</div><div class="tool-desc" data-i18n="toolJwtGenDesc">JWT 토큰 생성·서명 (HS256/384/512)</div></div><div class="tool-arrow">→</div></a>
       <!-- 텍스트/변환 -->
       <a href="case-converter.html" class="tool-card c4"><div class="tool-icon">Aa</div><div class="tool-info"><div class="tool-name" data-i18n="toolCaseName">케이스 변환기</div><div class="tool-desc" data-i18n="toolCaseDesc">camelCase·snake_case·kebab-case 변환</div></div><div class="tool-arrow">→</div></a>
@@ -314,7 +319,7 @@ gtag('config', 'G-NR6VJF0534');
       <a href="csv-viewer.html" class="tool-card c3"><div class="tool-icon">📊</div><div class="tool-info"><div class="tool-name" data-i18n="toolCsvViewerName">CSV 뷰어</div><div class="tool-desc" data-i18n="toolCsvViewerDesc">CSV를 테이블로 시각화·정렬·검색</div></div><div class="tool-arrow">→</div></a>
       <a href="lorem-ipsum-generator.html" class="tool-card c4"><div class="tool-icon">📜</div><div class="tool-info"><div class="tool-name" data-i18n="toolLoremName">Lorem Ipsum 생성기</div><div class="tool-desc" data-i18n="toolLoremDesc">더미 텍스트 · 단락·문장·단어 단위</div></div><div class="tool-arrow">→</div></a>
       <a href="random-string.html" class="tool-card c3"><div class="tool-icon">🎲</div><div class="tool-info"><div class="tool-name" data-i18n="toolRandStrName">랜덤 문자열 생성기</div><div class="tool-desc" data-i18n="toolRandStrDesc">암호학적 난수 기반 랜덤 문자열</div></div><div class="tool-arrow">→</div></a>
-      <a href="password-generator.html" class="tool-card c6"><div class="tool-icon">🔐</div><div class="tool-info"><div class="tool-name" data-i18n="toolPasswordName">비밀번호 생성기</div><div class="tool-desc" data-i18n="toolPasswordDesc">안전한 랜덤 비밀번호 생성</div></div><div class="tool-arrow">→</div></a>
+      <a href="password-generator.html" class="tool-card c6" data-kw="비밀번호 패스워드 암호 랜덤 password"><div class="tool-icon">🔐</div><div class="tool-info"><div class="tool-name" data-i18n="toolPasswordName">비밀번호 생성기</div><div class="tool-desc" data-i18n="toolPasswordDesc">안전한 랜덤 비밀번호 생성</div></div><div class="tool-arrow">→</div></a>
       <!-- AI / 텍스트 유틸 -->
       <a href="ai-cost-calculator.html" class="tool-card c9"><div class="tool-icon">💰</div><div class="tool-info"><div class="tool-name" data-i18n="toolAiCostName">AI API 비용 계산기</div><div class="tool-desc" data-i18n="toolAiCostDesc">GPT·Claude·Gemini API 비용 비교</div></div><div class="tool-arrow">→</div></a>
       <a href="chatgpt-token-counter.html" class="tool-card c7"><div class="tool-icon">GPT</div><div class="tool-info"><div class="tool-name" data-i18n="toolChatGptTokenName">ChatGPT 토큰 카운터</div><div class="tool-desc" data-i18n="toolChatGptTokenDesc">GPT 모델 토큰 수·컨텍스트 한도 확인</div></div><div class="tool-arrow">→</div></a>
@@ -357,10 +362,10 @@ gtag('config', 'G-NR6VJF0534');
       <!-- 생성기/변환 -->
       <a href="barcode-generator.html" class="tool-card c9"><div class="tool-icon">▌▐</div><div class="tool-info"><div class="tool-name" data-i18n="toolBarcodeName">바코드 생성기</div><div class="tool-desc" data-i18n="toolBarcodeDesc">CODE128·EAN-13·UPC-A 바코드 생성</div></div><div class="tool-arrow">→</div></a>
       <a href="number-converter.html" class="tool-card c9"><div class="tool-icon">🔟</div><div class="tool-info"><div class="tool-name" data-i18n="toolNumConvName">진법 변환기</div><div class="tool-desc" data-i18n="toolNumConvDesc">2·8·10·16진법 변환</div></div><div class="tool-arrow">→</div></a>
-      <a href="unit-converter.html" class="tool-card c3"><div class="tool-icon">📏</div><div class="tool-info"><div class="tool-name" data-i18n="toolUnitConvName">단위 변환기</div><div class="tool-desc" data-i18n="toolUnitConvDesc">길이·무게·온도·속도 변환</div></div><div class="tool-arrow">→</div></a>
+      <a href="unit-converter.html" class="tool-card c3" data-kw="단위변환 미터 킬로그램 인치 파운드"><div class="tool-icon">📏</div><div class="tool-info"><div class="tool-name" data-i18n="toolUnitConvName">단위 변환기</div><div class="tool-desc" data-i18n="toolUnitConvDesc">길이·무게·온도·속도 변환</div></div><div class="tool-arrow">→</div></a>
       <a href="timezone-converter.html" class="tool-card c6"><div class="tool-icon">🕐</div><div class="tool-info"><div class="tool-name" data-i18n="toolTzName">시간대 변환기</div><div class="tool-desc" data-i18n="toolTzDesc">세계 시간대 동시 비교 변환</div></div><div class="tool-arrow">→</div></a>
       <!-- 색상 -->
-      <a href="color-converter.html" class="tool-card c4"><div class="tool-icon">🎨</div><div class="tool-info"><div class="tool-name" data-i18n="toolColorName">색상 변환기</div><div class="tool-desc" data-i18n="toolColorDesc">HEX ↔ RGB ↔ HSL 변환</div></div><div class="tool-arrow">→</div></a>
+      <a href="color-converter.html" class="tool-card c4" data-kw="hex rgb hsl 색상코드 컬러"><div class="tool-icon">🎨</div><div class="tool-info"><div class="tool-name" data-i18n="toolColorName">색상 변환기</div><div class="tool-desc" data-i18n="toolColorDesc">HEX ↔ RGB ↔ HSL 변환</div></div><div class="tool-arrow">→</div></a>
       <a href="color-palette.html" class="tool-card c4"><div class="tool-icon">🖌️</div><div class="tool-info"><div class="tool-name" data-i18n="toolColorPaletteName">컬러 팔레트</div><div class="tool-desc" data-i18n="toolColorPaletteDesc">색상 팔레트 생성기</div></div><div class="tool-arrow">→</div></a>
       <a href="color-picker.html" class="tool-card c3"><div class="tool-icon">🎨</div><div class="tool-info"><div class="tool-name" data-i18n="toolColorPickerName">컬러 피커</div><div class="tool-desc" data-i18n="toolColorPickerDesc">HEX·RGB·HSL·HSV 색상 변환</div></div><div class="tool-arrow">→</div></a>
       <a href="color-contrast-checker.html" class="tool-card c9"><div class="tool-icon">♿</div><div class="tool-info"><div class="tool-name" data-i18n="toolContrastName">색상 대비 검사기</div><div class="tool-desc" data-i18n="toolContrastDesc">WCAG AA/AAA 접근성 대비율 검사</div></div><div class="tool-arrow">→</div></a>      <!-- 이미지 -->
@@ -544,7 +549,7 @@ const i18n = {
     heroSub:'직장인, 알바생, 프리랜서, 개발자<br>누구나 쓸 수 있는 무료 온라인 도구 모음',
     langBtn:'🌐 EN', guidesLink:'📚 가이드',
     filterAll:'전체', filterWork:'근로·급여', filterTax:'4대보험·세금', filterReal:'부동산·대출', filterFinance:'금융·재테크', filterHealth:'건강·체력', filterLifeKo:'일상·날짜(한국)', filterLife:'일상 생활', filterDev:'개발자 도구', filterText:'텍스트 도구',
-    searchPh:'도구 이름으로 검색...', noResults:'검색 결과가 없습니다',
+    searchPh:'도구 이름으로 검색...', noResults:'검색 결과가 없습니다', skipLink:'본문 바로가기', resultCountTpl:'도구 {n}개',
     // section labels
     labelFinance:'금융 · 재테크', labelHealth:'건강 · 체력', labelLife:'일상 생활', labelDev:'개발자 도구', labelText:'텍스트 도구',
     // finance
@@ -850,7 +855,7 @@ const i18n = {
     heroSub:'Free online tools for developers, workers & everyone.<br>All tools run in your browser — no data sent to servers.',
     langBtn:'🌐 中文', guidesLink:'📚 Guides',
     filterAll:'All', filterWork:'Work & Pay', filterTax:'Insurance & Tax', filterReal:'Real Estate & Loans', filterFinance:'Finance & Investment', filterHealth:'Health & Fitness', filterLifeKo:'Daily & Dates (KR)', filterLife:'Daily Life', filterDev:'Developer Tools', filterText:'Text Tools',
-    searchPh:'Search tools by name...', noResults:'No matching tools found',
+    searchPh:'Search tools by name...', noResults:'No matching tools found', skipLink:'Skip to content', resultCountTpl:'{n} tools',
     labelFinance:'Finance & Investment', labelHealth:'Health & Fitness', labelLife:'Daily Life', labelDev:'Developer Tools', labelText:'Text Tools',
     toolCompoundName:'Compound Interest', toolCompoundDesc:'Calculate compound growth over time',
     toolSavingsName:'Savings Calculator', toolSavingsDesc:'Monthly deposit & maturity amount',
@@ -1150,7 +1155,7 @@ const i18n = {
     heroSub:'开发者、上班族、自由职业者都能用的<br>免费在线工具集合，无需注册，数据不离开浏览器',
     langBtn:'🌐 日本語', guidesLink:'📚 指南',
     filterAll:'全部', filterWork:'工资·工作', filterTax:'保险·税金', filterReal:'房产·贷款', filterFinance:'金融·投资', filterHealth:'健康·体能', filterLifeKo:'日常·日期（韩国）', filterLife:'日常工具', filterDev:'开发者工具', filterText:'文本工具',
-    searchPh:'按名称搜索工具...', noResults:'未找到匹配的工具',
+    searchPh:'按名称搜索工具...', noResults:'未找到匹配的工具', skipLink:'跳至主要内容', resultCountTpl:'{n} 个工具',
     labelFinance:'金融理财', labelHealth:'健康体能', labelLife:'日常工具', labelDev:'开发者工具', labelText:'文本工具',
     toolCompoundName:'复利计算器', toolCompoundDesc:'计算复利收益',
     toolSavingsName:'储蓄计算器', toolSavingsDesc:'月存款及到期金额计算',
@@ -1450,7 +1455,7 @@ const i18n = {
     heroSub:'開発者・会社員・フリーランスみんなのための<br>無料オンラインツール集。ブラウザで完結、データ送信なし。',
     langBtn:'🌐 한국어', guidesLink:'📚 ガイド',
     filterAll:'全て', filterWork:'労働・給与', filterTax:'保険・税金', filterReal:'不動産・ローン', filterFinance:'金融・投資', filterHealth:'健康・体力', filterLifeKo:'日常・日付（韓国）', filterLife:'日常生活', filterDev:'開発ツール', filterText:'テキストツール',
-    searchPh:'ツール名で検索...', noResults:'一致するツールが見つかりません',
+    searchPh:'ツール名で検索...', noResults:'一致するツールが見つかりません', skipLink:'メインコンテンツへスキップ', resultCountTpl:'{n} 件のツール',
     labelFinance:'金融・投資', labelHealth:'健康・体力', labelLife:'日常生活', labelDev:'開発ツール', labelText:'テキストツール',
     toolCompoundName:'複利計算機', toolCompoundDesc:'元本と利率で複利収益を計算',
     toolSavingsName:'積立計算機', toolSavingsDesc:'月々の積立額と満期受取額を計算',
@@ -1799,21 +1804,27 @@ function applySectionFilter() {
   const q = searchQuery.trim().toLowerCase();
   const visibleCats = new Set();
   let anyVisible = false;
+  let matchCount = 0;
   document.querySelectorAll('[data-cat]').forEach(section => {
     const sectionVisibleByLang = !section.classList.contains('ko-only') || t.showKo;
     if (sectionVisibleByLang) visibleCats.add(section.dataset.cat);
     const matchFilter = currentFilter === 'all' || section.dataset.cat === currentFilter;
+    const sectionShown = matchFilter && sectionVisibleByLang;
     let sectionHasMatch = false;
     section.querySelectorAll('.tool-card').forEach(card => {
       const name = card.querySelector('.tool-name');
       const desc = card.querySelector('.tool-desc');
       const nameTxt = name ? name.textContent.toLowerCase() : '';
       const descTxt = desc ? desc.textContent.toLowerCase() : '';
-      const matchesSearch = !q || nameTxt.includes(q) || descTxt.includes(q);
+      const kwTxt = (card.dataset.kw || '').toLowerCase();
+      const matchesSearch = !q || nameTxt.includes(q) || descTxt.includes(q) || kwTxt.includes(q);
       card.style.display = matchesSearch ? '' : 'none';
-      if (matchesSearch) sectionHasMatch = true;
+      if (matchesSearch) {
+        sectionHasMatch = true;
+        if (sectionShown) matchCount++;
+      }
     });
-    const visible = matchFilter && sectionVisibleByLang && sectionHasMatch;
+    const visible = sectionShown && sectionHasMatch;
     section.style.display = visible ? '' : 'none';
     if (visible) anyVisible = true;
   });
@@ -1829,7 +1840,16 @@ function applySectionFilter() {
   });
   const noResultsEl = document.getElementById('noResults');
   if (noResultsEl) noResultsEl.style.display = anyVisible ? 'none' : 'block';
+  const rc = document.getElementById('resultCount');
+  if (rc) rc.textContent = (q && matchCount > 0) ? (t.resultCountTpl || '{n}').replace('{n}', matchCount) : '';
   updateFilterNavState();
+}
+
+function searchKey(e) {
+  if (e.key !== 'Enter') return;
+  const cards = [...document.querySelectorAll('[data-cat]')].filter(s => s.style.display !== 'none')
+    .flatMap(s => [...s.querySelectorAll('.tool-card')].filter(c => c.style.display !== 'none'));
+  if (cards.length === 1) location.href = cards[0].getAttribute('href');
 }
 
 function applySearch(q) {

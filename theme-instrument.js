@@ -51,8 +51,23 @@
     requestAnimationFrame(step);
   };
 
+  function injectSkipLink(){
+    var main = document.querySelector('main');
+    if(!main) return;
+    if(!main.id) main.id = 'main';
+    if(document.querySelector('.skip-link')) return;
+    var labels = {ko:'본문 바로가기', en:'Skip to content', zh:'跳至主要内容', ja:'メインコンテンツへスキップ'};
+    var lang = (document.documentElement.lang || 'ko').slice(0,2);
+    var a = document.createElement('a');
+    a.className = 'skip-link';
+    a.href = '#' + main.id;
+    a.textContent = labels[lang] || labels.ko;
+    document.body.insertBefore(a, document.body.firstChild);
+  }
+
   document.addEventListener('DOMContentLoaded', function(){
     injectMesh();
     initTooltips();
+    injectSkipLink();
   });
 })();
