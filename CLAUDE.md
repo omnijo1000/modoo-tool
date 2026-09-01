@@ -526,6 +526,39 @@ bmi-calculator, compound-annual-growth-rate-calculator, health-insurance-calc, h
 - **`.readout`을 쓸 땐 `.grid` 2단 레이아웃 안에 넣을 것** — 단독 블록으로 쓰면 sticky 안 붙지만 그 외 스타일은 그대로 적용됨(현재 CSS 기준 단독은 static).
 - 감사 방법: 로컬 `python3 -m http.server` + `mcp__claude-in-chrome__browser_batch`로 navigate+eval 페어를 6~8개씩. 배치 10개↑는 45s CDP 타임아웃. `alert()`는 자동화도 얼리므로 감사 스크립트에서 `window.alert/confirm/prompt` 스텁 필수.
 
+## 2026-09-01 디자인 일관성 전수 감사 (커밋 53fbb9e → 48f759e)
+
+전체 HTML 836개(루트 325 실페이지 + 스텁 69 + guides 431 + category 11) 대상. 정적 스캔 + 스크린샷 대조.
+
+### 사이트는 2-tier 디자인이 정상 (드리프트 아님)
+- **툴 tier** (~320): `theme-instrument.css`/`.js` 공유. 그라디언트 워드마크 + 코너 글로우 + `FINANCE·INSTRUMENT` eyebrow + 그라디언트 h1.
+- **콘텐츠 tier** (guides 431 + about/contact/privacy/terms 4): 밋밋한 헤더(`class="logo"` 또는 `.header-label`, 그라디언트 없음) + 얇은 보더 + 앰버 좌측보더 h2. guides는 인라인 스크립트 없음(GA+AdSense만).
+
+### 발견·수정한 실제 드리프트
+
+| 커밋 | 내용 | 파일수 |
+|---|---|---|
+| `53fbb9e` | privacy.html에 canonical + hreflang 누락 (sitemap 등재·전 페이지 링크되는 정식 페이지인데) | 1 |
+| `858d40a` | **Google Fonts 링크 4종 → 1종 통일**: `Noto+Sans+KR:wght@400;600;700`(447) / `400;500;700;900`(290) / `Noto+Sans`(비-KR, 한글 페이지인데 Latin만 로드, 24) / `400;500;700`(5) → `Noto+Sans+KR:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500`. theme CSS가 쓰는 600·개별 페이지 800·900이 로드 안 돼 폴백되던 문제 해소 | 766 |
+| `858d40a` | privacy `--accent` `#4ade80`(초록) → `#fbbf24`(앰버, 사이트 표준) | 1 |
+| `858d40a` | viewport `initial-scale=1` → `1.0` 표기 통일 | 13 |
+| `1001cd8` | about/contact/terms `<html lang="en">` → `"ko"` (기본 표시가 koContent, privacy는 이미 ko) | 3 |
+| `1001cd8` | EN 가이드 back-link `../index.html` → `../index.html?lang=en` (63개는 이미 그럼) | 113 |
+| `4166c25` | **툴 헤더 마크업 정규화**: `<span class="logo">`+`<button class="lang-btn">` 쓰던 6개(cron-parser·csv-viewer·pdf-compressor는 lang 버튼이 브라우저 기본 회색 3D 버튼으로, ai-youtube-title-generator·apache-config-generator·api-response-viewer는 밋밋한 텍스트로 렌더) → `<div class="dot">`+`<span class="header-label">`+`.lang-toggle` 표준. + `<span class="dot">`→`<div class="dot">` 5개 | 11 |
+| `48f759e` | 구 템플릿 3개의 자체 `header{}`·`.back-link{margin-left:auto}`·`.seo{color:muted}` 오버라이드 제거(back-link이 워드마크 옆이 아닌 가운데로 밀리던 것, SEO h2가 회색이던 것) + minimum-wage `.back-link{margin-left:auto}` 제거 | 4 |
+
+### 남긴 것 (렌더 동일 / 문서화된 레거시 / 판단 필요)
+- `.lang-toggle`을 `<div>`(135) vs `<button>`(100)로: theme CSS가 클래스로 스타일링해 렌더 동일. `<button>`이 a11y상 우위지만 235개 일괄수정 가치 낮음.
+- back-link `id="backLink"` vs `data-i18n="backLink"`(10개): 둘 다 동작.
+- **구형 SEO 마크업 ~24개**: `<section class="seo">` + `<h3 class="faq-q">` (신형은 `<div class="seo">` + `<details class="faq-item">`). 렌더는 정상, i18n JS가 `seoFaqN` id 참조라 변환 위험. CLAUDE.md에 레거시로 문서화됨 — 방치.
+- 한국 전용 툴 38개 hreflang 2개(ko/en)만: zh/ja 번역 없어서 가짜 hreflang 다는 건 SEO 역효과 — 방치.
+- `color-blindness-simulator`가 `.grid`를 스와치 레이아웃에 재사용(다른 용도), `loan-calc` 중복 인라인 `margin-left:auto`: 무해.
+
+### QA 항목
+- **신규 툴 폰트 링크는 반드시 `Noto+Sans+KR:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap`** (사이트 유일 표준). `Noto+Sans`(비-KR) 금지.
+- **헤더는 `<div class="dot"></div><span class="header-label">MODOO HUB</span><a class="back-link">...<div class="lang-toggle">` 표준**. `.logo`·`.lang-btn` 클래스 금지(theme CSS가 스타일 안 함).
+- **`header{}`·`.back-link{}`·`.seo{}`·`.readout{}` 등 공유 클래스를 개별 파일 `<style>`에서 재정의하지 말 것** — theme-instrument.css가 중앙 관리. 재정의하면 페이지마다 미묘하게 어긋남.
+
 ## 기존 툴 PDF 라이브러리 CDN
 
 - pdf-lib: `https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js`
