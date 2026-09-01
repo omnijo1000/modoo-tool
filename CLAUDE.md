@@ -464,8 +464,20 @@ bmi-calculator, compound-annual-growth-rate-calculator, health-insurance-calc, h
 
 5. **URL 검사 툴 allorigins 프록시 `fetch`에 타임아웃 없음** (커밋 fb8419c) — 프록시가 느리면 "분석 중..." 무한 + 버튼 영구 비활성. **수정**: canonical-tag-checker, http-header-checker, meta-tag-analyzer, robots-txt-validator, sitemap-validator에 `AbortSignal.timeout(12000)`.
 
+### 2026-09-01 인터랙션 전수 감사 (319페이지, 잘못된 값 입력 + 모든 버튼 클릭)로 추가 발견한 버그
+
+6. **ico-converter.html** (커밋 4822dcd) — `updatePreview()`가 `_origImg` null 체크 없이 `drawSize()`에서 `_origImg.naturalWidth` 접근. 이미지 올리기 전에 크기 체크박스를 토글하면 `Uncaught TypeError`. → `updatePreview()` 맨 앞 `if(!_origImg)return;`.
+
+7. **image-watermark.html** (커밋 c39e8a4) — `applyLang()`이 `<label id="lblOpacity">불투명도 <span id="opacityVal">70</span>%</label>`의 `textContent`를 통째로 교체 → 안에 중첩된 `#opacityVal` span 파괴 → 불투명도 슬라이더 `oninput`이 `null.textContent` 접근으로 크래시. **언어 무관, 첫 로드 `applyLang`부터** 발생. → label 텍스트를 별도 `<span id="lblOpacity">`로 감싸 i18n이 형제 span을 안 건드리게. **패턴 주의: i18n 대상 요소 안에 id 붙은 live 자식(값 표시 span, canvas 등)을 두지 말 것.**
+
+8. **open-graph-generator.html / twitter-card-generator.html** (커밋 e09bac6) — 미리보기 `<img onerror="this.parentElement.innerHTML=...">`. 사용자가 이미지 URL을 연속으로 바꿔 입력하면 이전 `<img>`가 DOM에서 분리된 뒤 error 이벤트가 늦게 발생 → `this.parentElement === null` → **입력마다 반복** `Uncaught TypeError`. → `onerror`에 `if(this.parentElement)` 가드.
+
+이 감사에서 자동화 스크립트가 다운로드 버튼·외부링크(`target=_blank`, Google 리치결과 테스트 등)를 클릭해 실제 다운로드/새탭이 발생함 — 감사 스크립트는 `HTMLElement.prototype.click` 오버라이드로 `<a download>`·`<a target=_blank>`·`http(s)` href 클릭과 `window.open`·form submit을 무력화해야 함(사이트 문제 아님).
+
 ### 신규 QA 항목 (위 감사에서 얻은 교훈)
-- **레이아웃 감사 ≠ 인터랙션 감사**: "계산 실행 후 스크롤" 검사만으로는 3·4·5번을 못 잡음. 새 툴/수정 시 **잘못된 값 입력 + 버튼 클릭** 후 콘솔 `unhandledrejection`·`error`·블로킹 모달까지 확인.
+- **레이아웃 감사 ≠ 인터랙션 감사**: "계산 실행 후 스크롤" 검사만으로는 3~8번을 못 잡음. 새 툴/수정 시 **잘못된 값(빈 값·음수·`!@#`·`bad url`) 입력 + 모든 버튼 클릭 + 언어 전환 후 재입력**까지 하고 콘솔 `unhandledrejection`·`error`·블로킹 모달·새 탭까지 확인.
+- **i18n `element.textContent=` 대상 요소에 id 붙은 자식 두지 말 것** (7번). 값 표시 span은 label 밖이나 별도 텍스트 span으로 분리.
+- **`<img onerror>` / 비동기 콜백에서 `this.parentElement`·`getElementById` 결과는 항상 null 체크** — 요소가 그 사이 교체·분리됐을 수 있음.
 - **`alert()`/`confirm()`/`prompt()` 절대 쓰지 말 것** — `window.toast(msg)` 사용 (theme-instrument.js 제공, 320개 페이지 로드됨).
 - **`navigator.clipboard.writeText(...)`는 반드시 `.catch()` 붙일 것** — 전역 핸들러가 흡수하지만 개별 파일에서도 실패 시 사용자 피드백(토스트) 주는 게 정석.
 - **외부 `fetch`(CORS 프록시 등)에는 반드시 `{signal:AbortSignal.timeout(ms)}`** — 무한 대기 방지.
