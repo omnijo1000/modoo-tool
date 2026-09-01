@@ -444,8 +444,28 @@ bmi-calculator, compound-annual-growth-rate-calculator, health-insurance-calc, h
 
 ## 2026-09-01 접근성 리디자인 + 후속 전수 감사
 
+### 커밋 요약 (acb4210 → 0fd83fd, 총 9개)
+
+| 커밋 | 날짜 | 내용 | 영향 |
+|---|---|---|---|
+| `acb4210` | 08-31 | 접근성 P0/P1/P2 (검색 aria-label, 결과 라이브 리전, focus-visible, 대비, reduced-motion, touch-action, theme-color, inputmode 등) | theme-instrument.css/js(320p) + index/guides/salary/age/body-fat |
+| `47c6a91` | 09-01 | `.readout{position:sticky}` 단독 사용 시 스크롤하면 하단 콘텐츠 겹침 → `.grid .readout`로 한정 | theme-instrument.css (단독 readout 24p 해소) |
+| `1d3b809` | 09-01 | typing-speed-test 지문 `&nbsp;` → 줄바꿈 불가 → 가로 스크롤 → 일반 스페이스 + `white-space:pre-wrap` | typing-speed-test.html |
+| `fb8419c` | 09-01 | 사용자 동작 오류 3종: `alert()` 모달 블로킹(28p) → `window.toast()`, clipboard `.catch()` 없음(34p) → 전역 핸들러, allorigins fetch 타임아웃 없음(5p) → `AbortSignal.timeout(12000)` | theme-instrument.css/js + 28 html + 5 html |
+| `7372cf3` | 09-01 | docs: 위 감사·버그 5건 기록 | CLAUDE.md |
+| `4822dcd` | 09-01 | ico-converter: 이미지 업로드 전 크기 체크박스 토글 → `_origImg` null 크래시 | ico-converter.html |
+| `c39e8a4` | 09-01 | image-watermark: `applyLang()`이 `#opacityVal` 자식 span 파괴 → 슬라이더 크래시 (모든 언어) | image-watermark.html |
+| `e09bac6` | 09-01 | og/twitter card 생성기: 분리된 `<img>` onerror `this.parentElement` null → 입력마다 크래시 | open-graph-generator.html, twitter-card-generator.html |
+| `0fd83fd` | 09-01 | docs: 인터랙션 전수감사 추가 버그 3건 + i18n/onerror QA | CLAUDE.md |
+
+### 실제로 수행한 검증 범위 (과장 없이)
+- **레이아웃 감사**: 툴 319 + index/guides/category 11 + about/terms/contact = **334페이지 각각 실제 브라우저 로드**, 입력 채우고 계산/툴 실행, 3~4개 스크롤 위치에서 요소 겹침·가로 오버플로 DOM 측정. (자동화 스크립트가 페이지마다 방문·조작; 결과값 정확도는 미검증, 출력이 나오는지만 확인)
+- **인터랙션 감사**: **319 툴 페이지 각각 실제 브라우저 로드**, 잘못된 값(빈값·음수·`!@#`·`bad url`) 입력 + 다운로드 아닌 모든 버튼 클릭 + 언어 전환 후 재입력, `unhandledrejection`/`error`/`console.error`/블로킹 모달/새 탭 캡처.
+- **소스 정독**: 편집한 ~30개 파일 + 버그 플래그된 파일만 전체 소스를 읽음. 나머지 ~290개는 정적 grep 패턴(해당 버그 클래스에 대해서는 전수) + 자동 동적 실행으로 커버 — 한 줄씩 정독하지는 않음.
+- **계산 정확도**: salary/age/body-fat/four-insurance 등 ~6개만 알려진 값과 대조. 나머지 계산기의 수식 정확도는 이번 감사 범위 아님.
+
 ### 리디자인 (커밋 88ada4b, 그 전 세션)
-`theme-instrument.css`/`theme-instrument.js` 공유자산으로 320개 툴 페이지 일괄 리스킨. 이후 후속 세션에서 접근성 P0/P1/P2 처리 + 감사 중 버그 4건 발견·수정.
+`theme-instrument.css`/`theme-instrument.js` 공유자산으로 320개 툴 페이지 일괄 리스킨.
 
 ### 완료한 접근성 수정 (커밋 acb4210, 47c6a91, 1d3b809, fb8419c)
 - **P0**: 홈/가이드 검색 입력 `aria-label`(placeholder 비의존, i18n 연동), salary/age/body-fat 결과 요약 라이브 리전(`role=status aria-live=polite aria-atomic=true`, salary는 700ms 디바운스, 포커스 강제이동 없음)
