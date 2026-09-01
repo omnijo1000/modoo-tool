@@ -444,7 +444,7 @@ bmi-calculator, compound-annual-growth-rate-calculator, health-insurance-calc, h
 
 ## 2026-09-01 접근성 리디자인 + 후속 전수 감사
 
-### 커밋 요약 (acb4210 → 0fd83fd, 총 9개)
+### 커밋 요약 (acb4210 → d76dabb, 총 14개 + 이 문서 커밋)
 
 | 커밋 | 날짜 | 내용 | 영향 |
 |---|---|---|---|
@@ -457,12 +457,17 @@ bmi-calculator, compound-annual-growth-rate-calculator, health-insurance-calc, h
 | `c39e8a4` | 09-01 | image-watermark: `applyLang()`이 `#opacityVal` 자식 span 파괴 → 슬라이더 크래시 (모든 언어) | image-watermark.html |
 | `e09bac6` | 09-01 | og/twitter card 생성기: 분리된 `<img>` onerror `this.parentElement` null → 입력마다 크래시 | open-graph-generator.html, twitter-card-generator.html |
 | `0fd83fd` | 09-01 | docs: 인터랙션 전수감사 추가 버그 3건 + i18n/onerror QA | CLAUDE.md |
+| `d76dabb` | 09-01 | docs: 9커밋 요약표 + 실제 검증 범위 명시 | CLAUDE.md |
+| `9f20982` | 09-01 | savings-calc: `fmtW()`가 raw 원에 "만원" 접미 → 모든 금액 10000배 표시 (60조 등). 수식·계산은 정상, 표시 접미만. | savings-calc.html |
+| `5790d78` | 09-01 | body-fat-calculator: 해군법(Navy) 공식이 cm 입력에 인치용 상수(86.010/163.205…) 사용 → 남성 ~6.5%p 과다. 미터법 US Navy 공식(`495/(1.0324-0.19077·log10(waist-neck)+0.15456·log10(h))-450`)으로 교체. BMI법은 이미 정상. | body-fat-calculator.html |
+| `79c26f8` | 09-01 | salary-reverse: `getIncomeTax()`가 월 과표에 연 누진세율(`m*0.24-468600` 등) 적용 → 필요 세전연봉 ~10% 과다. salary.html 정본 간이세액표(`TAX_TABLE`+`TAX_BASE_10M`+`getIncomeTax`, 42KB) 이식. | salary-reverse.html |
+| `9a6d54e` | 09-01 | salary-raise / payslip-calc / salary-negotiation: 위와 동일한 소득세 오류 3파일. 각각 정본 세액표 블록 이식(payslip·negotiation은 `annual*0.06…*0.45/12` 식 근사 → `getIncomeTax(insBase,1)`). | salary-raise/payslip-calc/salary-negotiation.html |
 
 ### 실제로 수행한 검증 범위 (과장 없이)
 - **레이아웃 감사**: 툴 319 + index/guides/category 11 + about/terms/contact = **334페이지 각각 실제 브라우저 로드**, 입력 채우고 계산/툴 실행, 3~4개 스크롤 위치에서 요소 겹침·가로 오버플로 DOM 측정. (자동화 스크립트가 페이지마다 방문·조작; 결과값 정확도는 미검증, 출력이 나오는지만 확인)
 - **인터랙션 감사**: **319 툴 페이지 각각 실제 브라우저 로드**, 잘못된 값(빈값·음수·`!@#`·`bad url`) 입력 + 다운로드 아닌 모든 버튼 클릭 + 언어 전환 후 재입력, `unhandledrejection`/`error`/`console.error`/블로킹 모달/새 탭 캡처.
 - **소스 정독**: 편집한 ~30개 파일 + 버그 플래그된 파일만 전체 소스를 읽음. 나머지 ~290개는 정적 grep 패턴(해당 버그 클래스에 대해서는 전수) + 자동 동적 실행으로 커버 — 한 줄씩 정독하지는 않음.
-- **계산 정확도**: salary/age/body-fat/four-insurance 등 ~6개만 알려진 값과 대조. 나머지 계산기의 수식 정확도는 이번 감사 범위 아님.
+- **계산 정확도 (2026-09-01 전수)**: 계산기 ~76개 전부 수식을 소스에서 읽고 검증 — 한국 4대보험·세금(salary 계열, 국민연금, 건강보험, 퇴직소득세, 상속·증여·양도·종부·취득세, 실업급여, 육아휴직급여), 금융(EMI/CAGR/SIP/은퇴/적금), 건강(BMI/BMR/체지방), 날짜/시간. 법정 수치는 웹서치로 2026년 기준 대조(국민연금 9.5%·상한 659만·하한 41만, 건강보험 7.19%·장기요양 13.14%, 실업급여 상한 68,100·하한 66,048, 육아휴직 6+6 상한 250~450만). **발견·수정한 오류 5건은 아래 9~13번.** 나머지는 정상 또는 명시된 간이 근사(국민연금 예상수령액, 지역건보 점수 등).
 
 ### 리디자인 (커밋 88ada4b, 그 전 세션)
 `theme-instrument.css`/`theme-instrument.js` 공유자산으로 320개 툴 페이지 일괄 리스킨.
@@ -494,10 +499,27 @@ bmi-calculator, compound-annual-growth-rate-calculator, health-insurance-calc, h
 
 이 감사에서 자동화 스크립트가 다운로드 버튼·외부링크(`target=_blank`, Google 리치결과 테스트 등)를 클릭해 실제 다운로드/새탭이 발생함 — 감사 스크립트는 `HTMLElement.prototype.click` 오버라이드로 `<a download>`·`<a target=_blank>`·`http(s)` href 클릭과 `window.open`·form submit을 무력화해야 함(사이트 문제 아님).
 
+### 2026-09-01 계산기 수식 전수 검증으로 발견한 계산 오류 (커밋 9f20982·5790d78·79c26f8·9a6d54e)
+
+9. **savings-calc.html** (9f20982) — `fmtW(n){return fmt(n)+'만원';}`인데 `n`이 raw 원 값(예 6,000,000)이라 "6,000,000만원"(60조)으로 표시. 이자·세금 계산 로직 자체는 정상, **표시 접미만** 문제. → `fmtW`를 `fmt(n)+'원'`으로. **주의: dsr-calc는 입력이 만원 단위라 같은 패턴이어도 정상 — 파일별로 입력 단위 확인 후 판단.**
+
+10. **body-fat-calculator.html** (5790d78) — 미해군 체지방 공식이 cm 입력에 **인치 기준 상수**(`86.010*log10(waist-neck)-70.041*log10(h)+36.76` 등)를 그대로 사용 → 남성 약 6.5%p, 여성도 과다. → 미터법 US Navy 공식 `495/(1.0324-0.19077*log10(waist-neck)+0.15456*log10(h))-450` (여성 `495/(1.29579-0.35004*log10(waist+hip-neck)+0.22100*log10(h))-450`). 검증: 남 180/허리90/목40 → 24.9%→18.4%. BMI법(Deurenberg)은 원래 정상.
+
+11. **salary-reverse.html** (79c26f8) — 자체 `getIncomeTax(taxableMonthly, dependents)`가 **월 과세표준에 연 종합소득세 누진식**(`Math.round(m*0.24-468600)` 등)을 적용 → 소득세 대폭 과다 → 필요 세전연봉 ~10% 과다(월 300만 목표 시 4,532만→4,096만). → salary.html 정본 간이세액표 블록(`TAX_TABLE` 646행 + `TAX_BASE_10M` + `getIncomeTax`, ~42KB) 이식. `computeNet()`은 이미 `getIncomeTax(insBase, dependents)` 호출 중이라 함수만 교체.
+
+12. **salary-raise.html** (9a6d54e) — 11번과 동일한 깨진 `getIncomeTax(m,d)`. 정본 블록 이식. 검증: `getIncomeTax(3900000,1)`=182,610 / `getIncomeTax(3416666,1)`=114,990 (salary.html과 정확히 일치).
+
+13. **payslip-calc.html / salary-negotiation.html** (9a6d54e) — 소득세를 `연 gross*12` 구간별 세율 후 `*0.45/12`(payslip) / `*0.5/12`(negotiation) 같은 **임의 근사 계수**로 계산. → 정본 세액표 이식 + `const incomeTax=getIncomeTax(insBase,1);` / `getIncomeTax(Math.max(0,monthly-200000),1)`로 교체. 검증: payslip 월급 380만 → 소득세 169,260.
+
+**교훈: 한국 근로소득세를 계산하는 툴은 반드시 salary.html의 `TAX_TABLE`+`getIncomeTax` 정본을 이식할 것.** 연 종합소득세 누진식(6/15/24/35/38/40/42/45%)을 월 과표에 직접 쓰거나 `*0.45` 같은 계수로 눙치면 전부 틀림. salary.html·four-insurance·salary-calc·hourly-wage는 이미 정본 사용 중(정상).
+
 ### 신규 QA 항목 (위 감사에서 얻은 교훈)
 - **레이아웃 감사 ≠ 인터랙션 감사**: "계산 실행 후 스크롤" 검사만으로는 3~8번을 못 잡음. 새 툴/수정 시 **잘못된 값(빈 값·음수·`!@#`·`bad url`) 입력 + 모든 버튼 클릭 + 언어 전환 후 재입력**까지 하고 콘솔 `unhandledrejection`·`error`·블로킹 모달·새 탭까지 확인.
 - **i18n `element.textContent=` 대상 요소에 id 붙은 자식 두지 말 것** (7번). 값 표시 span은 label 밖이나 별도 텍스트 span으로 분리.
 - **`<img onerror>` / 비동기 콜백에서 `this.parentElement`·`getElementById` 결과는 항상 null 체크** — 요소가 그 사이 교체·분리됐을 수 있음.
+- **금액 표시 헬퍼(`fmtW` 등)는 입력 단위와 접미 단위를 반드시 대조** (9번). "만원" 붙이는 함수에 raw 원을 넘기면 10000배.
+- **한국 근로소득세 = salary.html `TAX_TABLE`+`getIncomeTax` 정본 이식** (11~13번). 연 누진식·임의 계수 금지.
+- **새/수정 계산기는 알려진 입력 1~2개로 결과를 손계산 또는 정본 툴과 대조** — 법정 수치 하드코딩 툴은 위 "연도별 정기 점검" 표도 확인.
 - **`alert()`/`confirm()`/`prompt()` 절대 쓰지 말 것** — `window.toast(msg)` 사용 (theme-instrument.js 제공, 320개 페이지 로드됨).
 - **`navigator.clipboard.writeText(...)`는 반드시 `.catch()` 붙일 것** — 전역 핸들러가 흡수하지만 개별 파일에서도 실패 시 사용자 피드백(토스트) 주는 게 정석.
 - **외부 `fetch`(CORS 프록시 등)에는 반드시 `{signal:AbortSignal.timeout(ms)}`** — 무한 대기 방지.
