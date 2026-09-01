@@ -546,18 +546,27 @@ bmi-calculator, compound-annual-growth-rate-calculator, health-insurance-calc, h
 | `1001cd8` | EN 가이드 back-link `../index.html` → `../index.html?lang=en` (63개는 이미 그럼) | 113 |
 | `4166c25` | **툴 헤더 마크업 정규화**: `<span class="logo">`+`<button class="lang-btn">` 쓰던 6개(cron-parser·csv-viewer·pdf-compressor는 lang 버튼이 브라우저 기본 회색 3D 버튼으로, ai-youtube-title-generator·apache-config-generator·api-response-viewer는 밋밋한 텍스트로 렌더) → `<div class="dot">`+`<span class="header-label">`+`.lang-toggle` 표준. + `<span class="dot">`→`<div class="dot">` 5개 | 11 |
 | `48f759e` | 구 템플릿 3개의 자체 `header{}`·`.back-link{margin-left:auto}`·`.seo{color:muted}` 오버라이드 제거(back-link이 워드마크 옆이 아닌 가운데로 밀리던 것, SEO h2가 회색이던 것) + minimum-wage `.back-link{margin-left:auto}` 제거 | 4 |
+| `d2631b7` | **lang-toggle 전부 `<button type="button">`으로 통일** (`<div class="lang-toggle">` 178 → button). 정보 페이지 4개는 자체 `.lang-toggle`에 `background:transparent;appearance:none` 추가. color-blindness-simulator `.grid`→`.sim-grid`(theme 2단 레이아웃 충돌 회피). loan-calc 중복 인라인 style 제거. guides/index.html `.logo`→`.header-label` | ~185 |
+| `b2fc877` | **구형 SEO/FAQ 마크업 24개 → `<div class="seo">` + `<details>`** (KO 계산기: salary·severance·four-insurance·income-tax·gift-tax·acquisition-tax 등. 항상 펼쳐진 `<div class="faq-item"><h3 class="faq-q">` → 접이식 `<details>`). 죽은 `.faq-*` CSS 제거. FAQPage JSON-LD·div 균형 검증 | 24 |
+| `ff83c35` | **JS 아코디언 FAQ 3개** (json-formatter·jwt-decoder·uuid-generator): `renderFaq()`가 언어별로 커스텀 `.faq-item.open` 아코디언을 innerHTML로 재구성 → `<details>` 템플릿. 정적+렌더+CSS 정리 | 3 |
+| `c40958b` | **남은 구형 FAQ 3개** (i18n 포함): hash-generator·regex-tester(`<p id="seoFaqN"><strong>Q</strong><br>A</p>` + forEach, 4개국어 i18n 문자열도 `<summary>/<p>` 구조로 변환, 아포스트로피 `\'` 보존), loan-calc(`_loanSeo[lang].faq` 문자열 4개국어). hash-generator는 중복이던 별도 `#faqSection` 아코디언 삭제 + FAQPage JSON-LD 재생성 | 3 |
+| `65dadf4` | loan-calc `<section class="seo">` → `<div class="seo">` (놓친 것). **사이트 전체 `<section class="seo">` 0개 달성** | 1 |
 
-### 남긴 것 (렌더 동일 / 문서화된 레거시 / 판단 필요)
-- `.lang-toggle`을 `<div>`(135) vs `<button>`(100)로: theme CSS가 클래스로 스타일링해 렌더 동일. `<button>`이 a11y상 우위지만 235개 일괄수정 가치 낮음.
-- back-link `id="backLink"` vs `data-i18n="backLink"`(10개): 둘 다 동작.
-- **구형 SEO 마크업 ~24개**: `<section class="seo">` + `<h3 class="faq-q">` (신형은 `<div class="seo">` + `<details class="faq-item">`). 렌더는 정상, i18n JS가 `seoFaqN` id 참조라 변환 위험. CLAUDE.md에 레거시로 문서화됨 — 방치.
-- 한국 전용 툴 38개 hreflang 2개(ko/en)만: zh/ja 번역 없어서 가짜 hreflang 다는 건 SEO 역효과 — 방치.
-- `color-blindness-simulator`가 `.grid`를 스와치 레이아웃에 재사용(다른 용도), `loan-calc` 중복 인라인 `margin-left:auto`: 무해.
+### 최종 상태 (전 사이트)
+- `<section class="seo">` 0, `class="faq-q"` 0, `<div class="lang-toggle">` 0, `class="lang-btn"` 0, 툴에서 `<span class="logo">` 0
+- Google Fonts 링크 변형 1종
+- 구형 FAQ 30개 전부 `<details class="faq-item">` (theme-instrument.css `details.faq-item` 중앙 스타일). 브라우저에서 ko/en/zh 렌더 + 언어전환 재렌더 + 접이동작 + 콘솔 에러 0 확인.
+
+### 남긴 것 (렌더 동일 / 정상)
+- back-link `id="backLink"` vs `data-i18n="backLink"`(10개): 둘 다 동작, theme/related.js가 이 id를 참조 안 함, 변환은 개별 파일 applyLang JS 수술 필요 → 방치.
+- 한국 전용 툴 38개 hreflang = `ko` + `x-default`(같은 URL): **정상**. 번역 없는 단일언어 페이지의 올바른 hreflang 설정. 가짜 en/zh/ja 추가 금지.
 
 ### QA 항목
 - **신규 툴 폰트 링크는 반드시 `Noto+Sans+KR:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap`** (사이트 유일 표준). `Noto+Sans`(비-KR) 금지.
 - **헤더는 `<div class="dot"></div><span class="header-label">MODOO HUB</span><a class="back-link">...<div class="lang-toggle">` 표준**. `.logo`·`.lang-btn` 클래스 금지(theme CSS가 스타일 안 함).
 - **`header{}`·`.back-link{}`·`.seo{}`·`.readout{}` 등 공유 클래스를 개별 파일 `<style>`에서 재정의하지 말 것** — theme-instrument.css가 중앙 관리. 재정의하면 페이지마다 미묘하게 어긋남.
+- **lang toggle은 `<button type="button" class="lang-toggle">`**. `<div>` 금지. FAQ는 `<details class="faq-item"><summary>Q</summary><p>A</p></details>` (theme가 `details.faq-item` 스타일). `<div class="faq-item">`·`.faq-q`·`.faq-a`·커스텀 아코디언 JS 금지.
+- **i18n 문자열을 정규식으로 변환할 때 `\'`(이스케이프된 아포스트로피) 보존** — 라인 기반 매칭 쓰고, `re.sub` 치환문은 콜백(`lambda m: ...`)으로 (치환 문자열의 `\\`가 재해석되어 JSON-LD `\.` 깨진 사례 있음).
 
 ## 기존 툴 PDF 라이브러리 CDN
 
