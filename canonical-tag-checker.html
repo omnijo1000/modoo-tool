@@ -436,15 +436,15 @@ async function analyzeUrl(){
   btn.textContent=t.loading;btn.disabled=true;
   try{
     const proxyUrl='https://api.allorigins.win/get?url='+encodeURIComponent(url);
-    const resp=await fetch(proxyUrl);
+    const resp=await fetch(proxyUrl,{signal:AbortSignal.timeout(12000)});
     const data=await resp.json();
     if(data&&data.contents){
       runAnalysis(data.contents, url);
     }else{
-      alert(t.fetchError);
+      (window.toast||alert)(t.fetchError);
     }
   }catch(e){
-    alert(t.fetchError);
+    (window.toast||alert)(t.fetchError);
   }finally{
     btn.textContent=t.btnAnalyze;btn.disabled=false;
   }

@@ -82,6 +82,25 @@
     document.body.insertBefore(a, document.body.firstChild);
   }
 
+  /* ---- non-blocking notice: replacement for alert() on user actions ----
+     alert() throws a modal that freezes the page (and blocks automation/AT). */
+  window.toast = function(msg){
+    var el = document.querySelector('.mh-toast');
+    if(!el){ el = document.createElement('div'); el.className = 'mh-toast'; el.setAttribute('role','status'); document.body.appendChild(el); }
+    el.textContent = String(msg);
+    el.classList.add('show');
+    clearTimeout(window.__toastT);
+    window.__toastT = setTimeout(function(){ el.classList.remove('show'); }, 3400);
+  };
+
+  /* ---- swallow benign clipboard promise rejections (copy buttons lack .catch) ---- */
+  window.addEventListener('unhandledrejection', function(e){
+    var m = String((e.reason && (e.reason.message || e.reason)) || '');
+    if(/clipboard|writeText|not focused|not allowed by the user agent|Document is not focused/i.test(m)){
+      e.preventDefault();
+    }
+  });
+
   injectThemeColor(); /* before first paint where possible */
 
   document.addEventListener('DOMContentLoaded', function(){

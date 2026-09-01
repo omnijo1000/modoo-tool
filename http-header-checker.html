@@ -370,7 +370,7 @@ async function fetchUrl(){
   btn.textContent=t.loading;btn.disabled=true;
   try{
     const proxy='https://api.allorigins.win/get?url='+encodeURIComponent(url);
-    const resp=await fetch(proxy);
+    const resp=await fetch(proxy,{signal:AbortSignal.timeout(12000)});
     const data=await resp.json();
     if(data&&data.status){
       const fakeHeaders={};
@@ -380,9 +380,9 @@ async function fetchUrl(){
       document.getElementById('headerInput').value='# Note: Full response headers not available via browser proxy.\n# Use curl -I '+url+'\n# to see all headers.\n\nx-http-status-code: '+data.status.http_code+'\ncontent-type: '+(data.status.content_type||'');
       switchTab('paste');
     }else{
-      alert(t.fetchError);
+      (window.toast||alert)(t.fetchError);
     }
-  }catch(e){alert(t.fetchError);}
+  }catch(e){(window.toast||alert)(t.fetchError);}
   finally{btn.textContent=t.btnFetch;btn.disabled=false;}
 }
 function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}

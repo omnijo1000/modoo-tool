@@ -252,10 +252,10 @@ async function fetchSitemap(){
   const btn=document.getElementById('btnFetch');btn.textContent=t.loading;btn.disabled=true;
   try{
     const proxy='https://api.allorigins.win/get?url='+encodeURIComponent(url);
-    const resp=await fetch(proxy);const data=await resp.json();
+    const resp=await fetch(proxy,{signal:AbortSignal.timeout(12000)});const data=await resp.json();
     if(data&&data.contents){document.getElementById('xmlInput').value=data.contents;switchTab('paste');validatePaste();}
-    else alert(t.fetchError);
-  }catch(e){alert(t.fetchError);}
+    else (window.toast||alert)(t.fetchError);
+  }catch(e){(window.toast||alert)(t.fetchError);}
   finally{btn.textContent=t.btnFetch;btn.disabled=false;}
 }
 function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}

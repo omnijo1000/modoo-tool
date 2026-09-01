@@ -514,7 +514,7 @@ async function fetchRobots(){
   try{
     const url=new URL(domain);
     const robotsUrl=url.origin+'/robots.txt';
-    const resp=await fetch(robotsUrl,{mode:'no-cors'});
+    const resp=await fetch(robotsUrl,{mode:"no-cors",signal:AbortSignal.timeout(12000)});
     if(resp.type==='opaque'){
       // no-cors returns opaque; try cors proxy
       throw new Error('opaque');
@@ -528,16 +528,16 @@ async function fetchRobots(){
       const url=new URL(domain);
       const robotsUrl=url.origin+'/robots.txt';
       const proxyUrl='https://api.allorigins.win/get?url='+encodeURIComponent(robotsUrl);
-      const resp2=await fetch(proxyUrl);
+      const resp2=await fetch(proxyUrl,{signal:AbortSignal.timeout(12000)});
       const json=await resp2.json();
       if(json.contents){
         document.getElementById('robotsTa').value=json.contents;
         doValidate();
       } else {
-        alert(t.fetchError);
+        (window.toast||alert)(t.fetchError);
       }
     } catch(e2){
-      alert(t.fetchError);
+      (window.toast||alert)(t.fetchError);
     }
   }
 }
