@@ -442,6 +442,36 @@ bmi-calculator, compound-annual-growth-rate-calculator, health-insurance-calc, h
    - 각 파일 4개 언어(ko/en/zh/ja, `privacy.html`은 ja 없이 ko/en/zh) 블록의 `<p class="updated">최종 업데이트: ...` 날짜를 실제 수정일로 갱신. 한 언어만 고치고 나머지 언어 날짜를 안 맞추면 언어별로 최종수정일이 어긋나므로 4곳(또는 3곳) 전부 확인.
    - `about.html`엔 "운영 정보" 섹션, `privacy.html`/`terms.html`엔 마지막 조항으로 "운영자 정보" 섹션이 있음 — 개인 운영(법인·사업자등록 없음)이라는 문구를 실제와 다르게 바꾸지 말 것(실제 사업자등록을 하게 되면 그때 사업자정보로 교체).
 
+## 2026-09-01 접근성 리디자인 + 후속 전수 감사
+
+### 리디자인 (커밋 88ada4b, 그 전 세션)
+`theme-instrument.css`/`theme-instrument.js` 공유자산으로 320개 툴 페이지 일괄 리스킨. 이후 후속 세션에서 접근성 P0/P1/P2 처리 + 감사 중 버그 4건 발견·수정.
+
+### 완료한 접근성 수정 (커밋 acb4210, 47c6a91, 1d3b809, fb8419c)
+- **P0**: 홈/가이드 검색 입력 `aria-label`(placeholder 비의존, i18n 연동), salary/age/body-fat 결과 요약 라이브 리전(`role=status aria-live=polite aria-atomic=true`, salary는 700ms 디바운스, 포커스 강제이동 없음)
+- **P1**: `textarea:focus-visible` 아웃라인 + `.box`/`.editor-box:focus-within`, `--text-dim` 대비 0.42→0.55 (3.7:1→5.6:1), `filter-bar` `tabindex="0"` 제거 + `role="group"`
+- **P2**: `:root{color-scheme:dark}`, `prefers-reduced-motion` 전역 가드, `transition:all`→명시 속성, 텍스트형 입력 `:focus-visible` 통일, `touch-action:manipulation`, `.info-badge` 28px, `<meta name=theme-color>` JS 주입, `input[type=number]` `inputmode` 자동, `<main tabindex=-1>`, `.input-row` 모바일 1열
+
+### 감사 중 발견·수정한 버그 (재발 방지용 기록)
+
+1. **`.readout{position:sticky}` 단독 사용 시 스크롤하면 하단 콘텐츠 겹침** (커밋 47c6a91) — sticky는 2단 `.grid` 사이드바 전제인데 `.grid` 없이 전체폭 블록으로 쓴 24개 페이지(parental-leave, severance, national-pension, apr-calculator, loan-calc 등)에서 결과 패널이 뷰포트보다 길면 스크롤 시 고정되어 관련도구·SEO 섹션이 그 아래로 파고듦. **수정**: `theme-instrument.css`에서 `.readout` position 선언 제거하고 `.grid .readout{position:sticky; top:20px}`로 한정. `d12a03a` 디자인 시스템 도입 때부터 있던 문제.
+
+2. **typing-speed-test.html 지문 가로 스크롤** (커밋 1d3b809) — 지문 공백을 `&nbsp;`( )로 렌더 → 브라우저가 줄바꿈 지점을 못 잡아 문장 전체가 한 줄로 뻗음. **수정**: 일반 스페이스 + `.passage-box{white-space:pre-wrap; overflow-wrap:anywhere}`.
+
+3. **`alert()`/`confirm()`가 사용자 동작 시 모달로 페이지 전체를 얼림** (커밋 fb8419c) — 입력 검증 실패·에러 처리에 `alert()` 쓴 파일 28개. 스크린리더·자동화도 차단. **수정**: `theme-instrument.js`에 `window.toast(msg)` (비블로킹 토스트, `.mh-toast` CSS), 28개 파일 `alert(` → `(window.toast||alert)(` 치환.
+
+4. **`navigator.clipboard.writeText().then()`에 `.catch()` 없음 → 미처리 promise rejection** (커밋 fb8419c) — 복사 버튼 34개 파일. `file://`·비보안 컨텍스트·포커스 없음·구형 브라우저·권한 거부에서 uncaught rejection. **수정**: `theme-instrument.js`에 `unhandledrejection` 전역 핸들러로 clipboard 계열 reject 흡수(`preventDefault`).
+
+5. **URL 검사 툴 allorigins 프록시 `fetch`에 타임아웃 없음** (커밋 fb8419c) — 프록시가 느리면 "분석 중..." 무한 + 버튼 영구 비활성. **수정**: canonical-tag-checker, http-header-checker, meta-tag-analyzer, robots-txt-validator, sitemap-validator에 `AbortSignal.timeout(12000)`.
+
+### 신규 QA 항목 (위 감사에서 얻은 교훈)
+- **레이아웃 감사 ≠ 인터랙션 감사**: "계산 실행 후 스크롤" 검사만으로는 3·4·5번을 못 잡음. 새 툴/수정 시 **잘못된 값 입력 + 버튼 클릭** 후 콘솔 `unhandledrejection`·`error`·블로킹 모달까지 확인.
+- **`alert()`/`confirm()`/`prompt()` 절대 쓰지 말 것** — `window.toast(msg)` 사용 (theme-instrument.js 제공, 320개 페이지 로드됨).
+- **`navigator.clipboard.writeText(...)`는 반드시 `.catch()` 붙일 것** — 전역 핸들러가 흡수하지만 개별 파일에서도 실패 시 사용자 피드백(토스트) 주는 게 정석.
+- **외부 `fetch`(CORS 프록시 등)에는 반드시 `{signal:AbortSignal.timeout(ms)}`** — 무한 대기 방지.
+- **`.readout`을 쓸 땐 `.grid` 2단 레이아웃 안에 넣을 것** — 단독 블록으로 쓰면 sticky 안 붙지만 그 외 스타일은 그대로 적용됨(현재 CSS 기준 단독은 static).
+- 감사 방법: 로컬 `python3 -m http.server` + `mcp__claude-in-chrome__browser_batch`로 navigate+eval 페어를 6~8개씩. 배치 10개↑는 45s CDP 타임아웃. `alert()`는 자동화도 얼리므로 감사 스크립트에서 `window.alert/confirm/prompt` 스텁 필수.
+
 ## 기존 툴 PDF 라이브러리 CDN
 
 - pdf-lib: `https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js`
