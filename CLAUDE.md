@@ -627,8 +627,23 @@ FAQPage Q < 화면 details 불일치 0.
 - 파일 입력: 드롭존 안내 텍스트(`.drop-zone` 안 `<p>`)에 `aria-labelledby`.
 - **dsr-calc 동적 대출 행**: `addLoan()` 템플릿의 `<div class="mini-label">` → `<label for="lt_${id}">` 등 5개, 생성 시마다 고유 id 연결.
 - bmi-calc는 별도 패턴(`data-i18n-aria` + `_applyLang` 루프)로 4개 언어 aria-label 유지 (커밋 d6c715f).
-- **하지 않은 것**: placeholder·임의 전역 aria-label 자동 추론 금지(사용자 지시). 그래서 인접 라벨 마크업이 아예 없는 개발자툴 I/O textarea·색상 피커 일부(~150건, 대부분 시각적 라벨 자체가 없는 페이지)는 미연결로 남김 — 계산기는 전부 커버.
-- 검증: 205개 파일 구조(중첩 `<label>`/div 균형/dangling `for`·`aria-labelledby`/JS 문법) 0건. 계산기 25종+ 브라우저 실측(salary·four-insurance·severance·건보·국민연금·dsr(동적행)·capital-gains·gift·inheritance·income-tax·emi·cagr·bmi·ltv·loan·pace·percent·working-days·timestamp…) 미연결 0. 계산 로직·결과값·canonical·hreflang·JSON-LD 무변경.
+- **주의(5d48d32 시점)**: 이 커밋 후 회귀 검수에서 계산기 18개·툴 98개에 미연결 입력이 남아 있던 것으로 확인됨 — "계산기 전부 커버"는 부정확했음. → 아래 3차에서 마저 처리.
+- 검증: 205개 파일 구조(중첩 `<label>`/div 균형/dangling `for`·`aria-labelledby`/JS 문법) 0건. 계산 로직·결과값·canonical·hreflang·JSON-LD 무변경.
+
+### 1b. 잔존 갭 전수 처리 (커밋 <PENDING>, 119개 파일)
+회귀 검수에서 발견한 미연결 입력 전부 처리.
+- **계산기 18개** (`fixcalc`): cheongyak-score·credit-loan-limit·currency-converter·fire-calculator·sip·salary-negotiation·meeting-cost·salary-reverse·tip·loan-calculator-en·discount·minimum-wage·profit·vat-calculator-global·business-days·read-time·time-calculator — `.fk`/`.field-label`/`.section-label` 헤딩 → `<label for>` 또는 `.vh <label>`, i18n span 라벨(`lbl0b`·`lblTax`·`inputLabel`)엔 `aria-labelledby`, range 슬라이더는 짝 라벨 미러.
+- **파일 입력 37개** (`fixfile`): 드롭존 안내문(`드래그/클릭/업로드` 포함 요소)에 `aria-labelledby`(id 없으면 `dzlbl_*` 부여), 없으면 h1 기반 `aria-label`.
+- **툴 인접 라벨 13개** (`fixtool2`): `.picker-label`·`.field-label`·`.section-label` 등 **엄격 화이트리스트** 클래스가 바로 앞에 있을 때만 `aria-labelledby`. (`.subtitle`/`.rbtn`/`id="sub"` 등은 명시 제외 — 느슨한 버전이 페이지 부제·프리셋 버튼을 라벨로 잘못 잡았던 것 되돌림.)
+- **나머지 I/O 63개** (`fixrest`): 인접 라벨 마크업이 아예 없는 textarea·select·color·text — `<h1>`(이모지 제거) + 역할 접미(`입력`/`출력`/`색상 선택`/`옵션`/placeholder) 로 `.vh <label>` 생성. id 없으면 `aria-label`.
+- **남긴 것**: radio 12 + checkbox 8 = 전부 이미 `<label class="opt-label"><input>텍스트</label>` 래핑 또는 `<label for>` (정적 스캔이 id 없는 래핑 입력을 오탐한 것 — ascii-converter·ico-converter·htaccess·pdf-rotate 브라우저 확인). time-calculator `breakCheck`는 `<label for="breakCheck">` 있음(다만 그 `<label>`에 `for` 속성 2개 있는 엉성한 마크업 — 동작엔 지장 없음, 후속 정리 대상).
+- 검증: 119개 파일 구조·JS 1270 스크립트·ld+json 0에러. 브라우저 ~35페이지 실측 — 미연결 0(radio/checkbox 래핑 제외), 콘솔 에러 0, 가로 넘침 0, aria-live 리전 1개 유지(`.readout` 직접 aria-live 0). 계산 로직·canonical·hreflang·JSON-LD 무변경.
+- `about`/`contact`/`privacy`/`terms`에 `<meta name="theme-color" content="#0a0a0a">` 추가(선존재 누락, theme-instrument.js 미로드 페이지).
+
+### 1c. 신규 QA
+- **정적 스캔의 "미연결 입력" 오탐 주의**: id 없이 `<label>` 로 래핑된 입력(라디오·체크박스 옵션 다수)은 `e.labels`/`e.closest('label')` 로 접근성 이름이 있음. 정적으로 `id` 기준만 보면 오탐. 최종 판정은 브라우저 `e.labels||aria-label||aria-labelledby||closest('label')`.
+- **인접 라벨 자동 연결 스크립트는 클래스 화이트리스트 필수**: "짧은 텍스트면 라벨" 휴리스틱은 페이지 부제(`.subtitle`)·프리셋 버튼(`.rbtn`)·탭·단위 표시를 라벨로 오인함. `field-label|formula|fk|mini-label|section-label|editor-label|card-title|opt-label|picker-label` 등 명시 클래스 + `id="sub|subEl|desc"` 제외.
+- **`.vh` 폴백 라벨**: 인접 마크업 없는 단일 I/O 요소엔 `<h1>` + 역할 접미로 `.vh <label>` 생성이 허용 범위(placeholder 의존 아님, 실제 `<label for>` 연결). 다국어 페이지에선 라벨이 소스 언어 고정이나 SR 이름 0보다 나음.
 
 ### 2. 결과 요약 라이브 리전 (커밋 da10cc4, theme-instrument.js만)
 - `initResultAnnouncer()`: `.readout`/`.result-box` 결과 패널에 MutationObserver → 변경 시 **650ms 디바운스** 후 `"주요 라벨: 대표 수치"` 한 줄 요약을 공유 숨김 리전 `#mh-a11y-result`(`role=status aria-live=polite aria-atomic=true`, `.vh`)에 기록.
