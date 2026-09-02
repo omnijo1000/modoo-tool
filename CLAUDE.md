@@ -403,6 +403,8 @@ bmi-calculator, compound-annual-growth-rate-calculator, health-insurance-calc, h
 
 ## 연도별 정기 점검 필요 항목 (매년 수치 바뀌는 계산기)
 
+> **전체 유지보수 점검표는 `MAINTENANCE.md` 참고** (2026-09-06 신설 — 법정수치·canonical/sitemap/404·모바일성능·고립페이지 + 점검 캘린더). 아래 표는 계산기 수치 부분 요약.
+
 아래 파일들은 매년/반기별로 바뀌는 법정 수치를 하드코딩하고 있음. **연초, 그리고 하반기 제도 변경 시점(7월)에 반드시 재확인**할 것 — 2026-07-08 점검에서 national-pension-calculator.html이 2024년 수치를 그대로 쓰고 있던 것을 발견함(값 자체가 실제로 2026년 7월부터 바뀌었는데 코드가 안 따라감).
 
 | 파일 | 하드코딩된 수치 | 갱신 주기 |
@@ -411,7 +413,7 @@ bmi-calculator, compound-annual-growth-rate-calculator, health-insurance-calc, h
 | national-pension-calculator.html | 보험료율(9.5%), 상한(659만원)·하한(41만원) | 매년 7월 |
 | health-insurance.html / health-insurance-calc.html / health-insurance-calculator.html | 보험료율(7.19%), 장기요양보험료율(13.14%), 점수당 금액(208.4원) | 매년 |
 | minimum-wage.html | 최저시급(10,320원) | 매년 1월 |
-| ltv-calculator.html | 지역별 LTV%(9억원 구간 차등), 규제지역 목록, DSR 기준 | 부동산 대책 발표 시 수시(연 1~2회) |
+| ltv-calculator.html | 규제지역 무주택 40%·생애최초 70%·서민실수요 60%, 절대한도 15/25억 구간 (2025.10.15 대책 반영, 2026-09-06 갱신 — 이전엔 폐지된 9억 구간제 40/20·50/30 사용 중이었음), 규제지역 목록 | 부동산 대책 발표 시 수시(분기 1회) |
 | severance.html / severance-tax.html 등 4대보험·세금 계열 전체 | 요율 전반 | 매년 |
 
 새 회계연도 진입 시 이 표 파일들부터 웹서치로 "OO년 X월 기준 최신 수치" 확인 후 갱신. 갱신 후 이 표의 갱신 주기 옆에 마지막 확인일 메모 남기기.
