@@ -158,6 +158,88 @@
     }
   });
 
+  /* ---- result-summary live region ----
+     One polite/atomic status node (visually hidden). We DO NOT put aria-live on
+     .readout itself — that would re-read every sub-row on every keystroke. Instead
+     a MutationObserver on the main result panel writes a short debounced summary
+     (primary label + headline number) into the shared region. No focus is moved. */
+  function initResultAnnouncer(){
+    if(document.getElementById('a11yStatus')) return; /* page has its own bespoke announcer */
+    var panels = document.querySelectorAll('.readout, .result-box');
+    if(!panels.length) return;
+    var region = null, last = '', t;
+    function ensureRegion(){
+      if(region) return region;
+      region = document.getElementById('mh-a11y-result');
+      if(!region){
+        region = document.createElement('p');
+        region.id = 'mh-a11y-result';
+        region.className = 'vh';
+        region.setAttribute('role','status');
+        region.setAttribute('aria-live','polite');
+        region.setAttribute('aria-atomic','true');
+        document.body.appendChild(region);
+      }
+      return region;
+    }
+    function visible(el){
+      if(el.offsetParent !== null) return true;
+      return /\bshow\b|\bactive\b/.test(el.className);
+    }
+    function clean(s){ return (s||'').replace(/\s+/g,' ').trim(); }
+    function labelText(el){
+      if(!el) return '';
+      var c = el.cloneNode(true);
+      c.querySelectorAll('.info, .tooltip, .info-badge, script, style').forEach(function(n){ n.remove(); });
+      var t = clean(c.textContent);
+      if(/^(readout|result|계산\s*결과|—|-)?$/i.test(t)) return ''; /* placeholder / generic */
+      return t;
+    }
+    function summarize(panel){
+      var num = panel.querySelector('.bmi-num, .tax-num, .result-main-value, .result-main, .big-num, .result-value, .readout-value');
+      /* prefer the label nearest the number, else the first meaningful one */
+      var L = '';
+      if(num){
+        var p2 = num.parentElement;
+        var near = p2 ? p2.querySelector('.result-main-label, .readout-label, .result-label') : null;
+        if(!near){
+          var box = num.closest('.bmi-display, .tax-display, .result-box, .result-main, .readout') || panel;
+          near = box.previousElementSibling && box.previousElementSibling.querySelector
+            ? box.previousElementSibling.querySelector('.readout-label, .result-label') : null;
+        }
+        L = labelText(near);
+      }
+      if(!L){
+        var labels = panel.querySelectorAll('.readout-label, .result-label, .result-key');
+        for(var i=0;i<labels.length;i++){ L = labelText(labels[i]); if(L) break; }
+      }
+      var N = num ? clean(num.textContent) : '';
+      if(N === '-' || N === '--' || N === '—') N = '';
+      if(L && N) return L + ': ' + N;
+      return N || L;
+    }
+    try{
+      var obs = new MutationObserver(function(recs){
+        clearTimeout(t);
+        var panel = recs[0] && recs[0].target ? closestPanel(recs[0].target) : null;
+        t = setTimeout(function(){
+          var ps = panel ? [panel] : panels;
+          for(var i=0;i<ps.length;i++){
+            if(!visible(ps[i])) continue;
+            var s = summarize(ps[i]);
+            if(s && s !== last){ last = s; ensureRegion().textContent = s; }
+            return;
+          }
+        }, 650);
+      });
+      function closestPanel(node){
+        for(var i=0;i<panels.length;i++){ if(panels[i].contains(node)) return panels[i]; }
+        return null;
+      }
+      for(var i=0;i<panels.length;i++) obs.observe(panels[i], {childList:true, subtree:true, characterData:true});
+    }catch(e){}
+  }
+
   injectThemeColor(); /* before first paint where possible */
 
   document.addEventListener('DOMContentLoaded', function(){
@@ -166,6 +248,7 @@
     injectSkipLink();
     applyInputMode();
     localizeEyebrow();
+    initResultAnnouncer();
     try{ new MutationObserver(localizeEyebrow).observe(document.documentElement,{attributes:true,attributeFilter:['lang']}); }catch(e){}
   });
 })();
