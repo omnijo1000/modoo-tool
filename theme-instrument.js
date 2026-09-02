@@ -40,15 +40,16 @@
 
   window.countTo=function(el,target,decimals){
     var start=parseFloat(el.dataset.raw||'0');
-    var dur=400, t0=performance.now();
-    el.dataset.raw=target;
+    var dur=400, t0=performance.now(), tgt=(+target)||0, done=false;
+    el.dataset.raw=tgt;
+    function finish(){ if(!done){ done=true; el.textContent=tgt.toFixed(decimals); } }
     function step(t){
       var p=Math.min(1,(t-t0)/dur);
-      var v=start+(target-start)*(1-Math.pow(1-p,3));
-      el.textContent=v.toFixed(decimals);
-      if(p<1) requestAnimationFrame(step);
+      el.textContent=(start+(tgt-start)*(1-Math.pow(1-p,3))).toFixed(decimals);
+      if(p<1){ requestAnimationFrame(step); } else { finish(); }
     }
     requestAnimationFrame(step);
+    setTimeout(finish, dur+120);  /* rAF가 안 돌면(백그라운드 탭 등) 최종값 강제 표시 */
   };
 
   function injectThemeColor(){
