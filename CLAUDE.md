@@ -32,13 +32,13 @@
 }
 ```
 
-### 폰트
+### 폰트 (2026-09-02 self-host 전환)
 ```html
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/fonts.css">
 ```
-**주의:** `fonts.gstatic.com` preconnect 누락이 2026-07-08 PageSpeed 실측 감사에서 발견됨(402개 파일 중 다수가 googleapis preconnect만 있고 실제 폰트파일 서버인 gstatic 누락 — 크리티컬 렌더링 체인 지연의 원인). 신규 파일은 반드시 위 2줄 preconnect 다 포함할 것.
+Google Fonts 외부 로드 전면 폐지(EU IP 전송 이슈). `/fonts.css` + `/fonts/*.woff2` (Noto Sans KR 400/500/600/700/800/900 + DM Mono 400/500) self-host. `font-display:swap`. **신규 파일은 위 1줄만** — `fonts.googleapis.com`·`fonts.gstatic.com` preconnect 넣지 말 것(제거 완료, 767파일).
+- 폰트 재빌드: `bash build-fonts.sh` (venv `.fontenv` 필요, 상세는 스크립트 헤더). 서브셋 = Latin + 문장부호 + 화살표/기호 + 한글 전체.
+- 미포함 글리프: `✗ ✕ ✔`(Noto Sans KR 자체에 없음) → 시스템폰트 폴백. `✓ → ← ₩ ·`는 포함.
 
 ### SEO 메타/hreflang (SLUG 교체)
 ```html
@@ -567,7 +567,7 @@ bmi-calculator, compound-annual-growth-rate-calculator, health-insurance-calc, h
 - 한국 전용 툴 38개 hreflang = `ko` + `x-default`(같은 URL): **정상**. 번역 없는 단일언어 페이지의 올바른 hreflang 설정. 가짜 en/zh/ja 추가 금지.
 
 ### QA 항목
-- **신규 툴 폰트 링크는 반드시 `Noto+Sans+KR:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap`** (사이트 유일 표준). `Noto+Sans`(비-KR) 금지.
+- **신규 툴 폰트는 `<link rel="stylesheet" href="/fonts.css">` 1줄** (2026-09-02 self-host 전환). Google Fonts `<link>`·preconnect 금지. (위 "폰트" 섹션 참고)
 - **헤더는 `<div class="dot"></div><span class="header-label">MODOO HUB</span><a class="back-link">...<div class="lang-toggle">` 표준**. `.logo`·`.lang-btn` 클래스 금지(theme CSS가 스타일 안 함).
 - **`header{}`·`.back-link{}`·`.seo{}`·`.readout{}` 등 공유 클래스를 개별 파일 `<style>`에서 재정의하지 말 것** — theme-instrument.css가 중앙 관리. 재정의하면 페이지마다 미묘하게 어긋남.
 - **lang toggle은 `<button type="button" class="lang-toggle">`**. `<div>` 금지. FAQ는 `<details class="faq-item"><summary>Q</summary><p>A</p></details>` (theme가 `details.faq-item` 스타일). `<div class="faq-item">`·`.faq-q`·`.faq-a`·커스텀 아코디언 JS 금지.

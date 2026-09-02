@@ -53,7 +53,7 @@
 | 항목 | 현재 상태 | 점검 주기 |
 |---|---|---|
 | 이미지 자산 | 5개, 100KB 초과 0 | 신규 이미지 추가 시 |
-| 폰트 로딩 | `Noto+Sans+KR` 단일 링크 + `display=swap` + gstatic·googleapis preconnect 전 파일 | 신규 파일 작성 시 |
+| 폰트 로딩 | **self-host 완료(2026-09-02)**: `/fonts.css` + `/fonts/*.woff2` (Noto Sans KR 400/500/600/700/800/900 + DM Mono 400/500). Google Fonts 링크·gstatic·googleapis preconnect 전부 제거(767 파일). `font-display:swap`. 서브셋 = Latin+Latin-1/ext + 문장부호 + 화살표/기호(→←₩·×✓⚠ 등) + 한글 전체(AC00–D7A3) | 신규 파일 작성 시 `/fonts.css` 링크만 |
 | GA / AdSense | `async` | — |
 | `theme-instrument.js` / `related.js` | `</body>` 직전 (렌더 비차단) | 신규 파일 작성 시 |
 | pdf-lib (11개) / js-yaml(×4) / bcryptjs(×2) / jsbarcode / qrcode | 전부 `defer` 적용(2026-09-06). 렌더 비차단 | 라이브러리 버전업·CDN 장애 시 |
@@ -63,7 +63,7 @@
 | `index.html` 크기 | 256KB (317카드+i18n 인라인, gzip 후 ~40KB) | 카드 400개 초과 시 뷰포트 아래 지연렌더 검토 |
 | PageSpeed 실측 (모바일) | — | **반기 1회** + 대량 리스킨/라이브러리 추가 후 |
 
-| **Google Fonts 외부 로드** | fonts.gstatic.com 직접 로드 — EU IP 전송 이슈(2022 독일 판례). **미해결(권고): woff2 self-host + fonts.css** — 836파일 폰트 링크 교체 필요, 성능 이득도 있음 | 계획적 개선 |
+| **Google Fonts 외부 로드** | ✅ **해결(2026-09-02)** — self-host 전환. 남은 트레이드오프: (1) woff2 서브셋 weight당 ~650KB, 한글 시스템폰트 없는 기기(일부 Windows·Linux)에서 페이지당 사용 weight 수만큼 다운로드(1회, 이후 캐시). Mac/iOS/Pretendard 설치 기기는 `-apple-system` 우선이라 미다운로드. (2) GitHub Pages `Cache-Control: max-age=600` — 재방문 시 ETag 304 재검증(전체 재전송 아님). 재방문 대역폭이 문제되면 `cdn.jsdelivr.net/gh/<repo>@<tag>/fonts/`로 이전 시 `immutable` 1년 캐시 가능(단 제3자 요청 부활). (3) `✗ ✕ ✔`는 Noto Sans KR 미포함 → 시스템폰트 폴백 | 폰트 버전업 시 `/tmp/buildfonts.sh` 재실행 |
 
 ## 4. 고립 페이지
 
