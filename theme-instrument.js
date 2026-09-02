@@ -124,6 +124,29 @@
     eb.textContent = (map && map[orig]) ? map[orig] : orig;
   }
 
+  /* visually-hidden role labels on I/O fields that have no page-i18n string.
+     data-vh="in|out|color|range|opts" — localized here so screen-reader users
+     on the en/zh/ja views hear the field role in their language. */
+  var VH_LABELS = {
+    ko:{in:'입력', out:'출력', color:'색상 선택', range:'값 조절', opts:'옵션'},
+    en:{in:'Input', out:'Output', color:'Pick a color', range:'Adjust value', opts:'Options'},
+    zh:{in:'输入', out:'输出', color:'选择颜色', range:'调整数值', opts:'选项'},
+    ja:{in:'入力', out:'出力', color:'色を選択', range:'値を調整', opts:'オプション'}
+  };
+  function localizeVhLabels(){
+    var els = document.querySelectorAll('[data-vh]');
+    if(!els.length) return;
+    var lang = (document.documentElement.lang || 'ko').slice(0,2);
+    var map = VH_LABELS[lang] || VH_LABELS.ko;
+    els.forEach(function(el){
+      var v = map[el.getAttribute('data-vh')];
+      if(v){
+        if(el.hasAttribute('aria-label')) el.setAttribute('aria-label', v);
+        else el.textContent = v;
+      }
+    });
+  }
+
   function injectSkipLink(){
     var main = document.querySelector('main');
     if(!main) return;
@@ -248,7 +271,8 @@
     injectSkipLink();
     applyInputMode();
     localizeEyebrow();
+    localizeVhLabels();
     initResultAnnouncer();
-    try{ new MutationObserver(localizeEyebrow).observe(document.documentElement,{attributes:true,attributeFilter:['lang']}); }catch(e){}
+    try{ new MutationObserver(function(){ localizeEyebrow(); localizeVhLabels(); }).observe(document.documentElement,{attributes:true,attributeFilter:['lang']}); }catch(e){}
   });
 })();

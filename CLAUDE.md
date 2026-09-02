@@ -653,6 +653,16 @@ FAQPage Q < 화면 details 불일치 0.
 - 검증: capital-gains-tax("예상 양도소득세: 34,458만원", 입력 변경 시 재낭독), loan-calc(컨테이너 텍스트 폴백) 브라우저 실측. 콘솔 에러 0.
 - **주의**: `.result-main`을 컨테이너로 쓰는 페이지는 요약이 "라벨 수치"로 붙어 나올 수 있음(구분자 `:` 없음) — 무해. 라이브 서빙 반영 확인 완료(curl).
 
+### 1d. 회귀 검수 후속 (커밋 <PENDING2>, ~72개 파일 + theme-instrument.js)
+"전부 확인" 요청으로 미검증분 정리.
+- **다국어 페이지 .vh 라벨 언어 고정 문제**: fixrest가 만든 "toolname 입력" 류 한국어 라벨이 en/zh/ja 뷰에서도 한국어. → 역할 토큰화(`data-vh="in|out|color|range|opts"`) + `theme-instrument.js`에 `VH_LABELS`(ko/en/zh/ja) + `localizeVhLabels()` 추가, 기존 lang MutationObserver에 연결. toolname 접두 제거(노이즈였음).
+- **fixcalc 다국어 계산기**: currency-converter(→`aria-labelledby` From/To 라벨), meeting-cost(→`data-i18n="attendeesLabel/salaryLabel"`), sip(→`data-i18n="sipPeriod"`), tip currency(→"Currency"), read-time(→`data-vh="in"`)로 기존 i18n 재사용.
+- **동적 입력 4곳**: css-gradient-generator 색상 스톱(color+position), text-encryptor 키 입력(pwd/shift/key 템플릿 `<span class="field-label">`→`<label for>`), text-merger 블록 textarea, time-zone-meeting-planner 참석자 행 — 생성 템플릿에 `aria-label`/`<label for>` 추가.
+- **time-calculator**: `<label for="breakCheck" ... for="breakMin">` 이중 for → `<label for="breakCheck">` + 별도 `<label class="vh" for="breakMin">`.
+- 검증: 72파일 구조·JS 0에러. 브라우저 ~75페이지(72 changed + guides 표본) 실측 미연결 0(radio/checkbox 래핑 제외), 콘솔 에러 0, `.vh` 다국어 전환 실측(word-counter en/ja, color-picker zh, bcrypt en), 스크린샷 3개 레이아웃 정상(`.vh` position:absolute 1px 확인).
+- **미검증(환경 한계)**: 320/375/768 뷰포트 — 이 환경 `resize_window`가 실뷰포트 안 바꿈. 변경은 레이아웃 중립(`.vh` 숨김 / `<div>`→`<label>` 동일 CSS 클래스)이라 신규 넘침 유발 불가, 데스크톱 `scrollWidth==clientWidth` 전부 확인. 실제 스크린리더(NVDA/VoiceOver) 낭독은 미검증(마크업만).
+- **about.html h1 4개**: 언어별 콘텐츠 블록(koContent 표시, 나머지 display:none) — HTML 스펙상 유효, 렌더 시 1개만 노출. 손대면 lang 스위처 위험 → 유지.
+
 ## 기존 툴 PDF 라이브러리 CDN
 
 - pdf-lib: `https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js`
