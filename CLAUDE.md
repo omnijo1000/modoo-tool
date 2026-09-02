@@ -594,6 +594,27 @@ csv-viewer(@graph)·schema-markup-generator·regex-cheatsheet(백슬래시)·uni
 - FAQ 답변에 정규식·코드(`\d`, `\.` 등) 들어가면 JSON-LD 생성 시 `re.sub` 콜백
   치환 필수 (치환문자열의 `\`가 재해석돼 `\.` 되면서 JSON 깨짐).
 
+## 2026-09-02 전체 사이트 전수 재점검 (megacheck)
+
+폰트·디자인·FAQPage 대량 변경 후 836개(루트 394 + guides 431 + category 11)
+전수 정적 스캔 + 브라우저 샘플 40여개. 발견·수정:
+
+| 항목 | 내용 |
+|---|---|
+| `690164e` | **category 허브 11개에 GA(G-NR6VJF0534)·AdSense 태그 자체가 없었음** — 애널리틱스·광고 수익 누락. 표준 스니펫 추가. + FAQ가 `<button class="faq-q" onclick="toggleFaq()">` 커스텀 아코디언 → `<details>` 표준 통일, toggleFaq 함수·죽은 CSS 제거 |
+| `2add4c5` | **index.html hreflang 8개 → 5개**: `hi`(i18n 미지원), `de`·`fr`(둘 다 `?lang=en` 가리킴 = Google hreflang 규격 위반), `zh-Hans`+`zh-Hant` 중복 제거. `ja` 누락 추가 → ko/en/zh/ja/x-default. index i18n은 실제로 ko/en/zh/ja만 지원 |
+
+### 오탐이었던 것 (수정 안 함)
+- `html-encoder.html` "page.html" 링크 = JS i18n 문자열 안의 인코딩 샘플 HTML
+- guides `hreflang` 3개(ko/en/x-default) = -en.html 쌍 있는 바이링궐 가이드의 정상 세트
+- `schema-markup-generator` ld+json "무효" = 생성기 출력 템플릿(`<\/script>`)
+
+### 재점검 통과 (836개, 이슈 0)
+JS 문법 1270개 스크립트 0에러 · ld+json 647개 real 블록 전부 유효 · 내부 링크 0 broken ·
+canonical/GA/AdSense 누락 0(naverfc 제외) · 폰트 링크 1종 · viewport 1종 · gstatic preconnect 전부 ·
+`<section class="seo">` 0 · `class="faq-q"` 화면 0 · `<div class="lang-toggle">` 0 ·
+FAQPage Q < 화면 details 불일치 0.
+
 ## 기존 툴 PDF 라이브러리 CDN
 
 - pdf-lib: `https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js`
