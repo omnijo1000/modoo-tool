@@ -10,14 +10,17 @@
 
 ## 필수 코드 (모든 새 HTML 파일에 공통)
 
-### GA / AdSense
+### GA / AdSense / 동의 (Consent Mode v2)
 ```html
 <!-- GA -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
-<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('consent','default',{'ad_storage':'denied','ad_user_data':'denied','ad_personalization':'denied','analytics_storage':'denied','region':['AT','BE','BG','HR','CY','CZ','DK','EE','FI','FR','DE','GR','HU','IE','IT','LV','LT','LU','MT','NL','PL','PT','RO','SK','SI','ES','SE','IS','LI','NO','GB','CH'],'wait_for_update':500});gtag('js',new Date());gtag('config','G-NR6VJF0534');</script>
 <!-- AdSense -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3371462986089885" crossorigin="anonymous"></script>
+<!-- 동의 배너 + consent update (루트: /consent.js, guides·category: ../consent.js) -->
+<script src="/consent.js"></script>
 ```
+**주의(2026-09-06 신설):** `gtag('consent','default',...)`(EEA/UK 32개국 denied) 는 GA config **앞**에 와야 함. `consent.js`는 `</head>` 앞에 로드(비-defer — DOM 접근은 자체 가드). 저장 키 `localStorage.modoo_consent` = `granted`|`essential`. 인라인 gtag 블록 편집 시 이 consent default를 지우지 말 것. **더 나은 최종 형태는 AdSense 대시보드에서 "개인정보 보호 및 메시지 > GDPR" 메시지 활성화**(코드 불필요, IAB TCF v2.2 CMP 자동 서빙) — 현재 코드는 그 전까지의 보수적 기본값.
 
 ### CSS 변수 (다크 테마)
 ```css

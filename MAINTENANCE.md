@@ -18,8 +18,11 @@
 | `minimum-wage.html` | 2026 시급 10,320원 (+2027 10,700원 병기 확인) | **매년 8월**(7월 고시) | 2026-09-06 |
 | `unemployment.html` (실페이지) | 일액 상한 68,100원·하한 66,048원 (2026.1.1~ 퇴사자), 구기준 66,000/64,192 병행 | 매년 1월 (최저시급 연동) | 2026-09-06 |
 | `parental-leave.html` | 통상임금 100% 상한 250/200/160만, 하한 70만, 사후지급금 폐지, 6+6 상한(250·250·300·350·400·450만) | 매년 1월 + 제도개편 시 | 2026-09-06 |
-| `severance.html` / `severance-tax.html` / `severance-pay-calculator.html` | 퇴직소득세 근속연수공제·환산급여 산식 | 매년 1월 | (미검증) |
-| `acquisition-tax.html` / `capital-gains-tax.html` / `gift-tax.html` / `inheritance-tax.html` / `property-tax.html` / `income-tax.html` / `stock-tax.html` | 세율 구간·공제액·중과 기준 | 매년 1월(세법개정) | (미검증) |
+| `severance.html` | 퇴직금 = 30일분 평균임금×재직연수 (근퇴법 §8, 사업장 규모 무관 2013.1~ 전면적용). '2026년부터 5인미만 적용' 오기 수정 | 매년 1월 | 2026-09-06 |
+| `severance-tax.html` / `severance-pay-calculator.html` | 퇴직소득세 근속연수공제·환산급여 산식 | 매년 1월 | (미검증) |
+| `capital-gains-tax.html` | 양도세 기본세율 6~45% 8구간, 1세대1주택 비과세 12억, 장기보유특별공제 표 (소득세법 §55·§95·§104) | 매년 1월 | 2026-09-06 (기본세율·비과세 한도 현행 확인, 출처 표기) |
+| `inheritance-tax.html` | 상속세율 10~50% 5구간, 자녀공제 5천만·일괄공제 5억·배우자공제 5억~30억 (상증세법 §26·§18~24). 2024.12 개편안 국회 부결 → 현행 유지 | 매년 1월 | 2026-09-06 (부결 확인, 출처 표기) |
+| `acquisition-tax.html` / `gift-tax.html` / `property-tax.html` / `income-tax.html` / `stock-tax.html` | 세율 구간·공제액·중과 기준 | 매년 1월(세법개정) | (미검증) |
 | `ltv-calculator.html` | **규제지역 무주택 매매 LTV 40%, 생애최초 70%(주택가 6억↓·대출 5억↓), 서민실수요 60%, 절대한도 15억↓ 6억·15~25억 4억·25억↑ 2억** (2025.10.15 대책) | **분기 1회 + 부동산대책 발표 즉시** | 2026-09-06 |
 | `dsr-calc.html` | DSR 40%(1금융)/50%(2금융). 스트레스 DSR 가산금리는 **미반영(면책 고지)** | 매년 1회 임계값 확인 | 2026-09-06 |
 | `credit-loan-limit.html` | 신용대출 평균금리 5~7% 예시, DSR 40% | 반기 1회 | (미검증) |
@@ -37,6 +40,8 @@
 | 리다이렉트 스텁 (69개) | `<meta refresh>` + `noindex,follow` + sitemap 미등재 | 반기 1회 |
 | `robots.txt` | `Disallow: /privacy.html` 제거됨(2026-09-06). `/promotion/`·`/design-mockups/` 차단 유지 | 반기 1회 |
 | `404.html` | 브랜드 404 페이지 생성(2026-09-06). GitHub Pages가 모든 404에 서빙 | 반기 1회 (링크 유효성) |
+| 광고/분석 동의 | Consent Mode v2 default(EEA denied) + `consent.js` 배너 전 836파일 적용(2026-09-06). **최종 형태는 AdSense 대시보드 GDPR 메시지 활성화** | AdSense 정책 변경 시 |
+| `privacy.html` 제3자 목록 | ip-api.com·allorigins·crt.sh·rdap·Cloudflare DoH 추가(2026-09-06) | 신규 네트워크 툴 추가 시 |
 | `llms.txt` — 스텁 슬러그 링크 여부 | canonical 페이지 URL로 유지 | 슬러그 변경 시 |
 | 내부 링크 무결성 | 정상 (오탐 1건: html-encoder JS 문자열 내 `page.html`) | 분기 1회 `grep`-기반 스캔 |
 
