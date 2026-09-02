@@ -22,7 +22,10 @@
 | `severance-tax.html` / `severance-pay-calculator.html` | 퇴직소득세 근속연수공제·환산급여 산식 | 매년 1월 | (미검증) |
 | `capital-gains-tax.html` | 양도세 기본세율 6~45% 8구간, 1세대1주택 비과세 12억, 장기보유특별공제 표 (소득세법 §55·§95·§104) | 매년 1월 | 2026-09-06 (기본세율·비과세 한도 현행 확인, 출처 표기) |
 | `inheritance-tax.html` | 상속세율 10~50% 5구간, 자녀공제 5천만·일괄공제 5억·배우자공제 5억~30억 (상증세법 §26·§18~24). 2024.12 개편안 국회 부결 → 현행 유지 | 매년 1월 | 2026-09-06 (부결 확인, 출처 표기) |
-| `acquisition-tax.html` / `gift-tax.html` / `property-tax.html` / `income-tax.html` / `stock-tax.html` | 세율 구간·공제액·중과 기준 | 매년 1월(세법개정) | (미검증) |
+| `gift-tax.html` | 증여재산공제 배우자 6억·직계 5천만(미성년 2천만)·기타친족 1천만, 세율 10~50%, 신고세액공제 3% | 매년 1월 | 2026-09-06 (공제액 현행 확인) |
+| `stock-tax.html` | 국내 상장주식 대주주 = **종목당 시가총액 50억원**(2024.1.1 상향, '10억원' 오기 수정) 또는 지분 코스피 1%·코스닥 2%. 대주주 1년↑ 20%·1년↓ 30%, 해외주식 기본공제 250만·22% | 매년 1월 | 2026-09-06 |
+| `capital-gains-tax.html` | 대주주 기준 '10억→50억' 오기 수정. 다주택 중과(+20/30%p) 2026-05-10 유예 종료 재적용 반영 확인 | 매년 1월 | 2026-09-06 |
+| `acquisition-tax.html` / `property-tax.html` / `income-tax.html` | 세율 구간·공제액·중과 기준 | 매년 1월(세법개정) | (미검증) |
 | `ltv-calculator.html` | **규제지역 무주택 매매 LTV 40%, 생애최초 70%(주택가 6억↓·대출 5억↓), 서민실수요 60%, 절대한도 15억↓ 6억·15~25억 4억·25억↑ 2억** (2025.10.15 대책) | **분기 1회 + 부동산대책 발표 즉시** | 2026-09-06 |
 | `dsr-calc.html` | DSR 40%(1금융)/50%(2금융). 스트레스 DSR 가산금리는 **미반영(면책 고지)** | 매년 1회 임계값 확인 | 2026-09-06 |
 | `credit-loan-limit.html` | 신용대출 평균금리 5~7% 예시, DSR 40% | 반기 1회 | (미검증) |
@@ -36,12 +39,12 @@
 | 항목 | 현재 상태 | 점검 주기 |
 |---|---|---|
 | `sitemap.xml` — 파일 존재·스텁 미등재·canonical 정합 | 정상 (766 URL) | 신규 툴/슬러그 변경 시 |
-| `sitemap.xml` — `<lastmod>` | 대량 수정 시 미갱신되는 경향 | **10+ 파일 배포마다** 변경분 lastmod = 배포일로 |
+| `sitemap.xml` — `<lastmod>` | 2026-09-06 대량 갱신(754 URL). 배포 훅에서 자동화 권장 | **10+ 파일 배포마다** |
 | 리다이렉트 스텁 (69개) | `<meta refresh>` + `noindex,follow` + sitemap 미등재 | 반기 1회 |
 | `robots.txt` | `Disallow: /privacy.html` 제거됨(2026-09-06). `/promotion/`·`/design-mockups/` 차단 유지 | 반기 1회 |
 | `404.html` | 브랜드 404 페이지 생성(2026-09-06). GitHub Pages가 모든 404에 서빙 | 반기 1회 (링크 유효성) |
 | 광고/분석 동의 | Consent Mode v2 default(EEA denied) + `consent.js` 배너 전 836파일 적용(2026-09-06). **최종 형태는 AdSense 대시보드 GDPR 메시지 활성화** | AdSense 정책 변경 시 |
-| `privacy.html` 제3자 목록 | ip-api.com·allorigins·crt.sh·rdap·Cloudflare DoH 추가(2026-09-06) | 신규 네트워크 툴 추가 시 |
+| `privacy.html` 제3자 목록 | ip-api.com·allorigins·crt.sh·rdap·Cloudflare DoH 추가(2026-09-06). SEO 체커·whois·dns·ssl 툴 화면 고지도 추가 | 신규 네트워크 툴 추가 시 |
 | `llms.txt` — 스텁 슬러그 링크 여부 | canonical 페이지 URL로 유지 | 슬러그 변경 시 |
 | 내부 링크 무결성 | 정상 (오탐 1건: html-encoder JS 문자열 내 `page.html`) | 분기 1회 `grep`-기반 스캔 |
 
@@ -53,15 +56,19 @@
 | 폰트 로딩 | `Noto+Sans+KR` 단일 링크 + `display=swap` + gstatic·googleapis preconnect 전 파일 | 신규 파일 작성 시 |
 | GA / AdSense | `async` | — |
 | `theme-instrument.js` / `related.js` | `</body>` 직전 (렌더 비차단) | 신규 파일 작성 시 |
-| **pdf-lib** (11개 PDF 툴) | `<script src="unpkg.com/pdf-lib" defer>` — 2026-09-06 defer 추가 | 라이브러리 버전업·CDN 장애 시 |
+| pdf-lib (11개) / js-yaml(×4) / bcryptjs(×2) / jsbarcode / qrcode | 전부 `defer` 적용(2026-09-06). 렌더 비차단 | 라이브러리 버전업·CDN 장애 시 |
+| **웹앱 manifest** | `site.webmanifest` + icon-192/512/maskable 생성, 전 836파일 `<link rel=manifest>`(2026-09-06) | 아이콘 변경 시 |
+| **깨진 툴 라이브러리 CDN** | qr-code-generator(qrcode 1.5.3 404 → 1.4.4), bcrypt-generator/validator(`bcrypt` 전역 없음 → `dcodeIO.bcrypt` 별칭) 수정(2026-09-06). **모든 CDN URL은 반기 1회 HEAD 체크** | 반기 1회 |
 | CDN 의존 (pdf-lib=unpkg, 그 외 jsdelivr) | unpkg는 cdnjs 대비 느림 — 향후 cdnjs 이전 고려 | 반기 1회 가용성 확인 |
 | `index.html` 크기 | 256KB (317카드+i18n 인라인, gzip 후 ~40KB) | 카드 400개 초과 시 뷰포트 아래 지연렌더 검토 |
 | PageSpeed 실측 (모바일) | — | **반기 1회** + 대량 리스킨/라이브러리 추가 후 |
 
+| **Google Fonts 외부 로드** | fonts.gstatic.com 직접 로드 — EU IP 전송 이슈(2022 독일 판례). **미해결(권고): woff2 self-host + fonts.css** — 836파일 폰트 링크 교체 필요, 성능 이득도 있음 | 계획적 개선 |
+
 ## 4. 고립 페이지
 
 - **진짜 고립 0건.** sitemap 766 URL 전부 파일 존재, 내부 링크 그래프 정상.
-- `guides/index.html`은 가이드 카드를 **JS로 렌더** — JS 미실행 크롤러는 sitemap 통해서만 431개 가이드 도달. `<noscript>` 정적 링크 목록 추가가 안전(선택).
+- `guides/index.html` 가이드 카드는 **정적 HTML `<a>`** (430개, JS는 검색·필터만) — 크롤러 도달 정상. (2026-09-06 재확인: 이전 "JS 렌더" 판단은 오류였음)
 - 점검: 신규 툴 추가 후 `related.js` T{}·GROUPS[]·CATEGORY_MAP 등록 여부 `grep -c "'SLUG':" related.js` 확인.
 
 ---
