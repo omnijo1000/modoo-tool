@@ -68,6 +68,62 @@
     });
   }
 
+
+  var EYEBROW_MAP = {
+    ko: {
+      'AI · Generator':'AI · 생성기','AI · Instrument':'AI · 도구','AI · Markdown':'AI · 마크다운','AI · Reference':'AI · 참고',
+      'Color · Instrument':'색상 · 도구','DATE & TIME':'날짜 · 시간','Data · Instrument':'데이터 · 도구',
+      'Date & Time · Instrument':'날짜·시간 · 도구','Date · Instrument':'날짜 · 도구','Design · Instrument':'디자인 · 도구',
+      'Dev · Instrument':'개발 · 도구','Developer · Instrument':'개발자 · 도구','Family · Instrument':'가족 · 도구',
+      'Finance · Instrument':'금융 · 계산기','Fitness · Instrument':'피트니스 · 계산기','Focus · Instrument':'집중 · 도구',
+      'Generator · Instrument':'생성 · 도구','Health · Instrument':'건강 · 계산기','Image · Instrument':'이미지 · 도구',
+      'Marketing · Instrument':'마케팅 · 도구','Mutual Fund · India':'뮤추얼펀드 · 인도','PDF · Instrument':'PDF · 도구',
+      'PDF · Utility':'PDF · 도구','Percent · Instrument':'퍼센트 · 계산기','Productivity · Instrument':'생산성 · 도구',
+      'REACTION':'반응 속도','Real Estate · Instrument':'부동산 · 계산기','SECURITY':'보안','SEO · Instrument':'SEO · 도구',
+      'Security · Instrument':'보안 · 도구','Tax · Instrument':'세금 · 계산기','Text · Instrument':'텍스트 · 도구',
+      'Time · Instrument':'시간 · 도구','Travel · Instrument':'여행 · 도구','Utility · Instrument':'유틸리티 · 도구',
+      'Work · Instrument':'근로 · 도구','부동산 · Instrument':'부동산 · 계산기'
+    },
+    zh: {
+      'AI · Generator':'AI · 生成器','AI · Instrument':'AI · 工具','AI · Markdown':'AI · Markdown','AI · Reference':'AI · 参考',
+      'Color · Instrument':'颜色 · 工具','DATE & TIME':'日期 · 时间','Data · Instrument':'数据 · 工具',
+      'Date & Time · Instrument':'日期时间 · 工具','Date · Instrument':'日期 · 工具','Design · Instrument':'设计 · 工具',
+      'Dev · Instrument':'开发 · 工具','Developer · Instrument':'开发者 · 工具','Family · Instrument':'家庭 · 工具',
+      'Finance · Instrument':'金融 · 计算器','Fitness · Instrument':'健身 · 计算器','Focus · Instrument':'专注 · 工具',
+      'Generator · Instrument':'生成 · 工具','Health · Instrument':'健康 · 计算器','Image · Instrument':'图像 · 工具',
+      'Marketing · Instrument':'营销 · 工具','Mutual Fund · India':'共同基金 · 印度','PDF · Instrument':'PDF · 工具',
+      'PDF · Utility':'PDF · 工具','Percent · Instrument':'百分比 · 计算器','Productivity · Instrument':'效率 · 工具',
+      'REACTION':'反应速度','Real Estate · Instrument':'房产 · 计算器','SECURITY':'安全','SEO · Instrument':'SEO · 工具',
+      'Security · Instrument':'安全 · 工具','Tax · Instrument':'税务 · 计算器','Text · Instrument':'文本 · 工具',
+      'Time · Instrument':'时间 · 工具','Travel · Instrument':'旅行 · 工具','Utility · Instrument':'实用 · 工具',
+      'Work · Instrument':'劳动 · 工具','부동산 · Instrument':'房产 · 计算器'
+    },
+    ja: {
+      'AI · Generator':'AI · ジェネレーター','AI · Instrument':'AI · ツール','AI · Markdown':'AI · Markdown','AI · Reference':'AI · リファレンス',
+      'Color · Instrument':'カラー · ツール','DATE & TIME':'日付 · 時刻','Data · Instrument':'データ · ツール',
+      'Date & Time · Instrument':'日付時刻 · ツール','Date · Instrument':'日付 · ツール','Design · Instrument':'デザイン · ツール',
+      'Dev · Instrument':'開発 · ツール','Developer · Instrument':'開発者 · ツール','Family · Instrument':'家族 · ツール',
+      'Finance · Instrument':'金融 · 計算機','Fitness · Instrument':'フィットネス · 計算機','Focus · Instrument':'集中 · ツール',
+      'Generator · Instrument':'生成 · ツール','Health · Instrument':'健康 · 計算機','Image · Instrument':'画像 · ツール',
+      'Marketing · Instrument':'マーケティング · ツール','Mutual Fund · India':'投資信託 · インド','PDF · Instrument':'PDF · ツール',
+      'PDF · Utility':'PDF · ツール','Percent · Instrument':'パーセント · 計算機','Productivity · Instrument':'生産性 · ツール',
+      'REACTION':'反応速度','Real Estate · Instrument':'不動産 · 計算機','SECURITY':'セキュリティ','SEO · Instrument':'SEO · ツール',
+      'Security · Instrument':'セキュリティ · ツール','Tax · Instrument':'税金 · 計算機','Text · Instrument':'テキスト · ツール',
+      'Time · Instrument':'時間 · ツール','Travel · Instrument':'旅行 · ツール','Utility · Instrument':'ユーティリティ · ツール',
+      'Work · Instrument':'労働 · ツール','부동산 · Instrument':'不動産 · 計算機'
+    }
+  };
+  function localizeEyebrow(){
+    var eb = document.querySelector('.eyebrow');
+    if(!eb || eb.hasAttribute('data-i18n')) return;   /* 페이지 자체 i18n이 담당하면 건드리지 않음 */
+    var orig = eb.getAttribute('data-eyebrow-src');
+    if(orig === null){ orig = eb.textContent.trim(); eb.setAttribute('data-eyebrow-src', orig); }
+    var lang = (document.documentElement.lang || 'ko').slice(0,2);
+    if(lang === 'en'){ eb.textContent = orig; return; }
+    var map = EYEBROW_MAP[lang];
+    eb.textContent = (map && map[orig]) ? map[orig] : orig;
+  }
+
   function injectSkipLink(){
     var main = document.querySelector('main');
     if(!main) return;
@@ -109,5 +165,7 @@
     initTooltips();
     injectSkipLink();
     applyInputMode();
+    localizeEyebrow();
+    try{ new MutationObserver(localizeEyebrow).observe(document.documentElement,{attributes:true,attributeFilter:['lang']}); }catch(e){}
   });
 })();
