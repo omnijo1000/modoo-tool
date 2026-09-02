@@ -615,6 +615,29 @@ canonical/GA/AdSense 누락 0(naverfc 제외) · 폰트 링크 1종 · viewport 
 `<section class="seo">` 0 · `class="faq-q"` 화면 0 · `<div class="lang-toggle">` 0 ·
 FAQPage Q < 화면 details 불일치 0.
 
+## 2026-09-02 접근성 2차 (입력 이름 연결 + 결과 라이브 리전)
+
+커밋 `5d48d32`(입력 라벨) → `da10cc4`(라이브 리전). GPT 지적 4항목 대응.
+
+### 1. 입력 요소 접근성 이름 (커밋 5d48d32, 206개 파일)
+- 시각적 `<div class="field-label">`(및 `.formula`/`.mini-label`/`.dt-label`) → `<label class="..." for="ID">` 변환 (283건). 클래스·style·data-i18n 속성 보존.
+- **그룹 헤딩 vs 단일 라벨 구분**: 헤딩과 입력 사이에 다른 라벨 요소(`.formula` 등)가 끼면 헤딩은 그대로 두고 안쪽 요소를 `<label for>`로. (emi-calculator "Loan Details" 헤딩을 단일 라벨로 오변환했던 버그 → 수정)
+- 헤딩 아래 다중 입력 행·단위 span 행: `.vh`(visually-hidden) 숨김 `<label for>` 삽입, 텍스트 = 헤딩 + 인접 `.unit` 텍스트. `theme-instrument.css`에 `.vh` 유틸 추가.
+- range 슬라이더(`xxxRange`/`xxxSlider`): 짝 숫자입력의 라벨 id에 `aria-labelledby`.
+- 파일 입력: 드롭존 안내 텍스트(`.drop-zone` 안 `<p>`)에 `aria-labelledby`.
+- **dsr-calc 동적 대출 행**: `addLoan()` 템플릿의 `<div class="mini-label">` → `<label for="lt_${id}">` 등 5개, 생성 시마다 고유 id 연결.
+- bmi-calc는 별도 패턴(`data-i18n-aria` + `_applyLang` 루프)로 4개 언어 aria-label 유지 (커밋 d6c715f).
+- **하지 않은 것**: placeholder·임의 전역 aria-label 자동 추론 금지(사용자 지시). 그래서 인접 라벨 마크업이 아예 없는 개발자툴 I/O textarea·색상 피커 일부(~150건, 대부분 시각적 라벨 자체가 없는 페이지)는 미연결로 남김 — 계산기는 전부 커버.
+- 검증: 205개 파일 구조(중첩 `<label>`/div 균형/dangling `for`·`aria-labelledby`/JS 문법) 0건. 계산기 25종+ 브라우저 실측(salary·four-insurance·severance·건보·국민연금·dsr(동적행)·capital-gains·gift·inheritance·income-tax·emi·cagr·bmi·ltv·loan·pace·percent·working-days·timestamp…) 미연결 0. 계산 로직·결과값·canonical·hreflang·JSON-LD 무변경.
+
+### 2. 결과 요약 라이브 리전 (커밋 da10cc4, theme-instrument.js만)
+- `initResultAnnouncer()`: `.readout`/`.result-box` 결과 패널에 MutationObserver → 변경 시 **650ms 디바운스** 후 `"주요 라벨: 대표 수치"` 한 줄 요약을 공유 숨김 리전 `#mh-a11y-result`(`role=status aria-live=polite aria-atomic=true`, `.vh`)에 기록.
+- **`.readout` 자체엔 aria-live 안 붙임** (하위 행 전부 반복 낭독 방지 — 사용자 지시). 포커스 강제이동 없음.
+- 스킵 조건: 자체 `#a11yStatus` announcer 보유 페이지(salary/age-calculator/body-fat-calculator), 숨김 패널(`display:none` + `.show`/`.active` 없음).
+- 라벨 추출: 대표 수치(`.bmi-num`/`.tax-num`/`.result-main-value`/`.big-num`…)에 가장 가까운 `.readout-label`/`.result-label` 우선, `.info`/`.tooltip` 텍스트 제거, "Readout"/"결과" 같은 플레이스홀더는 제외.
+- 검증: capital-gains-tax("예상 양도소득세: 34,458만원", 입력 변경 시 재낭독), loan-calc(컨테이너 텍스트 폴백) 브라우저 실측. 콘솔 에러 0.
+- **주의**: `.result-main`을 컨테이너로 쓰는 페이지는 요약이 "라벨 수치"로 붙어 나올 수 있음(구분자 `:` 없음) — 무해. 라이브 서빙 반영 확인 완료(curl).
+
 ## 기존 툴 PDF 라이브러리 CDN
 
 - pdf-lib: `https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js`
