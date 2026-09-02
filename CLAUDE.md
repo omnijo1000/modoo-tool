@@ -568,6 +568,32 @@ bmi-calculator, compound-annual-growth-rate-calculator, health-insurance-calc, h
 - **lang toggle은 `<button type="button" class="lang-toggle">`**. `<div>` 금지. FAQ는 `<details class="faq-item"><summary>Q</summary><p>A</p></details>` (theme가 `details.faq-item` 스타일). `<div class="faq-item">`·`.faq-q`·`.faq-a`·커스텀 아코디언 JS 금지.
 - **i18n 문자열을 정규식으로 변환할 때 `\'`(이스케이프된 아포스트로피) 보존** — 라인 기반 매칭 쓰고, `re.sub` 치환문은 콜백(`lambda m: ...`)으로 (치환 문자열의 `\\`가 재해석되어 JSON-LD `\.` 깨진 사례 있음).
 
+## 2026-09-02 FAQPage JSON-LD 전수 확장
+
+FAQPage JSON-LD가 초기 기준선대로 Question 4개만 담아 화면 프리렌더 FAQ
+8~15개와 불일치 → 리치 스니펫 노출 손실. **루트 실페이지 262개**의 FAQPage
+JSON-LD를 화면 `<div class="seo">` 프리렌더 FAQ 전부로 확장.
+
+- 대상: FAQPage 있고 화면 details > JSON-LD Q 인 모든 파일 (스텁·i18n 템플릿 제외)
+- standalone 블록은 통째 교체, `@graph` 8개는 FAQPage 노드만 교체(WebApplication 등 보존)
+- 스크립트: `/tmp` 아님, 방식은 `<script>` 스트립 후 프리렌더 `<details>` 추출 →
+  "Q."/"A." 접두사·인라인태그 제거·중복질문 제거 → json.dumps(ensure_ascii=False) →
+  **re.sub 콜백 치환**(백슬래시 `\` 재해석 방지, regex-cheatsheet 등 정규식 답변)
+- schema-markup-generator: 생성기 출력 템플릿(`<\/script>` 이스케이프) false positive
+  회피, real 블록만 교체
+
+검증: 262개 전부 WebApplication/SoftwareApplication 스키마 유지, FAQPage Q수 =
+프리렌더 화면 details 수, real ld+json 647개 전부 유효, 문법 578개 0에러,
+남은 불일치 0. 브라우저 ~25개 라이브 확인(json-validator·qr·image-compressor·
+csv-viewer(@graph)·schema-markup-generator·regex-cheatsheet(백슬래시)·unit-converter
+등) — 콘솔 에러 0, 툴 동작 정상.
+
+### QA 항목
+- **신규 툴 FAQPage JSON-LD는 화면 `<details>` FAQ 전부 반영** (8개 이상 권장).
+  4개만 넣지 말 것.
+- FAQ 답변에 정규식·코드(`\d`, `\.` 등) 들어가면 JSON-LD 생성 시 `re.sub` 콜백
+  치환 필수 (치환문자열의 `\`가 재해석돼 `\.` 되면서 JSON 깨짐).
+
 ## 기존 툴 PDF 라이브러리 CDN
 
 - pdf-lib: `https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js`
