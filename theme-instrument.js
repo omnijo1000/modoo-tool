@@ -188,7 +188,7 @@
      (primary label + headline number) into the shared region. No focus is moved. */
   function initResultAnnouncer(){
     if(document.getElementById('a11yStatus')) return; /* page has its own bespoke announcer */
-    var panels = document.querySelectorAll('.readout, .result-box');
+    var panels = document.querySelectorAll('.readout, .result-box, .result-area');
     if(!panels.length) return;
     var region = null, last = '', t;
     function ensureRegion(){
@@ -219,7 +219,7 @@
       return t;
     }
     function summarize(panel){
-      var num = panel.querySelector('.bmi-num, .tax-num, .result-main-value, .result-main, .big-num, .result-value, .readout-value');
+      var num = panel.querySelector('.bmi-num, .tax-num, .result-main-value, .result-main, .big-num, .result-value, .readout-value, .result-val');
       /* prefer the label nearest the number, else the first meaningful one */
       var L = '';
       if(num){
