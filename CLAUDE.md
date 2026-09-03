@@ -22,15 +22,26 @@
 ```
 **주의(2026-09-06 신설):** `gtag('consent','default',...)`(EEA/UK 32개국 denied) 는 GA config **앞**에 와야 함. `consent.js`는 `</head>` 앞에 로드(비-defer — DOM 접근은 자체 가드). 저장 키 `localStorage.modoo_consent` = `granted`|`essential`. 인라인 gtag 블록 편집 시 이 consent default를 지우지 말 것. **더 나은 최종 형태는 AdSense 대시보드에서 "개인정보 보호 및 메시지 > GDPR" 메시지 활성화**(코드 불필요, IAB TCF v2.2 CMP 자동 서빙) — 현재 코드는 그 전까지의 보수적 기본값.
 
-### CSS 변수 (다크 테마)
+### CSS 변수 (다크 테마) — 2-tier
+
+**툴 tier (320p, `theme-instrument.css` 정본):**
 ```css
-:root {
-  --bg:#0a0a0a; --surface:#141414; --surface2:#1a1a1a; --border:#252525;
-  --accent:#fbbf24; --accent2:#f59e0b;
-  --text:#f5f5f5; --text-muted:#888; --text-dim:#444;
-  --green:#4ade80; --red:#f87171; --blue:#60a5fa; --purple:#c084fc;
+:root{
+  --bg:#080B14;
+  --text:#EDF0FA; --text-muted:rgba(237,240,250,0.62); --text-dim:rgba(237,240,250,0.55);
+  --glass:rgba(255,255,255,0.055); --glass-border:rgba(255,255,255,0.11);
+  --violet:#8B7CFA; --cyan:#3FD8C8;
+  --good:#4FCB9A; --warn:#E8C155; --danger:#F2725E; --info:#4FA6E8;
+  --sans:-apple-system,"Segoe UI","Pretendard","Noto Sans KR",sans-serif; --mono:ui-monospace,"SF Mono","Cascadia Code",monospace;
 }
 ```
+`color-scheme:dark`, reduced-motion 전역 가드, `.skip-link`, `.tbl-scroll`, `.vh` 등 공유 유틸 포함. `theme-color` JS 주입 `#080B14`.
+
+**콘텐츠 tier (about·contact·privacy·terms·404, 각 파일 인라인 `<style>`):**
+```css
+:root{--bg:#0a0a0a;--surface:#141414;--border:#222;--text:#f0f0f0;--text-muted:#777;--text-dim:#444;--accent:#fbbf24;}
+```
+`theme-instrument.css` 미로드. skip-link + `color-scheme:dark`는 2026-09 인라인 추가(P2-C). `theme-color #0a0a0a`(툴 `#080B14`와 미세 차이는 의도적 tier 분리, 무시 가능).
 
 ### 폰트 (2026-09-02 self-host 전환)
 ```html
