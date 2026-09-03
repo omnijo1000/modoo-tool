@@ -119,7 +119,7 @@ const _i18n={
     btnCopy:'📋 スラッグをコピー',btnClear:'🗑 クリア',
     seoHtml:'<h2>URLスラッグとは？</h2><p>URLスラッグはURLの中で人間が読める部分で、ページを識別します。例: my-blog-post。本ツールはまず入力テキストを小文字化(任意)し、次にUnicode NFD正規化でアクセント文字を「基底文字+結合分音記号」に分解し、結合記号(U+0300〜U+036F)だけを取り除くことでアクセントを外します(caféはcafeになります)。特殊文字削除オプションが有効な場合は、英数字・空白・ハイフン・アンダースコア以外の文字をすべて削除します。最後に空白・アンダースコア・ハイフンの連続を選択した区切り文字1つにまとめ、先頭と末尾の余分な区切り文字を取り除きます。</p><details class="faq-item"><summary>ハイフンとアンダースコアどちらが良いですか？</summary><p>Googleはハイフンを単語の区切りとして認識しますが、アンダースコアは単語の結合として扱います。SEO的にはハイフンが推奨です。</p></details><details class="faq-item"><summary>アクセント文字(café、Zürichなど)はどう処理されますか？</summary><p>単純に削除するのではなく、まず基底文字に変換します。Unicode NFD正規化で「é」を「e+アクセント結合記号」に分解し、結合記号だけを取り除くため、「Café Zürich」はa-z以外を単純削除した場合の崩れた結果「caf-zrich」ではなく、正しく「cafe-zurich」に変換されます。</p></details><details class="faq-item"><summary>日本語などの非ASCII文字は対応していますか？</summary><p>非ラテン文字（日本語・韓国語・漢字など）は削除されます。ローマ字または英語に翻訳してから変換することをお勧めします。</p></details><details class="faq-item"><summary>理想的なスラッグの長さは？</summary><p>3〜5つのキーワードを含み、50〜60文字以内に抑えるのが理想的です。長すぎると検索結果で切り捨てられる場合があります。</p></details><details class="faq-item"><summary>スペースはどう処理されますか？</summary><p>スペースは選択した区切り文字(ハイフンまたはアンダースコア)に変換されます。特殊文字は削除され、連続する区切り文字は1つにまとめられます。</p></details><details class="faq-item"><summary>URLスラッグはなぜSEOに重要なのですか？</summary><p>検索エンジンはURLを見てページの内容を判断します。キーワードを含む短く明確なスラッグは検索順位に好影響を与えます。</p></details><details class="faq-item"><summary>公開済みページのスラッグを変更してもいいですか？</summary><p>変更は可能ですが、必ず旧スラッグから新スラッグへ301リダイレクトを設定してください。リダイレクトなしでスラッグだけ変更すると、既存の被リンクや検索順位が途切れ、トラフィックが低下する恐れがあります。</p></details><details class="faq-item"><summary>スラッグに日付を含めるべきですか？</summary><p>ニュースやイベントなど時事性の高いコンテンツには日付が有効です。一方、長期間検索されるエバーグリーンコンテンツには日付なしのスラッグを推奨します — 古い日付はコンテンツが古く見え、クリック率が下がる可能性があります。</p></details>'}
 };
-function _detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('lang');if(s&&_i18n[s])return s;const n=navigator.language||'';if(n.startsWith('zh'))return'zh';else if(n.startsWith('ja'))return'ja';if(n.startsWith('ko'))return'ko';return'en';}
+function _detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=(localStorage.getItem('modoo_lang')||localStorage.getItem('lang'));if(s&&_i18n[s])return s;const n=navigator.language||'';if(n.startsWith('zh'))return'zh';else if(n.startsWith('ja'))return'ja';if(n.startsWith('ko'))return'ko';return'en';}
 let _lang=_detectLang();
 function _applyLang(){
   const t=_i18n[_lang];
@@ -130,7 +130,7 @@ function _applyLang(){
   document.querySelectorAll('[data-i18n]').forEach(el=>{const v=t[el.dataset.i18n];if(v!==undefined)el.innerHTML=v;});
 }
 const _langOrder=['ko','en','zh','ja'];
-function cycleLang(){const idx=_langOrder.indexOf(_lang);_lang=_langOrder[(idx+1)%_langOrder.length];localStorage.setItem('lang',_lang);const url=new URL(location.href);if(_lang==='ko'){url.searchParams.delete('lang');}else{url.searchParams.set('lang',_lang);}history.replaceState({},'',url);_applyLang();}
+function cycleLang(){const idx=_langOrder.indexOf(_lang);_lang=_langOrder[(idx+1)%_langOrder.length];localStorage.setItem('modoo_lang',_lang);const url=new URL(location.href);if(_lang==='ko'){url.searchParams.delete('lang');}else{url.searchParams.set('lang',_lang);}history.replaceState({},'',url);_applyLang();}
 _applyLang();
 </script>
 <script src="theme-instrument.js"></script>

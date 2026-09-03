@@ -157,7 +157,7 @@ const i18n={
   ja:{pageTitle:'タイムスタンプ変換器 - Unix Timestamp Converter',h1:'Timestamp<br><span>変換器</span>',sub:'Unix Timestamp ↔ 日付/時刻変換',backLink:'← ホーム',langBtn:'🌐 한국어',nowLabel:'現在のUnix Timestamp',copyNowBtn:'コピー',copyDone:'コピー済み',label1:'Timestamp → 日付変換',label2:'日付/時刻 → Timestamp変換',unitS:'秒 (s)',unitMs:'ミリ秒 (ms)',rLocal:'ローカル時刻',rAgo:'経過時間',rTs:'Timestamp（秒）',rTsMs:'Timestamp（ミリ秒）',dtYear:'年',dtMonth:'月',dtDay:'日',dtHour:'時',dtMin:'分',dtSec:'秒',convertBtn:'変換する',seoHtml:'<p style="margin-bottom:10px;"><a href="guides/jwt-authentication-guide.html">📖 JWT認証完全ガイドを見る</a></p><h2>Unix Timestampとは？</h2><p>Unix Timestampは1970年1月1日00:00:00 UTC（Unixエポック）からの経過秒数を表す数値です。サーバーログ・データベース・APIレスポンスでよく使われます。</p><h2>使い方</h2><ol><li>Unixタイムスタンプを入力すると人が読める日付・時刻（ローカル・UTC）に変換します。</li><li>日付を入力すると逆にタイムスタンプを求めます。</li><li>単位（秒またはミリ秒）は入力欄の下のボタンで選択します（既定：秒）。</li></ol><h2>変換例</h2><p><code>1780000000</code>（秒）&rarr; 2026-05-28 20:26:40 UTC。JavaScriptでは <code>new Date(1780000000 * 1000)</code>、現在の秒タイムスタンプは <code>Math.floor(Date.now() / 1000)</code> で求めます。</p><details class="faq-item"><summary>秒とミリ秒のタイムスタンプをどう見分けますか？</summary><p>2026年基準で秒単位は約10桁（数十億台）、ミリ秒単位は約13桁（数兆台）です。</p></details><details class="faq-item"><summary>JavaScriptで現在のタイムスタンプを取得するには？</summary><p>Date.now()はミリ秒を返します。秒単位はMath.floor(Date.now()/1000)を使用します。</p></details><details class="faq-item"><summary>タイムスタンプはタイムゾーンの影響を受けますか？</summary><p>タイムスタンプ自体はUTC基準なのでタイムゾーンの影響を受けません。表示時のみローカル時刻に変換されます。</p></details><details class="faq-item"><summary>2038年問題とは何ですか？</summary><p>32ビット符号付き整数でタイムスタンプを保存するシステムは2038年1月19日以降にオーバーフローが発生します。64ビットシステムは影響を受けません。</p></details><details class="faq-item"><summary>Unixエポックがなぜ1970年1月1日なのですか？</summary><p>初期Unixの開発時期に設定された慣例です。1970年1月1日00:00:00 UTCを0と定義しています。</p></details><details class="faq-item"><summary>タイムスタンプを特定のタイムゾーンの時刻に変換するには？</summary><p>Unixタイムスタンプは協定世界時（UTC）基準です。JavaScriptでのローカル時間変換：new Date(timestamp * 1000).toLocaleString("ja-JP", {timeZone:"Asia/Tokyo"})。タイムゾーン文字列を対象ゾーンに変更してください。</p></details><details class="faq-item"><summary>ミリ秒タイムスタンプと秒タイムスタンプの違いは？</summary><p>Unixタイムスタンプは通常秒単位ですが、JavaScriptのDate.now()はミリ秒を返します。ミリ秒から秒に変換するには1000で割ります。APIから受け取ったタイムスタンプが秒かミリ秒かを必ず確認してください。</p></details><details class="faq-item"><summary>負のタイムスタンプは何を意味しますか？</summary><p>1970年1月1日より前の日付を表します。例えば、-86400は1969年12月31日00:00:00 UTCです。</p></details>',footer:'すべての変換はブラウザで処理されます',locale:'ja-JP',
     timeAgoFn:(y,d,h,m,s,future)=>{let str=y>0?`${y}年前`:d>0?`${d}日前`:h>0?`${h}時間前`:m>0?`${m}分前`:`${s}秒前`;return future?str.replace('前','後'):str;}}
 };
-let lang = localStorage.getItem('lang');
+let lang = (localStorage.getItem('modoo_lang')||localStorage.getItem('lang'));
 if (!lang || !i18n[lang]) {
   const nav = navigator.language || '';
   if (nav.startsWith('zh')) lang = 'zh';
@@ -198,7 +198,7 @@ function toggleLang() {
   const order = ['ko','en','zh','ja'];
   const idx = order.indexOf(lang);
   lang = order[(idx + 1) % order.length];
-  localStorage.setItem('lang', lang);
+  localStorage.setItem('modoo_lang', lang);
   applyLang();
 }
 function selectUnit(u){unit=u;document.querySelectorAll('.rbtn[data-unit]').forEach(b=>b.classList.toggle('on',b.dataset.unit===u));tsToDate();}

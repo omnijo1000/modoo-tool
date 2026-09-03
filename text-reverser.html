@@ -118,7 +118,7 @@ const _i18n={
     labelInput:'入力',labelOutput:'出力',btnCopy:'📋 コピー',btnClear:'🗑 クリア',btnSwap:'⇄ 入れ替え',
     seoHtml:'<h2>テキスト反転ツールとは？</h2><p>テキスト反転ツールは、テキストの文字順・単語ごとの文字順・行順を逆にするオンラインツールです。文字単位の反転は<code>String.length</code>ではなく<code>[...text]</code>スプレッド構文で文字列を分解するため、サロゲートペア（絵文字など）を1文字として扱い、崩れることがありません。暗号遊び・ミラーテキスト・コードテストなどに活用できます。</p><details class="faq-item"><summary>テキスト全体の反転と各単語の反転の違いは？</summary><p>テキスト全体の反転は文字列全体のすべての文字順を逆にします（例：「hello world」→「dlrow olleh」）。各単語の反転は単語の並び順はそのままに、各単語内部の文字だけを逆にします（例：「hello world」→「olleh dlrow」）。</p></details><details class="faq-item"><summary>日本語・韓国語などにも対応していますか？</summary><p>はい。Unicode文字分割を使用しているため、すべての言語のテキストを反転できます。</p></details><details class="faq-item"><summary>各行を反転するとは？</summary><p>各行の内容はそのままで、行の並び順を逆にします。ログファイルを最新順に並べるときに便利です。</p></details><details class="faq-item"><summary>ミラーテキストとは何ですか？</summary><p>テキスト全体を文字単位で反転すると、鏡に映ったような逆読みのミラーテキストになります。デザインや遊びに活用できます。</p></details><details class="faq-item"><summary>結果を保存するには？</summary><p>コピーボタンをクリックすると結果をクリップボードにコピーできます。入替ボタンで出力を入力欄に移すこともできます。</p></details><details class="faq-item"><summary>絵文字（Emoji）も正しく反転されますか？</summary><p>はい。絵文字は2つのUnicodeサロゲートユニットで構成されており、.lengthやインデックスで文字列を直接切ると、そのペアが分断されて絵文字が壊れることがあります。このツールは<code>[...text]</code>スプレッド構文でコードポイント単位に分解するため、テキスト全体反転・単語反転のどちらでも絵文字が崩れません。</p></details><details class="faq-item"><summary>パリンドローム（回文）チェックに使えますか？</summary><p>できます。反転したテキストが元のテキストと一致すれば回文です。反転結果と元のテキストを直接比較するか、専用の回文チェッカーを使うとより正確に確認できます。</p></details><details class="faq-item"><summary>数字や特殊文字も反転されますか？</summary><p>はい。数字、特殊文字、句読点もすべて位置順に反転されます。例：「Hello, World! 123」→「321 !dlroW ,olleH」。</p></details>'}
 };
-function _detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('lang');if(s&&_i18n[s])return s;const n=navigator.language||'';if(n.startsWith('zh'))return'zh';else if(n.startsWith('ja'))return'ja';if(n.startsWith('ko'))return'ko';return'en';}
+function _detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=(localStorage.getItem('modoo_lang')||localStorage.getItem('lang'));if(s&&_i18n[s])return s;const n=navigator.language||'';if(n.startsWith('zh'))return'zh';else if(n.startsWith('ja'))return'ja';if(n.startsWith('ko'))return'ko';return'en';}
 let _lang=_detectLang();
 function _applyLang(){
   const t=_i18n[_lang];
@@ -129,7 +129,7 @@ function _applyLang(){
   document.querySelectorAll('[data-i18n]').forEach(el=>{const v=t[el.dataset.i18n];if(v!==undefined)el.innerHTML=v;});
 }
 const _langOrder=['ko','en','zh','ja'];
-function cycleLang(){const idx=_langOrder.indexOf(_lang);_lang=_langOrder[(idx+1)%_langOrder.length];localStorage.setItem('lang',_lang);const url=new URL(location.href);if(_lang==='ko'){url.searchParams.delete('lang');}else{url.searchParams.set('lang',_lang);}history.replaceState({},'',url);_applyLang();}
+function cycleLang(){const idx=_langOrder.indexOf(_lang);_lang=_langOrder[(idx+1)%_langOrder.length];localStorage.setItem('modoo_lang',_lang);const url=new URL(location.href);if(_lang==='ko'){url.searchParams.delete('lang');}else{url.searchParams.set('lang',_lang);}history.replaceState({},'',url);_applyLang();}
 _applyLang();
 </script>
 <script src="theme-instrument.js"></script>
