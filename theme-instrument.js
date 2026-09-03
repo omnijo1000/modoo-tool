@@ -188,7 +188,7 @@
      (primary label + headline number) into the shared region. No focus is moved. */
   function initResultAnnouncer(){
     if(document.getElementById('a11yStatus')) return; /* page has its own bespoke announcer */
-    var panels = document.querySelectorAll('.readout, .result-box, .result-area');
+    var panels = document.querySelectorAll('.readout, .result-box, .result-area, .result, .total-card, .savings-result, [data-a11y-live]');
     if(!panels.length) return;
     var region = null, last = '', t;
     function ensureRegion(){
@@ -219,12 +219,12 @@
       return t;
     }
     function summarize(panel){
-      var num = panel.querySelector('.bmi-num, .tax-num, .result-main-value, .result-main, .big-num, .result-value, .readout-value, .result-val');
+      var num = panel.querySelector('.bmi-num, .tax-num, .result-main-value, .result-main, .big-num, .result-value, .readout-value, .result-val, .total-val, .result-num, .cal-val, .r-val, .item-total, .cmp-net');
       /* prefer the label nearest the number, else the first meaningful one */
       var L = '';
       if(num){
         var p2 = num.parentElement;
-        var near = p2 ? p2.querySelector('.result-main-label, .readout-label, .result-label') : null;
+        var near = p2 ? p2.querySelector('.result-main-label, .readout-label, .result-label, .total-label, .result-unit') : null;
         if(!near){
           var box = num.closest('.bmi-display, .tax-display, .result-box, .result-main, .readout') || panel;
           near = box.previousElementSibling && box.previousElementSibling.querySelector
@@ -233,7 +233,7 @@
         L = labelText(near);
       }
       if(!L){
-        var labels = panel.querySelectorAll('.readout-label, .result-label, .result-key');
+        var labels = panel.querySelectorAll('.readout-label, .result-label, .result-key, .total-label');
         for(var i=0;i<labels.length;i++){ L = labelText(labels[i]); if(L) break; }
       }
       var N = num ? clean(num.textContent) : '';
