@@ -43,7 +43,8 @@
 | 리다이렉트 스텁 (69개) | `<meta refresh>` + `noindex,follow` + sitemap 미등재 | 반기 1회 |
 | `robots.txt` | `Disallow: /privacy.html` 제거됨(2026-09-06). `/promotion/`·`/design-mockups/` 차단 유지 | 반기 1회 |
 | `404.html` | 브랜드 404 페이지 생성(2026-09-06). GitHub Pages가 모든 404에 서빙 | 반기 1회 (링크 유효성) |
-| 광고/분석 동의 | Consent Mode v2 default(EEA denied) + `consent.js` 배너 전 836파일 적용(2026-09-06). **최종 형태는 AdSense 대시보드 GDPR 메시지 활성화** | AdSense 정책 변경 시 |
+| 광고/분석 동의 | Consent Mode v2 default(EEA denied) + `consent.js` 배너 전 836파일 적용(2026-09-06). **미해결: IAB TCF v2.2 통합 Google 인증 CMP 없음** → 인증 CMP 도입 전까지 EEA·영국·스위스에는 비맞춤형 광고만 게재 가능. **도입 방법: AdSense 대시보드 "개인정보 보호 및 메시지 > GDPR" 메시지 활성화**(코드 불필요). privacy.html §5에 현재 상태 명시됨(2026-09-03) | AdSense 승인 후 광고 게재 전 필수 |
+| `privacy.html` 광고 고지 | §5 재작성(2026-09-03): 제3자 쿠키·맞춤광고·opt-out 3경로(myadcenter·aboutads.info·youronlinechoices·NAI)·partner-sites 링크·EEA CMP 상태·"현재 광고 미게재" 명시. ko/en/zh/**ja** 4블록 일치. 폰트 self-host 반영(외부 요청 없음) | 광고 게재 시작 시 "현재 미게재" 문구 갱신 |
 | `privacy.html` 제3자 목록 | ip-api.com·allorigins·crt.sh·rdap·Cloudflare DoH 추가(2026-09-06). SEO 체커·whois·dns·ssl 툴 화면 고지도 추가 | 신규 네트워크 툴 추가 시 |
 | `llms.txt` — 스텁 슬러그 링크 여부 | canonical 페이지 URL로 유지 | 슬러그 변경 시 |
 | 내부 링크 무결성 | 정상 (오탐 1건: html-encoder JS 문자열 내 `page.html`) | 분기 1회 `grep`-기반 스캔 |
