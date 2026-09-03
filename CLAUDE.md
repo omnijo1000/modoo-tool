@@ -113,6 +113,41 @@ let currentLang = detectLang();
 document.addEventListener('DOMContentLoaded', () => applyLang(currentLang));
 ```
 
+### MHI18n.init (신규 페이지 옵트인 — `/mh-i18n.js`)
+
+**2026-09-03 신설.** 위 `detectLang`/`applyLang`/`toggleLang` 보일러플레이트(~40줄)를
+공유 헬퍼로 뺀 것. **옵트인** — 기존 285개 다국어 페이지는 각자 인라인 로직 그대로 유지
+(일괄 재작성·기계적 리팩터링 안 함). **신규 다국어 툴만** 아래 패턴 사용 가능.
+
+로드 (`</head>` 앞, 인라인 페이지 스크립트보다 **먼저**):
+```html
+<script src="/mh-i18n.js"></script>
+```
+(guides·category 하위 경로면 `../mh-i18n.js`)
+
+페이지 스크립트:
+```javascript
+const _i18n = { ko:{pageTitle,h1,sub,backLink,langBtn,seoHtml,...}, en:{...}, zh:{...}, ja:{...} };
+MHI18n.init({
+  strings: _i18n,
+  apply(t, lang) {           // 선택 — 페이지 고유 후처리만
+    document.getElementById('seoDiv').innerHTML = t.seoHtml;   // seoDiv 주입
+    if (resultShown()) calc();                                  // 언어 전환 후 재계산
+  }
+});
+```
+헬퍼가 자동 처리: `<html lang>`, `document.title`(`t.pageTitle`), `[data-i18n]` 요소
+`innerHTML` 교체, `?lang=` URL 파라미터 진입, `localStorage['modoo_lang']` 저장/복원,
+구 키 `localStorage['lang']` 1회성 마이그레이션.
+
+- 언어 순환 고정: `['ko','en','zh','ja']`. 토글 버튼 `onclick="cycleLang()"` 그대로 사용
+  (헬퍼가 `window.cycleLang`·`window.toggleLang` 별칭 제공). 현재 언어는 `MHI18n.get()`.
+- `apply` 콜백은 `[data-i18n]` 갱신 **후** 마지막에 호출됨 → 재계산 순서 자동 충족.
+- **`ko` seoHtml 정적 프리렌더는 여전히 필수** (아래 SEO 섹션). 헬퍼는 언어 전환 시에만
+  `#seoDiv`를 덮어씀 — 최초 소스에 ko FAQ가 이미 박혀 있어야 함.
+- 자기검증: `node --check mh-i18n.js` + 파일 하단 주석의 self-check 스니펫.
+- **기존 파일에 소급 적용 금지.** 신규 파일 한정.
+
 ## SEO 섹션 패턴
 
 ### seoHtml (다국어 backtick 템플릿 리터럴로 저장 + ko는 정적 프리렌더 필수)
