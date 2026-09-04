@@ -42,6 +42,9 @@ a{color:var(--accent);text-decoration:none;}
 a:hover{text-decoration:underline;}
 table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
 th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:16px 0;}
+.table-wrap table{margin:0;min-width:440px;}
+@media(max-width:480px){.table-wrap th,.table-wrap td{padding:6px 8px;font-size:12px;}}
 th{background:var(--surface);color:var(--text-muted);font-weight:700;}
 td{color:#ccc;}
 .box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
@@ -82,12 +85,12 @@ footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-
 
   <h2>3. Experiment: does scrambling clause order really pass?</h2>
   <p>We fed the validator sentences where the keyword order makes no grammatical sense, to see how it would react. The result matched exactly what reading the code predicted.</p>
-  <table>
+  <div class="table-wrap"><table>
     <tr><th>Input SQL</th><th>Parens</th><th>Quotes</th><th>Keyword present</th><th>Result</th></tr>
     <tr><td><code>FROM users SELECT * WHERE id=1</code></td><td>none (OK)</td><td>none (OK)</td><td>SELECT found</td><td>✓ Valid</td></tr>
     <tr><td><code>WHERE id=1 CREATE users FROM</code></td><td>none (OK)</td><td>none (OK)</td><td>CREATE found</td><td>✓ Valid</td></tr>
     <tr><td><code>SELECT * FROM users (</code></td><td>1 unmatched</td><td>none</td><td>SELECT found</td><td>✗ Error (parens)</td></tr>
-  </table>
+  </table></div>
   <p>The first two lines are syntax errors no database would accept, but because the parentheses and quotes are balanced and at least one recognized keyword is present, the validator calls them "valid." That's a sharp contrast with the third line, which fails immediately over a single unmatched parenthesis. In other words, what this tool actually defends against is physical damage — parentheses or quotes getting cut off during copy-paste — not whether the query is a grammatically executable statement.</p>
 
   <h2>4. The same shallow approach causes a side effect in the formatter</h2>

@@ -42,6 +42,9 @@ a{color:var(--accent);text-decoration:none;}
 a:hover{text-decoration:underline;}
 table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
 th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:16px 0;}
+.table-wrap table{margin:0;min-width:440px;}
+@media(max-width:480px){.table-wrap th,.table-wrap td{padding:6px 8px;font-size:12px;}}
 th{background:var(--surface);color:var(--text-muted);font-weight:700;}
 td{color:#ccc;}
 .box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
@@ -82,12 +85,12 @@ footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-
 
   <h2>3. 실험: 절 순서를 뒤섞으면 정말 통과할까</h2>
   <p>키워드 순서가 문법적으로 말이 안 되는 문장을 직접 넣어 검사기가 어떻게 반응하는지 확인해봤습니다. 결과는 코드를 읽어서 예상한 그대로였습니다.</p>
-  <table>
+  <div class="table-wrap"><table>
     <tr><th>입력한 SQL</th><th>괄호</th><th>따옴표</th><th>키워드 존재</th><th>검사 결과</th></tr>
     <tr><td><code>FROM users SELECT * WHERE id=1</code></td><td>없음(문제 없음)</td><td>없음(문제 없음)</td><td>SELECT 있음</td><td>✓ 유효</td></tr>
     <tr><td><code>WHERE id=1 CREATE users FROM</code></td><td>없음(문제 없음)</td><td>없음(문제 없음)</td><td>CREATE 있음</td><td>✓ 유효</td></tr>
     <tr><td><code>SELECT * FROM users (</code></td><td>1개 미해소</td><td>없음</td><td>SELECT 있음</td><td>✗ 오류(괄호)</td></tr>
-  </table>
+  </table></div>
   <p>첫 번째, 두 번째 줄은 어떤 데이터베이스에도 넣을 수 없는 문법 오류지만, 괄호·따옴표가 맞고 인식 가능한 키워드가 하나라도 있으니 검사기는 "유효"라고 판정합니다. 세 번째 줄처럼 괄호 하나만 어긋나도 즉시 오류로 잡히는 것과 대조적입니다. 즉 이 도구가 실제로 방어하는 것은 "복사·붙여넣기 과정에서 괄호나 따옴표가 잘렸는지" 같은 물리적 손상이지, 문법적으로 실행 가능한 쿼리인지가 아닙니다.</p>
 
   <h2>4. 포맷터도 같은 방식이라 생기는 부작용</h2>

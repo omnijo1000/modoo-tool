@@ -42,6 +42,9 @@ a{color:var(--accent);text-decoration:none;}
 a:hover{text-decoration:underline;}
 table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
 th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:16px 0;}
+.table-wrap table{margin:0;min-width:440px;}
+@media(max-width:480px){.table-wrap th,.table-wrap td{padding:6px 8px;font-size:12px;}}
 th{background:var(--surface);color:var(--text-muted);font-weight:700;}
 td{color:#ccc;}
 .box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0;}
@@ -86,12 +89,12 @@ footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;font-
 
   <h2>5. Strings That Share the Shape but Aren't Real UUIDs</h2>
   <p>The table below shows examples of strings that look like UUIDs at a glance but get filtered out in practice because they fail the version/variant conditions.</p>
-  <table>
+  <div class="table-wrap"><table>
     <tr><th>String</th><th>8-4-4-4-12 shape</th><th>Version position (13th char)</th><th>Variant position (19th char)</th><th>Recognized as UUID</th></tr>
     <tr><td>550e8400-e29b-41d4-a716-446655440000</td><td>Matches</td><td>4 (valid)</td><td>a (valid)</td><td>Recognized</td></tr>
     <tr><td>12345678-1234-6789-1234-123456789012</td><td>Matches</td><td>6 (out of range)</td><td>1 (out of range)</td><td>Rejected</td></tr>
     <tr><td>ffffffff-ffff-ffff-ffff-ffffffffffff</td><td>Matches</td><td>f (out of range)</td><td>f (out of range)</td><td>Rejected</td></tr>
-  </table>
+  </table></div>
   <p>The second and third strings have exactly the same hyphen structure and hex digit count as a real UUID, but their version and variant positions fall outside the spec, so they can't actually be UUIDs. A tool that only checks shape would misidentify all three as UUIDs, but a regex that also validates version and variant correctly picks out only the first one. If you're trying to filter true UUIDs out of text mixed with <a href="../md5-generator.html?lang=en">hash values</a> or arbitrary tokens, this difference matters quite a bit in practice.</p>
 
   <h2>6. How to Test It Yourself</h2>
