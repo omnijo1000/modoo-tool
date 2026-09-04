@@ -714,6 +714,72 @@ FAQPage Q < 화면 details 불일치 0.
 - **미검증(환경 한계)**: 320/375/768 뷰포트 — 이 환경 `resize_window`가 실뷰포트 안 바꿈. 변경은 레이아웃 중립(`.vh` 숨김 / `<div>`→`<label>` 동일 CSS 클래스)이라 신규 넘침 유발 불가, 데스크톱 `scrollWidth==clientWidth` 전부 확인. 실제 스크린리더(NVDA/VoiceOver) 낭독은 미검증(마크업만).
 - **about.html h1 4개**: 언어별 콘텐츠 블록(koContent 표시, 나머지 display:none) — HTML 스펙상 유효, 렌더 시 1개만 노출. 손대면 lang 스위처 위험 → 유지.
 
+## 2026-09-04 P2-A 잔여 + 가이드 접근성/모바일 (커밋 4136355 → 960920b)
+
+### i18n localStorage 키 정규화 (커밋 `4136355`, 50파일)
+`localStorage['lang']` 쓰던 50파일(json-formatter, timestamp, tip-calculator,
+emi-calculator, savings-calc, index.html 등) → `modoo_lang` 단일 키. getItem은
+`modoo_lang` 우선 + `'lang'` 폴백(마이그레이션 shim 불필요). 페이지 그룹 간
+언어 선택 안 넘어가던 버그(REFACTOR-P2A "발견된 실제 버그") 해결.
+
+### MHI18n.init 옵트인 헬퍼 (커밋 `f2f8ded`)
+`/mh-i18n.js` — 신규 다국어 페이지 전용. 기존 285개는 인라인 로직 유지(전면
+추출 안 함 — 리스크/이득 불균형). 사용법은 위 "## i18n 패턴 > MHI18n.init" 참고.
+
+### qr-code-generator 정적 skip link (커밋 `5c98bd5`)
+런타임 주입 의존 → index.html처럼 `<body>` 첫 요소 정적 `<a class="skip-link"
+data-i18n="skipLink">` + 4개 언어 `skipLink` 키. theme-instrument.js injectSkipLink는
+기존 `.skip-link` 감지 시 조기 반환하므로 중복 없음.
+
+### G-1: 가이드 430개 skip link / `<main id>` / theme-color / color-scheme (커밋 `cd60f54`)
+콘텐츠 tier 가이드는 `theme-instrument.js` 미로드 → info(인라인)·category(런타임
+주입)와 달리 누락돼 있었음. **guide-en 포함** (430 = ko 254 + en 176).
+`guides/index.html`(허브, theme-instrument.js 로드)만 제외.
+- 스크립트 `audit/g1_apply.py` — 파일당 앵커 4개 전부 매칭 시에만 기록:
+  1. `</header>` 직후 `<a href="#main" class="skip-link">` (ko `본문 바로가기` / en `Skip to content`)
+  2. `<main>` → `<main id="main" tabindex="-1">`
+  3. `<meta name="viewport">` 다음 줄 `<meta name="theme-color" content="#080B14">`
+  4. `:root{}`에 `color-scheme:dark;` + 직후 `.skip-link`/`.skip-link:focus` CSS
+- 본문·번역문·계산·광고 무변경. theme-color `#080B14`는 지시값(가이드 실제 bg
+  `#0a0a0a`와 1셰이드 차, 무시 가능).
+- **신규 가이드는 위 4개를 처음부터 포함**. 콘텐츠 tier `.skip-link` CSS는
+  `:root{}` 직후에 인라인.
+
+### G-2: 5열 표 가이드 10개 가로 스크롤 격리 (커밋 `960920b`)
+`mortgage-pmi-vs-korea-ltv…`, `macro-calculator-fixed-protein-ratio`,
+`margin-markup-percentage-confusion`, `uuid-extractor-version-variant…`(±en),
+`sql-validator-not-a-real-parser`(±en), `typing-speed-wpm-5-char-word-standard`(±en),
+`cagr-hides-volatility-trap` — 표 12개.
+- 스크립트 `audit/g2_apply.py`: `<table>` → `<div class="table-wrap"><table>…</table></div>`
+  + `th,td` 규칙 다음에:
+  ```css
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:16px 0}
+  .table-wrap table{margin:0;min-width:440px}
+  @media(max-width:480px){.table-wrap th,.table-wrap td{padding:6px 8px;font-size:12px}}
+  ```
+- 데스크톱: `table{width:100%}` > `min-width:440` → 무변경. ≤480px: table 440px
+  유지하고 `.table-wrap` 내부 스크롤 → **페이지 가로 overflow 0**. 열 삭제/숨김
+  없음, `white-space:nowrap` 안 씀.
+- **일반 가이드 표(2~4열)는 손 안 댐** — `width:100%` 리플로우로 충분. 5열↑
+  신규 표는 위 `.table-wrap` 패턴 적용.
+
+### 전수 스캔 결과 (참고, `audit/full_scan.py` + `audit/REPORT.md`)
+837 HTML 정적 스캔 + 브라우저 15p 계층 표본. 정적 스캐너는 오탐 많음(속성값
+`>`·`'`, JS 문자열 내 `<h1>`, `@media` 내 `min-width`, `<label>` 래핑 입력 등):
+- `unlabeled-input` 261, `multi-h1` 8, `no-desc` 4, `script-backtick` 7, `fixed-wide`
+  2 = **전부 오탐**(브라우저 검증). 2026-09-02 접근성 2차가 실제로 커버함.
+- 스텁 69개 전부 정상(`noindex` ✅, sitemap 미등재 ✅). 중복 title/desc 0.
+- 실제 갭은 G-1/G-2 둘뿐이었고 이번에 해소.
+- **모바일 실뷰포트 가로 overflow는 이 환경에서 측정 불가**(`resize_window` 미작동).
+  `main{max-width:360px}` 강제 시뮬 + 정적 추론으로 대체.
+
+### 환경 한계 (재확인)
+- `mcp__claude-in-chrome`: `resize_window`가 실뷰포트를 안 바꿈(window만). 모바일
+  레이아웃은 CSS 강제 override 시뮬로만 검증 가능.
+- 로컬 `python3 -m http.server` + Chrome 확장은 같은 URL 재방문 시 캐시 서빙 →
+  수정 확인엔 `?cb=$RANDOM` 쿼리 붙일 것.
+- GitHub Pages 캐시 `max-age=600` → push 후 라이브 확인도 `?cb=` 필수.
+
 ## 기존 툴 PDF 라이브러리 CDN
 
 - pdf-lib: `https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js`
