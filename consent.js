@@ -6,6 +6,20 @@
 */
 (function () {
   var KEY = 'modoo_consent';
+  function injectLayoutFixes() {
+    if (!document.head || document.getElementById('mh-layout-fix')) return;
+    var css = 'html,body{overflow-x:clip;}@supports not (overflow:clip){html,body{overflow-x:hidden;}}';
+    if (/^\/guides\//.test(location.pathname)) {
+      css += '@media (max-width:640px){html,body{overflow-x:hidden!important;}main{overflow-x:hidden;}main table{display:block;max-width:100%!important;overflow-x:auto;-webkit-overflow-scrolling:touch;table-layout:auto;}main th,main td{white-space:normal;word-break:break-word;overflow-wrap:anywhere;}main pre{overflow-x:auto;max-width:100%;}main code{overflow-wrap:anywhere;word-break:break-word;}}';
+    }
+    var st = document.createElement('style');
+    st.id = 'mh-layout-fix';
+    st.textContent = css;
+    document.head.appendChild(st);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', injectLayoutFixes, { once: true });
+  else injectLayoutFixes();
+
   function g() { window.dataLayer = window.dataLayer || []; window.gtag = window.gtag || function () { dataLayer.push(arguments); }; return window.gtag; }
 
   function apply(choice) {
