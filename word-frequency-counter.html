@@ -14,8 +14,6 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="alternate" hreflang="ko" href="https://modoohub.com/word-frequency-counter.html">
 <link rel="alternate" hreflang="en" href="https://modoohub.com/word-frequency-counter.html?lang=en">
-<link rel="alternate" hreflang="zh" href="https://modoohub.com/word-frequency-counter.html?lang=zh">
-<link rel="alternate" hreflang="ja" href="https://modoohub.com/word-frequency-counter.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/word-frequency-counter.html">
 <link rel="stylesheet" href="theme-instrument.css">
 <style>
@@ -98,7 +96,7 @@
 <details class="faq-item"><summary>URL이나 이메일 주소가 포함된 텍스트는 어떻게 처리되나요?</summary><p>구두점 제거 옵션이 켜져 있으면 콜론(:)이나 슬래시(/), 골뱅이(@) 같은 문자가 전부 제거되므로, "https://example.com" 같은 URL은 하나의 토큰이 아니라 https, example.com처럼 여러 조각으로 쪼개지거나 변형될 수 있습니다. URL을 있는 그대로 분석하고 싶다면 구두점 제거를 꺼야 합니다.</p></details></div>
 </main>
 <script>
-const LANGS=['ko','en','zh','ja'];let _lang='ko';
+const LANGS=['ko','en'];let _lang='ko';
 const EN_STOP=new Set(['a','an','the','and','or','but','in','on','at','to','for','of','with','by','from','is','are','was','were','be','been','being','have','has','had','do','does','did','will','would','could','should','may','might','i','you','he','she','it','we','they','this','that','these','those','not','no','so','as','if','then','than','up','out','into','about','after','before','between','through']);
 const _i18n={
   ko:{h1Accent:'분석기',sub:'텍스트의 단어 빈도를 분석합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',lblCase:'대소문자 통합',lblStop:'불용어 제거',lblPunct:'구두점 제거',lblMin:'최소 빈도:',lblTop:'상위:',lblInput:'입력',lblResult:'단어 빈도',btnClear:'지우기',btnCsv:'CSV',btnSample:'샘플',colWord:'단어',colFreq:'빈도',colPct:'비율',emptyMsg:'텍스트를 입력하면 분석합니다',
@@ -114,7 +112,7 @@ const _i18n={
 <details class="faq-item"><summary>최소 빈도와 상위 N 옵션은 어떤 순서로 적용되나요?</summary><p>먼저 최소 빈도 조건을 만족하는 단어만 남긴 뒤, 빈도가 높은 순으로 정렬하고, 그중 상위 N개만 잘라서 보여줍니다. 최소 빈도를 낮게 설정해도 상위 N이 작으면 그 이후 단어는 결과에 나타나지 않습니다.</p></details>
 <details class="faq-item"><summary>URL이나 이메일 주소가 포함된 텍스트는 어떻게 처리되나요?</summary><p>구두점 제거 옵션이 켜져 있으면 콜론(:)이나 슬래시(/), 골뱅이(@) 같은 문자가 전부 제거되므로, "https://example.com" 같은 URL은 하나의 토큰이 아니라 https, example.com처럼 여러 조각으로 쪼개지거나 변형될 수 있습니다. URL을 있는 그대로 분석하고 싶다면 구두점 제거를 꺼야 합니다.</p></details>`
   },
-  en:{h1Accent:'Counter',sub:'Analyze word frequency in text',backLink:'← All Tools',langBtn:'🌐 中文',lblCase:'Case-insensitive',lblStop:'Remove stopwords',lblPunct:'Remove punctuation',lblMin:'Min freq:',lblTop:'Top:',lblInput:'Input',lblResult:'Word Frequency',btnClear:'Clear',btnCsv:'CSV',btnSample:'Sample',colWord:'Word',colFreq:'Count',colPct:'%',emptyMsg:'Enter text to analyze',
+  en:{h1Accent:'Counter',sub:'Analyze word frequency in text',backLink:'← All Tools',langBtn:'🌐 한국어',lblCase:'Case-insensitive',lblStop:'Remove stopwords',lblPunct:'Remove punctuation',lblMin:'Min freq:',lblTop:'Top:',lblInput:'Input',lblResult:'Word Frequency',btnClear:'Clear',btnCsv:'CSV',btnSample:'Sample',colWord:'Word',colFreq:'Count',colPct:'%',emptyMsg:'Enter text to analyze',
     stats:(total,unique)=>`${total} total words · ${unique} unique`,
     seoHtml:`<p style="font-size:13px;margin-bottom:16px;"><a href="guides/word-frequency-percentage-denominator-basis-en.html" style="color:var(--cyan);">📖 Read the guide: What the % in the Frequency Bar Chart Is Based On</a></p><h2>Word Frequency Counter</h2><p>This tool splits your text <strong>on whitespace only</strong> and treats each resulting piece as one "word." The punctuation-removal option uses a regex that also recognizes Korean, Japanese kana, and CJK ideograph Unicode ranges when stripping punctuation marks, but the actual word-splitting logic is still whitespace. That works well for languages like English where words are reliably space-separated, but for Chinese — which rarely uses spaces at all — or Korean, where particles attach directly to words, the "word" boundaries this tool produces can diverge from real linguistic units. The stopword filter is also just one hardcoded list of English words (a, the, is, etc.), so turning it on for Korean, Chinese, or Japanese text won't meaningfully filter anything.</p>
 <h2 class="seo-sub">FAQ</h2>
@@ -154,8 +152,8 @@ const _i18n={
 <details class="faq-item"><summary>URLやメールアドレスを含むテキストはどう処理されますか？</summary><p>句読点削除がオンになっていると、コロン(:)やスラッシュ(/)、@記号などが全て削除されるため、「https://example.com」のようなURLはhttps、example.comのように複数の断片に分かれたり変形したりすることがあります。URLをそのまま分析したい場合は句読点削除をオフにしてください。</p></details>`
   }
 };
-function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
-function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'en':n==='ja'?'en':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
 function applyLang(){
   const t=_i18n[_lang];document.documentElement.lang=_lang;
   ['h1Accent','subEl','backLink','langBtn','lblCase','lblStop','lblPunct','lblMin','lblTop','lblInput','lblResult','btnClear','btnCsv','btnSample','emptyMsg'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id]||el.textContent;});

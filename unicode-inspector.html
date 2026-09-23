@@ -14,8 +14,6 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="alternate" hreflang="ko" href="https://modoohub.com/unicode-inspector.html">
 <link rel="alternate" hreflang="en" href="https://modoohub.com/unicode-inspector.html?lang=en">
-<link rel="alternate" hreflang="zh" href="https://modoohub.com/unicode-inspector.html?lang=zh">
-<link rel="alternate" hreflang="ja" href="https://modoohub.com/unicode-inspector.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/unicode-inspector.html">
 <link rel="stylesheet" href="theme-instrument.css">
 <style>
@@ -83,7 +81,7 @@ html[lang="en"] .guide-links-en{display:block;}
 <details class="faq-item"><summary>화면에 안 보이는 특수문자는 어떻게 찾나요?</summary><p><strong>ZWSP(Zero-Width Space, U+200B)</strong>처럼 폭이 0이라 화면에 전혀 보이지 않는 문자가 텍스트에 섞여 있으면 복사-붙여넣기 시 예상치 못한 검색 실패나 문자열 비교 오류가 발생합니다. 이 도구에 텍스트를 붙여넣으면 각 문자의 코드포인트가 모두 표시되므로, 화면상 빈칸처럼 보이는 위치에 U+200B, U+FEFF(BOM), U+00A0(줄바꿈 없는 공백) 등이 숨어있는지 즉시 확인할 수 있습니다.</p></details></div>
 </main>
 <script>
-const LANGS=['ko','en','zh','ja'];
+const LANGS=['ko','en'];
 let _lang='ko';
 const _i18n={
   ko:{pageTitle:'유니코드 인스펙터 - 문자별 코드포인트·UTF-8 분석 | MODOO HUB',h1b:'인스펙터',sub:'문자별 코드포인트·UTF-8 바이트·HTML 엔티티 분석',backLink:'← 모두의 툴',langBtn:'🌐 EN',inputLabel:'텍스트 입력',charLabel:'문자 분석 결과',placeholder:'분석할 텍스트를 입력하세요 (Hello 안녕 🎉)...',emptyMsg:'텍스트를 입력하면 문자별 유니코드 정보가 표시됩니다.',hChars:'자',hBytes:'바이트',hCodePts:'고유 코드포인트',
@@ -98,7 +96,7 @@ const _i18n={
 <details class="faq-item"><summary>호모글리프(동형이의 문자) 피싱이란?</summary><p>육안으로는 완전히 동일해 보이지만 실제로는 다른 유니코드 문자인 경우를 호모글리프라고 합니다. 예를 들어 라틴 알파벳 'a'(U+0061)와 키릴 문자 'а'(U+0430)는 화면에서 거의 구분이 안 되지만 서로 다른 코드포인트입니다. 이를 악용해 apple.com처럼 보이지만 실제로는 키릴 문자가 섞인 가짜 도메인으로 사용자를 속이는 피싱 공격(IDN 호모그래프 공격)이 실제로 발생합니다. 의심스러운 링크의 문자를 이 도구로 분석하면 코드포인트 차이를 즉시 확인할 수 있습니다.</p></details>
 <details class="faq-item"><summary>화면에 안 보이는 특수문자는 어떻게 찾나요?</summary><p><strong>ZWSP(Zero-Width Space, U+200B)</strong>처럼 폭이 0이라 화면에 전혀 보이지 않는 문자가 텍스트에 섞여 있으면 복사-붙여넣기 시 예상치 못한 검색 실패나 문자열 비교 오류가 발생합니다. 이 도구에 텍스트를 붙여넣으면 각 문자의 코드포인트가 모두 표시되므로, 화면상 빈칸처럼 보이는 위치에 U+200B, U+FEFF(BOM), U+00A0(줄바꿈 없는 공백) 등이 숨어있는지 즉시 확인할 수 있습니다.</p></details>`
   },
-  en:{pageTitle:'Unicode Inspector - Code Point, UTF-8, HTML Entity per Character | MODOO HUB',h1b:'Inspector',sub:'Inspect code points, UTF-8 bytes, and HTML entities per character',backLink:'← All Tools',langBtn:'🌐 中文',inputLabel:'Input Text',charLabel:'Character Analysis',placeholder:'Enter text to analyze (Hello 안녕 🎉)...',emptyMsg:'Enter text to see per-character Unicode information.',hChars:'chars',hBytes:'bytes',hCodePts:'unique code points',
+  en:{pageTitle:'Unicode Inspector - Code Point, UTF-8, HTML Entity per Character | MODOO HUB',h1b:'Inspector',sub:'Inspect code points, UTF-8 bytes, and HTML entities per character',backLink:'← All Tools',langBtn:'🌐 한국어',inputLabel:'Input Text',charLabel:'Character Analysis',placeholder:'Enter text to analyze (Hello 안녕 🎉)...',emptyMsg:'Enter text to see per-character Unicode information.',hChars:'chars',hBytes:'bytes',hCodePts:'unique code points',
     seoHtml:`<h2>Unicode Inspector</h2><p>Analyze each character in text to show its <strong>Unicode code point (U+XXXX), UTF-8 byte sequence, and HTML entity</strong>. Essential for debugging special characters, emoji, and CJK text.</p>
 <h2 class="seo-sub">FAQ</h2>
 <details class="faq-item"><summary>What is a Unicode code point?</summary><p>A unique number assigned to each character. 'A' is U+0041; '가' is U+AC00.</p></details>
@@ -135,8 +133,8 @@ const _i18n={
 <details class="faq-item"><summary>画面に見えない特殊文字はどう見つけますか？</summary><p>ZWSP（ゼロ幅スペース、U+200B）のように幅がゼロで画面に全く表示されない文字がテキストに混入していると、コピー&amp;ペースト時に予期しない検索失敗や文字列比較エラーが発生します。このツールにテキストを貼り付けると各文字のコードポイントがすべて表示されるため、画面上で空白に見える場所にU+200B、U+FEFF（BOM）、U+00A0（改行なしスペース）などが隠れていないかすぐに確認できます。</p></details>`
   }
 };
-function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
-function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'en':n==='ja'?'en':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
 function toUtf8Hex(cp){
   if(cp<0x80)return [cp].map(b=>b.toString(16).padStart(2,'0').toUpperCase()).join(' ');
   const bytes=[];let c=cp;

@@ -14,8 +14,6 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="alternate" hreflang="ko" href="https://modoohub.com/line-merger.html">
 <link rel="alternate" hreflang="en" href="https://modoohub.com/line-merger.html?lang=en">
-<link rel="alternate" hreflang="zh" href="https://modoohub.com/line-merger.html?lang=zh">
-<link rel="alternate" hreflang="ja" href="https://modoohub.com/line-merger.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/line-merger.html">
 <link rel="stylesheet" href="theme-instrument.css">
 <style>
@@ -98,7 +96,7 @@ input[type=checkbox]{accent-color:var(--cyan); width:14px; height:14px;}
 <details class="faq-item"><summary>탭 구분자는 어디에 쓰이나요?</summary><p>탭 구분자를 선택하면 각 줄 사이에 탭 문자(\t)가 들어가 TSV(Tab-Separated Values) 형식이 됩니다. 이 형식은 그대로 복사해 엑셀이나 구글 시트에 붙여넣으면 자동으로 셀이 나뉘어 들어가는 장점이 있습니다.</p></details></div>
 </main>
 <script>
-const LANGS=['ko','en','zh','ja'];
+const LANGS=['ko','en'];
 let _lang='ko',_sepMode='comma';
 const SEPS={comma:',',space:' ',pipe:'|',tab:'\t',none:''};
 const _i18n={
@@ -115,7 +113,7 @@ const _i18n={
 <details class="faq-item"><summary>결과를 SQL IN 절에 바로 쓸 수 있나요?</summary><p>쉼표로 합친 뒤 앞뒤에 괄호만 추가하면 되지만, 각 값이 문자열이라면 작은따옴표로 감싸는 처리는 이 도구가 대신해주지 않으므로 <code>'apple','banana'</code> 형태가 필요하다면 커스텀 구분자를 <code>','</code>로 지정하고 앞뒤에 따옴표와 괄호를 직접 붙여야 합니다.</p></details>
 <details class="faq-item"><summary>탭 구분자는 어디에 쓰이나요?</summary><p>탭 구분자를 선택하면 각 줄 사이에 탭 문자(\\t)가 들어가 TSV(Tab-Separated Values) 형식이 됩니다. 이 형식은 그대로 복사해 엑셀이나 구글 시트에 붙여넣으면 자동으로 셀이 나뉘어 들어가는 장점이 있습니다.</p></details>`
   },
-  en:{h1b:'Merger',sub:'Merge multiple lines into one using a separator',backLink:'← All Tools',langBtn:'🌐 中文',pageTitle:'Line Merger | MODOO HUB',lblInput:'Input (one per line)',lblSep:'Separator',lblTrim:'Trim whitespace',lblEmpty:'Skip empty lines',lblResult:'Result',btnCopy:'Copy',copied:'Copied!',
+  en:{h1b:'Merger',sub:'Merge multiple lines into one using a separator',backLink:'← All Tools',langBtn:'🌐 한국어',pageTitle:'Line Merger | MODOO HUB',lblInput:'Input (one per line)',lblSep:'Separator',lblTrim:'Trim whitespace',lblEmpty:'Skip empty lines',lblResult:'Result',btnCopy:'Copy',copied:'Copied!',
     chips:[', (comma)','Space','| (pipe)','Tab','None','Custom'],customPlaceholder:'Separator...',statIn:'Input lines',statOut:'Output length',
     seoHtml:`<h2>Line Merger</h2><p>The tool splits whatever you paste on the newline character (\\n), optionally trims whitespace from each line and drops empty lines, then rejoins everything with your chosen separator. Under the hood this is just JavaScript\'s split(\'\\n\') followed by join(separator) — a plain string operation with no escaping or quoting, so if a line already contains the character you picked as separator (say, a comma inside a value while using comma mode), the output will look like that line was split into two values. Keep that behavior in mind when turning a vertical list into a CSV row, building a value list for a SQL IN clause, or collapsing stacked code lines into one array.</p>
 <h2 class="seo-sub">FAQ</h2>
@@ -155,8 +153,8 @@ const _i18n={
 <details class="faq-item"><summary>タブ区切りはどこで使われますか？</summary><p>タブ区切りを選ぶと各行の間にタブ文字（\\t）が挿入され、TSV（タブ区切り値）形式になります。この形式はExcelやGoogleスプレッドシートにそのまま貼り付けると自動的にセルごとに分かれて入る利点があります。</p></details>`
   }
 };
-function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
-function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'en':n==='ja'?'en':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
 function setSep(mode,btn){
   _sepMode=mode;
   document.querySelectorAll('.sep-chip').forEach(c=>c.classList.remove('active'));

@@ -14,8 +14,6 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="alternate" hreflang="ko" href="https://modoohub.com/pdf-rotate.html">
 <link rel="alternate" hreflang="en" href="https://modoohub.com/pdf-rotate.html?lang=en">
-<link rel="alternate" hreflang="zh" href="https://modoohub.com/pdf-rotate.html?lang=zh">
-<link rel="alternate" hreflang="ja" href="https://modoohub.com/pdf-rotate.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/pdf-rotate.html">
 <link rel="stylesheet" href="theme-instrument.css">
 <style>
@@ -98,7 +96,7 @@ html[lang="en"] .guide-links-en{display:block;}
 </main>
 <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js" defer></script>
 <script>
-const LANGS=['ko','en','zh','ja'];
+const LANGS=['ko','en'];
 let _lang='ko',_buf=null,_deg=90,_pageCount=0;
 const _i18n={
   ko:{h1b:'페이지 회전',sub:'PDF 페이지를 원하는 각도로 회전합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',pageTitle:'PDF 페이지 회전 | MODOO HUB',dropTxt:'PDF 파일을 드래그하거나 클릭하여 선택',lblRotAngle:'회전 각도',lblPageSel:'페이지 선택',lblAll:'전체 페이지',lblRange:'특정 페이지',rotBtn:'🔁 회전 후 다운로드',ph:'예: 1,3,5-8',msgOk:'✅ 완료! 다운로드가 시작됩니다.',msgErr:'❌ 오류가 발생했습니다.',
@@ -113,7 +111,7 @@ const _i18n={
 <details class="faq-item"><summary>회전 후 파일 품질이 달라지나요?</summary><p>달라지지 않습니다. 이미지를 재인코딩하거나 텍스트를 래스터화하는 과정이 없고 단순히 표시 각도만 바뀌므로, 해상도·폰트·벡터 그래픽 품질이 원본과 완전히 동일하게 유지됩니다.</p></details>
 <details class="faq-item"><summary>모바일에서도 사용할 수 있나요?</summary><p>네, pdf-lib가 표준 브라우저 API만 사용하므로 최신 모바일 브라우저에서도 파일 선택부터 다운로드까지 정상적으로 동작합니다.</p></details>`
   },
-  en:{h1b:'Page Rotate',sub:'Rotate PDF pages to any angle',backLink:'← All Tools',langBtn:'🌐 中文',pageTitle:'PDF Page Rotate | MODOO HUB',dropTxt:'Drop PDF here or click to select',lblRotAngle:'Rotation Angle',lblPageSel:'Page Selection',lblAll:'All Pages',lblRange:'Specific Pages',rotBtn:'🔁 Rotate & Download',ph:'e.g. 1,3,5-8',msgOk:'✅ Done! Download starting.',msgErr:'❌ Error occurred.',
+  en:{h1b:'Page Rotate',sub:'Rotate PDF pages to any angle',backLink:'← All Tools',langBtn:'🌐 한국어',pageTitle:'PDF Page Rotate | MODOO HUB',dropTxt:'Drop PDF here or click to select',lblRotAngle:'Rotation Angle',lblPageSel:'Page Selection',lblAll:'All Pages',lblRange:'Specific Pages',rotBtn:'🔁 Rotate & Download',ph:'e.g. 1,3,5-8',msgOk:'✅ Done! Download starting.',msgErr:'❌ Error occurred.',
     seoHtml:`<h2>PDF Page Rotator</h2><p>A PDF page's content and its rotation are stored separately — each page has its own /Rotate value (0°, 90°, 180°, or 270°) independent of the actual content. This tool changes only that rotation value with pdf-lib rather than re-rendering the page content, so even large files get reoriented quickly with zero quality loss. It's especially useful when a scanner captured pages sideways or upside down, or when merging multiple documents left a few pages facing the wrong way. Rotate every page at once, or target specific pages using a range like "1,3,5-8" (commas for individual pages, hyphens for ranges).</p>
 <h2 class="seo-sub">FAQ</h2>
 <details class="faq-item"><summary>Can I rotate specific pages only?</summary><p>Yes — select "Specific Pages" and enter something like 1,3,5-8: commas for individual page numbers, hyphens for consecutive ranges. Any page not included stays untouched.</p></details>
@@ -150,8 +148,8 @@ const _i18n={
 <details class="faq-item"><summary>モバイルでも使えますか？</summary><p>はい。pdf-libは標準ブラウザAPIのみに依存しているため、ファイル選択からダウンロードまで最新のモバイルブラウザでも正常に動作します。</p></details>`
   }
 };
-function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
-function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'en':n==='ja'?'en':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
 function applyLang(){
   const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
   ['h1b','subEl','backLink','langBtn','dropTxt','lblRotAngle','lblPageSel','lblAll','lblRange','rotBtn'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id]||el.textContent;});

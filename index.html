@@ -18,8 +18,6 @@
 
 <link rel="alternate" hreflang="ko" href="https://modoohub.com/">
 <link rel="alternate" hreflang="en" href="https://modoohub.com/?lang=en">
-<link rel="alternate" hreflang="zh" href="https://modoohub.com/?lang=zh">
-<link rel="alternate" hreflang="ja" href="https://modoohub.com/?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/">
 
 <meta property="og:type" content="website">
@@ -850,7 +848,7 @@ const i18n = {
     pageTitle:'Modoo Hub - Free Online Tools for Everyone',
     heroTitle:'Modoo Hub',
     heroSub:'Free online tools for developers, workers & everyone.<br>All tools run in your browser — no data sent to servers.',
-    langBtn:'🌐 中文', guidesLink:'📚 Guides',
+    langBtn:'🌐 한국어', guidesLink:'📚 Guides',
     filterAll:'All', filterWork:'Work & Pay', filterTax:'Insurance & Tax', filterReal:'Real Estate & Loans', filterFinance:'Finance & Investment', filterHealth:'Health & Fitness', filterLifeKo:'Daily & Dates (KR)', filterLife:'Daily Life', filterDev:'Developer Tools', filterText:'Text Tools',
     searchPh:'Search tools by name...', searchLabel:'Search tools', noResults:'No matching tools found', skipLink:'Skip to content', resultCountTpl:'{n} tools',
     labelFinance:'Finance & Investment', labelHealth:'Health & Fitness', labelLife:'Daily Life', labelDev:'Developer Tools', labelText:'Text Tools',
@@ -1748,13 +1746,15 @@ const i18n = {
 };
 
 function detectLang() {
-  const urlLang = new URLSearchParams(location.search).get('lang');
+  const normalizeLang = (v) => {
+    const l = (v || '').slice(0, 2);
+    return (l === 'zh' || l === 'ja') ? 'en' : l;
+  };
+  const urlLang = normalizeLang(new URLSearchParams(location.search).get('lang'));
   if (urlLang && i18n[urlLang]) return urlLang;
-  const stored = (localStorage.getItem('modoo_lang')||localStorage.getItem('lang'));
+  const stored = normalizeLang(localStorage.getItem('modoo_lang')||localStorage.getItem('lang'));
   if (stored && i18n[stored]) return stored;
   const nav = navigator.language || '';
-  if (nav.startsWith('zh')) return 'zh';
-  else if (nav.startsWith('ja')) return 'ja';
   if (nav.startsWith('ko')) return 'ko';
   return 'en';
 }
@@ -1892,7 +1892,7 @@ function applyLang() {
   applySectionFilter();
 }
 
-const langOrder = ['ko','en','zh','ja'];
+const langOrder = ['ko','en'];
 function cycleLang() {
   const idx = langOrder.indexOf(lang);
   lang = langOrder[(idx + 1) % langOrder.length];

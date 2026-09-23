@@ -14,8 +14,6 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="alternate" hreflang="ko" href="https://modoohub.com/random-word-generator.html">
 <link rel="alternate" hreflang="en" href="https://modoohub.com/random-word-generator.html?lang=en">
-<link rel="alternate" hreflang="zh" href="https://modoohub.com/random-word-generator.html?lang=zh">
-<link rel="alternate" hreflang="ja" href="https://modoohub.com/random-word-generator.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/random-word-generator.html">
 <link rel="stylesheet" href="theme-instrument.css">
 <style>
@@ -94,7 +92,7 @@ const ADVS=['accurately','boldly','carefully','deeply','effortlessly','fiercely'
 const ALL=[...NOUNS,...VERBS,...ADJS,...ADVS];
 const POOLS={all:ALL,noun:NOUNS,verb:VERBS,adj:ADJS,adv:ADVS};
 const COLORS=['#3FD8C8','#4FCB9A','#4FA6E8','#8B7CFA','#F2725E','#E8C155','#E89355','#8B7CFA'];
-const LANGS=['ko','en','zh','ja'];
+const LANGS=['ko','en'];
 let _lang='ko',_cat='all',_words=[];
 const _i18n={
   ko:{h1b:'생성기',sub:'영어 단어 무작위 생성 · 명사·동사·형용사·부사 카테고리 선택',backLink:'← 모두의 툴',langBtn:'🌐 EN',pageTitle:'랜덤 단어 생성기 | MODOO HUB',lblCat:'카테고리',lblCount:'단어 수',btnGen:'단어 생성',lblOut:'텍스트 출력',btnCopy:'복사',copied:'복사됨!',
@@ -110,7 +108,7 @@ const _i18n={
 <details class="faq-item"><summary>어휘 학습에 어떻게 활용하나요?</summary><p>생성된 단어로 즉석에서 짧은 예문을 만들어보거나, 모르는 단어는 영영사전에 검색해 뜻을 찾고, 종이나 앱으로 플래시카드를 만들어 반복 학습하는 방식으로 활용할 수 있습니다.</p></details>
 <details class="faq-item"><summary>텍스트 출력이란?</summary><p>워드 클라우드에 나온 모든 단어를 쉼표와 공백으로 구분한 한 줄 텍스트로 정리해 보여주는 영역입니다. 개별 단어를 하나씩 클릭해 복사하는 대신 이 박스의 복사 버튼을 누르면 생성된 단어 전체를 한 번에 복사할 수 있습니다.</p></details>`
   },
-  en:{h1b:'Generator',sub:'Generate random English words by category: nouns, verbs, adjectives, adverbs',backLink:'← All Tools',langBtn:'🌐 中文',pageTitle:'Random Word Generator | MODOO HUB',lblCat:'Category',lblCount:'Count',btnGen:'Generate',lblOut:'Text output',btnCopy:'Copy',copied:'Copied!',
+  en:{h1b:'Generator',sub:'Generate random English words by category: nouns, verbs, adjectives, adverbs',backLink:'← All Tools',langBtn:'🌐 한국어',pageTitle:'Random Word Generator | MODOO HUB',lblCat:'Category',lblCount:'Count',btnGen:'Generate',lblOut:'Text output',btnCopy:'Copy',copied:'Copied!',
     cats:[{k:'all',l:'All'},{k:'noun',l:'Nouns'},{k:'verb',l:'Verbs'},{k:'adj',l:'Adjectives'},{k:'adv',l:'Adverbs'}],
     seoHtml:`<h2>Random Word Generator</h2><p>This tool draws randomly with Math.random() from a fixed pool of 200 words — 50 nouns, 50 verbs, 50 adjectives, and 50 adverbs. Rather than pulling from a real dictionary API, it selects from this pre-curated vocabulary list, so you never get overly obscure or context-inappropriate words — just words usable right away as writing material. Selecting "All" draws from the full 200-word pool across all parts of speech, while selecting a specific category limits the draw to that 50-word pool. Common uses include breaking writer's block with random-word writing prompts, building English vocabulary flashcards, warming up a team brainstorming session, or playing word-association games.</p>
 <h2 class="seo-sub">FAQ</h2>
@@ -150,8 +148,8 @@ const _i18n={
 <details class="faq-item"><summary>テキスト出力とは？</summary><p>ワードクラウドに表示されたすべての単語を、カンマとスペースで区切った1行のテキストにまとめた領域です。単語を1つずつクリックする代わりに、このボックスのコピーボタンを押せば生成された単語全体を一度にコピーできます。</p></details>`
   }
 };
-function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
-function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'en':n==='ja'?'en':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
 function setCat(k){
   _cat=k;
   document.querySelectorAll('.rbtn').forEach(c=>c.classList.toggle('on',c.dataset.cat===k));

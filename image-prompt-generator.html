@@ -14,8 +14,6 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="alternate" hreflang="ko" href="https://modoohub.com/image-prompt-generator.html">
 <link rel="alternate" hreflang="en" href="https://modoohub.com/image-prompt-generator.html?lang=en">
-<link rel="alternate" hreflang="zh" href="https://modoohub.com/image-prompt-generator.html?lang=zh">
-<link rel="alternate" hreflang="ja" href="https://modoohub.com/image-prompt-generator.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/image-prompt-generator.html">
 <link rel="stylesheet" href="theme-instrument.css">
 <style>
@@ -172,7 +170,7 @@ html[lang="en"] .guide-links-en{display:block;}
 <details class="faq-item"><summary>한국어로 주제를 입력해도 되나요?</summary><p>입력 자체는 가능하지만, 대부분의 AI 이미지 생성 모델은 영어 프롬프트에서 더 안정적인 결과를 냅니다. 가능하면 주제와 세부 묘사를 영어로 입력하는 것을 권장합니다.</p></details></div>
 </main>
 <script>
-const LANGS=['ko','en','zh','ja'];
+const LANGS=['ko','en'];
 let _lang='ko';
 let _model='mj';
 let _selectedQuality=new Set();
@@ -190,7 +188,7 @@ const _i18n={
 <details class="faq-item"><summary>Midjourney --ar, --v, --q 파라미터는 무엇을 의미하나요?</summary><p>--ar는 종횡비(예: 16:9), --v는 모델 버전, --q는 렌더링 품질 단계를 지정합니다. 이 도구는 Midjourney 모드에서 --ar 16:9 --v 6.1 --q 2를 기본값으로 항상 붙입니다.</p></details>
 <details class="faq-item"><summary>한국어로 주제를 입력해도 되나요?</summary><p>입력 자체는 가능하지만, 대부분의 AI 이미지 생성 모델은 영어 프롬프트에서 더 안정적인 결과를 냅니다. 가능하면 주제와 세부 묘사를 영어로 입력하는 것을 권장합니다.</p></details>`
   },
-  en:{h1Accent:'Image Prompt Generator',sub:'Auto-generate image prompts for Midjourney, DALL-E, and Stable Diffusion',backLink:'← All Tools',langBtn:'🌐 中文',pageTitle:'AI Image Prompt Generator | MODOO HUB',lblSubject:'Subject / Object',lblStyle:'Art Style',lblMood:'Mood / Atmosphere',lblLighting:'Lighting',lblCamera:'Camera / Composition',lblQuality:'Quality Tags',lblNegative:'Negative Prompt (what to exclude)',lblResult:'Generated Prompt',btnGen:'Generate',btnCopy:'Copy',btnClear:'Reset',copied:'✓ Copied',placeholder:'Enter a subject to generate a prompt.',
+  en:{h1Accent:'Image Prompt Generator',sub:'Auto-generate image prompts for Midjourney, DALL-E, and Stable Diffusion',backLink:'← All Tools',langBtn:'🌐 한국어',pageTitle:'AI Image Prompt Generator | MODOO HUB',lblSubject:'Subject / Object',lblStyle:'Art Style',lblMood:'Mood / Atmosphere',lblLighting:'Lighting',lblCamera:'Camera / Composition',lblQuality:'Quality Tags',lblNegative:'Negative Prompt (what to exclude)',lblResult:'Generated Prompt',btnGen:'Generate',btnCopy:'Copy',btnClear:'Reset',copied:'✓ Copied',placeholder:'Enter a subject to generate a prompt.',
     seoHtml:`<h2>AI Image Prompt Generator</h2><p>Generates prompts formatted for Midjourney, DALL-E, and Stable Diffusion. The Midjourney and Stable Diffusion modes simply join the selected elements with commas, which works cleanly, but <strong>the DALL-E mode builds its output by slotting the mood, style, and subject values into a single sentence template</strong> — when mood and style are left unselected, this produces awkward runs of spaces like <code>"A   a cat"</code>, and even when they're selected, you get double spaces between words like <code>"A dramatic  photorealistic image of  a cat"</code>. On top of that, <strong>the negative prompt field stays visible and accepts input in DALL-E mode, but the generation code never uses it there</strong>, so whatever you type simply never shows up in the result.</p>
 <h2 class="seo-sub">FAQ</h2>
 <details class="faq-item"><summary>Is it true that DALL-E mode produces oddly repeated spaces in the prompt?</summary><p>Yes, this is reproducible. Leave style and mood unselected and enter just "a cat" as the subject, and the result is <code>"A   a cat"</code> — three spaces between "A" and "a cat". Even with style and mood selected, you get double spaces between words, like <code>"A dramatic  photorealistic image of  a cat"</code>.</p></details>
@@ -227,8 +225,8 @@ const _i18n={
 <details class="faq-item"><summary>被写体を韓国語で入力してもいいですか？</summary><p>入力自体は可能ですが、ほとんどのAI画像生成モデルは英語プロンプトの方が安定した結果を出します。可能であれば被写体と詳細な描写は英語で入力することをおすすめします。</p></details>`
   }
 };
-function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
-function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'en':n==='ja'?'en':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
 function applyLang(){
   const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
   ['h1Accent','subEl','backLink','langBtn','lblSubject','lblStyle','lblMood','lblLighting','lblCamera','lblQuality','lblNegative','lblResult','btnGen','btnCopy','btnClear'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id]||el.textContent;});

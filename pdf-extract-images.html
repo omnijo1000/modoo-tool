@@ -14,8 +14,6 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="alternate" hreflang="ko" href="https://modoohub.com/pdf-extract-images.html">
 <link rel="alternate" hreflang="en" href="https://modoohub.com/pdf-extract-images.html?lang=en">
-<link rel="alternate" hreflang="zh" href="https://modoohub.com/pdf-extract-images.html?lang=zh">
-<link rel="alternate" hreflang="ja" href="https://modoohub.com/pdf-extract-images.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/pdf-extract-images.html">
 <link rel="stylesheet" href="theme-instrument.css">
 <style>
@@ -100,7 +98,7 @@ html[lang="en"] .guide-links-en{display:block;}
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
 <script>
 pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
-const LANGS=['ko','en','zh','ja'];
+const LANGS=['ko','en'];
 let _lang='ko',_pdf=null,_fname='';
 const _i18n={
   ko:{h1b:'이미지 추출',sub:'PDF 각 페이지를 고해상도 PNG 이미지로 변환합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',pageTitle:'PDF 이미지 추출 | MODOO HUB',dropTxt:'PDF 파일을 드래그하거나 클릭하여 선택',lblScale:'해상도 배율',convertBtn:'🖼️ 변환 시작',warnLarge:'⚠️ 페이지 수가 많거나 고해상도 설정 시 시간이 걸릴 수 있습니다.',pgLabel:'페이지',dlLabel:'다운로드',progLabel:'변환 중',
@@ -115,7 +113,7 @@ const _i18n={
 <details class="faq-item"><summary>암호화된 PDF도 처리되나요?</summary><p>아니요. 열람 암호가 걸린 PDF는 PDF.js가 파일을 열 수 없어 처리할 수 없습니다. 먼저 암호를 해제해야 합니다.</p></details>
 <details class="faq-item"><summary>모바일에서도 사용 가능한가요?</summary><p>가능합니다. 다만 모바일 기기는 데스크톱보다 Canvas 렌더링 성능과 메모리가 제한적이라, 페이지 수가 많거나 3× 배율처럼 고해상도로 설정하면 데스크톱보다 훨씬 느리거나 브라우저가 일시적으로 멈출 수 있습니다.</p></details>`
   },
-  en:{h1b:'Extract Images',sub:'Render each PDF page as a high-res PNG image',backLink:'← All Tools',langBtn:'🌐 中文',pageTitle:'PDF Extract Images | MODOO HUB',dropTxt:'Drop PDF here or click to select',lblScale:'Scale Factor',convertBtn:'🖼️ Start Converting',warnLarge:'⚠️ Many pages or high scale may take time.',pgLabel:'Page',dlLabel:'Download',progLabel:'Converting',
+  en:{h1b:'Extract Images',sub:'Render each PDF page as a high-res PNG image',backLink:'← All Tools',langBtn:'🌐 한국어',pageTitle:'PDF Extract Images | MODOO HUB',dropTxt:'Drop PDF here or click to select',lblScale:'Scale Factor',convertBtn:'🖼️ Start Converting',warnLarge:'⚠️ Many pages or high scale may take time.',pgLabel:'Page',dlLabel:'Download',progLabel:'Converting',
     seoHtml:`<h2>PDF Image Extractor</h2><p>This tool works by rendering each PDF page as a flat image rather than extracting text or vector data. PDF.js draws the page onto an HTML5 Canvas, then pulls out the PNG data — using a scale factor instead of DPI directly. 1x corresponds to the PDF standard resolution of 72 DPI, 2x to 144 DPI, and 3x to 216 DPI (since the PDF coordinate system is based on 1pt = 1/72 inch). As the scale increases, the pixel dimensions of the resulting image grow proportionally, along with file size and rendering time. It's useful for pasting a document into presentation slides, posting a page as a screenshot on a blog or social media, or getting a preview image in an environment where PDFs can't be opened directly.</p>
 <h2 class="seo-sub">FAQ</h2>
 <details class="faq-item"><summary>Can I get each page as a separate image?</summary><p>Yes — once conversion finishes, a download button appears under each page card; clicking it saves just that page as a PNG file. There's no bulk zip download yet, so you'll need to save pages one at a time.</p></details>
@@ -152,8 +150,8 @@ const _i18n={
 <details class="faq-item"><summary>モバイルでも使えますか？</summary><p>使用可能です。ただしモバイル端末はデスクトップよりCanvasのレンダリング性能とメモリが限られているため、ページ数が多い場合や3×のような高解像度設定では大幅に遅くなったり、ブラウザが一時的にフリーズすることがあります。</p></details>`
   }
 };
-function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
-function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'en':n==='ja'?'en':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
 function applyLang(){
   const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
   ['h1b','subEl','backLink','langBtn','dropTxt','lblScale','convertBtn'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id]||el.textContent;});

@@ -15,8 +15,6 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="alternate" hreflang="ko" href="https://modoohub.com/png-to-svg.html">
 <link rel="alternate" hreflang="en" href="https://modoohub.com/png-to-svg.html?lang=en">
-<link rel="alternate" hreflang="zh" href="https://modoohub.com/png-to-svg.html?lang=zh">
-<link rel="alternate" hreflang="ja" href="https://modoohub.com/png-to-svg.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/png-to-svg.html">
 <style>
 .preview-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
@@ -96,7 +94,7 @@ html[lang="en"] .guide-links-en{display:block;}
 <details class="faq-item"><summary>사진도 SVG로 변환되나요?</summary><p>기술적으로는 가능하지만, 사진처럼 픽셀 값이 다양한 이미지는 전경 픽셀 수가 매우 많아져 SVG 파일이 지나치게 커지고 브라우저가 느려질 수 있습니다.</p></details></div>
 </main>
 <script>
-const LANGS=['ko','en','zh','ja'];
+const LANGS=['ko','en'];
 let _lang='ko';
 let _imgEl=null;
 const _i18n={
@@ -112,7 +110,7 @@ const _i18n={
 <details class="faq-item"><summary>파일이 서버로 전송되나요?</summary><p>아니요. 이미지를 Canvas에 그려 픽셀 데이터를 읽은 뒤 각 픽셀을 &lt;rect&gt; 요소로 변환해 SVG 문자열을 생성하는 과정이 모두 브라우저 안에서 실행되므로 원본 이미지가 외부로 전송되지 않습니다.</p></details>
 <details class="faq-item"><summary>사진도 SVG로 변환되나요?</summary><p>기술적으로는 가능하지만, 사진처럼 픽셀 값이 다양한 이미지는 전경 픽셀 수가 매우 많아져 SVG 파일이 지나치게 커지고 브라우저가 느려질 수 있습니다.</p></details>`
   },
-  en:{h1b:'SVG',sub:'Convert PNG image to SVG vector using bitmap tracing',backLink:'← All Tools',langBtn:'🌐 中文',pageTitle:'PNG to SVG Converter | MODOO HUB',dzText:'Drag & drop PNG/JPG or click to upload',lblOpts:'Tracing settings',noticeEl:'PNG to SVG uses bitmap tracing. Best for simple icons and logos; complex photos may produce large SVG files.',lblThresh:'Threshold (brightness)',btnConvert:'Convert to SVG',lblOut:'Result',btnDl:'Download SVG',btnCopy:'Copy',lblSrc:'Original',lblResult:'SVG result',copied:'Copied!',
+  en:{h1b:'SVG',sub:'Convert PNG image to SVG vector using bitmap tracing',backLink:'← All Tools',langBtn:'🌐 한국어',pageTitle:'PNG to SVG Converter | MODOO HUB',dzText:'Drag & drop PNG/JPG or click to upload',lblOpts:'Tracing settings',noticeEl:'PNG to SVG uses bitmap tracing. Best for simple icons and logos; complex photos may produce large SVG files.',lblThresh:'Threshold (brightness)',btnConvert:'Convert to SVG',lblOut:'Result',btnDl:'Download SVG',btnCopy:'Copy',lblSrc:'Original',lblResult:'SVG result',copied:'Copied!',
     seoHtml:`<h2>PNG to SVG Converter</h2><p>Converts PNG images to SVG format. Despite being called "bitmap tracing," though, this isn't real vector tracing that simplifies outlines into curves — <strong>it stamps out one 1×1 &lt;rect&gt; tag for every single dark pixel</strong>. Zooming into the result shows the exact same jagged pixel edges as the source raster image, and since the element count scales with the number of foreground pixels, the output is usually far larger than the original PNG. It also <strong>never reads the alpha channel of a transparent PNG</strong>, so if the RGB value stored underneath a transparent pixel happens to be black (0,0,0) — a common encoding for transparent pixels — it gets misclassified as dark foreground instead of background, which can leave a black rectangle behind a logo's transparent background. Finally, any source image larger than 400px on a side is automatically downscaled to 400px or less before conversion.</p>
 <h2 class="seo-sub">FAQ</h2>
 <details class="faq-item"><summary>Is the SVG this tool produces actually made of curved paths?</summary><p>No. Despite the word "tracing," it doesn't simplify outlines into curves at all — it stamps out a 1×1 &lt;rect&gt; tag for every pixel darker than the threshold. That means one &lt;rect&gt; element per foreground pixel, and zooming into the result shows the same stair-step pixel edges as the source, not smooth curves.</p></details>
@@ -149,8 +147,8 @@ const _i18n={
 <details class="faq-item"><summary>写真をSVGに変換できますか？</summary><p>技術的には可能ですが、写真のようにピクセル値が多様な画像は前景ピクセル数が非常に多くなり、SVGファイルが過大になったりブラウザが重くなったりすることがあります。</p></details>`
   }
 };
-function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
-function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'en':n==='ja'?'en':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
 function applyLang(){
   const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
   ['h1b','subEl','backLink','langBtn','dzText','lblOpts','noticeEl','lblThresh','btnConvert','lblOut','btnDl','btnCopy','lblSrc','lblResult'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id];});

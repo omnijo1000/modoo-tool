@@ -14,8 +14,6 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="alternate" hreflang="ko" href="https://modoohub.com/ascii-table.html">
 <link rel="alternate" hreflang="en" href="https://modoohub.com/ascii-table.html?lang=en">
-<link rel="alternate" hreflang="zh" href="https://modoohub.com/ascii-table.html?lang=zh">
-<link rel="alternate" hreflang="ja" href="https://modoohub.com/ascii-table.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/ascii-table.html">
 <link rel="stylesheet" href="theme-instrument.css">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
@@ -73,7 +71,7 @@
 </main>
 <script>
 const CTRL=['NUL','SOH','STX','ETX','EOT','ENQ','ACK','BEL','BS','HT','LF','VT','FF','CR','SO','SI','DLE','DC1','DC2','DC3','DC4','NAK','SYN','ETB','CAN','EM','SUB','ESC','FS','GS','RS','US'];
-const LANGS=['ko','en','zh','ja'];
+const LANGS=['ko','en'];
 let _lang='ko',_filter='all';
 const _i18n={
   ko:{h1b:'코드표',sub:'0~127 전체 ASCII 문자 · 10진수·16진수·8진수·2진수·HTML 엔티티',backLink:'← 모두의 툴',langBtn:'🌐 EN',pageTitle:'ASCII 코드표 - 0~127 전체 ASCII 문자 참조 | MODOO HUB',thGlyph:'문자',thName:'이름',thDec:'DEC',thHex:'HEX',thOct:'OCT',thBin:'BIN',thHtml:'HTML',note:'* 클릭 시 해당 문자 또는 값을 클립보드에 복사합니다.',search:'검색...',fcAll:'전체',fcCtrl:'제어 (0-31)',fcPrint:'출력 가능 (32-126)',fcDigit:'숫자 (48-57)',fcUpper:'대문자 (65-90)',fcLower:'소문자 (97-122)',
@@ -88,7 +86,7 @@ const _i18n={
 <details class="faq-item"><summary>8진수(OCT)는 어디서 쓰나요?</summary><p>Unix/Linux 파일 권한(chmod 755), C 언어의 8진수 이스케이프 시퀀스(\\007) 등에 사용됩니다.</p></details>
 <details class="faq-item"><summary>Extended ASCII(128~255)는 이 표에 없나요?</summary><p>없습니다. 이 표는 표준 ASCII(0~127)만 다루며, 128번 이후 영역은 표준이 하나로 통일돼 있지 않고 플랫폼·인코딩마다 다르게 정의되어 있어 별도로 다뤄야 합니다.</p></details>`
   },
-  en:{h1b:'Table',sub:'Complete ASCII 0–127 · decimal, hex, octal, binary, HTML entity',backLink:'← All Tools',langBtn:'🌐 中文',pageTitle:'ASCII Table - Complete 0-127 ASCII Code Reference | MODOO HUB',thGlyph:'Char',thName:'Name',thDec:'DEC',thHex:'HEX',thOct:'OCT',thBin:'BIN',thHtml:'HTML',note:'* Click any row to copy the character or decimal value to clipboard.',search:'Search...',fcAll:'All',fcCtrl:'Control (0-31)',fcPrint:'Printable (32-126)',fcDigit:'Digits (48-57)',fcUpper:'Uppercase (65-90)',fcLower:'Lowercase (97-122)',
+  en:{h1b:'Table',sub:'Complete ASCII 0–127 · decimal, hex, octal, binary, HTML entity',backLink:'← All Tools',langBtn:'🌐 한국어',pageTitle:'ASCII Table - Complete 0-127 ASCII Code Reference | MODOO HUB',thGlyph:'Char',thName:'Name',thDec:'DEC',thHex:'HEX',thOct:'OCT',thBin:'BIN',thHtml:'HTML',note:'* Click any row to copy the character or decimal value to clipboard.',search:'Search...',fcAll:'All',fcCtrl:'Control (0-31)',fcPrint:'Printable (32-126)',fcDigit:'Digits (48-57)',fcUpper:'Uppercase (65-90)',fcLower:'Lowercase (97-122)',
     seoHtml:`<p style="font-size:13px;margin-bottom:16px;"><a href="guides/ascii-del-127-punch-tape-history-en.html" style="color:var(--accent);">📖 Read the guide: Why DEL Landed on 127 — A Punch-Tape-Era Relic →</a></p><h2>ASCII Table</h2><p>This is the complete <strong>ASCII code reference (0–127)</strong>. Every row has its own click handler that copies the decimal value, and printable-character cells have a separate handler that copies just the character — but since nothing stops the click from bubbling up, clicking a character cell copies the character first and then the row\'s handler fires right after, overwriting the clipboard with the decimal value. So no matter which cell you click, what actually ends up in your clipboard is always the decimal number. The doubled ampersand you see in the HTML entity column, like "&amp;amp;", isn\'t a mistake — since that value is inserted via <code>innerHTML</code>, the browser decodes entities once during rendering, so the source has to be encoded twice for the literal text "&amp;" to actually appear on screen.</p>
 <h2 class="seo-sub">FAQ</h2>
 <details class="faq-item"><summary>Does clicking the Char cell really copy only that character?</summary><p>No. The character cell does have its own click handler, but nothing stops that click from bubbling up to the row, so right after the character is copied, the row\'s click handler fires again and overwrites the clipboard with the decimal value. What you actually end up with is always the decimal number.</p></details>
@@ -125,8 +123,8 @@ const _i18n={
 <details class="faq-item"><summary>Extended ASCII(128~255)はこの表に含まれていませんか？</summary><p>含まれていません。この表は標準ASCII(0~127)のみを扱います。128番以降の領域は統一された標準がなく、プラットフォームやエンコーディングによって定義が異なるため、別途扱う必要があります。</p></details>`
   }
 };
-function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
-function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'en':n==='ja'?'en':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
 function setFilter(f){_filter=f;document.querySelectorAll('.opt-btn').forEach(c=>c.classList.toggle('active',c.dataset.f===f));renderTable();}
 function glyphFor(n){
   if(n===32)return 'SP';if(n===127)return 'DEL';

@@ -14,8 +14,6 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="alternate" hreflang="ko" href="https://modoohub.com/json-to-xml.html">
 <link rel="alternate" hreflang="en" href="https://modoohub.com/json-to-xml.html?lang=en">
-<link rel="alternate" hreflang="zh" href="https://modoohub.com/json-to-xml.html?lang=zh">
-<link rel="alternate" hreflang="ja" href="https://modoohub.com/json-to-xml.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/json-to-xml.html">
 <link rel="stylesheet" href="theme-instrument.css">
 <style>
@@ -101,7 +99,7 @@ html[lang="en"] .guide-links-en{display:block;}
 <details class="faq-item"><summary>변환된 XML이 잘못됐나요?</summary><p>XML 태그 이름은 숫자로 시작하거나 공백·특수문자를 포함할 수 없다는 규칙이 있습니다. JSON 키에 '1st-item'처럼 이 규칙에 어긋나는 이름이 있으면, 변환기가 별도 검증 없이 그대로 태그명으로 사용하기 때문에 유효하지 않은 XML이 생성될 수 있습니다.</p></details></div>
 </main>
 <script>
-const LANGS=['ko','en','zh','ja'];
+const LANGS=['ko','en'];
 let _lang='ko';
 const SAMPLE_JSON=`{
   "person": {
@@ -128,7 +126,7 @@ const _i18n={
 <details class="faq-item"><summary>루트 요소 이름을 변경하려면?</summary><p>상단의 루트 요소 입력 필드에 원하는 태그 이름을 입력하면 변환 결과의 최상위 태그가 즉시 바뀝니다. 기본값은 'root'입니다.</p></details>
 <details class="faq-item"><summary>변환된 XML이 잘못됐나요?</summary><p>XML 태그 이름은 숫자로 시작하거나 공백·특수문자를 포함할 수 없다는 규칙이 있습니다. JSON 키에 '1st-item'처럼 이 규칙에 어긋나는 이름이 있으면, 변환기가 별도 검증 없이 그대로 태그명으로 사용하기 때문에 유효하지 않은 XML이 생성될 수 있습니다.</p></details>`
   },
-  en:{h1b:'XML Converter',sub:'Convert JSON to XML format',backLink:'← All Tools',langBtn:'🌐 中文',pageTitle:'JSON to XML Converter | MODOO HUB',lblRoot:'Root element:',lblDecl:'XML declaration',lblPretty:'Pretty print',btnConvert:'Convert',btnSample:'Sample',btnClear:'Clear',btnCopy:'Copy',btnDown:'Download',copied:'✓ Copied',
+  en:{h1b:'XML Converter',sub:'Convert JSON to XML format',backLink:'← All Tools',langBtn:'🌐 한국어',pageTitle:'JSON to XML Converter | MODOO HUB',lblRoot:'Root element:',lblDecl:'XML declaration',lblPretty:'Pretty print',btnConvert:'Convert',btnSample:'Sample',btnClear:'Clear',btnCopy:'Copy',btnDown:'Download',copied:'✓ Copied',
     seoHtml:`<h2>JSON to XML Converter</h2><p>JSON and XML both represent data as a tree, but converting JSON's key-value pairs directly into XML tags involves several ambiguous cases. This tool converts each key of a JSON object into an XML tag of the same name, turns arrays into repeated tags with that name, and recursively converts nested objects into child tags. Unlike JSON, XML has the concept of attributes, but this converter deliberately keeps things simple by representing every value only as text content or child elements. It's useful when you need to send JSON data to a legacy SOAP/XML-based API, integrate with an older system that only accepts XML, or migrate JSON data into a format like RSS or a config file where XML is required.</p>
 <h2 class="seo-sub">FAQ</h2>
 <details class="faq-item"><summary>How are JSON arrays represented in XML?</summary><p>XML has no standard syntax equivalent to a JSON array, so this tool repeats each array element as a tag with the same name as its parent key. For example, hobbies:["reading","coding"] converts to &lt;hobbies&gt;reading&lt;/hobbies&gt;&lt;hobbies&gt;coding&lt;/hobbies&gt;.</p></details>
@@ -165,8 +163,8 @@ const _i18n={
 <details class="faq-item"><summary>出力が正しくない？</summary><p>XMLのタグ名は数字で始まったり、スペースや一部の特殊文字を含んだりすることができません。JSONキーが「1st-item」のようにこの規則に違反している場合、コンバーターは検証なしにそのままタグ名として使用するため、無効なXMLが生成されることがあります。</p></details>`
   }
 };
-function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
-function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'en':n==='ja'?'en':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
 function applyLang(){
   const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
   ['h1b','subEl','backLink','langBtn','lblRoot','lblDecl','lblPretty','btnConvert','btnSample','btnClear','btnCopy','btnDown'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id]||el.textContent;});

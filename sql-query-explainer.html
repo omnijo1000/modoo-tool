@@ -14,8 +14,6 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="alternate" hreflang="ko" href="https://modoohub.com/sql-query-explainer.html">
 <link rel="alternate" hreflang="en" href="https://modoohub.com/sql-query-explainer.html?lang=en">
-<link rel="alternate" hreflang="zh" href="https://modoohub.com/sql-query-explainer.html?lang=zh">
-<link rel="alternate" hreflang="ja" href="https://modoohub.com/sql-query-explainer.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/sql-query-explainer.html">
 <link rel="stylesheet" href="theme-instrument.css">
 <style>
@@ -88,7 +86,7 @@
 <details class="faq-item"><summary>입력한 SQL이 서버로 전송되나요?</summary><p>아니요. 정규식 매칭과 문자열 자르기 모두 브라우저 안에서만 이루어지며, 입력한 쿼리는 어디로도 전송되지 않습니다.</p></details></div>
 </main>
 <script>
-const LANGS=['ko','en','zh','ja'];let _lang='ko';
+const LANGS=['ko','en'];let _lang='ko';
 const _i18n={
   ko:{h1Accent:'쿼리 설명기',sub:'SQL 쿼리를 입력하면 각 절의 역할을 단계별로 설명합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',btnExplain:'설명',btnSample:'샘플',btnClear:'초기화',emptyMsg:'SQL 쿼리를 입력하고 설명 버튼을 클릭하세요',
     clauses:{
@@ -117,7 +115,7 @@ const _i18n={
 <details class="faq-item"><summary>입력하는 동안 자동으로 설명이 갱신되나요?</summary><p>네, 입력을 멈춘 뒤 약 0.5초 후 자동으로 다시 분석해 카드가 갱신됩니다(디바운스 처리). 설명 버튼을 눌러 즉시 갱신할 수도 있습니다.</p></details>
 <details class="faq-item"><summary>입력한 SQL이 서버로 전송되나요?</summary><p>아니요. 정규식 매칭과 문자열 자르기 모두 브라우저 안에서만 이루어지며, 입력한 쿼리는 어디로도 전송되지 않습니다.</p></details>`
   },
-  en:{h1Accent:'Query Explainer',sub:'Enter a SQL query and get a step-by-step explanation of each clause',backLink:'← All Tools',langBtn:'🌐 中文',btnExplain:'Explain',btnSample:'Sample',btnClear:'Clear',emptyMsg:'Enter a SQL query and click Explain',
+  en:{h1Accent:'Query Explainer',sub:'Enter a SQL query and get a step-by-step explanation of each clause',backLink:'← All Tools',langBtn:'🌐 한국어',btnExplain:'Explain',btnSample:'Sample',btnClear:'Clear',emptyMsg:'Enter a SQL query and click Explain',
     clauses:{
       SELECT:{label:'SELECT',desc:(v)=>`Columns to retrieve: ${v}`,detail:(v)=>v.includes('*')?'* returns all columns.':v.match(/COUNT|SUM|AVG|MAX|MIN/)?'Contains aggregate functions.':''},
       FROM:{label:'FROM',desc:(v)=>`Source table(s): ${v}`,detail:()=>'The primary table for the query.'},
@@ -199,8 +197,8 @@ const _i18n={
 <details class="faq-item"><summary>入力したSQLはサーバーに送信されますか？</summary><p>いいえ。正規表現によるマッチングと文字列の切り出しはすべてブラウザ内で行われ、入力したクエリはどこにも送信されません。</p></details>`
   }
 };
-function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
-function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'en':n==='ja'?'en':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
 function applyLang(){const t=_i18n[_lang];document.documentElement.lang=_lang;['h1Accent','subEl','backLink','langBtn','btnExplain','btnSample','btnClear'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id]||el.textContent;});document.getElementById('seoDiv').innerHTML=t.seoHtml;if(!document.getElementById('sqlIn').value)document.getElementById('resultArea').innerHTML='';}
 const CLAUSE_ORDER=['WITH','CREATE','INSERT','UPDATE','DELETE','SELECT','FROM','JOIN','LEFT JOIN','RIGHT JOIN','INNER JOIN','WHERE','GROUP BY','HAVING','ORDER BY','LIMIT','OFFSET'];
 const CLAUSE_BADGE={'SELECT':'badge-select','FROM':'badge-from','JOIN':'badge-join','LEFT JOIN':'badge-join','RIGHT JOIN':'badge-join','INNER JOIN':'badge-join','WHERE':'badge-where','GROUP BY':'badge-group','HAVING':'badge-having','ORDER BY':'badge-order','LIMIT':'badge-limit','OFFSET':'badge-limit','INSERT':'badge-insert','UPDATE':'badge-update','DELETE':'badge-delete','CREATE':'badge-create','WITH':'badge-other'};

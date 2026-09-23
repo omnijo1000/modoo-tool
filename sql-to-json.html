@@ -14,8 +14,6 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="alternate" hreflang="ko" href="https://modoohub.com/sql-to-json.html">
 <link rel="alternate" hreflang="en" href="https://modoohub.com/sql-to-json.html?lang=en">
-<link rel="alternate" hreflang="zh" href="https://modoohub.com/sql-to-json.html?lang=zh">
-<link rel="alternate" hreflang="ja" href="https://modoohub.com/sql-to-json.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/sql-to-json.html">
 <link rel="stylesheet" href="theme-instrument.css">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6VJF0534"></script>
@@ -90,7 +88,7 @@ const _i18n={
 <details class="faq-item"><summary>CSV 모드에서 큰따옴표로 감싼 값 안의 쉼표도 안전하게 처리되나요?</summary><p>단순한 경우(따옴표 하나로만 감싸고 내부에 다른 따옴표가 없는 경우)는 안전하게 처리됩니다. 다만 이스케이프된 <code>""</code>(RFC 4180 방식)나 따옴표가 섞인 값은 위에서 설명한 것과 같은 방식으로 잘못 분리될 수 있습니다.</p></details>
 <details class="faq-item"><summary>변환 중에 데이터가 서버로 전송되나요?</summary><p>아니요. 정규식 파싱과 JSON 직렬화 모두 브라우저 안에서만 이루어지며, 입력한 SQL이나 CSV는 어디로도 전송되지 않습니다.</p></details>`
   },
-  en:{pageTitle:'SQL to JSON Converter - SQL INSERT/CSV to JSON | MODOO HUB',sub:'SQL INSERT or CSV → JSON array',backLink:'← All Tools',langBtn:'🌐 中文',labelIn:'SQL Input',labelOut:'JSON Output',btnCopy:'Copy',btnClear:'Clear',copied:'Copied ✓',rows:'rows',
+  en:{pageTitle:'SQL to JSON Converter - SQL INSERT/CSV to JSON | MODOO HUB',sub:'SQL INSERT or CSV → JSON array',backLink:'← All Tools',langBtn:'🌐 한국어',labelIn:'SQL Input',labelOut:'JSON Output',btnCopy:'Copy',btnClear:'Clear',copied:'Copied ✓',rows:'rows',
     seoHtml:`<h2>SQL to JSON Converter</h2><p>The <code>splitCSVLine</code> function that splits values scans character by character and flips a single "inside quotes" flag whenever it hits a quote character, without including that quote character in the result. That means the regex later in the code that checks "is this value wrapped in quotes" always sees a value that already had its quotes stripped — it\'s dead code that never actually fires. It also means a doubled single-quote used to escape an apostrophe in SQL, like <code>'O''Brien'</code>, doesn\'t get preserved at all — it disappears entirely, producing "OBrien." Since that same flag is shared between single and double quotes without distinguishing which one opened a region, mixing both quote types inside one value can also cause an internal comma to get mistaken for a field separator.</p>
 <h2 class="seo-sub">FAQ</h2>
 <details class="faq-item"><summary>Is an escaped single quote ('') in SQL actually preserved?</summary><p>No. A doubled single-quote escape like <code>'O''Brien'</code> gets misread by the character-by-character parser as the string simply closing at that second quote, so the actual apostrophe never survives — the result comes out as "OBrien" with the character dropped entirely.</p></details>
@@ -127,9 +125,9 @@ const _i18n={
 <details class="faq-item"><summary>変換中にデータがサーバーに送信されますか？</summary><p>いいえ。正規表現による解析とJSONのシリアライズはすべてブラウザ内で行われ、入力したSQLやCSVはどこにも送信されません。</p></details>`
   }
 };
-const LANGS=['ko','en','zh','ja'];
+const LANGS=['ko','en'];
 let _lang='ko',_mode='insert';
-function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'en':n==='ja'?'en':n==='ko'?'ko':'en';}
 function cycleLang(){const idx=LANGS.indexOf(_lang);_lang=LANGS[(idx+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
 function applyLang(){const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
   document.getElementById('subEl').textContent=t.sub;document.getElementById('backLink').textContent=t.backLink;document.getElementById('langBtn').textContent=t.langBtn;

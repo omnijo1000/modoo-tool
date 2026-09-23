@@ -14,8 +14,6 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="alternate" hreflang="ko" href="https://modoohub.com/pdf-metadata-remover.html">
 <link rel="alternate" hreflang="en" href="https://modoohub.com/pdf-metadata-remover.html?lang=en">
-<link rel="alternate" hreflang="zh" href="https://modoohub.com/pdf-metadata-remover.html?lang=zh">
-<link rel="alternate" hreflang="ja" href="https://modoohub.com/pdf-metadata-remover.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/pdf-metadata-remover.html">
 <link rel="stylesheet" href="theme-instrument.css">
 <style>
@@ -90,7 +88,7 @@
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
 <script>
 pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
-const LANGS=['ko','en','zh','ja'];let _lang='ko',_pdfBytes=null,_fileName='';
+const LANGS=['ko','en'];let _lang='ko',_pdfBytes=null,_fileName='';
 const META_FIELDS=['Title','Author','Subject','Keywords','Creator','Producer','CreationDate','ModDate'];
 const _i18n={
   ko:{h1Accent:'메타데이터 제거기',sub:'작성자, 날짜 등 개인정보가 담긴 메타데이터를 제거합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',dropText:'PDF 파일을 드래그하거나 클릭하세요',dropHint:'파일이 서버에 업로드되지 않습니다 · pdf-lib 사용',
@@ -108,7 +106,7 @@ const _i18n={
 <details class="faq-item"><summary>제거 후 PDF 내용이 변경되나요?</summary><p>아니요. 제목·작성자 등 문서 정보 필드만 바뀌며 PDF의 본문 텍스트·이미지·레이아웃·품질은 변경되지 않습니다.</p></details>
 <details class="faq-item"><summary>암호화된 PDF도 처리할 수 있나요?</summary><p>아니요. 먼저 PDF 잠금 해제 도구로 암호를 해제한 뒤 이용해야 합니다.</p></details>`
   },
-  en:{h1Accent:'Metadata Remover',sub:'Remove personal info metadata like author, dates, and software',backLink:'← All Tools',langBtn:'🌐 中文',dropText:'Drop a PDF file here or click to browse',dropHint:'Files are never uploaded · Uses pdf-lib',
+  en:{h1Accent:'Metadata Remover',sub:'Remove personal info metadata like author, dates, and software',backLink:'← All Tools',langBtn:'🌐 한국어',dropText:'Drop a PDF file here or click to browse',dropHint:'Files are never uploaded · Uses pdf-lib',
     lblBefore:'Current metadata',lblField:'Field',lblValue:'Value',lblRemove:'Remove',btnRemove:'Remove selected',btnSelAll:'Select all',btnDeselAll:'Deselect all',
     labels:{Title:'Title',Author:'Author',Subject:'Subject',Keywords:'Keywords',Creator:'Creator',Producer:'Producer',CreationDate:'Created',ModDate:'Modified'},
     done:'Metadata removed. Download the cleaned PDF below.',err:'An error occurred while processing.',empty:'(empty)',
@@ -154,8 +152,8 @@ const _i18n={
 <details class="faq-item"><summary>暗号化されたPDFは処理できますか？</summary><p>いいえ、まずPDFアンロックツールでパスワードを解除してから利用してください。</p></details>`
   }
 };
-function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
-function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'en':n==='ja'?'en':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
 function applyLang(){
   const t=_i18n[_lang];document.documentElement.lang=_lang;
   ['h1Accent','subEl','backLink','langBtn','dropText','dropHint','btnRemove','btnSelAll','btnDeselAll'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id];});

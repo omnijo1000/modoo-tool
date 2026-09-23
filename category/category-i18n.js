@@ -1,16 +1,21 @@
 (function () {
   'use strict';
 
-  var LANGS = ['ko', 'en', 'zh', 'ja'];
+  var LANGS = ['ko', 'en'];
   var VALID = { ko: 1, en: 1, zh: 1, ja: 1 };
+  function normalizeLang(v) {
+    var l = (v || '').slice(0, 2);
+    if (l === 'zh' || l === 'ja') return 'en';
+    return l;
+  }
 
   function detectLang() {
-    var u = new URLSearchParams(location.search).get('lang');
+    var u = normalizeLang(new URLSearchParams(location.search).get('lang'));
     if (u && VALID[u]) return u;
-    var s = localStorage.getItem('lang') || localStorage.getItem('modoo_lang');
+    var s = normalizeLang(localStorage.getItem('lang') || localStorage.getItem('modoo_lang'));
     if (s && VALID[s]) return s;
     var n = (navigator.language || '').slice(0, 2);
-    return n === 'zh' ? 'zh' : n === 'ja' ? 'ja' : n === 'ko' ? 'ko' : 'en';
+    return n === 'ko' ? 'ko' : 'en';
   }
 
   function persistLang(lang) {
@@ -28,7 +33,7 @@
     allToolsCard: { ko: '\uc804\uccb4 {n}\uac1c \ub3c4\uad6c', en: 'All {n} Tools', zh: '\u5168\u90e8 {n} \u4e2a\u5de5\u5177', ja: '\u5168 {n} \u30c4\u30fc\u30eb' },
     free: { ko: '\ubb34\ub8cc', en: 'Free', zh: '\u514d\u8d39', ja: '\u7121\u6599' },
     privacy: { ko: '\uac1c\uc778\uc815\ubcf4\ucc98\ub9ac\ubc29\uce68', en: 'Privacy Policy', zh: '\u9690\u79c1\u653f\u7b56', ja: '\u30d7\u30e9\u30a4\u30d0\u30b7\u30fc\u30dd\u30ea\u30b7\u30fc' },
-    langBtn: { ko: '\ud83c\udf10 EN', en: '\ud83c\udf10 \u4e2d\u6587', zh: '\ud83c\udf10 \u65e5\u672c\u8a9e', ja: '\ud83c\udf10 \ud55c\uad6d\uc5b4' }
+    langBtn: { ko: '\ud83c\udf10 EN', en: '\ud83c\udf10 \ud55c\uad6d\uc5b4', zh: '\ud83c\udf10 \u65e5\u672c\u8a9e', ja: '\ud83c\udf10 \ud55c\uad6d\uc5b4' }
   };
 
   var MAIN_I18N = {
@@ -513,4 +518,3 @@
   ensureLangButton(lang);
   applyCategoryI18n(lang);
 })();
-

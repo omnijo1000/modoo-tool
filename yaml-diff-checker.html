@@ -14,8 +14,6 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="alternate" hreflang="ko" href="https://modoohub.com/yaml-diff-checker.html">
 <link rel="alternate" hreflang="en" href="https://modoohub.com/yaml-diff-checker.html?lang=en">
-<link rel="alternate" hreflang="zh" href="https://modoohub.com/yaml-diff-checker.html?lang=zh">
-<link rel="alternate" hreflang="ja" href="https://modoohub.com/yaml-diff-checker.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/yaml-diff-checker.html">
 <link rel="stylesheet" href="theme-instrument.css">
 <style>
@@ -97,7 +95,7 @@
 <details class="faq-item"><summary>대용량 YAML 파일도 처리할 수 있나요?</summary><p>모든 처리가 브라우저 안에서 줄 단위 정규식 매칭으로 이루어지므로 아주 큰 파일은 느려질 수 있습니다. 위에서 설명한 한계들 때문에 실무에서 중요한 설정 비교라면 결과를 그대로 신뢰하지 말고 원본 파일도 함께 대조하는 것이 안전합니다.</p></details></div>
 </main>
 <script>
-const LANGS=['ko','en','zh','ja'];
+const LANGS=['ko','en'];
 let _lang='ko';
 const _i18n={
   ko:{h1Accent:'Diff 비교기',sub:'두 YAML을 입력하면 추가·삭제·변경된 항목을 색상으로 구분하여 표시합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',
@@ -115,7 +113,7 @@ const _i18n={
 <details class="faq-item"><summary>앵커(&)나 별칭(*), 여러 줄 문자열(|, &gt;) 같은 고급 YAML 문법도 지원되나요?</summary><p>지원되지 않습니다. 이 파서는 단순한 한 줄짜리 "키: 값" 패턴만 인식하므로, 앵커·별칭·블록 스칼라 같은 YAML 고급 문법은 매칭되지 않거나 값의 일부로 잘못 흡수될 수 있습니다.</p></details>
 <details class="faq-item"><summary>대용량 YAML 파일도 처리할 수 있나요?</summary><p>모든 처리가 브라우저 안에서 줄 단위 정규식 매칭으로 이루어지므로 아주 큰 파일은 느려질 수 있습니다. 위에서 설명한 한계들 때문에 실무에서 중요한 설정 비교라면 결과를 그대로 신뢰하지 말고 원본 파일도 함께 대조하는 것이 안전합니다.</p></details>`
   },
-  en:{h1Accent:'Diff Checker',sub:'Enter two YAMLs to compare and highlight added, deleted, and changed items',backLink:'← All Tools',langBtn:'🌐 中文',
+  en:{h1Accent:'Diff Checker',sub:'Enter two YAMLs to compare and highlight added, deleted, and changed items',backLink:'← All Tools',langBtn:'🌐 한국어',
     lblLeft:'YAML A (original)',lblRight:'YAML B (modified)',btnDiff:'Compare',btnSample:'Sample',btnClear:'Clear',
     lgAdd:'Added',lgDel:'Deleted',lgChg:'Changed',
     stats:(a,d,c)=>`+${a} added  -${d} deleted  ~${c} changed`,
@@ -161,8 +159,8 @@ const _i18n={
 <details class="faq-item"><summary>大きなYAMLファイルも処理できますか？</summary><p>すべての処理がブラウザ内で行単位の正規表現マッチングとして行われるため、非常に大きなファイルでは遅くなることがあります。上記の制約を踏まえると、実務上重要な設定の比較では、この結果だけを鵜呑みにせず元のファイルも併せて確認することをおすすめします。</p></details>`
   }
 };
-function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
-function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'en':n==='ja'?'en':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
 function applyLang(){
   const t=_i18n[_lang];document.documentElement.lang=_lang;
   ['h1Accent','subEl','backLink','langBtn','lblLeft','lblRight','btnDiff','btnSample','btnClear','lgAdd','lgDel','lgChg'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id]||el.textContent;});

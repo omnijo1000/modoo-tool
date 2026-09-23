@@ -14,8 +14,6 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="alternate" hreflang="ko" href="https://modoohub.com/pdf-reorder-pages.html">
 <link rel="alternate" hreflang="en" href="https://modoohub.com/pdf-reorder-pages.html?lang=en">
-<link rel="alternate" hreflang="zh" href="https://modoohub.com/pdf-reorder-pages.html?lang=zh">
-<link rel="alternate" hreflang="ja" href="https://modoohub.com/pdf-reorder-pages.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/pdf-reorder-pages.html">
 <link rel="stylesheet" href="theme-instrument.css">
 <style>
@@ -87,7 +85,7 @@
 </main>
 <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js" defer></script>
 <script>
-const LANGS=['ko','en','zh','ja'];
+const LANGS=['ko','en'];
 let _lang='ko',_buf=null,_origOrder=[],_order=[];
 const _i18n={
   ko:{h1b:'페이지 순서 변경',sub:'PDF 페이지를 드래그하여 순서를 변경합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',pageTitle:'PDF 페이지 순서 변경 | MODOO HUB',dropTxt:'PDF 파일을 드래그하거나 클릭하여 선택',hintTxt:'드래그하여 순서를 변경하세요 · × 버튼으로 페이지 삭제',saveBtn:'💾 저장 후 다운로드',resetBtn:'↩ 초기화',msgOk:'✅ 완료! 다운로드가 시작됩니다.',msgErr:'❌ 오류가 발생했습니다.',
@@ -102,7 +100,7 @@ const _i18n={
 <details class="faq-item"><summary>암호화된 PDF도 처리할 수 있나요?</summary><p>아니요. 열람 암호가 걸린 PDF는 pdf-lib가 파일을 열 수 없어 처리되지 않습니다. PDF 암호 해제 도구로 먼저 잠금을 풀어야 합니다.</p></details>
 <details class="faq-item"><summary>처리 속도는 어떤가요?</summary><p>페이지 개수와 각 페이지에 포함된 이미지 용량에 좌우됩니다. 텍스트 위주의 수십 페이지 문서는 1~2초 안에 끝나지만, 고해상도 이미지가 많은 PDF는 저장 시 수 초가 걸릴 수 있습니다.</p></details>`
   },
-  en:{h1b:'Reorder Pages',sub:'Drag and drop to reorder PDF pages',backLink:'← All Tools',langBtn:'🌐 中文',pageTitle:'PDF Reorder Pages | MODOO HUB',dropTxt:'Drop PDF here or click to select',hintTxt:'Drag to reorder · × to delete a page',saveBtn:'💾 Save & Download',resetBtn:'↩ Reset',msgOk:'✅ Done! Download starting.',msgErr:'❌ Error occurred.',
+  en:{h1b:'Reorder Pages',sub:'Drag and drop to reorder PDF pages',backLink:'← All Tools',langBtn:'🌐 한국어',pageTitle:'PDF Reorder Pages | MODOO HUB',dropTxt:'Drop PDF here or click to select',hintTxt:'Drag to reorder · × to delete a page',saveBtn:'💾 Save & Download',resetBtn:'↩ Reset',msgOk:'✅ Done! Download starting.',msgErr:'❌ Error occurred.',
     seoHtml:`<h2>PDF Page Reorder</h2><p>A PDF's page order is determined by the arrangement of its internal page tree. This tool uses pdf-lib to copy each page of the original PDF as an individual object, then reassembles a new PDF in whatever order you specify. It's useful when a scanned document's pages got shuffled, when you need to remove a specific clause page from a contract, or when you've merged several reports and need to clean up the order. Drag pages to reposition them or click × to delete one, then save — the text, images, and other content of each page stay untouched; only the order and composition change.</p>
 <h2 class="seo-sub">FAQ</h2>
 <details class="faq-item"><summary>Can I delete specific pages?</summary><p>Yes — click the × button on any page card to remove it from the list. Nothing changes in the actual file until you click Save, so it's safe to experiment with deleting and restoring pages.</p></details>
@@ -139,8 +137,8 @@ const _i18n={
 <details class="faq-item"><summary>処理速度は？</summary><p>ページ数と各ページに含まれる画像の容量によって異なります。テキスト中心の数十ページの文書は1〜2秒で完了しますが、高解像度画像が多いPDFは保存に数秒かかることがあります。</p></details>`
   }
 };
-function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
-function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'en':n==='ja'?'en':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
 function applyLang(){
   const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
   ['h1b','subEl','backLink','langBtn','dropTxt','hintTxt','saveBtn','resetBtn'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id]||el.textContent;});

@@ -14,8 +14,6 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="alternate" hreflang="ko" href="https://modoohub.com/text-case-detector.html">
 <link rel="alternate" hreflang="en" href="https://modoohub.com/text-case-detector.html?lang=en">
-<link rel="alternate" hreflang="zh" href="https://modoohub.com/text-case-detector.html?lang=zh">
-<link rel="alternate" hreflang="ja" href="https://modoohub.com/text-case-detector.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/text-case-detector.html">
 <link rel="stylesheet" href="theme-instrument.css">
 <style>
@@ -113,7 +111,7 @@ function detectCase(s){
   if(/^[a-z ]+$/.test(s.trim())) return 'lower';
   return null;
 }
-const LANGS=['ko','en','zh','ja'];
+const LANGS=['ko','en'];
 let _lang='ko';
 const _i18n={
   ko:{pageTitle:'텍스트 케이스 감지기 - camelCase·snake_case 자동 인식 변환 | MODOO HUB',h1b:'케이스 감지기',sub:'camelCase·snake_case·PascalCase 자동 감지 및 상호 변환',backLink:'← 모두의 툴',langBtn:'🌐 EN',inputLabel:'텍스트 입력',detectedLabel:'감지된 케이스',convertLabel:'변환 결과 (클릭하여 복사)',placeholder:'myVariableName 또는 my_variable_name...',unknown:'알 수 없음',copied:'✓ 복사됨',
@@ -128,7 +126,7 @@ const _i18n={
 <details class="faq-item"><summary>숫자·약어가 섞이면 케이스가 어떻게 판별되나요?</summary><p>판별 규칙: 단어 경계는 소문자→대문자 전환, 언더스코어, 하이픈 기준으로 나눕니다. 다만 이 도구의 판별 정규식은 연속된 대문자(약어) 뒤에 숫자나 또 다른 대문자가 오는 패턴은 인식하지 못합니다 — 예를 들어 <strong>"HTML5Parser"</strong>나 <strong>"userID2Name"</strong>은 어떤 케이스 패턴과도 일치하지 않아 "알 수 없음"으로 표시됩니다. 약어 뒤에 숫자가 붙는 패턴(HTML5, UTF8 등)이 포함된 문자열은 변환 결과를 항상 직접 확인하세요.</p></details>
 <details class="faq-item"><summary>각 케이스는 실제로 어떤 언어·환경에서 쓰이나요?</summary><p>실무 관례 매트릭스: <strong>camelCase</strong> — JavaScript/TypeScript 변수·함수명. <strong>snake_case</strong> — Python 변수·함수명, SQL/DB 컬럼명. <strong>kebab-case</strong> — CSS 클래스명, URL 슬러그, HTML 속성. <strong>PascalCase</strong> — JS/TS·C# 클래스명, React/Vue 컴포넌트명. <strong>UPPER_SNAKE_CASE(CONSTANT_CASE)</strong> — 환경변수(.env), 상수 선언. 언어의 공식 스타일 가이드(PEP8, Airbnb JS Style Guide 등)가 이 관례를 규정합니다.</p></details>`
   },
-  en:{pageTitle:'Text Case Detector - camelCase·snake_case Auto Detect & Convert | MODOO HUB',h1b:'Case Detector',sub:'Auto-detect camelCase·snake_case·PascalCase and convert between them',backLink:'← All Tools',langBtn:'🌐 中文',inputLabel:'Input Text',detectedLabel:'Detected Case',convertLabel:'Conversions (click to copy)',placeholder:'myVariableName or my_variable_name...',unknown:'Unknown',copied:'✓ Copied',
+  en:{pageTitle:'Text Case Detector - camelCase·snake_case Auto Detect & Convert | MODOO HUB',h1b:'Case Detector',sub:'Auto-detect camelCase·snake_case·PascalCase and convert between them',backLink:'← All Tools',langBtn:'🌐 한국어',inputLabel:'Input Text',detectedLabel:'Detected Case',convertLabel:'Conversions (click to copy)',placeholder:'myVariableName or my_variable_name...',unknown:'Unknown',copied:'✓ Copied',
     seoHtml:`<p style="font-size:13px;margin-bottom:16px;"><a href="guides/text-case-camelcase-vs-kebab-case-origin-en.html" style="color:var(--cyan);">📖 Read the guide: camelCase vs kebab-case: Why Different Languages Use Different Naming →</a></p><h2>Text Case Detector</h2><p>Automatically detect and convert between <strong>camelCase, snake_case, PascalCase, kebab-case, UPPER_SNAKE</strong> and other naming conventions. Useful for variable names, function names, and file names.</p>
 <h2 class="seo-sub">FAQ</h2>
 <details class="faq-item"><summary>camelCase vs PascalCase?</summary><p>camelCase starts with a lowercase letter (myVar); PascalCase capitalizes every word (MyVar).</p></details>
@@ -165,8 +163,8 @@ const _i18n={
 <details class="faq-item"><summary>各ケースは実際どの言語・環境で使われますか？</summary><p>実務慣例マトリックス：<strong>camelCase</strong>——JavaScript/TypeScriptの変数・関数名。<strong>snake_case</strong>——Pythonの変数・関数名、SQL/DBカラム名。<strong>kebab-case</strong>——CSSクラス名、URLスラッグ、HTML属性。<strong>PascalCase</strong>——JS/TS・C#のクラス名、React/Vueコンポーネント名。<strong>UPPER_SNAKE_CASE（CONSTANT_CASE）</strong>——環境変数（.env）、定数宣言。これらの慣例は公式スタイルガイド（PEP8、Airbnb JSスタイルガイドなど）で規定されています。</p></details>`
   }
 };
-function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
-function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'en':n==='ja'?'en':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
 function applyLang(){const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;document.getElementById('h1b').textContent=t.h1b;document.getElementById('subEl').textContent=t.sub;document.getElementById('backLink').textContent=t.backLink;document.getElementById('langBtn').textContent=t.langBtn;document.getElementById('inputLabel').textContent=t.inputLabel;document.getElementById('detectedLabel').textContent=t.detectedLabel;document.getElementById('convertLabel').textContent=t.convertLabel;document.getElementById('inputArea').placeholder=t.placeholder;document.getElementById('seoDiv').innerHTML=t.seoHtml;detect();}
 function detect(){
   const t=_i18n[_lang];const v=document.getElementById('inputArea').value.trim();

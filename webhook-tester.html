@@ -14,8 +14,6 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="alternate" hreflang="ko" href="https://modoohub.com/webhook-tester.html">
 <link rel="alternate" hreflang="en" href="https://modoohub.com/webhook-tester.html?lang=en">
-<link rel="alternate" hreflang="zh" href="https://modoohub.com/webhook-tester.html?lang=zh">
-<link rel="alternate" hreflang="ja" href="https://modoohub.com/webhook-tester.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/webhook-tester.html">
 <link rel="stylesheet" href="theme-instrument.css">
 <style>
@@ -107,7 +105,7 @@ const _i18n={
 <details class="faq-item"><summary>시크릿 키는 서버로 전송되나요?</summary><p>아니요. HMAC 계산은 브라우저 내장 Web Crypto API(crypto.subtle)로만 수행되며, 시크릿 키·바디·서명 모두 네트워크로 전송되지 않습니다.</p></details>
 <details class="faq-item"><summary>실시간 Webhook 수신 테스트는 어떻게 하나요?</summary><p>이 도구는 이미 받은 페이로드를 사후 분석하는 용도입니다. 실제로 외부 서비스가 로컬 개발 서버로 웹훅을 보내게 하려면 ngrok 같은 터널링 도구로 로컬 서버를 공개 URL로 노출한 뒤, 그 URL을 GitHub/Stripe 등의 Webhook 설정에 등록해야 합니다.</p></details>`
   },
-  en:{pageTitle:'Webhook Tester - Analyze & Verify Webhook Payloads | MODOO HUB',h1b:'Tester',sub:'Analyze webhook payloads and verify signatures',backLink:'← All Tools',langBtn:'🌐 中文',tab1:'Payload Analysis',tab2:'Signature Verify',labelPayload:'Webhook Payload (JSON)',labelAnalysis:'Analysis',labelSecret:'Secret Key',labelSig:'Received Signature (X-Hub-Signature-256 etc.)',labelBody:'Request Body (raw)',labelVerifyResult:'Verify Result',btnGH:'GitHub Example',btnStripe:'Stripe Example',btnClear:'Clear',sigOk:'✓ Signature VALID — payload integrity confirmed',sigFail:'✗ Signature INVALID — payload tampered or wrong secret',sigComputed:'Computed signature:',sigReceived:'Received signature:',
+  en:{pageTitle:'Webhook Tester - Analyze & Verify Webhook Payloads | MODOO HUB',h1b:'Tester',sub:'Analyze webhook payloads and verify signatures',backLink:'← All Tools',langBtn:'🌐 한국어',tab1:'Payload Analysis',tab2:'Signature Verify',labelPayload:'Webhook Payload (JSON)',labelAnalysis:'Analysis',labelSecret:'Secret Key',labelSig:'Received Signature (X-Hub-Signature-256 etc.)',labelBody:'Request Body (raw)',labelVerifyResult:'Verify Result',btnGH:'GitHub Example',btnStripe:'Stripe Example',btnClear:'Clear',sigOk:'✓ Signature VALID — payload integrity confirmed',sigFail:'✗ Signature INVALID — payload tampered or wrong secret',sigComputed:'Computed signature:',sigReceived:'Received signature:',
     seoHtml:`<p style="font-size:13px;margin-bottom:16px;"><a href="guides/webhook-signature-timing-attack-constant-time-en.html" style="color:var(--cyan);">📖 Webhook Signature Timing Attack Defense Guide →</a></p><h2>Webhook Tester</h2><p>The Payload Analysis tab parses pasted JSON and lists top-level keys with each value's type (string/number/array length, etc.), highlighting common event-identifying fields like action or event separately. The Signature Verify tab uses the Web Crypto API's HMAC-SHA256 to re-hash the secret key + raw body and compares it against the signature you enter. It auto-detects two formats — GitHub-style (<code>sha256=HEX</code>) and Stripe-style (<code>t=timestamp,v1=HEX</code>). Stripe's scheme differs in a key way: it doesn't hash the body alone, it hashes the string <strong>"timestamp.body"</strong>, so when you paste a Stripe-Signature header value, the tool reads the t value and prepends it to the body before recomputing. The comparison itself returns false immediately on a length mismatch, and otherwise XORs every character pair so any single mismatch leaves a non-zero diff — reducing the timing-attack surface that a naive === string comparison (where response time can correlate with how many leading characters match) would expose.</p>
 <h2 class="seo-sub">FAQ</h2>
 <details class="faq-item"><summary>What is a webhook?</summary><p>A notification mechanism that sends an HTTP POST request to a specified URL when an event occurs — e.g., GitHub push, Stripe payment, etc.</p></details>
@@ -144,9 +142,9 @@ const _i18n={
 <details class="faq-item"><summary>リアルタイムWebhook受信テストは？</summary><p>本ツールはすでに受信したペイロードを事後分析するためのものです。外部サービスから実際にローカル開発サーバーへWebhookを送らせたい場合は、ngrokなどのトンネリングツールでローカルサーバーを公開URLとして公開し、そのURLをGitHub/StripeなどのWebhook設定に登録してください。</p></details>`
   }
 };
-const LANGS=['ko','en','zh','ja'];
+const LANGS=['ko','en'];
 let _lang='ko';
-function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'en':n==='ja'?'en':n==='ko'?'ko':'en';}
 function cycleLang(){const idx=LANGS.indexOf(_lang);_lang=LANGS[(idx+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
 function applyLang(){const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
   document.getElementById('h1b').textContent=t.h1b;document.getElementById('subEl').textContent=t.sub;

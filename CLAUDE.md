@@ -56,8 +56,6 @@ Google Fonts 외부 로드 전면 폐지(EU IP 전송 이슈). `/fonts.css` + `/
 <link rel="canonical" href="https://modoohub.com/SLUG.html">
 <link rel="alternate" hreflang="ko" href="https://modoohub.com/SLUG.html">
 <link rel="alternate" hreflang="en" href="https://modoohub.com/SLUG.html?lang=en">
-<link rel="alternate" hreflang="zh" href="https://modoohub.com/SLUG.html?lang=zh">
-<link rel="alternate" hreflang="ja" href="https://modoohub.com/SLUG.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/SLUG.html">
 ```
 
@@ -68,13 +66,13 @@ Google Fonts 외부 로드 전면 폐지(EU IP 전송 이슈). `/fonts.css` + `/
 
 ## i18n 패턴
 
+**2026-09-23 ko/en 2언어 체계로 전환 (zh/ja 제거).** hreflang = `ko`/`en`/`x-default`만. 언어 순환 `['ko','en']`. `?lang=zh|ja`·`localStorage.modoo_lang=zh|ja`·`navigator.language` zh/ja → **en fallback**(크래시 없이). 일부 파일에 남은 `zh:`/`ja:` i18n 블록은 도달 불가 데드 데이터 — 신규 파일엔 zh/ja 블록·hreflang·sitemap alternate 넣지 말 것. 아래 과거 감사 기록의 zh/ja 언급은 당시 기준.
+
 ### 기본 구조
 ```javascript
 const _i18n = {
   ko: { pageTitle:'...', h1:'...', sub:'...', backLink:'← 모두의 툴', langBtn:'🌐 EN', seoHtml:`...` },
-  en: { pageTitle:'...', h1:'...', sub:'...', backLink:'← All Tools', langBtn:'🌐 中文', seoHtml:`...` },
-  zh: { pageTitle:'...', h1:'...', sub:'...', backLink:'← 首页', langBtn:'🌐 日本語', seoHtml:`...` },
-  ja: { pageTitle:'...', h1:'...', sub:'...', backLink:'← ホーム', langBtn:'🌐 한국어', seoHtml:`...` },
+  en: { pageTitle:'...', h1:'...', sub:'...', backLink:'← All Tools', langBtn:'🌐 한국어', seoHtml:`...` },
 };
 ```
 
@@ -94,13 +92,11 @@ function detectLang() {
   const s = localStorage.getItem('modoo_lang');
   if (s && _i18n[s]) return s;
   const n = navigator.language || '';
-  if (n.startsWith('zh')) return 'zh';
-  if (n.startsWith('ja')) return 'ja';
   if (n.startsWith('ko')) return 'ko';
   return 'en';
 }
 function toggleLang() {
-  const order = ['ko','en','zh','ja'];
+  const order = ['ko','en'];
   const next = order[(order.indexOf(currentLang)+1) % order.length];
   currentLang = next;
   localStorage.setItem('modoo_lang', next);
@@ -127,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => applyLang(currentLang));
 
 페이지 스크립트:
 ```javascript
-const _i18n = { ko:{pageTitle,h1,sub,backLink,langBtn,seoHtml,...}, en:{...}, zh:{...}, ja:{...} };
+const _i18n = { ko:{pageTitle,h1,sub,backLink,langBtn,seoHtml,...}, en:{...} };
 MHI18n.init({
   strings: _i18n,
   apply(t, lang) {           // 선택 — 페이지 고유 후처리만
@@ -140,7 +136,7 @@ MHI18n.init({
 `innerHTML` 교체, `?lang=` URL 파라미터 진입, `localStorage['modoo_lang']` 저장/복원,
 구 키 `localStorage['lang']` 1회성 마이그레이션.
 
-- 언어 순환 고정: `['ko','en','zh','ja']`. 토글 버튼 `onclick="cycleLang()"` 그대로 사용
+- 언어 순환 고정: `['ko','en']` (zh/ja 입력은 en 정규화). 토글 버튼 `onclick="cycleLang()"` 그대로 사용
   (헬퍼가 `window.cycleLang`·`window.toggleLang` 별칭 제공). 현재 언어는 `MHI18n.get()`.
 - `apply` 콜백은 `[data-i18n]` 갱신 **후** 마지막에 호출됨 → 재계산 순서 자동 충족.
 - **`ko` seoHtml 정적 프리렌더는 여전히 필수** (아래 SEO 섹션). 헬퍼는 언어 전환 시에만
@@ -250,11 +246,9 @@ details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-h
 
 색상 클래스: c1~c9 (랜덤 배정 가능)
 
-### i18n 키 추가 위치 (4개 언어 모두)
+### i18n 키 추가 위치 (ko/en 2개 언어)
 - ko 섹션: `toolAiTokenName` 근처
 - en 섹션: 같은 key
-- zh 섹션: 같은 key
-- ja 섹션: 같은 key
 
 ### 카운터 업데이트 (replace_all:true)
 - `394가지` → `N가지`
@@ -274,7 +268,7 @@ details.faq-item p{padding:10px 14px;font-size:13px;color:var(--text-dim);line-h
 
 ### T{} 레지스트리에 추가
 ```javascript
-'SLUG': { ko: 'KO NAME', en: 'EN NAME', zh: 'ZH NAME', ja: 'JA NAME', icon: 'ICON' },
+'SLUG': { ko: 'KO NAME', en: 'EN NAME', icon: 'ICON' },
 ```
 
 ### GROUPS[] 배열에 추가 (연관 툴 클러스터)
@@ -332,7 +326,7 @@ related.js가 `DOMContentLoaded` 시 CATEGORY_MAP 기반으로 모든 툴 페이
 2. `category-i18n.js` 내 해당 카테고리 `count:` 값 업데이트
 3. 본문 텍스트 내 하드코딩된 숫자도 함께 수정
 
-**주의**: 카테고리 허브는 글로벌(en/zh/ja) 대상 툴만 포함. 한국 전용 툴(salary, loan-calc 등)은 추가 불필요.
+**주의**: 카테고리 허브는 글로벌(en) 대상 툴만 포함. 한국 전용 툴(salary, loan-calc 등)은 추가 불필요.
 
 ## IndexNow 제출
 

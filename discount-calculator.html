@@ -14,8 +14,6 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="alternate" hreflang="ko" href="https://modoohub.com/discount-calculator.html">
 <link rel="alternate" hreflang="en" href="https://modoohub.com/discount-calculator.html?lang=en">
-<link rel="alternate" hreflang="zh" href="https://modoohub.com/discount-calculator.html?lang=zh">
-<link rel="alternate" hreflang="ja" href="https://modoohub.com/discount-calculator.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/discount-calculator.html">
 <link rel="stylesheet" href="theme-instrument.css">
 <style>
@@ -113,7 +111,7 @@
 <details class="faq-item"><summary>3개 이상 중복 할인도 계산되나요?</summary><p>네. "다중 할인" 탭에 세 번째 할인율 입력란이 있어 최대 3개 할인을 한 번에 계산합니다(비워두면 0%로 처리). 예: 20%+10%+5% → 1×0.8×0.9×0.95 = 68.4%만 지불(실질 할인율 31.6%). 할인율을 단순 합산(35%)하면 실제보다 크게 계산되는 오류가 흔합니다. 4개 이상이 필요하면 공식을 계속 곱해서 확장하세요: 원가 × (1−할인1) × (1−할인2) × (1−할인3) × ….</p></details></div>
 </main>
 <script>
-const LANGS=['ko','en','zh','ja'];let _lang='ko',_mode=0;
+const LANGS=['ko','en'];let _lang='ko',_mode=0;
 const DISC_PRESETS=[5,10,15,20,25,30,40,50,70];
 const _i18n={
   ko:{h1Accent:'할인',sub:'할인율로 최종 판매가와 절약 금액을 계산합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',
@@ -133,7 +131,7 @@ const _i18n={
 <details class="faq-item"><summary>정가 10만원에서 30% 할인 후 다시 10% 추가 할인하면 얼마인가요?</summary><p>100,000 × 0.7 × 0.9 = 63,000원. 단순히 40%를 뺀 60,000원이 아니라 두 할인이 순차적으로 곱해져 63,000원이 됩니다(실질 할인율 37%).</p></details>
 <details class="faq-item"><summary>3개 이상 중복 할인도 계산되나요?</summary><p>네. "다중 할인" 탭에 세 번째 할인율 입력란이 있어 최대 3개 할인을 한 번에 계산합니다(비워두면 0%로 처리). 예: 20%+10%+5% → 1×0.8×0.9×0.95 = 68.4%만 지불(실질 할인율 31.6%). 할인율을 단순 합산(35%)하면 실제보다 크게 계산되는 오류가 흔합니다. 4개 이상이 필요하면 공식을 계속 곱해서 확장하세요: 원가 × (1−할인1) × (1−할인2) × (1−할인3) × ….</p></details>`
   },
-  en:{h1Accent:'Discount',sub:'Calculate final price and savings from a discount rate',backLink:'← All Tools',langBtn:'🌐 中文',
+  en:{h1Accent:'Discount',sub:'Calculate final price and savings from a discount rate',backLink:'← All Tools',langBtn:'🌐 한국어',
     tabs:['Price + discount rate','Price + final price','Multi discount'],
     lbl0a:'Original price',lbl0b:'Discount rate',lbl1a:'Original price',lbl1b:'Final (sale) price',lbl2a:'Original price',lbl2b:'First discount rate',lbl2c:'Second discount rate',lbl2d:'Third discount rate (optional)',
     lblFinal:'Final price',lblSaved:'You save',lblDisc:'Discount rate',
@@ -179,8 +177,8 @@ const _i18n={
 <details class="faq-item"><summary>税込価格は？</summary><p>消費税の計算には消費税逆算計算機をご利用ください。</p></details>`
   }
 };
-function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
-function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();buildPresets();calc();}
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'en':n==='ja'?'en':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();buildPresets();calc();}
 function applyLang(){
   const t=_i18n[_lang];document.documentElement.lang=_lang;
   ['h1Accent','subEl','backLink','langBtn','lbl0a','lbl0b','lbl1a','lbl1b','lbl2a','lbl2b','lbl2c','lbl2d','lblFinal','lblSaved','lblDisc'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id];});

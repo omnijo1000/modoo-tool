@@ -14,8 +14,6 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="alternate" hreflang="ko" href="https://modoohub.com/ico-converter.html">
 <link rel="alternate" hreflang="en" href="https://modoohub.com/ico-converter.html?lang=en">
-<link rel="alternate" hreflang="zh" href="https://modoohub.com/ico-converter.html?lang=zh">
-<link rel="alternate" hreflang="ja" href="https://modoohub.com/ico-converter.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/ico-converter.html">
 <link rel="stylesheet" href="theme-instrument.css">
 <style>
@@ -94,7 +92,7 @@ input[type=checkbox]{accent-color:var(--cyan); width:14px; height:14px;}
 <details class="faq-item"><summary>생성된 ICO를 다운로드 전에 미리 확인할 수 있나요?</summary><p>네, 선택한 각 크기별로 실제 크롭·리사이즈된 결과를 캔버스 미리보기로 먼저 확인할 수 있어 최종 다운로드 전에 크롭 결과를 점검할 수 있습니다.</p></details></div>
 </main>
 <script>
-const LANGS=['ko','en','zh','ja'];
+const LANGS=['ko','en'];
 let _lang='ko',_origImg=null;
 const _i18n={
   ko:{h1b:'변환기',sub:'PNG/JPG 이미지를 ICO 파비콘 파일로 변환합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',pageTitle:'ICO 변환기 | MODOO HUB',dzText:'PNG/JPG 이미지를 드래그하거나 클릭하여 업로드',lblSizes:'포함할 크기 선택',lblPreview:'미리보기',btnConvert:'ICO 다운로드',
@@ -109,7 +107,7 @@ const _i18n={
 <details class="faq-item"><summary>256×256을 포함해야 하나요?</summary><p>Windows 바로가기 아이콘처럼 큰 아이콘이 필요한 경우 포함하세요. ICO 스펙상 256은 헤더의 1바이트 크기 필드에 그대로 담을 수 없어 0으로 표기하는 특별 규칙이 있으며, 이 도구도 그 규칙(<code>sz===256?0:sz</code>)을 정확히 따릅니다.</p></details>
 <details class="faq-item"><summary>생성된 ICO를 다운로드 전에 미리 확인할 수 있나요?</summary><p>네, 선택한 각 크기별로 실제 크롭·리사이즈된 결과를 캔버스 미리보기로 먼저 확인할 수 있어 최종 다운로드 전에 크롭 결과를 점검할 수 있습니다.</p></details>`
   },
-  en:{h1b:'Converter',sub:'Convert PNG/JPG images to ICO favicon format',backLink:'← All Tools',langBtn:'🌐 中文',pageTitle:'ICO Converter | MODOO HUB',dzText:'Drag & drop PNG/JPG or click to upload',lblSizes:'Select sizes to include',lblPreview:'Preview',btnConvert:'Download ICO',
+  en:{h1b:'Converter',sub:'Convert PNG/JPG images to ICO favicon format',backLink:'← All Tools',langBtn:'🌐 한국어',pageTitle:'ICO Converter | MODOO HUB',dzText:'Drag & drop PNG/JPG or click to upload',lblSizes:'Select sizes to include',lblPreview:'Preview',btnConvert:'Download ICO',
     seoHtml:`<p style="font-size:13px;margin-bottom:16px;"><a href="guides/ico-converter-png-inside-ico-en.html" style="color:var(--accent);">📖 Inside an ICO File, the Icons Are Actually All Stored as PNG →</a></p><h2>ICO Converter</h2><p>Converts PNG/JPG images to <strong>ICO format</strong>. If the source image isn't square, it's first <strong>center-cropped to a square</strong> using the shorter side's length, then resized to each selected size (off-center subjects can get clipped). It also embeds every selected size — including small ones like 16×16 — as a <strong>PNG-compressed entry</strong> inside the ICO, not the legacy BMP/DIB bitmap format: the raw PNG bytes are written directly into each ICONDIRENTRY, a technique supported since Windows Vista.</p>
 <h2 class="seo-sub">FAQ</h2>
 <details class="faq-item"><summary>What happens if the source image isn't square?</summary><p>The <code>drawSize()</code> function crops a centered square using the shorter of the width/height (<code>Math.min(width,height)</code>), then resizes it to the target size. If your subject or logo isn't centered in the original image, part of it can get cut off during the crop. For predictable results, pre-crop to a square before uploading.</p></details>
@@ -146,8 +144,8 @@ const _i18n={
 <details class="faq-item"><summary>生成したICOをダウンロード前にプレビューできますか？</summary><p>はい、選択した各サイズで実際にクロップ・リサイズされた結果をキャンバスプレビューで先に確認できるため、最終ダウンロード前にクロップ結果をチェックできます。</p></details>`
   }
 };
-function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
-function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'en':n==='ja'?'en':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
 function applyLang(){
   const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
   ['h1b','subEl','backLink','langBtn','dzText','lblSizes','lblPreview','btnConvert'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id];});

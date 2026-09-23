@@ -4,8 +4,13 @@
  * 사용법은 CLAUDE.md "## i18n 패턴 > MHI18n.init (신규 페이지 옵트인)" 참고.
  */
 (function () {
-  var ORDER = ['ko', 'en', 'zh', 'ja'];
+  var ORDER = ['ko', 'en'];
   var KEY = 'modoo_lang';
+  function normalizeLang(v) {
+    var l = (v || '').slice(0, 2);
+    if (l === 'zh' || l === 'ja') return 'en';
+    return l;
+  }
 
   // 구 키('lang') 1회성 마이그레이션 — 기존 사용자 선택 보존
   try {
@@ -20,12 +25,12 @@
 
       function detect() {
         try {
-          var u = new URLSearchParams(location.search).get('lang');
+          var u = normalizeLang(new URLSearchParams(location.search).get('lang'));
           if (u && strings[u]) return u;
-          var s = localStorage.getItem(KEY);
+          var s = normalizeLang(localStorage.getItem(KEY));
           if (s && strings[s]) return s;
         } catch (e) {}
-        var n = (navigator.language || '').slice(0, 2);
+        var n = normalizeLang(navigator.language || '');
         return strings[n] ? n : 'en';
       }
 

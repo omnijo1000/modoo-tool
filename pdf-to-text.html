@@ -14,8 +14,6 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="alternate" hreflang="ko" href="https://modoohub.com/pdf-to-text.html">
 <link rel="alternate" hreflang="en" href="https://modoohub.com/pdf-to-text.html?lang=en">
-<link rel="alternate" hreflang="zh" href="https://modoohub.com/pdf-to-text.html?lang=zh">
-<link rel="alternate" hreflang="ja" href="https://modoohub.com/pdf-to-text.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/pdf-to-text.html">
 <link rel="stylesheet" href="theme-instrument.css">
 <style>
@@ -83,7 +81,7 @@
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
 <script>
 pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
-const LANGS=['ko','en','zh','ja'];
+const LANGS=['ko','en'];
 let _lang='ko',_allText='',_fname='';
 const _i18n={
   ko:{h1b:'TXT',sub:'PDF 파일을 텍스트 파일로 변환합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',pageTitle:'PDF → TXT 변환 | MODOO HUB',dropTxt:'PDF 파일을 드래그하거나 클릭하여 선택',dlBtn:'⬇️ TXT 다운로드',copyBtn:'전체 복사',prevLabel:'미리보기',progLabel:'변환 중',copiedMsg:'복사됨',pgLabel:'페이지',
@@ -98,7 +96,7 @@ const _i18n={
 <details class="faq-item"><summary>암호화된 PDF도 처리되나요?</summary><p>열람 암호(User Password)나 편집 제한(Owner Password)이 걸린 PDF는 처리할 수 없습니다. 먼저 PDF 암호 해제 도구로 잠금을 풀고 사용하세요.</p></details>
 <details class="faq-item"><summary>여러 파일을 한 번에 처리할 수 있나요?</summary><p>현재는 한 번에 한 파일만 지원합니다. 여러 PDF를 처리하려면 파일을 하나씩 순서대로 업로드해 각각 다운로드하면 됩니다.</p></details>`
   },
-  en:{h1b:'TXT',sub:'Convert PDF files to plain text',backLink:'← All Tools',langBtn:'🌐 中文',pageTitle:'PDF to Text Converter | MODOO HUB',dropTxt:'Drop PDF here or click to select',dlBtn:'⬇️ Download TXT',copyBtn:'Copy All',prevLabel:'Preview',progLabel:'Converting',copiedMsg:'Copied',pgLabel:'Page',
+  en:{h1b:'TXT',sub:'Convert PDF files to plain text',backLink:'← All Tools',langBtn:'🌐 한국어',pageTitle:'PDF to Text Converter | MODOO HUB',dropTxt:'Drop PDF here or click to select',dlBtn:'⬇️ Download TXT',copyBtn:'Copy All',prevLabel:'Preview',progLabel:'Converting',copiedMsg:'Copied',pgLabel:'Page',
     seoHtml:`<p style="font-size:13px;margin-bottom:16px;"><a href="guides/pdf-to-text-table-coordinate-scatter-en.html" style="color:var(--accent);">📖 Read the guide: Why Tables Copied From a PDF Come Out Scrambled →</a></p><h2>PDF to Text Converter</h2><p>A PDF doesn't actually store text as a continuous string — each character's font, coordinates, and size are stored separately and scattered across the page. This tool uses PDF.js to read each page's text objects in order and stitch them into a plain TXT file. Digital PDFs with an embedded text layer (documents exported from Word, printed webpages, etc.) extract perfectly, but a scanned paper turned into an image-only PDF has no character data at all — without OCR (Optical Character Recognition), nothing can be extracted. Common uses include searching contract text, organizing citations, reusing resume content, and indexing large PDF archives for keyword search.</p>
 <h2 class="seo-sub">FAQ</h2>
 <details class="faq-item"><summary>Can scanned PDFs be converted?</summary><p>No — this tool does not perform OCR. Only "digital PDFs" that already contain embedded text objects can be extracted. A PDF that just wraps a scanned photo looks like it has text, but it's actually image pixels with zero extractable characters. Run it through Adobe Acrobat, Google Drive OCR, or a dedicated OCR tool first to add a text layer.</p></details>
@@ -135,8 +133,8 @@ const _i18n={
 <details class="faq-item"><summary>複数ファイルを一度に処理できますか？</summary><p>現在は一度に1ファイルのみ対応しています。複数のPDFを処理する場合は、1つずつアップロードしてそれぞれダウンロードしてください。</p></details>`
   }
 };
-function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
-function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'en':n==='ja'?'en':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
 function applyLang(){
   const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
   ['h1b','subEl','backLink','langBtn','dropTxt','dlBtn','copyBtn','prevLabel'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id]||el.textContent;});

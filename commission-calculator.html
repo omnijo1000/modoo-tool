@@ -14,8 +14,6 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="alternate" hreflang="ko" href="https://modoohub.com/commission-calculator.html">
 <link rel="alternate" hreflang="en" href="https://modoohub.com/commission-calculator.html?lang=en">
-<link rel="alternate" hreflang="zh" href="https://modoohub.com/commission-calculator.html?lang=zh">
-<link rel="alternate" hreflang="ja" href="https://modoohub.com/commission-calculator.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/commission-calculator.html">
 <link rel="stylesheet" href="theme-instrument.css">
 <style>
@@ -90,7 +88,7 @@
 <details class="faq-item"><summary>업종별 실제 수수료율은 얼마인가요?</summary><p><strong>부동산 매매 중개보수(공인중개사법 기준, 구간별 상한요율)</strong>: 5천만원 미만 0.6%, 5천만원~2억원 미만 0.5%, 2억원~9억원 미만 0.4%, 9억원 이상은 지자체 조례로 협의(대개 0.5~0.7% 이내 상한) — 이 자체가 바로 이 도구의 구간별 모드와 동일한 누진 구조입니다. <strong>배달앱 중개 수수료</strong>: 통상 매출의 6~15% 내외(플랫폼·계약 형태별 상이). <strong>오픈마켓(쿠팡·네이버 스마트스토어 등)</strong>: 카테고리별로 대략 5~13% 수준. 정확한 법정 요율은 계약 시점 지자체 고시를 반드시 재확인하세요.</p></details></div>
 </main>
 <script>
-const LANGS=['ko','en','zh','ja'];let _lang='ko',_mode=0;
+const LANGS=['ko','en'];let _lang='ko',_mode=0;
 let tiers=[{upTo:1000000,rate:3},{upTo:5000000,rate:5},{upTo:Infinity,rate:7}];
 const _i18n={
   ko:{h1Accent:'수수료',sub:'판매 수수료와 구간별 수수료를 계산합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',
@@ -108,7 +106,7 @@ const _i18n={
 <details class="faq-item"><summary>결과가 이상하게 나오면?</summary><p>판매액은 0 이상, 수수료율은 0~100 사이의 숫자여야 정상적으로 계산됩니다. 구간별 모드에서는 구간 상한 금액을 입력 순서와 무관하게 자동으로 오름차순 정렬한 뒤 계산하므로, 구간을 뒤죽박죽 입력해도 계산 자체는 정확하지만 화면에 표시되는 구간 순서가 입력 순서와 다르게 보일 수 있습니다.</p></details>
 <details class="faq-item"><summary>업종별 실제 수수료율은 얼마인가요?</summary><p><strong>부동산 매매 중개보수(공인중개사법 기준, 구간별 상한요율)</strong>: 5천만원 미만 0.6%, 5천만원~2억원 미만 0.5%, 2억원~9억원 미만 0.4%, 9억원 이상은 지자체 조례로 협의(대개 0.5~0.7% 이내 상한) — 이 자체가 바로 이 도구의 구간별 모드와 동일한 누진 구조입니다. <strong>배달앱 중개 수수료</strong>: 통상 매출의 6~15% 내외(플랫폼·계약 형태별 상이). <strong>오픈마켓(쿠팡·네이버 스마트스토어 등)</strong>: 카테고리별로 대략 5~13% 수준. 정확한 법정 요율은 계약 시점 지자체 고시를 반드시 재확인하세요.</p></details>`
   },
-  en:{h1Accent:'Commission',sub:'Calculate sales commission and tiered commission rates',backLink:'← All Tools',langBtn:'🌐 中文',
+  en:{h1Accent:'Commission',sub:'Calculate sales commission and tiered commission rates',backLink:'← All Tools',langBtn:'🌐 한국어',
     tabs:['Flat rate','Tiered rate'],lbl0a:'Sales amount',lbl0b:'Commission rate',lbl1a:'Total sales amount',lbl1b:'Commission tiers',
     btnAddTier:'+ Add tier',tierLbl:'up to',tierRate:'rate',unlimited:'unlimited',
     lblSales:'Sales',lblRate:'Rate',lblComm:'Commission',
@@ -154,8 +152,8 @@ const _i18n={
 <details class="faq-item"><summary>業種別の実際のコミッション率はどれくらいですか？</summary><p><strong>韓国の不動産売買仲介手数料</strong>（公認仲介士法基準、段階別法定上限料率）：5千万ウォン未満0.6%、5千万〜2億ウォン0.5%、2億〜9億ウォン0.4%、9億ウォン以上は自治体条例により協議（通常0.5〜0.7%程度が上限）——これ自体がこのツールの段階的モードと全く同じ累進構造です。<strong>配達アプリ仲介手数料</strong>：通常売上の6〜15%程度（プラットフォーム・契約形態により異なる）。<strong>ECプラットフォーム</strong>（クーパン・Naverスマートストアなど）：カテゴリーごとにおおよそ5〜15%程度です。契約前には必ず当時の最新の法定料率またはプラットフォーム料率を確認してください。</p></details>`
   }
 };
-function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
-function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();renderTiers();calc();}
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'en':n==='ja'?'en':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();renderTiers();calc();}
 function applyLang(){
   const t=_i18n[_lang];document.documentElement.lang=_lang;
   ['h1Accent','subEl','backLink','langBtn','lbl0a','lbl0b','lbl1a','lbl1b','btnAddTier'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id];});

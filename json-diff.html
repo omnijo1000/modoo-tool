@@ -15,8 +15,6 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="alternate" hreflang="ko" href="https://modoohub.com/json-diff.html">
 <link rel="alternate" hreflang="en" href="https://modoohub.com/json-diff.html?lang=en">
-<link rel="alternate" hreflang="zh" href="https://modoohub.com/json-diff.html?lang=zh">
-<link rel="alternate" hreflang="ja" href="https://modoohub.com/json-diff.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/json-diff.html">
 <style>
 .cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
@@ -114,7 +112,7 @@ const _i18n={
 <details class="faq-item"><summary>대용량 JSON도 비교 가능한가요?</summary><p>브라우저 내 JS로 처리하므로 수백 KB 규모는 문제 없습니다. 수 MB 이상의 대용량은 성능이 저하될 수 있습니다.</p></details>
 <details class="faq-item"><summary>JSON 유효성 검사도 함께 하나요?</summary><p>네, 비교 전에 각 JSON의 파싱 가능 여부를 먼저 검사합니다. 파싱 오류가 있으면 해당 오류를 먼저 알려줍니다.</p></details>`
   },
-  en:{pageTitle:'JSON Diff - Compare Two JSON Objects | MODOO HUB',h1b:'Diff',sub:'Paste two JSON objects → instantly compare added, deleted, modified keys',backLink:'← All Tools',langBtn:'🌐 中文',labelA:'JSON A (base)',labelB:'JSON B (compare)',btnDiff:'Compare',btnClear:'Clear',added:'added',deleted:'deleted',modified:'modified',same:'same',errA:'JSON A parse error',errB:'JSON B parse error',
+  en:{pageTitle:'JSON Diff - Compare Two JSON Objects | MODOO HUB',h1b:'Diff',sub:'Paste two JSON objects → instantly compare added, deleted, modified keys',backLink:'← All Tools',langBtn:'🌐 한국어',labelA:'JSON A (base)',labelB:'JSON B (compare)',btnDiff:'Compare',btnClear:'Clear',added:'added',deleted:'deleted',modified:'modified',same:'same',errA:'JSON A parse error',errB:'JSON B parse error',
     seoHtml:`<h2>JSON Diff Tool</h2><p>Walks both JSON values together along the same structure, finding <strong>added entries (green)</strong>, <strong>deleted entries (red)</strong>, and <strong>modified values (blue)</strong> at each key (for objects) or index (for arrays). When both sides are objects or both are arrays, it recurses into them; arrays treat indices 0, 1, 2... as keys and compare each position separately — so in <code>{"tags":["a","b","c"]}</code>, if only the middle "b" changes to "x", you get a single <code>tags.1: b → x</code> line instead of the whole array being flagged as one big change. The catch: since positions are matched by index rather than aligned with an LCS-style algorithm, inserting a new element in the middle of an array shifts everything after it, which can make unrelated later elements look "modified" even though they didn't actually change. Useful for API response changes, config file comparison, and data migration validation.</p>
 <h2 class="seo-sub">FAQ</h2>
 <details class="faq-item"><summary>Exactly how are arrays compared?</summary><p>Array indices are treated like object keys, and the value at each matching index is compared. If an array element is itself an object or a nested array, comparison recurses into it — so with <code>items: [{"id":1,"v":"x"}, {"id":2,"v":"y"}]</code>, changing just one field inside one array element flags only that field, not the whole item.</p></details>
@@ -151,9 +149,9 @@ const _i18n={
 <details class="faq-item"><summary>JSON検証も行いますか？</summary><p>はい。比較前に各JSONのパース可否を検査し、エラーを先に報告します。</p></details>`
   }
 };
-const LANGS=['ko','en','zh','ja'];
+const LANGS=['ko','en'];
 let _lang='ko';
-function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'en':n==='ja'?'en':n==='ko'?'ko':'en';}
 function cycleLang(){const idx=LANGS.indexOf(_lang);_lang=LANGS[(idx+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
 function applyLang(){
   const t=_i18n[_lang];

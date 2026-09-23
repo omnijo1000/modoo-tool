@@ -14,8 +14,6 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="alternate" hreflang="ko" href="https://modoohub.com/csv-diff-checker.html">
 <link rel="alternate" hreflang="en" href="https://modoohub.com/csv-diff-checker.html?lang=en">
-<link rel="alternate" hreflang="zh" href="https://modoohub.com/csv-diff-checker.html?lang=zh">
-<link rel="alternate" hreflang="ja" href="https://modoohub.com/csv-diff-checker.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/csv-diff-checker.html">
 <link rel="stylesheet" href="theme-instrument.css">
 <style>
@@ -101,7 +99,7 @@ tr.row-same td{color:var(--text-dim);}
 <details class="faq-item"><summary>엑셀 자체의 비교 기능과 이 도구는 무엇이 다른가요?</summary><p>엑셀(스프레드시트 비교 도구 포함)은 셀 서식(색상, 폰트, 테두리)까지 비교 대상에 포함하는 경우가 많아, 값은 같아도 서식이 다르면 차이로 표시될 수 있습니다. 이 도구는 순수하게 셀의 텍스트 값만 비교하므로, 데이터 마이그레이션 검증처럼 "값이 실제로 같은가"만 확인하고 싶을 때 더 정확하고 노이즈가 적습니다.</p></details></div>
 </main>
 <script>
-const LANGS=['ko','en','zh','ja'];
+const LANGS=['ko','en'];
 let _lang='ko';
 const _i18n={
   ko:{h1Accent:'Diff 비교기',sub:'두 CSV를 입력하면 추가·삭제·변경된 행을 테이블로 시각화합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',
@@ -120,7 +118,7 @@ const _i18n={
 <details class="faq-item"><summary>인코딩·구분자 문제로 diff가 깨지는 경우는?</summary><p>① 한국 엑셀에서 CSV 저장 시 기본 인코딩이 EUC-KR(또는 CP949)인 경우가 많은데, UTF-8로 인식하면 한글이 깨져 모든 행이 다르게 표시됩니다. ② UTF-8 BOM(Byte Order Mark) 유무 차이 — BOM이 있는 파일과 없는 파일을 비교하면 첫 번째 셀 값 앞에 보이지 않는 문자가 붙어 첫 열이 항상 다르게 표시되는 흔한 오류가 발생합니다. ③ 구분자 차이 — 유럽/한국 로케일의 엑셀은 세미콜론(;)을, 미국 로케일은 쉼표(,)를 기본 구분자로 사용해 두 CSV의 구분자가 다르면 파싱 자체가 실패합니다. 비교 전 두 파일의 인코딩과 구분자를 반드시 통일하세요.</p></details>
 <details class="faq-item"><summary>엑셀 자체의 비교 기능과 이 도구는 무엇이 다른가요?</summary><p>엑셀(스프레드시트 비교 도구 포함)은 셀 서식(색상, 폰트, 테두리)까지 비교 대상에 포함하는 경우가 많아, 값은 같아도 서식이 다르면 차이로 표시될 수 있습니다. 이 도구는 순수하게 셀의 텍스트 값만 비교하므로, 데이터 마이그레이션 검증처럼 "값이 실제로 같은가"만 확인하고 싶을 때 더 정확하고 노이즈가 적습니다.</p></details>`
   },
-  en:{h1Accent:'Diff Checker',sub:'Enter two CSVs to visualize added, deleted, and changed rows as a table',backLink:'← All Tools',langBtn:'🌐 中文',
+  en:{h1Accent:'Diff Checker',sub:'Enter two CSVs to visualize added, deleted, and changed rows as a table',backLink:'← All Tools',langBtn:'🌐 한국어',
     lblDelim:'Delimiter:',lblHeader:'First row is header',lblIgnoreCase:'Ignore case',lblLeft:'CSV A (original)',lblRight:'CSV B (modified)',
     btnDiff:'Compare',btnSample:'Sample',btnClear:'Clear',lgAdd:'Added rows',lgDel:'Deleted rows',lgChg:'Changed rows',
     hdrType:'Type',hdrRow:'Row',stats:(a,d,c,s)=>`+${a} added  -${d} deleted  ~${c} changed  =${s} same`,
@@ -169,8 +167,8 @@ const _i18n={
 <details class="faq-item"><summary>Excel自体の比較機能とこのツールは何が違いますか？</summary><p>Excel（およびスプレッドシート比較アドオン）はセルの書式（色・フォント・罫線）まで比較対象に含めることが多く、値が同じでも書式が違うと差分として表示されることがあります。このツールはセルのテキスト値のみを純粋に比較するため、データ移行検証のように「値が実際に同じか」だけを確認したい場合により正確でノイズが少なくなります。</p></details>`
   }
 };
-function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
-function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'en':n==='ja'?'en':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
 function applyLang(){
   const t=_i18n[_lang];document.documentElement.lang=_lang;
   ['h1Accent','subEl','backLink','langBtn','lblDelim','lblHeader','lblIgnoreCase','lblLeft','lblRight','btnDiff','btnSample','btnClear','lgAdd','lgDel','lgChg'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id]||el.textContent;});

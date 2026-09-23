@@ -14,8 +14,6 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="alternate" hreflang="ko" href="https://modoohub.com/pdf-size-analyzer.html">
 <link rel="alternate" hreflang="en" href="https://modoohub.com/pdf-size-analyzer.html?lang=en">
-<link rel="alternate" hreflang="zh" href="https://modoohub.com/pdf-size-analyzer.html?lang=zh">
-<link rel="alternate" hreflang="ja" href="https://modoohub.com/pdf-size-analyzer.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/pdf-size-analyzer.html">
 <link rel="stylesheet" href="theme-instrument.css">
 <style>
@@ -87,7 +85,7 @@
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
 <script>
 pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
-const LANGS=['ko','en','zh','ja'];let _lang='ko';
+const LANGS=['ko','en'];let _lang='ko';
 const _i18n={
   ko:{h1Accent:'크기 분석기',sub:'PDF 파일 크기, 페이지 크기, 메타데이터를 분석합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',dropText:'PDF 파일을 드래그하거나 클릭하세요',dropHint:'파일이 서버에 업로드되지 않습니다',
     lblFileSize:'파일 크기',lblPages:'총 페이지',lblPdfVer:'PDF 버전',lblTitle:'제목',lblAuthor:'작성자',lblCreator:'프로그램',lblProducer:'PDF 생성기',lblCreated:'작성일',lblModified:'수정일',lblPageSizes:'페이지별 크기',lblPage:'페이지',
@@ -103,7 +101,7 @@ const _i18n={
 <details class="faq-item"><summary>메타데이터가 없는 PDF도 분석 가능한가요?</summary><p>네. 메타데이터 조회가 실패해도 오류 없이 빈 값으로 처리되며, 파일 크기·페이지 수·페이지 치수는 정상적으로 확인할 수 있습니다.</p></details>
 <details class="faq-item"><summary>암호화된 PDF도 분석할 수 있나요?</summary><p>아니요. 암호화된 PDF는 PDF.js가 열 수 없으므로 먼저 PDF 잠금 해제 도구로 암호를 해제한 뒤 분석해야 합니다.</p></details>`
   },
-  en:{h1Accent:'Size Analyzer',sub:'Analyze PDF file size, page dimensions, and metadata',backLink:'← All Tools',langBtn:'🌐 中文',dropText:'Drop a PDF file here or click to browse',dropHint:'Files are never uploaded to a server',
+  en:{h1Accent:'Size Analyzer',sub:'Analyze PDF file size, page dimensions, and metadata',backLink:'← All Tools',langBtn:'🌐 한국어',dropText:'Drop a PDF file here or click to browse',dropHint:'Files are never uploaded to a server',
     lblFileSize:'File size',lblPages:'Total pages',lblPdfVer:'PDF version',lblTitle:'Title',lblAuthor:'Author',lblCreator:'Creator',lblProducer:'Producer',lblCreated:'Created',lblModified:'Modified',lblPageSizes:'Page sizes',lblPage:'Page',
     lblMetadata:'Metadata',lblInfo:'File info',
     seoHtml:`<p style="font-size:13px;margin-bottom:16px;"><a href="guides/pdf-size-analyzer-shared-resource-limit-en.html" style="color:var(--accent);">📖 Read the guide: A PDF Size Analyzer's "Per-Page Size" Isn't Actually File Size →</a></p><h2>PDF Size Analyzer</h2><p>Analyzes a PDF's total file size, page count, and metadata. Two things worth knowing, though. First, <strong>"Created"/"Modified" display the raw format stored inside the PDF</strong> — the PDF spec stores dates like <code>D:20240115093000+09'00'</code>, and this tool has no code to convert that into a human-readable date, so the raw string appears as-is. Second, <strong>the "Page sizes" section shows each page's physical paper dimensions (A4, Letter, etc.), not its actual data size in KB</strong>. Because resources like images and fonts are often shared across multiple pages in a PDF's internal structure, splitting out an exact byte size per page isn't really feasible.</p>
@@ -146,8 +144,8 @@ const _i18n={
 <details class="faq-item"><summary>暗号化されたPDFも分析できますか？</summary><p>いいえ。暗号化されたPDFはPDF.jsで開けないため、先にPDFアンロックツールでパスワードを解除してから分析する必要があります。</p></details>`
   }
 };
-function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
-function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'en':n==='ja'?'en':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
 function applyLang(){
   const t=_i18n[_lang];document.documentElement.lang=_lang;
   ['h1Accent','subEl','backLink','langBtn','dropText','dropHint'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id];});

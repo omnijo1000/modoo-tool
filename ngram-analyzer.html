@@ -14,8 +14,6 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="alternate" hreflang="ko" href="https://modoohub.com/ngram-analyzer.html">
 <link rel="alternate" hreflang="en" href="https://modoohub.com/ngram-analyzer.html?lang=en">
-<link rel="alternate" hreflang="zh" href="https://modoohub.com/ngram-analyzer.html?lang=zh">
-<link rel="alternate" hreflang="ja" href="https://modoohub.com/ngram-analyzer.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/ngram-analyzer.html">
 <link rel="stylesheet" href="theme-instrument.css">
 <style>
@@ -95,7 +93,7 @@
 <details class="faq-item"><summary>4-gram, 5-gram도 분석할 수 있나요?</summary><p>현재 도구는 1~3-gram을 지원합니다. 더 높은 N을 위해서는 별도 NLP 도구를 활용하세요.</p></details></div>
 </main>
 <script>
-const LANGS=['ko','en','zh','ja'];let _lang='ko';
+const LANGS=['ko','en'];let _lang='ko';
 const STOP=new Set(['a','an','the','and','or','but','in','on','at','to','for','of','with','by','from','is','are','was','were','be','been','being','have','has','had','do','does','did','will','would','could','should','may','might','i','you','he','she','it','we','they','this','that','these','those','not','no','so','as','if','then','than','up','out','into','about']);
 const _i18n={
   ko:{h1Accent:'분석기',sub:'텍스트에서 Unigram, Bigram, Trigram을 추출하고 빈도를 분석합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',lblCase:'대소문자 통합',lblPunct:'구두점 제거',lblStop:'불용어 제거',lblTop:'상위:',lblInput:'입력',btnClear:'지우기',btnSample:'샘플',btnCsv:'CSV 내보내기',emptyMsg:'텍스트를 입력하면 분석합니다',
@@ -111,7 +109,7 @@ const _i18n={
 <details class="faq-item"><summary>불용어를 제거하면 더 유용한가요?</summary><p>콘텐츠 분석 목적이라면 불용어(the, a, is 등 영어 기본 단어 목록 기준) 제거 시 더 의미 있는 결과를 얻을 수 있습니다. 단, 내장된 불용어 목록은 영어 단어로만 구성되어 있어 한국어·중국어·일본어 텍스트에는 이 옵션이 사실상 효과가 없습니다.</p></details>
 <details class="faq-item"><summary>4-gram, 5-gram도 분석할 수 있나요?</summary><p>현재 도구는 1~3-gram을 지원합니다. 더 높은 N을 위해서는 별도 NLP 도구를 활용하세요.</p></details>`
   },
-  en:{h1Accent:'Analyzer',sub:'Extract and analyze Unigrams, Bigrams, and Trigrams from text',backLink:'← All Tools',langBtn:'🌐 中文',lblCase:'Case-insensitive',lblPunct:'Remove punctuation',lblStop:'Remove stopwords',lblTop:'Top:',lblInput:'Input',btnClear:'Clear',btnSample:'Sample',btnCsv:'Export CSV',emptyMsg:'Enter text to analyze',
+  en:{h1Accent:'Analyzer',sub:'Extract and analyze Unigrams, Bigrams, and Trigrams from text',backLink:'← All Tools',langBtn:'🌐 한국어',lblCase:'Case-insensitive',lblPunct:'Remove punctuation',lblStop:'Remove stopwords',lblTop:'Top:',lblInput:'Input',btnClear:'Clear',btnSample:'Sample',btnCsv:'Export CSV',emptyMsg:'Enter text to analyze',
     stats:(words)=>`${words} words analyzed`,titles:['Unigram (1-gram)','Bigram (2-gram)','Trigram (3-gram)'],
     seoHtml:`<p style="font-size:13px;margin-bottom:16px;"><a href="guides/ngram-analyzer-cjk-regex-language-bias-en.html" style="color:var(--cyan);">📖 Multilingual UI, But It Can't Analyze Chinese or Japanese — N-Gram Analyzer guide →</a></p><h2>N-Gram Analyzer</h2><p>Extracts Unigrams, Bigrams, and Trigrams from text and analyzes their frequency. However, <strong>the "Remove punctuation" option — enabled by default — uses a regex (<code>[^\\w\\s가-힣]</code>) that only preserves ASCII letters/digits and Korean Hangul syllables, so Chinese hanzi, Japanese hiragana/katakana, and accented European characters all get wiped out to spaces.</strong> This tool's own interface is translated into Chinese and Japanese, yet actually analyzing Chinese or Japanese text with the default settings strips out every hanzi and kana character.</p>
 <h2 class="seo-sub">FAQ</h2>
@@ -151,8 +149,8 @@ const _i18n={
 <details class="faq-item"><summary>4-gramや5-gramも分析できますか？</summary><p>このツールは1~3-gramをサポートします。より高いNには専用NLPツールをご利用ください。</p></details>`
   }
 };
-function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
-function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'en':n==='ja'?'en':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
 function applyLang(){
   const t=_i18n[_lang];document.documentElement.lang=_lang;
   ['h1Accent','subEl','backLink','langBtn','lblCase','lblPunct','lblStop','lblTop','lblInput','btnClear','btnSample','btnCsv','emptyMsg'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id]||el.textContent;});

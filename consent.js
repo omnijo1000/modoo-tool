@@ -6,6 +6,37 @@
 */
 (function () {
   var KEY = 'modoo_consent';
+  function normalizeLegacyLang() {
+    try {
+      var url = new URL(location.href);
+      var hasLangParam = url.searchParams.has('lang');
+      var q = (url.searchParams.get('lang') || '').slice(0, 2);
+      if (q === 'zh' || q === 'ja') {
+        url.searchParams.set('lang', 'en');
+        history.replaceState(null, '', url.toString());
+        hasLangParam = true;
+        localStorage.setItem('modoo_lang', 'en');
+        localStorage.setItem('lang', 'en');
+      }
+      if (!hasLangParam) {
+        var nav = (navigator.language || '').slice(0, 2);
+        if (nav === 'zh' || nav === 'ja') {
+          url.searchParams.set('lang', 'en');
+          history.replaceState(null, '', url.toString());
+          localStorage.setItem('modoo_lang', 'en');
+          localStorage.setItem('lang', 'en');
+        }
+      }
+    } catch (e) {}
+    try {
+      var v = localStorage.getItem('modoo_lang');
+      if (v === 'zh' || v === 'ja') localStorage.setItem('modoo_lang', 'en');
+      var old = localStorage.getItem('lang');
+      if (old === 'zh' || old === 'ja') localStorage.setItem('lang', 'en');
+    } catch (e) {}
+  }
+  normalizeLegacyLang();
+
   function injectLayoutFixes() {
     if (!document.head || document.getElementById('mh-layout-fix')) return;
     var css = 'html,body{overflow-x:clip;}@supports not (overflow:clip){html,body{overflow-x:hidden;}}';

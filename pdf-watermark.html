@@ -14,8 +14,6 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="alternate" hreflang="ko" href="https://modoohub.com/pdf-watermark.html">
 <link rel="alternate" hreflang="en" href="https://modoohub.com/pdf-watermark.html?lang=en">
-<link rel="alternate" hreflang="zh" href="https://modoohub.com/pdf-watermark.html?lang=zh">
-<link rel="alternate" hreflang="ja" href="https://modoohub.com/pdf-watermark.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/pdf-watermark.html">
 <link rel="stylesheet" href="theme-instrument.css">
 <style>
@@ -113,7 +111,7 @@ html[lang="en"] .guide-links-en{display:block;}
 </main>
 <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js" defer></script>
 <script>
-const LANGS=['ko','en','zh','ja'];
+const LANGS=['ko','en'];
 let _lang='ko',_buf=null,_fname='';
 const _i18n={
   ko:{h1b:'워터마크',sub:'PDF 모든 페이지에 텍스트 워터마크를 추가합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',pageTitle:'PDF 워터마크 추가 | MODOO HUB',dropTxt:'PDF 파일을 드래그하거나 클릭하여 선택',lblWmText:'워터마크 텍스트',lblFontSize:'크기: ',lblOpacity:'투명도: ',lblAngle:'각도: ',lblColor:'색상',lblPos:'위치',warnKo:'한글·중문 등 비ASCII 문자는 영문 폰트로 대체되어 깨질 수 있습니다.',wmBtn:'💧 워터마크 추가 후 다운로드',msgOk:'✅ 완료! 다운로드가 시작됩니다.',msgErr:'❌ 오류가 발생했습니다.',
@@ -129,7 +127,7 @@ const _i18n={
 <details class="faq-item"><summary>이미지 워터마크는 지원하나요?</summary><p>현재는 텍스트 워터마크만 지원합니다. 로고나 도장 이미지를 삽입하려면 pdf-lib의 embedPng/embedJpg 기능이 필요한데, 이는 향후 별도 도구로 제공할 계획입니다.</p></details>
 <details class="faq-item"><summary>모바일에서도 사용 가능한가요?</summary><p>네, pdf-lib가 표준 브라우저 API(File, ArrayBuffer, Blob)만 사용하므로 별도 앱 설치 없이 최신 모바일 브라우저(Chrome, Safari 등)에서도 정상 동작합니다.</p></details>`
   },
-  en:{h1b:'Watermark',sub:'Add text watermark to all PDF pages',backLink:'← All Tools',langBtn:'🌐 中文',pageTitle:'PDF Watermark | MODOO HUB',dropTxt:'Drop PDF here or click to select',lblWmText:'Watermark Text',lblFontSize:'Size: ',lblOpacity:'Opacity: ',lblAngle:'Angle: ',lblColor:'Color',lblPos:'Position',warnKo:'Non-ASCII characters (CJK etc.) may not render correctly with the built-in font.',wmBtn:'💧 Add Watermark & Download',msgOk:'✅ Done! Download starting.',msgErr:'❌ Error occurred.',
+  en:{h1b:'Watermark',sub:'Add text watermark to all PDF pages',backLink:'← All Tools',langBtn:'🌐 한국어',pageTitle:'PDF Watermark | MODOO HUB',dropTxt:'Drop PDF here or click to select',lblWmText:'Watermark Text',lblFontSize:'Size: ',lblOpacity:'Opacity: ',lblAngle:'Angle: ',lblColor:'Color',lblPos:'Position',warnKo:'Non-ASCII characters (CJK etc.) may not render correctly with the built-in font.',wmBtn:'💧 Add Watermark & Download',msgOk:'✅ Done! Download starting.',msgErr:'❌ Error occurred.',
     posOpts:['Center','Top Left','Top Right','Bottom Left','Bottom Right'],
     seoHtml:`<h2>PDF Watermark</h2><p>Adding a watermark to a PDF visually marks a document as a copy rather than the original, or flags its purpose — draft, confidential, sample, and so on. This tool works by drawing the text you specify directly onto each page using pdf-lib, with the Helvetica Bold font — one of the 14 base fonts defined in the PDF specification. It renders in every PDF viewer without needing to embed a font file, but it only supports Latin letters, numbers, and symbols, not CJK glyphs like Korean, Chinese, or Japanese. Common uses include marking contract drafts, labeling sample images with copyright notices, and tracking internal document distribution.</p>
 <h2 class="seo-sub">FAQ</h2>
@@ -169,8 +167,8 @@ const _i18n={
 <details class="faq-item"><summary>モバイルでも使えますか？</summary><p>はい。pdf-libは標準ブラウザAPI（File、ArrayBuffer、Blob）のみに依存しており、アプリのインストールも不要なため、ChromeやSafariなど最新のモバイルブラウザでも問題なく動作します。</p></details>`
   }
 };
-function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
-function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'en':n==='ja'?'en':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
 function applyLang(){
   const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
   ['h1b','subEl','backLink','langBtn','dropTxt','lblWmText','lblColor','lblPos','warnKo','wmBtn'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id]||el.textContent;});

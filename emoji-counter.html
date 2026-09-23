@@ -14,8 +14,6 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="alternate" hreflang="ko" href="https://modoohub.com/emoji-counter.html">
 <link rel="alternate" hreflang="en" href="https://modoohub.com/emoji-counter.html?lang=en">
-<link rel="alternate" hreflang="zh" href="https://modoohub.com/emoji-counter.html?lang=zh">
-<link rel="alternate" hreflang="ja" href="https://modoohub.com/emoji-counter.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/emoji-counter.html">
 <link rel="stylesheet" href="theme-instrument.css">
 <style>
@@ -81,7 +79,7 @@
 <details class="faq-item"><summary>더 자세한 유니코드 구조를 보려면?</summary><p><a href="unicode-inspector.html">유니코드 인스펙터</a>에서 각 이모지의 정확한 코드포인트, UTF-16 코드 유닛 수, ZWJ 결합 여부를 문자 단위로 상세히 확인할 수 있습니다.</p></details></div>
 </main>
 <script>
-const LANGS=['ko','en','zh','ja'];
+const LANGS=['ko','en'];
 let _lang='ko';
 const EMOJI_RE=/\p{Emoji_Presentation}|\p{Emoji}️/gu;
 const SEG_RE=/\p{Emoji_Modifier_Base}\p{Emoji_Modifier}?|[\u{1F1E0}-\u{1F1FF}]{2}|\p{Emoji_Presentation}|\p{Emoji}️/gu;
@@ -98,7 +96,7 @@ const _i18n={
 <details class="faq-item"><summary>Twitter/X·Instagram은 이모지를 실제로 몇 자로 계산하나요?</summary><p>Twitter/X의 280자 제한은 대부분의 기본 이모지를 2자로 계산합니다(코드 유닛 기준과 유사). Instagram의 캡션 2,200자 제한도 유사한 방식을 사용하지만, 피부색 변형이나 ZWJ 복합 이모지는 플랫폼에 따라 실제 표시 글자 수보다 훨씬 많은 글자수로 소모될 수 있어 긴 캡션 작성 시 이모지를 많이 쓰면 예상보다 빨리 글자수 제한에 도달할 수 있습니다.</p></details>
 <details class="faq-item"><summary>더 자세한 유니코드 구조를 보려면?</summary><p><a href="unicode-inspector.html">유니코드 인스펙터</a>에서 각 이모지의 정확한 코드포인트, UTF-16 코드 유닛 수, ZWJ 결합 여부를 문자 단위로 상세히 확인할 수 있습니다.</p></details>`
   },
-  en:{pageTitle:'Emoji Counter - Count & List Emoji in Text | MODOO HUB',h1b:'Counter',sub:'Count emoji in text and analyze by type and frequency',backLink:'← All Tools',langBtn:'🌐 中文',inputLabel:'Input Text',lblTotal:'Total emoji',lblUniq:'Types',lblChars:'Total chars',listLabel:'Emoji List (click to copy)',placeholder:'Enter text with emoji 🎉🚀❤️...',emptyMsg:'No emoji found.',
+  en:{pageTitle:'Emoji Counter - Count & List Emoji in Text | MODOO HUB',h1b:'Counter',sub:'Count emoji in text and analyze by type and frequency',backLink:'← All Tools',langBtn:'🌐 한국어',inputLabel:'Input Text',lblTotal:'Total emoji',lblUniq:'Types',lblChars:'Total chars',listLabel:'Emoji List (click to copy)',placeholder:'Enter text with emoji 🎉🚀❤️...',emptyMsg:'No emoji found.',
     seoHtml:`<p style="font-size:13px;margin-bottom:16px;"><a href="guides/emoji-counter-surrogate-pair-sns-limit-en.html" style="color:var(--accent);">📖 Why One Emoji Can Count as 2 to 11 Characters — The SNS Character Limit Trap →</a></p><h2>Emoji Counter</h2><p>Automatically <strong>detect and count emoji in text by type and frequency</strong>. Useful for social media posts, email, and customer review analysis. Handles skin-tone and gender-variant emoji correctly.</p>
 <h2 class="seo-sub">FAQ</h2>
 <details class="faq-item"><summary>How does it distinguish emoji from regular characters?</summary><p>Detection is based on Unicode Emoji_Presentation property.</p></details>
@@ -135,8 +133,8 @@ const _i18n={
 <details class="faq-item"><summary>より詳しいUnicode構造を確認するには？</summary><p><a href="unicode-inspector.html">Unicodeインスペクター</a>で各絵文字の正確なコードポイント、UTF-16コードユニット数、ZWJ結合の有無を文字単位で詳しく確認できます。</p></details>`
   }
 };
-function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
-function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'en':n==='ja'?'en':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
 function getEmojis(s){
   const seg=new Intl.Segmenter(undefined,{granularity:'grapheme'});
   const emojiRe=/\p{Emoji}/u;

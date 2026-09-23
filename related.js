@@ -7,17 +7,22 @@
 
   // ── 언어 감지 ────────────────────────────────────────────────────
   function getLang() {
-    var u = new URLSearchParams(location.search).get('lang');
-    if (u && { ko: 1, en: 1, zh: 1, ja: 1 }[u]) return u;
+    function normalizeLang(v) {
+      var l = (v || '').slice(0, 2);
+      if (l === 'zh' || l === 'ja') return 'en';
+      return l;
+    }
+    var u = normalizeLang(new URLSearchParams(location.search).get('lang'));
+    if (u && { ko: 1, en: 1 }[u]) return u;
     // 페이지 자체 i18n 스크립트가 이미 세팅해 둔 document.documentElement.lang을
     // localStorage보다 우선 신뢰한다 — 페이지마다 저장 키가 'modoo_lang'/'lang'로
     // 갈려 있어 localStorage만 보면 실제 표시 언어와 어긋날 수 있기 때문.
-    var docLang = document.documentElement.lang;
-    if (docLang && { ko: 1, en: 1, zh: 1, ja: 1 }[docLang]) return docLang;
-    var s = localStorage.getItem('modoo_lang') || localStorage.getItem('lang');
-    if (s && { ko: 1, en: 1, zh: 1, ja: 1 }[s]) return s;
-    var n = (navigator.language || '').slice(0, 2);
-    return n === 'zh' ? 'zh' : n === 'ko' ? 'ko' : n === 'ja' ? 'ja' : 'en';
+    var docLang = normalizeLang(document.documentElement.lang);
+    if (docLang && { ko: 1, en: 1 }[docLang]) return docLang;
+    var s = normalizeLang(localStorage.getItem('modoo_lang') || localStorage.getItem('lang'));
+    if (s && { ko: 1, en: 1 }[s]) return s;
+    var n = normalizeLang(navigator.language || '');
+    return n === 'ko' ? 'ko' : 'en';
   }
 
   // ── 도구 정보 레지스트리 [slug]: { ko, en, zh, ja, icon } ─────────

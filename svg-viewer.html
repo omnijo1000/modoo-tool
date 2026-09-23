@@ -14,8 +14,6 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="alternate" hreflang="ko" href="https://modoohub.com/svg-viewer.html">
 <link rel="alternate" hreflang="en" href="https://modoohub.com/svg-viewer.html?lang=en">
-<link rel="alternate" hreflang="zh" href="https://modoohub.com/svg-viewer.html?lang=zh">
-<link rel="alternate" hreflang="ja" href="https://modoohub.com/svg-viewer.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/svg-viewer.html">
 <link rel="stylesheet" href="theme-instrument.css">
 <style>
@@ -97,7 +95,7 @@ html[lang="en"] .guide-links-en{display:block;}
 <details class="faq-item"><summary>파싱 오류가 나면 어떤 정보가 표시되나요?</summary><p>브라우저의 parsererror 메시지 중 첫 줄을 80자까지만 잘라 보여줍니다. 보통 어느 줄에서 태그가 닫히지 않았는지 등 XML 파서가 실패한 위치에 대한 힌트가 담겨 있습니다.</p></details></div>
 </main>
 <script>
-const LANGS=['ko','en','zh','ja'];
+const LANGS=['ko','en'];
 let _lang='ko',_scale=1;
 const BG_COLORS=['transparent','#ffffff','#000000','#f0f0f0','#1a1a2e'];
 let _bg='transparent';
@@ -114,7 +112,7 @@ const _i18n={
 <details class="faq-item"><summary>배경색 옵션의 회색·어두운 색은 어떤 용도인가요?</summary><p>투명 배경으로 만든 아이콘은 흰 배경에서는 잘 보여도 어두운 UI 위에서는 잘 안 보이는 경우가 있어, 실제 배치될 환경과 비슷한 배경(밝은 회색 #f0f0f0, 어두운 남색 계열 #1a1a2e)에서 미리 확인할 수 있도록 넣어둔 옵션입니다. 투명 배경 선택 시에는 체커보드 패턴으로 투명 영역을 표시합니다.</p></details>
 <details class="faq-item"><summary>파싱 오류가 나면 어떤 정보가 표시되나요?</summary><p>브라우저의 parsererror 메시지 중 첫 줄을 80자까지만 잘라 보여줍니다. 보통 어느 줄에서 태그가 닫히지 않았는지 등 XML 파서가 실패한 위치에 대한 힌트가 담겨 있습니다.</p></details>`
   },
-  en:{h1b:'Viewer',sub:'Paste SVG code and instantly preview the rendered result',backLink:'← All Tools',langBtn:'🌐 中文',pageTitle:'SVG Viewer | MODOO HUB',lblCode:'SVG Code',btnDl:'Download SVG',btnCopy:'Copy code',copied:'Copied!',errInvalid:'Not valid SVG.',
+  en:{h1b:'Viewer',sub:'Paste SVG code and instantly preview the rendered result',backLink:'← All Tools',langBtn:'🌐 한국어',pageTitle:'SVG Viewer | MODOO HUB',lblCode:'SVG Code',btnDl:'Download SVG',btnCopy:'Copy code',copied:'Copied!',errInvalid:'Not valid SVG.',
     seoHtml:`<h2>SVG Viewer</h2><p>Your code is first parsed as XML with <code>DOMParser</code>, which checks for a <code>&lt;parsererror&gt;</code> element to catch mismatched tags or broken syntax. Once parsing succeeds, the original code string is wrapped in a Blob and rendered via an <code>&lt;img&gt;</code> tag's <code>src</code> — a choice that means any <code>&lt;script&gt;</code> tag inside the SVG never executes, since browsers treat image-sourced SVGs as static images. Zoom doesn't re-render the image; it applies a CSS <code>transform:scale()</code> to the displayed element, so since SVG is a vector format defined by mathematical paths rather than pixels, zooming in up to 4x stays crisp instead of pixelating the way a raster image would.</p>
 <h2 class="seo-sub">FAQ</h2>
 <details class="faq-item"><summary>If it renders with no error, does that mean the SVG is fully valid?</summary><p>Not necessarily. DOMParser's check only catches XML syntax errors like unclosed or mismatched tags — it doesn't validate whether attribute values are semantically correct per the SVG spec. No error means "well-formed XML," not "fully spec-compliant SVG."</p></details>
@@ -155,8 +153,8 @@ const DEFAULT_SVG=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"
   <circle cx="50" cy="50" r="40" fill="#fbbf24" opacity="0.9"/>
   <text x="50" y="55" text-anchor="middle" font-size="14" fill="#000" font-family="sans-serif">SVG</text>
 </svg>`;
-function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
-function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'en':n==='ja'?'en':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
 function buildBgChips(){
   document.getElementById('bgChips').innerHTML=BG_COLORS.map(c=>`<div class="bg-chip${_bg===c?' active':''}" style="background:${c==='transparent'?'repeating-conic-gradient(#888 0% 25%, #444 0% 50%) 0 0/8px 8px':c};" onclick="setBg('${c}')"></div>`).join('');
 }

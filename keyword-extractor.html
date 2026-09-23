@@ -14,8 +14,6 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="alternate" hreflang="ko" href="https://modoohub.com/keyword-extractor.html">
 <link rel="alternate" hreflang="en" href="https://modoohub.com/keyword-extractor.html?lang=en">
-<link rel="alternate" hreflang="zh" href="https://modoohub.com/keyword-extractor.html?lang=zh">
-<link rel="alternate" hreflang="ja" href="https://modoohub.com/keyword-extractor.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/keyword-extractor.html">
 <link rel="stylesheet" href="theme-instrument.css">
 <style>
@@ -94,7 +92,7 @@ html[lang="en"] .guide-links-en{display:block;}
 </main>
 <script>
 const EN_STOP=new Set(['a','an','the','and','or','but','in','on','at','to','for','of','with','is','are','was','were','be','been','being','have','has','had','do','does','did','will','would','could','should','may','might','this','that','these','those','i','you','he','she','it','we','they','me','him','her','us','them','my','your','his','its','our','their','from','by','about','as','into','through','during','before','after','not','no','if','then','than','so','also','there','here','when','where','how','what','who','which','all','each','every','some','any','few','more','most','other','such','just','very','just','too','now','only','even','new','old','own','same','few','more']);
-const LANGS=['ko','en','zh','ja'];
+const LANGS=['ko','en'];
 let _lang='ko';
 const _i18n={
   ko:{h1b:'추출기',sub:'텍스트에서 핵심 키워드를 빈도 순으로 자동 추출',backLink:'← 모두의 툴',langBtn:'🌐 EN',pageTitle:'키워드 추출기 | MODOO HUB',lblInput:'텍스트 입력',lblTop:'상위 N개',lblMinLen:'최소 글자 수',lblStop:'불용어 제거',lblCase:'대소문자 무시',lblResult:'추출된 키워드',empty:'텍스트를 입력하면 키워드가 추출됩니다.',copied:'복사됨!',
@@ -109,7 +107,7 @@ const _i18n={
 <details class="faq-item"><summary>상위 몇 개까지 추출 가능한가요?</summary><p>'상위 N개' 입력란에 1부터 100 사이의 값을 지정할 수 있으며, 실제 텍스트에 등장하는 서로 다른 단어 수가 이보다 적으면 그만큼만 표시됩니다.</p></details>
 <details class="faq-item"><summary>불용어를 커스텀할 수 있나요?</summary><p>현재는 코드에 하드코딩된 영어 기본 불용어 집합(약 90개) 하나만 사용하며, 사용자가 직접 단어를 추가하거나 빼는 기능, 다른 언어의 불용어 세트는 아직 지원하지 않습니다.</p></details>`
   },
-  en:{h1b:'Extractor',sub:'Extract keywords from text ranked by frequency',backLink:'← All Tools',langBtn:'🌐 中文',pageTitle:'Keyword Extractor | MODOO HUB',lblInput:'Input text',lblTop:'Top N',lblMinLen:'Min length',lblStop:'Remove stopwords',lblCase:'Ignore case',lblResult:'Extracted keywords',empty:'Enter text to extract keywords.',copied:'Copied!',
+  en:{h1b:'Extractor',sub:'Extract keywords from text ranked by frequency',backLink:'← All Tools',langBtn:'🌐 한국어',pageTitle:'Keyword Extractor | MODOO HUB',lblInput:'Input text',lblTop:'Top N',lblMinLen:'Min length',lblStop:'Remove stopwords',lblCase:'Ignore case',lblResult:'Extracted keywords',empty:'Enter text to extract keywords.',copied:'Copied!',
     seoHtml:`<h2>Keyword Extractor</h2><p>This tool splits text into words with a regex, filters out any word matching a built-in list of roughly 90 English stopwords (words like the, a, is, of that serve a grammatical function but carry no topical meaning), then counts how often each remaining word appears and sorts by frequency. It's a simple frequency count rather than a sophisticated algorithm like TF-IDF that weighs a word's importance relative to a whole document collection, but that's enough to quickly spot which words get repeated most in a single short article or blog post. The minimum length filter can strip out short articles and prepositions the stopword list misses, and enabling case-insensitivity merges "Apple" and "apple" into one count. It's used for checking a blog post's keyword density for SEO, or quickly scanning a long document or meeting transcript for its most frequently mentioned topics.</p>
 <h2 class="seo-sub">FAQ</h2>
 <details class="faq-item"><summary>How does keyword extraction work?</summary><p>A regex strips everything except letters, numbers, apostrophes, and hyphens (replacing the rest with spaces) to split words, stopwords are removed, each word's count accumulates, and the results are sorted by descending frequency before trimming to the top N.</p></details>
@@ -146,8 +144,8 @@ const _i18n={
 <details class="faq-item"><summary>ストップワードをカスタマイズできますか？</summary><p>現在はコードにハードコードされた英語のデフォルトストップワード集合（約90語）のみを使用しており、単語を自分で追加・削除する機能や、他言語のストップワードセットにはまだ対応していません。</p></details>`
   }
 };
-function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
-function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'en':n==='ja'?'en':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
 function extract(){
   const t=_i18n[_lang];const text=document.getElementById('input').value;
   const top=parseInt(document.getElementById('optTop').value)||20;

@@ -14,8 +14,6 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="alternate" hreflang="ko" href="https://modoohub.com/exif-remover.html">
 <link rel="alternate" hreflang="en" href="https://modoohub.com/exif-remover.html?lang=en">
-<link rel="alternate" hreflang="zh" href="https://modoohub.com/exif-remover.html?lang=zh">
-<link rel="alternate" hreflang="ja" href="https://modoohub.com/exif-remover.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/exif-remover.html">
 <link rel="stylesheet" href="theme-instrument.css">
 <style>
@@ -80,7 +78,7 @@ input[type=file]{display:none;}
 <details class="faq-item"><summary>GIF 애니메이션은?</summary><p>Canvas의 drawImage는 GIF의 첫 프레임만 정지 이미지로 읽어오기 때문에, 애니메이션 GIF를 이 도구에 넣으면 첫 프레임만 담긴 정지 이미지로 변환됩니다. 애니메이션을 유지하면서 메타데이터만 제거하려면 별도의 GIF 전용 도구가 필요합니다.</p></details></div>
 </main>
 <script>
-const LANGS=['ko','en','zh','ja'];
+const LANGS=['ko','en'];
 let _lang='ko';
 const _i18n={
   ko:{h1b:'제거기',sub:'사진에서 GPS, 촬영 날짜, 카메라 정보 등 EXIF 메타데이터를 제거합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',pageTitle:'EXIF 제거기 | MODOO HUB',dzText:'이미지를 드래그하거나 클릭하여 업로드 (여러 파일 가능)',noticeEl:'Canvas API를 통해 이미지를 재렌더링하여 EXIF를 제거합니다. 모두 브라우저 로컬에서 처리됩니다.',lblResult:'처리 결과',statBefore:'원본',statAfter:'EXIF 제거 후',statSaved:'절감',btnDl:'다운로드',done:'완료',
@@ -95,7 +93,7 @@ const _i18n={
 <details class="faq-item"><summary>제거 후 EXIF가 정말 없는지 확인하려면?</summary><p>이 사이트의 exif-viewer 도구에 결과 파일을 다시 업로드해 메타데이터 항목이 비어 있는지 직접 확인할 수 있습니다.</p></details>
 <details class="faq-item"><summary>GIF 애니메이션은?</summary><p>Canvas의 drawImage는 GIF의 첫 프레임만 정지 이미지로 읽어오기 때문에, 애니메이션 GIF를 이 도구에 넣으면 첫 프레임만 담긴 정지 이미지로 변환됩니다. 애니메이션을 유지하면서 메타데이터만 제거하려면 별도의 GIF 전용 도구가 필요합니다.</p></details>`
   },
-  en:{h1b:'Remover',sub:'Strip GPS, capture date, camera info and all EXIF metadata from photos',backLink:'← All Tools',langBtn:'🌐 中文',pageTitle:'EXIF Remover | MODOO HUB',dzText:'Drag & drop images or click to upload (multiple files)',noticeEl:'Images are re-rendered via Canvas API to strip EXIF. All processing is local in your browser.',lblResult:'Results',statBefore:'Original',statAfter:'EXIF stripped',statSaved:'Saved',btnDl:'Download',done:'Done',
+  en:{h1b:'Remover',sub:'Strip GPS, capture date, camera info and all EXIF metadata from photos',backLink:'← All Tools',langBtn:'🌐 한국어',pageTitle:'EXIF Remover | MODOO HUB',dzText:'Drag & drop images or click to upload (multiple files)',noticeEl:'Images are re-rendered via Canvas API to strip EXIF. All processing is local in your browser.',lblResult:'Results',statBefore:'Original',statAfter:'EXIF stripped',statSaved:'Saved',btnDl:'Download',done:'Done',
     seoHtml:`<p style="font-size:13px;margin-bottom:16px;"><a href="guides/exif-remover-gps-privacy-sns-en.html" style="color:var(--accent);">📖 Why GPS Coordinates in Photos Should Be Removed Before Posting to Social Media →</a></p><h2>EXIF Remover</h2><p>Digital cameras and smartphones store a separate metadata block called EXIF (Exchangeable Image File Format) alongside the actual photo data. This can include GPS latitude/longitude, the exact capture date and time, camera model, lens information, exposure and aperture settings, and even orientation sensor data from smartphones. This tool strips the entire EXIF block by redrawing the image onto a Canvas and re-encoding it as PNG or JPEG — the Canvas API only handles pixel data, so it never carries the original file's metadata segments into the output. Common uses include removing GPS data that could reveal a home address before posting travel or family photos on social media, or hiding the capturing device's details before sharing photos for a secondhand sale or work.</p>
 <h2 class="seo-sub">FAQ</h2>
 <details class="faq-item"><summary>Does quality drop after EXIF removal?</summary><p>Not noticeably. JPEG output is re-encoded at 95% quality, which is very close to the original. That said, Canvas re-encoding isn't a lossless process, so repeatedly processing an already heavily compressed JPEG multiple times could accumulate minor quality loss.</p></details>
@@ -132,8 +130,8 @@ const _i18n={
 <details class="faq-item"><summary>GIFアニメーションは？</summary><p>CanvasのdrawImageはGIFの最初のフレームのみを静止画として読み込むため、アニメーションGIFを本ツールに入力すると最初のフレームだけの静止画に変換されます。アニメーションを保持したままメタデータだけ削除するには、専用のGIFツールが必要です。</p></details>`
   }
 };
-function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
-function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'en':n==='ja'?'en':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
 function applyLang(){
   const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
   ['h1b','subEl','backLink','langBtn','dzText','noticeEl','lblResult'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id];});

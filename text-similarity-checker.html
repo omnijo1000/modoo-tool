@@ -14,8 +14,6 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="alternate" hreflang="ko" href="https://modoohub.com/text-similarity-checker.html">
 <link rel="alternate" hreflang="en" href="https://modoohub.com/text-similarity-checker.html?lang=en">
-<link rel="alternate" hreflang="zh" href="https://modoohub.com/text-similarity-checker.html?lang=zh">
-<link rel="alternate" hreflang="ja" href="https://modoohub.com/text-similarity-checker.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/text-similarity-checker.html">
 <link rel="stylesheet" href="theme-instrument.css">
 <style>
@@ -117,7 +115,7 @@
 <details class="faq-item"><summary>100% 유사도는 어떤 의미인가요?</summary><p>토큰화 후 두 텍스트가 완전히 동일하다는 뜻입니다. 대소문자와 일부 특수문자는 비교 전에 정규화되므로, 대소문자만 다른 텍스트도 100%로 나올 수 있습니다.</p></details></div>
 </main>
 <script>
-const LANGS=['ko','en','zh','ja'];let _lang='ko';
+const LANGS=['ko','en'];let _lang='ko';
 const _i18n={
   ko:{h1Accent:'유사도',sub:'두 텍스트의 유사도를 코사인·자카드·편집 거리로 분석합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',lblText1:'텍스트 A',lblText2:'텍스트 B',btnClear:'지우기',btnSwap:'교체',btnCheck:'유사도 분석',btnSample:'샘플',scoreLabel:'종합 유사도',lblCosine:'코사인 유사도',descCosine:'단어 벡터 기반',lblJaccard:'자카드 유사도',descJaccard:'집합 교집합/합집합',lblEdit:'편집 거리 유사도',descEdit:'Levenshtein 기반',detTitle:'세부 정보',detLen1:'텍스트 A 길이',detLen2:'텍스트 B 길이',detWords1:'A 단어 수',detWords2:'B 단어 수',detShared:'공통 단어',detUnique1:'A 고유 단어',detUnique2:'B 고유 단어',
     tiers:['거의 동일','매우 유사','유사','부분 유사','거의 다름'],
@@ -133,7 +131,7 @@ const _i18n={
 <details class="faq-item"><summary>이 도구로 표절을 확인할 수 있나요?</summary><p>유사도가 높으면 표절 가능성의 단서로 참고할 수 있지만, 문장 순서 재배열이나 동의어 치환까지 감지하는 전문 표절 검사 엔진은 아닙니다. 최종 판단의 보조 자료로만 활용하세요.</p></details>
 <details class="faq-item"><summary>100% 유사도는 어떤 의미인가요?</summary><p>토큰화 후 두 텍스트가 완전히 동일하다는 뜻입니다. 대소문자와 일부 특수문자는 비교 전에 정규화되므로, 대소문자만 다른 텍스트도 100%로 나올 수 있습니다.</p></details>`
   },
-  en:{h1Accent:'Similarity',sub:'Analyze text similarity with cosine, Jaccard, and edit distance',backLink:'← All Tools',langBtn:'🌐 中文',lblText1:'Text A',lblText2:'Text B',btnClear:'Clear',btnSwap:'Swap',btnCheck:'Analyze Similarity',btnSample:'Sample',scoreLabel:'Overall Similarity',lblCosine:'Cosine Similarity',descCosine:'Word vector-based',lblJaccard:'Jaccard Similarity',descJaccard:'Intersection / Union',lblEdit:'Edit Distance Similarity',descEdit:'Levenshtein-based',detTitle:'Details',detLen1:'Text A length',detLen2:'Text B length',detWords1:'A word count',detWords2:'B word count',detShared:'Shared words',detUnique1:'A unique words',detUnique2:'B unique words',
+  en:{h1Accent:'Similarity',sub:'Analyze text similarity with cosine, Jaccard, and edit distance',backLink:'← All Tools',langBtn:'🌐 한국어',lblText1:'Text A',lblText2:'Text B',btnClear:'Clear',btnSwap:'Swap',btnCheck:'Analyze Similarity',btnSample:'Sample',scoreLabel:'Overall Similarity',lblCosine:'Cosine Similarity',descCosine:'Word vector-based',lblJaccard:'Jaccard Similarity',descJaccard:'Intersection / Union',lblEdit:'Edit Distance Similarity',descEdit:'Levenshtein-based',detTitle:'Details',detLen1:'Text A length',detLen2:'Text B length',detWords1:'A word count',detWords2:'B word count',detShared:'Shared words',detUnique1:'A unique words',detUnique2:'B unique words',
     tiers:['Nearly Identical','Very Similar','Similar','Partially Similar','Very Different'],
     cwLabel:'Common words:',
     seoHtml:`<h2>Text Similarity Checker</h2><p>After tokenizing both texts, three metrics are computed — cosine similarity, Jaccard similarity, and edit distance (Levenshtein) — then combined into an overall score with weights 0.4 : 0.3 : 0.3. Cosine builds a word-frequency vector for each text and divides their dot product by the product of their magnitudes, so it rewards similar word-usage "patterns." Jaccard divides the size of the shared unique-word set by the size of the combined set, capturing vocabulary overlap only. Edit distance runs dynamic programming to find the minimum insert/delete/substitute operations to turn one text into the other, normalized by length. Tokenization differs by language: Korean keeps whitespace-delimited word chunks (eojeol) as single tokens, while Chinese and Japanese — which don't use spaces between words — are split into individual characters (Han ideographs, hiragana, katakana). Without that character-level split, a whole CJK sentence would collapse into one giant space-free token, making comparison essentially meaningless.</p>
@@ -176,8 +174,8 @@ const _i18n={
 <details class="faq-item"><summary>100%類似度とはどういう意味ですか?</summary><p>トークン化後に2つのテキストが完全に一致することを意味します。大文字・小文字や一部の特殊文字は比較前に正規化されるため、大文字小文字だけが異なるテキストも100%と表示されることがあります。</p></details>`
   }
 };
-function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
-function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'en':n==='ja'?'en':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
 function applyLang(){
   const t=_i18n[_lang];document.documentElement.lang=_lang;
   ['h1Accent','subEl','backLink','langBtn','lblText1','lblText2','btnClear','btnSwap','btnCheck','btnSample','scoreLabel','lblCosine','descCosine','lblJaccard','descJaccard','lblEdit','descEdit','detTitle','detLen1','detLen2','detWords1','detWords2','detShared','detUnique1','detUnique2'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id]||el.textContent;});

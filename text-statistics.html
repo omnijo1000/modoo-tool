@@ -14,8 +14,6 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="alternate" hreflang="ko" href="https://modoohub.com/text-statistics.html">
 <link rel="alternate" hreflang="en" href="https://modoohub.com/text-statistics.html?lang=en">
-<link rel="alternate" hreflang="zh" href="https://modoohub.com/text-statistics.html?lang=zh">
-<link rel="alternate" hreflang="ja" href="https://modoohub.com/text-statistics.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/text-statistics.html">
 <link rel="stylesheet" href="theme-instrument.css">
 <style>
@@ -83,7 +81,7 @@
 <details class="faq-item"><summary>고유 단어 수란?</summary><p>모든 단어를 소문자로 변환한 뒤 중복을 제거한 개수입니다. 총 단어 수 대비 고유 단어 수 비율이 낮을수록 같은 단어를 반복해서 사용했다는 의미입니다.</p></details></div>
 </main>
 <script>
-const LANGS=['ko','en','zh','ja'];
+const LANGS=['ko','en'];
 let _lang='ko';
 const _i18n={
   ko:{h1b:'통계',sub:'글자수·단어수·문장수·독서 시간·가독성 지수·문자 빈도 분석',backLink:'← 모두의 툴',langBtn:'🌐 EN',pageTitle:'텍스트 통계 분석기 | MODOO HUB',lblInput:'텍스트 입력',lblFlesch:'Flesch 가독성 지수 (영어 전용)',lblFreq:'문자 빈도 TOP 20',
@@ -100,7 +98,7 @@ const _i18n={
 <details class="faq-item"><summary>문자 빈도 분석이란?</summary><p>공백과 탭, 줄바꿈을 제외한 모든 문자를 하나씩 세어 등장 횟수가 많은 순서로 상위 20개를 막대그래프로 보여줍니다. 특정 글자나 기호가 유난히 많이 쓰였는지, 혹은 문체의 특징을 파악하는 데 참고할 수 있습니다.</p></details>
 <details class="faq-item"><summary>고유 단어 수란?</summary><p>모든 단어를 소문자로 변환한 뒤 중복을 제거한 개수입니다. 총 단어 수 대비 고유 단어 수 비율이 낮을수록 같은 단어를 반복해서 사용했다는 의미입니다.</p></details>`
   },
-  en:{h1b:'Statistics',sub:'Chars · words · sentences · reading time · readability · char frequency',backLink:'← All Tools',langBtn:'🌐 中文',pageTitle:'Text Statistics Analyzer | MODOO HUB',lblInput:'Input text',lblFlesch:'Flesch Readability Score',lblFreq:'Character frequency TOP 20',
+  en:{h1b:'Statistics',sub:'Chars · words · sentences · reading time · readability · char frequency',backLink:'← All Tools',langBtn:'🌐 한국어',pageTitle:'Text Statistics Analyzer | MODOO HUB',lblInput:'Input text',lblFlesch:'Flesch Readability Score',lblFreq:'Character frequency TOP 20',
     stats:{chars:'Characters',charsNoSpace:'No spaces',words:'Words',sentences:'Sentences',paragraphs:'Paragraphs',lines:'Lines',readMin:'Read time (min)',avgWordLen:'Avg word length',uniqueWords:'Unique words'},
     flesch:{vEasy:'Very easy',easy:'Easy',fair:'Standard',difficult:'Difficult',vDiff:'Very difficult'},
     seoHtml:`<p style="font-size:13px;margin-bottom:16px;"><a href="guides/text-statistics-flesch-korean-limitation-en.html" style="color:var(--accent);">📖 Why the Flesch Score Doesn't Work for Korean →</a></p><h2>Text Statistics Analyzer</h2><p>This tool implements the Flesch Reading Ease formula (206.835 - 1.015 × average sentence length - 84.6 × average syllables per word) devised by Rudolf Flesch in 1948, converting English text into a 0-100 readability score. Syllable counts aren't calculated from a real dictionary but approximated by counting vowel clusters (a, e, i, o, u, y) in each word, which isn't perfect but is close enough for a rough difficulty estimate. Because the formula was built around English's syllable-to-word-length relationship, it doesn't apply to languages with different syllable structures like Korean or Chinese, so this tool restricts the Flesch score display to English text only — basic stats like character, word, and sentence counts still work correctly for any language. It's used for reviewing a blog post's reading difficulty or checking sentence length before sending an email or report.</p>
@@ -143,8 +141,8 @@ const _i18n={
 <details class="faq-item"><summary>ユニーク単語数とは？</summary><p>すべての単語を小文字に変換した上で重複を除いた数です。総単語数に対するユニーク単語数の比率が低いほど、同じ単語を繰り返し使用していることを意味します。</p></details>`
   }
 };
-function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
-function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'en':n==='ja'?'en':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
 function countSyllables(word){return (word.toLowerCase().match(/[aeiouy]+/g)||[]).length||1;}
 function fleschScore(text){
   const words=text.trim().split(/\s+/).filter(Boolean);

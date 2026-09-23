@@ -14,8 +14,6 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="alternate" hreflang="ko" href="https://modoohub.com/text-summarizer.html">
 <link rel="alternate" hreflang="en" href="https://modoohub.com/text-summarizer.html?lang=en">
-<link rel="alternate" hreflang="zh" href="https://modoohub.com/text-summarizer.html?lang=zh">
-<link rel="alternate" hreflang="ja" href="https://modoohub.com/text-summarizer.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/text-summarizer.html">
 <link rel="stylesheet" href="theme-instrument.css">
 <style>
@@ -94,7 +92,7 @@ html[lang="en"] .guide-links-en{display:block;}
 <details class="faq-item"><summary>GPT 같은 AI 요약과는 근본적으로 무엇이 다른가요?</summary><p>AI 요약은 언어 모델이 내용을 이해하고 새로운 문장으로 다시 쓰지만, 이 도구는 단어 등장 횟수라는 통계적 신호만으로 원문 문장 중 몇 개를 그대로 골라낼 뿐 문장 자체를 이해하거나 재작성하지 않습니다.</p></details></div>
 </main>
 <script>
-const LANGS=['ko','en','zh','ja'];let _lang='ko';
+const LANGS=['ko','en'];let _lang='ko';
 const STOP=new Set(['a','an','the','and','or','but','in','on','at','to','for','of','with','by','from','is','are','was','were','be','been','being','have','has','had','do','does','did','will','would','could','should','may','might','i','you','he','she','it','we','they','this','that','these','those','not','no','so','as','if','then','than','up','out','into','about']);
 const _i18n={
   ko:{h1Accent:'요약기',sub:'긴 텍스트를 핵심 문장 위주로 자동 요약합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',lblSentences:'요약 문장 수:',lblMode:'방식:',optFreq:'단어 빈도',optPos:'위치 기반',lblInput:'입력 텍스트',btnClear:'지우기',lblResult:'요약 결과',btnCopy:'복사',btnSummarize:'요약하기',btnSample:'샘플',infoNote:'※ 추출 요약 방식 — 원문 문장 중 핵심 문장을 선택합니다',
@@ -111,7 +109,7 @@ const _i18n={
 <details class="faq-item"><summary>추출 요약과 생성 요약의 차이는?</summary><p>추출 요약은 원문 문장을 그대로 선택하고, 생성 요약은 새로운 문장을 만들어냅니다. 이 도구는 원문 문장을 그대로 고르는 추출 방식입니다.</p></details>
 <details class="faq-item"><summary>GPT 같은 AI 요약과는 근본적으로 무엇이 다른가요?</summary><p>AI 요약은 언어 모델이 내용을 이해하고 새로운 문장으로 다시 쓰지만, 이 도구는 단어 등장 횟수라는 통계적 신호만으로 원문 문장 중 몇 개를 그대로 골라낼 뿐 문장 자체를 이해하거나 재작성하지 않습니다.</p></details>`
   },
-  en:{h1Accent:'Summarizer',sub:'Automatically summarize long text by key sentences',backLink:'← All Tools',langBtn:'🌐 中文',lblSentences:'Summary sentences:',lblMode:'Method:',optFreq:'Word frequency',optPos:'Position-based',lblInput:'Input text',btnClear:'Clear',lblResult:'Summary',btnCopy:'Copy',btnSummarize:'Summarize',btnSample:'Sample',infoNote:'※ Extractive summarization — selects key sentences from the original text',
+  en:{h1Accent:'Summarizer',sub:'Automatically summarize long text by key sentences',backLink:'← All Tools',langBtn:'🌐 한국어',lblSentences:'Summary sentences:',lblMode:'Method:',optFreq:'Word frequency',optPos:'Position-based',lblInput:'Input text',btnClear:'Clear',lblResult:'Summary',btnCopy:'Copy',btnSummarize:'Summarize',btnSample:'Sample',infoNote:'※ Extractive summarization — selects key sentences from the original text',
     stats:(orig,summ)=>`${orig} sentences → ${summ}-sentence summary`,
     kwLabel:'Key keywords:',
     seoHtml:`<h2>Text Summarizer</h2><p>The <code>tokenize()</code> function that counts word frequency strips non-word characters using the regex <code>[^\\w\\s]</code>, and JavaScript\'s <code>\\w</code> only matches ASCII letters, digits, and underscore — it doesn\'t include Korean, Chinese, or other non-Latin scripts. Feed it Korean text and no tokens survive at all, so every Korean sentence scores exactly 0, and position-based mode — which just multiplies that same score by a position factor — can\'t produce a meaningful ranking either. That\'s also why the keyword tag bar shows up empty for Korean input. English text, by contrast, is scored correctly through this frequency-based method and genuinely surfaces the important sentences.</p>
@@ -154,8 +152,8 @@ const _i18n={
 <details class="faq-item"><summary>GPTのようなAI要約とは根本的に何が違いますか？</summary><p>AI要約は言語モデルが内容を理解したうえで新しい文として書き直しますが、このツールは単語の出現回数という統計的な指標だけで原文の文をいくつかそのまま選ぶだけで、文自体を理解したり書き直したりはしません。</p></details>`
   }
 };
-function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
-function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'en':n==='ja'?'en':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
 function applyLang(){
   const t=_i18n[_lang];document.documentElement.lang=_lang;
   ['h1Accent','subEl','backLink','langBtn','lblSentences','lblMode','optFreq','optPos','lblInput','btnClear','lblResult','btnCopy','btnSummarize','btnSample','infoNote'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id]||el.textContent;});

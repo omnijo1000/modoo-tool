@@ -14,8 +14,6 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="alternate" hreflang="ko" href="https://modoohub.com/image-color-extractor.html">
 <link rel="alternate" hreflang="en" href="https://modoohub.com/image-color-extractor.html?lang=en">
-<link rel="alternate" hreflang="zh" href="https://modoohub.com/image-color-extractor.html?lang=zh">
-<link rel="alternate" hreflang="ja" href="https://modoohub.com/image-color-extractor.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/image-color-extractor.html">
 <link rel="stylesheet" href="theme-instrument.css">
 <style>
@@ -93,7 +91,7 @@ input[type=file]{display:none;}
 <details class="faq-item"><summary>어떤 이미지 형식을 지원하나요?</summary><p>PNG, JPG, WebP, GIF 등 브라우저의 &lt;img&gt; 태그와 Canvas가 디코딩할 수 있는 모든 이미지 형식을 지원합니다.</p></details></div>
 </main>
 <script>
-const LANGS=['ko','en','zh','ja'];
+const LANGS=['ko','en'];
 let _lang='ko',_origImg=null;
 const _i18n={
   ko:{h1b:'색상 추출',sub:'이미지에서 주요 색상 팔레트를 추출합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',pageTitle:'이미지 색상 추출기 | MODOO HUB',dzText:'이미지를 드래그하거나 클릭하여 업로드',lblCount:'색상 수',btnExtract:'추출',lblPalette:'팔레트',copyHint:'색상 칩을 클릭하면 HEX 코드가 복사됩니다',copied:'복사됨!',
@@ -108,7 +106,7 @@ const _i18n={
 <details class="faq-item"><summary>RGB 값도 볼 수 있나요?</summary><p>현재는 HEX 코드만 제공됩니다. RGB나 HSL 등 다른 형식이 필요하면 color-converter 도구로 변환할 수 있습니다.</p></details>
 <details class="faq-item"><summary>어떤 이미지 형식을 지원하나요?</summary><p>PNG, JPG, WebP, GIF 등 브라우저의 &lt;img&gt; 태그와 Canvas가 디코딩할 수 있는 모든 이미지 형식을 지원합니다.</p></details>`
   },
-  en:{h1b:'Color Extract',sub:'Extract a color palette from any image',backLink:'← All Tools',langBtn:'🌐 中文',pageTitle:'Image Color Extractor | MODOO HUB',dzText:'Drag & drop image or click to upload',lblCount:'Colors',btnExtract:'Extract',lblPalette:'Palette',copyHint:'Click a chip to copy the HEX code',copied:'Copied!',
+  en:{h1b:'Color Extract',sub:'Extract a color palette from any image',backLink:'← All Tools',langBtn:'🌐 한국어',pageTitle:'Image Color Extractor | MODOO HUB',dzText:'Drag & drop image or click to upload',lblCount:'Colors',btnExtract:'Extract',lblPalette:'Palette',copyHint:'Click a chip to copy the HEX code',copied:'Copied!',
     seoHtml:`<p style="font-size:13px;margin-bottom:16px;"><a href="guides/image-color-extractor-clustering-vs-average-en.html" style="color:var(--accent);">📖 Read the guide: Dominant Color — Why Clustering Beats Simple Averaging →</a></p><h2>Image Color Extractor</h2><p>The image is downsampled to 80×80px, read as a pixel array via Canvas's getImageData, then clustered with a K-means-like algorithm run for 10 iterations to find dominant colors. Initial cluster centers are sampled at even intervals across the pixel array — as many as the color count you request — and each iteration assigns every pixel to its nearest center, then recomputes each center as the average RGB of its assigned pixels. When an image has fewer genuinely distinct colors than the requested count (a flat-color logo, icon, or illustration, for example), several centers can converge on the same color, or end up with zero pixels assigned at all. Showing that raw result would produce duplicate swatches of the same color or "ghost" chips at 0%, so pixel counts are summed per unique color and any center left with zero assigned pixels is dropped from the results.</p>
 <h2 class="seo-sub">FAQ</h2>
 <details class="faq-item"><summary>Exactly how does the color extraction algorithm work?</summary><p>The image is downsampled to 80×80px to reduce the pixel count, initial centers are sampled at even intervals across the pixel array (one per requested color), and then "assign every pixel to its nearest center → recompute each center as its cluster's average color" runs for 10 iterations — a K-means-like clustering approach.</p></details>
@@ -145,8 +143,8 @@ const _i18n={
 <details class="faq-item"><summary>どの画像形式に対応していますか?</summary><p>PNG、JPG、WebP、GIFなど、ブラウザの&lt;img&gt;タグとCanvasがデコードできるすべての画像形式に対応します。</p></details>`
   }
 };
-function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
-function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'en':n==='ja'?'en':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
 function applyLang(){
   const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
   ['h1b','subEl','backLink','langBtn','dzText','lblCount','btnExtract','lblPalette','copyHint'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id];});

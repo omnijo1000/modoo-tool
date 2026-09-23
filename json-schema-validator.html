@@ -15,8 +15,6 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="alternate" hreflang="ko" href="https://modoohub.com/json-schema-validator.html">
 <link rel="alternate" hreflang="en" href="https://modoohub.com/json-schema-validator.html?lang=en">
-<link rel="alternate" hreflang="zh" href="https://modoohub.com/json-schema-validator.html?lang=zh">
-<link rel="alternate" hreflang="ja" href="https://modoohub.com/json-schema-validator.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/json-schema-validator.html">
 <style>
 .btn-secondary{padding:9px 18px;border-radius:10px;border:1px solid var(--glass-border);cursor:pointer;font-size:12px;font-weight:600;font-family:var(--sans);background:rgba(255,255,255,0.02);color:var(--text-muted);transition:background-color .15s,border-color .15s,color .15s,box-shadow .15s,transform .15s,opacity .15s;}
@@ -89,7 +87,7 @@
 <details class="faq-item"><summary>이 도구는 어떤 스키마 버전을 기준으로 하나요?</summary><p>Draft-07의 기본 키워드를 기준으로 하지만, 앞서 설명한 것처럼 enum이 문자열 값에만 적용되고 배열·조합 키워드가 아예 없다는 점에서 완전한 Draft-07 구현은 아닙니다. 정확한 검증이 중요하다면 AJV 같은 전용 라이브러리와 교차 확인하세요.</p></details></div>
 </main>
 <script>
-const LANGS=['ko','en','zh','ja'];
+const LANGS=['ko','en'];
 let _lang='ko';
 const _i18n={
   ko:{h1Accent:'검증기',sub:'JSON 데이터가 Schema 규칙을 만족하는지 즉시 검증합니다',backLink:'← 모두의 툴',langBtn:'🌐 EN',
@@ -107,7 +105,7 @@ const _i18n={
 <details class="faq-item"><summary>minimum/maximum, minLength/maxLength, pattern은 정확한가요?</summary><p>네, 숫자의 minimum/maximum, 문자열의 minLength/maxLength/pattern 검사는 모두 값 타입에 맞게 올바르게 구현되어 있습니다.</p></details>
 <details class="faq-item"><summary>이 도구는 어떤 스키마 버전을 기준으로 하나요?</summary><p>Draft-07의 기본 키워드를 기준으로 하지만, 앞서 설명한 것처럼 enum이 문자열 값에만 적용되고 배열·조합 키워드가 아예 없다는 점에서 완전한 Draft-07 구현은 아닙니다. 정확한 검증이 중요하다면 AJV 같은 전용 라이브러리와 교차 확인하세요.</p></details>`
   },
-  en:{h1Accent:'Validator',sub:'Instantly validate JSON data against a JSON Schema',backLink:'← All Tools',langBtn:'🌐 中文',
+  en:{h1Accent:'Validator',sub:'Instantly validate JSON data against a JSON Schema',backLink:'← All Tools',langBtn:'🌐 한국어',
     btnValidate:'Validate',btnSample:'Sample',btnClear:'Clear',lblJson:'JSON Data',lblSchema:'JSON Schema',
     valid:'✓ Valid — JSON satisfies the Schema',invalid:(n)=>`✗ Invalid — ${n} error(s) found`,
     errInvalidJson:'Invalid JSON data.',errInvalidSchema:'Invalid JSON Schema.',
@@ -153,8 +151,8 @@ const _i18n={
 <details class="faq-item"><summary>このツールはどのSchemaバージョンを基準にしていますか？</summary><p>Draft-07の基本キーワードを基準にしていますが、前述の通りenumが文字列値にしか適用されず、配列・組み合わせキーワードがまったくない点で、完全なDraft-07実装ではありません。正確な検証が重要な場合はAJVのような専用ライブラリと突き合わせて確認してください。</p></details>`
   }
 };
-function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
-function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'en':n==='ja'?'en':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
 function applyLang(){
   const t=_i18n[_lang];document.documentElement.lang=_lang;
   ['h1Accent','subEl','backLink','langBtn','btnValidate','btnSample','btnClear','lblJson','lblSchema'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id]||el.textContent;});

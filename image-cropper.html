@@ -14,8 +14,6 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="alternate" hreflang="ko" href="https://modoohub.com/image-cropper.html">
 <link rel="alternate" hreflang="en" href="https://modoohub.com/image-cropper.html?lang=en">
-<link rel="alternate" hreflang="zh" href="https://modoohub.com/image-cropper.html?lang=zh">
-<link rel="alternate" hreflang="ja" href="https://modoohub.com/image-cropper.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/image-cropper.html">
 <link rel="stylesheet" href="theme-instrument.css">
 <style>
@@ -111,7 +109,7 @@ input[type=checkbox]{accent-color:var(--cyan); width:14px; height:14px;}
 <details class="faq-item"><summary>GIF 이미지도 자를 수 있나요?</summary><p>브라우저의 Image 객체는 GIF를 불러올 때 첫 번째 프레임만 정적 이미지로 디코딩하므로, 크롭 결과도 첫 프레임 기준의 정지 이미지가 됩니다. 애니메이션 전체를 유지한 채 자르려면 프레임 단위로 처리하는 별도 GIF 전용 도구가 필요합니다.</p></details></div>
 </main>
 <script>
-const LANGS=['ko','en','zh','ja'];
+const LANGS=['ko','en'];
 let _lang='ko';
 let _origImg=null,_scale=1,_dragging=false,_sx=0,_sy=0,_sel={x:0,y:0,w:0,h:0};
 const _i18n={
@@ -127,7 +125,7 @@ const _i18n={
 <details class="faq-item"><summary>자유 비율이란?</summary><p>비율 드롭다운에서 '자유'를 선택하면 가로세로 비율에 아무 제약 없이 마우스가 움직이는 그대로 선택 영역의 폭과 높이가 각각 독립적으로 결정됩니다.</p></details>
 <details class="faq-item"><summary>GIF 이미지도 자를 수 있나요?</summary><p>브라우저의 Image 객체는 GIF를 불러올 때 첫 번째 프레임만 정적 이미지로 디코딩하므로, 크롭 결과도 첫 프레임 기준의 정지 이미지가 됩니다. 애니메이션 전체를 유지한 채 자르려면 프레임 단위로 처리하는 별도 GIF 전용 도구가 필요합니다.</p></details>`
   },
-  en:{h1a:'Image',sub:'Drag to select a region and crop the image',backLink:'← All Tools',langBtn:'🌐 中文',pageTitle:'Image Cropper | MODOO HUB',dzText:'Drag & drop image or click to upload',lblAspect:'Ratio',optFree:'Free',lblW:'Width',lblH:'Height',btnCrop:'Crop',lblOut:'Crop result',btnDl:'Download',
+  en:{h1a:'Image',sub:'Drag to select a region and crop the image',backLink:'← All Tools',langBtn:'🌐 한국어',pageTitle:'Image Cropper | MODOO HUB',dzText:'Drag & drop image or click to upload',lblAspect:'Ratio',optFree:'Free',lblW:'Width',lblH:'Height',btnCrop:'Crop',lblOut:'Crop result',btnDl:'Download',
     seoHtml:`<h2>Image Cropper</h2><p>This tool works by letting you drag a selection on the preview canvas shown on screen, then, at download time, converting that selection into the original image's real coordinate system and drawing just that region onto a new canvas using the 9-argument version of drawImage. The on-screen preview is scaled down to a maximum of 680px, but the scale ratio is tracked internally so the actual crop is performed at full original resolution with no quality loss. It's used for fitting a profile photo to a 1:1 square, cropping to platform-specific standard ratios like 16:9 for YouTube thumbnails or 9:16 for Instagram Stories, or simply trimming unwanted margins from a screenshot.</p>
 <h2 class="seo-sub">FAQ</h2>
 <details class="faq-item"><summary>Supported formats?</summary><p>Any format the browser's Image object can decode is accepted as input — PNG, JPG, and WebP work fully, and GIF can be loaded based on its first frame.</p></details>
@@ -164,8 +162,8 @@ const _i18n={
 <details class="faq-item"><summary>GIF対応は？</summary><p>ブラウザのImageオブジェクトはGIF読み込み時に最初のフレームのみを静止画としてデコードするため、トリミング結果も最初のフレームを基準にした静止画になります。アニメーション全体を保持したまま切り取るには、フレーム単位で処理する専用のGIFツールが必要です。</p></details>`
   }
 };
-function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
-function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'en':n==='ja'?'en':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
 function applyLang(){
   const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
   ['h1a','subEl','backLink','langBtn','dzText','lblAspect','optFree','lblW','lblH','btnCrop','lblOut','btnDl'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id];});

@@ -15,8 +15,6 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="alternate" hreflang="ko" href="https://modoohub.com/javascript-minifier.html">
 <link rel="alternate" hreflang="en" href="https://modoohub.com/javascript-minifier.html?lang=en">
-<link rel="alternate" hreflang="zh" href="https://modoohub.com/javascript-minifier.html?lang=zh">
-<link rel="alternate" hreflang="ja" href="https://modoohub.com/javascript-minifier.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/javascript-minifier.html">
 <style>
 .opts{display:flex; gap:14px; flex-wrap:wrap;}
@@ -99,7 +97,7 @@
 <details class="faq-item"><summary>실제 프로덕션 배포에는 어떤 도구가 더 안전한가요?</summary><p>위에서 설명한 문자열 손상 위험 때문에, 실제 배포용 코드에는 실제 파서로 문자열·정규식·주석을 정확히 구분하는 Terser, esbuild, webpack 같은 도구를 사용하는 것이 안전합니다. 이 도구는 간단한 확인이나 임시 압축에 적합합니다.</p></details></div>
 </main>
 <script>
-const LANGS=['ko','en','zh','ja'];
+const LANGS=['ko','en'];
 let _lang='ko';
 const SAMPLE=`/**
  * 모두의 툴 - 유틸리티 함수 모음
@@ -160,7 +158,7 @@ const _i18n={
 <details class="faq-item"><summary>변수명 단축(맹글링)은 지원하나요?</summary><p>지원하지 않습니다. 이 도구는 주석·공백 제거만 하며, 짧은 이름으로 바꾸는 맹글링은 Terser나 UglifyJS 같은 AST 기반 도구가 필요합니다.</p></details>
 <details class="faq-item"><summary>실제 프로덕션 배포에는 어떤 도구가 더 안전한가요?</summary><p>위에서 설명한 문자열 손상 위험 때문에, 실제 배포용 코드에는 실제 파서로 문자열·정규식·주석을 정확히 구분하는 Terser, esbuild, webpack 같은 도구를 사용하는 것이 안전합니다. 이 도구는 간단한 확인이나 임시 압축에 적합합니다.</p></details>`
   },
-  en:{h1b:'Minifier',sub:'Compress JS code to reduce file size',backLink:'← All Tools',langBtn:'🌐 中文',pageTitle:'JavaScript Minifier | MODOO HUB',lblLineComments:'Remove // comments',lblBlockComments:'Remove /* */ comments',lblNewlines:'Remove newlines',lblSpaces:'Collapse whitespace',lblOperators:'Remove spaces around operators',lblInput:'JS Input',lblOutput:'Minified Output',btnMin:'Minify',btnSample:'Sample',btnClear:'Clear',btnCopy:'Copy',btnDown:'Download',copied:'✓ Copied',warn:'⚠ Regex-based removal may mis-detect // or /* inside strings. Use Terser for complex code.',statFn:(o,n)=>`Original ${(o/1024).toFixed(1)}KB → Minified ${(n/1024).toFixed(1)}KB · ${((1-n/o)*100).toFixed(1)}% saved`,
+  en:{h1b:'Minifier',sub:'Compress JS code to reduce file size',backLink:'← All Tools',langBtn:'🌐 한국어',pageTitle:'JavaScript Minifier | MODOO HUB',lblLineComments:'Remove // comments',lblBlockComments:'Remove /* */ comments',lblNewlines:'Remove newlines',lblSpaces:'Collapse whitespace',lblOperators:'Remove spaces around operators',lblInput:'JS Input',lblOutput:'Minified Output',btnMin:'Minify',btnSample:'Sample',btnClear:'Clear',btnCopy:'Copy',btnDown:'Download',copied:'✓ Copied',warn:'⚠ Regex-based removal may mis-detect // or /* inside strings. Use Terser for complex code.',statFn:(o,n)=>`Original ${(o/1024).toFixed(1)}KB → Minified ${(n/1024).toFixed(1)}KB · ${((1-n/o)*100).toFixed(1)}% saved`,
     seoHtml:`<p style="font-size:13px;margin-bottom:16px;"><a href="guides/javascript-minifier-string-boundary-regex-risk-en.html" style="color:var(--cyan);">📖 Read the guide: JS Minifier's String-Corruption Risk →</a></p><h2>JavaScript Minifier</h2><p>This tool\'s five options don\'t all treat string literals the same way. "Remove // comments" is genuinely safe — it\'s a character-by-character scanner (<code>stripLineComments</code>) that recognizes escape sequences and skips over entire string literals when it hits a quote. "Remove /* */ comments," on the other hand, applies the regex <code>/\\/\\*[\\s\\S]*?\\*\\//g</code> directly to the raw text with no string awareness at all, so a string literal containing something that looks like "/* a comment */" can have that content deleted outright. Removing newlines, collapsing whitespace, and stripping space around operators are all the same kind of whole-text regex with no string-boundary awareness, so whitespace or a sequence like " = " inside an actual string value can get mangled too. The on-screen warning only fires for "// inside a string" — a case that\'s already handled safely — so it can appear when nothing is actually at risk, while the genuinely dangerous block-comment and whitespace operations never trigger any warning at all.</p>
 <h2 class="seo-sub">FAQ</h2>
 <details class="faq-item"><summary>Can "remove // comments" accidentally delete // inside a string?</summary><p>No. This option is implemented as a character-by-character scanner that recognizes escape characters and skips entire string literals once it hits a quote, so // inside a string is safely preserved.</p></details>
@@ -197,8 +195,8 @@ const _i18n={
 <details class="faq-item"><summary>実際の本番デプロイにはどちらのツールがより安全ですか？</summary><p>上記のような文字列破損のリスクがあるため、本番用コードには実際のパーサーで文字列・正規表現・コメントを正確に区別できるTerser、esbuild、webpackのようなツールを使う方が安全です。このツールは簡単な確認や一時的な圧縮に向いています。</p></details>`
   }
 };
-function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
-function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'en':n==='ja'?'en':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
 function applyLang(){
   const t=_i18n[_lang];document.documentElement.lang=_lang;document.title=t.pageTitle;
   ['h1b','subEl','backLink','langBtn','lblLineComments','lblBlockComments','lblNewlines','lblSpaces','lblOperators','lblInput','lblOutput','btnMin','btnSample','btnClear','btnCopy','btnDown'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t[id]||el.textContent;});

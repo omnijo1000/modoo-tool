@@ -14,8 +14,6 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="alternate" hreflang="ko" href="https://modoohub.com/text-merger.html">
 <link rel="alternate" hreflang="en" href="https://modoohub.com/text-merger.html?lang=en">
-<link rel="alternate" hreflang="zh" href="https://modoohub.com/text-merger.html?lang=zh">
-<link rel="alternate" hreflang="ja" href="https://modoohub.com/text-merger.html?lang=ja">
 <link rel="alternate" hreflang="x-default" href="https://modoohub.com/text-merger.html">
 <link rel="stylesheet" href="theme-instrument.css">
 <style>
@@ -109,7 +107,7 @@
 <details class="faq-item"><summary>블록을 삭제하면 번호가 바뀌나요?</summary><p>네, 하지만 이는 화면에 보이는 순번 표시만 다시 매기는 것(<code>renumber()</code>)이고, 실제 합쳐지는 순서는 항상 화면에 남아있는 블록들의 현재 DOM 순서를 따릅니다.</p></details></div>
 </main>
 <script>
-const LANGS=['ko','en','zh','ja'];
+const LANGS=['ko','en'];
 let _lang='ko',_sepMode='newline';
 const SEPS={newline:'\n',blank:'\n\n',comma:', ',space:' ',pipe:' | '};
 const _i18n={
@@ -127,7 +125,7 @@ const _i18n={
 <details class="faq-item"><summary>'줄바꿈'과 '빈 줄' 구분자의 차이는 무엇인가요?</summary><p>줄바꿈은 블록 사이에 \\n 한 개를, 빈 줄은 \\n\\n 두 개를 삽입합니다. 결과를 마크다운이나 워드프로세서에 붙여넣을 때 문단 사이에 빈 줄이 있어야 새 문단으로 인식되는 경우가 많아, 문단 단위로 합칠 때는 빈 줄 구분자가 더 자연스럽습니다.</p></details>
 <details class="faq-item"><summary>블록을 삭제하면 번호가 바뀌나요?</summary><p>네, 하지만 이는 화면에 보이는 순번 표시만 다시 매기는 것(<code>renumber()</code>)이고, 실제 합쳐지는 순서는 항상 화면에 남아있는 블록들의 현재 DOM 순서를 따릅니다.</p></details>`
   },
-  en:{h1b:'Merger',sub:'Merge multiple text blocks into one with a separator',backLink:'← All Tools',langBtn:'🌐 中文',pageTitle:'Text Merger | MODOO HUB',lblBlocks:'Text blocks',btnAdd:'+ Add block',lblSep:'Separator',lblTrim:'Trim whitespace',lblEmpty:'Skip empty blocks',lblResult:'Result',btnCopy:'Copy',copied:'Copied!',del:'Del',
+  en:{h1b:'Merger',sub:'Merge multiple text blocks into one with a separator',backLink:'← All Tools',langBtn:'🌐 한국어',pageTitle:'Text Merger | MODOO HUB',lblBlocks:'Text blocks',btnAdd:'+ Add block',lblSep:'Separator',lblTrim:'Trim whitespace',lblEmpty:'Skip empty blocks',lblResult:'Result',btnCopy:'Copy',copied:'Copied!',del:'Del',
     chips:['Newline (\\n)','Blank line (\\n\\n)',', (comma)','Space','| (pipe)','Custom'],
     customPlaceholder:'Separator...',statChars:'chars',
     seoHtml:`<h2>Text Merger</h2><p>While Line Merger splits one big block of text on newlines, this tool works the opposite way: you write into several independent text boxes ("blocks") and it stitches them together with your chosen separator. Every time you click "Add Block" a new input is appended to the DOM, and on every keystroke the tool collects all blocks in order via querySelectorAll('.block-ta') and joins them with join(separator). The key difference from Line Merger is that each block can hold a full multi-line paragraph as a single unit — handy for stitching several paragraphs together, or for putting one value per block to build a single CSV row.</p>
@@ -170,8 +168,8 @@ const _i18n={
 <details class="faq-item"><summary>ブロックを削除すると番号は変わりますか？</summary><p>はい、ただしこれは画面上の連番表示を振り直しているだけ（renumber()）で、実際の結合順序は常に画面に残っているブロックの現在のDOM順序に従います。</p></details>`
   }
 };
-function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'zh':n==='ja'?'ja':n==='ko'?'ko':'en';}
-function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%4];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
+function detectLang(){const u=new URLSearchParams(location.search).get('lang');if(u&&_i18n[u])return u;const s=localStorage.getItem('modoo_lang');if(s&&_i18n[s])return s;const n=(navigator.language||'').slice(0,2);return n==='zh'?'en':n==='ja'?'en':n==='ko'?'ko':'en';}
+function cycleLang(){const i=LANGS.indexOf(_lang);_lang=LANGS[(i+1)%LANGS.length];localStorage.setItem('modoo_lang',_lang);const u=new URL(location.href);u.searchParams.set('lang',_lang);history.replaceState({},'',u);applyLang();}
 let blockCount=0;
 function addBlock(val=''){
   blockCount++;const t=_i18n[_lang];const idx=document.querySelectorAll('.block-item').length+1;
